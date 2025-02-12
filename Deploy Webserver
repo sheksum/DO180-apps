@@ -1,0 +1,32 @@
+Subject: Transition to Centralized Management of Sudo Rules, HBAC, and Automation User Access
+
+Dear Team,
+
+As part of ongoing improvements to security and access management, we are transitioning the way Sudo Rules, Host-Based Access Control (HBAC), and automation users are managed. While a few teams have already been onboarded, we are rolling this out gradually to all teams.
+
+What’s Changing?
+Sudo Rules and HBAC Will Be Centrally Managed
+Sudo permissions and HBAC policies will now be enforced through IPA instead of being managed on individual systems. This ensures consistency, better security, and easier access management.
+Dedicated Bot Users for Each Team
+Instead of using shared accounts like cafetest or calix, each team will have its own dedicated bot user for automation. This helps improve security, accountability, and access control.
+No Interactive Shell for Automation Users
+To enhance security, these bot users will not have an interactive shell. They will only be able to execute the tasks they are assigned for automation purposes.
+Sudo Access via IPA Groups
+Sudo privileges will now be granted at the group level in IPA. Users will be assigned to their respective IPA groups, inheriting the necessary permissions to perform their operational tasks. This eliminates the need for managing individual sudo privileges on a per-user basis and ensures access control is applied consistently across teams.
+What This Means for Your Team
+Once your team has been fully onboarded with a dedicated bot user and updated access controls, any automation currently using cafetest or calix must be updated. This includes:
+
+Identifying scripts, cron jobs, and automation tools that reference these shared accounts.
+Updating them to use your team’s newly assigned bot user.
+Testing and validating that everything functions as expected.
+The IT team will work with each team to coordinate the transition and provide any necessary support.
+
+Next Steps
+Since this change is being implemented in phases, we will reach out to teams individually as we roll out these updates. In the meantime, teams should:
+
+Review their existing sudo and HBAC access to ensure they meet operational needs.
+Identify any automation that may require a dedicated bot user.
+Ensure all team members are using their assigned IPA groups to inherit the correct permissions.
+If you have any questions, need modifications, or require assistance, please reach out to the IT team at [IT Support Contact].
+
+This transition will help streamline access management, improve security, and ensure better compliance with organizational policies. Thank you for your support as we make this shift.
