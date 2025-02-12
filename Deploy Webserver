@@ -6,8 +6,7 @@ As part of ongoing improvements to security and access management, we are transi
 
 What’s Changing?
 Sudo Rules and HBAC Will Be Centrally Managed
-Sudo permissions and HBAC policies will now be enforced through IPA instead of being managed on individual systems. This ensures consistency, better security, and easier access management.
-Dedicated Bot Users for Each Team
+Previously, updating sudo rules on individual systems whenever internal customers needed elevated privileges was time-consuming and overwhelming. Managing these configurations across multiple systems led to inconsistencies and increased administrative overhead. To simplify this process, sudo permissions and HBAC policies will now be enforced centrally via IPA. This ensures that changes are applied uniformly across all systems, making access management more efficient and scalable.
 Instead of using shared accounts like cafetest or calix, each team will have its own dedicated bot user for automation. This helps improve security, accountability, and access control.
 No Interactive Shell for Automation Users
 To enhance security, these bot users will not have an interactive shell. They will only be able to execute the tasks they are assigned for automation purposes.
