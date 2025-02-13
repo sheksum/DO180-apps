@@ -88,3 +88,30 @@ Traceback (most recent call last):
          ^^^^^^^^^^^^^^^^^^^^^^^^^^
 PermissionError: [Errno 13] Permission denied: '/opt/airflow/airflow.cfg'
 (base) root@slcx-p7960:~# 
+
+
+
+
+hsuma@slcx-p7960:~$ docker run --rm  -it -p 9080:8080 -v /var/airflow:/opt/airflow apache/airflow:latest bash
+
+airflow@984411dbf4be:/opt/airflow$ df -h
+Filesystem                 Size  Used Avail Use% Mounted on
+overlay                    3.7T  629G  2.9T  18% /
+tmpfs                       64M     0   64M   0% /dev
+shm                         64M     0   64M   0% /dev/shm
+/dev/mapper/vgubuntu-root  3.7T  629G  2.9T  18% /opt/airflow
+tmpfs                      252G     0  252G   0% /proc/asound
+tmpfs                      252G     0  252G   0% /proc/acpi
+tmpfs                      252G     0  252G   0% /proc/scsi
+tmpfs                      252G     0  252G   0% /sys/firmware
+tmpfs                      252G     0  252G   0% /sys/devices/virtual/powercap
+airflow@984411dbf4be:/opt/airflow$ cd /opt/airflow/
+airflow@984411dbf4be:/opt/airflow$ ls
+airflow.cfg  airflow.db  logs
+airflow@984411dbf4be:/opt/airflow$ cat airflow.cfg 
+cat: airflow.cfg: Permission denied
+airflow@984411dbf4be:/opt/airflow$ ls -ld airflow.cfg 
+-rw------- 1 5000 5000 110670 Feb 13 19:40 airflow.cfg
+airflow@984411dbf4be:/opt/airflow$ cat airflow.cfg 
+cat: airflow.cfg: Permission denied
+airflow@984411dbf4be:/opt/airflow$ 
