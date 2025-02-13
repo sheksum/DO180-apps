@@ -67,3 +67,24 @@ ValueError: Unable to configure handler 'processor'
 (base) root@slcx-p7960:~# ls -ld /opt/airflow/logs/scheduler/2025-02-13
 ls: cannot access '/opt/airflow/logs/scheduler/2025-02-13': No such file or directory
 (base) root@slcx-p7960:~# 
+
+
+
+
+
+(base) root@slcx-p7960:~# docker exec -it happy_rhodes airflow db init
+OSError while attempting to symlink the latest log directory
+Traceback (most recent call last):
+  File "/home/airflow/.local/bin/airflow", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/__main__.py", line 57, in main
+    conf = write_default_airflow_configuration_if_needed()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/configuration.py", line 2033, in write_default_airflow_configuration_if_needed
+    pathlib.Path(airflow_config.__fspath__()).touch()
+  File "/usr/local/lib/python3.12/pathlib.py", line 1303, in touch
+    fd = os.open(self, flags, mode)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: '/opt/airflow/airflow.cfg'
+(base) root@slcx-p7960:~# 
