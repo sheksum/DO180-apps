@@ -1,0 +1,69 @@
+(base) root@slcx-p7960:~# docker run -d -p 9080:8080 -v /var/airflow:/opt/airflow apache/airflow:latest
+6e8797861939bb3952a507c916e1c6649cbafd212658a62a4e609e2d49e4a9a3
+(base) root@slcx-p7960:~# docker exec -it airflow airflow db init
+Error response from daemon: container 717c800a817b3a5d00d1ec27dff4b2b0b5b6bde71de65cda668b823c197f8149 is not running
+(base) root@slcx-p7960:~# docker ps -a
+CONTAINER ID   IMAGE                                               COMMAND                  CREATED          STATUS                     PORTS                                                                                      NAMES
+6e8797861939   apache/airflow:latest                               "/usr/bin/dumb-init …"   21 seconds ago   Up 20 seconds              0.0.0.0:9080->8080/tcp, [::]:9080->8080/tcp                                                loving_ellis
+599e72042bb1   apache/airflow:latest                               "/usr/bin/dumb-init …"   7 minutes ago    Exited (1) 5 minutes ago                                                                                              frosty_johnson
+9df5b2dcb4d5   triton-reranker:latest                              "/opt/nvidia/nvidia_…"   12 hours ago     Up 12 hours                0.0.0.0:8006->8000/tcp, [::]:8006->8000/tcp, 0.0.0.0:8005->8001/tcp, [::]:8005->8001/tcp   reranker_server
+059acc0eab51   vllm/vllm-openai:latest                             "python3 -m vllm.ent…"   14 hours ago     Up 14 hours                0.0.0.0:8084->8000/tcp, [::]:8084->8000/tcp                                                eval_vllm
+717c800a817b   apache/airflow:latest                               "/usr/bin/dumb-init …"   25 hours ago     Exited (1) 25 hours ago                                                                                               airflow
+67a925af267e   nginx                                               "/docker-entrypoint.…"   32 hours ago     Up 32 hours                0.0.0.0:80->80/tcp, :::80->80/tcp                                                          codegenui
+6e3a6eb9bae9   nvcr.io/nvidia/tritonserver:25.01-vllm-python-py3   "/opt/nvidia/nvidia_…"   36 hours ago     Up 36 hours                                                                                                           embedding_inference
+f8a57cef3f8f   vllm/vllm-openai:latest                             "python3 -m vllm.ent…"   36 hours ago     Up 36 hours                0.0.0.0:8083->8000/tcp, [::]:8083->8000/tcp                                                vlm
+ea97e10702d6   triton-nvd-openai:24.12-vllm-python-py3             "python3 openai_fron…"   36 hours ago     Up 36 hours                0.0.0.0:9050->9000/tcp, [::]:9050->9000/tcp                                                inference_server1
+83da73eabf0a   milvusdb/milvus:v2.5.4                              "/tini -- milvus run…"   36 hours ago     Up 36 hours (healthy)      0.0.0.0:9091->9091/tcp, :::9091->9091/tcp, 0.0.0.0:19530->19530/tcp, :::19530->19530/tcp   milvus-standalone
+f5e596f8389c   minio/minio:RELEASE.2023-03-20T20-16-18Z            "/usr/bin/docker-ent…"   36 hours ago     Up 36 hours (healthy)      0.0.0.0:9095->9000/tcp, [::]:9095->9000/tcp, 0.0.0.0:9096->9001/tcp, [::]:9096->9001/tcp   milvus-minio
+46bb3da8e22a   quay.io/coreos/etcd:v3.5.16                         "etcd -advertise-cli…"   36 hours ago     Up 36 hours (healthy)      2379-2380/tcp                                                                              milvus-etcd
+e81e07c2d569   apache/airflow:latest                               "/usr/bin/dumb-init …"   3 days ago       Created                                                                                                               nifty_mendel
+f6cc9ca08bda   apache/airflow:latest                               "/usr/bin/dumb-init …"   3 days ago       Created                                                                                                               strange_hertz
+2f2b098cf380   prom/prometheus                                     "/bin/prometheus --c…"   8 weeks ago      Exited (0) 38 hours ago                                                                                               prometheus
+451de91c711a   grafana/grafana-enterprise                          "/run.sh"                2 months ago     Exited (0) 38 hours ago                                                                                               grafana
+f47b13d93c06   adminer                                             "entrypoint.sh php -…"   2 months ago     Up 38 hours                0.0.0.0:8080->8080/tcp, :::8080->8080/tcp                                                  db-adminer
+69356072664c   postgres                                            "docker-entrypoint.s…"   2 months ago     Up 38 hours                                                                                                           posgres-db
+96e68ec24fa4   postgres:latest                                     "docker-entrypoint.s…"   2 months ago     Up 36 hours                0.0.0.0:5433->5432/tcp, [::]:5433->5432/tcp                                                codegen_db_container
+(base) root@slcx-p7960:~# docker logs loving_ellis
+(base) root@slcx-p7960:~# docker logs frosty_johnson
+....................
+ERROR! Maximum number of retries (20) reached.
+
+Last check result:
+$ airflow db check
+Unable to load the config, contains a configuration error.
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/logging/config.py", line 608, in configure
+    handler = self.configure_handler(handlers[name])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/logging/config.py", line 876, in configure_handler
+    result = factory(**kwargs)
+             ^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/log/file_processor_handler.py", line 53, in __init__
+    Path(self._get_log_directory()).mkdir(parents=True, exist_ok=True)
+  File "/usr/local/lib/python3.12/pathlib.py", line 1311, in mkdir
+    os.mkdir(self, mode)
+PermissionError: [Errno 13] Permission denied: '/opt/airflow/logs/scheduler/2025-02-13'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/bin/airflow", line 5, in <module>
+    from airflow.__main__ import main
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/__init__.py", line 74, in <module>
+    settings.initialize()
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/settings.py", line 785, in initialize
+    LOGGING_CLASS_PATH = configure_logging()
+                         ^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/logging_config.py", line 74, in configure_logging
+    raise e
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/logging_config.py", line 69, in configure_logging
+    dictConfig(logging_config)
+  File "/usr/local/lib/python3.12/logging/config.py", line 942, in dictConfig
+    dictConfigClass(config).configure()
+  File "/usr/local/lib/python3.12/logging/config.py", line 615, in configure
+    raise ValueError('Unable to configure handler '
+ValueError: Unable to configure handler 'processor'
+
+(base) root@slcx-p7960:~# ls -ld /opt/airflow/logs/scheduler/2025-02-13
+ls: cannot access '/opt/airflow/logs/scheduler/2025-02-13': No such file or directory
+(base) root@slcx-p7960:~# 
