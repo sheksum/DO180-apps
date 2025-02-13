@@ -26,3 +26,30 @@ hsuma@slcx-p7960:~$ docker compose up -d
  ⠴ Container hsuma-airflow-triggerer-1  Starting                                                                                                    20.2s 
  ⠴ Container hsuma-airflow-webserver-1  Starting                                                                                                    20.2s 
 Error response from daemon: error while creating mount source path '/home/hsuma/dags': mkdir /home/hsuma/dags: permission denied
+
+
+
+hsuma@slcx-p7960:~$ vi docker-compose.yaml 
+hsuma@slcx-p7960:~$ 
+hsuma@slcx-p7960:~$ 
+hsuma@slcx-p7960:~$ 
+hsuma@slcx-p7960:~$ docker compose down
+[+] Running 8/8
+ ✔ Container hsuma-airflow-worker-1     Removed                                                                                                      0.0s 
+ ✔ Container hsuma-airflow-webserver-1  Removed                                                                                                      0.0s 
+ ✔ Container hsuma-airflow-scheduler-1  Removed                                                                                                      0.0s 
+ ✔ Container hsuma-airflow-triggerer-1  Removed                                                                                                      0.0s 
+ ✔ Container hsuma-airflow-init-1       Removed                                                                                                      0.1s 
+ ✔ Container hsuma-postgres-1           Removed                                                                                                      0.2s 
+ ✔ Container hsuma-redis-1              Removed                                                                                                      0.3s 
+ ✔ Network hsuma_default                Removed                                                                                                      0.2s 
+hsuma@slcx-p7960:~$ docker compose up -d
+[+] Running 8/8
+ ✔ Network hsuma_default                Created                                                                                                      0.1s 
+ ✔ Container hsuma-postgres-1           Healthy                                                                                                      6.8s 
+ ✔ Container hsuma-redis-1              Healthy                                                                                                      6.8s 
+ ✔ Container hsuma-airflow-init-1       Exited                                                                                                      20.2s 
+ ✔ Container hsuma-airflow-webserver-1  Started                                                                                                     20.7s 
+ ✔ Container hsuma-airflow-worker-1     Started                                                                                                     20.7s 
+ ✔ Container hsuma-airflow-scheduler-1  Started                                                                                                     20.7s 
+ ✔ Container hsuma-airflow-triggerer-1  Started     
