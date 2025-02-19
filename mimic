@@ -1,48 +1,8 @@
-18:39:57.765523 IP (tos 0x0, ttl 64, id 40467, offset 0, flags [none], proto UDP (17), length 318)
-    10.168.0.2.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 290, xid 0x822b59c6, Flags [Broadcast] (0x8000)
-	  Your-IP 10.168.0.180
-	  Server-IP caalwdc15.caal.dev
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: Offer
-	    Subnet-Mask Option 1, length 4: 255.255.252.0
-	    RN Option 58, length 4: 1800
-	    RB Option 59, length 4: 3150
-	    Lease-Time Option 51, length 4: 3600
-	    Server-ID Option 54, length 4: caalwdc15.caal.dev
-	    Default-Gateway Option 3, length 4: _gateway
-	    Domain-Name-Server Option 6, length 8: caalwdc14.caal.dev,caalwdc15.caal.dev
-	    END Option 255, length 0
-18:39:57.765831 IP (tos 0x0, ttl 64, id 40470, offset 0, flags [none], proto UDP (17), length 329)
-    10.168.0.2.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 301, xid 0x822b59c6, Flags [Broadcast] (0x8000)
-	  Your-IP 10.168.3.46
-	  Server-IP caalwdc14.caal.dev
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: Offer
-	    Subnet-Mask Option 1, length 4: 255.255.252.0
-	    RN Option 58, length 4: 1800
-	    RB Option 59, length 4: 3150
-	    Lease-Time Option 51, length 4: 3600
-	    Server-ID Option 54, length 4: caalwdc14.caal.dev
-	    Default-Gateway Option 3, length 4: _gateway
-	    Domain-Name-Server Option 6, length 8: caalwdc15.caal.dev,caalwdc14.caal.dev
-	    Domain-Name Option 15, length 9: "caal.dev^@"
-	    END Option 255, length 0
-18:40:40.468885 IP (tos 0x0, ttl 64, id 16136, offset 0, flags [none], proto UDP (17), length 375)
-    0.0.0.0.bootpc > 255.255.255.255.bootps: [udp sum ok] BOOTP/DHCP, Request from 00:50:56:b5:1b:03 (oui Unknown), length 347, xid 0x4e728d75, Flags [Broadcast] (0x8000)
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: Discover
-	    MSZ Option 57, length 2: 1472
-	    Parameter-Request Option 55, length 35: 
-	      Subnet-Mask, Time-Zone, Default-Gateway, Time-Server
-	      IEN-Name-Server, Domain-Name-Server, Hostname, BS
-	      Domain-Name, RP,18:40:52.471033 IP (tos 0x0, ttl 64, id 16138, offset 0, flags [none], proto UDP (17), length 375)
-    0.0.0.0.bootpc > 255.255.255.255.bootps: [udp sum ok] BOOTP/DHCP, Request from 00:50:56:b5:1b:03 (oui Unknown), length 347, xid 0x4e728d75, secs 12, Flags [Broadcast] (0x8000)
+[root@ipatestvm BOOT]# sudo tcpdump -i any port 67 or port 68 -vvv
+dropped privs to tcpdump
+tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 262144 bytes
+18:50:52.464736 IP (tos 0x0, ttl 64, id 57610, offset 0, flags [none], proto UDP (17), length 375)
+    0.0.0.0.bootpc > 255.255.255.255.bootps: [udp sum ok] BOOTP/DHCP, Request from 00:50:56:b5:1b:03 (oui Unknown), length 347, xid 0x43b52f75, secs 12, Flags [Broadcast] (0x8000)
 	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
 	  Vendor-rfc1048 Extensions
 	    Magic Cookie 0x63825363
@@ -63,8 +23,24 @@
 	    ARCH Option 93, length 2: 7
 	    Vendor-Class Option 60, length 32: "PXEClient:Arch:00007:UNDI:003000"
 	    END Option 255, length 0
-18:40:52.474150 IP (tos 0x0, ttl 64, id 12628, offset 0, flags [none], proto UDP (17), length 329)
-    10.168.0.2.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 301, xid 0x4e728d75, Flags [Broadcast] (0x8000)
+18:50:52.467111 IP (tos 0x0, ttl 64, id 34742, offset 0, flags [none], proto UDP (17), length 318)
+    10.168.0.2.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 290, xid 0x43b52f75, Flags [Broadcast] (0x8000)
+	  Your-IP 10.168.0.180
+	  Server-IP caalwdc15.caal.dev
+	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
+	  Vendor-rfc1048 Extensions
+	    Magic Cookie 0x63825363
+	    DHCP-Message Option 53, length 1: Offer
+	    Subnet-Mask Option 1, length 4: 255.255.252.0
+	    RN Option 58, length 4: 1800
+	    RB Option 59, length 4: 3150
+	    Lease-Time Option 51, length 4: 3600
+	    Server-ID Option 54, length 4: caalwdc15.caal.dev
+	    Default-Gateway Option 3, length 4: _gateway
+	    Domain-Name-Server Option 6, length 8: caalwdc14.caal.dev,caalwdc15.caal.dev
+	    END Option 255, length 0
+18:50:52.467415 IP (tos 0x0, ttl 64, id 34745, offset 0, flags [none], proto UDP (17), length 329)
+    10.168.0.2.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 301, xid 0x43b52f75, Flags [Broadcast] (0x8000)
 	  Your-IP 10.168.3.46
 	  Server-IP caalwdc14.caal.dev
 	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
@@ -80,19 +56,8 @@
 	    Domain-Name-Server Option 6, length 8: caalwdc15.caal.dev,caalwdc14.caal.dev
 	    Domain-Name Option 15, length 9: "caal.dev^@"
 	    END Option 255, length 0
-18:40:52.474415 IP (tos 0x0, ttl 64, id 12631, offset 0, flags [none], proto UDP (17), length 318)
-    10.168.0.2.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 290, xid 0x4e728d75, Flags [Broadcast] (0x8000)
-	  Your-IP 10.168.0.180
-	  Server-IP caalwdc15.caal.dev
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: Offer
-	    Subnet-Mask Option 1, length 4: 255.255.252.0
-	    RN Option 58, length 4: 1800
-	    RB Option 59, length 4: 3150
-	    Lease-Time Option 51, length 4: 3600
-	    Server-ID Option 54, length 4: caalwdc15.caal.dev
-	    Default-Gateway Option 3, length 4: _gateway
-	    Domain-Name-Server Option 6, length 8: caalwdc14.caal.dev,caalwdc15.caal.dev
-	    END Option 255, length 0
+^C
+3 packets captured
+3 packets received by filter
+0 packets dropped by kernel
+[root@ipatestvm BOOT]# 
