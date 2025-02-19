@@ -1,55 +1,50 @@
-hsuma@slcx-p7960:~$ vi docker-compose.yaml 
-hsuma@slcx-p7960:~$ docker compose down
-[+] Running 8/8
- ✔ Container hsuma-airflow-triggerer-1  Removed                                                                                                      0.0s 
- ✔ Container hsuma-airflow-webserver-1  Removed                                                                                                      0.0s 
- ✔ Container hsuma-airflow-scheduler-1  Removed                                                                                                      0.0s 
- ✔ Container hsuma-airflow-worker-1     Removed                                                                                                      0.0s 
- ✔ Container hsuma-airflow-init-1       Removed                                                                                                      0.1s 
- ✔ Container hsuma-postgres-1           Removed                                                                                                      0.2s 
- ✔ Container hsuma-redis-1              Removed                                                                                                      0.3s 
- ✔ Network hsuma_default                Removed                                                                                                      0.2s 
-hsuma@slcx-p7960:~$ 
-hsuma@slcx-p7960:~$ 
-hsuma@slcx-p7960:~$ docker com
-commit   compose  
-hsuma@slcx-p7960:~$ docker com
-commit   compose  
-hsuma@slcx-p7960:~$ docker compose up -d
-[+] Running 4/8
- ✔ Network hsuma_default                Created                                                                                                      0.1s 
- ✔ Container hsuma-redis-1              Healthy                                                                                                      6.7s 
- ✔ Container hsuma-postgres-1           Healthy                                                                                                      6.7s 
- ✔ Container hsuma-airflow-init-1       Exited                                                                                                      19.9s 
- ⠴ Container hsuma-airflow-worker-1     Starting                                                                                                    20.2s 
- ⠴ Container hsuma-airflow-scheduler-1  Starting                                                                                                    20.2s 
- ⠴ Container hsuma-airflow-triggerer-1  Starting                                                                                                    20.2s 
- ⠴ Container hsuma-airflow-webserver-1  Starting                                                                                                    20.2s 
-Error response from daemon: error while creating mount source path '/home/hsuma/dags': mkdir /home/hsuma/dags: permission denied
+[root@cpeg-ipareplica ~]# cat anaconda-ks.cfg 
+#version=RHEL8
+# Use graphical install
+graphical
 
+repo --name="AppStream" --baseurl=file:///run/install/sources/mount-0000-cdrom/AppStream
 
+%packages
+@^graphical-server-environment
+kexec-tools
 
-hsuma@slcx-p7960:~$ vi docker-compose.yaml 
-hsuma@slcx-p7960:~$ 
-hsuma@slcx-p7960:~$ 
-hsuma@slcx-p7960:~$ 
-hsuma@slcx-p7960:~$ docker compose down
-[+] Running 8/8
- ✔ Container hsuma-airflow-worker-1     Removed                                                                                                      0.0s 
- ✔ Container hsuma-airflow-webserver-1  Removed                                                                                                      0.0s 
- ✔ Container hsuma-airflow-scheduler-1  Removed                                                                                                      0.0s 
- ✔ Container hsuma-airflow-triggerer-1  Removed                                                                                                      0.0s 
- ✔ Container hsuma-airflow-init-1       Removed                                                                                                      0.1s 
- ✔ Container hsuma-postgres-1           Removed                                                                                                      0.2s 
- ✔ Container hsuma-redis-1              Removed                                                                                                      0.3s 
- ✔ Network hsuma_default                Removed                                                                                                      0.2s 
-hsuma@slcx-p7960:~$ docker compose up -d
-[+] Running 8/8
- ✔ Network hsuma_default                Created                                                                                                      0.1s 
- ✔ Container hsuma-postgres-1           Healthy                                                                                                      6.8s 
- ✔ Container hsuma-redis-1              Healthy                                                                                                      6.8s 
- ✔ Container hsuma-airflow-init-1       Exited                                                                                                      20.2s 
- ✔ Container hsuma-airflow-webserver-1  Started                                                                                                     20.7s 
- ✔ Container hsuma-airflow-worker-1     Started                                                                                                     20.7s 
- ✔ Container hsuma-airflow-scheduler-1  Started                                                                                                     20.7s 
- ✔ Container hsuma-airflow-triggerer-1  Started     
+%end
+
+# Keyboard layouts
+keyboard --xlayouts='us'
+# System language
+lang en_US.UTF-8
+
+# Network information
+network  --bootproto=dhcp --device=ens192 --onboot=off --ipv6=auto --no-activate
+network  --hostname=cpeg-ipareplica.calix.local
+
+# Use CDROM installation media
+cdrom
+
+# Run the Setup Agent on first boot
+firstboot --enable
+
+ignoredisk --only-use=sda
+autopart
+# Partition clearing information
+clearpart --none --initlabel
+
+# System timezone
+timezone America/New_York --isUtc
+
+# Root password
+rootpw --iscrypted $6$F5pKEtndo4/uhJ.e$DZoccNl9lD/Q19DbwuTAWH8Q7YaKhhC6o9dx84kGm8VKvgODw9Wd5hrYWgyin5Xy5KMJ4nQW0gnT5zZZT7A001
+user --name=deploy --password=$6$tcMStFafbDwzP4iw$V5E.Zje23C2x4D7OsVy8ENRMnyBYGUqV7RErz8BY17ii4HaxMgtqJSIFzLlKok0uQdcq1Yd/u68mM81i7mh0M. --iscrypted --gecos="deploy"
+
+%addon com_redhat_kdump --enable --reserve-mb='auto'
+
+%end
+
+%anaconda
+pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
+pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+%end
+[root@cpeg-ipareplica ~]# 
