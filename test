@@ -1,4 +1,3 @@
-[root@cpeg-ipareplica ~]# cat anaconda-ks.cfg 
 #version=RHEL8
 # Use graphical install
 graphical
@@ -8,7 +7,12 @@ repo --name="AppStream" --baseurl=file:///run/install/sources/mount-0000-cdrom/A
 %packages
 @^graphical-server-environment
 kexec-tools
-
+ipa-client
+sssd
+oddjob
+mkhomedir
+authselect
+subscription-manager
 %end
 
 # Keyboard layouts
@@ -47,4 +51,55 @@ pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
 pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
 pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
 %end
-[root@cpeg-ipareplica ~]# 
+
+%post
+# Logging setup
+exec > /root/ks-post.log 2>&1
+echo "Starting Red Hat Subscription and IPA client installation"
+
+# Define Red Hat Subscription details
+RH_USERNAME="your-rhsm-username"
+RH_PASSWORD="your-rhsm-password"
+POOL_ID="your-subscription-pool-id"
+
+# Register system to Red Hat Subscription Manager
+echo "Registering system with Red Hat Subscription Manager..."
+subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD} --auto-attach
+if [ $? -ne 0 ]; then
+  echo "Registration failed, retrying with pool ID..."
+  subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD}
+  subscription-manager attach --pool=${POOL_ID}
+fi
+
+# Enable required repositories
+subscription-manager repos --enable=rhel-9-server-rpms --enable=rhel-9-server-extras-rpms --enable=rhel-9-server-optional-rpms
+
+# Define IPA server details
+IPA_SERVER="cpeg-ipareplica.ipa.calix.local"
+IPA_REALM="IPA.CALIX.LOCAL"
+DOMAIN="ipa.calix.local"
+
+# Install IPA client if not already installed
+if ! rpm -q ipa-client; then
+  yum install -y ipa-client
+fi
+
+# Configure the IPA client
+echo "Enrolling system to IPA..."
+ipa-client-install --unattended \
+  --server=$IPA_SERVER \
+  --domain=$DOMAIN \
+  --realm=$IPA_REALM \
+  --principal=admin \
+  --password="YourAdminPasswordHere" \
+  --mkhomedir \
+  --no-dns-sshfp \
+  --no-ntp
+
+# Enable SSSD for authentication
+authselect select sssd --force
+systemctl enable sssd
+systemctl start sssd
+
+echo "Red Hat subscription and IPA client setup completed."
+%end
