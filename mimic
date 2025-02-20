@@ -1,55 +1,95 @@
-[root@ipatestvm tftpboot]# chmod 644 /var/lib/tftpboot/*
-[root@ipatestvm tftpboot]# systemctl restart tftp
-[root@ipatestvm tftpboot]# tcpdump -i any port 69 -vvv
-dropped privs to tcpdump
-tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 262144 bytes
-19:13:28.107962 IP (tos 0x0, ttl 64, id 45370, offset 0, flags [none], proto UDP (17), length 68)
-    10.168.2.20.rgtp > ipatestvm.tftp: [udp sum ok]  40 RRQ "pxelinux.0" octet tsize 0 blksize 1468
-19:13:28.113620 IP (tos 0x0, ttl 64, id 45372, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.blueberry-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:13:42.809796 IP (tos 0x0, ttl 64, id 64304, offset 0, flags [none], proto UDP (17), length 68)
-    10.168.2.20.ora-lm > ipatestvm.tftp: [udp sum ok]  40 RRQ "pxelinux.0" octet tsize 0 blksize 1468
-19:13:42.816364 IP (tos 0x0, ttl 64, id 64306, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.apri-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:13:46.141973 IP (tos 0x0, ttl 64, id 64337, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.oc-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:13:53.312252 IP (tos 0x0, ttl 64, id 64368, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.peport > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:13:55.867814 IP (tos 0x0, ttl 64, id 64399, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.dwf > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:13:56.192508 IP (tos 0x0, ttl 64, id 64430, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.infoman > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:13:56.738075 IP (tos 0x0, ttl 64, id 64461, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.gtegsc-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:00.619225 IP (tos 0x0, ttl 64, id 64492, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.genie-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:01.420992 IP (tos 0x0, ttl 64, id 64523, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.interhdl_elmd > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:01.761788 IP (tos 0x0, ttl 64, id 64554, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.esl-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:03.461141 IP (tos 0x0, ttl 64, id 64585, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.dca > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:04.389885 IP (tos 0x0, ttl 64, id 64616, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.valisys-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:05.390443 IP (tos 0x0, ttl 64, id 64647, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.nrcabq-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:06.231383 IP (tos 0x0, ttl 64, id 64678, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.proshare1 > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:07.594797 IP (tos 0x0, ttl 64, id 64709, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.proshare2 > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:08.021264 IP (tos 0x0, ttl 64, id 64740, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.ibm_wrless_lan > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:08.164880 IP (tos 0x0, ttl 64, id 64771, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.world-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:08.345555 IP (tos 0x0, ttl 64, id 64802, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.nucleus > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:08.475891 IP (tos 0x0, ttl 64, id 64833, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.msl_lmd > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:08.604482 IP (tos 0x0, ttl 64, id 64864, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.pipes > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:08.764715 IP (tos 0x0, ttl 64, id 64895, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.oceansoft-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:08.924716 IP (tos 0x0, ttl 64, id 64926, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.1467 > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-19:14:09.064852 IP (tos 0x0, ttl 64, id 64957, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.1468 > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:51:22.853081 IP (tos 0x10, ttl 128, id 0, offset 0, flags [none], proto UDP (17), length 328)
+    ipatestvm.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 300, xid 0xc40d18cb, Flags [Broadcast] (0x8000)
+	  Your-IP 10.168.2.21
+	  Server-IP ipatestvm
+	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
+	  file "shimx64.efi"
+	  Vendor-rfc1048 Extensions
+	    Magic Cookie 0x63825363
+	    DHCP-Message Option 53, length 1: Offer
+	    Server-ID Option 54, length 4: ipatestvm
+	    Lease-Time Option 51, length 4: 42180
+	    Subnet-Mask Option 1, length 4: 255.255.252.0
+	    Default-Gateway Option 3, length 4: _gateway
+	    Domain-Name-Server Option 6, length 4: dns.google
+	    END Option 255, length 0
+	    PAD Option 0, length 0, occurs 26
+19:51:22.855369 IP (tos 0x0, ttl 64, id 57209, offset 0, flags [none], proto UDP (17), length 318)
+    10.168.0.2.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 290, xid 0xc40d18cb, Flags [Broadcast] (0x8000)
+	  Your-IP 10.168.0.180
+	  Server-IP caalwdc15.caal.dev
+	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
+	  Vendor-rfc1048 Extensions
+	    Magic Cookie 0x63825363
+	    DHCP-Message Option 53, length 1: Offer
+	    Subnet-Mask Option 1, length 4: 255.255.252.0
+	    RN Option 58, length 4: 1800
+	    RB Option 59, length 4: 3150
+	    Lease-Time Option 51, length 4: 3600
+	    Server-ID Option 54, length 4: caalwdc15.caal.dev
+	    Default-Gateway Option 3, length 4: _gateway
+	    Domain-Name-Server Option 6, length 8: caalwdc14.caal.dev,caalwdc15.caal.dev
+	    END Option 255, length 0
+19:51:26.851981 IP (tos 0x0, ttl 64, id 51807, offset 0, flags [none], proto UDP (17), length 387)
+    0.0.0.0.bootpc > 255.255.255.255.bootps: [udp sum ok] BOOTP/DHCP, Request from 00:50:56:b5:1b:03 (oui Unknown), length 359, xid 0xc40d18cb, Flags [Broadcast] (0x8000)
+	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
+	  Vendor-rfc1048 Extensions
+	    Magic Cookie 0x63825363
+	    DHCP-Message Option 53, length 1: Request
+	    Server-ID Option 54, length 4: ipatestvm
+	    Requested-IP Option 50, length 4: 10.168.2.21
+	    MSZ Option 57, length 2: 65280
+	    Parameter-Request Option 55, length 35: 
+	      Subnet-Mask, Time-Zone, Default-Gateway, Time-Server
+	      IEN-Name-Server, Domain-Name-Server, Hostname, BS
+	      Domain-Name, RP, EP, RSZ
+	      TTL, BR, YD, YS
+	      NTP, Vendor-Option, Requested-IP, Lease-Time
+	      Server-ID, RN, RB, Vendor-Class
+	      TFTP, BF, GUID, Option 128
+	      Option 129, Option 130, Option 131, Option 132
+	      Option 133, Option 134, Option 135
+	    GUID Option 97, length 17: 0.66.53.89.209.193.221.213.197.189.27.45.58.240.17.58.89
+	    NDI Option 94, length 3: 1.3.0
+	    ARCH Option 93, length 2: 7
+	    Vendor-Class Option 60, length 32: "PXEClient:Arch:00007:UNDI:003000"
+	    END Option 255, length 0
+19:51:26.852259 IP (tos 0x10, ttl 128, id 0, offset 0, flags [none], proto UDP (17), length 328)
+    ipatestvm.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 300, xid 0xc40d18cb, Flags [Broadcast] (0x8000)
+	  Your-IP 10.168.2.21
+	  Server-IP ipatestvm
+	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
+	  file "shimx64.efi"
+	  Vendor-rfc1048 Extensions
+	    Magic Cookie 0x63825363
+	    DHCP-Message Option 53, length 1: ACK
+	    Server-ID Option 54, length 4: ipatestvm
+	    Lease-Time Option 51, length 4: 42176
+	    Subnet-Mask Option 1, length 4: 255.255.252.0
+	    Default-Gateway Option 3, length 4: _gateway
+	    Domain-Name-Server Option 6, length 4: dns.google
+	    END Option 255, length 0
+	    PAD Option 0, length 0, occurs 26
+19:51:37.554636 IP (tos 0x0, ttl 64, id 25281, offset 0, flags [none], proto UDP (17), length 375)
+    0.0.0.0.bootpc > 255.255.255.255.bootps: [udp sum ok] BOOTP/DHCP, Request from 00:50:56:b5:1b:03 (oui Unknown), length 347, xid 0x9eabb12e, Flags [Broadcast] (0x8000)
+	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
+	  Vendor-rfc1048 Extensions
+	    Magic Cookie 0x63825363
+	    DHCP-Message Option 53, length 1: Discover
+	    MSZ Option 57, length 2: 1472
+	    Parameter-Request Option 55, length 35: 
+	      Subnet-Mask, Time-Zone, Default-Gateway, Time-Server
+	      IEN-Name-Server, Domain-Name-Server, Hostname, BS
+	      Domain-Name, RP, EP, RSZ
+	      TTL, BR, YD, YS
+	      NTP, Vendor-Option, Requested-IP, Lease-Time
+	      Server-ID, RN, RB, Vendor-Class
+	      TFTP, BF, GUID, Option 128
+	      Option 129, Option 130, Option 131, Option 132
+	      Option 133, Option 134, Option 135
+	    GUID Option 97, length 17: 0.66.53.89.209.193.221.213.197.189.27.45.58.240.17.58.89
+	    NDI Option 94, length 3: 1.3.0
+	    ARCH Option 93, length 2: 7
+	    Vendor-Class Option 60, length 32: "PXEClient:Arch:00007:UNDI:003000"
+	    END Option 255, length 0
+19:51:37.555076 IP (tos 0x10, ttl 128, id 0, offset 0, flags [none], proto UDP (17), length 328)
