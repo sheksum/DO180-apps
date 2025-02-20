@@ -1,9 +1,19 @@
-[root@ipatestvm ~]# netstat -tulpn | grep :67
-udp        0      0 0.0.0.0:67              0.0.0.0:*                           60619/dhcpd         
-udp        0      0 0.0.0.0:67              0.0.0.0:*                           2006/dnsmasq        
-[root@ipatestvm ~]# lsof -i :67
-COMMAND     PID    USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
-NetworkMa   899    root   26u  IPv4  28712      0t0  UDP ipatestvm:bootpc->caalwdc15.caal.dev:bootps 
-dnsmasq    2006 dnsmasq    3u  IPv4  35089      0t0  UDP *:bootps 
-dhcpd     60619   dhcpd    8u  IPv4 802899      0t0  UDP *:bootps 
-[root@ipatestvm ~]# 
+default-lease-time 3600;
+max-lease-time 7200;
+authoritative;
+log-facility local7;
+
+subnet 10.168.0.0 netmask 255.255.252.0 {
+    range 10.168.2.100 10.168.2.200;
+    option routers 10.168.0.1;
+    option domain-name-servers 8.8.8.8;
+    next-server 10.168.0.58;
+
+    if exists user-class and option user-class = "PXEClient" {
+        if option arch = 00:07 or option arch = 00:08 {
+            filename "EFI/BOOT/grubx64.efi";  # UEFI PXE Boot
+        } else {
+            filename "pxelinux.0";  # Legacy BIOS PXE Boot
+        }
+    }
+}
