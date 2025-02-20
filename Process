@@ -5,25 +5,36 @@ PXE Boot Server Configuration
 Configured DHCP server (dhcpd.conf) to support PXE boot.
 Defined UEFI and Legacy BIOS boot paths.
 Resolved issues related to multiple DHCP servers offering leases.
+
+
 TFTP and Bootloader Setup
 Verified that the TFTP server is running and serving files.
 Confirmed that the client successfully downloads shimx64.efi, grubx64.efi, and grub.cfg.
+
 PXE Boot Menu Appears
 The PXE boot menu is successfully displayed.
 grub.cfg correctly points to vmlinuz and initrd.img.
+
 Kernel and Initrd Downloads
 Captured network traffic showing that vmlinuz and initrd.img are being requested and downloaded.
+
 Kickstart Configuration
 Kickstart file (ks.cfg) is accessible via HTTP.
 Installation starts, but prompts for manual user input, which is not desired.
 Modified Kickstart settings to ensure an unattended installation.
+
+
 Current Challenge: Blank Screen After Boot Menu
 
 Issue: After selecting the boot option from the PXE menu, the screen goes blank instead of proceeding with the installation.
+
 Possible Causes:
 GRUB misconfiguration: Kernel parameters may need debugging flags (inst.debug rd.debug inst.text).
+
 Display Issues: The installer may be attempting a graphical interface that isn't displaying properly.
+
 Missing Kernel or Initrd: The client may not be properly loading vmlinuz or initrd.img.
+
 Kickstart Not Being Processed: If ks.cfg is missing, the installer may be waiting for manual input.
 Next Steps for Investigation
 
