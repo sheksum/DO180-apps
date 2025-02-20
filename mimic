@@ -1,102 +1,107 @@
-21:34:59.267771 IP (tos 0x0, ttl 64, id 47690, offset 0, flags [none], proto UDP (17), length 318)
-    10.168.0.2.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 290, xid 0xbe4ed18c, Flags [Broadcast] (0x8000)
-	  Your-IP 10.168.2.21
-	  Server-IP caalwdc15.caal.dev
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: Offer
-	    Subnet-Mask Option 1, length 4: 255.255.252.0
-	    RN Option 58, length 4: 345600
-	    RB Option 59, length 4: 604800
-	    Lease-Time Option 51, length 4: 691200
-	    Server-ID Option 54, length 4: caalwdc15.caal.dev
-	    Default-Gateway Option 3, length 4: _gateway
-	    Domain-Name-Server Option 6, length 8: caalwdc14.caal.dev,caalwdc15.caal.dev
-	    END Option 255, length 0
-21:34:59.439320 IP (tos 0x0, ttl 128, id 256, offset 0, flags [none], proto UDP (17), length 28)
-    slcw-ixia05.calix.local.60880 > ipatestvm.bootps: [udp sum ok]  [|bootp]
-21:35:00.953088 IP (tos 0x0, ttl 128, id 257, offset 0, flags [none], proto UDP (17), length 28)
-    slcw-ixia05.calix.local.51357 > ipatestvm.bootpc: [udp sum ok]  [|bootp]
-21:35:03.264659 IP (tos 0x0, ttl 64, id 33568, offset 0, flags [none], proto UDP (17), length 387)
-    0.0.0.0.bootpc > 255.255.255.255.bootps: [udp sum ok] BOOTP/DHCP, Request from 00:50:56:b5:1b:03 (oui Unknown), length 359, xid 0xbe4ed18c, Flags [Broadcast] (0x8000)
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: Request
-	    Server-ID Option 54, length 4: ipatestvm
-	    Requested-IP Option 50, length 4: 10.168.2.21
-	    MSZ Option 57, length 2: 65280
-	    Parameter-Request Option 55, length 35: 
-	      Subnet-Mask, Time-Zone, Default-Gateway, Time-Server
-	      IEN-Name-Server, Domain-Name-Server, Hostname, BS
-	      Domain-Name, RP, EP, RSZ
-	      TTL, BR, YD, YS
-	      NTP, Vendor-Option, Requested-IP, Lease-Time
-	      Server-ID, RN, RB, Vendor-Class
-	      TFTP, BF, GUID, Option 128
-	      Option 129, Option 130, Option 131, Option 132
-	      Option 133, Option 134, Option 135
-	    GUID Option 97, length 17: 0.66.53.89.209.193.221.213.197.189.27.45.58.240.17.58.89
-	    NDI Option 94, length 3: 1.3.0
-	    ARCH Option 93, length 2: 7
-	    Vendor-Class Option 60, length 32: "PXEClient:Arch:00007:UNDI:003000"
-	    END Option 255, length 0
-21:35:03.264974 IP (tos 0x10, ttl 128, id 0, offset 0, flags [none], proto UDP (17), length 328)
-    ipatestvm.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 300, xid 0xbe4ed18c, Flags [Broadcast] (0x8000)
-	  Your-IP 10.168.2.21
-	  Server-IP ipatestvm
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  file "EFI/BOOT/shimx64.efi"
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: ACK
-	    Server-ID Option 54, length 4: ipatestvm
-	    Lease-Time Option 51, length 4: 600
-	    Subnet-Mask Option 1, length 4: 255.255.252.0
-	    Default-Gateway Option 3, length 4: _gateway
-	    Domain-Name-Server Option 6, length 4: dns.google
-	    END Option 255, length 0
-	    PAD Option 0, length 0, occurs 26
-21:35:03.265392 IP (tos 0x0, ttl 64, id 33569, offset 0, flags [none], proto UDP (17), length 78)
-    10.168.2.21.hks-lm > ipatestvm.tftp: [udp sum ok]  50 RRQ "EFI/BOOT/shimx64.efi" octet tsize 0 blksize 1468
-21:35:03.270542 IP (tos 0x0, ttl 64, id 33571, offset 0, flags [none], proto UDP (17), length 70)
-    10.168.2.21.pptp > ipatestvm.tftp: [udp sum ok]  42 RRQ "EFI/BOOT/shimx64.efi" octet blksize 1468
-21:35:03.428405 IP (tos 0x0, ttl 64, id 34224, offset 0, flags [none], proto UDP (17), length 73)
-    10.168.2.21.csbphonemaster > ipatestvm.tftp: [udp sum ok]  45 RRQ "EFI/BOOT/revocations.efi" octet blksize 512
-21:35:03.436489 IP (tos 0x0, ttl 64, id 34225, offset 0, flags [none], proto UDP (17), length 69)
-    10.168.2.21.iden-ralp > ipatestvm.tftp: [udp sum ok]  41 RRQ "EFI/BOOT/grubx64.efi" octet blksize 512
-21:35:03.712021 IP (tos 0x0, ttl 255, id 9217, offset 0, flags [none], proto UDP (17), length 96)
-    10.168.2.21.25300 > ipatestvm.tftp: [udp sum ok]  68 RRQ "EFI/BOOT/grub.cfg-01-00-50-56-b5-1b-03" octet blksize 1024 tsize 0
-21:35:03.714794 IP (tos 0x0, ttl 255, id 9218, offset 0, flags [none], proto UDP (17), length 84)
-    10.168.2.21.25301 > ipatestvm.tftp: [udp sum ok]  56 RRQ "EFI/BOOT/grub.cfg-0AA80215" octet blksize 1024 tsize 0
-21:35:03.716754 IP (tos 0x0, ttl 255, id 9219, offset 0, flags [none], proto UDP (17), length 83)
-    10.168.2.21.25302 > ipatestvm.tftp: [udp sum ok]  55 RRQ "EFI/BOOT/grub.cfg-0AA8021" octet blksize 1024 tsize 0
-21:35:03.718909 IP (tos 0x0, ttl 255, id 9220, offset 0, flags [none], proto UDP (17), length 82)
-    10.168.2.21.25303 > ipatestvm.tftp: [udp sum ok]  54 RRQ "EFI/BOOT/grub.cfg-0AA802" octet blksize 1024 tsize 0
-21:35:03.720617 IP (tos 0x0, ttl 255, id 9221, offset 0, flags [none], proto UDP (17), length 81)
-    10.168.2.21.25304 > ipatestvm.tftp: [udp sum ok]  53 RRQ "EFI/BOOT/grub.cfg-0AA80" octet blksize 1024 tsize 0
-21:35:03.722610 IP (tos 0x0, ttl 255, id 9222, offset 0, flags [none], proto UDP (17), length 80)
-    10.168.2.21.25305 > ipatestvm.tftp: [udp sum ok]  52 RRQ "EFI/BOOT/grub.cfg-0AA8" octet blksize 1024 tsize 0
-21:35:03.724477 IP (tos 0x0, ttl 255, id 9223, offset 0, flags [none], proto UDP (17), length 79)
-    10.168.2.21.25306 > ipatestvm.tftp: [udp sum ok]  51 RRQ "EFI/BOOT/grub.cfg-0AA" octet blksize 1024 tsize 0
-21:35:03.726162 IP (tos 0x0, ttl 255, id 9224, offset 0, flags [none], proto UDP (17), length 78)
-    10.168.2.21.25307 > ipatestvm.tftp: [udp sum ok]  50 RRQ "EFI/BOOT/grub.cfg-0A" octet blksize 1024 tsize 0
-21:35:03.728059 IP (tos 0x0, ttl 255, id 9225, offset 0, flags [none], proto UDP (17), length 77)
-    10.168.2.21.25308 > ipatestvm.tftp: [udp sum ok]  49 RRQ "EFI/BOOT/grub.cfg-0" octet blksize 1024 tsize 0
-21:35:03.729688 IP (tos 0x0, ttl 255, id 9226, offset 0, flags [none], proto UDP (17), length 75)
-    10.168.2.21.25309 > ipatestvm.tftp: [udp sum ok]  47 RRQ "EFI/BOOT/grub.cfg" octet blksize 1024 tsize 0
-21:35:03.731707 IP (tos 0x0, ttl 255, id 9229, offset 0, flags [none], proto UDP (17), length 92)
-    10.168.2.21.25310 > ipatestvm.tftp: [udp sum ok]  64 RRQ "/EFI/redhat/x86_64-efi/command.lst" octet blksize 1024 tsize 0
-21:35:03.733598 IP (tos 0x0, ttl 255, id 9230, offset 0, flags [none], proto UDP (17), length 87)
-    10.168.2.21.25311 > ipatestvm.tftp: [udp sum ok]  59 RRQ "/EFI/redhat/x86_64-efi/fs.lst" octet blksize 1024 tsize 0
-21:35:03.735306 IP (tos 0x0, ttl 255, id 9231, offset 0, flags [none], proto UDP (17), length 91)
-    10.168.2.21.25312 > ipatestvm.tftp: [udp sum ok]  63 RRQ "/EFI/redhat/x86_64-efi/crypto.lst" octet blksize 1024 tsize 0
-21:35:03.737290 IP (tos 0x0, ttl 255, id 9232, offset 0, flags [none], proto UDP (17), length 93)
-    10.168.2.21.25313 > ipatestvm.tftp: [udp sum ok]  65 RRQ "/EFI/redhat/x86_64-efi/terminal.lst" octet blksize 1024 tsize 0
-21:35:03.739145 IP (tos 0x0, ttl 255, id 9233, offset 0, flags [none], proto UDP (17), length 75)
-    10.168.2.21.25314 > ipatestvm.tftp: [udp sum ok]  47 RRQ "EFI/BOOT/grub.cfg" octet blksize 1024 tsize 0
-21:35:08.747514 IP (tos 0x0, ttl 255, id 9236, offset 0, flags [none], proto UDP (17), length 75)
-    10.168.2.21.25315 > ipatestvm.tftp: [udp sum ok]  47 RRQ "/EFI/BOOT/vmlinuz" octet blksize 1024 tsize 0
-21:35:09.197272 IP (tos 0x0, ttl 255, id 19852, offset 0, flags [none], proto UDP (17), length 78)
-    10.168.2.21.25316 > ipatestvm.tftp: [udp sum ok]  50 RRQ "/EFI/BOOT/initrd.img" octet blksize 1024 tsize 0
+[root@ipatestvm html]# cat ks.cfg 
+#version=RHEL8
+# Use graphical install
+graphical
+
+repo --name="AppStream" --baseurl=file:///run/install/sources/mount-0000-cdrom/AppStream
+
+%packages
+@^graphical-server-environment
+kexec-tools
+ipa-client
+sssd
+oddjob
+mkhomedir
+authselect
+subscription-manager
+%end
+
+# Keyboard layouts
+keyboard --xlayouts='us'
+# System language
+lang en_US.UTF-8
+
+# Network information
+network  --bootproto=dhcp --device=ens192 --onboot=off --ipv6=auto --no-activate
+network  --hostname=test-test.calix.local
+
+# Use CDROM installation media
+cdrom
+
+# Run the Setup Agent on first boot
+firstboot --enable
+
+ignoredisk --only-use=sda
+autopart
+# Partition clearing information
+clearpart --none --initlabel
+
+# System timezone
+timezone America/New_York --isUtc
+
+# Root password
+rootpw --iscrypted $6$F5pKEtndo4/uhJ.e$DZoccNl9lD/Q19DbwuTAWH8Q7YaKhhC6o9dx84kGm8VKvgODw9Wd5hrYWgyin5Xy5KMJ4nQW0gnT5zZZT7A001
+user --name=deploy --password=$6$tcMStFafbDwzP4iw$V5E.Zje23C2x4D7OsVy8ENRMnyBYGUqV7RErz8BY17ii4HaxMgtqJSIFzLlKok0uQdcq1Yd/u68mM81i7mh0M. --iscrypted --gecos="deploy"
+
+%addon com_redhat_kdump --enable --reserve-mb='auto'
+
+%end
+
+%anaconda
+pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
+pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+%end
+
+%post
+# Logging setup
+exec > /root/ks-post.log 2>&1
+echo "Starting Red Hat Subscription and IPA client installation"
+
+# Define Red Hat Subscription details
+RH_USERNAME="calix_networks"
+RH_PASSWORD="!6W7lhEaK3rRSDB4"
+POOL_ID="your-subscription-pool-id"
+
+# Register system to Red Hat Subscription Manager
+echo "Registering system with Red Hat Subscription Manager..."
+subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD} --auto-attach
+if [ $? -ne 0 ]; then
+  echo "Registration failed, retrying with pool ID..."
+  subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD}
+  subscription-manager attach --pool=${POOL_ID}
+fi
+
+# Enable required repositories
+subscription-manager repos --enable=rhel-9-server-rpms --enable=rhel-9-server-extras-rpms --enable=rhel-9-server-optional-rpms
+
+# Define IPA server details
+IPA_SERVER="cpeg-ipareplica.ipa.calix.local"
+IPA_REALM="IPA.CALIX.LOCAL"
+DOMAIN="ipa.calix.local"
+
+# Install IPA client if not already installed
+if ! rpm -q ipa-client; then
+  yum install -y ipa-client
+fi
+
+# Configure the IPA client
+echo "Enrolling system to IPA..."
+ipa-client-install --unattended \
+  --server=$IPA_SERVER \
+  --domain=$DOMAIN \
+  --realm=$IPA_REALM \
+  --principal=ipa-enroll \
+  --password="W0FL2Qhnd9mV0yq7xWbXMWSP7woEbkmfNLMyRN+DsSM=" \
+  --mkhomedir \
+  --no-dns-sshfp \
+  --no-ntp
+
+# Enable SSSD for authentication
+authselect select sssd --force
+systemctl enable sssd
+systemctl start sssd
+
+echo "Red Hat subscription and IPA client setup completed."
+%end
+[root@ipatestvm html]# 
