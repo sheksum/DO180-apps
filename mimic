@@ -1,3 +1,4 @@
+[root@ipatestvm BOOT]# cat grub.cfg 
 set default=0
 set timeout=5
 
@@ -5,3 +6,4 @@ menuentry "PXE Boot Linux" {
     linuxefi /EFI/BOOT/vmlinuz inst.repo=http://10.168.0.58/repo console=ttyS0,115200n8
     initrdefi /EFI/BOOT/initrd.img
 }
+[root@ipatestvm BOOT]# 
