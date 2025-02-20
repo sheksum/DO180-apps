@@ -1,41 +1,38 @@
-[root@ipatestvm ~]# cat /etc/dhcp/dhcpd.conf
-# Global DHCP Settings
-default-lease-time 600;
-max-lease-time 7200;
-log-facility local7;
-
-# Define subnet for PXE clients
-subnet 10.168.0.0 netmask 255.255.252.0 {
-    range 10.168.2.20 10.168.2.230;
-    option routers 10.168.0.1;
-    option domain-name-servers 8.8.8.8;
-    next-server 10.168.0.58; # PXE Boot Server
-
-    # Detect PXE Boot Mode using vendor-class-identifier
-    if exists user-class and option user-class = "PXEClient" {
-        if substring (option vendor-class-identifier, 15, 5) = "00007" {
-           filename "EFI/BOOT/shimx64.efi"; # UEFI PXE Boot
-        } elsif substring (option vendor-class-identifier, 15, 5) = "00009" {
-           filename "EFI/BOOT/shimx64.efi"; # UEFI PXE Boot (Secure Boot)
-        } else {
-            filename "pxelinux.0"; # Legacy BIOS PXE Boot
-        }
-    } else {
-        filename "pxelinux.0"; # Default if not PXE Client
-    }
-}
-
-# PXE Boot Options
-allow booting;
-allow bootp;
-
-# Group for PXE clients (Optional)
-group {
-    host pxe-client {
-        hardware ethernet 00:50:56:b5:1b:03; # Replace with the actual MAC address
-        fixed-address 10.168.2.21; # Static IP for PXE boot testing
-        filename "EFI/BOOT/shimx64.efi"; # Default Bootloader for Legacy
-    }
-}
+21:06:14.925628 IP (tos 0xc0, ttl 64, id 0, offset 0, flags [DF], proto UDP (17), length 326)
+    0.0.0.0.bootpc > 255.255.255.255.bootps: [udp sum ok] BOOTP/DHCP, Request from 00:50:56:b5:1b:03 (oui Unknown), length 298, xid 0x9a6340a5, secs 1, Flags [none] (0x0000)
+	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
+	  Vendor-rfc1048 Extensions
+	    Magic Cookie 0x63825363
+	    DHCP-Message Option 53, length 1: Request
+	    Client-ID Option 61, length 7: ether 00:50:56:b5:1b:03
+	    Parameter-Request Option 55, length 17: 
+	      Subnet-Mask, Time-Zone, Domain-Name-Server, Hostname
+	      Domain-Name, MTU, BR, Classless-Static-Route
+	      Default-Gateway, Static-Route, YD, YS
+	      NTP, Option 119, Classless-Static-Route-Microsoft, Option 252
+	      RP
+	    MSZ Option 57, length 2: 576
+	    Requested-IP Option 50, length 4: 10.168.2.21
+	    Vendor-Class Option 60, length 14: "anaconda-Linux"
+	    END Option 255, length 0
+21:06:14.925833 IP (tos 0x10, ttl 128, id 0, offset 0, flags [none], proto UDP (17), length 328)
+    ipatestvm.bootps > 10.168.2.21.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 300, xid 0x9a6340a5, secs 1, Flags [none] (0x0000)
+	  Your-IP 10.168.2.21
+	  Server-IP ipatestvm
+	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
+	  file "EFI/BOOT/shimx64.efi"
+	  Vendor-rfc1048 Extensions
+	    Magic Cookie 0x63825363
+	    DHCP-Message Option 53, length 1: ACK
+	    Server-ID Option 54, length 4: ipatestvm
+	    Lease-Time Option 51, length 4: 600
+	    Subnet-Mask Option 1, length 4: 255.255.252.0
+	    Domain-Name-Server Option 6, length 4: dns.google
+	    Default-Gateway Option 3, length 4: _gateway
+	    END Option 255, length 0
+	    PAD Option 0, length 0, occurs 26
+^C
+184 packets captured
+184 packets received by filter
+0 packets dropped by kernel
 [root@ipatestvm ~]# 
-
