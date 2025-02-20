@@ -1,7 +1,15 @@
-Feb 19 20:12:32 ipatestvm.calix.local dhcpd[61299]: /etc/dhcp/dhcpd.conf line 13: no option named arch in space dhcp
-Feb 19 20:12:32 ipatestvm.calix.local dhcpd[61299]:         if option arch =
-Feb 19 20:12:32 ipatestvm.calix.local dhcpd[61299]:                    ^
-Feb 19 20:12:32 ipatestvm.calix.local dhcpd[61299]: /etc/dhcp/dhcpd.conf line 18: expecting a declaration
-Feb 19 20:12:32 ipatestvm.calix.local dhcpd[61299]:     }
-Feb 19 20:12:32 ipatestvm.calix.local dhcpd[61299]:      ^
-Feb 19 20:12:32 ipatestvm.calix.local dhcpd[61299]: Configuration file errors encountered -- exiting
+subnet 10.168.0.0 netmask 255.255.252.0 {
+    range 10.168.2.100 10.168.2.200;
+    option routers 10.168.0.1;
+    option domain-name-servers 8.8.8.8;
+    next-server 10.168.0.58;
+
+    class "pxeclients" {
+        match if substring(option vendor-class-identifier, 0, 9) = "PXEClient";
+        if substring(option vendor-class-identifier, 15, 5) = "00007" {
+            filename "EFI/BOOT/grubx64.efi";  # UEFI PXE Boot
+        } else {
+            filename "pxelinux.0";  # Legacy BIOS PXE Boot
+        }
+    }
+}
