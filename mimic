@@ -1,17 +1,19 @@
 subnet 10.168.0.0 netmask 255.255.252.0 {
-    range 10.168.2.100 10.168.2.200;
+    range 10.168.2.20 10.168.2.230;
     option routers 10.168.0.1;
     option domain-name-servers 8.8.8.8;
-    next-server 10.168.0.58;  # PXE Boot Server
+    next-server 10.168.0.58; #PXE BOOT Server
 
-    # Assign PXE Boot File
+    #Detect PXE Boot Mode
     if exists user-class and option user-class = "PXEClient" {
         if substring (option vendor-class-identifier, 15, 5) = "00007" {
-            filename "EFI/BOOT/shimx64.efi";  # UEFI PXE Boot
+           filename "EFI/BOOT/shimx64.efi"; #UEFI PXE Boot
         } elsif substring (option vendor-class-identifier, 15, 5) = "00009" {
-            filename "EFI/BOOT/shimx64.efi";  # UEFI PXE Boot
+           filename "EFI/BOOT/shimx64.efi"; #UEFI PXE Boot
         } else {
-            filename "pxelinux.0";  # Legacy BIOS PXE Boot
+            filename "pxelinux.0"; #Legacy BIOS PXE Boot
         }
+    } else {
+        filename "pxelinux.0"; #Default if not PXE Client
     }
 }
