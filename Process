@@ -1,0 +1,58 @@
+PXE Boot Automation Progress Update
+Accomplishments:
+
+PXE Boot Server Configuration
+Configured DHCP server (dhcpd.conf) to support PXE boot.
+Defined UEFI and Legacy BIOS boot paths.
+Resolved issues related to multiple DHCP servers offering leases.
+TFTP and Bootloader Setup
+Verified that the TFTP server is running and serving files.
+Confirmed that the client successfully downloads shimx64.efi, grubx64.efi, and grub.cfg.
+PXE Boot Menu Appears
+The PXE boot menu is successfully displayed.
+grub.cfg correctly points to vmlinuz and initrd.img.
+Kernel and Initrd Downloads
+Captured network traffic showing that vmlinuz and initrd.img are being requested and downloaded.
+Kickstart Configuration
+Kickstart file (ks.cfg) is accessible via HTTP.
+Installation starts, but prompts for manual user input, which is not desired.
+Modified Kickstart settings to ensure an unattended installation.
+Current Challenge: Blank Screen After Boot Menu
+
+Issue: After selecting the boot option from the PXE menu, the screen goes blank instead of proceeding with the installation.
+Possible Causes:
+GRUB misconfiguration: Kernel parameters may need debugging flags (inst.debug rd.debug inst.text).
+Display Issues: The installer may be attempting a graphical interface that isn't displaying properly.
+Missing Kernel or Initrd: The client may not be properly loading vmlinuz or initrd.img.
+Kickstart Not Being Processed: If ks.cfg is missing, the installer may be waiting for manual input.
+Next Steps for Investigation
+
+Enable Debugging in GRUB
+Update /var/lib/tftpboot/EFI/BOOT/grub.cfg:
+linuxefi /EFI/BOOT/vmlinuz inst.repo=http://10.168.0.58/repo inst.ks=http://10.168.0.58/ks.cfg console=ttyS0,115200n8 inst.text inst.debug rd.debug rd.shell
+initrdefi /EFI/BOOT/initrd.img
+Check Logs on PXE Client
+Press Ctrl+Alt+F2 after the blank screen to check logs.
+Run:
+dmesg | tail -50
+journalctl -xe
+Validate Kernel and Initrd Availability
+Ensure both files exist on the TFTP server:
+ls -lh /var/lib/tftpboot/EFI/BOOT/
+If missing, copy from RHEL installation media.
+Confirm Kickstart is Applied Automatically
+Verify that ks.cfg is available:
+curl -v http://10.168.0.58/ks.cfg
+If Kickstart isn’t working, the installer may prompt for manual setup.
+Monitor Network Traffic
+Capture logs to see if the installer is fetching all required files:
+tcpdump -i any port 67 or port 68 or port 69 -vvv
+Summary
+✅ PXE Boot Server is configured
+✅ TFTP and DHCP are working
+✅ Boot menu appears
+✅ Kernel and Initrd are being downloaded
+⚠️ Screen goes blank after menu selection
+⚠️ Installation requires manual input instead of running unattended
+
+Current Focus: Debugging the blank screen and ensuring fully automated installation.
