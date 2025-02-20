@@ -1,7 +1,55 @@
-[root@ipatestvm BOOT]# tcpdump -i any port 69 -vvv
+[root@ipatestvm tftpboot]# chmod 644 /var/lib/tftpboot/*
+[root@ipatestvm tftpboot]# systemctl restart tftp
+[root@ipatestvm tftpboot]# tcpdump -i any port 69 -vvv
 dropped privs to tcpdump
 tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 262144 bytes
-19:08:19.461414 IP (tos 0x0, ttl 64, id 13925, offset 0, flags [none], proto UDP (17), length 68)
-    10.168.2.20.cisco-ipsla > ipatestvm.tftp: [udp sum ok]  40 RRQ "pxelinux.0" octet tsize 0 blksize 1468
-19:08:19.467281 IP (tos 0x0, ttl 64, id 13927, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.vchat > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:13:28.107962 IP (tos 0x0, ttl 64, id 45370, offset 0, flags [none], proto UDP (17), length 68)
+    10.168.2.20.rgtp > ipatestvm.tftp: [udp sum ok]  40 RRQ "pxelinux.0" octet tsize 0 blksize 1468
+19:13:28.113620 IP (tos 0x0, ttl 64, id 45372, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.blueberry-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:13:42.809796 IP (tos 0x0, ttl 64, id 64304, offset 0, flags [none], proto UDP (17), length 68)
+    10.168.2.20.ora-lm > ipatestvm.tftp: [udp sum ok]  40 RRQ "pxelinux.0" octet tsize 0 blksize 1468
+19:13:42.816364 IP (tos 0x0, ttl 64, id 64306, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.apri-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:13:46.141973 IP (tos 0x0, ttl 64, id 64337, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.oc-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:13:53.312252 IP (tos 0x0, ttl 64, id 64368, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.peport > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:13:55.867814 IP (tos 0x0, ttl 64, id 64399, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.dwf > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:13:56.192508 IP (tos 0x0, ttl 64, id 64430, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.infoman > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:13:56.738075 IP (tos 0x0, ttl 64, id 64461, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.gtegsc-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:00.619225 IP (tos 0x0, ttl 64, id 64492, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.genie-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:01.420992 IP (tos 0x0, ttl 64, id 64523, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.interhdl_elmd > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:01.761788 IP (tos 0x0, ttl 64, id 64554, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.esl-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:03.461141 IP (tos 0x0, ttl 64, id 64585, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.dca > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:04.389885 IP (tos 0x0, ttl 64, id 64616, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.valisys-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:05.390443 IP (tos 0x0, ttl 64, id 64647, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.nrcabq-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:06.231383 IP (tos 0x0, ttl 64, id 64678, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.proshare1 > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:07.594797 IP (tos 0x0, ttl 64, id 64709, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.proshare2 > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:08.021264 IP (tos 0x0, ttl 64, id 64740, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.ibm_wrless_lan > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:08.164880 IP (tos 0x0, ttl 64, id 64771, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.world-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:08.345555 IP (tos 0x0, ttl 64, id 64802, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.nucleus > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:08.475891 IP (tos 0x0, ttl 64, id 64833, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.msl_lmd > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:08.604482 IP (tos 0x0, ttl 64, id 64864, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.pipes > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:08.764715 IP (tos 0x0, ttl 64, id 64895, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.oceansoft-lm > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:08.924716 IP (tos 0x0, ttl 64, id 64926, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.1467 > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
+19:14:09.064852 IP (tos 0x0, ttl 64, id 64957, offset 0, flags [none], proto UDP (17), length 60)
+    10.168.2.20.1468 > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
