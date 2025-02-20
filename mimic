@@ -1,36 +1,10 @@
-# Global Settings
-default-lease-time 600;
-max-lease-time 7200;
-log-facility local7;
-
-# Define subnet for PXE clients
-subnet 10.168.0.0 netmask 255.255.252.0 {
-    range 10.168.2.20 10.168.2.230;
-    option routers 10.168.0.1;
-    option domain-name-servers 8.8.8.8;
-    next-server 10.168.0.58; # PXE Boot Server
-
-    # Detect PXE Boot Mode and serve the correct bootloader
-    if exists user-class and option user-class = "PXEClient" {
-        if option arch = 00:07 or option arch = 00:09 {
-            filename "EFI/BOOT/shimx64.efi"; # UEFI PXE Boot
-        } else {
-            filename "pxelinux.0"; # Legacy BIOS PXE Boot
-        }
-    } else {
-        filename "pxelinux.0"; # Default if not a PXE Client
-    }
-}
-
-# PXE Boot Options
-allow booting;
-allow bootp;
-
-# Group for PXE clients
-group {
-    host pxe-client {
-        hardware ethernet 00:50:56:b5:1b:03; # Replace with your client's MAC
-        fixed-address 10.168.2.21; # Static IP for PXE boot testing
-        filename "pxelinux.0"; # Default Bootloader for Legacy
-    }
-}
+Feb 19 20:54:38 ipatestvm.calix.local dhcpd[64807]: /etc/dhcp/dhcpd.conf line 15: no option named arch in space dhcp
+Feb 19 20:54:38 ipatestvm.calix.local dhcpd[64807]:         if option arch =
+Feb 19 20:54:38 ipatestvm.calix.local dhcpd[64807]:                    ^
+Feb 19 20:54:38 ipatestvm.calix.local dhcpd[64807]: /etc/dhcp/dhcpd.conf line 20: expecting a declaration
+Feb 19 20:54:38 ipatestvm.calix.local dhcpd[64807]:     } else
+Feb 19 20:54:38 ipatestvm.calix.local dhcpd[64807]:      ^
+Feb 19 20:54:38 ipatestvm.calix.local dhcpd[64807]: /etc/dhcp/dhcpd.conf line 22: expecting a declaration
+Feb 19 20:54:38 ipatestvm.calix.local dhcpd[64807]:     }
+Feb 19 20:54:38 ipatestvm.calix.local dhcpd[64807]:      ^
+Feb 19 20:54:38 ipatestvm.calix.local dhcpd[64807]: Configuration file errors encountered -- exiting
