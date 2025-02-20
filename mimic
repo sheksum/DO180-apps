@@ -1,26 +1,41 @@
-Feb 19 20:58:38 ipatestvm.calix.local dhcpd[64955]: Remove host declaration pxe-client or remove 10.168.2.21
-Feb 19 20:58:38 ipatestvm.calix.local dhcpd[64955]: from the dynamic address pool for 10.168.0.0/22
-Feb 19 20:58:38 ipatestvm.calix.local dhcpd[64955]: uid lease 10.168.2.20 for client 00:50:56:b5:1b:03 is duplicate on 10.168.0.0/22
-Feb 19 20:58:38 ipatestvm.calix.local dhcpd[64955]: DHCPREQUEST for 10.168.2.21 (10.168.0.58) from 00:50:56:b5:1b:03 via ens33
-Feb 19 20:58:38 ipatestvm.calix.local dhcpd[64955]: DHCPACK on 10.168.2.21 to 00:50:56:b5:1b:03 via ens33
-Feb 19 20:58:49 ipatestvm.calix.local dhcpd[64955]: uid lease 10.168.2.20 for client 00:50:56:b5:1b:03 is duplicate on 10.168.0.0/22
-Feb 19 20:58:49 ipatestvm.calix.local dhcpd[64955]: DHCPDISCOVER from 00:50:56:b5:1b:03 via ens33
-Feb 19 20:58:49 ipatestvm.calix.local dhcpd[64955]: DHCPOFFER on 10.168.2.21 to 00:50:56:b5:1b:03 via ens33
-Feb 19 20:58:53 ipatestvm.calix.local dhcpd[64955]: Dynamic and static leases present for 10.168.2.21.
-Feb 19 20:58:53 ipatestvm.calix.local dhcpd[64955]: Remove host declaration pxe-client or remove 10.168.2.21
-Feb 19 20:58:53 ipatestvm.calix.local dhcpd[64955]: from the dynamic address pool for 10.168.0.0/22
-Feb 19 20:58:53 ipatestvm.calix.local dhcpd[64955]: uid lease 10.168.2.20 for client 00:50:56:b5:1b:03 is duplicate on 10.168.0.0/22
-Feb 19 20:58:53 ipatestvm.calix.local dhcpd[64955]: DHCPREQUEST for 10.168.2.21 (10.168.0.58) from 00:50:56:b5:1b:03 via ens33
-Feb 19 20:58:53 ipatestvm.calix.local dhcpd[64955]: DHCPACK on 10.168.2.21 to 00:50:56:b5:1b:03 via ens33
-Feb 19 20:59:03 ipatestvm.calix.local dhcpd[64955]: uid lease 10.168.2.20 for client 00:50:56:b5:1b:03 is duplicate on 10.168.0.0/22
-Feb 19 20:59:03 ipatestvm.calix.local dhcpd[64955]: DHCPDISCOVER from 00:50:56:b5:1b:03 via ens33
-Feb 19 20:59:03 ipatestvm.calix.local dhcpd[64955]: DHCPOFFER on 10.168.2.21 to 00:50:56:b5:1b:03 via ens33
-Feb 19 20:59:07 ipatestvm.calix.local dhcpd[64955]: Dynamic and static leases present for 10.168.2.21.
-Feb 19 20:59:07 ipatestvm.calix.local dhcpd[64955]: Remove host declaration pxe-client or remove 10.168.2.21
-Feb 19 20:59:07 ipatestvm.calix.local dhcpd[64955]: from the dynamic address pool for 10.168.0.0/22
-Feb 19 20:59:07 ipatestvm.calix.local dhcpd[64955]: uid lease 10.168.2.20 for client 00:50:56:b5:1b:03 is duplicate on 10.168.0.0/22
-Feb 19 20:59:07 ipatestvm.calix.local dhcpd[64955]: DHCPREQUEST for 10.168.2.21 (10.168.0.58) from 00:50:56:b5:1b:03 via ens33
-Feb 19 20:59:07 ipatestvm.calix.local dhcpd[64955]: DHCPACK on 10.168.2.21 to 00:50:56:b5:1b:03 via ens33
-Feb 19 20:59:18 ipatestvm.calix.local dhcpd[64955]: uid lease 10.168.2.20 for client 00:50:56:b5:1b:03 is duplicate on 10.168.0.0/22
-Feb 19 20:59:18 ipatestvm.calix.local dhcpd[64955]: DHCPDISCOVER from 00:50:56:b5:1b:03 via ens33
-Feb 19 20:59:18 ipatestvm.calix.local dhcpd[64955]: DHCPOFFER on 10.168.2.21 to 00:50:56:b5:1b:03 via ens33
+[root@ipatestvm ~]# cat /etc/dhcp/dhcpd.conf
+# Global DHCP Settings
+default-lease-time 600;
+max-lease-time 7200;
+log-facility local7;
+
+# Define subnet for PXE clients
+subnet 10.168.0.0 netmask 255.255.252.0 {
+    range 10.168.2.20 10.168.2.230;
+    option routers 10.168.0.1;
+    option domain-name-servers 8.8.8.8;
+    next-server 10.168.0.58; # PXE Boot Server
+
+    # Detect PXE Boot Mode using vendor-class-identifier
+    if exists user-class and option user-class = "PXEClient" {
+        if substring (option vendor-class-identifier, 15, 5) = "00007" {
+           filename "EFI/BOOT/shimx64.efi"; # UEFI PXE Boot
+        } elsif substring (option vendor-class-identifier, 15, 5) = "00009" {
+           filename "EFI/BOOT/shimx64.efi"; # UEFI PXE Boot (Secure Boot)
+        } else {
+            filename "pxelinux.0"; # Legacy BIOS PXE Boot
+        }
+    } else {
+        filename "pxelinux.0"; # Default if not PXE Client
+    }
+}
+
+# PXE Boot Options
+allow booting;
+allow bootp;
+
+# Group for PXE clients (Optional)
+group {
+    host pxe-client {
+        hardware ethernet 00:50:56:b5:1b:03; # Replace with the actual MAC address
+        fixed-address 10.168.2.21; # Static IP for PXE boot testing
+        filename "EFI/BOOT/shimx64.efi"; # Default Bootloader for Legacy
+    }
+}
+[root@ipatestvm ~]# 
+
