@@ -1,10 +1,39 @@
-[root@ipatestvm html]# cat ks.cfg 
 #version=RHEL8
-# Use graphical install
-graphical
+# Use text-based automated install
+text
+url --url="http://10.168.0.58/repo"
 
-repo --name="AppStream" --baseurl=file:///run/install/sources/mount-0000-cdrom/AppStream
+# Keyboard layouts
+keyboard --xlayouts='us'
+# System language
+lang en_US.UTF-8
 
+# Network information (prompt for hostname)
+network --bootproto=dhcp --device=link --onboot=on
+
+# Skip user input except hostname
+firstboot --disable
+
+# Partitioning
+ignoredisk --only-use=sda
+zerombr
+clearpart --all --initlabel
+autopart --type=lvm
+
+# System timezone
+timezone America/New_York --isUtc
+
+# Root password
+rootpw --iscrypted $6$F5pKEtndo4/uhJ.e$DZoccNl9lD/Q19DbwuTAWH8Q7YaKhhC6o9dx84kGm8VKvgODw9Wd5hrYWgyin5Xy5KMJ4nQW0gnT5zZZT7A001
+user --name=deploy --password=$6$tcMStFafbDwzP4iw$V5E.Zje23C2x4D7OsVy8ENRMnyBYGUqV7RErz8BY17ii4HaxMgtqJSIFzLlKok0uQdcq1Yd/u68mM81i7mh0M. --iscrypted --gecos="deploy"
+
+# Skip confirmation prompts
+bootloader --location=mbr
+firewall --disabled
+selinux --disabled
+reboot
+
+# Package Selection
 %packages
 @^graphical-server-environment
 kexec-tools
@@ -14,43 +43,6 @@ oddjob
 mkhomedir
 authselect
 subscription-manager
-%end
-
-# Keyboard layouts
-keyboard --xlayouts='us'
-# System language
-lang en_US.UTF-8
-
-# Network information
-network  --bootproto=dhcp --device=ens192 --onboot=off --ipv6=auto --no-activate
-network  --hostname=test-test.calix.local
-
-# Use CDROM installation media
-cdrom
-
-# Run the Setup Agent on first boot
-firstboot --enable
-
-ignoredisk --only-use=sda
-autopart
-# Partition clearing information
-clearpart --none --initlabel
-
-# System timezone
-timezone America/New_York --isUtc
-
-# Root password
-rootpw --iscrypted $6$F5pKEtndo4/uhJ.e$DZoccNl9lD/Q19DbwuTAWH8Q7YaKhhC6o9dx84kGm8VKvgODw9Wd5hrYWgyin5Xy5KMJ4nQW0gnT5zZZT7A001
-user --name=deploy --password=$6$tcMStFafbDwzP4iw$V5E.Zje23C2x4D7OsVy8ENRMnyBYGUqV7RErz8BY17ii4HaxMgtqJSIFzLlKok0uQdcq1Yd/u68mM81i7mh0M. --iscrypted --gecos="deploy"
-
-%addon com_redhat_kdump --enable --reserve-mb='auto'
-
-%end
-
-%anaconda
-pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
-pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
-pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
 %end
 
 %post
@@ -64,13 +56,9 @@ RH_PASSWORD="!6W7lhEaK3rRSDB4"
 POOL_ID="your-subscription-pool-id"
 
 # Register system to Red Hat Subscription Manager
-echo "Registering system with Red Hat Subscription Manager..."
-subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD} --auto-attach
-if [ $? -ne 0 ]; then
-  echo "Registration failed, retrying with pool ID..."
-  subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD}
-  subscription-manager attach --pool=${POOL_ID}
-fi
+subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD} --auto-attach || \
+(subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD} && \
+ subscription-manager attach --pool=${POOL_ID})
 
 # Enable required repositories
 subscription-manager repos --enable=rhel-9-server-rpms --enable=rhel-9-server-extras-rpms --enable=rhel-9-server-optional-rpms
@@ -86,7 +74,6 @@ if ! rpm -q ipa-client; then
 fi
 
 # Configure the IPA client
-echo "Enrolling system to IPA..."
 ipa-client-install --unattended \
   --server=$IPA_SERVER \
   --domain=$DOMAIN \
@@ -104,4 +91,3 @@ systemctl start sssd
 
 echo "Red Hat subscription and IPA client setup completed."
 %end
-[root@ipatestvm html]# 
