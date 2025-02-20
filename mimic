@@ -1,117 +1,36 @@
-[root@ipatestvm ~]# tcpdump -i any port 69 -vvv
-dropped privs to tcpdump
-tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 262144 bytes
-20:51:10.646186 IP (tos 0x0, ttl 64, id 58256, offset 0, flags [none], proto UDP (17), length 68)
-    10.168.2.20.egs > ipatestvm.tftp: [udp sum ok]  40 RRQ "pxelinux.0" octet tsize 0 blksize 1468
-20:51:10.650152 IP (tos 0x0, ttl 64, id 58258, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.videte-cipc > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-20:51:25.343309 IP (tos 0x0, ttl 64, id 31731, offset 0, flags [none], proto UDP (17), length 68)
-    10.168.2.20.jvclient > ipatestvm.tftp: [udp sum ok]  40 RRQ "pxelinux.0" octet tsize 0 blksize 1468
-20:51:25.347573 IP (tos 0x0, ttl 64, id 31733, offset 0, flags [none], proto UDP (17), length 60)
-    10.168.2.20.dic-aida > ipatestvm.tftp: [udp sum ok]  32 RRQ "pxelinux.0" octet blksize 1468
-^C
-4 packets captured
-4 packets received by filter
-0 packets dropped by kernel
-[root@ipatestvm ~]# tcpdump -i any port 67 or port 68 -vvv
-dropped privs to tcpdump
-tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 262144 bytes
-20:51:36.049022 IP (tos 0x0, ttl 64, id 5204, offset 0, flags [none], proto UDP (17), length 375)
-    0.0.0.0.bootpc > 255.255.255.255.bootps: [udp sum ok] BOOTP/DHCP, Request from 00:50:56:b5:1b:03 (oui Unknown), length 347, xid 0xc9e562c1, Flags [Broadcast] (0x8000)
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: Discover
-	    MSZ Option 57, length 2: 1472
-	    Parameter-Request Option 55, length 35: 
-	      Subnet-Mask, Time-Zone, Default-Gateway, Time-Server
-	      IEN-Name-Server, Domain-Name-Server, Hostname, BS
-	      Domain-Name, RP, EP, RSZ
-	      TTL, BR, YD, YS
-	      NTP, Vendor-Option, Requested-IP, Lease-Time
-	      Server-ID, RN, RB, Vendor-Class
-	      TFTP, BF, GUID, Option 128
-	      Option 129, Option 130, Option 131, Option 132
-	      Option 133, Option 134, Option 135
-	    GUID Option 97, length 17: 0.66.53.89.209.193.221.213.197.189.27.45.58.240.17.58.89
-	    NDI Option 94, length 3: 1.3.0
-	    ARCH Option 93, length 2: 7
-	    Vendor-Class Option 60, length 32: "PXEClient:Arch:00007:UNDI:003000"
-	    END Option 255, length 0
-20:51:36.049428 IP (tos 0x10, ttl 128, id 0, offset 0, flags [none], proto UDP (17), length 328)
-    ipatestvm.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 300, xid 0xc9e562c1, Flags [Broadcast] (0x8000)
-	  Your-IP 10.168.2.20
-	  Server-IP ipatestvm
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  file "pxelinux.0"
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: Offer
-	    Server-ID Option 54, length 4: ipatestvm
-	    Lease-Time Option 51, length 4: 42884
-	    Subnet-Mask Option 1, length 4: 255.255.252.0
-	    Default-Gateway Option 3, length 4: _gateway
-	    Domain-Name-Server Option 6, length 4: dns.google
-	    END Option 255, length 0
-	    PAD Option 0, length 0, occurs 26
-20:51:36.051303 IP (tos 0x0, ttl 64, id 3798, offset 0, flags [none], proto UDP (17), length 318)
-    10.168.0.2.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 290, xid 0xc9e562c1, Flags [Broadcast] (0x8000)
-	  Your-IP 10.168.0.180
-	  Server-IP caalwdc15.caal.dev
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: Offer
-	    Subnet-Mask Option 1, length 4: 255.255.252.0
-	    RN Option 58, length 4: 1800
-	    RB Option 59, length 4: 3150
-	    Lease-Time Option 51, length 4: 3600
-	    Server-ID Option 54, length 4: caalwdc15.caal.dev
-	    Default-Gateway Option 3, length 4: _gateway
-	    Domain-Name-Server Option 6, length 8: caalwdc14.caal.dev,caalwdc15.caal.dev
-	    END Option 255, length 0
-20:51:40.044716 IP (tos 0x0, ttl 64, id 5205, offset 0, flags [none], proto UDP (17), length 387)
-    0.0.0.0.bootpc > 255.255.255.255.bootps: [udp sum ok] BOOTP/DHCP, Request from 00:50:56:b5:1b:03 (oui Unknown), length 359, xid 0xc9e562c1, Flags [Broadcast] (0x8000)
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: Request
-	    Server-ID Option 54, length 4: ipatestvm
-	    Requested-IP Option 50, length 4: 10.168.2.20
-	    MSZ Option 57, length 2: 65280
-	    Parameter-Request Option 55, length 35: 
-	      Subnet-Mask, Time-Zone, Default-Gateway, Time-Server
-	      IEN-Name-Server, Domain-Name-Server, Hostname, BS
-	      Domain-Name, RP, EP, RSZ
-	      TTL, BR, YD, YS
-	      NTP, Vendor-Option, Requested-IP, Lease-Time
-	      Server-ID, RN, RB, Vendor-Class
-	      TFTP, BF, GUID, Option 128
-	      Option 129, Option 130, Option 131, Option 132
-	      Option 133, Option 134, Option 135
-	    GUID Option 97, length 17: 0.66.53.89.209.193.221.213.197.189.27.45.58.240.17.58.89
-	    NDI Option 94, length 3: 1.3.0
-	    ARCH Option 93, length 2: 7
-	    Vendor-Class Option 60, length 32: "PXEClient:Arch:00007:UNDI:003000"
-	    END Option 255, length 0
-20:51:40.044960 IP (tos 0x10, ttl 128, id 0, offset 0, flags [none], proto UDP (17), length 328)
-    ipatestvm.bootps > 255.255.255.255.bootpc: [udp sum ok] BOOTP/DHCP, Reply, length 300, xid 0xc9e562c1, Flags [Broadcast] (0x8000)
-	  Your-IP 10.168.2.20
-	  Server-IP ipatestvm
-	  Client-Ethernet-Address 00:50:56:b5:1b:03 (oui Unknown)
-	  file "pxelinux.0"
-	  Vendor-rfc1048 Extensions
-	    Magic Cookie 0x63825363
-	    DHCP-Message Option 53, length 1: ACK
-	    Server-ID Option 54, length 4: ipatestvm
-	    Lease-Time Option 51, length 4: 42880
-	    Subnet-Mask Option 1, length 4: 255.255.252.0
-	    Default-Gateway Option 3, length 4: _gateway
-	    Domain-Name-Server Option 6, length 4: dns.google
-	    END Option 255, length 0
-	    PAD Option 0, length 0, occurs 26
-^C
-5 packets captured
-6 packets received by filter
-0 packets dropped by kernel
-[root@ipatestvm ~]# 
+# Global Settings
+default-lease-time 600;
+max-lease-time 7200;
+log-facility local7;
+
+# Define subnet for PXE clients
+subnet 10.168.0.0 netmask 255.255.252.0 {
+    range 10.168.2.20 10.168.2.230;
+    option routers 10.168.0.1;
+    option domain-name-servers 8.8.8.8;
+    next-server 10.168.0.58; # PXE Boot Server
+
+    # Detect PXE Boot Mode and serve the correct bootloader
+    if exists user-class and option user-class = "PXEClient" {
+        if option arch = 00:07 or option arch = 00:09 {
+            filename "EFI/BOOT/shimx64.efi"; # UEFI PXE Boot
+        } else {
+            filename "pxelinux.0"; # Legacy BIOS PXE Boot
+        }
+    } else {
+        filename "pxelinux.0"; # Default if not a PXE Client
+    }
+}
+
+# PXE Boot Options
+allow booting;
+allow bootp;
+
+# Group for PXE clients
+group {
+    host pxe-client {
+        hardware ethernet 00:50:56:b5:1b:03; # Replace with your client's MAC
+        fixed-address 10.168.2.21; # Static IP for PXE boot testing
+        filename "pxelinux.0"; # Default Bootloader for Legacy
+    }
+}
