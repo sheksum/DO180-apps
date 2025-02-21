@@ -142,3 +142,39 @@ hsuma@plnx-admin:~/haj/ansible-setup-hosts$
       service:
         name: sssd
         state: 
+
+
+
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ ansible-playbook mine -i inventory -u deploy -b
+
+PLAY [VM Configuration Update and DNS Setup] **********************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************************
+ok: [10.168.0.58]
+
+TASK [Update ipa_server entry in /etc/sssd/sssd.conf] *************************************************************************************************
+changed: [10.168.0.58]
+
+RUNNING HANDLER [Restart SSSD] ************************************************************************************************************************
+fatal: [10.168.0.58]: FAILED! => changed=false 
+  msg: 'value of state must be one of: reloaded, restarted, started, stopped, got: None'
+
+PLAY RECAP ********************************************************************************************************************************************
+10.168.0.58                : ok=2    changed=1    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ vi mine 
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ ansible-playbook mine -i inventory -u deploy -b
+
+PLAY [VM Configuration Update and DNS Setup] **********************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************************
+ok: [10.168.0.58]
+
+TASK [Update ipa_server entry in /etc/sssd/sssd.conf] *************************************************************************************************
+ok: [10.168.0.58]
+
+PLAY RECAP ********************************************************************************************************************************************
+10.168.0.58                : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ 
+
