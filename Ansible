@@ -39,3 +39,12 @@ update_sssd_conf && restart_sssd
 
 echo "SSSD configuration update complete."
 exit 0
+
+
+SERVERS=("10.168.0.58" "10.168.0.59" "10.168.0.60")  # Add more IPs as needed
+
+for SERVER in "${SERVERS[@]}"; do
+    scp update_sssd.sh deploy@$SERVER:/tmp/update_sssd.sh
+    ssh deploy@$SERVER "sudo bash /tmp/update_sssd.sh"
+done
+
