@@ -11,3 +11,17 @@ hsuma@plnx-admin:~/haj/ansible-setup-hosts$ ansible all -i inventory -m ping -u 
     "unreachable": true
 }
 hsuma@plnx-admin:~/haj/ansible-setup-hosts$ ansible all -i inventory -m ping -u depl
+
+
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ ansible all -i inventory -m ping -u deploy -b
+/usr/lib/python3/dist-packages/paramiko/pkey.py:82: CryptographyDeprecationWarning: TripleDES has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.TripleDES and will be removed from this module in 48.0.0.
+  "cipher": algorithms.TripleDES,
+/usr/lib/python3/dist-packages/paramiko/transport.py:237: CryptographyDeprecationWarning: Blowfish has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.Blowfish and will be removed from this module in 45.0.0.
+  "class": algorithms.Blowfish,
+/usr/lib/python3/dist-packages/paramiko/transport.py:261: CryptographyDeprecationWarning: TripleDES has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.TripleDES and will be removed from this module in 48.0.0.
+  "class": algorithms.TripleDES,
+[WARNING]: Unhandled error in Python interpreter discovery for host 10.168.0.58: Expecting value: line 1 column 1 (char 0)
+10.168.0.58 | FAILED! => {
+    "msg": "Missing sudo password"
+}
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ 
