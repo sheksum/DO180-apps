@@ -1,50 +1,43 @@
 #!/bin/bash
 
-# Define variables
-TARGET_FILE="/etc/sssd/sssd.conf"
-NEW_LINE="ipa_server = _srv_, pln-petipareplica.ipa.calix.local, cpeg-ipareplica.ipa.calix.local"
-
-# Ensure script runs as root
-if [[ $EUID -ne 0 ]]; then
-    echo "This script must be run as root or with sudo." >&2
-    exit 1
-fi
-
-# Function to check if ipa_server line needs updating
-update_sssd_conf() {
-    if grep -q '^ipa_server =' "$TARGET_FILE"; then
-        sed -i "s|^ipa_server =.*|$NEW_LINE|" "$TARGET_FILE"
-        echo "Updated ipa_server entry in $TARGET_FILE"
-        return 0
-    else
-        echo "$NEW_LINE" >> "$TARGET_FILE"
-        echo "Added ipa_server entry to $TARGET_FILE"
-        return 0
-    fi
-}
-
-# Function to restart SSSD
-restart_sssd() {
-    systemctl restart sssd
-    if [[ $? -eq 0 ]]; then
-        echo "SSSD restarted successfully."
-    else
-        echo "Failed to restart SSSD." >&2
-        exit 1
-    fi
-}
-
-# Execute functions
-update_sssd_conf && restart_sssd
-
-echo "SSSD configuration update complete."
-exit 0
-
-
+# Define the list of remote servers
 SERVERS=("10.168.0.58" "10.168.0.59" "10.168.0.60")  # Add more IPs as needed
 
+# Path to the local script
+SCRIPT="update_sssd.sh"
+REMOTE_PATH="/tmp/$SCRIPT"
+USER="deploy"
+
+# Ensure the script is executable
+chmod +x "$SCRIPT"
+
+# Function to update and restart SSSD on a remote server
+update_sssd_remote() {
+    local SERVER="$1"
+    echo "Updating SSSD configuration on $SERVER..."
+
+    # Copy the script to the remote server
+    scp "$SCRIPT" "$USER@$SERVER:$REMOTE_PATH"
+    if [[ $? -ne 0 ]]; then
+        echo "Failed to copy script to $SERVER"
+        return 1
+    fi
+
+    # Execute the script remotely
+    ssh "$USER@$SERVER" "sudo bash $REMOTE_PATH"
+    if [[ $? -eq 0 ]]; then
+        echo "Successfully updated SSSD on $SERVER"
+    else
+        echo "Failed to update SSSD on $SERVER"
+    fi
+}
+
+# Run the update function for each server
 for SERVER in "${SERVERS[@]}"; do
-    scp update_sssd.sh deploy@$SERVER:/tmp/update_sssd.sh
-    ssh deploy@$SERVER "sudo bash /tmp/update_sssd.sh"
+    update_sssd_remote "$SERVER" &
 done
 
+# Wait for all background jobs to finish
+wait
+
+echo "SSSD updates completed for all servers."
