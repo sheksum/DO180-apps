@@ -79,3 +79,46 @@ deprecation_warnings = False
 command_warnings = False
 stdout_callback = yaml
 EOF
+
+
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ ansible all -i inventory -m ping -u deploy -b
+10.168.0.58 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ ansible-playbook mine -i inventory -u deploy -b
+
+PLAY [VM Configuration Update and DNS Setup] **********************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************************
+ok: [10.168.0.58]
+
+TASK [Update ipa_server entry in /etc/sssd/sssd.conf] *************************************************************************************************
+changed: [10.168.0.58]
+
+PLAY RECAP ********************************************************************************************************************************************
+10.168.0.58                : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ cat mine 
+---
+- name: VM Configuration Update and DNS Setup
+  hosts: all
+  become: yes
+  tasks:
+
+  - name: Update ipa_server entry in /etc/sssd/sssd.conf
+    lineinfile:
+      path: /etc/sssd/sssd.conf
+      regexp: '^ipa_server ='
+      line: 'ipa_server = _srv_, pln-petipareplica.ipa.calix.local, cpeg-ipareplica.ipa.calix.local'
+      state: present
+      backrefs: no
+
+# Uncomment the following task if a system reboot is required after configuration updates
+#  - name: Reboot the system
+#    reboot:
+#      msg: "Rebooting to apply changes"
+#      pre_reboot_delay: 10
+
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ 
+
