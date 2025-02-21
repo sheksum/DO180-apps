@@ -1,0 +1,13 @@
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ ansible all -i inventory -m ping -u deploy -b
+/usr/lib/python3/dist-packages/paramiko/pkey.py:82: CryptographyDeprecationWarning: TripleDES has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.TripleDES and will be removed from this module in 48.0.0.
+  "cipher": algorithms.TripleDES,
+/usr/lib/python3/dist-packages/paramiko/transport.py:237: CryptographyDeprecationWarning: Blowfish has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.Blowfish and will be removed from this module in 45.0.0.
+  "class": algorithms.Blowfish,
+/usr/lib/python3/dist-packages/paramiko/transport.py:261: CryptographyDeprecationWarning: TripleDES has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.TripleDES and will be removed from this module in 48.0.0.
+  "class": algorithms.TripleDES,
+10.168.0.58 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to create temporary directory. In some cases, you may have been able to authenticate and did not have permissions on the target directory. Consider changing the remote tmp path in ansible.cfg to a path rooted in \"/tmp\", for more error information use -vvv. Failed command was: ( umask 77 && mkdir -p \"` echo /opt/home/deploy/.ansible/tmp `\"&& mkdir \"` echo /opt/home/deploy/.ansible/tmp/ansible-tmp-1740151748.7210371-417994-227885817154154 `\" && echo ansible-tmp-1740151748.7210371-417994-227885817154154=\"` echo /opt/home/deploy/.ansible/tmp/ansible-tmp-1740151748.7210371-417994-227885817154154 `\" ), exited with result 1",
+    "unreachable": true
+}
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ ansible all -i inventory -m ping -u depl
