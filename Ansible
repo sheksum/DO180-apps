@@ -225,4 +225,30 @@ PLAY RECAP *********************************************************************
 
 hsuma@plnx-admin:~/haj/ansible-setup-hosts$ 
       
+---
+- name: VM Configuration Update and DNS Setup
+  hosts: all
+  become: yes
+  tasks:
+
+  - name: Update ipa_server entry in /etc/sssd/sssd.conf
+    lineinfile:
+      path: /etc/sssd/sssd.conf
+      regexp: '^ipa_server ='
+      line: 'ipa_server = _srv_, pln-petipareplica.ipa.calix.local, cpeg-ipareplica.ipa.calix.local'
+      state: present
+      backrefs: no
+    notify: Restart SSSD
+
+  - name: Ensure SSSD is restarted
+    service:
+      name: sssd
+      state: restarted
+    become: yes
+
+  handlers:
+  - name: Restart SSSD
+    service:
+      name: sssd
+      state: restarted
 
