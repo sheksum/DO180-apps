@@ -51,3 +51,34 @@ hsuma@plnx-admin:~/haj/ansible-setup-hosts/playground$ vi user-playbook.yml
         groups: "{{ secondary_group }}"
         home: /opt/home/deploy
         create_home: yes
+
+
+
+  tasks:
+    - name: Check if sudo group exists
+      group:
+        name: sudo
+      register: sudo_group_exists
+      failed_when: false  # Ignore failure if the group doesn't exist
+
+    - name: Check if wheel group exists
+      group:
+        name: wheel
+      register: wheel_group_exists
+      failed_when: false  # Ignore failure if the group doesn't exist
+
+    - name: Set secondary group to sudo if it exists
+      set_fact:
+        secondary_group: sudo
+      when: sudo_group_exists.failed == false
+
+    - name: Set secondary group to wheel if sudo doesn't exist and wheel does
+      set_fact:
+        secondary_group: wheel
+      when: sudo_group_exists.failed == true and wheel_group_exists.failed == false
+
+
+i want you to add public key for deploy user
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC/r7R6Kivb2Hd48SAMcGlMlJBVCgTW7eTcaKRCturE+OIP1hE7f39mKVD9fPM8phwoALjObsG0eaBSDqMaHI5J906VFMtx6LzmbeTUluMeNhHyAcwVoZmNKQvj6RqoN0VXA0xDe2cYoNi4hnRRkIdtTwOwgOfrV32gnIf0cIuDqmSYl1S1fsVXUD/aHf5sZGnWf79ilsphv6lAGaCLGF/BVxYGMR6RWRuOQW14xGL95/T9ccA7BNDrutMis4NCm5HuafI7+0pKLGq/Cb1HTZaKe6r7wRtRt3df4fNbJXd+ZTal3SNeWprnuPLmWZ03XniH/872IQH4XJXiG09X014OWpG58+9CykgF1QMsJiLLvYiS9tc7jW4yR5DMKmSvVB8fEQuO3QtgNuKAa+fnz/K/Qp1qBrrTjgDG+fB7N0NKhW06pu2V65qnTKV8RTw96+IsdMjjX2AraTxKYArwIUcy9gOXy10vz7LwxWInc6UEMvz+R9OfdMpwPJ0BKmKbAMu78GlVGj9X/6rkagTamn0Ol4I1QZG1+UOVy2pkfqP3nFiGiXoBI7fzt26NPfzGOzDKnIpQmadXwGHxD4opW34mN4xjcqaSGCSxMZZStt7xojJisapYOPOOt0A53iZwFJTzEOYO20nXLAv+kj4gU9w+Co/IOOk+gsUZgXEt6ZqIMw== deploy@slc-admin.calix.local
+
