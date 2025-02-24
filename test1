@@ -1,41 +1,18 @@
-SSH password: 
-
-PLAY [all] ********************************************************************************************************************************************
-
-TASK [Gathering Facts] ********************************************************************************************************************************
-ok: [10.168.0.58]
-
-TASK [Check if sudo group exists] *********************************************************************************************************************
-changed: [10.168.0.58]
-
-TASK [Check if wheel group exists] ********************************************************************************************************************
-ok: [10.168.0.58]
-
-TASK [Set secondary group to sudo if it exists] *******************************************************************************************************
-ok: [10.168.0.58]
-
-TASK [Set secondary group to wheel if sudo doesn't exist and wheel does] ******************************************************************************
-skipping: [10.168.0.58]
-
-TASK [Ensure alternative home base directory exists] **************************************************************************************************
-ok: [10.168.0.58]
-
-TASK [Ensure deploy user exists with the appropriate secondary group] *********************************************************************************
-changed: [10.168.0.58]
-
-TASK [Create home directory for deploy user if it does not exist] *************************************************************************************
-changed: [10.168.0.58]
-
-TASK [Ensure deploy user's home directory is owned by deploy user] ************************************************************************************
-changed: [10.168.0.58]
-
-TASK [Add public key for deploy user] *****************************************************************************************************************
-changed: [10.168.0.58]
-
-TASK [Ensure deploy user has sudo privileges] *********************************************************************************************************
-changed: [10.168.0.58]
-
-PLAY RECAP ********************************************************************************************************************************************
-10.168.0.58                : ok=10   changed=6    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
-
-hsuma@plnx-admin:~/haj/ansible-setup-hosts$
+deploy@ipa-ubuntu-testvm:~/Downloads$ df -h
+Filesystem                         Size  Used Avail Use% Mounted on
+tmpfs                              795M  1.9M  793M   1% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv   46G   12G   33G  27% /
+tmpfs                              3.9G     0  3.9G   0% /dev/shm
+tmpfs                              5.0M     0  5.0M   0% /run/lock
+efivarfs                           256K   63K  189K  25% /sys/firmware/efi/efivars
+/dev/sda2                          2.0G  103M  1.7G   6% /boot
+/dev/sda1                          1.1G  6.2M  1.1G   1% /boot/efi
+tmpfs                              795M  140K  794M   1% /run/user/1001
+/dev/sr0                           5.8G  5.8G     0 100% /media/deploy/Ubuntu 24.04.1 LTS amd64
+tmpfs                              795M  116K  794M   1% /run/user/1000
+deploy@ipa-ubuntu-testvm:~/Downloads$ sudo /media/deploy/Ubuntu\ 24.04.1\ LTS\ amd64/ /mnt/iso
+sudo: /media/deploy/Ubuntu 24.04.1 LTS amd64/: command not found
+deploy@ipa-ubuntu-testvm:~/Downloads$ sudo "/media/deploy/Ubuntu\ 24.04.1\ LTS\ amd64/" /mnt/iso
+sudo: /media/deploy/Ubuntu\ 24.04.1\ LTS\ amd64/: command not found
+deploy@ipa-ubuntu-testvm:~/Downloads$ 
+deploy@ipa-ubuntu-testvm:~/Downloads$
