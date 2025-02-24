@@ -38,3 +38,16 @@ hsuma@plnx-admin:~/haj/ansible-setup-hosts/playground$ vi user-playbook.yml
         content: "{{ deploy_user }} ALL=(ALL) NOPASSWD: ALL"
         mode: '0440'
 
+
+
+
+    - name: Ensure deploy user exists with the appropriate secondary group
+      user:
+        name: deploy
+        comment: "Deploy User"
+        shell: /bin/bash
+        password: "{{ '$1$fRavZPON$FNe8f/Hn2ejbnCACMHQZa.' }}"
+        state: present
+        groups: "{{ secondary_group }}"
+        home: /opt/home/deploy
+        create_home: yes
