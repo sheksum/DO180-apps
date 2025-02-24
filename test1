@@ -1,71 +1,22 @@
-hsuma@plnx-admin:~/haj/ansible-setup-hosts/playground$ vi user-playbook.yml 
-
-  hosts: all
+- hosts: all
   become: yes
 
   vars:
     deploy_user: "deploy"
-    deploy_password: "school1"
     deploy_home: "/opt/home/{{ deploy_user }}"
-
-  tasks:
-    - name: Ensure alternative home base directory exists
-      file:
-        path: "/opt/home"
-        state: directory
-        mode: '0755'
-
-    - name: Ensure deploy user exists
-      user:
-        name: "{{ deploy_user }}"
-        password: "{{ deploy_password | password_hash('sha512') }}"
-        home: "{{ deploy_home }}"
-        shell: /bin/bash
-        state: present
-        create_home: no
-
-    - name: Create home directory for deploy user if it does not exist
-      file:
-        path: "{{ deploy_home }}"
-        state: directory
-        owner: "{{ deploy_user }}"
-        group: "{{ deploy_user }}"
-        mode: '0755'
-
-    - name: Ensure deploy user has sudo privileges
-      copy:
-        dest: "/etc/sudoers.d/{{ deploy_user }}"
-        content: "{{ deploy_user }} ALL=(ALL) NOPASSWD: ALL"
-        mode: '0440'
-
-
-
-
-    - name: Ensure deploy user exists with the appropriate secondary group
-      user:
-        name: deploy
-        comment: "Deploy User"
-        shell: /bin/bash
-        password: "{{ '$1$fRavZPON$FNe8f/Hn2ejbnCACMHQZa.' }}"
-        state: present
-        groups: "{{ secondary_group }}"
-        home: /opt/home/deploy
-        create_home: yes
-
-
 
   tasks:
     - name: Check if sudo group exists
       group:
         name: sudo
       register: sudo_group_exists
-      failed_when: false  # Ignore failure if the group doesn't exist
+      failed_when: false
 
     - name: Check if wheel group exists
       group:
         name: wheel
       register: wheel_group_exists
-      failed_when: false  # Ignore failure if the group doesn't exist
+      failed_when: false
 
     - name: Set secondary group to sudo if it exists
       set_fact:
@@ -77,8 +28,44 @@ hsuma@plnx-admin:~/haj/ansible-setup-hosts/playground$ vi user-playbook.yml
         secondary_group: wheel
       when: sudo_group_exists.failed == true and wheel_group_exists.failed == false
 
+    - name: Ensure alternative home base directory exists
+      file:
+        path: "/opt/home"
+        state: directory
+        mode: '0755'
 
-i want you to add public key for deploy user
+    - name: Ensure deploy user exists with the appropriate secondary group
+      user:
+        name: "{{ deploy_user }}"
+        comment: "Deploy User"
+        shell: /bin/bash
+        password: "{{ '$1$fRavZPON$FNe8f/Hn2ejbnCACMHQZa.' }}"
+        home: "{{ deploy_home }}"
+        state: present
+        create_home: no
+        groups: "{{ secondary_group | default(omit) }}"
 
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC/r7R6Kivb2Hd48SAMcGlMlJBVCgTW7eTcaKRCturE+OIP1hE7f39mKVD9fPM8phwoALjObsG0eaBSDqMaHI5J906VFMtx6LzmbeTUluMeNhHyAcwVoZmNKQvj6RqoN0VXA0xDe2cYoNi4hnRRkIdtTwOwgOfrV32gnIf0cIuDqmSYl1S1fsVXUD/aHf5sZGnWf79ilsphv6lAGaCLGF/BVxYGMR6RWRuOQW14xGL95/T9ccA7BNDrutMis4NCm5HuafI7+0pKLGq/Cb1HTZaKe6r7wRtRt3df4fNbJXd+ZTal3SNeWprnuPLmWZ03XniH/872IQH4XJXiG09X014OWpG58+9CykgF1QMsJiLLvYiS9tc7jW4yR5DMKmSvVB8fEQuO3QtgNuKAa+fnz/K/Qp1qBrrTjgDG+fB7N0NKhW06pu2V65qnTKV8RTw96+IsdMjjX2AraTxKYArwIUcy9gOXy10vz7LwxWInc6UEMvz+R9OfdMpwPJ0BKmKbAMu78GlVGj9X/6rkagTamn0Ol4I1QZG1+UOVy2pkfqP3nFiGiXoBI7fzt26NPfzGOzDKnIpQmadXwGHxD4opW34mN4xjcqaSGCSxMZZStt7xojJisapYOPOOt0A53iZwFJTzEOYO20nXLAv+kj4gU9w+Co/IOOk+gsUZgXEt6ZqIMw== deploy@slc-admin.calix.local
+    - name: Create home directory for deploy user if it does not exist
+      file:
+        path: "{{ deploy_home }}"
+        state: directory
+        mode: '0755'
 
+    - name: Ensure deploy user's home directory is owned by deploy user
+      file:
+        path: "{{ deploy_home }}"
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+        recurse: yes
+
+    - name: Add public key for deploy user
+      authorized_key:
+        user: "{{ deploy_user }}"
+        key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC/r7R6Kivb2Hd48SAMcGlMlJBVCgTW7eTcaKRCturE+OIP1hE7f39mKVD9fPM8phwoALjObsG0eaBSDqMaHI5J906VFMtx6LzmbeTUluMeNhHyAcwVoZmNKQvj6RqoN0VXA0xDe2cYoNi4hnRRkIdtTwOwgOfrV32gnIf0cIuDqmSYl1S1fsVXUD/aHf5sZGnWf79ilsphv6lAGaCLGF/BVxYGMR6RWRuOQW14xGL95/T9ccA7BNDrutMis4NCm5HuafI7+0pKLGq/Cb1HTZaKe6r7wRtRt3df4fNbJXd+ZTal3SNeWprnuPLmWZ03XniH/872IQH4XJXiG09X014OWpG58+9CykgF1QMsJiLLvYiS9tc7jW4yR5DMKmSvVB8fEQuO3QtgNuKAa+fnz/K/Qp1qBrrTjgDG+fB7N0NKhW06pu2V65qnTKV8RTw96+IsdMjjX2AraTxKYArwIUcy9gOXy10vz7LwxWInc6UEMvz+R9OfdMpwPJ0BKmKbAMu78GlVGj9X/6rkagTamn0Ol4I1QZG1+UOVy2pkfqP3nFiGiXoBI7fzt26NPfzGOzDKnIpQmadXwGHxD4opW34mN4xjcqaSGCSxMZZStt7xojJisapYOPOOt0A53iZwFJTzEOYO20nXLAv+kj4gU9w+Co/IOOk+gsUZgXEt6ZqIMw== deploy@slc-admin.calix.local"
+      state: present
+
+    - name: Ensure deploy user has sudo privileges
+      copy:
+        dest: "/etc/sudoers.d/{{ deploy_user }}"
+        content: "{{ deploy_user }} ALL=(ALL) NOPASSWD: ALL"
+        mode: '0440'
