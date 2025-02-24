@@ -1,7 +1,40 @@
-Thanks for confirming. I'll proceed with creating the Global Labs Automation Team IPA group and adding @AJITH JACOB, @Kareem Julien, and @MAYANK GUPTA to it. They will inherit the necessary sudo privileges through this group.
+hsuma@plnx-admin:~/haj/ansible-setup-hosts/playground$ vi user-playbook.yml 
 
-Regarding sudo permission profiles, we do have existing templates that can be used as a starting point. Could you clarify the level of granularity required for these permissions? For example, do they need full administrative access, or should we define specific command sets based on operational needs?
+  hosts: all
+  become: yes
 
-Also, if there are any additional team members who should be included, please share their names so we can ensure everyone has the appropriate access.
+  vars:
+    deploy_user: "deploy"
+    deploy_password: "school1"
+    deploy_home: "/opt/home/{{ deploy_user }}"
 
-Looking forward to your input.
+  tasks:
+    - name: Ensure alternative home base directory exists
+      file:
+        path: "/opt/home"
+        state: directory
+        mode: '0755'
+
+    - name: Ensure deploy user exists
+      user:
+        name: "{{ deploy_user }}"
+        password: "{{ deploy_password | password_hash('sha512') }}"
+        home: "{{ deploy_home }}"
+        shell: /bin/bash
+        state: present
+        create_home: no
+
+    - name: Create home directory for deploy user if it does not exist
+      file:
+        path: "{{ deploy_home }}"
+        state: directory
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+        mode: '0755'
+
+    - name: Ensure deploy user has sudo privileges
+      copy:
+        dest: "/etc/sudoers.d/{{ deploy_user }}"
+        content: "{{ deploy_user }} ALL=(ALL) NOPASSWD: ALL"
+        mode: '0440'
+
