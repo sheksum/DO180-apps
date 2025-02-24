@@ -16,3 +16,9 @@ deploy@ipa-ubuntu-testvm:~/Downloads$ sudo "/media/deploy/Ubuntu\ 24.04.1\ LTS\ 
 sudo: /media/deploy/Ubuntu\ 24.04.1\ LTS\ amd64/: command not found
 deploy@ipa-ubuntu-testvm:~/Downloads$ 
 deploy@ipa-ubuntu-testvm:~/Downloads$
+
+
+deploy@ipa-ubuntu-testvm:~/Downloads$ sudo "/media/deploy/Ubuntu\ 24^C4.1\ LTS\ amd64/" /mnt/iso
+deploy@ipa-ubuntu-testvm:~/Downloads$ sudo mount -o loop "/media/deploy/Ubuntu 24.04.1 LTS amd64" /mnt/iso
+mount: /mnt/iso: failed to setup loop device for /media/deploy/Ubuntu 24.04.1 LTS amd64.
+deploy@ipa-ubuntu-testvm:~/Downloads$ 
