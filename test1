@@ -1,0 +1,7 @@
+
+Thank you for the clarification and additional information. Let's proceed with the IPA group ID "Global Labs Automation Team." I have added @AJITH JACOB , @Kareem Julien , and @MAYANK GUPTA to the list of accounts requiring sudo-level access. Could you please include them within the IPA group?
+Additionally, regarding R/W/E permissions, are there any existing sudo profile templates that we can use as a starting point to build the complete sudo permission profiles? Furthermore, how granular does the permission scope need to be?
+
+
+
+@Andrew Shea  - sorry for not expanding more on the needed info. Basically we have changed our approached with how sudo privileges are given out. Sudo privileges are no longer given locally per system to system basis. Sudo privileges are now managed centrally via Red Hat IdM. To achieve your request, I’d need your teams name - so I could create an IPA group for your team and add yourself and the other two folks you tagged in the ticket then grant the sudo privileges to the group which you guys would inherit. Would I be correct to say you are part of Global Labs Automation team? Also, I need all members of your team if there are others with the exception of the two you had listed on the ticket
