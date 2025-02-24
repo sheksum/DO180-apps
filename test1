@@ -69,3 +69,17 @@
         dest: "/etc/sudoers.d/{{ deploy_user }}"
         content: "{{ deploy_user }} ALL=(ALL) NOPASSWD: ALL"
         mode: '0440'
+
+
+
+ERROR! conflicting action statements: authorized_key, state
+
+The error appears to be in '/home/hsuma/haj/ansible-setup-hosts/deploy-user-setup.yml': line 61, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+
+    - name: Add public key for deploy user
+      ^ here
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$ 
