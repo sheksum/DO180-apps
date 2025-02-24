@@ -1,85 +1,41 @@
-- hosts: all
-  become: yes
+SSH password: 
 
-  vars:
-    deploy_user: "deploy"
-    deploy_home: "/opt/home/{{ deploy_user }}"
+PLAY [all] ********************************************************************************************************************************************
 
-  tasks:
-    - name: Check if sudo group exists
-      group:
-        name: sudo
-      register: sudo_group_exists
-      failed_when: false
+TASK [Gathering Facts] ********************************************************************************************************************************
+ok: [10.168.0.58]
 
-    - name: Check if wheel group exists
-      group:
-        name: wheel
-      register: wheel_group_exists
-      failed_when: false
+TASK [Check if sudo group exists] *********************************************************************************************************************
+changed: [10.168.0.58]
 
-    - name: Set secondary group to sudo if it exists
-      set_fact:
-        secondary_group: sudo
-      when: sudo_group_exists.failed == false
+TASK [Check if wheel group exists] ********************************************************************************************************************
+ok: [10.168.0.58]
 
-    - name: Set secondary group to wheel if sudo doesn't exist and wheel does
-      set_fact:
-        secondary_group: wheel
-      when: sudo_group_exists.failed == true and wheel_group_exists.failed == false
+TASK [Set secondary group to sudo if it exists] *******************************************************************************************************
+ok: [10.168.0.58]
 
-    - name: Ensure alternative home base directory exists
-      file:
-        path: "/opt/home"
-        state: directory
-        mode: '0755'
+TASK [Set secondary group to wheel if sudo doesn't exist and wheel does] ******************************************************************************
+skipping: [10.168.0.58]
 
-    - name: Ensure deploy user exists with the appropriate secondary group
-      user:
-        name: "{{ deploy_user }}"
-        comment: "Deploy User"
-        shell: /bin/bash
-        password: "{{ '$1$fRavZPON$FNe8f/Hn2ejbnCACMHQZa.' }}"
-        home: "{{ deploy_home }}"
-        state: present
-        create_home: no
-        groups: "{{ secondary_group | default(omit) }}"
+TASK [Ensure alternative home base directory exists] **************************************************************************************************
+ok: [10.168.0.58]
 
-    - name: Create home directory for deploy user if it does not exist
-      file:
-        path: "{{ deploy_home }}"
-        state: directory
-        mode: '0755'
+TASK [Ensure deploy user exists with the appropriate secondary group] *********************************************************************************
+changed: [10.168.0.58]
 
-    - name: Ensure deploy user's home directory is owned by deploy user
-      file:
-        path: "{{ deploy_home }}"
-        owner: "{{ deploy_user }}"
-        group: "{{ deploy_user }}"
-        recurse: yes
+TASK [Create home directory for deploy user if it does not exist] *************************************************************************************
+changed: [10.168.0.58]
 
-    - name: Add public key for deploy user
-      authorized_key:
-        user: "{{ deploy_user }}"
-        key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC/r7R6Kivb2Hd48SAMcGlMlJBVCgTW7eTcaKRCturE+OIP1hE7f39mKVD9fPM8phwoALjObsG0eaBSDqMaHI5J906VFMtx6LzmbeTUluMeNhHyAcwVoZmNKQvj6RqoN0VXA0xDe2cYoNi4hnRRkIdtTwOwgOfrV32gnIf0cIuDqmSYl1S1fsVXUD/aHf5sZGnWf79ilsphv6lAGaCLGF/BVxYGMR6RWRuOQW14xGL95/T9ccA7BNDrutMis4NCm5HuafI7+0pKLGq/Cb1HTZaKe6r7wRtRt3df4fNbJXd+ZTal3SNeWprnuPLmWZ03XniH/872IQH4XJXiG09X014OWpG58+9CykgF1QMsJiLLvYiS9tc7jW4yR5DMKmSvVB8fEQuO3QtgNuKAa+fnz/K/Qp1qBrrTjgDG+fB7N0NKhW06pu2V65qnTKV8RTw96+IsdMjjX2AraTxKYArwIUcy9gOXy10vz7LwxWInc6UEMvz+R9OfdMpwPJ0BKmKbAMu78GlVGj9X/6rkagTamn0Ol4I1QZG1+UOVy2pkfqP3nFiGiXoBI7fzt26NPfzGOzDKnIpQmadXwGHxD4opW34mN4xjcqaSGCSxMZZStt7xojJisapYOPOOt0A53iZwFJTzEOYO20nXLAv+kj4gU9w+Co/IOOk+gsUZgXEt6ZqIMw== deploy@slc-admin.calix.local"
-      state: present
+TASK [Ensure deploy user's home directory is owned by deploy user] ************************************************************************************
+changed: [10.168.0.58]
 
-    - name: Ensure deploy user has sudo privileges
-      copy:
-        dest: "/etc/sudoers.d/{{ deploy_user }}"
-        content: "{{ deploy_user }} ALL=(ALL) NOPASSWD: ALL"
-        mode: '0440'
+TASK [Add public key for deploy user] *****************************************************************************************************************
+changed: [10.168.0.58]
 
+TASK [Ensure deploy user has sudo privileges] *********************************************************************************************************
+changed: [10.168.0.58]
 
+PLAY RECAP ********************************************************************************************************************************************
+10.168.0.58                : ok=10   changed=6    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
 
-ERROR! conflicting action statements: authorized_key, state
-
-The error appears to be in '/home/hsuma/haj/ansible-setup-hosts/deploy-user-setup.yml': line 61, column 7, but may
-be elsewhere in the file depending on the exact syntax problem.
-
-The offending line appears to be:
-
-
-    - name: Add public key for deploy user
-      ^ here
-hsuma@plnx-admin:~/haj/ansible-setup-hosts$ 
+hsuma@plnx-admin:~/haj/ansible-setup-hosts$
