@@ -22,3 +22,19 @@ deploy@ipa-ubuntu-testvm:~/Downloads$ sudo "/media/deploy/Ubuntu\ 24^C4.1\ LTS\ 
 deploy@ipa-ubuntu-testvm:~/Downloads$ sudo mount -o loop "/media/deploy/Ubuntu 24.04.1 LTS amd64" /mnt/iso
 mount: /mnt/iso: failed to setup loop device for /media/deploy/Ubuntu 24.04.1 LTS amd64.
 deploy@ipa-ubuntu-testvm:~/Downloads$ 
+
+
+Hi, Haj
+                I was helping one CDC users with his IPA linux password expiration issue.
+ 
+                User: Jacky Zheng
+                Username: jzheng
+ 
+                I saw the password has been reset by Anjali yesterday, but when I checked on multiple IPA servers today:
+NAN/PET/CPEG IPA server has his latest Password expiration 2026-02-24 06:08:32Z.
+But RIC/MIN IPA server still showed with Password expiration 2024-12-21 09:56:14Z.
+SJC IPA server showed with “Internal Server Error”.
+ 
+Looks like there have some sync issues between IPA servers: CPEG -> PET, CPEG ->NAN are good, but CPEP -> RIC/MIN, NAN-> CPEG/PET/PET/MIN/RIC got issues.
+ 
+Can you double check the IPA environment?
