@@ -7,3 +7,51 @@ curl: (6) Could not resolve host: sjc-ipareplica.ipa.calix.local
 ^C
 [1]+  Exit 6                  curl -v -b ~/cookiejar -c ~/cookiejar --negotiate -u : -H "Content-Type:application/json" -H "Accept:application/json" -H Referer:https://$IPA_SERVER/ipa ${JSON_REQUEST:+-d "$JSON_REQUEST"} https://$IPA_SERVER/ca/rest/certs/search
 [root@cpeg-ipareplica ~]# 
+
+
+[root@cpeg-ipareplica db]# pki securitydomain show
+  Domain: IPA
+
+  CA Subsystem:
+
+    Host ID: CA pet-ipamaster.ipa.calix.local 443
+    Hostname: pet-ipamaster.ipa.calix.local
+    Port: 80
+    Secure Port: 443
+    Domain Manager: TRUE
+
+    Host ID: CA nan-ipareplica.ipa.calix.local 443
+    Hostname: nan-ipareplica.ipa.calix.local
+    Port: 80
+    Secure Port: 443
+    Domain Manager: TRUE
+
+    Host ID: CA sjc-ipareplica.ipa.calix.local 443
+    Hostname: sjc-ipareplica.ipa.calix.local
+    Port: 80
+    Secure Port: 443
+    Domain Manager: TRUE
+
+    Host ID: CA min-ipareplica.ipa.calix.local 443
+    Hostname: min-ipareplica.ipa.calix.local
+    Port: 80
+    Secure Port: 443
+    Domain Manager: TRUE
+
+    Host ID: CA cpeg-ipareplica.ipa.calix.local 443
+    Hostname: cpeg-ipareplica.ipa.calix.local
+    Port: 80
+    Secure Port: 443
+    Domain Manager: TRUE
+
+    Host ID: CA cvil-ipareplica.ipa.calix.local 443
+    Hostname: cvil-ipareplica.ipa.calix.local
+    Port: 80
+    Secure Port: 443
+    Domain Manager: TRUE
+
+[root@cpeg-ipareplica db]# pki securitydomain 
+changelog/      ipaca/          log.0000000148  log.0000003441  log.0000003454  log.0000003828  userRoot/       
+[root@cpeg-ipareplica db]# pki securitydomain-del sjc-ipareplica.ipa.calix.local
+ERROR: Invalid module "securitydomain-del".
+[root@cpeg-ipareplica db]# 
