@@ -68,3 +68,6 @@ root@cpeg-ipareplica ipa]# pki securitydomain-host show "CA sjc-ipareplica.ipa.c
 [root@cpeg-ipareplica ipa]# pki securitydomain-host del "CA sjc-ipareplica.ipa.calix.local 443"
 ForbiddenException: No user principal provided.
 
+
+curl -v -b ~/cookiejar -c ~/cookiejar --negotiate -u : -H "Content-Type:application/json" -H "Accept:application/json" -H Referer:https://$IPA_SERVER/ipa ${JSON_REQUEST:+-d "$JSON_REQUEST"} https://$IPA_SERVER/ca/rest/securitydomain-hosts/CA%20sjc-ipareplica.ipa.calix.local%20443
+
