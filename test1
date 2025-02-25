@@ -667,3 +667,54 @@ ipa: ERROR: slc-ipareplica.ipa.calix.local: DNS resource record not found
 [root@cpeg-ipareplica ~]# ipa dnsrecord-del ipa.calix.local slc-ipareplica.ip^Ccalix.local
 [root@cpeg-ipareplica ~]# ipa dnsrecord-del 
 Record name: 
+
+
+
+
+
+kerberos.PET_location._locations
+_kpasswd.PET_location._locations
+_kerberos._tcp.PET_location._locations
+_kerberos-master._tcp.PET_location._locations
+_kpasswd._tcp.PET_location._locations
+_ldap._tcp.PET_location._locations
+_kerberos._udp.PET_location._locations
+_kerberos-master._udp.PET_location._locations
+_kpasswd._udp.PET_location._locations
+_kerberos.RIC_location._locations
+_kpasswd.RIC_location._locations
+_kerberos._tcp.RIC_location._locations
+_kerberos-master._tcp.RIC_location._locations
+_kpasswd._tcp.RIC_location._locations
+_ldap._tcp.RIC_location._locations
+_kerberos._udp.RIC_location._locations
+_kerberos-master._udp.RIC_location._locations
+_kpasswd._udp.RIC_location._locations
+_kerberos.SJC_location._locations
+_kpasswd.SJC_location._locations
+_kerberos._tcp.SJC_location._locations
+_kerberos-master._tcp.SJC_location._locations
+_kpasswd._tcp.SJC_location._locations
+_ldap._tcp.SJC_location._locations
+_kerberos._udp.SJC_location._locations
+ _kerberos-master._udp.SJC_location._locations
+_kpasswd._udp.SJC_location._locations
+_ntp._udp.SJC_location._locations
+_kerberos.SLC_location._locations
+_kpasswd.SLC_location._locations
+_kerberos._tcp.SLC_location._locations
+_kerberos-master._tcp.SLC_location._locations
+_kpasswd._tcp.SLC_location._locations
+_ldap._tcp.SLC_location._locations
+_kerberos._udp.SLC_location._locations
+_kerberos-master._udp.SLC_location._locations
+_kpasswd._udp.SLC_location._locations
+_ntp._udp.SLC_location._locations
+_kerberos._tcp
+_kerberos-master._tcp
+_kpasswd._tcp
+_ldap._tcp
+_kerberos._udp
+_kerberos-master._udp
+_kpasswd._udp
+_ntp._udp
