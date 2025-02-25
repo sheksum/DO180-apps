@@ -38,3 +38,11 @@ SJC IPA server showed with “Internal Server Error”.
 Looks like there have some sync issues between IPA servers: CPEG -> PET, CPEG ->NAN are good, but CPEP -> RIC/MIN, NAN-> CPEG/PET/PET/MIN/RIC got issues.
  
 Can you double check the IPA environment?
+
+
+
+Create a certificate database or use an existing one. To create a new database:
+# certutil -N -d <database path>
+Create a CSR with subject CN=<hostname>,O=<realm>, for example:
+# certutil -R -d <database path> -a -g <key size> -s 'CN=sjc-ipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL' -8 'sjc-ipareplica.ipa.calix.local'
+Copy and paste the CSR (from -----BEGIN NEW CERTIFICATE REQUEST----- to -----END NEW CERTIFICATE REQUEST-----) into the text area below:
