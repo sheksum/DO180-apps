@@ -718,3 +718,14 @@ _kerberos._udp
 _kerberos-master._udp
 _kpasswd._udp
 _ntp._udp
+
+
+
+ipa dnsrecord-del ipa.calix.local _kerberos.SJC_location._locations --srv-target sjc-ipareplica.ipa.calix.local
+ipa dnsrecord-del ipa.calix.local _kerberos-master._tcp.SJC_location._locations --srv-target sjc-ipareplica.ipa.calix.local
+ipa dnsrecord-del ipa.calix.local _kerberos._tcp.SJC_location._locations --srv-target sjc-ipareplica.ipa.calix.local
+ipa dnsrecord-del ipa.calix.local _kerberos-master._udp.SJC_location._locations --srv-target sjc-ipareplica.ipa.calix.local
+ipa dnsrecord-del ipa.calix.local _kerberos._udp.SJC_location._locations --srv-target sjc-ipareplica.ipa.calix.local
+ipa dnsrecord-del ipa.calix.local _kpasswd.SJC_location._locations --srv-target sjc-ipareplica.ipa.calix.local
+ipa dnsrecord-del ipa.calix.local _ntp._udp.SJC_location._locations --srv-target sjc-ipareplica.ipa.calix.local
+
