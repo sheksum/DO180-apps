@@ -61,3 +61,36 @@ Internal server error Request timed out
       "status": "ERROR:  pki-tomcat : Internal error testing CA clone. Host: sjc-ipareplica.ipa.calix.local Port: 443"
     }
   },
+
+
+
+IPA Error 4033: ServerRemovalError
+Server removal aborted:
+
+Replication topology in suffix 'ca' is disconnected:
+
+Topology does not allow server cpeg-ipareplica.ipa.calix.local to replicate with servers:
+
+sjc-ipareplica.ipa.calix.local
+
+Topology does not allow server min-ipareplica.ipa.calix.local to replicate with servers:
+
+sjc-ipareplica.ipa.calix.local
+
+Topology does not allow server nan-ipareplica.ipa.calix.local to replicate with servers:
+
+sjc-ipareplica.ipa.calix.local
+
+Topology does not allow server pet-ipamaster.ipa.calix.local to replicate with servers:
+
+sjc-ipareplica.ipa.calix.local
+
+Topology does not allow server sjc-ipareplica.ipa.calix.local to replicate with servers:
+
+cpeg-ipareplica.ipa.calix.local
+
+pet-ipamaster.ipa.calix.local
+
+min-ipareplica.ipa.calix.local
+
+nan-ipareplica.ipa.calix.local.
