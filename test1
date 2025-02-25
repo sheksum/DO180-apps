@@ -729,3 +729,15 @@ ipa dnsrecord-del ipa.calix.local _kerberos._udp.SJC_location._locations --srv-t
 ipa dnsrecord-del ipa.calix.local _kpasswd.SJC_location._locations --srv-target sjc-ipareplica.ipa.calix.local
 ipa dnsrecord-del ipa.calix.local _ntp._udp.SJC_location._locations --srv-target sjc-ipareplica.ipa.calix.local
 
+
+Internal server error HTTPSConnectionPool(host='sjc-ipareplica.ipa.calix.local', port=443): Max retries exceeded with url: /ca/rest/certs/search?size=3 (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x7fcb4cb6e630>: Failed to establish a new connection: [Errno -2] Name or service not known',))
+[
+  {
+    "source": "pki.server.healthcheck.clones.connectivity_and_data",
+    "check": "ClonesConnectivyAndDataCheck",
+    "result": "ERROR",
+    "uuid": "65c6d803-b8d2-453a-be95-79b00827800b",
+    "when": "20250225174259Z",
+    "duration": "1.403645",
+    "kw": {
+      "status": "ERROR:  pki-tomcat : Internal error testing CA clone. Host: sjc-ipareplica.ipa.calix.local Port: 443"
