@@ -46,3 +46,18 @@ Create a certificate database or use an existing one. To create a new database:
 Create a CSR with subject CN=<hostname>,O=<realm>, for example:
 # certutil -R -d <database path> -a -g <key size> -s 'CN=sjc-ipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL' -8 'sjc-ipareplica.ipa.calix.local'
 Copy and paste the CSR (from -----BEGIN NEW CERTIFICATE REQUEST----- to -----END NEW CERTIFICATE REQUEST-----) into the text area below:
+
+
+Internal server error Request timed out
+[
+  {
+    "source": "pki.server.healthcheck.clones.connectivity_and_data",
+    "check": "ClonesConnectivyAndDataCheck",
+    "result": "ERROR",
+    "uuid": "7081bdd9-f1d5-4e4c-bd4c-3e446eae6d4b",
+    "when": "20250225151545Z",
+    "duration": "10.001130",
+    "kw": {
+      "status": "ERROR:  pki-tomcat : Internal error testing CA clone. Host: sjc-ipareplica.ipa.calix.local Port: 443"
+    }
+  },
