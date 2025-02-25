@@ -55,3 +55,16 @@ changelog/      ipaca/          log.0000000148  log.0000003441  log.0000003454  
 [root@cpeg-ipareplica db]# pki securitydomain-del sjc-ipareplica.ipa.calix.local
 ERROR: Invalid module "securitydomain-del".
 [root@cpeg-ipareplica db]# 
+
+root@cpeg-ipareplica ipa]# pki securitydomain-host show "CA sjc-ipareplica.ipa.calix.local 443"
+  Host ID: CA sjc-ipareplica.ipa.calix.local 443
+  Hostname: sjc-ipareplica.ipa.calix.local
+  Port: 80
+  Secure Port: 443
+  Domain Manager: TRUE
+  Clone: TRUE
+[root@cpeg-ipareplica ipa]# 
+[root@cpeg-ipareplica ipa]# 
+[root@cpeg-ipareplica ipa]# pki securitydomain-host del "CA sjc-ipareplica.ipa.calix.local 443"
+ForbiddenException: No user principal provided.
+
