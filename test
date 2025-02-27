@@ -1,105 +1,18 @@
-#version=RHEL8
-# Use graphical install
-graphical
+[root@ipatestvm ~]# curl -I  http://10.168.0.58/repo
+HTTP/1.1 301 Moved Permanently
+Date: Thu, 27 Feb 2025 20:46:25 GMT
+Server: Apache/2.4.37 (Red Hat Enterprise Linux)
+Location: http://10.168.0.58/repo/
+Content-Type: text/html; charset=iso-8859-1
 
-repo --name="AppStream" --baseurl=file:///run/install/sources/mount-0000-cdrom/AppStream
-
-%packages
-@^graphical-server-environment
-kexec-tools
-ipa-client
-sssd
-oddjob
-mkhomedir
-authselect
-subscription-manager
-%end
-
-# Keyboard layouts
-keyboard --xlayouts='us'
-# System language
-lang en_US.UTF-8
-
-# Network information
-network  --bootproto=dhcp --device=ens192 --onboot=off --ipv6=auto --no-activate
-network  --hostname=cpeg-ipareplica.calix.local
-
-# Use CDROM installation media
-cdrom
-
-# Run the Setup Agent on first boot
-firstboot --enable
-
-ignoredisk --only-use=sda
-autopart
-# Partition clearing information
-clearpart --none --initlabel
-
-# System timezone
-timezone America/New_York --isUtc
-
-# Root password
-rootpw --iscrypted $6$F5pKEtndo4/uhJ.e$DZoccNl9lD/Q19DbwuTAWH8Q7YaKhhC6o9dx84kGm8VKvgODw9Wd5hrYWgyin5Xy5KMJ4nQW0gnT5zZZT7A001
-user --name=deploy --password=$6$tcMStFafbDwzP4iw$V5E.Zje23C2x4D7OsVy8ENRMnyBYGUqV7RErz8BY17ii4HaxMgtqJSIFzLlKok0uQdcq1Yd/u68mM81i7mh0M. --iscrypted --gecos="deploy"
-
-%addon com_redhat_kdump --enable --reserve-mb='auto'
-
-%end
-
-%anaconda
-pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
-pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
-pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
-%end
-
-%post
-# Logging setup
-exec > /root/ks-post.log 2>&1
-echo "Starting Red Hat Subscription and IPA client installation"
-
-# Define Red Hat Subscription details
-RH_USERNAME="your-rhsm-username"
-RH_PASSWORD="your-rhsm-password"
-POOL_ID="your-subscription-pool-id"
-
-# Register system to Red Hat Subscription Manager
-echo "Registering system with Red Hat Subscription Manager..."
-subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD} --auto-attach
-if [ $? -ne 0 ]; then
-  echo "Registration failed, retrying with pool ID..."
-  subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD}
-  subscription-manager attach --pool=${POOL_ID}
-fi
-
-# Enable required repositories
-subscription-manager repos --enable=rhel-9-server-rpms --enable=rhel-9-server-extras-rpms --enable=rhel-9-server-optional-rpms
-
-# Define IPA server details
-IPA_SERVER="cpeg-ipareplica.ipa.calix.local"
-IPA_REALM="IPA.CALIX.LOCAL"
-DOMAIN="ipa.calix.local"
-
-# Install IPA client if not already installed
-if ! rpm -q ipa-client; then
-  yum install -y ipa-client
-fi
-
-# Configure the IPA client
-echo "Enrolling system to IPA..."
-ipa-client-install --unattended \
-  --server=$IPA_SERVER \
-  --domain=$DOMAIN \
-  --realm=$IPA_REALM \
-  --principal=admin \
-  --password="YourAdminPasswordHere" \
-  --mkhomedir \
-  --no-dns-sshfp \
-  --no-ntp
-
-# Enable SSSD for authentication
-authselect select sssd --force
-systemctl enable sssd
-systemctl start sssd
-
-echo "Red Hat subscription and IPA client setup completed."
-%end
+[root@ipatestvm ~]# cd /var/www/
+cgi-bin/ html/    
+[root@ipatestvm ~]# cd /var/www/
+[root@ipatestvm www]# cd html/
+[root@ipatestvm html]# ls
+ks-backup.cfg  ks.cfg  repo  test.cfg
+[root@ipatestvm html]# cd repo/
+[root@ipatestvm repo]# ls
+AppStream  BaseOS  EFI  EULA  extra_files.json  GPL  images  isolinux  media.repo  RPM-GPG-KEY-redhat-beta  RPM-GPG-KEY-redhat-release  TRANS.TBL
+[root@ipatestvm repo]# cd ..
+[root@ipatestvm html]# ll
