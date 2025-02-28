@@ -1,18 +1,30 @@
-[root@ipatestvm ~]# curl -I  http://10.168.0.58/repo
-HTTP/1.1 301 Moved Permanently
-Date: Thu, 27 Feb 2025 20:46:25 GMT
-Server: Apache/2.4.37 (Red Hat Enterprise Linux)
-Location: http://10.168.0.58/repo/
-Content-Type: text/html; charset=iso-8859-1
+#!/bin/bash
 
-[root@ipatestvm ~]# cd /var/www/
-cgi-bin/ html/    
-[root@ipatestvm ~]# cd /var/www/
-[root@ipatestvm www]# cd html/
-[root@ipatestvm html]# ls
-ks-backup.cfg  ks.cfg  repo  test.cfg
-[root@ipatestvm html]# cd repo/
-[root@ipatestvm repo]# ls
-AppStream  BaseOS  EFI  EULA  extra_files.json  GPL  images  isolinux  media.repo  RPM-GPG-KEY-redhat-beta  RPM-GPG-KEY-redhat-release  TRANS.TBL
-[root@ipatestvm repo]# cd ..
-[root@ipatestvm html]# ll
+# List of decommissioned namespaces (can be manually maintained or queried)
+decommissioned_namespaces=("project-1" "project-2" "project-3")
+
+# Retrieve the list of all namespaces in the cluster
+current_namespaces=$(kubectl get namespaces -o jsonpath='{.items[*].metadata.name}')
+
+# Loop through the decommissioned namespaces
+for ns in "${decommissioned_namespaces[@]}"; do
+    # Check if the namespace exists
+    if echo "$current_namespaces" | grep -q "$ns"; then
+        echo "Checking IP allocations for decommissioned namespace: $ns"
+
+        # Get the allocated IP pools (for example, using Calico)
+        allocated_ips=$(calicoctl get ippool -o json | jq -r '.items[].spec.cidr')
+
+        # Check if there are any IPs associated with the namespace
+        for ip in $allocated_ips; do
+            # Compare the allocated IP with the namespace's IP range (or any assigned IPs to resources)
+            if kubectl get pods --namespace="$ns" -o=jsonpath='{.items[*].status.podIP}' | grep -q "$ip"; then
+                echo "Warning: IP $ip is still allocated to a resource in the decommissioned namespace: $ns"
+            else
+                echo "No active resources with IP $ip in namespace $ns"
+            fi
+        done
+    else
+        echo "Namespace $ns does not exist in the current cluster."
+    fi
+done
