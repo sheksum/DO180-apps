@@ -52,51 +52,16 @@ def get_netbox_ip_pools():
         print(f"Error while retrieving data from NetBox: {e}")
         return {}
 
-# Function to update prefixes for each cluster
-def update_prefixes_for_cluster(cluster, netbox_ip_pools):
-    """Update the prefixes for each Kubernetes cluster."""
-    print(f"Updating prefixes for cluster: {cluster}")
-    
-    # Get Kubernetes IP pools and namespaces
-    namespaces = get_kubectl_namespaces(cluster)
-    kubernetes_ip_pools = get_calico_ip_pools()
-
-    # Check each IP pool and update based on the NetBox data
-    for ippool in kubernetes_ip_pools:
-        # Extract the namespace from the IP pool name
-        if "-" in ippool:
-            namespace = ippool.split('-')[0]
-            
-            if namespace in namespaces:
-                # Check if the prefix exists in NetBox
-                if any(ippool.startswith(prefix) for prefix in netbox_ip_pools.keys()):
-                    print(f"{namespace:<40} {'Cleanup not needed':<20}")
-                else:
-                    print(f"{namespace:<40} {'Cleanup needed':<20}")
-                    # You can delete the IP pool here using `calicoctl`
-                    delete_ip_pool(ippool)
-            else:
-                print(f"{namespace:<40} {'Cleanup needed':<20}")
-                # You can delete the IP pool here using `calicoctl`
-                delete_ip_pool(ippool)
-        else:
-            print(f"{ippool:<40} {'Invalid IP pool format':<20}")
-
-# Function to delete an IP pool using Calicoctl
-def delete_ip_pool(ippool):
-    """Delete an IP pool using calicoctl."""
-    try:
-        print(f"Deleting IP pool: {ippool}")
-        subprocess.run(["calicoctl", "delete", "ippool", ippool], check=True)
-        print(f"IP pool '{ippool}' deleted successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error while deleting IP pool '{ippool}': {e}")
-
-# Print table header
+# Function to print headers
 def print_header():
     """Print the header for the table."""
     print(f"{'Namespace':<40} {'Statement':<20}")
     print(f"{'-'*40} {'-'*20}")
+
+# Function to simply mark IP pool for cleanup
+def mark_for_cleanup(ippool):
+    """Mark the IP pool for cleanup without deleting."""
+    print(f"IP pool '{ippool}' is marked for cleanup but will not be deleted.")
 
 # Main function to check and compare IP pools
 def check_and_update_ip_pools():
@@ -113,7 +78,30 @@ def check_and_update_ip_pools():
 
     # Loop through each cluster and update prefixes
     for cluster in clusters:
-        update_prefixes_for_cluster(cluster, netbox_ip_pools)
+        print(f"\nChecking IP pools in cluster: {cluster}")
+        
+        # Get namespaces and IP pools from Kubernetes
+        namespaces = get_kubectl_namespaces(cluster)
+        kubernetes_ip_pools = get_calico_ip_pools()
+
+        # Loop through each IP pool in Kubernetes and compare with NetBox IP pools
+        for ippool in kubernetes_ip_pools:
+            # Extract the namespace part from the IP pool name (e.g., 'robusta' from 'robusta-ns-ippool-0')
+            if "-" in ippool:
+                namespace = ippool.split('-')[0]
+                
+                if namespace in namespaces:
+                    # Check if the prefix exists in NetBox
+                    if any(ippool.startswith(prefix) for prefix in netbox_ip_pools.keys()):
+                        print(f"{namespace:<40} {'Cleanup not needed':<20}")
+                    else:
+                        print(f"{namespace:<40} {'Cleanup needed':<20}")
+                        mark_for_cleanup(ippool)  # Mark for cleanup without deleting
+                else:
+                    print(f"{namespace:<40} {'Cleanup needed':<20}")
+                    mark_for_cleanup(ippool)  # Mark for cleanup without deleting
+            else:
+                print(f"{ippool:<40} {'Invalid IP pool format':<20}")
 
 # Run the check and update
 check_and_update_ip_pools()
