@@ -1,7 +1,7 @@
 import requests
 
 # Replace with your actual NetBox URL and API token
-url = "https://netbox.yourcompany.com/api/ipam/prefixes/"  # Replace with the actual URL
+url = "https://netbox.yourcompany.com/api/ipam/prefixes/?parent=50983"  # Focus on child prefixes under parent 50983
 headers = {
     "Authorization": "Token YOUR_NETBOX_TOKEN"  # Replace with your NetBox token
 }
@@ -20,8 +20,8 @@ if response.status_code == 200:
     if "results" in data:
         # Loop through each result (prefix) and display it
         for prefix in data["results"]:
-            print(f"Prefix: {prefix['prefix']}")  # This will print the IP block (prefix)
+            print(f"Prefix: {prefix['prefix']}")  # This will print the child IP blocks (prefixes)
     else:
-        print("No prefixes found in the response.")
+        print("No child prefixes found under parent 50983.")
 else:
     print(f"Failed to connect to NetBox API. Status code: {response.status_code}")
