@@ -1,16 +1,12 @@
 import requests
 
 # Replace with your actual NetBox URL and API token
-parent_prefix_id = 50983  # Parent prefix ID
-url = f"https://netbox.yourcompany.com/api/ipam/prefixes/{parent_prefix_id}/prefixes/"  # Fetch child prefixes
+url = "https://netbox.vrsn.com/api/ipam/ip-blocks/"  # Fetch IP blocks
 headers = {
-    "Authorization": "Token YOUR_NETBOX_TOKEN"  # Replace with your NetBox token
+    "Authorization": "Token <YOUR_NETBOX_TOKEN>"  # Replace with your NetBox token
 }
 
-# Print the URL for debugging
-print(f"URL being requested: {url}")
-
-# Send GET request to NetBox API
+# Send GET request to NetBox API to fetch IP blocks
 response = requests.get(url, headers=headers)
 
 # Check the response status
@@ -22,11 +18,21 @@ if response.status_code == 200:
 
     # Check if 'results' exists in the data
     if "results" in data:
-        # Loop through each child prefix and display it
-        for prefix in data["results"]:
-            print(f"Prefix: {prefix['prefix']}")  # This will print each child IP block (prefix)
+        # Loop through each IP block and display prefixes within it
+        for block in data["results"]:
+            print(f"IP Block: {block['prefix']}")
+            # Get child prefixes from this IP block
+            block_prefixes_url = block['url'] + "prefixes/"
+            block_prefixes_response = requests.get(block_prefixes_url, headers=headers)
+
+            if block_prefixes_response.status_code == 200:
+                block_prefixes_data = block_prefixes_response.json()
+                for prefix in block_prefixes_data['results']:
+                    print(f"  Prefix: {prefix['prefix']}")  # Display each child prefix
+            else:
+                print("  No prefixes found for this block.")
     else:
-        print("No child prefixes found under parent 50983.")
+        print("No IP blocks found in NetBox.")
 else:
     print(f"Failed to connect to NetBox API. Status code: {response.status_code}")
-    print(f"Response Content: {response.text}")  # Print the response body for debugging
+    print(f"Response Content: {response.text}")
