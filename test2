@@ -44,7 +44,6 @@ def get_netbox_prefixes():
 
         if response.status_code == 200:
             data = response.json()
-            print("NetBox Prefixes:", data["results"])  # Debug: Print NetBox Prefixes
             return [item["prefix"] for item in data["results"]]
         else:
             print(f"Error fetching data from NetBox: {response.status_code}")
@@ -53,10 +52,10 @@ def get_netbox_prefixes():
         print(f"Error while retrieving data from NetBox: {e}")
         return []
 
-# Print table header
+# Function to print table header
 def print_header():
     """Print the header for the table."""
-    print(f"{'Prefix (Namespace)':<40} {'IP Pools':<40}")
+    print(f"\n{'Prefix (Namespace)':<40} {'IP Pools':<40}")
     print(f"{'-'*40} {'-'*40}")
 
 # Main function to check and print IP pools for each prefix
@@ -80,13 +79,19 @@ def print_ip_pools_per_prefix():
         namespaces = get_kubectl_namespaces(cluster)
         kubernetes_ip_pools = get_calico_ip_pools()
 
-        print(f"Kubernetes IP Pools: {kubernetes_ip_pools}")  # Debug: Print Kubernetes IP Pools
+        # Print Kubernetes IP pools for each cluster
+        print(f"\nKubernetes IP Pools for {cluster}:")
+        print(f"{'-'*40}")
+        for ippool in kubernetes_ip_pools:
+            print(ippool)
 
         # Loop through each prefix and print the associated IP pools
         for prefix in netbox_prefixes:
             associated_pools = [ippool for ippool in kubernetes_ip_pools if ippool.startswith(prefix)]
             if associated_pools:
-                print(f"{prefix:<40} {', '.join(associated_pools):<40}")
+                print(f"\nPrefix (Namespace): {prefix}")
+                print(f"IP Pools: {', '.join(associated_pools)}")
+                print(f"{'-'*40}")
 
 # Run the script to print IP pools per prefix
 print_ip_pools_per_prefix()
