@@ -7,6 +7,9 @@ headers = {
     "Authorization": "Token YOUR_NETBOX_TOKEN"  # Replace with your NetBox token
 }
 
+# Print the URL for debugging
+print(f"URL being requested: {url}")
+
 # Send GET request to NetBox API
 response = requests.get(url, headers=headers)
 
@@ -26,3 +29,4 @@ if response.status_code == 200:
         print("No child prefixes found under parent 50983.")
 else:
     print(f"Failed to connect to NetBox API. Status code: {response.status_code}")
+    print(f"Response Content: {response.text}")  # Print the response body for debugging
