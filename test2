@@ -34,9 +34,9 @@ def get_calico_ip_pools():
         print(f"Error while retrieving IP pools: {e}")
         return []
 
-# Function to fetch NetBox prefixes
-def get_netbox_prefixes():
-    """Get the list of prefixes (namespace) from NetBox."""
+# Function to fetch NetBox data based on "Use" field (namespace of the application)
+def get_netbox_applications():
+    """Fetch the list of applications and their namespaces from NetBox."""
     try:
         url = "https://netbox.yourcompany.com/api/ipam/prefixes/"
         headers = {"Authorization": "Token YOUR_NETBOX_TOKEN"}
@@ -44,13 +44,17 @@ def get_netbox_prefixes():
 
         if response.status_code == 200:
             data = response.json()
-            return [item["prefix"] for item in data["results"]]
+            return {
+                item["use"]: item["prefix"]
+                for item in data["results"]
+                if "use" in item  # Ensure the 'use' field exists
+            }
         else:
             print(f"Error fetching data from NetBox: {response.status_code}")
-            return []
+            return {}
     except requests.exceptions.RequestException as e:
         print(f"Error while retrieving data from NetBox: {e}")
-        return []
+        return {}
 
 # Function to print table header
 def print_header():
@@ -61,11 +65,11 @@ def print_header():
 # Main function to check and print IP pools for each prefix
 def print_ip_pools_per_prefix():
     """Main function to print the list of IP pools for each prefix."""
-    # Fetch NetBox prefixes
-    netbox_prefixes = get_netbox_prefixes()
+    # Fetch NetBox applications (namespaces)
+    netbox_applications = get_netbox_applications()
 
-    if not netbox_prefixes:
-        print("No prefixes found in NetBox. Exiting.")
+    if not netbox_applications:
+        print("No namespaces found in NetBox. Exiting.")
         return
 
     # Print table header
@@ -85,11 +89,13 @@ def print_ip_pools_per_prefix():
         for ippool in kubernetes_ip_pools:
             print(ippool)
 
-        # Loop through each prefix and print the associated IP pools
-        for prefix in netbox_prefixes:
-            associated_pools = [ippool for ippool in kubernetes_ip_pools if ippool.startswith(prefix)]
+        # Loop through each namespace from NetBox and print the associated IP pools
+        for app_namespace, prefix in netbox_applications.items():
+            associated_pools = [
+                ippool for ippool in kubernetes_ip_pools if ippool.startswith(prefix)
+            ]
             if associated_pools:
-                print(f"\nPrefix (Namespace): {prefix}")
+                print(f"\nNamespace (Use): {app_namespace}")
                 print(f"IP Pools: {', '.join(associated_pools)}")
                 print(f"{'-'*40}")
 
