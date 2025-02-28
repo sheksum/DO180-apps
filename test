@@ -1,30 +1,20 @@
 #!/bin/bash
 
-# List of decommissioned namespaces (can be manually maintained or queried)
-decommissioned_namespaces=("project-1" "project-2" "project-3")
-
 # Retrieve the list of all namespaces in the cluster
 current_namespaces=$(kubectl get namespaces -o jsonpath='{.items[*].metadata.name}')
 
-# Loop through the decommissioned namespaces
-for ns in "${decommissioned_namespaces[@]}"; do
-    # Check if the namespace exists
-    if echo "$current_namespaces" | grep -q "$ns"; then
-        echo "Checking IP allocations for decommissioned namespace: $ns"
+# Retrieve the list of all IP pools (e.g., from Calico or your CNI)
+# Adjust this for your CNI, here it's assumed you're using Calico
+allocated_ips=$(calicoctl get ippool -o json | jq -r '.items[].metadata.name')
 
-        # Get the allocated IP pools (for example, using Calico)
-        allocated_ips=$(calicoctl get ippool -o json | jq -r '.items[].spec.cidr')
-
-        # Check if there are any IPs associated with the namespace
-        for ip in $allocated_ips; do
-            # Compare the allocated IP with the namespace's IP range (or any assigned IPs to resources)
-            if kubectl get pods --namespace="$ns" -o=jsonpath='{.items[*].status.podIP}' | grep -q "$ip"; then
-                echo "Warning: IP $ip is still allocated to a resource in the decommissioned namespace: $ns"
-            else
-                echo "No active resources with IP $ip in namespace $ns"
-            fi
-        done
+# Loop through each IP pool
+for ip_pool in $allocated_ips; do
+    # Check if the IP pool corresponds to an existing namespace
+    if echo "$current_namespaces" | grep -q "$ip_pool"; then
+        # IP pool is in use, as the namespace exists
+        echo "IP pool '$ip_pool' is in use by the namespace."
     else
-        echo "Namespace $ns does not exist in the current cluster."
+        # IP pool is unused, as the namespace no longer exists
+        echo "IP pool '$ip_pool' is unused and should be cleaned up."
     fi
 done
