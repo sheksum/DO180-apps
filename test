@@ -34,9 +34,9 @@ for cluster in "${clusters[@]}"; do
     ippools=$(get_calico_ip_pools)
     
     # Loop through each IP pool and compare with namespaces
-    for ippool in $ippools; d
-        # Extract the namespace part from the IP pool name
-        if [[ "$ippool" =~ ^([a-zA-Z0-9_-]+)-ns-ipool-[0-9]+$ ]]; then
+    for ippool in $ippools; do
+        # Extract the namespace part from the IP pool name (e.g., 'alertdocs' from 'alertdocs-ns-ippool-0')
+        if [[ "$ippool" =~ ^([a-zA-Z0-9_-]+)-ns-ippool-[0-9]+$ ]]; then
             namespace="${BASH_REMATCH[1]}"
             
             # Check if the namespace exists in the cluster
