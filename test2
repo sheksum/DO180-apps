@@ -27,10 +27,10 @@ def get_netbox_ip_pools():
 # Function to print the header for the output table
 def print_header():
     """Print the header for the table."""
-    print(f"\n{'Namespace (Use)':<40} {'IP Pools':<40}")
+    print(f"\n{'Namespace (Use)':<40} {'IP Pools (Blocks)':<40}")
     print(f"{'-'*40} {'-'*40}")
 
-# Main function to print the IP pools based on the NetBox data
+# Main function to check and print IP pools based on the NetBox data
 def print_netcool_ip_pools():
     """Fetch and print IP pools associated with each namespace from NetBox."""
     # Fetch IP pool data from NetBox
