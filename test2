@@ -44,6 +44,7 @@ def get_netbox_prefixes():
 
         if response.status_code == 200:
             data = response.json()
+            print("NetBox Prefixes:", data["results"])  # Debug: Print NetBox Prefixes
             return [item["prefix"] for item in data["results"]]
         else:
             print(f"Error fetching data from NetBox: {response.status_code}")
@@ -78,6 +79,8 @@ def print_ip_pools_per_prefix():
         # Get namespaces and IP pools from Kubernetes
         namespaces = get_kubectl_namespaces(cluster)
         kubernetes_ip_pools = get_calico_ip_pools()
+
+        print(f"Kubernetes IP Pools: {kubernetes_ip_pools}")  # Debug: Print Kubernetes IP Pools
 
         # Loop through each prefix and print the associated IP pools
         for prefix in netbox_prefixes:
