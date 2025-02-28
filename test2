@@ -1,31 +1,71 @@
 import requests
 
-# Replace with your actual NetBox URL and API token
-url = "https://netbox.vrsn.com/api/ipam/prefixes/50983/prefixes/"  # Endpoint for child prefixes
+# Configuration: replace with your NetBox URL and token
+NETBOX_URL = "http://netbox.example.com/api/"  # Base API URL (ensure it ends with /)
+API_TOKEN = "0123456789abcdef0123456789abcdef01234567"  # Your NetBox API token
+
+parent_prefix_id = 123  # ID of the parent prefix to query (example ID)
+
+# Prepare headers for authentication
 headers = {
-    "Authorization": "Token <YOUR_NETBOX_TOKEN>"  # Replace with your NetBox token
+    "Authorization": f"Token {API_TOKEN}",
+    "Accept": "application/json"
 }
 
-# Send GET request to NetBox API to fetch child prefixes
-response = requests.get(url, headers=headers)
+# Construct the URL for the parent prefix detail endpoint
+parent_url = f"{NETBOX_URL}ipam/prefixes/{parent_prefix_id}/"
 
-# Check the response status
-if response.status_code == 200:
-    print("Successfully connected to NetBox API!")
+try:
+    # 1. Fetch the parent prefix details
+    response = requests.get(parent_url, headers=headers)
+    # Raise an error if the request was not successful (status != 200)
+    response.raise_for_status()
+except requests.exceptions.HTTPError as http_err:
+    print(f"HTTP error occurred while retrieving parent prefix: {http_err}")
+    exit(1)
+except requests.exceptions.RequestException as err:
+    # This catches any network-related errors (connection issues, timeouts, etc.)
+    print(f"Error connecting to NetBox API: {err}")
+    exit(1)
 
-    # Parse the JSON response
-    data = response.json()
+# Parse parent prefix data
+parent_data = response.json()
+parent_prefix = parent_data.get("prefix")  # e.g. "10.50.0.0/16"
+if not parent_prefix:
+    print("Parent prefix not found or missing 'prefix' data in response.")
+    exit(1)
 
-    # Check if 'results' exists in the response
-    if "results" in data:
-        print(f"Child Prefixes under 10.8.144.0/20:")
-        # Loop through each child prefix
-        for prefix in data["results"]:
-            child_prefix_id = prefix["id"]  # Child prefix ID
-            block = prefix["prefix"]        # IP block (e.g., 10.8.144.32/27)
-            print(f"Child Prefix ID: {child_prefix_id}, Block: {block}")
-    else:
-        print("No child prefixes found.")
+print(f"Parent Prefix (ID {parent_prefix_id}): {parent_prefix}")
+
+# 2. Fetch child prefixes using the 'within' filter
+# URL-encode the prefix if constructing manually (requests will handle encoding in params)
+children_url = f"{NETBOX_URL}ipam/prefixes/"
+params = {"within": parent_prefix}  # using params dict to let requests handle URL encoding
+
+try:
+    response_children = requests.get(children_url, headers=headers, params=params)
+    response_children.raise_for_status()
+except requests.exceptions.HTTPError as http_err:
+    print(f"HTTP error occurred while retrieving child prefixes: {http_err}")
+    exit(1)
+except requests.exceptions.RequestException as err:
+    print(f"Error connecting to NetBox API for child prefixes: {err}")
+    exit(1)
+
+# Parse child prefixes data
+children_data = response_children.json()
+child_prefixes = children_data.get("results", [])
+
+# 3. Display child prefixes in a structured format
+if not child_prefixes:
+    print(f"No child prefixes found for {parent_prefix}.")
 else:
-    print(f"Failed to connect to NetBox API. Status code: {response.status_code}")
-    print(f"Response Content: {response.text}")
+    print(f"Child prefixes of {parent_prefix}:")
+    for cp in child_prefixes:
+        # Each cp is a prefix object (dict). Extract some useful fields:
+        cidr = cp.get("prefix", "<unknown>")
+        cidr_status = cp.get("status", {})
+        status_label = cidr_status.get("label") if isinstance(cidr_status, dict) else str(cidr_status)
+        prefix_id = cp.get("id", "")
+        # Print child prefix details
+        print(f" - ID {prefix_id}: {cidr} (Status: {status_label})")
