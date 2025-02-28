@@ -1,71 +1,52 @@
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
+import json
 
-# Configuration: replace with your NetBox URL and token
-NETBOX_URL = "http://netbox.example.com/api/"  # Base API URL (ensure it ends with /)
-API_TOKEN = "0123456789abcdef0123456789abcdef01234567"  # Your NetBox API token
+# Configuration: set your NetBox URL and the API endpoint or prefix ID
+BASE_URL   = "http://netbox.example.com"       # NetBox server URL (no trailing slash)
+API_TOKEN  = "YOUR_NETBOX_API_TOKEN"           # NetBox API token for authentication
+ENDPOINT   = "/api/ipam/prefixes/50983/"       # Example endpoint (specific prefix ID or just "/api/ipam/prefixes/")
 
-parent_prefix_id = 123  # ID of the parent prefix to query (example ID)
-
-# Prepare headers for authentication
+# Prepare the full URL and HTTP headers
+url = BASE_URL + ENDPOINT  # full URL to request
 headers = {
-    "Authorization": f"Token {API_TOKEN}",
-    "Accept": "application/json"
+    "Accept": "application/json",
+    "Authorization": f"Token {API_TOKEN}"
 }
 
-# Construct the URL for the parent prefix detail endpoint
-parent_url = f"{NETBOX_URL}ipam/prefixes/{parent_prefix_id}/"
+# Set up a Session with retry logic for robust requests
+session = requests.Session()
+retry_strategy = Retry(
+    total=5,                    # total retry attempts
+    backoff_factor=1,           # wait 1 second * (2 ^ (retry count - 1)) between retries
+    status_forcelist=[429, 500, 502, 503, 504],  # HTTP statuses to retry on
+    allowed_methods=["GET", "HEAD", "OPTIONS"]   # methods to apply retries to
+)
+adapter = HTTPAdapter(max_retries=retry_strategy)
+session.mount("http://", adapter)
+session.mount("https://", adapter)
 
+all_prefixes = []  # list to collect prefix data (for list endpoints)
 try:
-    # 1. Fetch the parent prefix details
-    response = requests.get(parent_url, headers=headers)
-    # Raise an error if the request was not successful (status != 200)
-    response.raise_for_status()
-except requests.exceptions.HTTPError as http_err:
-    print(f"HTTP error occurred while retrieving parent prefix: {http_err}")
-    exit(1)
+    while url:  # loop to handle pagination; will exit if no further pages or on single object
+        response = session.get(url, headers=headers, timeout=5)
+        response.raise_for_status()         # raise an error if HTTP request failed (4xx/5xx)
+        data = response.json()              # parse response JSON
+
+        if "results" in data:
+            # It's a paginated list of objects
+            prefixes = data["results"]
+            all_prefixes.extend(prefixes)   # accumulate this page's results
+            url = data.get("next")          # next page URL (None if this was the last page)
+        else:
+            # It's a single prefix object (no pagination)
+            all_prefixes = [data]           # wrap it in a list for uniformity
+            url = None                      # end the loop, no further pages
 except requests.exceptions.RequestException as err:
-    # This catches any network-related errors (connection issues, timeouts, etc.)
-    print(f"Error connecting to NetBox API: {err}")
-    exit(1)
+    print(f"Request failed: {err}")
+    all_prefixes = []  # empty the result on error (or handle as needed)
 
-# Parse parent prefix data
-parent_data = response.json()
-parent_prefix = parent_data.get("prefix")  # e.g. "10.50.0.0/16"
-if not parent_prefix:
-    print("Parent prefix not found or missing 'prefix' data in response.")
-    exit(1)
-
-print(f"Parent Prefix (ID {parent_prefix_id}): {parent_prefix}")
-
-# 2. Fetch child prefixes using the 'within' filter
-# URL-encode the prefix if constructing manually (requests will handle encoding in params)
-children_url = f"{NETBOX_URL}ipam/prefixes/"
-params = {"within": parent_prefix}  # using params dict to let requests handle URL encoding
-
-try:
-    response_children = requests.get(children_url, headers=headers, params=params)
-    response_children.raise_for_status()
-except requests.exceptions.HTTPError as http_err:
-    print(f"HTTP error occurred while retrieving child prefixes: {http_err}")
-    exit(1)
-except requests.exceptions.RequestException as err:
-    print(f"Error connecting to NetBox API for child prefixes: {err}")
-    exit(1)
-
-# Parse child prefixes data
-children_data = response_children.json()
-child_prefixes = children_data.get("results", [])
-
-# 3. Display child prefixes in a structured format
-if not child_prefixes:
-    print(f"No child prefixes found for {parent_prefix}.")
-else:
-    print(f"Child prefixes of {parent_prefix}:")
-    for cp in child_prefixes:
-        # Each cp is a prefix object (dict). Extract some useful fields:
-        cidr = cp.get("prefix", "<unknown>")
-        cidr_status = cp.get("status", {})
-        status_label = cidr_status.get("label") if isinstance(cidr_status, dict) else str(cidr_status)
-        prefix_id = cp.get("id", "")
-        # Print child prefix details
-        print(f" - ID {prefix_id}: {cidr} (Status: {status_label})")
+# Output the retrieved data in JSON format (pretty-printed)
+output_json = json.dumps(all_prefixes, indent=4)
+print(output_json)
