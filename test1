@@ -1,64 +1,17 @@
-import subprocess
-import json
-import re
+import requests
 
-# List of clusters
-clusters = ["kqde1gen-1", "kqde1gen-2", "kva1gen-1", "kde1gen-1", "kva3gen-1"]
+# Replace with your actual NetBox URL and API token
+url = "https://netbox.example.com/api/ipam/prefixes/"
+headers = {"Authorization": "Token YOUR_NETBOX_TOKEN"}
 
-def get_kubectl_namespaces(cluster):
-    """Get the list of namespaces for a specific cluster."""
-    try:
-        # Set the kubectl context to the desired cluster
-        subprocess.run(["kubectl", "config", "use-context", cluster], check=True, capture_output=True)
-        
-        # Get the namespaces from the cluster
-        result = subprocess.run(
-            ["kubectl", "get", "namespaces", "-o", "jsonpath='{.items[*].metadata.name}'"],
-            check=True, capture_output=True, text=True
-        )
-        namespaces = result.stdout.replace("'", "").split()  # Clean the output
-        return namespaces
-    except subprocess.CalledProcessError as e:
-        print(f"Error while retrieving namespaces for cluster {cluster}: {e}")
-        return []
+# Send GET request to NetBox API
+response = requests.get(url, headers=headers)
 
-def get_calico_ip_pools():
-    """Get the list of IP pools from Calico."""
-    try:
-        # Get the IP pools from Calico with version mismatch allowance
-        result = subprocess.run(
-            ["calicoctl", "get", "ippool", "--allow-version-mismatch", "-o", "json"],
-            check=True, capture_output=True, text=True
-        )
-        ippools = json.loads(result.stdout)["items"]
-        return [pool["metadata"]["name"] for pool in ippools]
-    except subprocess.CalledProcessError as e:
-        print(f"Error while retrieving IP pools: {e}")
-        return []
-
-def check_ip_pools():
-    """Main function to compare namespaces and IP pools."""
-    for cluster in clusters:
-        print(f"Checking IP pools in cluster: {cluster}")
-        
-        # Get namespaces and IP pools
-        namespaces = get_kubectl_namespaces(cluster)
-        ippools = get_calico_ip_pools()
-        
-        # Compare IP pools with namespaces
-        for ippool in ippools:
-            # Extract the namespace part from the IP pool name
-            ippool_namespace_match = re.match(r"^([a-zA-Z0-9_-]+)-ns-ipool-\d+$", ippool)
-            
-            if ippool_namespace_match:
-                namespace = ippool_namespace_match.group(1)
-                
-                if namespace in namespaces:
-                    continue  # Skip if the IP pool corresponds to an existing namespace
-                else:
-                    print(f"IP pool '{ippool}' (associated with namespace '{namespace}') is unused and should be cleaned up.")
-            else:
-                print(f"IP pool '{ippool}' does not follow the expected naming convention and will be skipped.")
-                
-# Run the check
-check_ip_pools()
+# Check the response status
+if response.status_code == 200:
+    print("Successfully connected to NetBox API!")
+    # Optionally, print the retrieved data
+    data = response.json()
+    print("Retrieved data:", data)
+else:
+    print(f"Failed to connect to NetBox API. Status code: {response.status_code}")
