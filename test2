@@ -1,54 +1,22 @@
-import subprocess
-import json
 import requests
 
-# List of clusters
-clusters = ["kqde1gen-1", "kqde1gen-2", "kva1gen-1", "kde1gen-1", "kva3gen-1"]
-
-# Function to get namespaces in the cluster
-def get_kubectl_namespaces(cluster):
-    """Get the list of namespaces for a specific cluster."""
-    try:
-        subprocess.run(["kubectl", "config", "use-context", cluster], check=True, capture_output=True)
-        result = subprocess.run(
-            ["kubectl", "get", "namespaces", "-o", "jsonpath='{.items[*].metadata.name}'"],
-            check=True, capture_output=True, text=True
-        )
-        namespaces = result.stdout.replace("'", "").split()
-        return namespaces
-    except subprocess.CalledProcessError as e:
-        print(f"Error while retrieving namespaces for cluster {cluster}: {e}")
-        return []
-
-# Function to get Calico IP pools
-def get_calico_ip_pools():
-    """Get the list of IP pools from Calico."""
-    try:
-        result = subprocess.run(
-            ["calicoctl", "get", "ippool", "--allow-version-mismatch", "-o", "json"],
-            check=True, capture_output=True, text=True
-        )
-        ippools = json.loads(result.stdout)["items"]
-        return [pool["metadata"]["name"] for pool in ippools]
-    except subprocess.CalledProcessError as e:
-        print(f"Error while retrieving IP pools: {e}")
-        return []
-
-# Function to fetch NetBox data based on "Use" field (namespace of the application)
-def get_netbox_applications():
-    """Fetch the list of applications and their namespaces from NetBox."""
+# Function to fetch NetBox prefixes and filter by 'use' field (namespace of the application)
+def get_netbox_ip_pools():
+    """Fetch the IP pools from NetBox based on 'use' (namespace) field."""
     try:
         url = "https://netbox.yourcompany.com/api/ipam/prefixes/"
-        headers = {"Authorization": "Token YOUR_NETBOX_TOKEN"}
+        headers = {"Authorization": "Token YOUR_NETBOX_TOKEN"}  # Replace with your NetBox token
         response = requests.get(url, headers=headers)
 
         if response.status_code == 200:
             data = response.json()
-            return {
+            # Create a dictionary with 'use' as the key and 'prefix' (namespace) as the value
+            netbox_data = {
                 item["use"]: item["prefix"]
                 for item in data["results"]
                 if "use" in item  # Ensure the 'use' field exists
             }
+            return netbox_data
         else:
             print(f"Error fetching data from NetBox: {response.status_code}")
             return {}
@@ -56,48 +24,28 @@ def get_netbox_applications():
         print(f"Error while retrieving data from NetBox: {e}")
         return {}
 
-# Function to print table header
+# Function to print the header for the output table
 def print_header():
     """Print the header for the table."""
-    print(f"\n{'Prefix (Namespace)':<40} {'IP Pools':<40}")
+    print(f"\n{'Namespace (Use)':<40} {'IP Pools':<40}")
     print(f"{'-'*40} {'-'*40}")
 
-# Main function to check and print IP pools for each prefix
-def print_ip_pools_per_prefix():
-    """Main function to print the list of IP pools for each prefix."""
-    # Fetch NetBox applications (namespaces)
-    netbox_applications = get_netbox_applications()
+# Main function to print the IP pools based on the NetBox data
+def print_netcool_ip_pools():
+    """Fetch and print IP pools associated with each namespace from NetBox."""
+    # Fetch IP pool data from NetBox
+    netbox_data = get_netbox_ip_pools()
 
-    if not netbox_applications:
+    if not netbox_data:
         print("No namespaces found in NetBox. Exiting.")
         return
 
     # Print table header
     print_header()
 
-    # Loop through each cluster to get the IP pools
-    for cluster in clusters:
-        print(f"\nChecking IP pools in cluster: {cluster}")
-        
-        # Get namespaces and IP pools from Kubernetes
-        namespaces = get_kubectl_namespaces(cluster)
-        kubernetes_ip_pools = get_calico_ip_pools()
+    # Loop through and print the associated namespaces and IP pools
+    for app_namespace, prefix in netbox_data.items():
+        print(f"{app_namespace:<40} {prefix:<40}")
 
-        # Print Kubernetes IP pools for each cluster
-        print(f"\nKubernetes IP Pools for {cluster}:")
-        print(f"{'-'*40}")
-        for ippool in kubernetes_ip_pools:
-            print(ippool)
-
-        # Loop through each namespace from NetBox and print the associated IP pools
-        for app_namespace, prefix in netbox_applications.items():
-            associated_pools = [
-                ippool for ippool in kubernetes_ip_pools if ippool.startswith(prefix)
-            ]
-            if associated_pools:
-                print(f"\nNamespace (Use): {app_namespace}")
-                print(f"IP Pools: {', '.join(associated_pools)}")
-                print(f"{'-'*40}")
-
-# Run the script to print IP pools per prefix
-print_ip_pools_per_prefix()
+# Run the function to print IP pools for namespaces
+print_netcool_ip_pools()
