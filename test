@@ -35,7 +35,10 @@ for cluster in "${clusters[@]}"; do
     
     # Loop through each IP pool and compare with namespaces
     for ippool in $ippools; do
-        # Extract the namespace part from the IP pool name (e.g., 'alertdocs' from 'alertdocs-ns-ippool-0')
+        # Debugging: Print the current IP pool being checked
+        echo "Checking IP pool: $ippool"
+        
+        # Extract the namespace part from the IP pool name (e.g., 'robusta' from 'robusta-ns-ippool-0')
         if [[ "$ippool" =~ ^([a-zA-Z0-9_-]+)-ns-ippool-[0-9]+$ ]]; then
             namespace="${BASH_REMATCH[1]}"
             
@@ -48,7 +51,7 @@ for cluster in "${clusters[@]}"; do
                 printf "%-30s %-20s\n" "$namespace" "Cleanup needed"
             fi
         else
-            # Skip IP pools that do not follow the expected naming convention
+            # IP pool does not follow the expected naming convention
             printf "%-30s %-20s\n" "$ippool" "Invalid IP pool format"
         fi
     done
