@@ -86,9 +86,9 @@ def check_and_update_ip_pools():
 
         # Loop through each IP pool in Kubernetes and compare with NetBox IP pools
         for ippool in kubernetes_ip_pools:
-            # Extract the namespace part from the IP pool name (e.g., 'robusta' from 'robusta-ns-ippool-0')
+            # Extract the namespace part from the IP pool name (e.g., 'kqde1gen-1_alertdocs-ns-ippool-0' => 'alertdocs')
             if "-" in ippool:
-                namespace = ippool.split('-')[0]
+                namespace = ippool.split('-')[1]  # Extract the namespace (second part of the name)
                 
                 if namespace in namespaces:
                     # Check if the prefix exists in NetBox
