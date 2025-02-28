@@ -1,52 +1,28 @@
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
-import json
 
-# Configuration: set your NetBox URL and the API endpoint or prefix ID
-BASE_URL   = "http://netbox.example.com"       # NetBox server URL (no trailing slash)
-API_TOKEN  = "YOUR_NETBOX_API_TOKEN"           # NetBox API token for authentication
-ENDPOINT   = "/api/ipam/prefixes/50983/"       # Example endpoint (specific prefix ID or just "/api/ipam/prefixes/")
-
-# Prepare the full URL and HTTP headers
-url = BASE_URL + ENDPOINT  # full URL to request
+# Your API URL and token
+url = "https://netbox.vrsn.com/api/ipam/prefixes/50983/"
 headers = {
-    "Accept": "application/json",
-    "Authorization": f"Token {API_TOKEN}"
+    "Authorization": "Token <your_api_token>",  # Replace with your API token
+    "Accept": "application/json"
 }
 
-# Set up a Session with retry logic for robust requests
-session = requests.Session()
-retry_strategy = Retry(
-    total=5,                    # total retry attempts
-    backoff_factor=1,           # wait 1 second * (2 ^ (retry count - 1)) between retries
-    status_forcelist=[429, 500, 502, 503, 504],  # HTTP statuses to retry on
-    allowed_methods=["GET", "HEAD", "OPTIONS"]   # methods to apply retries to
-)
-adapter = HTTPAdapter(max_retries=retry_strategy)
-session.mount("http://", adapter)
-session.mount("https://", adapter)
+# Send GET request to retrieve the data for the 10.8.144.0/20 prefix
+response = requests.get(url, headers=headers)
 
-all_prefixes = []  # list to collect prefix data (for list endpoints)
-try:
-    while url:  # loop to handle pagination; will exit if no further pages or on single object
-        response = session.get(url, headers=headers, timeout=5)
-        response.raise_for_status()         # raise an error if HTTP request failed (4xx/5xx)
-        data = response.json()              # parse response JSON
-
-        if "results" in data:
-            # It's a paginated list of objects
-            prefixes = data["results"]
-            all_prefixes.extend(prefixes)   # accumulate this page's results
-            url = data.get("next")          # next page URL (None if this was the last page)
-        else:
-            # It's a single prefix object (no pagination)
-            all_prefixes = [data]           # wrap it in a list for uniformity
-            url = None                      # end the loop, no further pages
-except requests.exceptions.RequestException as err:
-    print(f"Request failed: {err}")
-    all_prefixes = []  # empty the result on error (or handle as needed)
-
-# Output the retrieved data in JSON format (pretty-printed)
-output_json = json.dumps(all_prefixes, indent=4)
-print(output_json)
+# Check if the request was successful
+if response.status_code == 200:
+    print("Successfully connected to NetBox API!")
+    data = response.json()
+    
+    # Extract and print the child prefixes
+    child_prefixes = data.get('child_prefixes', [])
+    if child_prefixes:
+        print("Child Prefixes for 10.8.144.0/20:")
+        for prefix in child_prefixes:
+            print(f"Prefix: {prefix['prefix']}, Status: {prefix['status']['label']}")
+    else:
+        print("No child prefixes found.")
+else:
+    print(f"Failed to connect to NetBox API. Status code: {response.status_code}")
+    print(f"Response Content: {response.content}")
