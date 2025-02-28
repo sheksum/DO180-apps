@@ -18,8 +18,12 @@ get_kubectl_namespaces() {
 get_calico_ip_pools() {
     # Get the list of IP pools from Calico with version mismatch allowance
     allocated_ips=$(calicoctl get ippool --allow-version-mismatch -o json | jq -r '.items[].metadata.name')
-    echo "$allocated_ips"
+    echo "$allocated_ips
 }
+
+# Print table header
+printf "%-30s %-20s\n" "Namespace" "Statement"
+printf "%-30s %-20s\n" "------------------------------" "--------------------"
 
 # Loop through each cluster
 for cluster in "${clusters[@]}"; do
@@ -37,12 +41,15 @@ for cluster in "${clusters[@]}"; do
             
             # Check if the namespace exists in the cluster
             if [[ "$namespaces" == *"$namespace"* ]]; then
-                continue  # Skip if the IP pool corresponds to an existing namespace
+                # IP pool corresponds to an existing namespace, cleanup not needed
+                printf "%-30s %-20s\n" "$namespace" "Cleanup not needed"
             else
-                echo "IP pool '$ippool' (associated with namespace '$namespace') is unused and should be cleaned up."
+                # IP pool does not correspond to an existing namespace, cleanup needed
+                printf "%-30s %-20s\n" "$namespace" "Cleanup needed"
             fi
         else
-            echo "IP pool '$ippool' does not follow the expected naming convention and will be skipped."
+            # Skip IP pools that do not follow the expected naming convention
+            printf "%-30s %-20s\n" "$ippool" "Invalid IP pool format"
         fi
     done
 done
