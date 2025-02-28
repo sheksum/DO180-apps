@@ -1,31 +1,47 @@
 #!/bin/bash
 
 # List of clusters
-clusters=("kqde1-gen1" "kqde1-gen2" "kva1-gen1" "kde1-gen1" "kva3-gen1")
+clusters=("kqde1gen-1" "kqde1gen-2" "kva1gen-1" "kde1gen-1" "kva3gen-1")
+
+# Function to get namespaces in the cluster
+get_kubectl_namespaces() {
+    cluster=$1
+    # Set the kubectl context to the desired cluster
+    kubectl config use-context "$cluster"
+    
+    # Get the namespaces in the cluster
+    namespaces=$(kubectl get namespaces -o jsonpath='{.items[*].metadata.name}')
+    echo "$namespaces"
+}
+
+# Function to get Calico IP pools
+get_calico_ip_pools() {
+    # Get the list of IP pools from Calico with version mismatch allowance
+    allocated_ips=$(calicoctl get ippool --allow-version-mismatch -o json | jq -r '.items[].metadata.name')
+    echo "$allocated_ips"
+}
 
 # Loop through each cluster
 for cluster in "${clusters[@]}"; do
     echo "Checking IP pools in cluster: $cluster"
     
-    # Set the context for the current cluster
-    kubectl config use-context "$cluster"
+    # Get the namespaces and IP pools
+    namespaces=$(get_kubectl_namespaces "$cluster")
+    ippools=$(get_calico_ip_pools)
     
-    # Retrieve the list of all namespaces in the cluster
-    current_namespaces=$(kubectl get namespaces -o jsonpath='{.items[*].metadata.name}')
-    
-    # Retrieve the list of all IP pools (e.g., from Calico or your CNI)
-    # Adjust this for your CNI, here it's assumed you're using Calico
-    allocated_ips=$(calicoctl get ippool -o json | jq -r '.items[].metadata.name')
-    
-    # Loop through each IP pool
-    for ip_pool in $allocated_ips; do
-        # Check if the IP pool corresponds to an existing namespace
-        if echo "$current_namespaces" | grep -q "$ip_pool"; then
-            # IP pool is in use, as the namespace exists
-            continue # Skip the IP pool if it is in use (do not print anything)
+    # Loop through each IP pool and compare with namespaces
+    for ippool in $ippools; do
+        # Extract the namespace part from the IP pool name
+        if [[ "$ippool" =~ ^([a-zA-Z0-9_-]+)-ns-ipool-[0-9]+$ ]]; then
+            namespace="${BASH_REMATCH[1]}"
+            
+            if [[ "$namespaces" == *"$namespace"* ]]; then
+                continue  # Skip if the IP pool corresponds to an existing namespace
+            else
+                echo "IP pool '$ippool' (associated with namespace '$namespace') is unused and should be cleaned up."
+            fi
         else
-            # IP pool is unused, as the namespace no longer exists
-            echo "IP pool '$ip_pool' is unused and should be cleaned up."
+            echo "IP pool '$ippool' does not follow the expected naming convention and will be skipped."
         fi
     done
 done
