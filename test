@@ -22,12 +22,12 @@ get_calico_ip_pools() {
 }
 
 # Print table header
-printf "%-30s %-20s\n" "Namespace" "Statement"
-printf "%-30s %-20s\n" "------------------------------" "--------------------"
+printf "%-40s %-20s\n" "Namespace" "Cleanup Status"
+printf "%-40s %-20s\n" "----------------------------------------" "--------------------"
 
 # Loop through each cluster
 for cluster in "${clusters[@]}"; do
-    echo "Checking IP pools in cluster: $cluster"
+    echo -e "\nChecking IP pools in cluster: $cluster"
     
     # Get the namespaces and IP pools
     namespaces=$(get_kubectl_namespaces "$cluster")
@@ -35,9 +35,6 @@ for cluster in "${clusters[@]}"; do
     
     # Loop through each IP pool and compare with namespaces
     for ippool in $ippools; do
-        # Debugging: Print the current IP pool being checked
-        echo "Checking IP pool: $ippool"
-        
         # Extract the namespace part from the IP pool name (e.g., 'robusta' from 'robusta-ns-ippool-0')
         if [[ "$ippool" =~ ^([a-zA-Z0-9_-]+)-ns-ippool-[0-9]+$ ]]; then
             namespace="${BASH_REMATCH[1]}"
@@ -45,14 +42,14 @@ for cluster in "${clusters[@]}"; do
             # Check if the namespace exists in the cluster
             if [[ "$namespaces" == *"$namespace"* ]]; then
                 # IP pool corresponds to an existing namespace, cleanup not needed
-                printf "%-30s %-20s\n" "$namespace" "Cleanup not needed"
+                printf "%-40s %-20s\n" "$namespace" "Cleanup not needed"
             else
                 # IP pool does not correspond to an existing namespace, cleanup needed
-                printf "%-30s %-20s\n" "$namespace" "Cleanup needed"
+                printf "%-40s %-20s\n" "$namespace" "Cleanup needed"
             fi
         else
-            # IP pool does not follow the expected naming convention
-            printf "%-30s %-20s\n" "$ippool" "Invalid IP pool format"
+            # Skip IP pools that do not follow the expected naming convention
+            printf "%-40s %-20s\n" "$ippool" "Invalid IP pool format"
         fi
     done
 done
