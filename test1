@@ -1,7 +1,7 @@
-import requests
+ import requests
 
 # Replace with your actual NetBox URL and API token
-url = "https://netbox.example.com/api/ipam/prefixes/"
+url = "https://netbox.yourcompany.com/api/ipam/prefixes/"
 headers = {"Authorization": "Token YOUR_NETBOX_TOKEN"}
 
 # Send GET request to NetBox API
@@ -10,8 +10,16 @@ response = requests.get(url, headers=headers)
 # Check the response status
 if response.status_code == 200:
     print("Successfully connected to NetBox API!")
-    # Optionally, print the retrieved data
+    
+    # Parse the JSON response
     data = response.json()
+
+    # Print the retrieved data
     print("Retrieved data:", data)
+
+    # Example: access the prefix list
+    if 'results' in data:
+        for prefix in data['results']:
+            print(f"Prefix: {prefix['prefix']}")
 else:
     print(f"Failed to connect to NetBox API. Status code: {response.status_code}")
