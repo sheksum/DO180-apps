@@ -18,7 +18,7 @@ get_kubectl_namespaces() {
 get_calico_ip_pools() {
     # Get the list of IP pools from Calico with version mismatch allowance
     allocated_ips=$(calicoctl get ippool --allow-version-mismatch -o json | jq -r '.items[].metadata.name')
-    echo "$allocated_ips
+    echo "$allocated_ips"
 }
 
 # Print table header
@@ -34,7 +34,7 @@ for cluster in "${clusters[@]}"; do
     ippools=$(get_calico_ip_pools)
     
     # Loop through each IP pool and compare with namespaces
-    for ippool in $ippools; do
+    for ippool in $ippools; d
         # Extract the namespace part from the IP pool name
         if [[ "$ippool" =~ ^([a-zA-Z0-9_-]+)-ns-ipool-[0-9]+$ ]]; then
             namespace="${BASH_REMATCH[1]}"
