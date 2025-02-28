@@ -1,55 +1,106 @@
-#!/bin/bash
+import subprocess
+import json
+import requests
 
 # List of clusters
-clusters=("kqde1gen-1" "kqde1gen-2" "kva1gen-1" "kde1gen-1" "kva3gen-1")
+clusters = ["kqde1gen-1", "kqde1gen-2", "kva1gen-1", "kde1gen-1", "kva3gen-1"]
 
 # Function to get namespaces in the cluster
-get_kubectl_namespaces() {
-    cluster=$1
-    # Set the kubectl context to the desired cluster
-    kubectl config use-context "$cluster"
-    
-    # Get the namespaces in the cluster
-    namespaces=$(kubectl get namespaces -o jsonpath='{.items[*].metadata.name}')
-    echo "$namespaces"
-}
+def get_kubectl_namespaces(cluster):
+    """Get the list of namespaces for a specific cluster."""
+    try:
+        # Set the kubectl context to the desired cluster
+        subprocess.run(["kubectl", "config", "use-context", cluster], check=True, capture_output=True)
+        
+        # Get the namespaces from the cluster
+        result = subprocess.run(
+            ["kubectl", "get", "namespaces", "-o", "jsonpath='{.items[*].metadata.name}'"],
+            check=True, capture_output=True, text=True
+        )
+        namespaces = result.stdout.replace("'", "").split()  # Clean the output
+        return namespaces
+    except subprocess.CalledProcessError as e:
+        print(f"Error while retrieving namespaces for cluster {cluster}: {e}")
+        return []
 
 # Function to get Calico IP pools
-get_calico_ip_pools() {
-    # Get the list of IP pools from Calico with version mismatch allowance
-    allocated_ips=$(calicoctl get ippool --allow-version-mismatch -o json | jq -r '.items[].metadata.name')
-    echo "$allocated_ips"
-}
+def get_calico_ip_pools():
+    """Get the list of IP pools from Calico."""
+    try:
+        # Get the IP pools from Calico with version mismatch allowance
+        result = subprocess.run(
+            ["calicoctl", "get", "ippool", "--allow-version-mismatch", "-o", "json"],
+            check=True, capture_output=True, text=True
+        )
+        ippools = json.loads(result.stdout)["items"]
+        return [pool["metadata"]["name"] for pool in ippools]
+    except subprocess.CalledProcessError as e:
+        print(f"Error while retrieving IP pools: {e}")
+        return []
+
+# Function to fetch NetBox IP pools
+def get_netbox_ip_pools():
+    """Get the list of IP pools from NetBox."""
+    try:
+        url = "https://netbox.example.com/api/ipam/prefixes/"
+        headers = {"Authorization": "Token YOUR_NETBOX_TOKEN"}
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            # Extract the IP prefixes (pools) from NetBox response
+            return [item["prefix"] for item in data["results"]]
+        else:
+            print(f"Error fetching data from NetBox: {response.status_code}")
+            return []
+    except requests.exceptions.RequestException as e:
+        print(f"Error while retrieving data from NetBox: {e}")
+        return []
 
 # Print table header
-printf "%-40s %-20s\n" "Namespace" "Cleanup Status"
-printf "%-40s %-20s\n" "----------------------------------------" "--------------------"
+def print_header():
+    """Print the header for the table."""
+    print(f"{'Namespace':<40} {'Statement':<20}")
+    print(f"{'-'*40} {'-'*20}")
 
-# Loop through each cluster
-for cluster in "${clusters[@]}"; do
-    echo -e "\nChecking IP pools in cluster: $cluster"
-    
-    # Get the namespaces and IP pools
-    namespaces=$(get_kubectl_namespaces "$cluster")
-    ippools=$(get_calico_ip_pools)
-    
-    # Loop through each IP pool and compare with namespaces
-    for ippool in $ippools; do
-        # Extract the namespace part from the IP pool name (e.g., 'robusta' from 'robusta-ns-ippool-0')
-        if [[ "$ippool" =~ ^([a-zA-Z0-9_-]+)-ns-ippool-[0-9]+$ ]]; then
-            namespace="${BASH_REMATCH[1]}"
-            
-            # Check if the namespace exists in the cluster
-            if [[ "$namespaces" == *"$namespace"* ]]; then
-                # IP pool corresponds to an existing namespace, cleanup not needed
-                printf "%-40s %-20s\n" "$namespace" "Cleanup not needed"
-            else
-                # IP pool does not correspond to an existing namespace, cleanup needed
-                printf "%-40s %-20s\n" "$namespace" "Cleanup needed"
-            fi
-        else
-            # Skip IP pools that do not follow the expected naming convention
-            printf "%-40s %-20s\n" "$ippool" "Invalid IP pool format"
-        fi
-    done
-done
+# Main function to check and compare IP pools
+def check_ip_pools():
+    """Main function to compare namespaces and IP pools."""
+    # Fetch NetBox data
+    netbox_ip_pools = get_netbox_ip_pools()
+
+    if not netbox_ip_pools:
+        print("No IP pools found in NetBox. Exiting.")
+        return
+
+    # Print table header
+    print_header()
+
+    # Loop through each cluster
+    for cluster in clusters:
+        print(f"\nChecking IP pools in cluster: {cluster}")
+        
+        # Get namespaces and IP pools from Kubernetes
+        namespaces = get_kubectl_namespaces(cluster)
+        kubernetes_ip_pools = get_calico_ip_pools()
+        
+        # Loop through each IP pool in Kubernetes and compare with NetBox IP pools
+        for ippool in kubernetes_ip_pools:
+            # Extract the namespace part from the IP pool name (e.g., 'robusta' from 'robusta-ns-ippool-0')
+            if "-" in ippool:
+                namespace = ippool.split('-')[0]
+                
+                if namespace in namespaces:
+                    # Check if the namespace exists in NetBox IP pools
+                    if any(ippool.startswith(prefix) for prefix in netbox_ip_pools):
+                        print(f"{namespace:<40} {'Cleanup not needed':<20}")
+                    else:
+                        print(f"{namespace:<40} {'Cleanup needed':<20}")
+                        # You can add cleanup logic here using `calicoctl` or another tool
+                else:
+                    print(f"{namespace:<40} {'Cleanup needed':<20}")
+            else:
+                print(f"{ippool:<40} {'Invalid IP pool format':<20}")
+
+# Run the check
+check_ip_pools()
