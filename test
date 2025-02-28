@@ -22,7 +22,7 @@ for cluster in "${clusters[@]}"; do
         # Check if the IP pool corresponds to an existing namespace
         if echo "$current_namespaces" | grep -q "$ip_pool"; then
             # IP pool is in use, as the namespace exists
-            echo "IP pool '$ip_pool' is in use by the namespace."
+            continue # Skip the IP pool if it is in use (do not print anything)
         else
             # IP pool is unused, as the namespace no longer exists
             echo "IP pool '$ip_pool' is unused and should be cleaned up."
