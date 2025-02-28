@@ -1,12 +1,12 @@
 import requests
 
 # Replace with your actual NetBox URL and API token
-url = "https://netbox.vrsn.com/api/ipam/ip-blocks/"  # Fetch IP blocks
+url = "https://netbox.vrsn.com/api/ipam/prefixes/50983/prefixes/"  # Endpoint for child prefixes
 headers = {
     "Authorization": "Token <YOUR_NETBOX_TOKEN>"  # Replace with your NetBox token
 }
 
-# Send GET request to NetBox API to fetch IP blocks
+# Send GET request to NetBox API to fetch child prefixes
 response = requests.get(url, headers=headers)
 
 # Check the response status
@@ -16,23 +16,16 @@ if response.status_code == 200:
     # Parse the JSON response
     data = response.json()
 
-    # Check if 'results' exists in the data
+    # Check if 'results' exists in the response
     if "results" in data:
-        # Loop through each IP block and display prefixes within it
-        for block in data["results"]:
-            print(f"IP Block: {block['prefix']}")
-            # Get child prefixes from this IP block
-            block_prefixes_url = block['url'] + "prefixes/"
-            block_prefixes_response = requests.get(block_prefixes_url, headers=headers)
-
-            if block_prefixes_response.status_code == 200:
-                block_prefixes_data = block_prefixes_response.json()
-                for prefix in block_prefixes_data['results']:
-                    print(f"  Prefix: {prefix['prefix']}")  # Display each child prefix
-            else:
-                print("  No prefixes found for this block.")
+        print(f"Child Prefixes under 10.8.144.0/20:")
+        # Loop through each child prefix
+        for prefix in data["results"]:
+            child_prefix_id = prefix["id"]  # Child prefix ID
+            block = prefix["prefix"]        # IP block (e.g., 10.8.144.32/27)
+            print(f"Child Prefix ID: {child_prefix_id}, Block: {block}")
     else:
-        print("No IP blocks found in NetBox.")
+        print("No child prefixes found.")
 else:
     print(f"Failed to connect to NetBox API. Status code: {response.status_code}")
     print(f"Response Content: {response.text}")
