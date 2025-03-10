@@ -1,12 +1,12 @@
 #!/bin/bash
 
-echo "Checking for expired certificates in Kubernetes..."
+echo "🔍 Scanning for expired intermediate certificates in Kubernetes..."
+
+# Get the current date in epoch time
+current_date=$(date +%s)
 
 # Get all namespaces
 namespaces=$(kubectl get ns --no-headers -o custom-columns=":metadata.name")
-
-# Current date (Epoch time)
-current_date=$(date +%s)
 
 # Iterate over namespaces
 for ns in $namespaces; do
@@ -18,22 +18,37 @@ for ns in $namespaces; do
         kubectl get secret $secret -n $ns -o jsonpath="{.data['tls\.crt']}" | base64 --decode > /tmp/tls.crt 2>/dev/null
 
         if [ -s /tmp/tls.crt ]; then
-            # Extract expiration date in epoch format
-            cert_expiry=$(openssl x509 -in /tmp/tls.crt -noout -enddate | cut -d= -f2)
-            cert_expiry_epoch=$(date -d "$cert_expiry" +%s 2>/dev/null || date -j -f "%b %d %T %Y %Z" "$cert_expiry" +%s)
+            # Split the certificate chain (handle multiple certs in one file)
+            csplit -s -z -f /tmp/cert- /tmp/tls.crt '/-----BEGIN CERTIFICATE-----/' '{*}'
 
-            # Compare with current date
-            if [[ "$cert_expiry_epoch" -lt "$current_date" ]]; then
-                echo "❌ Expired certificate found!"
-                echo "   Namespace: $ns"
-                echo "   Secret: $secret"
-                echo "   Expired on: $cert_expiry"
-                echo "-----------------------------------"
-            fi
+            # Process each certificate in the chain
+            for cert in /tmp/cert-*; do
+                # Check if it's an intermediate cert (not self-signed)
+                issuer=$(openssl x509 -in $cert -noout -issuer)
+                subject=$(openssl x509 -in $cert -noout -subject)
+                self_signed=$(openssl x509 -in $cert -noout -issuer -subject | uniq | wc -l)
+
+                if [[ "$self_signed" -ne 1 ]]; then
+                    # Get the expiration date
+                    cert_expiry=$(openssl x509 -in $cert -noout -enddate | cut -d= -f2)
+                    cert_expiry_epoch=$(date -d "$cert_expiry" +%s 2>/dev/null || date -j -f "%b %d %T %Y %Z" "$cert_expiry" +%s)
+
+                    # Compare with current date
+                    if [[ "$cert_expiry_epoch" -lt "$current_date" ]]; then
+                        echo "❌ Expired Intermediate Certificate Found!"
+                        echo "   Namespace: $ns"
+                        echo "   Secret: $secret"
+                        echo "   Issuer: $issuer"
+                        echo "   Subject: $subject"
+                        echo "   Expired on: $cert_expiry"
+                        echo "-----------------------------------"
+                    fi
+                fi
+            done
         fi
     done
 done
 
 # Cleanup
-rm -f /tmp/tls.crt
-echo "Expired certificate check complete."
+rm -f /tmp/tls.crt /tmp/cert-*
+echo "✅ Expired intermediate certificate check complete."
