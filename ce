@@ -1,0 +1,45 @@
+#!/bin/bash
+
+echo "Checking intermediate certificate validity in Kubernetes..."
+
+# Get all namespaces
+namespaces=$(kubectl get ns --no-headers -o custom-columns=":metadata.name")
+
+# Iterate over namespaces
+for ns in $namespaces; do
+    echo "Checking namespace: $ns"
+    
+    # Get all TLS secrets in the namespace
+    secrets=$(kubectl get secrets -n $ns --no-headers -o custom-columns=":metadata.name" | grep -E "tls|cert")
+
+    for secret in $secrets; do
+        echo " - Checking secret: $secret"
+
+        # Extract and decode the TLS certificate
+        kubectl get secret $secret -n $ns -o jsonpath="{.data['tls\.crt']}" | base64 --decode > /tmp/tls.crt 2>/dev/null
+
+        if [ -s /tmp/tls.crt ]; then
+            echo "   → Checking certificate expiration..."
+            openssl x509 -in /tmp/tls.crt -noout -dates
+
+            echo "   → Checking issuer and subject..."
+            openssl x509 -in /tmp/tls.crt -noout -issuer -subject
+
+            # Check if a CA certificate exists
+            kubectl get secret $secret -n $ns -o jsonpath="{.data['ca\.crt']}" | base64 --decode > /tmp/ca.crt 2>/dev/null
+
+            if [ -s /tmp/ca.crt ]; then
+                echo "   → Verifying certificate chain..."
+                openssl verify -CAfile /tmp/ca.crt /tmp/tls.crt
+            else
+                echo "   → No CA certificate found in secret."
+            fi
+        else
+            echo "   → No TLS certificate found in this secret."
+        fi
+    done
+done
+
+# Cleanup
+rm -f /tmp/tls.crt /tmp/ca.crt
+echo "Certificate check complete."
