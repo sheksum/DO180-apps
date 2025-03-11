@@ -1,54 +1,26 @@
-#!/bin/bash
+server {
+    listen 443 ssl;
+    server_name yourdomain.com;
 
-echo "🔍 Scanning for expired intermediate certificates in Kubernetes..."
+    ssl_certificate /etc/ssl/certs/server.crt;
+    ssl_certificate_key /etc/ssl/private/server.key;
 
-# Get the current date in epoch time
-current_date=$(date +%s)
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
 
-# Get all namespaces
-namespaces=$(kubectl get ns --no-headers -o custom-columns=":metadata.name")
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+    }
+}
 
-# Iterate over namespaces
-for ns in $namespaces; do
-    # Get all TLS secrets in the namespace
-    secrets=$(kubectl get secrets -n $ns --no-headers -o custom-columns=":metadata.name" | grep -E "tls|cert" || true)
 
-    for secret in $secrets; do
-        # Extract and decode the TLS certificate
-        kubectl get secret $secret -n $ns -o jsonpath="{.data['tls\.crt']}" | base64 --decode > /tmp/tls.crt 2>/dev/null
 
-        if [ -s /tmp/tls.crt ]; then
-            # Split the certificate chain (handle multiple certs in one file)
-            csplit -s -z -f /tmp/cert- /tmp/tls.crt '/-----BEGIN CERTIFICATE-----/' '{*}'
 
-            # Process each certificate in the chain
-            for cert in /tmp/cert-*; do
-                # Check if it's an intermediate cert (not self-signed)
-                issuer=$(openssl x509 -in $cert -noout -issuer)
-                subject=$(openssl x509 -in $cert -noout -subject)
-                self_signed=$(openssl x509 -in $cert -noout -issuer -subject | uniq | wc -l)
-
-                if [[ "$self_signed" -ne 1 ]]; then
-                    # Get the expiration date
-                    cert_expiry=$(openssl x509 -in $cert -noout -enddate | cut -d= -f2)
-                    cert_expiry_epoch=$(date -d "$cert_expiry" +%s 2>/dev/null || date -j -f "%b %d %T %Y %Z" "$cert_expiry" +%s)
-
-                    # Compare with current date
-                    if [[ "$cert_expiry_epoch" -lt "$current_date" ]]; then
-                        echo "❌ Expired Intermediate Certificate Found!"
-                        echo "   Namespace: $ns"
-                        echo "   Secret: $secret"
-                        echo "   Issuer: $issuer"
-                        echo "   Subject: $subject"
-                        echo "   Expired on: $cert_expiry"
-                        echo "-----------------------------------"
-                    fi
-                fi
-            done
-        fi
-    done
-done
-
-# Cleanup
-rm -f /tmp/tls.crt /tmp/cert-*
-echo "✅ Expired intermediate certificate check complete."
+docker run -d \
+  --name codegenui \
+  -p 443:443 \
+  -v /etc/ssl:/etc/ssl:ro \
+  -v /home/hsuma/nginx-config/default.conf:/etc/nginx/conf.d/default.conf:ro \
+  nginx
