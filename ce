@@ -103,3 +103,108 @@
     - name: Display RAID configuration result
       debug:
         var: raid_config
+
+
+
+
+
+---
+- name: Configure Dell iDRAC
+  hosts: idrac_hosts
+  gather_facts: no
+  become: no
+  vars_files:
+    - group_vars/all.yml
+
+  tasks:
+    - name: Ensure required Python modules are installed
+      pip:
+        name:
+          - requests
+          - urllib3
+      delegate_to: localhost
+      run_once: true
+
+    - name: Update iDRAC firmware
+      dellemc.openmanage.idrac_redfish_update:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        update_image: "files/{{ idrac_firmware_image }}"
+        category: "Firmware"
+      register: firmware_update
+
+    - name: Display iDRAC firmware update result
+      debug:
+        msg: "iDRAC Firmware Update Status: {{ firmware_update }}"
+
+    - name: Update BIOS firmware (if applicable)
+      when: bios_image | length > 0
+      dellemc.openmanage.idrac_redfish_update:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        update_image: "files/{{ bios_image }}"
+        category: "BIOS"
+      register: bios_update
+
+    - name: Display BIOS update result
+      when: bios_image | length > 0
+      debug:
+        msg: "BIOS Firmware Update Status: {{ bios_update }}"
+
+    - name: Update PERC firmware
+      dellemc.openmanage.idrac_redfish_update:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        update_image: "files/{{ perc_firmware_image }}"
+        category: "StorageController"
+      register: perc_update
+
+    - name: Display PERC firmware update result
+      debug:
+        msg: "PERC Firmware Update Status: {{ perc_update }}"
+
+    - name: Create an iDRAC user with full privileges
+      dellemc.openmanage.idrac_redfish_user:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        new_username: "{{ idrac_user }}"
+        new_password: "{{ idrac_user_password }}"
+        role: "Administrator"
+      register: user_config
+
+    - name: Display user creation result
+      debug:
+        msg: "User Creation Status: {{ user_config }}"
+
+    - name: Rename the system
+      dellemc.openmanage.idrac_redfish_config:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        category: "iDRAC"
+        command: "SetSystemAttributes"
+        system_attributes:
+          Hostname: "{{ system_name }}"
+      register: rename_result
+
+    - name: Display system rename result
+      debug:
+        msg: "System Rename Status: {{ rename_result }}"
+
+    - name: Create RAID 1 array
+      dellemc.openmanage.idrac_redfish_storage:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        raid_type: "{{ raid_type }}"
+        physical_disks: "{{ physical_disks }}"
+      register: raid_config
+
+    - name: Display RAID configuration result
+      debug:
+        msg: "RAID Configuration Status: {{ raid_config }}"
+
