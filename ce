@@ -1,6 +1,8 @@
 [idrac_hosts]
 10.152.0.116 ansible_connection=httpapi ansible_httpapi_use_ssl=yes ansible_httpapi_validate_certs=no ansible_network_os=dellemc.openmanage.idrac
 
+[idrac_hosts]
+10.152.0.116 ansible_connection=httpapi ansible_httpapi_use_ssl=yes ansible_httpapi_validate_certs=no ansible_network_os=dellemc.openmanage.idrac
 
 
 ---
@@ -21,51 +23,44 @@
       run_once: true
 
     - name: Ensure firmware directory exists on control machine
-      ansible.builtin.file:
-        path: "/tmp/idrac_firmware"
+      file:
+        path: "/tmp/idrac_firmware/"
         state: directory
-        mode: '0755'
-
-    - name: Copy iDRAC firmware locally
-      ansible.builtin.copy:
-        src: "files/{{ idrac_firmware_image }}"
-        dest: "/tmp/idrac_firmware/{{ idrac_firmware_image }}"
-        mode: '0644'
+      delegate_to: localhost
 
     - name: Upload iDRAC firmware via Redfish API (Local Install)
       uri:
-        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService"
+        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService/Actions/Oem/DellUpdateService.SimpleUpdate"
         method: POST
         user: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
         validate_certs: no
         body_format: json
+        headers:
+          Content-Type: "application/json"
         body:
-          ImageURI: "/tmp/idrac_firmware/{{ idrac_firmware_image }}"
+          ImageURI: "http://10.168.1.79/files/{{ idrac_firmware_image }}"
+          InstallMethod: "Remote"
       register: firmware_update
 
     - name: Display iDRAC firmware update result
       debug:
         msg: "iDRAC Firmware Update Status: {{ firmware_update }}"
 
-    - name: Copy BIOS firmware locally (if applicable)
-      when: bios_image | length > 0
-      ansible.builtin.copy:
-        src: "files/{{ bios_image }}"
-        dest: "/tmp/idrac_firmware/{{ bios_image }}"
-        mode: '0644'
-
-    - name: Upload BIOS firmware via Redfish API (Local Install)
+    - name: Upload BIOS firmware via Redfish API (if applicable)
       when: bios_image | length > 0
       uri:
-        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService"
+        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService/Actions/Oem/DellUpdateService.SimpleUpdate"
         method: POST
         user: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
         validate_certs: no
         body_format: json
+        headers:
+          Content-Type: "application/json"
         body:
-          ImageURI: "/tmp/idrac_firmware/{{ bios_image }}"
+          ImageURI: "http://10.168.1.79/files/{{ bios_image }}"
+          InstallMethod: "Remote"
       register: bios_update
 
     - name: Display BIOS update result
@@ -73,22 +68,19 @@
       debug:
         msg: "BIOS Firmware Update Status: {{ bios_update }}"
 
-    - name: Copy PERC firmware locally
-      ansible.builtin.copy:
-        src: "files/{{ perc_firmware_image }}"
-        dest: "/tmp/idrac_firmware/{{ perc_firmware_image }}"
-        mode: '0644'
-
-    - name: Upload PERC firmware via Redfish API (Local Install)
+    - name: Upload PERC firmware via Redfish API
       uri:
-        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService"
+        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService/Actions/Oem/DellUpdateService.SimpleUpdate"
         method: POST
         user: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
         validate_certs: no
         body_format: json
+        headers:
+          Content-Type: "application/json"
         body:
-          ImageURI: "/tmp/idrac_firmware/{{ perc_firmware_image }}"
+          ImageURI: "http://10.168.1.79/files/{{ perc_firmware_image }}"
+          InstallMethod: "Remote"
       register: perc_update
 
     - name: Display PERC firmware update result
@@ -153,7 +145,7 @@
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
-        raid_level: "{{ raid_type }}"
+        raid_level: "1"
         physical_disks: "{{ physical_disks }}"
       register: raid_config
 
