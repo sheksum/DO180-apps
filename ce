@@ -16,12 +16,11 @@
       run_once: true
 
     - name: Update iDRAC firmware
-      dellemc.openmanage.idrac_redfish_update:
+      dellemc.openmanage.idrac_firmware:
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
         update_image: "files/{{ idrac_firmware_image }}"
-        category: "Firmware"
       register: firmware_update
 
     - name: Display iDRAC firmware update result
@@ -30,12 +29,11 @@
 
     - name: Update BIOS firmware (if applicable)
       when: bios_image | length > 0
-      dellemc.openmanage.idrac_redfish_update:
+      dellemc.openmanage.idrac_bios:
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
         update_image: "files/{{ bios_image }}"
-        category: "BIOS"
       register: bios_update
 
     - name: Display BIOS update result
@@ -44,12 +42,11 @@
         msg: "BIOS Firmware Update Status: {{ bios_update }}"
 
     - name: Update PERC firmware
-      dellemc.openmanage.idrac_redfish_update:
+      dellemc.openmanage.idrac_firmware:
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
         update_image: "files/{{ perc_firmware_image }}"
-        category: "StorageController"
       register: perc_update
 
     - name: Display PERC firmware update result
@@ -57,7 +54,7 @@
         msg: "PERC Firmware Update Status: {{ perc_update }}"
 
     - name: Reboot system after firmware updates
-      dellemc.openmanage.idrac_redfish_command:
+      dellemc.openmanage.idrac_boot:
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
@@ -74,7 +71,7 @@
         host: "{{ idrac_ip }}"
         port: 443
         delay: 60
-        timeout: 1800  # Increased to 30 minutes
+        timeout: 1800  # Increased to 30 minutes for physical servers
         state: started
       register: wait_result
 
@@ -83,7 +80,7 @@
         msg: "System Availability Status: {{ wait_result }}"
 
     - name: Create an iDRAC user with full privileges
-      dellemc.openmanage.idrac_redfish_user:
+      dellemc.openmanage.idrac_user:
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
@@ -97,14 +94,12 @@
         msg: "User Creation Status: {{ user_config }}"
 
     - name: Rename the system
-      dellemc.openmanage.idrac_redfish_config:
+      dellemc.openmanage.idrac_attributes:
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
-        category: "iDRAC"
-        command: "SetSystemAttributes"
-        system_attributes:
-          Hostname: "{{ system_name }}"
+        attributes:
+          System.HostName: "{{ system_name }}"
       register: rename_result
 
     - name: Display system rename result
@@ -112,17 +107,18 @@
         msg: "System Rename Status: {{ rename_result }}"
 
     - name: Create RAID 1 array
-      dellemc.openmanage.idrac_redfish_storage:
+      dellemc.openmanage.idrac_storage_controller:
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
-        raid_type: "{{ raid_type }}"
+        raid_level: "{{ raid_type }}"
         physical_disks: "{{ physical_disks }}"
       register: raid_config
 
     - name: Display RAID configuration result
       debug:
         msg: "RAID Configuration Status: {{ raid_config }}"
+
 
 
 
