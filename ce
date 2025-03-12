@@ -208,3 +208,30 @@
       debug:
         msg: "RAID Configuration Status: {{ raid_config }}"
 
+
+
+---
+# iDRAC Configuration Variables
+idrac_ip: "192.168.1.100"
+idrac_username: "root"
+idrac_password: "calvin"
+
+# Out-of-Band Admin User
+idrac_user: "oobadmin"
+idrac_user_password: "securepassword"
+
+# System Configuration
+system_name: "PLN-AIDEV-001"
+
+# Firmware Update Files (located in files/ directory)
+idrac_firmware_image: "iDRAC-with-Lifecycle-Controller_Firmware_TNT7C_LN64_7.20.10.05_A00.BIN"
+bios_image: ""  # Add BIOS firmware filename if applicable
+perc_firmware_image: "SAS-RAID_Firmware_INKYJ_LN64_8.8.0.0.18-32_A07.BIN"
+
+# RAID Configuration
+raid_type: "RAID1"
+physical_disks:
+  - "Disk.0"
+  - "Disk.1"
+
+
