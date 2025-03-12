@@ -1,26 +1,105 @@
-server {
-    listen 443 ssl;
-    server_name yourdomain.com;
+---
+- name: Configure Dell iDRAC
+  hosts: idrac_hosts
+  gather_facts: no
+  become: no
+  vars:
+    idrac_ip: "10.152.0.116"
+    idrac_username: "root"
+    idrac_password: "calixesxi_123"
+    idrac_user: "oobadmin"
+    idrac_user_password: "6W78LJSDSiyuyjkjDSB!XRQ"
+    system_name: "pln-aidev-001.caal.dev"
+    idrac_firmware_image: "/path/to/idrac_firmware_image.d7"
+    bios_image: "/path/to/bios_image.d7"
+    perc_firmware_image: "/path/to/perc_firmware_image.d7"
 
-    ssl_certificate /etc/ssl/certs/server.crt;
-    ssl_certificate_key /etc/ssl/private/server.key;
+  tasks:
+    - name: Ensure required Python modules are installed
+      pip:
+        name:
+          - requests
+          - urllib3
+      delegate_to: localhost
+      run_once: true
 
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-    ssl_prefer_server_ciphers on;
+    - name: Update iDRAC firmware
+      dellemc.openmanage.idrac_redfish_update:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        update_image: "{{ idrac_firmware_image }}"
+        category: "Firmware"
+      register: firmware_update
 
-    location / {
-        root /usr/share/nginx/html;
-        index index.html;
-    }
-}
+    - name: Display iDRAC firmware update result
+      debug:
+        var: firmware_update
 
+    - name: Update BIOS firmware
+      dellemc.openmanage.idrac_redfish_update:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        update_image: "{{ bios_image }}"
+        category: "BIOS"
+      register: bios_update
 
+    - name: Display BIOS update result
+      debug:
+        var: bios_update
 
+    - name: Update PERC firmware
+      dellemc.openmanage.idrac_redfish_update:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        update_image: "{{ perc_firmware_image }}"
+        category: "StorageController"
+      register: perc_update
 
-docker run -d \
-  --name codegenui \
-  -p 443:443 \
-  -v /etc/ssl:/etc/ssl:ro \
-  -v /home/hsuma/nginx-config/default.conf:/etc/nginx/conf.d/default.conf:ro \
-  nginx
+    - name: Display PERC firmware update result
+      debug:
+        var: perc_update
+
+    - name: Create an iDRAC user with full privileges
+      dellemc.openmanage.idrac_redfish_user:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        new_username: "{{ idrac_user }}"
+        new_password: "{{ idrac_user_password }}"
+        role: "Administrator"
+      register: user_config
+
+    - name: Display user creation result
+      debug:
+        var: user_config
+
+    - name: Rename the system
+      dellemc.openmanage.idrac_redfish_config:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        category: "iDRAC"
+        command: "SetSystemAttributes"
+        system_attributes:
+          Hostname: "{{ system_name }}"
+      register: rename_result
+
+    - name: Display system rename result
+      debug:
+        var: rename_result
+
+    - name: Create RAID 1 array
+      dellemc.openmanage.idrac_redfish_storage:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        raid_type: "RAID1"
+        physical_disks: ["Disk.0", "Disk.1"]
+      register: raid_config
+
+    - name: Display RAID configuration result
+      debug:
+        var: raid_config
