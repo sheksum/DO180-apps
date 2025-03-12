@@ -15,7 +15,19 @@
       delegate_to: localhost
       run_once: true
 
-    - name: Upload iDRAC firmware via Redfish API
+    - name: Ensure firmware directory exists on control machine
+      ansible.builtin.file:
+        path: "/tmp/idrac_firmware"
+        state: directory
+        mode: '0755'
+
+    - name: Copy iDRAC firmware locally
+      ansible.builtin.copy:
+        src: "files/{{ idrac_firmware_image }}"
+        dest: "/tmp/idrac_firmware/{{ idrac_firmware_image }}"
+        mode: '0644'
+
+    - name: Upload iDRAC firmware via Redfish API (Local Install)
       uri:
         url: "https://{{ idrac_ip }}/redfish/v1/UpdateService"
         method: POST
@@ -24,14 +36,21 @@
         validate_certs: no
         body_format: json
         body:
-          ImageURI: "files/{{ idrac_firmware_image }}"
+          ImageURI: "/tmp/idrac_firmware/{{ idrac_firmware_image }}"
       register: firmware_update
 
     - name: Display iDRAC firmware update result
       debug:
         msg: "iDRAC Firmware Update Status: {{ firmware_update }}"
 
-    - name: Upload BIOS firmware via Redfish API (if applicable)
+    - name: Copy BIOS firmware locally (if applicable)
+      when: bios_image | length > 0
+      ansible.builtin.copy:
+        src: "files/{{ bios_image }}"
+        dest: "/tmp/idrac_firmware/{{ bios_image }}"
+        mode: '0644'
+
+    - name: Upload BIOS firmware via Redfish API (Local Install)
       when: bios_image | length > 0
       uri:
         url: "https://{{ idrac_ip }}/redfish/v1/UpdateService"
@@ -41,7 +60,7 @@
         validate_certs: no
         body_format: json
         body:
-          ImageURI: "files/{{ bios_image }}"
+          ImageURI: "/tmp/idrac_firmware/{{ bios_image }}"
       register: bios_update
 
     - name: Display BIOS update result
@@ -49,7 +68,13 @@
       debug:
         msg: "BIOS Firmware Update Status: {{ bios_update }}"
 
-    - name: Upload PERC firmware via Redfish API
+    - name: Copy PERC firmware locally
+      ansible.builtin.copy:
+        src: "files/{{ perc_firmware_image }}"
+        dest: "/tmp/idrac_firmware/{{ perc_firmware_image }}"
+        mode: '0644'
+
+    - name: Upload PERC firmware via Redfish API (Local Install)
       uri:
         url: "https://{{ idrac_ip }}/redfish/v1/UpdateService"
         method: POST
@@ -58,7 +83,7 @@
         validate_certs: no
         body_format: json
         body:
-          ImageURI: "files/{{ perc_firmware_image }}"
+          ImageURI: "/tmp/idrac_firmware/{{ perc_firmware_image }}"
       register: perc_update
 
     - name: Display PERC firmware update result
