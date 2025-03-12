@@ -3,16 +3,8 @@
   hosts: idrac_hosts
   gather_facts: no
   become: no
-  vars:
-    idrac_ip: "10.152.0.116"
-    idrac_username: "root"
-    idrac_password: "calixesxi_123"
-    idrac_user: "oobadmin"
-    idrac_user_password: "6W78LJSDSiyuyjkjDSB!XRQ"
-    system_name: "pln-aidev-001.caal.dev"
-    idrac_firmware_image: "/path/to/idrac_firmware_image.d7"
-    bios_image: "/path/to/bios_image.d7"
-    perc_firmware_image: "/path/to/perc_firmware_image.d7"
+  vars_files:
+    - group_vars/all.yml
 
   tasks:
     - name: Ensure required Python modules are installed
@@ -28,39 +20,67 @@
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
-        update_image: "{{ idrac_firmware_image }}"
+        update_image: "files/{{ idrac_firmware_image }}"
         category: "Firmware"
       register: firmware_update
 
     - name: Display iDRAC firmware update result
       debug:
-        var: firmware_update
+        msg: "iDRAC Firmware Update Status: {{ firmware_update }}"
 
-    - name: Update BIOS firmware
+    - name: Update BIOS firmware (if applicable)
+      when: bios_image | length > 0
       dellemc.openmanage.idrac_redfish_update:
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
-        update_image: "{{ bios_image }}"
+        update_image: "files/{{ bios_image }}"
         category: "BIOS"
       register: bios_update
 
     - name: Display BIOS update result
+      when: bios_image | length > 0
       debug:
-        var: bios_update
+        msg: "BIOS Firmware Update Status: {{ bios_update }}"
 
     - name: Update PERC firmware
       dellemc.openmanage.idrac_redfish_update:
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
-        update_image: "{{ perc_firmware_image }}"
+        update_image: "files/{{ perc_firmware_image }}"
         category: "StorageController"
       register: perc_update
 
     - name: Display PERC firmware update result
       debug:
-        var: perc_update
+        msg: "PERC Firmware Update Status: {{ perc_update }}"
+
+    - name: Reboot system after firmware updates
+      dellemc.openmanage.idrac_redfish_command:
+        baseuri: "{{ idrac_ip }}"
+        username: "{{ idrac_username }}"
+        password: "{{ idrac_password }}"
+        command: "Reboot"
+      when: firmware_update.changed or bios_update.changed or perc_update.changed
+      register: reboot_status
+
+    - name: Display reboot status
+      debug:
+        msg: "System Reboot Status: {{ reboot_status }}"
+
+    - name: Wait for system to come back online
+      wait_for:
+        host: "{{ idrac_ip }}"
+        port: 443
+        delay: 60
+        timeout: 1800  # Increased to 30 minutes
+        state: started
+      register: wait_result
+
+    - name: Display wait result
+      debug:
+        msg: "System Availability Status: {{ wait_result }}"
 
     - name: Create an iDRAC user with full privileges
       dellemc.openmanage.idrac_redfish_user:
@@ -74,7 +94,7 @@
 
     - name: Display user creation result
       debug:
-        var: user_config
+        msg: "User Creation Status: {{ user_config }}"
 
     - name: Rename the system
       dellemc.openmanage.idrac_redfish_config:
@@ -89,20 +109,20 @@
 
     - name: Display system rename result
       debug:
-        var: rename_result
+        msg: "System Rename Status: {{ rename_result }}"
 
     - name: Create RAID 1 array
       dellemc.openmanage.idrac_redfish_storage:
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
-        raid_type: "RAID1"
-        physical_disks: ["Disk.0", "Disk.1"]
+        raid_type: "{{ raid_type }}"
+        physical_disks: "{{ physical_disks }}"
       register: raid_config
 
     - name: Display RAID configuration result
       debug:
-        var: raid_config
+        msg: "RAID Configuration Status: {{ raid_config }}"
 
 
 
