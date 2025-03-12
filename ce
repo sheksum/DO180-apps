@@ -1,3 +1,8 @@
+[idrac_hosts]
+10.152.0.116 ansible_connection=httpapi ansible_httpapi_use_ssl=yes ansible_httpapi_validate_certs=no ansible_network_os=dellemc.openmanage.idrac
+
+
+
 ---
 - name: Configure Dell iDRAC
   hosts: idrac_hosts
