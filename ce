@@ -15,25 +15,33 @@
       delegate_to: localhost
       run_once: true
 
-    - name: Update iDRAC firmware
-      dellemc.openmanage.idrac_firmware:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
+    - name: Upload iDRAC firmware via Redfish API
+      uri:
+        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService"
+        method: POST
+        user: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
-        update_image: "files/{{ idrac_firmware_image }}"
+        validate_certs: no
+        body_format: json
+        body:
+          ImageURI: "files/{{ idrac_firmware_image }}"
       register: firmware_update
 
     - name: Display iDRAC firmware update result
       debug:
         msg: "iDRAC Firmware Update Status: {{ firmware_update }}"
 
-    - name: Update BIOS firmware (if applicable)
+    - name: Upload BIOS firmware via Redfish API (if applicable)
       when: bios_image | length > 0
-      dellemc.openmanage.idrac_bios:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
+      uri:
+        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService"
+        method: POST
+        user: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
-        update_image: "files/{{ bios_image }}"
+        validate_certs: no
+        body_format: json
+        body:
+          ImageURI: "files/{{ bios_image }}"
       register: bios_update
 
     - name: Display BIOS update result
@@ -41,12 +49,16 @@
       debug:
         msg: "BIOS Firmware Update Status: {{ bios_update }}"
 
-    - name: Update PERC firmware
-      dellemc.openmanage.idrac_firmware:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
+    - name: Upload PERC firmware via Redfish API
+      uri:
+        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService"
+        method: POST
+        user: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
-        update_image: "files/{{ perc_firmware_image }}"
+        validate_certs: no
+        body_format: json
+        body:
+          ImageURI: "files/{{ perc_firmware_image }}"
       register: perc_update
 
     - name: Display PERC firmware update result
@@ -106,8 +118,8 @@
       debug:
         msg: "System Rename Status: {{ rename_result }}"
 
-    - name: Create RAID 1 array
-      dellemc.openmanage.idrac_storage_controller:
+    - name: Create RAID 1 array using Storage Volume Module
+      dellemc.openmanage.idrac_storage_volume:
         baseuri: "{{ idrac_ip }}"
         username: "{{ idrac_username }}"
         password: "{{ idrac_password }}"
@@ -118,136 +130,3 @@
     - name: Display RAID configuration result
       debug:
         msg: "RAID Configuration Status: {{ raid_config }}"
-
-
-
-
-
-
----
-- name: Configure Dell iDRAC
-  hosts: idrac_hosts
-  gather_facts: no
-  become: no
-  vars_files:
-    - group_vars/all.yml
-
-  tasks:
-    - name: Ensure required Python modules are installed
-      pip:
-        name:
-          - requests
-          - urllib3
-      delegate_to: localhost
-      run_once: true
-
-    - name: Update iDRAC firmware
-      dellemc.openmanage.idrac_redfish_update:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        update_image: "files/{{ idrac_firmware_image }}"
-        category: "Firmware"
-      register: firmware_update
-
-    - name: Display iDRAC firmware update result
-      debug:
-        msg: "iDRAC Firmware Update Status: {{ firmware_update }}"
-
-    - name: Update BIOS firmware (if applicable)
-      when: bios_image | length > 0
-      dellemc.openmanage.idrac_redfish_update:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        update_image: "files/{{ bios_image }}"
-        category: "BIOS"
-      register: bios_update
-
-    - name: Display BIOS update result
-      when: bios_image | length > 0
-      debug:
-        msg: "BIOS Firmware Update Status: {{ bios_update }}"
-
-    - name: Update PERC firmware
-      dellemc.openmanage.idrac_redfish_update:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        update_image: "files/{{ perc_firmware_image }}"
-        category: "StorageController"
-      register: perc_update
-
-    - name: Display PERC firmware update result
-      debug:
-        msg: "PERC Firmware Update Status: {{ perc_update }}"
-
-    - name: Create an iDRAC user with full privileges
-      dellemc.openmanage.idrac_redfish_user:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        new_username: "{{ idrac_user }}"
-        new_password: "{{ idrac_user_password }}"
-        role: "Administrator"
-      register: user_config
-
-    - name: Display user creation result
-      debug:
-        msg: "User Creation Status: {{ user_config }}"
-
-    - name: Rename the system
-      dellemc.openmanage.idrac_redfish_config:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        category: "iDRAC"
-        command: "SetSystemAttributes"
-        system_attributes:
-          Hostname: "{{ system_name }}"
-      register: rename_result
-
-    - name: Display system rename result
-      debug:
-        msg: "System Rename Status: {{ rename_result }}"
-
-    - name: Create RAID 1 array
-      dellemc.openmanage.idrac_redfish_storage:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        raid_type: "{{ raid_type }}"
-        physical_disks: "{{ physical_disks }}"
-      register: raid_config
-
-    - name: Display RAID configuration result
-      debug:
-        msg: "RAID Configuration Status: {{ raid_config }}"
-
-
-
----
-# iDRAC Configuration Variables
-idrac_ip: "192.168.1.100"
-idrac_username: "root"
-idrac_password: "calvin"
-
-# Out-of-Band Admin User
-idrac_user: "oobadmin"
-idrac_user_password: "securepassword"
-
-# System Configuration
-system_name: "PLN-AIDEV-001"
-
-# Firmware Update Files (located in files/ directory)
-idrac_firmware_image: "iDRAC-with-Lifecycle-Controller_Firmware_TNT7C_LN64_7.20.10.05_A00.BIN"
-bios_image: ""  # Add BIOS firmware filename if applicable
-perc_firmware_image: "SAS-RAID_Firmware_INKYJ_LN64_8.8.0.0.18-32_A07.BIN"
-
-# RAID Configuration
-raid_type: "RAID1"
-physical_disks:
-  - "Disk.0"
-  - "Disk.1"
-
-
