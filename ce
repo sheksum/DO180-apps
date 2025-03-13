@@ -1,154 +1,51 @@
-[idrac_hosts]
-10.152.0.116 ansible_connection=httpapi ansible_httpapi_use_ssl=yes ansible_httpapi_validate_certs=no ansible_network_os=dellemc.openmanage.idrac
+- name: Configure iDRAC and RAID on Dell PowerEdge  
+  hosts: all  
+  gather_facts: false  
+  vars:  
+    idrac_ip: "<iDRAC-IP-address>"        # define actual IP  
+    idrac_user: "<idrac-admin-username>"  # e.g. "root"  
+    idrac_password: "<idrac-admin-password>"  
+  tasks:  
+    - name: Create iDRAC user with full privileges  
+      dellemc.openmanage.idrac_user:  
+        idrac_ip: "{{ idrac_ip }}"  
+        idrac_user: "{{ idrac_user }}"  
+        idrac_password: "{{ idrac_password }}"  
+        user_name: "monitoring"               # New iDRAC username to create  
+        user_password: "SecurePass123!"       # Password for the new user  
+        privilege: "Administrator"            # Full privileges for iDRAC GUI/API  
+        ipmi_lan_privilege: "Administrator"   # Full IPMI (LAN) privilege  
+        ipmi_serial_privilege: "Administrator" # Full IPMI (Serial) privilege  
+        enable: true                          # Enable the user account  
+        sol_enable: true                      # Enable Serial-over-LAN for this user  
+        protocol_enable: true                 # Enable remote access protocol for user  
+        state: present                        # Ensure the user is present (created)  
+      delegate_to: localhost  
 
-[idrac_hosts]
-10.152.0.116 ansible_connection=httpapi ansible_httpapi_use_ssl=yes ansible_httpapi_validate_certs=no ansible_network_os=dellemc.openmanage.idrac
+    - name: Rename the system (set iDRAC DNS name)  
+      dellemc.openmanage.idrac_network:  
+        idrac_ip: "{{ idrac_ip }}"  
+        idrac_user: "{{ idrac_user }}"  
+        idrac_password: "{{ idrac_password }}"  
+        register_idrac_on_dns: "Enabled"      # Enable DNS registration for iDRAC  
+        dns_idrac_name: "NewSystemName"       # Desired DNS name for the iDRAC  
+      delegate_to: localhost  
 
-
----
-- name: Configure Dell iDRAC
-  hosts: idrac_hosts
-  gather_facts: no
-  become: no
-  vars_files:
-    - group_vars/all.yml
-
-  tasks:
-    - name: Ensure required Python modules are installed
-      pip:
-        name:
-          - requests
-          - urllib3
-      delegate_to: localhost
-      run_once: true
-
-    - name: Ensure firmware directory exists on control machine
-      file:
-        path: "/tmp/idrac_firmware/"
-        state: directory
-      delegate_to: localhost
-
-    - name: Upload iDRAC firmware via Redfish API (Local Install)
-      uri:
-        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService/Actions/Oem/DellUpdateService.SimpleUpdate"
-        method: POST
-        user: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        validate_certs: no
-        body_format: json
-        headers:
-          Content-Type: "application/json"
-        body:
-          ImageURI: "http://10.168.1.79/files/{{ idrac_firmware_image }}"
-          InstallMethod: "Remote"
-      register: firmware_update
-
-    - name: Display iDRAC firmware update result
-      debug:
-        msg: "iDRAC Firmware Update Status: {{ firmware_update }}"
-
-    - name: Upload BIOS firmware via Redfish API (if applicable)
-      when: bios_image | length > 0
-      uri:
-        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService/Actions/Oem/DellUpdateService.SimpleUpdate"
-        method: POST
-        user: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        validate_certs: no
-        body_format: json
-        headers:
-          Content-Type: "application/json"
-        body:
-          ImageURI: "http://10.168.1.79/files/{{ bios_image }}"
-          InstallMethod: "Remote"
-      register: bios_update
-
-    - name: Display BIOS update result
-      when: bios_image | length > 0
-      debug:
-        msg: "BIOS Firmware Update Status: {{ bios_update }}"
-
-    - name: Upload PERC firmware via Redfish API
-      uri:
-        url: "https://{{ idrac_ip }}/redfish/v1/UpdateService/Actions/Oem/DellUpdateService.SimpleUpdate"
-        method: POST
-        user: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        validate_certs: no
-        body_format: json
-        headers:
-          Content-Type: "application/json"
-        body:
-          ImageURI: "http://10.168.1.79/files/{{ perc_firmware_image }}"
-          InstallMethod: "Remote"
-      register: perc_update
-
-    - name: Display PERC firmware update result
-      debug:
-        msg: "PERC Firmware Update Status: {{ perc_update }}"
-
-    - name: Reboot system after firmware updates
-      dellemc.openmanage.idrac_boot:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        command: "Reboot"
-      when: firmware_update.changed or bios_update.changed or perc_update.changed
-      register: reboot_status
-
-    - name: Display reboot status
-      debug:
-        msg: "System Reboot Status: {{ reboot_status }}"
-
-    - name: Wait for system to come back online
-      wait_for:
-        host: "{{ idrac_ip }}"
-        port: 443
-        delay: 60
-        timeout: 1800  # Increased to 30 minutes for physical servers
-        state: started
-      register: wait_result
-
-    - name: Display wait result
-      debug:
-        msg: "System Availability Status: {{ wait_result }}"
-
-    - name: Create an iDRAC user with full privileges
-      dellemc.openmanage.idrac_user:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        new_username: "{{ idrac_user }}"
-        new_password: "{{ idrac_user_password }}"
-        role: "Administrator"
-      register: user_config
-
-    - name: Display user creation result
-      debug:
-        msg: "User Creation Status: {{ user_config }}"
-
-    - name: Rename the system
-      dellemc.openmanage.idrac_attributes:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        attributes:
-          System.HostName: "{{ system_name }}"
-      register: rename_result
-
-    - name: Display system rename result
-      debug:
-        msg: "System Rename Status: {{ rename_result }}"
-
-    - name: Create RAID 1 array using Storage Volume Module
-      dellemc.openmanage.idrac_storage_volume:
-        baseuri: "{{ idrac_ip }}"
-        username: "{{ idrac_username }}"
-        password: "{{ idrac_password }}"
-        raid_level: "1"
-        physical_disks: "{{ physical_disks }}"
-      register: raid_config
-
-    - name: Display RAID configuration result
-      debug:
-        msg: "RAID Configuration Status: {{ raid_config }}"
+    - name: Configure RAID 5 on controller  
+      dellemc.openmanage.idrac_storage_volume:  
+        idrac_ip: "{{ idrac_ip }}"  
+        idrac_user: "{{ idrac_user }}"  
+        idrac_password: "{{ idrac_password }}"  
+        state: "create"                       # Create new RAID volume(s)  
+        controller_id: "RAID.Slot.1-1"        # FQDD of storage controller (example)  
+        volume_type: "RAID 5"                 # RAID level (e.g. RAID 5)  
+        span_depth: 1                        # Number of spans (usually 1 for single RAID volume)  
+        span_length: 3                       # Disks per span (e.g. 3 disks for RAID 5)  
+        disk_cache_policy: "Enabled"         # Disk cache policy (Enabled/Disabled/Default)  
+        write_cache_policy: "WriteBack"      # Write cache policy (e.g. WriteBack caching)  
+        read_cache_policy: "ReadAhead"       # Read cache policy (e.g. ReadAhead)  
+        volumes:  
+          - name: "data_volume"              # Name of the virtual disk to create  
+            drives:  
+              location: [0, 1, 2]           # Physical disk slots to use in the RAID (example)  
+      delegate_to: localhost  
