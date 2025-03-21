@@ -1,17 +1,9 @@
-# Disable standard DHCP (Windows DHCP will assign IPs)
-port=0
+Update on FortiDLP LDAP Sync Issue
 
-# Enable ProxyDHCP Mode (Only PXE, No IPs assigned)
-dhcp-range=10.168.0.0,proxy
+Followed Fortinet's documentation to configure fortiDLP-ldap-sync for user synchronization with IPA.
+Used the admin credentials that normally allow successful IPA binding, but encountered an "Invalid Credentials" error (LDAP Result Code 49).
+Confirmed that the credentials are correct and verified connectivity to the LDAP server.
+Logs indicate an LDAP connection failure, preventing user synchronization.
+Opened ticket 7589 with the vendor for further investigation.
+Next Steps: Awaiting vendor response and troubleshooting guidance.
 
-# Define the PXE Boot Server
-dhcp-boot=pxelinux.0,pxeserver,10.168.0.58
-
-# Enable TFTP
-enable-tftp
-tftp-root=/var/lib/tftpboot
-
-# Define PXE Boot Options for Legacy BIOS and UEFI Clients
-pxe-service=X86PC, "PXE Boot BIOS", pxelinux.0
-pxe-service=EFI64, "PXE Boot UEFI", EFI/BOOT/shimx64.efi
-pxe-service=EFI64-Secure, "PXE Boot UEFI Secure", EFI/BOOT/shimx64.efi
