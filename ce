@@ -9,3 +9,344 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -out /etc/nginx/ssl/codegen-ai.crt \
   -subj "/C=US/ST=Texas/L=Plano/O=Calix/CN=codegen-ai.calix.local" \
   -addext "subjectAltName = DNS:codegen-ai.calix.local"
+
+
+(base) root@slcx-p7960:~# docker exec -it codegenui cat /etc/nginx/nginx.conf
+
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log notice;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    include /etc/nginx/conf.d/*.conf;
+}
+(base) root@slcx-p7960:~# docker exec -it codegenui cat /etc/nginx/conf.d/default.conf
+server {
+    listen       80;
+    listen  [::]:80;
+    server_name  localhost;
+
+    #access_log  /var/log/nginx/host.access.log  main;
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+
+    #error_page  404              /404.html;
+
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+    # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+    #
+    #location ~ \.php$ {
+    #    proxy_pass   http://127.0.0.1;
+    #}
+
+    # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+    #
+    #location ~ \.php$ {
+    #    root           html;
+    #    fastcgi_pass   127.0.0.1:9000;
+    #    fastcgi_index  index.php;
+    #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+    #    include        fastcgi_params;
+    #}
+
+    # deny access to .htaccess files, if Apache's document root
+    # concurs with nginx's one
+    #
+    #location ~ /\.ht {
+    #    deny  all;
+    #}
+}
+
+
+
+
+(base) root@slcx-p7960:~# docker inspect codegenui
+[
+    {
+        "Id": "654808e25d40a3e4cacbd777f5a7b783f1887db6311735b7800e41a6429d36d4",
+        "Created": "2025-03-21T03:25:35.292253121Z",
+        "Path": "/docker-entrypoint.sh",
+        "Args": [
+            "nginx",
+            "-g",
+            "daemon off;"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3640979,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2025-03-21T03:25:35.391360545Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:60c8a892f36faf6c9215464005ee6fb8cf0585f70b113c0b030f6cb497a41876",
+        "ResolvConfPath": "/var/lib/docker/containers/654808e25d40a3e4cacbd777f5a7b783f1887db6311735b7800e41a6429d36d4/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/654808e25d40a3e4cacbd777f5a7b783f1887db6311735b7800e41a6429d36d4/hostname",
+        "HostsPath": "/var/lib/docker/containers/654808e25d40a3e4cacbd777f5a7b783f1887db6311735b7800e41a6429d36d4/hosts",
+        "LogPath": "/var/lib/docker/containers/654808e25d40a3e4cacbd777f5a7b783f1887db6311735b7800e41a6429d36d4/654808e25d40a3e4cacbd777f5a7b783f1887db6311735b7800e41a6429d36d4-json.log",
+        "Name": "/codegenui",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "/var/codegen_app/frontend/build:/usr/share/nginx/html"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {
+                "80/tcp": [
+                    {
+                        "HostIp": "",
+                        "HostPort": "80"
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                30,
+                111
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware",
+                "/sys/devices/virtual/powercap"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/1f7a126190a0c12ee7ed45cc527047a786706c0d01b24b77c1d43e667b9b8056-init/diff:/var/lib/docker/overlay2/02df1df8deede56ca05ef2e0115ae8c3de139903c2ae01b0c209345b5f39df09/diff:/var/lib/docker/overlay2/5b79d04b22895a9bcc14b796930cc082b5a92cbc2e8e0ea5222cabd1c85f4f55/diff:/var/lib/docker/overlay2/f093d2d8940ebe6a4006098e5718dad9795ad8800f8d670495a6cb4d1866ca3b/diff:/var/lib/docker/overlay2/c549d1592d407298a1a65f03a88d72e583f1cdb5a5c0b70e5a57c661cf0a725a/diff:/var/lib/docker/overlay2/0fdcf2f64b30f27560482b21313426c96627398e4f941bc6c5077118e6ece10a/diff:/var/lib/docker/overlay2/96400691a41dd71042403f5f8abe7776df69a15edde51774af78c6ebc6bd3d0b/diff:/var/lib/docker/overlay2/f7c36e2aa0a66feb780810e07ff0dbbd6bc1f1b592f06be583c182bbdbd8328b/diff",
+                "MergedDir": "/var/lib/docker/overlay2/1f7a126190a0c12ee7ed45cc527047a786706c0d01b24b77c1d43e667b9b8056/merged",
+                "UpperDir": "/var/lib/docker/overlay2/1f7a126190a0c12ee7ed45cc527047a786706c0d01b24b77c1d43e667b9b8056/diff",
+                "WorkDir": "/var/lib/docker/overlay2/1f7a126190a0c12ee7ed45cc527047a786706c0d01b24b77c1d43e667b9b8056/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/var/codegen_app/frontend/build",
+                "Destination": "/usr/share/nginx/html",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "654808e25d40",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "80/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "NGINX_VERSION=1.27.2",
+                "NJS_VERSION=0.8.6",
+                "NJS_RELEASE=1~bookworm",
+                "PKG_RELEASE=1~bookworm",
+                "DYNPKG_RELEASE=1~bookworm"
+            ],
+            "Cmd": [
+                "nginx",
+                "-g",
+                "daemon off;"
+            ],
+            "Image": "nginx",
+            "Volumes": null,
+            "WorkingDir": "/",
+            "Entrypoint": [
+                "/docker-entrypoint.sh"
+            ],
+            "OnBuild": null,
+            "Labels": {
+                "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+            },
+            "StopSignal": "SIGQUIT"
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "869e191c300efcdf9eda4a05fb018cbed44702d2cbb4be9f60a058c8740d2dda",
+            "SandboxKey": "/var/run/docker/netns/869e191c300e",
+            "Ports": {
+                "80/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "80"
+                    },
+                    {
+                        "HostIp": "::",
+                        "HostPort": "80"
+                    }
+                ]
+            },
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "1d7001993f64875c3f00806e2ffd1d9a30f5a6ee7198c720a130476c52b6efb2",
+            "Gateway": "172.17.0.1",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "172.17.0.2",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+            "MacAddress": "02:42:ac:11:00:02",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "MacAddress": "02:42:ac:11:00:02",
+                    "DriverOpts": null,
+                    "NetworkID": "f505e33ae4938bcc66e672f2b9ee8dbf7892b026c1a6d4807cdf39e9cf7dc686",
+                    "EndpointID": "1d7001993f64875c3f00806e2ffd1d9a30f5a6ee7198c720a130476c52b6efb2",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.2",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        }
+    }
+]
+(base) root@slcx-p7960:~# 
+
+
+(base) root@slcx-p7960:~# docker exec -it codegenui ls -lah /usr/share/nginx/html
+total 28K
+drwxr-xr-x 3 150700 2200 4.0K Mar 18 16:00 .
+drwxr-xr-x 3 root   root 4.0K Nov 12 02:03 ..
+-rw-r--r-- 1 150700 2200  721 Mar 18 16:00 asset-manifest.json
+-rw-r--r-- 1 150700 2200 4.4K Mar 18 16:00 favicon.png
+-rw-r--r-- 1 150700 2200  486 Mar 18 16:00 index.html
+drwxr-xr-x 5 150700 2200 4.0K Mar 18 16:00 static
+(base) root@slcx-p7960:~# 
