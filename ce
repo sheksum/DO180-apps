@@ -1,20 +1,6 @@
-    server {
-        listen 443 ssl;
-        listen [::]:443 ssl;
-        server_name codegen-ai.calix.local;
-
-        ssl_certificate /etc/nginx/ssl/codegen-ai.crt;
-        ssl_certificate_key /etc/nginx/ssl/codegen-ai.key;
-
-        root /usr/share/nginx/html;
-        index index.html index.htm;
-
-        location / {
-            try_files $uri /index.html;
-        }
-
-        error_page 500 502 503 504 /50x.html;
-        location = /50x.html {
-            root /usr/share/nginx/html;
-        }
-    }
+docker run -d --name codegenui-https \
+  -p 443:443 \
+  -v /var/codegen_app/frontend/build:/usr/share/nginx/html \
+  -v /etc/nginx/ssl:/etc/nginx/ssl \
+  -v /etc/nginx/codegen-https.conf:/etc/nginx/nginx.conf \
+  nginx
