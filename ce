@@ -7,3 +7,8 @@ Logs indicate an LDAP connection failure, preventing user synchronization.
 Opened ticket 7589 with the vendor for further investigation.
 Next Steps: Awaiting vendor response and troubleshooting guidance.
 
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/nginx/ssl/codegen-ai.key \
+  -out /etc/nginx/ssl/codegen-ai.chain.crt \
+  -subj "/C=US/ST=State/L=City/O=Organization/CN=codegen-ai.calix.local" \
+  -addext "subjectAltName = DNS:codegen-ai.calix.local"
