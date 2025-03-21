@@ -1,5 +1,4 @@
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout /etc/nginx/ssl/codegen-ai.key \
-  -out /etc/nginx/ssl/codegen-ai.chain.crt \
-  -subj "/C=US/ST=State/L=City/O=Organization/CN=codegen-ai.calix.local" \
-  -addext "subjectAltName = DNS:codegen-ai.calix.local"
+  -out /etc/nginx/ssl/codegen-ai.crt \
+  -subj "/C=US/ST=Texas/L=Plano/O=Calix/CN=codegen-ai.calix.local"
