@@ -1,24 +1,17 @@
-log-facility local7;
+# Disable standard DHCP (Windows DHCP will assign IPs)
+port=0
 
-# Define subnet but do not offer IPs
-subnet 10.168.0.0 netmask 255.255.252.0 {
-    # Do not define a range, so no IPs are handed out
-}
+# Enable ProxyDHCP Mode (Only PXE, No IPs assigned)
+dhcp-range=10.168.0.0,proxy
 
-# PXE Boot options only (Windows DHCP assigns IPs)
-class "PXE" {
-    match if substring(option vendor-class-identifier, 0, 9) = "PXEClient";
-    
-    next-server 10.168.0.58;  # PXE Boot Server
-    if substring(option vendor-class-identifier, 15, 5) = "00007" {
-        filename "EFI/BOOT/shimx64.efi";  # UEFI PXE Boot
-    } elsif substring(option vendor-class-identifier, 15, 5) = "00009" {
-        filename "EFI/BOOT/shimx64.efi";  # UEFI PXE Boot (Secure Boot)
-    } else {
-        filename "pxelinux.0";  # Legacy BIOS PXE Boot
-    }
-}
+# Define the PXE Boot Server
+dhcp-boot=pxelinux.0,pxeserver,10.168.0.58
 
-# Allow PXE Booting
-allow booting;
-allow bootp;
+# Enable TFTP
+enable-tftp
+tftp-root=/var/lib/tftpboot
+
+# Define PXE Boot Options for Legacy BIOS and UEFI Clients
+pxe-service=X86PC, "PXE Boot BIOS", pxelinux.0
+pxe-service=EFI64, "PXE Boot UEFI", EFI/BOOT/shimx64.efi
+pxe-service=EFI64-Secure, "PXE Boot UEFI Secure", EFI/BOOT/shimx64.efi
