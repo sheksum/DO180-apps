@@ -1,12 +1,3 @@
-Update on FortiDLP LDAP Sync Issue
-
-Followed Fortinet's documentation to configure fortiDLP-ldap-sync for user synchronization with IPA.
-Used the admin credentials that normally allow successful IPA binding, but encountered an "Invalid Credentials" error (LDAP Result Code 49).
-Confirmed that the credentials are correct and verified connectivity to the LDAP server.
-Logs indicate an LDAP connection failure, preventing user synchronization.
-Opened ticket 7589 with the vendor for further investigation.
-Next Steps: Awaiting vendor response and troubleshooting guidance.
-
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout /etc/nginx/ssl/codegen-ai.key \
   -out /etc/nginx/ssl/codegen-ai.chain.crt \
