@@ -1,36 +1,24 @@
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: impersonate-gitops
-rules:
-  - apiGroups: [""]
-    resources: ["serviceaccounts"]
-    verbs: ["impersonate"]
-  - apiGroups: ["authentication.k8s.io"]
-    resources: ["userextras/scopes"]
-    verbs: ["impersonate"]
-  - apiGroups: ["authorization.k8s.io"]
-    resources: ["selfsubjectaccessreviews", "selfsubjectrulesreviews"]
-    verbs: ["create"]
-  - apiGroups: [""]
-    resources: ["users", "groups"]
-    verbs: ["impersonate"]
-  - apiGroups: [""]
-    resources: ["serviceaccounts"]
-    resourceNames: ["gitops"]  # Specifically allow only 'gitops'
-    verbs: ["impersonate"]
+log-facility local7;
 
+# Define subnet but do not offer IPs
+subnet 10.168.0.0 netmask 255.255.252.0 {
+    # Do not define a range, so no IPs are handed out
+}
 
+# PXE Boot options only (Windows DHCP assigns IPs)
+class "PXE" {
+    match if substring(option vendor-class-identifier, 0, 9) = "PXEClient";
+    
+    next-server 10.168.0.58;  # PXE Boot Server
+    if substring(option vendor-class-identifier, 15, 5) = "00007" {
+        filename "EFI/BOOT/shimx64.efi";  # UEFI PXE Boot
+    } elsif substring(option vendor-class-identifier, 15, 5) = "00009" {
+        filename "EFI/BOOT/shimx64.efi";  # UEFI PXE Boot (Secure Boot)
+    } else {
+        filename "pxelinux.0";  # Legacy BIOS PXE Boot
+    }
+}
 
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: asuma-impersonate-gitops
-subjects:
-  - kind: User
-    name: asuma  # Replace with your actual username
-    apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: ClusterRole
-  name: impersonate-gitops
-  apiGroup: rbac.authorization.k8s.io
+# Allow PXE Booting
+allow booting;
+allow bootp;
