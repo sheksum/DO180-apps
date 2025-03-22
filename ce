@@ -4,3 +4,27 @@ docker run -d --name codegenui-https \
   -v /etc/nginx/ssl:/etc/nginx/ssl \
   -v /etc/nginx/codegen-https.conf:/etc/nginx/nginx.conf \
   nginx
+
+
+[ req ]
+default_md = sha256
+prompt = no
+req_extensions = req_ext
+distinguished_name = req_distinguished_name
+
+[ req_distinguished_name ]
+commonName = codegen-ai.calix.local
+countryName = US
+stateOrProvinceName = Texas
+localityName = Plano
+organizationName = Calix
+organizationalUnitName = EngOps
+
+[ req_ext ]
+keyUsage = critical,digitalSignature,keyEncipherment
+extendedKeyUsage = critical,serverAuth,clientAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.0 = codegen-ai.calix.local
+DNS.1 = localhost
