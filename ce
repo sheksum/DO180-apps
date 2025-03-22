@@ -26,5 +26,10 @@ extendedKeyUsage = critical,serverAuth,clientAuth
 subjectAltName = @alt_names
 
 [ alt_names ]
+IP.0 = 10.172.249.149
 DNS.0 = codegen-ai.calix.local
-DNS.1 = localhost
+
+
+openssl req -new -config req.cfg -newkey rsa:2048 -nodes \
+  -keyout codegen-ai.calix.local.key \
+  -out codegen-ai.calix.local.csr
