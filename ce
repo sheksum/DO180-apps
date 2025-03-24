@@ -1,22 +1,15 @@
-The OS installation and all post-installation configurations have been completed for the following systems:
+[ req ]
+default_bits       = 2048
+prompt             = no
+default_md         = sha256
+req_extensions     = req_ext
+distinguished_name = dn
 
-Hostname: pln-aidev01.caal.dev
-IP Address: 10.172.249.100
-Hostname: pln-aidev02.caal.dev
-IP Address: 10.172.249.101
-Configuration Summary:
+[ dn ]
+CN = codegen-a.icalix.local
 
-Operating System: Ubuntu 24.04.2 LTS
-IPA has been successfully installed on both systems. Users can authenticate using their IPA credentials.
-autofs is configured, allowing user home directories to be automatically mounted upon login.
-Two volume groups are configured on each system:
-ubuntu-vg
-Size: ~891 GB
-Mount point: / (root filesystem)
-Backed by NVMe storage
-datavg
-Size: ~40.7 TB
-Mount point: /datamount
-Dedicated for application or data storage
-Standard EFI and boot partitions are present on the NVMe device.
-The systems are now fully configured and ready for handoff.
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = codegen-a.icalix.local
