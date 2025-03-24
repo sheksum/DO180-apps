@@ -1,35 +1,22 @@
-docker run -d --name codegenui-https \
-  -p 443:443 \
-  -v /var/codegen_app/frontend/build:/usr/share/nginx/html \
-  -v /etc/nginx/ssl:/etc/nginx/ssl \
-  -v /etc/nginx/codegen-https.conf:/etc/nginx/nginx.conf \
-  nginx
+The OS installation and all post-installation configurations have been completed for the following systems:
 
+Hostname: pln-aidev01.caal.dev
+IP Address: 10.172.249.100
+Hostname: pln-aidev02.caal.dev
+IP Address: 10.172.249.101
+Configuration Summary:
 
-[ req ]
-default_md = sha256
-prompt = no
-req_extensions = req_ext
-distinguished_name = req_distinguished_name
-
-[ req_distinguished_name ]
-commonName = codegen-ai.calix.local
-countryName = US
-stateOrProvinceName = Texas
-localityName = Plano
-organizationName = Calix
-organizationalUnitName = EngOps
-
-[ req_ext ]
-keyUsage = critical,digitalSignature,keyEncipherment
-extendedKeyUsage = critical,serverAuth,clientAuth
-subjectAltName = @alt_names
-
-[ alt_names ]
-IP.0 = 10.172.249.149
-DNS.0 = codegen-ai.calix.local
-
-
-openssl req -new -config req.cfg -newkey rsa:2048 -nodes \
-  -keyout codegen-ai.calix.local.key \
-  -out codegen-ai.calix.local.csr
+Operating System: Ubuntu 24.04.2 LTS
+IPA has been successfully installed on both systems. Users can authenticate using their IPA credentials.
+autofs is configured, allowing user home directories to be automatically mounted upon login.
+Two volume groups are configured on each system:
+ubuntu-vg
+Size: ~891 GB
+Mount point: / (root filesystem)
+Backed by NVMe storage
+datavg
+Size: ~40.7 TB
+Mount point: /datamount
+Dedicated for application or data storage
+Standard EFI and boot partitions are present on the NVMe device.
+The systems are now fully configured and ready for handoff.
