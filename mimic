@@ -1,13 +1,45 @@
-I'm happy to assist with this request. Just to provide a bit of context—our approach to granting sudo access has recently changed. We no longer assign sudo privileges on a per-system basis. Additionally, the use of shared login accounts (such as cafetest) is being discouraged, as shared logins make it difficult to track changes and maintain accountability.
+---
+- name: Trust Calix Root CA and validate HTTPS access
+  hosts: all
+  become: yes
+  vars:
+    cert_src: files/calix-root-ca.crt
+    cert_dst: /usr/local/share/ca-certificates/calix-root-ca.crt
+    test_url: https://pln-stash.calix.local
 
-Sudo access is now centrally managed through IPA. If your team already has an existing IPA group, I’ll add you to it. If not, I’ll create a new group, define the appropriate sudo rules, and link them to the group—members automatically inherit the permissions once added.
+  tasks:
 
-If your team does not yet have an IPA group, please provide the following information so I can create one:
+    - name: Ensure curl is installed (Debian/Ubuntu)
+      apt:
+        name: curl
+        state: present
+      when: ansible_os_family == "Debian"
 
-Team name within the organization
-List of members who should be included
-Hosts the team owns or is responsible for
-Type of sudo privileges required (e.g., full access, limited commands, etc.)
-While shared logins are discouraged, we can provide a bot account for automation purposes if needed. This bot account won’t have a login shell and is not meant for interactive use. All administrative actions should now be performed under your individual account.
+    - name: Ensure curl is installed (RHEL/CentOS)
+      yum:
+        name: curl
+        state: present
+      when: ansible_os_family == "RedHat"
 
-Let me know how you'd like to proceed.
+    - name: Push Calix root CA certificate
+      copy:
+        src: "{{ cert_src }}"
+        dest: "{{ cert_dst }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Update CA certificates
+      command: update-ca-certificates
+      register: update_ca_output
+      changed_when: "'1 added' in update_ca_output.stdout or 'done.' in update_ca_output.stdout"
+
+    - name: Validate trusted connection to Calix service
+      command: curl -I "{{ test_url }}"
+      register: curl_output
+      failed_when: "'SSL certificate problem' in curl_output.stderr"
+      changed_when: false
+
+    - name: Show curl response headers
+      debug:
+        var: curl_output.stdout_lines
