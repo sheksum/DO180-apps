@@ -1,93 +1,52 @@
-#version=RHEL8
-# Use text-based automated install
-text
-url --url="http://10.168.0.58/repo"
+Bug Fix: Prevent goa-daemon Log Spam and Filesystem Bloat on Ubuntu/GNOME
 
-# Keyboard layouts
-keyboard --xlayouts='us'
-# System language
-lang en_US.UTF-8
+Environment
+Ubuntu Desktop (GNOME)
+Also applies to RHEL 7/8/9 systems with GNOME installed
+Issue
+After logging into a GNOME session, users may encounter repeated messages in /var/log/syslog or visible in terminal windows:
 
-# Network information (prompt for hostname)
-network --bootproto=dhcp --device=link --onboot=on
+goa-daemon[PID]: goa_provider_get_for_provider_type: assertion 'provider_type != NULL' failed
+goa-daemon[PID]: Unsupported account type (null) for identity (null) (no provider)
+Root Cause
+This issue is due to a known bug in goa-daemon, part of GNOME Online Accounts. It occurs when misconfigured or null account entries exist in the user’s session.
 
-# Skip user input except hostname
-firstboot --disable
+This bug was filed in RHEL 7 but marked WONTFIX. The same behavior is also seen in Ubuntu and similar GNOME environments.
+Impact
+Constant log spam in /var/log/syslog and/or journalctl
+Increased CPU usage in some environments
+Can cause the /var/log or / filesystem to fill up over time, potentially leading to service or system instability
+Affects systems running GNOME with unused or broken Online Accounts
+Workaround
+Note: This workaround disables GNOME Online Accounts (GOA) support, such as Google/Microsoft integration.
+1. Log out of all GUI sessions
 
-# Partitioning
-ignoredisk --only-use=sda
-zerombr
-clearpart --all --initlabel
-autopart --type=lvm
+Ensure the user is logged out, or use a TTY/SSH session to proceed.
 
-# System timezone
-timezone America/New_York --isUtc
+2. Modify the D-Bus service files
 
-# Root password
-rootpw --iscrypted $6$F5pKEtndo4/uhJ.e$DZoccNl9lD/Q19DbwuTAWH8Q7YaKhhC6o9dx84kGm8VKvgODw9Wd5hrYWgyin5Xy5KMJ4nQW0gnT5zZZT7A001
-user --name=deploy --password=$6$tcMStFafbDwzP4iw$V5E.Zje23C2x4D7OsVy8ENRMnyBYGUqV7RErz8BY17ii4HaxMgtqJSIFzLlKok0uQdcq1Yd/u68mM81i7mh0M. --iscrypted --gecos="deploy"
+Edit /usr/share/dbus-1/services/org.gnome.Identity.service:
 
-# Skip confirmation prompts
-bootloader --location=mbr
-firewall --disabled
-selinux --disabled
-reboot
+[D-BUS Service]
+Name=org.gnome.Identity
+#Exec=/usr/libexec/goa-identity-service
+Exec=/bin/false
+Edit /usr/share/dbus-1/services/org.gnome.OnlineAccounts.service:
 
-# Package Selection
-%packages
-@^graphical-server-environment
-kexec-tools
-ipa-client
-sssd
-oddjob
-mkhomedir
-authselect
-subscription-manager
-%end
+[D-BUS Service]
+Name=org.gnome.OnlineAccounts
+#Exec=/usr/libexec/goa-daemon
+Exec=/bin/false
+3. Apply the fix
 
-%post
-# Logging setup
-exec > /root/ks-post.log 2>&1
-echo "Starting Red Hat Subscription and IPA client installation"
+Option A – Reboot the system:
 
-# Define Red Hat Subscription details
-RH_USERNAME="calix_networks"
-RH_PASSWORD="!6W7lhEaK3rRSDB4"
-POOL_ID="your-subscription-pool-id"
+sudo reboot
+Option B – Kill the daemons manually:
 
-# Register system to Red Hat Subscription Manager
-subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD} --auto-attach || \
-(subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD} && \
- subscription-manager attach --pool=${POOL_ID})
-
-# Enable required repositories
-subscription-manager repos --enable=rhel-9-server-rpms --enable=rhel-9-server-extras-rpms --enable=rhel-9-server-optional-rpms
-
-# Define IPA server details
-IPA_SERVER="cpeg-ipareplica.ipa.calix.local"
-IPA_REALM="IPA.CALIX.LOCAL"
-DOMAIN="ipa.calix.local"
-
-# Install IPA client if not already installed
-if ! rpm -q ipa-client; then
-  yum install -y ipa-client
-fi
-
-# Configure the IPA client
-ipa-client-install --unattended \
-  --server=$IPA_SERVER \
-  --domain=$DOMAIN \
-  --realm=$IPA_REALM \
-  --principal=ipa-enroll \
-  --password="W0FL2Qhnd9mV0yq7xWbXMWSP7woEbkmfNLMyRN+DsSM=" \
-  --mkhomedir \
-  --no-dns-sshfp \
-  --no-ntp
-
-# Enable SSSD for authentication
-authselect select sssd --force
-systemctl enable sssd
-systemctl start sssd
-
-echo "Red Hat subscription and IPA client setup completed."
-%end
+pkill goa-daemon
+pkill goa-identity-service
+Result
+Prevents the goa-daemon from launching and spamming logs
+Eliminates risk of log-related disk space exhaustion
+Safe to apply if online account integration is not used
