@@ -1,21 +1,13 @@
-Subject: [Action Required] goa-daemon Bug Causing Log Spam, Disk Space Consumption, and Resource Usage
+I'm happy to assist with this request. Just to provide a bit of context—our approach to granting sudo access has recently changed. We no longer assign sudo privileges on a per-system basis. Additionally, the use of shared login accounts (such as cafetest) is being discouraged, as shared logins make it difficult to track changes and maintain accountability.
 
-Hi team,
+Sudo access is now centrally managed through IPA. If your team already has an existing IPA group, I’ll add you to it. If not, I’ll create a new group, define the appropriate sudo rules, and link them to the group—members automatically inherit the permissions once added.
 
-We recently observed an issue on the following GNOME-based systems where excessive log spam from goa-daemon was causing the root filesystem to fill up:
+If your team does not yet have an IPA group, please provide the following information so I can create one:
 
-plnx-tsfarm01.caal.dev
-plnx-tsfarm02.caal.dev
-cf-u22-vshah
-This behavior stems from a known bug in GNOME Online Accounts (goa-daemon), where the daemon continuously logs errors due to invalid or missing account entries.
+Team name within the organization
+List of members who should be included
+Hosts the team owns or is responsible for
+Type of sudo privileges required (e.g., full access, limited commands, etc.)
+While shared logins are discouraged, we can provide a bot account for automation purposes if needed. This bot account won’t have a login shell and is not meant for interactive use. All administrative actions should now be performed under your individual account.
 
-If not addressed, this can lead to:
-
-Disk space consumption (especially in /var/log)
-Unnecessary or excessive system resource usage (CPU, memory)
-Potential system instability over time
-Fix:
-A permanent workaround has been documented in Confluence:
-👉 [Insert Confluence Link Here]
-
-If you notice similar log spam or symptoms on other GNOME-based systems, please apply the documented fix.
+Let me know how you'd like to proceed.
