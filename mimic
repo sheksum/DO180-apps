@@ -1,3 +1,21 @@
-This issue is caused by a known bug in goa-daemon, a background component of GNOME Online Accounts. The daemon attempts to load invalid or incomplete online account configurations (e.g., entries with missing provider types), which triggers repeated error messages in system logs.
+Subject: [Action Required] goa-daemon Bug Causing Log Spam, Disk Space Consumption, and Resource Usage
 
-GNOME Online Accounts is designed to integrate services like Google, Microsoft, and Facebook into the GNOME desktop environment. However, if no valid accounts are configured — or if old/corrupt entries exist — the daemon fails repeatedly, causing log spam.
+Hi team,
+
+We recently observed an issue on the following GNOME-based systems where excessive log spam from goa-daemon was causing the root filesystem to fill up:
+
+plnx-tsfarm01.caal.dev
+plnx-tsfarm02.caal.dev
+cf-u22-vshah
+This behavior stems from a known bug in GNOME Online Accounts (goa-daemon), where the daemon continuously logs errors due to invalid or missing account entries.
+
+If not addressed, this can lead to:
+
+Disk space consumption (especially in /var/log)
+Unnecessary or excessive system resource usage (CPU, memory)
+Potential system instability over time
+Fix:
+A permanent workaround has been documented in Confluence:
+👉 [Insert Confluence Link Here]
+
+If you notice similar log spam or symptoms on other GNOME-based systems, please apply the documented fix.
