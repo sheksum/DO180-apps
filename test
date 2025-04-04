@@ -1,106 +1,59 @@
-import subprocess
-import json
-import requests
+---
+- name: Trust Calix Root CA and validate HTTPS access
+  hosts: all
+  become: yes
+  vars:
+    cert_src: files/calix-root-ca.crt
+    ubuntu_dst: /usr/local/share/ca-certificates/calix-root-ca.crt
+    rhel_dst: /etc/pki/ca-trust/source/anchors/calix-root-ca.crt
+    test_url: https://pln-stash.calix.local
 
-# List of clusters
-clusters = ["kqde1gen-1", "kqde1gen-2", "kva1gen-1", "kde1gen-1", "kva3gen-1"]
+  tasks:
 
-# Function to get namespaces in the cluster
-def get_kubectl_namespaces(cluster):
-    """Get the list of namespaces for a specific cluster."""
-    try:
-        # Set the kubectl context to the desired cluster
-        subprocess.run(["kubectl", "config", "use-context", cluster], check=True, capture_output=True)
-        
-        # Get the namespaces from the cluster
-        result = subprocess.run(
-            ["kubectl", "get", "namespaces", "-o", "jsonpath='{.items[*].metadata.name}'"],
-            check=True, capture_output=True, text=True
-        )
-        namespaces = result.stdout.replace("'", "").split()  # Clean the output
-        return namespaces
-    except subprocess.CalledProcessError as e:
-        print(f"Error while retrieving namespaces for cluster {cluster}: {e}")
-        return []
+    - name: Ensure curl is installed (Debian/Ubuntu)
+      apt:
+        name: curl
+        state: present
+      when: ansible_os_family == "Debian"
 
-# Function to get Calico IP pools
-def get_calico_ip_pools():
-    """Get the list of IP pools from Calico."""
-    try:
-        # Get the IP pools from Calico with version mismatch allowance
-        result = subprocess.run(
-            ["calicoctl", "get", "ippool", "--allow-version-mismatch", "-o", "json"],
-            check=True, capture_output=True, text=True
-        )
-        ippools = json.loads(result.stdout)["items"]
-        return [pool["metadata"]["name"] for pool in ippools]
-    except subprocess.CalledProcessError as e:
-        print(f"Error while retrieving IP pools: {e}")
-        return []
+    - name: Ensure curl is installed (RHEL/CentOS)
+      yum:
+        name: curl
+        state: present
+      when: ansible_os_family == "RedHat"
 
-# Function to fetch NetBox IP pools
-def get_netbox_ip_pools():
-    """Get the list of IP pools from NetBox."""
-    try:
-        url = "https://netbox.example.com/api/ipam/prefixes/"
-        headers = {"Authorization": "Token YOUR_NETBOX_TOKEN"}
-        response = requests.get(url, headers=headers)
-        
-        if response.status_code == 200:
-            data = response.json()
-            # Extract the IP prefixes (pools) from NetBox response
-            return [item["prefix"] for item in data["results"]]
-        else:
-            print(f"Error fetching data from NetBox: {response.status_code}")
-            return []
-    except requests.exceptions.RequestException as e:
-        print(f"Error while retrieving data from NetBox: {e}")
-        return []
+    - name: Deploy certificate on Ubuntu
+      copy:
+        src: "{{ cert_src }}"
+        dest: "{{ ubuntu_dst }}"
+        owner: root
+        group: root
+        mode: '0644'
+      when: ansible_os_family == "Debian"
 
-# Print table header
-def print_header():
-    """Print the header for the table."""
-    print(f"{'Namespace':<40} {'Statement':<20}")
-    print(f"{'-'*40} {'-'*20}")
+    - name: Deploy certificate on RHEL
+      copy:
+        src: "{{ cert_src }}"
+        dest: "{{ rhel_dst }}"
+        owner: root
+        group: root
+        mode: '0644'
+      when: ansible_os_family == "RedHat"
 
-# Main function to check and compare IP pools
-def check_ip_pools():
-    """Main function to compare namespaces and IP pools."""
-    # Fetch NetBox data
-    netbox_ip_pools = get_netbox_ip_pools()
+    - name: Update trust store on Ubuntu
+      command: update-ca-certificates
+      when: ansible_os_family == "Debian"
 
-    if not netbox_ip_pools:
-        print("No IP pools found in NetBox. Exiting.")
-        return
+    - name: Update trust store on RHEL
+      command: update-ca-trust extract
+      when: ansible_os_family == "RedHat"
 
-    # Print table header
-    print_header()
+    - name: Validate HTTPS connection to Calix endpoint
+      command: curl -I "{{ test_url }}"
+      register: curl_output
+      failed_when: "'SSL certificate problem' in curl_output.stderr"
+      changed_when: false
 
-    # Loop through each cluster
-    for cluster in clusters:
-        print(f"\nChecking IP pools in cluster: {cluster}")
-        
-        # Get namespaces and IP pools from Kubernetes
-        namespaces = get_kubectl_namespaces(cluster)
-        kubernetes_ip_pools = get_calico_ip_pools()
-        
-        # Loop through each IP pool in Kubernetes and compare with NetBox IP pools
-        for ippool in kubernetes_ip_pools:
-            # Extract the namespace part from the IP pool name (e.g., 'robusta' from 'robusta-ns-ippool-0')
-            if "-" in ippool:
-                namespace = ippool.split('-')[0]
-                
-                if namespace in namespaces:
-                    # Check if the namespace exists in NetBox IP pools
-                    if any(ippool.startswith(prefix) for prefix in netbox_ip_pools):
-                        print(f"{namespace:<40} {'Cleanup not needed':<20}")
-                    else:
-                        print(f"{namespace:<40} {'Cleanup needed':<20}")
-                        # You can add cleanup logic here using `calicoctl` or another tool
-                else:
-                    print(f"{namespace:<40} {'Cleanup needed':<20}")
-            else:
-                print(f"{ippool:<40} {'Invalid IP pool format':<20}")
-
-# Run the check
-check_ip_pools()
+    - name: Show curl response headers
+      debug:
+        var: curl_output.stdout_lines
