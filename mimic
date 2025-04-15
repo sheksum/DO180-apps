@@ -1,62 +1,22 @@
-mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros
+---
+- name: Backup and append DNS entries to /etc/resolv.conf
+  hosts: all
+  become: true
+  tasks:
+    - name: Backup existing /etc/resolv.conf
+      copy:
+        src: /etc/resolv.conf
+        dest: /etc/resolv.conf.bak
+        remote_src: yes
+        mode: '0644'
 
-yum install gcc zlib-devel openssl-devel pam-devel rpm-build
-
-cd ~/rpmbuild/SOURCES
-wget https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.6p1.tar.gz
-
-
-vi ~/rpmbuild/SPECS/openssh-local.spec
-
-%global debug_package %{nil}
-
-Name: openssh-local
-Version: 9.6p1
-Release: 1%{?dist}
-Summary: Custom OpenSSH build for RHEL5
-License: BSD
-URL: https://www.openssh.com
-Source0: https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.6p1.tar.gz
-BuildRequires: gcc, zlib-devel, openssl-devel, pam-devel
-
-%description
-Custom compiled OpenSSH 9.6p1 for legacy RHEL5 system with updated crypto support.
-
-%prep
-%setup -q -n openssh-9.6p1
-
-%build
-./configure --prefix=/usr --sysconfdir=/etc/ssh --with-md5-passwords --with-pam
-make
-
-%install
-rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
-
-%files
-%defattr(-,root,root)
-/usr/bin/*
-/usr/sbin/*
-/usr/libexec/*
-/etc/ssh/*
-/usr/share/man/man1/*
-/usr/share/man/man5/*
-/usr/share/man/man8/*
-
-%changelog
-* Tue Apr 09 2025 Haj Suma <haj.suma@calix.com> - 9.6p1-1
-- Initial build for RHEL5 compatibility
-
-
-=======
-ssh -V
-
-rpmbuild -ba ~/rpmbuild/SPECS/openssh-local.spec
-
-cp /usr/sbin/sshd /usr/sbin/sshd.bak
-cp /usr/bin/ssh /usr/bin/ssh.bak
-
-rpm -Uvh --replacepkgs --replacefiles ~/rpmbuild/RPMS/x86_64/openssh-local-9.6p1-1.el9.x86_64.rpm
-
-
+    - name: Ensure required DNS nameservers are present (no comments)
+      lineinfile:
+        path: /etc/resolv.conf
+        line: "{{ item }}"
+        state: present
+        create: no
+      loop:
+        - "nameserver 10.16.3.8"
+        - "nameserver 10.16.3.16"
+        - "nameserver 10.16.3.24"
