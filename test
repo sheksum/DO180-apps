@@ -1,59 +1,123 @@
+
+### Rancher API Key Renewal
+
 ---
-- name: Trust Calix Root CA and validate HTTPS access
-  hosts: all
-  become: yes
-  vars:
-    cert_src: files/calix-root-ca.crt
-    ubuntu_dst: /usr/local/share/ca-certificates/calix-root-ca.crt
-    rhel_dst: /etc/pki/ca-trust/source/anchors/calix-root-ca.crt
-    test_url: https://pln-stash.calix.local
 
-  tasks:
+### Vault Login
+To authenticate with Vault, run:
 
-    - name: Ensure curl is installed (Debian/Ubuntu)
-      apt:
-        name: curl
-        state: present
-      when: ansible_os_family == "Debian"
+```bash
+export VAULT_ADDR=https://vault.vrsn.com:8200
+vault login -method=ldap
+```
 
-    - name: Ensure curl is installed (RHEL/CentOS)
-      yum:
-        name: curl
-        state: present
-      when: ansible_os_family == "RedHat"
+> NOTE: Use your IPA password + OTP to log in.
 
-    - name: Deploy certificate on Ubuntu
-      copy:
-        src: "{{ cert_src }}"
-        dest: "{{ ubuntu_dst }}"
-        owner: root
-        group: root
-        mode: '0644'
-      when: ansible_os_family == "Debian"
+---
 
-    - name: Deploy certificate on RHEL
-      copy:
-        src: "{{ cert_src }}"
-        dest: "{{ rhel_dst }}"
-        owner: root
-        group: root
-        mode: '0644'
-      when: ansible_os_family == "RedHat"
+### Backup Existing Rancher Secret
 
-    - name: Update trust store on Ubuntu
-      command: update-ca-certificates
-      when: ansible_os_family == "Debian"
+```bash
+vault kv get /appssecrets/vks/kvalgen-1/rancher > backup
+```
 
-    - name: Update trust store on RHEL
-      command: update-ca-trust extract
-      when: ansible_os_family == "RedHat"
+This ensures you have a copy of the current credentials before patching.
 
-    - name: Validate HTTPS connection to Calix endpoint
-      command: curl -I "{{ test_url }}"
-      register: curl_output
-      failed_when: "'SSL certificate problem' in curl_output.stderr"
-      changed_when: false
+---
 
-    - name: Show curl response headers
-      debug:
-        var: curl_output.stdout_lines
+### Obtain Robot Account Credentials
+
+Retrieve the IPA robot account credentials from Vault:
+
+```bash
+vault kv list /appssecrets/sre | grep rancher
+```
+
+Example entries:
+- `ipa-rancher-lab-robot`
+- `ipa-rancher-nonprod-robot`
+- `ipa-rancher-prod-robot`
+
+Use the appropriate bot credential to log into Rancher:
+- **Use `ipa-rancher-prod-robot` for production clusters**
+- **Use `ipa-rancher-nonprod-robot` for non-prod or QA clusters**
+
+These credentials are required to log into the Rancher UI to create API keys.
+
+---
+
+### Create New Rancher API Key
+
+1. Navigate to:  
+   [https://kde1-prod1.vks.vrsn.com](https://kde1-prod1.vks.vrsn.com)  
+   Direct account link: [https://kde1-prod1.vks.vrsn.com/dashboard/account](https://kde1-prod1.vks.vrsn.com/dashboard/account)
+
+2. Log in using the robot credentials retrieved in the previous step.
+
+3. Click **Account and API Keys** → **Create API Key**
+
+4. On the form:
+   - **Description**: `rke2-deployment-<date>`
+   - **Scope**: Leave as `No Scope`
+   - **Automatic Expire**: 365 days
+
+5. Click **Create** and **record both Access Key and Secret Key**  
+   This is the only time you will see the keys. If lost, a new key must be created.  
+   After saving, click **Done**
+
+---
+
+### Patch Vault with New Credentials
+
+```bash
+vault kv patch /appssecrets/vks/kvalgen-1/rancher \
+  access_key=<ACCESS_KEY> \
+  secret_key=<SECRET_KEY>
+```
+
+Replace `<ACCESS_KEY>` and `<SECRET_KEY>` with the values you just recorded.
+
+---
+
+### Validate Patched Keys
+
+1. Retrieve the synced secret from Kubernetes:
+
+```bash
+kubectl get secret -n gangway-system gangway-secret -o yaml
+```
+
+2. Extract the following fields and decode them:
+
+```bash
+echo <base64_encoded_rancherAccessKey> | base64 -d
+echo <base64_encoded_rancherSecretKey> | base64 -d
+```
+
+3. Ensure decoded values match the ones you patched into Vault.
+
+---
+
+### Validate Project Sync
+
+To confirm the new keys are valid and in use:
+
+```bash
+kubectl get projects -n gangway-system
+```
+
+- All projects should show:  
+  `READY=True` and `STATUS=Project successfully synced`
+
+- If **all projects show** `READY=Unknown`, the patched keys do **not match** the Rancher API key and must be corrected.
+
+---
+
+### Remove Old Rancher API Key
+
+After validating successful sync and function:
+
+- Go to **Account and API Keys** in Rancher UI
+- Delete the previous/old key
+
+---
