@@ -1,123 +1,118 @@
+# Intermediate Certificate Renewal for VKS Clusters
 
-### Rancher API Key Renewal
+### Objective
+Renew the intermediate certificate for **Kubernetes Compute Bravo regions** as it is nearing expiration.
+
+Intermediate certificates in VKS expire every **3 years** and must be **signed by the IPA root certificate** to maintain a valid trust chain within the cluster.
 
 ---
 
-### Vault Login
-To authenticate with Vault, run:
+### Step 1: Submit a Jira Ticket
+Submit a Jira request to the BOS team:  
+`https://jira.vrsn.com/jira/browse/BOS-2279`
+
+**Include the following in the request:**
+
+- Purpose: Intermediate cert renewal for VKS clusters  
+- CNs for the certs:  
+  - `kdva`  
+  - `kqde1`  
+  - `kva1gen-1`  
+  - `kva3gen-1`  
+  - `kde1gen-1`  
+- Pathlen: `1`  
+- Validity period: `3 years`
+
+You will receive an **email from the BOS team** with the **certificate**, **key**, and **key password** as attachments.
+
+---
+
+### Note:
+Ensure you have pushed the certificate and key **first to the lab environment** and allowed a **baking period of at least 1 week** before promoting the change to **QA and PROD**.
+
+---
+
+### Step 2: Decrypt Private Key
+Use the key password provided by BOS to decrypt:
+
+```bash
+openssl rsa -in kvalgen-1.key -out ca_key_plaintext
+```
+
+---
+
+### Step 3: Validate MD5 Checksums
+Ensure the modulus from the certificate and key match:
+
+```bash
+openssl x509 -in ca_cert -noout -modulus | md5sum
+openssl rsa -in ca_key_plaintext -noout -modulus | md5sum
+```
+
+Both values must be identical.
+
+---
+
+### Step 4: Vault Login
+
+Authenticate to Vault:
 
 ```bash
 export VAULT_ADDR=https://vault.vrsn.com:8200
-vault login -method=ldap
+vault login --method=ldap
 ```
-
-> NOTE: Use your IPA password + OTP to log in.
 
 ---
 
-### Backup Existing Rancher Secret
+### Step 5: Backup Existing Certificates
+
+Before applying the new certs, take a backup of the current CA certificate and key from Vault.
+
+Run the following command to save the current state to a file:
 
 ```bash
-vault kv get /appssecrets/vks/kvalgen-1/rancher > backup
+vault kv get appssecrets/vks/qde4-eegen-1/certificate-authority > ca_backup_$(date +%F).txt
 ```
-
-This ensures you have a copy of the current credentials before patching.
 
 ---
 
-### Obtain Robot Account Credentials
-
-Retrieve the IPA robot account credentials from Vault:
+### Step 6: Patch New Cert and Key to Vault
 
 ```bash
-vault kv list /appssecrets/sre | grep rancher
+cat kdva.cert | vault kv patch appssecrets/vks/qde4-eegen-1/certificate-authority ca_cert=-
+cat kdva.key | vault kv patch appssecrets/vks/qde4-eegen-1/certificate-authority ca_key=-
 ```
 
-Example entries:
-- `ipa-rancher-lab-robot`
-- `ipa-rancher-nonprod-robot`
-- `ipa-rancher-prod-robot`
-
-Use the appropriate bot credential to log into Rancher:
-- **Use `ipa-rancher-prod-robot` for production clusters**
-- **Use `ipa-rancher-nonprod-robot` for non-prod or QA clusters**
-
-These credentials are required to log into the Rancher UI to create API keys.
-
 ---
 
-### Create New Rancher API Key
-
-1. Navigate to:  
-   [https://kde1-prod1.vks.vrsn.com](https://kde1-prod1.vks.vrsn.com)  
-   Direct account link: [https://kde1-prod1.vks.vrsn.com/dashboard/account](https://kde1-prod1.vks.vrsn.com/dashboard/account)
-
-2. Log in using the robot credentials retrieved in the previous step.
-
-3. Click **Account and API Keys** → **Create API Key**
-
-4. On the form:
-   - **Description**: `rke2-deployment-<date>`
-   - **Scope**: Leave as `No Scope`
-   - **Automatic Expire**: 365 days
-
-5. Click **Create** and **record both Access Key and Secret Key**  
-   This is the only time you will see the keys. If lost, a new key must be created.  
-   After saving, click **Done**
-
----
-
-### Patch Vault with New Credentials
+### Step 7: Verify Vault Entries
 
 ```bash
-vault kv patch /appssecrets/vks/kvalgen-1/rancher \
-  access_key=<ACCESS_KEY> \
-  secret_key=<SECRET_KEY>
+vault kv get appssecrets/vks/qde4-eegen-1/certificate-authority
 ```
-
-Replace `<ACCESS_KEY>` and `<SECRET_KEY>` with the values you just recorded.
 
 ---
 
-### Validate Patched Keys
-
-1. Retrieve the synced secret from Kubernetes:
+### Step 8: Validate Cluster Certificate
 
 ```bash
-kubectl get secret -n gangway-system gangway-secret -o yaml
+kubectl get secrets -n cert-manager cluster-ca-cert -o json \
+  | jq -r '.data["tls.crt"]' \
+  | base64 -d \
+  | openssl x509 -in - -noout -text
 ```
 
-2. Extract the following fields and decode them:
+---
+
+### Step 9: Verify ClusterIssuer is Ready
 
 ```bash
-echo <base64_encoded_rancherAccessKey> | base64 -d
-echo <base64_encoded_rancherSecretKey> | base64 -d
+kubectl get ClusterIssuer
 ```
 
-3. Ensure decoded values match the ones you patched into Vault.
+Sample output:
 
----
-
-### Validate Project Sync
-
-To confirm the new keys are valid and in use:
-
-```bash
-kubectl get projects -n gangway-system
 ```
-
-- All projects should show:  
-  `READY=True` and `STATUS=Project successfully synced`
-
-- If **all projects show** `READY=Unknown`, the patched keys do **not match** the Rancher API key and must be corrected.
-
----
-
-### Remove Old Rancher API Key
-
-After validating successful sync and function:
-
-- Go to **Account and API Keys** in Rancher UI
-- Delete the previous/old key
-
----
+NAME                        READY   AGE
+cluster-bootstrap-ca-issuer   True    243d
+```
