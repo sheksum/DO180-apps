@@ -4,30 +4,14 @@
   become: true
   gather_facts: true
 
-  vars_prompt:
-    - name: "activation_key_rhel8"
-      prompt: "Enter activation key for RHEL 8 systems"
-      private: no
-
-    - name: "activation_key_rhel9"
-      prompt: "Enter activation key for RHEL 9 systems"
-      private: no
-
-    - name: "hostgroup_selection"
-      prompt: |
-        Available Host Groups:
-        {% for group in hostgroup_list.stdout_lines %}
-        {{ loop.index }}. {{ group }}
-        {% endfor %}
-        Enter the number of the host group to use:
-      private: no
-
   vars:
-    satellite_fqdn: "pln-satellite01.caal.dev"
-    org: "Calix Org"
-    location: "Plano Texas"
-    satellite_user: "satellite-bot"
-    satellite_password: "StrongP@ssword123"  # Ideally encrypted with ansible-vault
+    satellite_fqdn: pln-satellite01.caal.dev
+    org: Calix Org
+    location: Plano Texas
+    satellite_user: satellite-bot
+    satellite_password: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      (your encrypted vault block here)
 
   pre_tasks:
     - name: Fetch available host groups from Satellite
@@ -40,25 +24,49 @@
       register: hostgroup_list
       changed_when: false
 
-    - name: Set selected host group name
+    - name: Prompt for activation keys and host group selection
+      vars_prompt:
+        - name: "activation_key_rhel8"
+          prompt: "Enter activation key for RHEL 8 systems"
+          private: no
+        - name: "activation_key_rhel9"
+          prompt: "Enter activation key for RHEL 9 systems"
+          private: no
+        - name: "hostgroup_selection"
+          prompt: |
+            Available Host Groups:
+            {% for group in hostgroup_list.stdout_lines %}
+            {{ loop.index }}. {{ group }}
+            {% endfor %}
+            Enter the number of the host group to use:
+          private: no
+
+    - name: Set selected host group based on user input
       set_fact:
         selected_hostgroup: "{{ hostgroup_list.stdout_lines[(hostgroup_selection | int) - 1] }}"
 
-    - name: Set activation key based on OS version
+    - name: Set activation key based on detected OS
       set_fact:
         selected_activation_key: "{{ activation_key_rhel8 if ansible_distribution_major_version | int == 8 else activation_key_rhel9 }}"
+
+    - name: Fail if unsupported OS
+      fail:
+        msg: "Unsupported OS version: {{ ansible_distribution_major_version }}. Only RHEL 8 and 9 are supported."
+      when: ansible_distribution_major_version | int not in [8, 9]
 
   tasks:
     - name: Ensure katello-ca-consumer is installed
       yum:
         name: "http://{{ satellite_fqdn }}/pub/katello-ca-consumer-latest.noarch.rpm"
         state: present
+      when: not ansible_check_mode
 
     - name: Download bootstrap script
       get_url:
         url: "http://{{ satellite_fqdn }}/pub/bootstrap.py"
         dest: "/tmp/bootstrap.py"
         mode: '0755'
+      when: not ansible_check_mode
 
     - name: Run bootstrap script to register host
       shell: |
@@ -71,3 +79,4 @@
           --force
       args:
         creates: /etc/foreman-agent
+      when: not ansible_check_mode
