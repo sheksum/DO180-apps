@@ -1,46 +1,87 @@
-- name: Fetch available host groups from Satellite
-  delegate_to: localhost
-  shell: |
-    hammer --server https://{{ satellite_fqdn }} \
-           --username {{ satellite_user }} \
-           --password '{{ satellite_password }}' \
-           hostgroup list --per-page 100 --order name | awk 'NR > 1 { print $2, $3, $4, $5 }'
-  register: hostgroup_list
-  changed_when: false
+---
+- name: Dynamically enroll RHEL systems to Red Hat Satellite
+  hosts: all
+  become: true
+  gather_facts: true
 
-- name: Show available host groups
-  debug:
-    msg: |
-      Available Host Groups:
-      {% for group in hostgroup_list.stdout_lines %}
-      {{ loop.index }}. {{ group }}
-      {% endfor %}
+  pre_tasks:
+    - name: Fetch available host groups from Satellite
+      delegate_to: localhost
+      shell: |
+        hammer --server https://{{ satellite_fqdn }} \
+               --username {{ satellite_user }} \
+               --password '{{ satellite_password }}' \
+               hostgroup list --per-page 100 --order name | awk 'NR > 1 { print $2, $3, $4, $5 }'
+      register: hostgroup_list
+      changed_when: false
 
-- name: Prompt for activation keys and hostgroup selection
-  pause:
-    prompt: |
-      Enter activation key for RHEL 8 systems: (e.g., smx-rhel8-key)
-  register: rhel8_key_input
+    - name: Show available host groups
+      debug:
+        msg: |
+          Available Host Groups:
+          {% for group in hostgroup_list.stdout_lines %}
+          {{ loop.index }}. {{ group }}
+          {% endfor %}
 
-- name: Save activation key for RHEL 8
-  set_fact:
-    activation_key_rhel8: "{{ rhel8_key_input.user_input }}"
+    - name: Prompt for activation key for RHEL 8
+      pause:
+        prompt: "Enter activation key for RHEL 8 systems"
+      register: rhel8_key_input
 
-- name: Prompt for activation key for RHEL 9
-  pause:
-    prompt: |
-      Enter activation key for RHEL 9 systems: (e.g., smx-rhel9-key)
-  register: rhel9_key_input
+    - name: Save RHEL 8 activation key
+      set_fact:
+        activation_key_rhel8: "{{ rhel8_key_input.user_input }}"
 
-- name: Save activation key for RHEL 9
-  set_fact:
-    activation_key_rhel9: "{{ rhel9_key_input.user_input }}"
+    - name: Prompt for activation key for RHEL 9
+      pause:
+        prompt: "Enter activation key for RHEL 9 systems"
+      register: rhel9_key_input
 
-- name: Prompt for host group selection by number
-  pause:
-    prompt: "Enter the number of the host group to use (1-...):"
-  register: hostgroup_selection_input
+    - name: Save RHEL 9 activation key
+      set_fact:
+        activation_key_rhel9: "{{ rhel9_key_input.user_input }}"
 
-- name: Set selected host group
-  set_fact:
-    selected_hostgroup: "{{ hostgroup_list.stdout_lines[(hostgroup_selection_input.user_input | int) - 1] }}"
+    - name: Prompt for host group number
+      pause:
+        prompt: "Enter the number of the host group to use (1-{{ hostgroup_list.stdout_lines | length }})"
+      register: hostgroup_selection_input
+
+    - name: Set selected host group
+      set_fact:
+        selected_hostgroup: "{{ hostgroup_list.stdout_lines[(hostgroup_selection_input.user_input | int) - 1] }}"
+
+    - name: Set activation key based on OS
+      set_fact:
+        selected_activation_key: "{{ activation_key_rhel8 if ansible_distribution_major_version | int == 8 else activation_key_rhel9 }}"
+
+    - name: Fail if unsupported OS
+      fail:
+        msg: "Unsupported OS version: {{ ansible_distribution_major_version }}. Only RHEL 8 and 9 are supported."
+      when: ansible_distribution_major_version | int not in [8, 9]
+
+  tasks:
+    - name: Install Katello CA
+      yum:
+        name: "http://{{ satellite_fqdn }}/pub/katello-ca-consumer-latest.noarch.rpm"
+        state: present
+      when: not ansible_check_mode
+
+    - name: Download bootstrap.py script
+      get_url:
+        url: "http://{{ satellite_fqdn }}/pub/bootstrap.py"
+        dest: "/tmp/bootstrap.py"
+        mode: '0755'
+      when: not ansible_check_mode
+
+    - name: Register system to Satellite using bootstrap
+      shell: |
+        /usr/bin/python3 /tmp/bootstrap.py \
+          --server {{ satellite_fqdn }} \
+          --organization "{{ org }}" \
+          --location "{{ location }}" \
+          --activationkey "{{ selected_activation_key }}" \
+          --hostgroup "{{ selected_hostgroup }}" \
+          --force
+      args:
+        creates: /etc/foreman-agent
+      when: not ansible_check_mode
