@@ -1,21 +1,71 @@
 ---
-- name: Update DNS entries in /etc/resolv.conf
+- name: Enroll systems into Satellite with dynamic host group + activation key
   hosts: all
   become: true
-  tasks:
-    - name: Remove 10.16.3.10 from resolv.conf
-      lineinfile:
-        path: /etc/resolv.conf
-        line: "nameserver 10.16.3.10"
-        state: absent
+  gather_facts: true
 
-    - name: Ensure required DNS nameservers are present (no comments)
-      lineinfile:
-        path: /etc/resolv.conf
-        line: "{{ item }}"
+  vars_prompt:
+    - name: "activation_key_rhel8"
+      prompt: "Enter activation key for RHEL 8 systems"
+      private: no
+    - name: "activation_key_rhel9"
+      prompt: "Enter activation key for RHEL 9 systems"
+      private: no
+    - name: "hostgroup_selection"
+      prompt: |
+        Available Host Groups:
+        {% for group in hostgroup_list.stdout_lines %}
+        {{ loop.index }}. {{ group }}
+        {% endfor %}
+        Enter the number of the host group to use:
+      private: no
+
+  vars:
+    satellite_fqdn: "pln-satellite01.caal.dev"
+    org: "Calix Org"
+    location: "Plano Texas"
+    satellite_user: "satellite-bot"
+    satellite_password: "StrongP@ssword123"  # Recommend using a vault/encrypted var
+
+  pre_tasks:
+    - name: Get list of available host groups
+      delegate_to: localhost
+      shell: |
+        hammer --server https://{{ satellite_fqdn }} \
+               --username {{ satellite_user }} \
+               --password '{{ satellite_password }}' \
+               hostgroup list --per-page 100 --order name | awk 'NR > 1 { print $2, $3, $4, $5 }'
+      register: hostgroup_list
+      changed_when: false
+
+    - name: Extract selected host group name
+      set_fact:
+        selected_hostgroup: "{{ hostgroup_list.stdout_lines[(hostgroup_selection | int) - 1] }}"
+
+    - name: Set activation key based on OS version
+      set_fact:
+        selected_activation_key: "{{ activation_key_rhel8 if ansible_distribution_major_version | int == 8 else activation_key_rhel9 }}"
+
+  tasks:
+    - name: Install katello-ca-consumer
+      yum:
+        name: "http://{{ satellite_fqdn }}/pub/katello-ca-consumer-latest.noarch.rpm"
         state: present
-        create: no
-      loop:
-        - "nameserver 10.16.3.8"
-        - "nameserver 10.16.3.16"
-        - "nameserver 10.16.3.24"
+
+    - name: Download bootstrap script
+      get_url:
+        url: "http://{{ satellite_fqdn }}/pub/bootstrap.py"
+        dest: "/tmp/bootstrap.py"
+        mode: '0755'
+
+    - name: Register host to Satellite
+      shell: |
+        /usr/bin/python3 /tmp/bootstrap.py \
+          --server {{ satellite_fqdn }} \
+          --organization "{{ org }}" \
+          --location "{{ location }}" \
+          --activationkey "{{ selected_activation_key }}" \
+          --hostgroup "{{ selected_hostgroup }}" \
+          --force
+      args:
+        creates: /etc/foreman-agent
