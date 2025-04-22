@@ -5,6 +5,17 @@
   gather_facts: true
 
   pre_tasks:
+    - name: Ensure hammer CLI is installed on the control node
+      become: true
+      package:
+        name:
+          - tfm-rubygem-hammer_cli
+          - tfm-rubygem-hammer_cli_foreman
+          - tfm-rubygem-hammer_cli_katello
+        state: present
+      delegate_to: localhost
+      run_once: true
+
     - name: Fetch available host groups from Satellite
       shell: |
         hammer --server https://{{ satellite_fqdn }} \
