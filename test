@@ -1,82 +1,46 @@
----
-- name: Dynamically enroll RHEL systems to Red Hat Satellite
-  hosts: all
-  become: true
-  gather_facts: true
+- name: Fetch available host groups from Satellite
+  delegate_to: localhost
+  shell: |
+    hammer --server https://{{ satellite_fqdn }} \
+           --username {{ satellite_user }} \
+           --password '{{ satellite_password }}' \
+           hostgroup list --per-page 100 --order name | awk 'NR > 1 { print $2, $3, $4, $5 }'
+  register: hostgroup_list
+  changed_when: false
 
-  vars:
-    satellite_fqdn: pln-satellite01.caal.dev
-    org: Calix Org
-    location: Plano Texas
-    satellite_user: satellite-bot
-    satellite_password: !vault |
-      $ANSIBLE_VAULT;1.1;AES256
-      (your encrypted vault block here)
+- name: Show available host groups
+  debug:
+    msg: |
+      Available Host Groups:
+      {% for group in hostgroup_list.stdout_lines %}
+      {{ loop.index }}. {{ group }}
+      {% endfor %}
 
-  pre_tasks:
-    - name: Fetch available host groups from Satellite
-      delegate_to: localhost
-      shell: |
-        hammer --server https://{{ satellite_fqdn }} \
-               --username {{ satellite_user }} \
-               --password '{{ satellite_password }}' \
-               hostgroup list --per-page 100 --order name | awk 'NR > 1 { print $2, $3, $4, $5 }'
-      register: hostgroup_list
-      changed_when: false
+- name: Prompt for activation keys and hostgroup selection
+  pause:
+    prompt: |
+      Enter activation key for RHEL 8 systems: (e.g., smx-rhel8-key)
+  register: rhel8_key_input
 
-    - name: Prompt for activation keys and host group selection
-      vars_prompt:
-        - name: "activation_key_rhel8"
-          prompt: "Enter activation key for RHEL 8 systems"
-          private: no
-        - name: "activation_key_rhel9"
-          prompt: "Enter activation key for RHEL 9 systems"
-          private: no
-        - name: "hostgroup_selection"
-          prompt: |
-            Available Host Groups:
-            {% for group in hostgroup_list.stdout_lines %}
-            {{ loop.index }}. {{ group }}
-            {% endfor %}
-            Enter the number of the host group to use:
-          private: no
+- name: Save activation key for RHEL 8
+  set_fact:
+    activation_key_rhel8: "{{ rhel8_key_input.user_input }}"
 
-    - name: Set selected host group based on user input
-      set_fact:
-        selected_hostgroup: "{{ hostgroup_list.stdout_lines[(hostgroup_selection | int) - 1] }}"
+- name: Prompt for activation key for RHEL 9
+  pause:
+    prompt: |
+      Enter activation key for RHEL 9 systems: (e.g., smx-rhel9-key)
+  register: rhel9_key_input
 
-    - name: Set activation key based on detected OS
-      set_fact:
-        selected_activation_key: "{{ activation_key_rhel8 if ansible_distribution_major_version | int == 8 else activation_key_rhel9 }}"
+- name: Save activation key for RHEL 9
+  set_fact:
+    activation_key_rhel9: "{{ rhel9_key_input.user_input }}"
 
-    - name: Fail if unsupported OS
-      fail:
-        msg: "Unsupported OS version: {{ ansible_distribution_major_version }}. Only RHEL 8 and 9 are supported."
-      when: ansible_distribution_major_version | int not in [8, 9]
+- name: Prompt for host group selection by number
+  pause:
+    prompt: "Enter the number of the host group to use (1-...):"
+  register: hostgroup_selection_input
 
-  tasks:
-    - name: Ensure katello-ca-consumer is installed
-      yum:
-        name: "http://{{ satellite_fqdn }}/pub/katello-ca-consumer-latest.noarch.rpm"
-        state: present
-      when: not ansible_check_mode
-
-    - name: Download bootstrap script
-      get_url:
-        url: "http://{{ satellite_fqdn }}/pub/bootstrap.py"
-        dest: "/tmp/bootstrap.py"
-        mode: '0755'
-      when: not ansible_check_mode
-
-    - name: Run bootstrap script to register host
-      shell: |
-        /usr/bin/python3 /tmp/bootstrap.py \
-          --server {{ satellite_fqdn }} \
-          --organization "{{ org }}" \
-          --location "{{ location }}" \
-          --activationkey "{{ selected_activation_key }}" \
-          --hostgroup "{{ selected_hostgroup }}" \
-          --force
-      args:
-        creates: /etc/foreman-agent
-      when: not ansible_check_mode
+- name: Set selected host group
+  set_fact:
+    selected_hostgroup: "{{ hostgroup_list.stdout_lines[(hostgroup_selection_input.user_input | int) - 1] }}"
