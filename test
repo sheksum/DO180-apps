@@ -5,32 +5,20 @@
   gather_facts: true
 
   pre_tasks:
-    - name: Ensure hammer CLI is installed on the control node
-      become: true
-      package:
-        name:
-          - tfm-rubygem-hammer_cli
-          - tfm-rubygem-hammer_cli_foreman
-          - tfm-rubygem-hammer_cli_katello
-        state: present
-      delegate_to: localhost
-      run_once: true
-
     - name: Fetch available host groups from Satellite
       shell: |
         hammer --server https://{{ satellite_fqdn }} \
                --username {{ satellite_user }} \
                --password '{{ satellite_password }}' \
-               hostgroup list --per-page 100 --order name | awk 'NR > 1 { print $2, $3, $4, $5 }'
+               --output json hostgroup list
       register: hostgroup_list
       changed_when: false
       delegate_to: localhost
       run_once: true
 
-    - name: Fail if no host groups were returned
-      fail:
-        msg: "No host groups found. Check Satellite access or hammer CLI authentication."
-      when: hostgroup_list.stdout_lines | length == 0
+    - name: Set parsed hostgroup list
+      set_fact:
+        hostgroup_json: "{{ hostgroup_list.stdout | from_json }}"
       delegate_to: localhost
       run_once: true
 
@@ -38,8 +26,8 @@
       debug:
         msg: |
           Available Host Groups:
-          {% for group in hostgroup_list.stdout_lines %}
-          {{ loop.index }}. {{ group }}
+          {% for group in hostgroup_json %}
+          {{ loop.index }}. {{ group['Name'] }}
           {% endfor %}
       delegate_to: localhost
       run_once: true
@@ -68,14 +56,14 @@
 
     - name: Prompt for host group number
       pause:
-        prompt: "Enter the number of the host group to use (1-{{ hostgroup_list.stdout_lines | length }})"
+        prompt: "Enter the number of the host group to use (1-{{ hostgroup_json | length }})"
       register: hostgroup_selection_input
       delegate_to: localhost
       run_once: true
 
     - name: Set selected host group
       set_fact:
-        selected_hostgroup: "{{ hostgroup_list.stdout_lines[(hostgroup_selection_input.user_input | int) - 1] }}"
+        selected_hostgroup: "{{ hostgroup_json[(hostgroup_selection_input.user_input | int) - 1]['Name'] }}"
 
     - name: Set activation key based on OS
       set_fact:
@@ -91,6 +79,7 @@
       yum:
         name: "http://{{ satellite_fqdn }}/pub/katello-ca-consumer-latest.noarch.rpm"
         state: present
+        disable_gpg_check: true
       when: not ansible_check_mode
 
     - name: Download bootstrap.py script
@@ -108,7 +97,7 @@
           --location "{{ location }}" \
           --activationkey "{{ selected_activation_key }}" \
           --hostgroup "{{ selected_hostgroup }}" \
-          --force
+          --force --insecure
       args:
         creates: /etc/foreman-agent
       when: not ansible_check_mode
