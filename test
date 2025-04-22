@@ -1,118 +1,21 @@
-# Intermediate Certificate Renewal for VKS Clusters
-
-### Objective
-Renew the intermediate certificate for **Kubernetes Compute Bravo regions** as it is nearing expiration.
-
-Intermediate certificates in VKS expire every **3 years** and must be **signed by the IPA root certificate** to maintain a valid trust chain within the cluster.
-
 ---
+- name: Update DNS entries in /etc/resolv.conf
+  hosts: all
+  become: true
+  tasks:
+    - name: Remove 10.16.3.10 from resolv.conf
+      lineinfile:
+        path: /etc/resolv.conf
+        line: "nameserver 10.16.3.10"
+        state: absent
 
-### Step 1: Submit a Jira Ticket
-Submit a Jira request to the BOS team:  
-`https://jira.vrsn.com/jira/browse/BOS-2279`
-
-**Include the following in the request:**
-
-- Purpose: Intermediate cert renewal for VKS clusters  
-- CNs for the certs:  
-  - `kdva`  
-  - `kqde1`  
-  - `kva1gen-1`  
-  - `kva3gen-1`  
-  - `kde1gen-1`  
-- Pathlen: `1`  
-- Validity period: `3 years`
-
-You will receive an **email from the BOS team** with the **certificate**, **key**, and **key password** as attachments.
-
----
-
-### Note:
-Ensure you have pushed the certificate and key **first to the lab environment** and allowed a **baking period of at least 1 week** before promoting the change to **QA and PROD**.
-
----
-
-### Step 2: Decrypt Private Key
-Use the key password provided by BOS to decrypt:
-
-```bash
-openssl rsa -in kvalgen-1.key -out ca_key_plaintext
-```
-
----
-
-### Step 3: Validate MD5 Checksums
-Ensure the modulus from the certificate and key match:
-
-```bash
-openssl x509 -in ca_cert -noout -modulus | md5sum
-openssl rsa -in ca_key_plaintext -noout -modulus | md5sum
-```
-
-Both values must be identical.
-
----
-
-### Step 4: Vault Login
-
-Authenticate to Vault:
-
-```bash
-export VAULT_ADDR=https://vault.vrsn.com:8200
-vault login --method=ldap
-```
-
----
-
-### Step 5: Backup Existing Certificates
-
-Before applying the new certs, take a backup of the current CA certificate and key from Vault.
-
-Run the following command to save the current state to a file:
-
-```bash
-vault kv get appssecrets/vks/qde4-eegen-1/certificate-authority > ca_backup_$(date +%F).txt
-```
-
----
-
-### Step 6: Patch New Cert and Key to Vault
-
-```bash
-cat kdva.cert | vault kv patch appssecrets/vks/qde4-eegen-1/certificate-authority ca_cert=-
-cat kdva.key | vault kv patch appssecrets/vks/qde4-eegen-1/certificate-authority ca_key=-
-```
-
----
-
-### Step 7: Verify Vault Entries
-
-```bash
-vault kv get appssecrets/vks/qde4-eegen-1/certificate-authority
-```
-
----
-
-### Step 8: Validate Cluster Certificate
-
-```bash
-kubectl get secrets -n cert-manager cluster-ca-cert -o json \
-  | jq -r '.data["tls.crt"]' \
-  | base64 -d \
-  | openssl x509 -in - -noout -text
-```
-
----
-
-### Step 9: Verify ClusterIssuer is Ready
-
-```bash
-kubectl get ClusterIssuer
-```
-
-Sample output:
-
-```
-NAME                        READY   AGE
-cluster-bootstrap-ca-issuer   True    243d
-```
+    - name: Ensure required DNS nameservers are present (no comments)
+      lineinfile:
+        path: /etc/resolv.conf
+        line: "{{ item }}"
+        state: present
+        create: no
+      loop:
+        - "nameserver 10.16.3.8"
+        - "nameserver 10.16.3.16"
+        - "nameserver 10.16.3.24"
