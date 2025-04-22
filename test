@@ -1,5 +1,5 @@
 ---
-- name: Enroll systems into Satellite with dynamic host group + activation key
+- name: Dynamically enroll RHEL systems to Red Hat Satellite
   hosts: all
   become: true
   gather_facts: true
@@ -8,9 +8,11 @@
     - name: "activation_key_rhel8"
       prompt: "Enter activation key for RHEL 8 systems"
       private: no
+
     - name: "activation_key_rhel9"
       prompt: "Enter activation key for RHEL 9 systems"
       private: no
+
     - name: "hostgroup_selection"
       prompt: |
         Available Host Groups:
@@ -25,10 +27,10 @@
     org: "Calix Org"
     location: "Plano Texas"
     satellite_user: "satellite-bot"
-    satellite_password: "StrongP@ssword123"  # Recommend using a vault/encrypted var
+    satellite_password: "StrongP@ssword123"  # Ideally encrypted with ansible-vault
 
   pre_tasks:
-    - name: Get list of available host groups
+    - name: Fetch available host groups from Satellite
       delegate_to: localhost
       shell: |
         hammer --server https://{{ satellite_fqdn }} \
@@ -38,7 +40,7 @@
       register: hostgroup_list
       changed_when: false
 
-    - name: Extract selected host group name
+    - name: Set selected host group name
       set_fact:
         selected_hostgroup: "{{ hostgroup_list.stdout_lines[(hostgroup_selection | int) - 1] }}"
 
@@ -47,7 +49,7 @@
         selected_activation_key: "{{ activation_key_rhel8 if ansible_distribution_major_version | int == 8 else activation_key_rhel9 }}"
 
   tasks:
-    - name: Install katello-ca-consumer
+    - name: Ensure katello-ca-consumer is installed
       yum:
         name: "http://{{ satellite_fqdn }}/pub/katello-ca-consumer-latest.noarch.rpm"
         state: present
@@ -58,7 +60,7 @@
         dest: "/tmp/bootstrap.py"
         mode: '0755'
 
-    - name: Register host to Satellite
+    - name: Run bootstrap script to register host
       shell: |
         /usr/bin/python3 /tmp/bootstrap.py \
           --server {{ satellite_fqdn }} \
