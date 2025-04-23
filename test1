@@ -4,3 +4,52 @@ for host in $(cat hosts.txt); do
     curl -sS --insecure 'https://pln-satellite01.caal.dev/register?activation_keys=rhel9&force=true&hostgroup_id=2&setup_insights=true' \
     -H 'Authorization: Bearer eyJhbGcOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJqdGkiOiJQYXQiOjE3MDUxNzYxMzl9.XvDMn2ZwZCMJlscHEa4iOjE3NUDMDAzM2NDUsInnJjb3BlIjoiYWRtaW4ifQ' | bash\""
 done
+
+
+Slide 1: Title Slide
+Title: Red Hat Satellite – Lifecycle & Security Automation
+Subtitle: Host Registration, CVE Remediation & Lifecycle Control
+Purpose: Sets the stage for the demo. Let your audience know you're walking them through how Satellite is used day-to-day in Ops and Security.
+Slide 2: What is Red Hat Satellite?
+Summary: Satellite is Red Hat’s infrastructure management tool.
+Key Points:
+Manages RHEL systems at scale
+Provides provisioning, configuration, patching, and reporting
+Works in disconnected environments (air-gapped)
+Slide 3: Use Case 1 - Host Registration
+Problem: Manual registration across 100s of servers is error-prone.
+Solution: Use Satellite’s bootstrap.py or hammer host-registration generate-command to automate.
+Demo Notes: Highlight hammer host-registration generate-command and show example output.
+Slide 4: Use Case 2 - Vulnerability Mitigation
+Problem: CVEs go unpatched due to lack of visibility.
+Solution:
+Satellite connects to Red Hat CVE data feeds.
+Flags vulnerable packages.
+Allows pushing errata to affected systems.
+Demo Notes: Use Satellite UI or hammer host list --search "status = vulnerable".
+Slide 5: Use Case 3 - Lifecycle Management
+Key Features:
+Custom content views
+Environment pathing (Dev > QA > Prod)
+Host patch status reporting
+Demo Notes: Explain how lifecycle environments help structure staged patch rollouts.
+Slide 6: Hammer CLI – Power at the Terminal
+Purpose: Automate everything you saw in the UI.
+Examples:
+hammer host list
+hammer erratum apply
+hammer host-collection create
+Value: Scriptable, repeatable, and integrates with Ansible pipelines.
+Slide 7: Live Demo
+Topics to Show:
+hammer host-registration generate-command (on Satellite)
+Copy/paste result to client
+Register host and view in Satellite UI
+Show CVEs and remediation path
+Slide 8: Wrap-Up
+Recap Key Points:
+Simple host registration
+Immediate visibility into vulnerabilities
+Powerful command-line automation with hammer
+Call to Action: Encourage adoption of automated registration and patching.
+If you'd like, I can also help build a cheat sheet with commands to use during the live demo. Let me know!
