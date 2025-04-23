@@ -1,35 +1,26 @@
 ---
-- name: Register multiple systems to Red Hat Satellite using hammer-generated command
+- name: Register multiple systems to Red Hat Satellite
   hosts: all
   become: true
   gather_facts: false
 
-  vars_prompt:
-    - name: activation_key
-      prompt: "Enter activation key"
-      private: no
-    - name: hostgroup
-      prompt: "Enter host group name"
-      private: no
+  vars:
+    hostgroup: "Service Management Connector (SMx)"
+    activation_key: "rhel9"
 
-  pre_tasks:
-    - name: Generate host registration command from Satellite
+  tasks:
+    - name: Generate host registration command on Satellite
       delegate_to: localhost
       shell: |
         hammer host-registration generate-command \
-          --activation-keys "{{ activation_key }}" \
           --hostgroup "{{ hostgroup }}" \
-          --location "{{ location }}" \
-          --organization "{{ org }}" \
-          --output-script false
+          --insecure 1 \
+          --setup-insights 0 \
+          --force 1 \
+          --activation-key {{ activation_key }}
       register: registration_cmd
       run_once: true
 
-    - name: Save registration command
-      set_fact:
-        satellite_register_cmd: "{{ registration_cmd.stdout_lines[0] }}"
-      run_once: true
-
-  tasks:
-    - name: Run Satellite registration command on client
-      shell: "{{ satellite_register_cmd }}"
+    - name: Run registration command on target
+      shell: "{{ registration_cmd.stdout }}"
+      when: registration_cmd.stdout is defined
