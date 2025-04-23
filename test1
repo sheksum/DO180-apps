@@ -1,4 +1,3 @@
-[deploy@pln-satellite01 satellite-enrollment]$ cat enroll_hosts_satellite.yml 
 ---
 - name: Dynamically enroll RHEL systems to Red Hat Satellite
   hosts: all
@@ -10,7 +9,7 @@
       shell: |
         hammer --server https://{{ satellite_fqdn }} \
                --username {{ satellite_user }} \
-               --password kq28rEiYA5yh/1eomGdyuy4pQQc1DRVfQREX33qJNCg= \
+               --password '{{ satellite_password }}' \
                --output json hostgroup list
       register: hostgroup_list
       changed_when: false
@@ -86,20 +85,22 @@
     - name: Download bootstrap.py script
       get_url:
         url: "http://{{ satellite_fqdn }}/pub/bootstrap.py"
-        dest: "/tmp/bootstrap.py"
+        dest: /tmp/bootstrap.py
         mode: '0755'
       when: not ansible_check_mode
 
     - name: Register system to Satellite using bootstrap
       become: true
-      shell: |
-        /usr/bin/python3 /tmp/bootstrap.py \
-          --server {{ satellite_fqdn }} \
-          --organization "{{ org }}" \
-          --location "{{ location }}" \
-          --activationkey "{{ selected_activation_key }}" \
-          --hostgroup "{{ selected_hostgroup }}" \
-          --force
+      shell: >
+        /usr/bin/python3 /tmp/bootstrap.py
+        --server {{ satellite_fqdn }}
+        --organization "{{ org }}"
+        --location "{{ location }}"
+        --activationkey "{{ selected_activation_key }}"
+        --hostgroup "{{ selected_hostgroup }}"
+        --user {{ satellite_user }}
+        --password {{ satellite_password }}
+        --force
       args:
         creates: /etc/foreman-agent
       when: not ansible_check_mode
