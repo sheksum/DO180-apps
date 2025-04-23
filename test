@@ -1,103 +1,124 @@
----
-- name: Dynamically enroll RHEL systems to Red Hat Satellite
-  hosts: all
-  become: true
-  gather_facts: true
+🖥️ Red Hat Satellite Demo Slide Deck (Ops Team – 1 Hour)
+Goal: Demonstrate how Satellite simplifies lifecycle, patching, and provisioning
+ 
+Slide 1: Red Hat Satellite – Lifecycle & Ops Automation
+Subtitle: Satellite is Red Hat's centralized tool for managing RHEL systems across their entire lifecycle.
+Speaker Notes:
+I still have some blocker that I’m working through but didn’t want to push this demo. Next week I plan to do the last demo. So, for today I’ll go through how we use Red Hat Satellite to manage RHEL systems in a centralized, automated, and secure way. Whether it’s provisioning new hosts, applying CVE patches, or reporting on compliance, Satellite helps us streamline it all."
 
-  pre_tasks:
-    - name: Fetch available host groups from Satellite
-      shell: |
-        hammer --server https://{{ satellite_fqdn }} \
-               --username {{ satellite_user }} \
-               --password '{{ satellite_password }}' \
-               --output json hostgroup list
-      register: hostgroup_list
-      changed_when: false
-      delegate_to: localhost
-      run_once: true
+ 
+Slide 2: What is Red Hat Satellite?
+Subtitle: An enterprise lifecycle management solution that handles provisioning, patching, software updates, and compliance for Red Hat infrastructure.
+•	Lifecycle management platform for RHEL systems
+•	Handles provisioning, patching, repo management, compliance
+•	Works with or without internet access
 
-    - name: Set parsed hostgroup list
-      set_fact:
-        hostgroup_json: "{{ hostgroup_list.stdout | from_json }}"
-      delegate_to: localhost
-      run_once: true
+Speaker Notes:
+"Satellite is Red Hat’s solution to infrastructure lifecycle management. From initial provisioning to package control and compliance tracking, it's our go-to for managing RHEL systems — especially at scale."
 
-    - name: Show available host groups
-      debug:
-        msg: |
-          Available Host Groups:
-          {% for group in hostgroup_json %}
-          {{ loop.index }}. {{ group['Name'] }}
-          {% endfor %}
-      delegate_to: localhost
-      run_once: true
+ 
+Slide 3: Why Satellite?
+Subtitle: Satellite replaces manual effort with automation, version control, and secure visibility across hosts.
+•	📦 Consistent provisioning
+•	🛡️ Patch visibility & CVE remediation
+•	🔁 Control over software versions
+•	🚫 Avoid patch drift or SSH sprawl
+Speaker Notes:
+"This solves real pain points: you no longer have to rely on SSH scripts or worry about systems drifting out of compliance. Satellite gives you total visibility and version control over your fleet."
 
-    - name: Prompt for activation key for RHEL 8
-      pause:
-        prompt: "Enter activation key for RHEL 8 systems"
-      register: rhel8_key_input
-      delegate_to: localhost
-      run_once: true
 
-    - name: Save RHEL 8 activation key
-      set_fact:
-        activation_key_rhel8: "{{ rhel8_key_input.user_input }}"
-
-    - name: Prompt for activation key for RHEL 9
-      pause:
-        prompt: "Enter activation key for RHEL 9 systems"
-      register: rhel9_key_input
-      delegate_to: localhost
-      run_once: true
-
-    - name: Save RHEL 9 activation key
-      set_fact:
-        activation_key_rhel9: "{{ rhel9_key_input.user_input }}"
-
-    - name: Prompt for host group number
-      pause:
-        prompt: "Enter the number of the host group to use (1-{{ hostgroup_json | length }})"
-      register: hostgroup_selection_input
-      delegate_to: localhost
-      run_once: true
-
-    - name: Set selected host group
-      set_fact:
-        selected_hostgroup: "{{ hostgroup_json[(hostgroup_selection_input.user_input | int) - 1]['Name'] }}"
-
-    - name: Set activation key based on OS
-      set_fact:
-        selected_activation_key: "{{ activation_key_rhel8 if ansible_distribution_major_version | int == 8 else activation_key_rhel9 }}"
-
-    - name: Fail if unsupported OS
-      fail:
-        msg: "Unsupported OS version: {{ ansible_distribution_major_version }}. Only RHEL 8 and 9 are supported."
-      when: ansible_distribution_major_version | int not in [8, 9]
-
-  tasks:
-    - name: Install Katello CA
-      yum:
-        name: "http://{{ satellite_fqdn }}/pub/katello-ca-consumer-latest.noarch.rpm"
-        state: present
-        disable_gpg_check: true
-      when: not ansible_check_mode
-
-    - name: Download bootstrap.py script
-      get_url:
-        url: "http://{{ satellite_fqdn }}/pub/bootstrap.py"
-        dest: "/tmp/bootstrap.py"
-        mode: '0755'
-      when: not ansible_check_mode
-
-    - name: Register system to Satellite using bootstrap
-      shell: |
-        /usr/bin/python3 /tmp/bootstrap.py \
-          --server {{ satellite_fqdn }} \
-          --organization "{{ org }}" \
-          --location "{{ location }}" \
-          --activationkey "{{ selected_activation_key }}" \
-          --hostgroup "{{ selected_hostgroup }}" \
-          --force --insecure
-      args:
-        creates: /etc/foreman-agent
-      when: not ansible_check_mode
+ 
+Slide 4: Architecture Overview
+Subtitle: Satellite consists of a central server and optional capsules to extend its reach to disconnected or remote networks.
+•	Satellite Server: Central brain
+•	Capsule Server: Optional proxy for remote/air-gapped sites
+•	Managed Hosts: Register via activation key
+Speaker Notes:
+"This is the high-level architecture. Most setups are just a Satellite server and managed RHEL hosts. If you have remote sites or air-gapped networks, Capsules act as local proxies."
+ 
+Slide 5: Hosts & Visibility
+Subtitle: Once registered, all systems are fully visible — including OS, patch state, subscriptions, and assigned environment.
+•	Dashboard view of all systems
+•	Filter by OS, errata, environment
+•	Register hosts via subscription-manager
+📌 Live demo:
+bash
+CopyEdit
+subscription-manager register --org="Calix Org" --activationkey="rhel8 "
+Speaker Notes:
+"All systems show up here. You can immediately spot hosts that are out of date or in the wrong state. Everything is visible and queryable."
+ 
+Slide 6: What Are Content Views?
+Subtitle: Content Views are version-controlled sets of repositories and filters, controlling what packages systems can access.
+•	Filtered, versioned views of repos
+•	Freeze packages to ensure consistency
+•	Combine BaseOS, AppStream, and custom repos
+Speaker Notes:
+"Think of content views as frozen snapshots of what you want your hosts to see. You can create one that includes just security updates, or pin a specific version of a tool."
+ 
+Slide 7: Lifecycle Environments
+Subtitle: Lifecycle environments define the promotion path for content — ensuring only tested updates reach production.
+•	Dev → QA → Prod promotion flow
+•	Control when patches reach each environment
+•	Prevents Prod from getting untested updates
+📌 Demo: Promote a content view from Dev to QA
+Speaker Notes:
+"This is our gated promotion path — updates are tested in Dev, then QA, and finally promoted to Prod. Satellite enforces this so we avoid surprises."
+ 
+Slide 8: Patch Management & Errata
+Subtitle: Satellite tracks security, bugfix, and enhancement errata — giving full control over patching workflows.
+•	Track CVEs, security, and enhancement updates
+•	Apply patches to one or more hosts
+•	Schedule for off-hours or automate
+📌 Demo: Apply errata to a test host
+Speaker Notes:
+"Errata includes all patch types: security, bugfix, and enhancements. You can filter hosts missing security patches and apply them right from the UI or CLI."
+ 
+Slide 9: Remote Execution
+Subtitle: Run scripts, patching tasks, or configuration commands on managed hosts without direct SSH access.
+•	Run commands across 1 or 1000 hosts
+•	No SSH scripts needed
+•	Fully logged and auditable
+📌 Demo: Run a simple remote job
+Speaker Notes:
+"This is a game changer. You can run anything from 'uptime' to 'yum update --security' from here. It’s RBAC-controlled and tracks who did what, when."
+ 
+Slide 10: Provisioning Hosts
+Subtitle: Automate OS builds using kickstart templates and host groups — provision via PXE, ISO, or discovery.
+•	PXE boot, ISO, image-based, or discovered
+•	Kickstart templates automate install
+•	Host groups pre-define config
+📌 Demo: Show provisioning wizard and a kickstart template
+Speaker Notes:
+"Provisioning is fully automated. New hosts get consistent settings, disk layout, OS, and they register to Satellite immediately. Think of it as zero-touch builds."
+ 
+Slide 11: Compliance, RBAC & Insights
+Subtitle: Track vulnerabilities, enforce least-privilege access, and audit all changes across the environment.
+•	Optional integration with Red Hat Insights
+•	CVE tracking and remediation
+•	RBAC and audit logs ensure accountability
+Speaker Notes:
+"We enforce access policies with Satellite roles. For example, some users can only patch Dev, not Prod. And if you want proactive CVE tracking, Insights gives you that view across your fleet."
+ 
+Slide 12: Why Satellite Matters for Ops
+Subtitle: Satellite enables Ops to manage infrastructure with automation, consistency, and visibility.
+•	🔁 Standardizes lifecycle
+•	🛡️ Reduces security risks
+•	🔍 Improves visibility and auditability
+•	⚙️ Enables automation
+Speaker Notes:
+"Satellite helps Ops move faster and safer. Whether you're spinning up VMs, running security scans, or patching 1000 systems — you can do it all from one place, with full traceability."
+ 
+Slide 13: Q&A
+Subtitle: Let’s take questions, address real use cases, or walk through deeper workflows together.
+Prompt: “What would you like to dive deeper into?”
+ 
+💬 Q&A Prep Recap
+Question	Suggested Response
+Can I patch only security updates?	Yes – errata can be filtered and applied by type (security, bugfix, enhancement).
+Can this replace our SSH scripts?	Absolutely. Use Remote Execution + scheduling for command automation.
+What if a system is offline?	Once it reconnects, Satellite resumes managing it. You can also monitor offline status.
+Can non-root users run jobs?	Yes – via role-based access. You define what users can run and where.
+Can we integrate Ansible?	Yes. Satellite can run Ansible roles and sync from Git repositories.
+Can Satellite manage non-RHEL systems?	Partial support for CentOS, Rocky — full feature set is optimized for RHEL.
+Is it usable in air-gapped networks?	Yes, with a Capsule server and content sync/export tools.
