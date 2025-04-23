@@ -1,38 +1,35 @@
 ---
-- name: Enroll RHEL system to Red Hat Satellite
+- name: Register multiple systems to Red Hat Satellite using hammer-generated command
   hosts: all
   become: true
-  gather_facts: true
+  gather_facts: false
 
   vars_prompt:
-    - name: "activation_key"
-      prompt: "Enter the activation key for this system"
+    - name: activation_key
+      prompt: "Enter activation key"
       private: no
-    - name: "hostgroup"
-      prompt: "Enter the host group name"
+    - name: hostgroup
+      prompt: "Enter host group name"
       private: no
+
+  pre_tasks:
+    - name: Generate host registration command from Satellite
+      delegate_to: localhost
+      shell: |
+        hammer host-registration generate-command \
+          --activation-keys "{{ activation_key }}" \
+          --hostgroup "{{ hostgroup }}" \
+          --location "{{ location }}" \
+          --organization "{{ org }}" \
+          --output-script false
+      register: registration_cmd
+      run_once: true
+
+    - name: Save registration command
+      set_fact:
+        satellite_register_cmd: "{{ registration_cmd.stdout_lines[0] }}"
+      run_once: true
 
   tasks:
-    - name: Install Katello CA certificate
-      yum:
-        name: "http://{{ satellite_fqdn }}/pub/katello-ca-consumer-latest.noarch.rpm"
-        state: present
-        disable_gpg_check: true
-
-    - name: Download bootstrap.py
-      get_url:
-        url: "http://{{ satellite_fqdn }}/pub/bootstrap.py"
-        dest: "/tmp/bootstrap.py"
-        mode: '0755'
-
-    - name: Register the system to Satellite using bootstrap.py
-      shell: >
-        /usr/bin/python3 /tmp/bootstrap.py
-        --server {{ satellite_fqdn }}
-        --organization "{{ org }}"
-        --location "{{ location }}"
-        --activationkey "{{ activation_key }}"
-        --hostgroup "{{ hostgroup }}"
-        --force
-      args:
-        creates: /etc/foreman-agent
+    - name: Run Satellite registration command on client
+      shell: "{{ satellite_register_cmd }}"
