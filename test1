@@ -1,107 +1,110 @@
-import subprocess
-import json
-import requests
+---
+- name: Dynamically enroll RHEL systems to Red Hat Satellite
+  hosts: all
+  become: true
+  vars_files:
+    - group_vars/all.yml
 
-# List of clusters
-clusters = ["kqde1gen-1", "kqde1gen-2", "kva1gen-1", "kde1gen-1", "kva3gen-1"]
+  tasks:
 
-# Function to get namespaces in the cluster
-def get_kubectl_namespaces(cluster):
-    """Get the list of namespaces for a specific cluster."""
-    try:
-        subprocess.run(["kubectl", "config", "use-context", cluster], check=True, capture_output=True)
-        result = subprocess.run(
-            ["kubectl", "get", "namespaces", "-o", "jsonpath='{.items[*].metadata.name}'"],
-            check=True, capture_output=True, text=True
-        )
-        namespaces = result.stdout.replace("'", "").split()
-        return namespaces
-    except subprocess.CalledProcessError as e:
-        print(f"Error while retrieving namespaces for cluster {cluster}: {e}")
-        return []
+    - name: Gather facts
+      ansible.builtin.setup:
 
-# Function to get Calico IP pools
-def get_calico_ip_pools():
-    """Get the list of IP pools from Calico."""
-    try:
-        result = subprocess.run(
-            ["calicoctl", "get", "ippool", "--allow-version-mismatch", "-o", "json"],
-            check=True, capture_output=True, text=True
-        )
-        ippools = json.loads(result.stdout)["items"]
-        return [pool["metadata"]["name"] for pool in ippools]
-    except subprocess.CalledProcessError as e:
-        print(f"Error while retrieving IP pools: {e}")
-        return []
+    - name: Ensure hammer CLI is installed on the control node
+      delegate_to: localhost
+      become: true
+      ansible.builtin.package:
+        name: tfm-rubygem-hammer_cli
+        state: present
 
-# Function to fetch NetBox IP pools
-def get_netbox_ip_pools():
-    """Get the list of IP pools from NetBox."""
-    try:
-        url = "https://netbox.yourcompany.com/api/ipam/prefixes/"
-        headers = {"Authorization": "Token YOUR_NETBOX_TOKEN"}
-        response = requests.get(url, headers=headers)
+    - name: Fetch available host groups from Satellite
+      delegate_to: localhost
+      become: false
+      ansible.builtin.shell: |
+        hammer --no-headers hostgroup list --organization "{{ org }}" --location "{{ location }}" --fields Name,Title
+      register: hostgroup_list_raw
 
-        if response.status_code == 200:
-            data = response.json()
-            return {item["prefix"]: item["id"] for item in data["results"]}  # Return a dictionary with prefix as key
-        else:
-            print(f"Error fetching data from NetBox: {response.status_code}")
-            return {}
-    except requests.exceptions.RequestException as e:
-        print(f"Error while retrieving data from NetBox: {e}")
-        return {}
+    - name: Fail if no host groups were returned
+      delegate_to: localhost
+      ansible.builtin.fail:
+        msg: "No host groups found. Check Satellite access or hammer CLI authentication."
+      when: hostgroup_list_raw.stdout == ""
 
-# Function to print headers
-def print_header():
-    """Print the header for the table."""
-    print(f"{'Namespace':<40} {'Statement':<20}")
-    print(f"{'-'*40} {'-'*20}")
+    - name: Set parsed hostgroup list
+      delegate_to: localhost
+      set_fact:
+        parsed_hostgroups: "{{ hostgroup_list_raw.stdout_lines }}"
 
-# Function to simply mark IP pool for cleanup
-def mark_for_cleanup(ippool):
-    """Mark the IP pool for cleanup without deleting."""
-    print(f"IP pool '{ippool}' is marked for cleanup but will not be deleted.")
+    - name: Show available host groups
+      debug:
+        msg: "Available Host Groups:\n{{ parsed_hostgroups | join('\n') }}"
 
-# Main function to check and compare IP pools
-def check_and_update_ip_pools():
-    """Main function to compare and update IP pools."""
-    # Fetch NetBox data
-    netbox_ip_pools = get_netbox_ip_pools()
+    - name: Prompt for activation key for RHEL 8
+      delegate_to: localhost
+      ansible.builtin.pause:
+        prompt: "Enter activation key for RHEL 8 systems:"
+      register: ak8_input
 
-    if not netbox_ip_pools:
-        print("No IP pools found in NetBox. Exiting.")
-        return
+    - name: Save RHEL 8 activation key
+      set_fact:
+        rhel8_activation_key: "{{ ak8_input.user_input }}"
 
-    # Print table header
-    print_header()
+    - name: Prompt for activation key for RHEL 9
+      delegate_to: localhost
+      ansible.builtin.pause:
+        prompt: "Enter activation key for RHEL 9 systems:"
+      register: ak9_input
 
-    # Loop through each cluster and update prefixes
-    for cluster in clusters:
-        print(f"\nChecking IP pools in cluster: {cluster}")
-        
-        # Get namespaces and IP pools from Kubernetes
-        namespaces = get_kubectl_namespaces(cluster)
-        kubernetes_ip_pools = get_calico_ip_pools()
+    - name: Save RHEL 9 activation key
+      set_fact:
+        rhel9_activation_key: "{{ ak9_input.user_input }}"
 
-        # Loop through each IP pool in Kubernetes and compare with NetBox IP pools
-        for ippool in kubernetes_ip_pools:
-            # Extract the namespace part from the IP pool name (e.g., 'kqde1gen-1_alertdocs-ns-ippool-0' => 'alertdocs')
-            if "-" in ippool:
-                namespace = ippool.split('-')[1]  # Extract the namespace (second part of the name)
-                
-                if namespace in namespaces:
-                    # Check if the prefix exists in NetBox
-                    if any(ippool.startswith(prefix) for prefix in netbox_ip_pools.keys()):
-                        print(f"{namespace:<40} {'Cleanup not needed':<20}")
-                    else:
-                        print(f"{namespace:<40} {'Cleanup needed':<20}")
-                        mark_for_cleanup(ippool)  # Mark for cleanup without deleting
-                else:
-                    print(f"{namespace:<40} {'Cleanup needed':<20}")
-                    mark_for_cleanup(ippool)  # Mark for cleanup without deleting
-            else:
-                print(f"{ippool:<40} {'Invalid IP pool format':<20}")
+    - name: Prompt for host group number
+      delegate_to: localhost
+      ansible.builtin.pause:
+        prompt: "Enter the number of the host group to use (1-{{ parsed_hostgroups | length }}):"
+      register: hg_index
 
-# Run the check and update
-check_and_update_ip_pools()
+    - name: Set selected host group
+      set_fact:
+        selected_hostgroup: "{{ parsed_hostgroups[(hg_index.user_input | int) - 1].split('|')[1] | trim }}"
+
+    - name: Set activation key based on OS
+      set_fact:
+        selected_activation_key: >-
+          {% if ansible_distribution_major_version == '8' %}
+            {{ rhel8_activation_key }}
+          {% elif ansible_distribution_major_version == '9' %}
+            {{ rhel9_activation_key }}
+          {% else %}
+            unsupported
+          {% endif %}
+
+    - name: Fail if unsupported OS
+      ansible.builtin.fail:
+        msg: "Unsupported OS version: {{ ansible_distribution_major_version }}"
+      when: selected_activation_key == "unsupported"
+
+    - name: Install Katello CA
+      ansible.builtin.yum:
+        name: "https://{{ satellite_fqdn }}/pub/katello-ca-consumer-latest.noarch.rpm"
+        state: present
+
+    - name: Download bootstrap.py script
+      ansible.builtin.get_url:
+        url: "https://{{ satellite_fqdn }}/pub/bootstrap.py"
+        dest: /tmp/bootstrap.py
+        mode: '0755'
+        validate_certs: false
+
+    - name: Register system to Satellite using bootstrap
+      ansible.builtin.shell: >
+        /usr/bin/python3 /tmp/bootstrap.py
+        --server {{ satellite_fqdn }}
+        --organization "{{ org }}"
+        --location "{{ location }}"
+        --activationkey "{{ selected_activation_key }}"
+        --hostgroup "{{ selected_hostgroup }}"
+        --user {{ satellite_user }}
+        --password {{ satellite_password }}
+        --force --insecure
