@@ -1,26 +1,9 @@
----
-- name: Register multiple systems to Red Hat Satellite
-  hosts: all
-  become: true
-  gather_facts: false
+for host in $(cat hosts.txt); do
+  echo "Registering $host..."
+  ssh deploy@$host "sudo su - -c '\
+    dnf install -y http://pln-satellite01.caal.dev/pub/katello-ca-consumer-latest.noarch.rpm && \
+    curl -s --insecure \
+      -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJqdGkiOiJQYXQiOjE3MDUxNzYxMzl9.XvDMn2ZwZCMJlscHEa4iOjE3NUDMDAzM2NDUsInnJjb3BlIjoiYWRtaW4ifQ\" \
+      \"https://pln-satellite01.caal.dev/register?activation_keys=rhel9&location=Plano%20Texas&organization=Calix%20org&hostgroup=Service%20Management%20Connector%20(SMx)&insecure=1&setup_insights=0&force=1\" | bash'"
+done
 
-  vars:
-    hostgroup: "Service Management Connector (SMx)"
-    activation_key: "rhel9"
-
-  tasks:
-    - name: Generate host registration command on Satellite
-      delegate_to: localhost
-      shell: |
-        hammer host-registration generate-command \
-          --hostgroup "{{ hostgroup }}" \
-          --insecure 1 \
-          --setup-insights 0 \
-          --force 1 \
-          --activation-key {{ activation_key }}
-      register: registration_cmd
-      run_once: true
-
-    - name: Run registration command on target
-      shell: "{{ registration_cmd.stdout }}"
-      when: registration_cmd.stdout is defined
