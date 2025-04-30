@@ -106,10 +106,12 @@ print(f"Done. {len(to_delete)} duplicate computers marked for deletion.")
 
 ===========
 
-for id in $(cat duplicates_to_delete.txt); do
-  landscape-api remove-computers --computer-ids=$id \
-    --key YOUR_KEY \
-    --secret YOUR_SECRET \
-    --uri https://10.172.249.104/api/ \
-    --ssl-ca-file /etc/ssl/certs/landscape_server.pem
-done
+while read -r id; do
+  if [[ -n "$id" ]]; then
+    landscape-api remove-computers "$id" \
+      --key 4G7C8DEV25ANKFA8YDV1 \
+      --secret VMq06pyxKbMN98M1nL4KsKdovuDY6ILK8cUnr8q5 \
+      --uri https://10.172.249.104/api/ \
+      --ssl-ca-file /etc/ssl/certs/landscape_server.pem
+  fi
+done < duplicates_to_delete.txt
