@@ -3,12 +3,18 @@
   become: true
   vars:
     landscape_server_ip: 10.172.249.104
+
   tasks:
-    - name: Update APT cache and install client
+    - name: Try updating apt cache (continue even if it fails)
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      ignore_errors: true
+
+    - name: Ensure landscape-client is installed
       apt:
         name: landscape-client
         state: present
-        update_cache: yes
 
     - name: Ensure Landscape cert directory exists
       file:
