@@ -5,6 +5,23 @@
     landscape_server_ip: 10.172.249.104
 
   tasks:
+
+    - name: Stop Landscape client (optional)
+      service:
+        name: landscape-client
+        state: stopped
+      ignore_errors: true
+      tags: reset
+
+    - name: Remove old client registration files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/landscape/client.conf
+        - /var/lib/landscape/landscape-id
+      tags: reset
+
     - name: Try updating apt cache (continue even if it fails)
       apt:
         update_cache: yes
