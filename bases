@@ -62,3 +62,53 @@
         name: landscape-client
         state: started
         enabled: true
+
+=====================
+import json
+from collections import defaultdict
+from datetime import datetime
+
+# Load your exported JSON file
+with open("computers.json") as f:
+    computers = json.load(f)
+
+# Group by hostname/title
+dupes = defaultdict(list)
+
+for comp in computers:
+    title = comp.get("title")
+    if not title:
+        continue
+    last_ping = comp.get("last_ping_time")
+    # Convert to timestamp for comparison, fallback to epoch
+    try:
+        ping_ts = datetime.fromisoformat(last_ping.replace("Z", ""))
+    except:
+        ping_ts = datetime(1970, 1, 1)
+    dupes[title].append((comp["id"], ping_ts))
+
+# Find duplicates and keep only the latest one
+to_delete = []
+
+for title, entries in dupes.items():
+    if len(entries) > 1:
+        entries.sort(key=lambda x: x[1], reverse=True)
+        for comp_id, _ in entries[1:]:
+            to_delete.append(comp_id
+
+# Output IDs to delete
+with open("duplicates_to_delete.txt", "w") as f:
+    for comp_id in to_delete:
+        f.write(f"{comp_id}\n")
+
+print(f"Found {len(to_delete)} duplicate computers to delete.")
+
+===========
+
+for id in $(cat duplicates_to_delete.txt); do
+  landscape-api remove-computers --computer-ids=$id \
+    --key YOUR_KEY \
+    --secret YOUR_SECRET \
+    --uri https://10.172.249.104/api/ \
+    --ssl-ca-file /etc/ssl/certs/landscape_server.pem
+done
