@@ -56,3 +56,9 @@
           --silent
       args:
         creates: /var/lib/landscape/client.conf
+
+    - name: Start Landscape client service
+      service:
+        name: landscape-client
+        state: started
+        enabled: true
