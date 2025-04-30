@@ -4,6 +4,12 @@
   vars:
     landscape_server_ip: 10.172.249.104
   tasks:
+    - name: Update APT cache and install client
+      apt:
+        name: landscape-client
+        state: present
+        update_cache: yes
+
     - name: Ensure Landscape cert directory exists
       file:
         path: /etc/landscape
@@ -16,9 +22,9 @@
         dest: /etc/landscape/landscape.pem
         mode: '0644'
 
-    - name: Register with Landscape (no registration key)
+    - name: Register with Landscape (no registration key required)
       shell: |
-        /usr/bin/landscape-config \
+        landscape-config \
           --computer-title "$(hostname)" \
           --account-name standalone \
           --url "https://{{ landscape_server_ip }}/message-system" \
