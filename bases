@@ -1,147 +1,29 @@
-hsuma@slcx-p7960:~$ curl -Lfo https://airflow.apache.org/docs/apache-airflow/stable/docker-compose.yaml
-curl: no URL specified!
-curl: try 'curl --help' or 'curl --manual' for more information
-hsuma@slcx-p7960:~$ curl -LfO https://airflow.apache.org/docs/apache-airflow/stable/docker-compose.yaml
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100 11342  100 11342    0     0  19848      0 --:--:-- --:--:-- --:--:-- 19863
-hsuma@slcx-p7960:~$ ls -ltr
-total 85552
--rw-r--r-- 1 hsuma sw        0 Aug 13  2024 man
--rw-r--r-- 1 hsuma sw        0 Aug 13  2024 test3
--rw-r--r-- 1 hsuma sw        0 Aug 13  2024 2339uhoeds
--rw-r--r-- 1 hsuma sw        0 Aug 13  2024 febrfsdpamwniuhf9iewmdsa
--rw-r--r-- 1 hsuma sw        0 Aug 13  2024 like
--rw-r--r-- 1 hsuma sw       17 Aug 13  2024 fle
--rw-r--r-- 1 hsuma sw        0 Aug 21 10:31 mine
--rwxr-xr-x 1 hsuma sw    21512 Nov 11 19:12 output_ips.csv
-drwxr-xr-x 4 hsuma sw     4096 Nov 12 19:22 haj
--rw------- 1 hsuma sw     3401 Nov 25 13:49 deploy_key
--rw-r--r-- 1 hsuma sw     2388 Nov 26 12:34 file
--rw-r--r-- 1 hsuma sw 87195919 Dec 13 12:31 rubrik-agent.x86_64.rpm
-drwx------ 3 hsuma sw     4096 Feb  6 14:41 snap
--rw-r--r-- 1 hsuma sw    11342 Feb 13 13:35 docker-compose.yaml
-hsuma@slcx-p7960:~$ mkdir -p ./diags ./logs ./plugins
-hsuma@slcx-p7960:~$ 
-hsuma@slcx-p7960:~$ 
-hsuma@slcx-p7960:~$ echo -e "AIRFLOW_UID=$(id -u)\nAIRFLOW_GID=0" > .env
-hsuma@slcx-p7960:~$ 
-hsuma@slcx-p7960:~$ 
-hsuma@slcx-p7960:~$ id hsuma
-uid=13232(hsuma) gid=2200(sw) groups=2200(sw),998(docker),87717(engops),1666(sysadmins),14(sysadmin),12187(admins)
-hsuma@slcx-p7960:~$ docker compose up airflow-init 
-[+] Running 24/24
- ✔ airflow-init Pulled                                                                                                                               0.6s 
- ✔ redis Pulled                                                                                                                                      2.4s 
-   ✔ c29f5b76f736 Already exists                                                                                                                     0.0s 
-   ✔ aebeb4e6d3fc Pull complete                                                                                                                      0.3s 
-   ✔ f3169dc913ea Pull complete                                                                                                                      0.4s 
-   ✔ 5ea3347fe84f Pull complete                                                                                                                      0.5s 
-   ✔ c1d6535a06ce Pull complete                                                                                                                      1.4s 
-   ✔ 249dae0603e7 Pull complete                                                                                                                      1.4s 
-   ✔ 4f4fb700ef54 Pull complete                                                                                                                      1.4s 
-   ✔ 0cd4f4d159a8 Pull complete                                                                                                                      1.5s 
- ✔ postgres Pulled                                                                                                                                   6.5s 
-   ✔ 98894ac3b57f Pull complete                                                                                                                      1.0s 
-   ✔ 23ebf20a23eb Pull complete                                                                                                                      1.3s 
-   ✔ ddcff65d6525 Pull complete                                                                                                                      1.3s 
-   ✔ 055282d9b077 Pull complete                                                                                                                      1.7s 
-   ✔ 361307454503 Pull complete                                                                                                                      1.8s 
-   ✔ dcbf7d66630b Pull complete                                                                                                                      1.8s 
-   ✔ c38e7947e778 Pull complete                                                                                                                      1.8s 
-   ✔ 6a7b026ed0ac Pull complete                                                                                                                      5.4s 
-   ✔ 2a9cf92d9b13 Pull complete                                                                                                                      5.4s 
-   ✔ fa3668fda8af Pull complete                                                                                                                      5.5s 
-   ✔ 5b397d280e7a Pull complete                                                                                                                      5.5s 
-   ✔ 4b330d4db190 Pull complete                                                                                                                      5.5s 
-   ✔ 2689fa7a09dd Pull complete                                                                                                                      5.5s 
-[+] Running 5/5
- ✔ Network hsuma_default              Created                                                                                                        0.1s 
- ✔ Volume "hsuma_postgres-db-volume"  Created                                                                                                        0.0s 
- ✔ Container hsuma-postgres-1         Created                                                                                                        0.2s 
- ✔ Container hsuma-redis-1            Created                                                                                                        0.2s 
- ✔ Container hsuma-airflow-init-1     Created                                                                                                        0.0s 
-Attaching to airflow-init-1
-airflow-init-1  | mkdir: cannot create directory ‘/sources/dags’: Permission denied
-airflow-init-1  | chown: changing ownership of '/sources/logs': Operation not permitted
-airflow-init-1  | chown: cannot access '/sources/dags': No such file or directory
-airflow-init-1  | chown: changing ownership of '/sources/plugins': Operation not permitted
-airflow-init-1  | The container is run as root user. For security, consider using a regular user account.
-airflow-init-1  | 
-airflow-init-1  | DB: postgresql+psycopg2://airflow:***@postgres/airflow
-airflow-init-1  | Performing upgrade to the metadata database postgresql+psycopg2://airflow:***@postgres/airflow
-airflow-init-1  | [2025-02-13T20:37:54.128+0000] {migration.py:207} INFO - Context impl PostgresqlImpl.
-airflow-init-1  | [2025-02-13T20:37:54.129+0000] {migration.py:210} INFO - Will assume transactional DDL.
-airflow-init-1  | [2025-02-13T20:37:54.130+0000] {migration.py:207} INFO - Context impl PostgresqlImpl.
-airflow-init-1  | [2025-02-13T20:37:54.131+0000] {migration.py:210} INFO - Will assume transactional DDL.
-airflow-init-1  | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
-airflow-init-1  | INFO  [alembic.runtime.migration] Will assume transactional DDL.
-airflow-init-1  | INFO  [alembic.runtime.migration] Running stamp_revision  -> 5f2621c13b39
-airflow-init-1  | Database migrating done!
-airflow-init-1  | /home/airflow/.local/lib/python3.12/site-packages/flask_limiter/extension.py:333 UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
-airflow-init-1  | [2025-02-13T20:37:56.677+0000] {override.py:1508} INFO - Inserted Role: Admin
-airflow-init-1  | [2025-02-13T20:37:56.680+0000] {override.py:965} WARNING - No user yet created, use flask fab command to do it.
-airflow-init-1  | [2025-02-13T20:37:56.706+0000] {override.py:1912} INFO - Created Permission View: can edit on Passwords
-airflow-init-1  | [2025-02-13T20:37:56.712+0000] {override.py:1963} INFO - Added Permission can edit on Passwords to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.715+0000] {override.py:1912} INFO - Created Permission View: can read on Passwords
-airflow-init-1  | [2025-02-13T20:37:56.721+0000] {override.py:1963} INFO - Added Permission can read on Passwords to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.729+0000] {override.py:1912} INFO - Created Permission View: can edit on My Password
-airflow-init-1  | [2025-02-13T20:37:56.733+0000] {override.py:1963} INFO - Added Permission can edit on My Password to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.742+0000] {override.py:1912} INFO - Created Permission View: can read on My Password
-airflow-init-1  | [2025-02-13T20:37:56.745+0000] {override.py:1963} INFO - Added Permission can read on My Password to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.753+0000] {override.py:1912} INFO - Created Permission View: can edit on My Profile
-airflow-init-1  | [2025-02-13T20:37:56.756+0000] {override.py:1963} INFO - Added Permission can edit on My Profile to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.759+0000] {override.py:1912} INFO - Created Permission View: can read on My Profile
-airflow-init-1  | [2025-02-13T20:37:56.762+0000] {override.py:1963} INFO - Added Permission can read on My Profile to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.787+0000] {override.py:1912} INFO - Created Permission View: can create on Users
-airflow-init-1  | [2025-02-13T20:37:56.791+0000] {override.py:1963} INFO - Added Permission can create on Users to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.794+0000] {override.py:1912} INFO - Created Permission View: can read on Users
-airflow-init-1  | [2025-02-13T20:37:56.797+0000] {override.py:1963} INFO - Added Permission can read on Users to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.800+0000] {override.py:1912} INFO - Created Permission View: can edit on Users
-airflow-init-1  | [2025-02-13T20:37:56.802+0000] {override.py:1963} INFO - Added Permission can edit on Users to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.805+0000] {override.py:1912} INFO - Created Permission View: can delete on Users
-airflow-init-1  | [2025-02-13T20:37:56.808+0000] {override.py:1963} INFO - Added Permission can delete on Users to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.812+0000] {override.py:1912} INFO - Created Permission View: menu access on List Users
-airflow-init-1  | [2025-02-13T20:37:56.814+0000] {override.py:1963} INFO - Added Permission menu access on List Users to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.821+0000] {override.py:1912} INFO - Created Permission View: menu access on Security
-airflow-init-1  | [2025-02-13T20:37:56.824+0000] {override.py:1963} INFO - Added Permission menu access on Security to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.839+0000] {override.py:1912} INFO - Created Permission View: can create on Roles
-airflow-init-1  | [2025-02-13T20:37:56.842+0000] {override.py:1963} INFO - Added Permission can create on Roles to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.846+0000] {override.py:1912} INFO - Created Permission View: can read on Roles
-airflow-init-1  | [2025-02-13T20:37:56.852+0000] {override.py:1963} INFO - Added Permission can read on Roles to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.858+0000] {override.py:1912} INFO - Created Permission View: can edit on Roles
-airflow-init-1  | [2025-02-13T20:37:56.861+0000] {override.py:1963} INFO - Added Permission can edit on Roles to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.864+0000] {override.py:1912} INFO - Created Permission View: can delete on Roles
-airflow-init-1  | [2025-02-13T20:37:56.866+0000] {override.py:1963} INFO - Added Permission can delete on Roles to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.871+0000] {override.py:1912} INFO - Created Permission View: menu access on List Roles
-airflow-init-1  | [2025-02-13T20:37:56.874+0000] {override.py:1963} INFO - Added Permission menu access on List Roles to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.883+0000] {override.py:1912} INFO - Created Permission View: can read on User Stats Chart
-airflow-init-1  | [2025-02-13T20:37:56.886+0000] {override.py:1963} INFO - Added Permission can read on User Stats Chart to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.891+0000] {override.py:1912} INFO - Created Permission View: menu access on User's Statistics
-airflow-init-1  | [2025-02-13T20:37:56.894+0000] {override.py:1963} INFO - Added Permission menu access on User's Statistics to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.912+0000] {override.py:1912} INFO - Created Permission View: can read on Permissions
-airflow-init-1  | [2025-02-13T20:37:56.915+0000] {override.py:1963} INFO - Added Permission can read on Permissions to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.920+0000] {override.py:1912} INFO - Created Permission View: menu access on Actions
-airflow-init-1  | [2025-02-13T20:37:56.926+0000] {override.py:1963} INFO - Added Permission menu access on Actions to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.944+0000] {override.py:1912} INFO - Created Permission View: can read on View Menus
-airflow-init-1  | [2025-02-13T20:37:56.947+0000] {override.py:1963} INFO - Added Permission can read on View Menus to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.952+0000] {override.py:1912} INFO - Created Permission View: menu access on Resources
-airflow-init-1  | [2025-02-13T20:37:56.957+0000] {override.py:1963} INFO - Added Permission menu access on Resources to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.980+0000] {override.py:1912} INFO - Created Permission View: can read on Permission Views
-airflow-init-1  | [2025-02-13T20:37:56.983+0000] {override.py:1963} INFO - Added Permission can read on Permission Views to role Admin
-airflow-init-1  | [2025-02-13T20:37:56.989+0000] {override.py:1912} INFO - Created Permission View: menu access on Permission Pairs
-airflow-init-1  | [2025-02-13T20:37:56.992+0000] {override.py:1963} INFO - Added Permission menu access on Permission Pairs to role Admin
-airflow-init-1  | [2025-02-13T20:37:58.829+0000] {override.py:1597} INFO - Added user airflow
-airflow-init-1  | User "airflow" created with role "Admin"
-airflow-init-1  | 2.10.5
-airflow-init-1 exited with code 0
-hsuma@slcx-p7960:~$ docker compose up -d
-[+] Running 3/7
- ✔ Container hsuma-redis-1              Healthy                                                                                                      1.4s 
- ✔ Container hsuma-postgres-1           Healthy                                                                                                      1.4s 
- ✔ Container hsuma-airflow-init-1       Exited                                                                                                       9.4s 
- ⠦ Container hsuma-airflow-webserver-1  Starting                                                                                                     9.8s 
- ⠦ Container hsuma-airflow-worker-1     Starting                                                                                                     9.8s 
- ⠦ Container hsuma-airflow-triggerer-1  Starting                                                                                                     9.8s 
- ⠦ Container hsuma-airflow-scheduler-1  Starting                                                                                                     9.8s 
-Error response from daemon: driver failed programming external connectivity on endpoint hsuma-airflow-webserver-1 (a4182cd2ff22360845f0c98cec621951c15088c92d6a50fcf3a6685d6f3a0b17): Bind for 0.0.0.0:8080 failed: port is already allocated
+- name: Register systems with Landscape On-Prem
+  hosts: all
+  become: true
+  vars:
+    landscape_server_ip: 10.172.249.104
+  tasks:
+    - name: Ensure Landscape cert directory exists
+      file:
+        path: /etc/landscape
+        state: directory
+        mode: '0755'
+
+    - name: Copy Landscape server certificate
+      copy:
+        src: files/landscape-server.pem
+        dest: /etc/landscape/landscape.pem
+        mode: '0644'
+
+    - name: Register with Landscape (no registration key)
+      shell: |
+        /usr/bin/landscape-config \
+          --computer-title "$(hostname)" \
+          --account-name standalone \
+          --url "https://{{ landscape_server_ip }}/message-system" \
+          --ssl-public-key /etc/landscape/landscape.pem \
+          --ping-url "http://{{ landscape_server_ip }}/ping" \
+          --silent
+      args:
+        creates: /var/lib/landscape/client.conf
