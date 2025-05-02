@@ -1,22 +1,12 @@
----
-- name: Backup and append DNS entries to /etc/resolv.conf
-  hosts: all
-  become: true
-  tasks:
-    - name: Backup existing /etc/resolv.conf
-      copy:
-        src: /etc/resolv.conf
-        dest: /etc/resolv.conf.bak
-        remote_src: yes
-        mode: '0644'
+Title: Improve VKS8 Cluster Build Documentation Rendering and Structure
 
-    - name: Ensure required DNS nameservers are present (no comments)
-      lineinfile:
-        path: /etc/resolv.conf
-        line: "{{ item }}"
-        state: present
-        create: no
-      loop:
-        - "nameserver 10.16.3.8"
-        - "nameserver 10.16.3.16"
-        - "nameserver 10.16.3.24"
+Description: While reviewing the VKS8 cluster build guide, we noticed the following issues:
+
+The current documentation does not render well — formatting is cluttered and may confuse readers.
+Repository links should be hyperlinked for easier access and cloning.
+The document structure could benefit from clearer separation and reorganization for readability.
+Recommendation:
+
+Update the markdown or HTML rendering to ensure clean formatting.
+Add proper hyperlinks to referenced repositories.
+Reorganize sections for clarity and ensure instructions are logically grouped.
