@@ -1,72 +1,84 @@
-Senior Infrastructure Reliability Engineer – Interview Evaluation Sheet
-Candidate Name: ______________________
-Date: ________________________________
-Interviewer: __________________________
-Role: Senior Infrastructure Reliability Engineer
+h2. Granting Sudo Access via Red Hat Identity Management (IdM) Web UI
 
-Python Automation (ESXi Recovery)
-Prompt:
-Walk me through the ESXi recovery script you built—specifically, how you handled edge cases like stale sessions, mid-failure vMotions, and vCenter flapping.
-Follow-up: If Slack API returns 429s, how would your retry logic adapt?
-Candidate Response:
-We had recurring host lockups on our ESXi cluster that required vMotion to evacuate VMs before restarting the host. I used Python with pyVmomi to monitor host health and session status via vCenter APIs. To detect flapping or stale sessions, I implemented a retry-check using health status polling every 30 seconds with exponential backoff. For Slack, we hit the 429 rate limit a few times. I used the Retry-After header in the response to sleep the script dynamically. Messages were batched and deduplicated using a cache of UUIDs to avoid spam.
-Score (1–5): ___
-Comments:
-___________________________________________________
-___________________________________________________
+This guide walks through how to grant sudo access to users in *Red Hat IdM* using the web interface:
 
-Hybrid Infra Design – Overlapping IPs
-Prompt:
-Design a secure hybrid network for an org with overlapping CIDRs between AWS and on-prem vSphere. You can’t re-IP. Include DNS, IAM, and segmentation.
-Candidate Response:
-We couldn’t re-IP the on-prem workloads, so I used AWS Transit Gateway with overlapping CIDR support. The key was to segment environments via VPCs and enforce NAT with IP masquerading in EKS worker nodes. We split DNS into internal zones (via Route 53 Resolver endpoints) and delegated forwarders to our on-prem DNS. IAM roles were federated using an identity provider and assigned per-namespace within Kubernetes. For network segmentation, I used Calico policies in EKS and NSX microsegmentation on-prem.
-Score (1–5): ___
-Comments:
-___________________________________________________
-___________________________________________________
+*URL:* [https://cpeg-ipareplica.ipa.calix.local/ipa/ui]
 
-Monitoring & Metrics Tuning
-Prompt:
-Which Prometheus metric alerted you wrongly in the past—and how did you fix the false positive? Show me how you tuned it or removed it.
-Candidate Response:
-One noisy metric was node_filesystem_usage_percent on /run and /tmp, which would spike during log rotation or tmpfile cleanup. It generated high-severity alerts but had no real impact. I adjusted the alert rule to exclude temporary mounts using label filters and switched from instant queries to 10-minute avg_over_time windows to smooth out the spikes. We also added a secondary condition: alert only if usage was above 90% and inode usage was >80%.
-Score (1–5): ___
-Comments:
-___________________________________________________
-___________________________________________________
+---
 
-Terraform-Ansible Failure Scenario
-Prompt:
-Terraform is done provisioning, but Ansible starts failing randomly on one region. You can’t SSH manually due to bastion firewall policy. What do you do?
-Candidate Response:
-We hit this exact issue in a multi-region setup where Terraform provisioned instances in us-west-1, but Ansible failed to connect due to region-specific firewall rules. SSH access was only allowed via regional bastion hosts, and the playbook didn’t account for that. I added dynamic inventory scripts that assigned each host to its correct SSH jump host via ansible_ssh_common_args. Also split the playbook into per-region stages and wrapped the Ansible step in a wrapper that performed reachability tests before execution.
-Score (1–5): ___
-Comments:
-___________________________________________________
-___________________________________________________
+h3. Step-by-Step Procedure (Using Red Hat IdM Web UI)
 
-Production Incident – Time-Based Bug
-Prompt:
-An app has a 30% failure rate only on Mondays. Logs are clean. Dev team says infra is fine. What do you actually investigate?
-Candidate Response:
-We had a similar case. It turned out that a batch ETL job ran every Sunday night and pushed a large payload to the DB, which filled up the WAL (write-ahead log). On Monday, when the app spun up new pods, it couldn’t get DB connections fast enough due to throttling. I diagnosed it by correlating DB CPU and IOPS metrics from Grafana with app startup time, then checked pg_stat_activity for connection waits. Fix was a DB parameter tune and a rate limiter in the ETL job.
-Score (1–5): ___
-Comments:
-___________________________________________________
-___________________________________________________
+*Step 1: Check if the group already exists*
+- Go to *Identity > Groups*
+- Search for the group (e.g. _deployers_)
+- If it exists, go to Step 2.
+- If it does not exist, skip to Step 3.
 
-Overall Evaluation
-Criteria	Score (1–5)
-Technical Depth	
-Real-World Problem Solving	
-Communication Clarity	
-Troubleshooting Under Pressure	
-Cross-Team Thinking	
+*Step 2: Add users to the existing group*
+- Open the group
+- Go to the *Users* tab
+- Click *Add*, select users, then *Add and Save*
 
-Final Recommendation:
-☐ Strong Hire  ☐ Hire  ☐ Lean No  ☐ Strong No
+*Note:* If the group is already linked to a sudo rule, the users inherit access automatically.
 
-Final Notes:
-_✎ (Summary, concerns, strengths)_
-___________________________________________________
-___________________________________________________
+*Step 3: Create a new group (if needed)*
+- Go to *Identity > Groups > Add*
+- Set the name (e.g. _deployers_)
+- Provide a description (e.g. “Deploy team members”)
+- Click *Add*
+
+*Step 4: Add users to the new group*
+- Open the group you just created
+- Go to the *Users* tab
+- Click *Add*, select users, then *Add and Save*
+
+*Step 5: Create the sudo rule*
+- Go to *Policy > Sudo Rules > Add*
+- Name the rule (e.g. _deploy-sudo-rule_)
+- Add a description
+- Click *Add and Edit*
+
+*Step 6: Link the group to the sudo rule*
+- Go to the *Users* tab in the sudo rule
+- Click *Add* under *User Groups*
+- Select _deployers_ and *Add and Save*
+
+*Step 7: Add and attach sudo commands*
+- Go to *Policy > Sudo Commands*
+- Click *Add* and define each command (e.g. `/usr/bin/yum install *`, `/usr/bin/journalctl`)
+- After adding commands, go back to *Policy > Sudo Rules*
+- Open your sudo rule
+- Go to the *Commands* tab
+- Click *Add*, select the commands you added, then *Add and Save*
+
+*Step 8: Attach hosts or host groups*
+- Go to the *Hosts* tab in the sudo rule
+- Click *Add* under *Host Groups* or *Hosts*
+- Select the target systems or host groups
+- Click *Add and Save*
+
+*Step 9: Add sudo options (optional)*
+- Go to the *Options* tab
+- Click *Add*
+- Enter `!authenticate` if passwordless sudo is needed
+- Click *Add and Save*
+
+*Step 10: Review and verify*
+- Go to *Policy > Sudo Rules*
+- Open the rule and review the *Users*, *Commands*, *Hosts*, and *Options* tabs
+
+---
+
+h3. Red Hat IdM: Web UI vs CLI Comparison Table
+
+|| Task || Web UI (https://cpeg-ipareplica.ipa.calix.local/ipa/ui) || CLI Command ||
+| Check if group exists | Identity > Groups > Search _deployers_ | `ipa group-show deployers` |
+| Create group | Identity > Groups > Add | `ipa group-add deployers --desc="Group for deploy users"` |
+| Add users to group | Group > Users > Add | `ipa group-add-member deployers --users=user1 --users=user2` |
+| Create sudo rule | Policy > Sudo Rules > Add | `ipa sudorule-add deploy-sudo-rule --desc="Sudo rule for deployers group"` |
+| Link group to sudo rule | Sudo Rule > Users > Add > User Groups | `ipa sudorule-add-user deploy-sudo-rule --group=deployers` |
+| Add sudo commands | Policy > Sudo Commands > Add | `ipa sudocmd-add "/usr/bin/yum install *"` |
+| Attach commands to rule | Sudo Rule > Commands > Add | `ipa sudorule-add-allow-command deploy-sudo-rule --sudocmd="/usr/bin/yum install *"` |
+| Attach hosts or host groups | Sudo Rule > Hosts > Add > Host Groups or Hosts | `ipa sudorule-add-hostgroup deploy-sudo-rule --hostgroups=web-servers` |
+| Add sudo options | Sudo Rule > Options > Add → `!authenticate` | `ipa sudorule-add-option deploy-sudo-rule --sudooption='!authenticate'` |
+| Verify configuration | Policy > Sudo Rules > Click rule > Review tabs | `ipa sudorule-show deploy-sudo-rule` |
