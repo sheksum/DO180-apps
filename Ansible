@@ -1,43 +1,72 @@
-#!/bin/bash
+Senior Infrastructure Reliability Engineer – Interview Evaluation Sheet
+Candidate Name: ______________________
+Date: ________________________________
+Interviewer: __________________________
+Role: Senior Infrastructure Reliability Engineer
 
-# Define the list of remote servers
-SERVERS=("10.168.0.58" "10.168.0.59" "10.168.0.60")  # Add more IPs as needed
+Python Automation (ESXi Recovery)
+Prompt:
+Walk me through the ESXi recovery script you built—specifically, how you handled edge cases like stale sessions, mid-failure vMotions, and vCenter flapping.
+Follow-up: If Slack API returns 429s, how would your retry logic adapt?
+Candidate Response:
+We had recurring host lockups on our ESXi cluster that required vMotion to evacuate VMs before restarting the host. I used Python with pyVmomi to monitor host health and session status via vCenter APIs. To detect flapping or stale sessions, I implemented a retry-check using health status polling every 30 seconds with exponential backoff. For Slack, we hit the 429 rate limit a few times. I used the Retry-After header in the response to sleep the script dynamically. Messages were batched and deduplicated using a cache of UUIDs to avoid spam.
+Score (1–5): ___
+Comments:
+___________________________________________________
+___________________________________________________
 
-# Path to the local script
-SCRIPT="update_sssd.sh"
-REMOTE_PATH="/tmp/$SCRIPT"
-USER="deploy"
+Hybrid Infra Design – Overlapping IPs
+Prompt:
+Design a secure hybrid network for an org with overlapping CIDRs between AWS and on-prem vSphere. You can’t re-IP. Include DNS, IAM, and segmentation.
+Candidate Response:
+We couldn’t re-IP the on-prem workloads, so I used AWS Transit Gateway with overlapping CIDR support. The key was to segment environments via VPCs and enforce NAT with IP masquerading in EKS worker nodes. We split DNS into internal zones (via Route 53 Resolver endpoints) and delegated forwarders to our on-prem DNS. IAM roles were federated using an identity provider and assigned per-namespace within Kubernetes. For network segmentation, I used Calico policies in EKS and NSX microsegmentation on-prem.
+Score (1–5): ___
+Comments:
+___________________________________________________
+___________________________________________________
 
-# Ensure the script is executable
-chmod +x "$SCRIPT"
+Monitoring & Metrics Tuning
+Prompt:
+Which Prometheus metric alerted you wrongly in the past—and how did you fix the false positive? Show me how you tuned it or removed it.
+Candidate Response:
+One noisy metric was node_filesystem_usage_percent on /run and /tmp, which would spike during log rotation or tmpfile cleanup. It generated high-severity alerts but had no real impact. I adjusted the alert rule to exclude temporary mounts using label filters and switched from instant queries to 10-minute avg_over_time windows to smooth out the spikes. We also added a secondary condition: alert only if usage was above 90% and inode usage was >80%.
+Score (1–5): ___
+Comments:
+___________________________________________________
+___________________________________________________
 
-# Function to update and restart SSSD on a remote server
-update_sssd_remote() {
-    local SERVER="$1"
-    echo "Updating SSSD configuration on $SERVER..."
+Terraform-Ansible Failure Scenario
+Prompt:
+Terraform is done provisioning, but Ansible starts failing randomly on one region. You can’t SSH manually due to bastion firewall policy. What do you do?
+Candidate Response:
+We hit this exact issue in a multi-region setup where Terraform provisioned instances in us-west-1, but Ansible failed to connect due to region-specific firewall rules. SSH access was only allowed via regional bastion hosts, and the playbook didn’t account for that. I added dynamic inventory scripts that assigned each host to its correct SSH jump host via ansible_ssh_common_args. Also split the playbook into per-region stages and wrapped the Ansible step in a wrapper that performed reachability tests before execution.
+Score (1–5): ___
+Comments:
+___________________________________________________
+___________________________________________________
 
-    # Copy the script to the remote server
-    scp "$SCRIPT" "$USER@$SERVER:$REMOTE_PATH"
-    if [[ $? -ne 0 ]]; then
-        echo "Failed to copy script to $SERVER"
-        return 1
-    fi
+Production Incident – Time-Based Bug
+Prompt:
+An app has a 30% failure rate only on Mondays. Logs are clean. Dev team says infra is fine. What do you actually investigate?
+Candidate Response:
+We had a similar case. It turned out that a batch ETL job ran every Sunday night and pushed a large payload to the DB, which filled up the WAL (write-ahead log). On Monday, when the app spun up new pods, it couldn’t get DB connections fast enough due to throttling. I diagnosed it by correlating DB CPU and IOPS metrics from Grafana with app startup time, then checked pg_stat_activity for connection waits. Fix was a DB parameter tune and a rate limiter in the ETL job.
+Score (1–5): ___
+Comments:
+___________________________________________________
+___________________________________________________
 
-    # Execute the script remotely
-    ssh "$USER@$SERVER" "sudo bash $REMOTE_PATH"
-    if [[ $? -eq 0 ]]; then
-        echo "Successfully updated SSSD on $SERVER"
-    else
-        echo "Failed to update SSSD on $SERVER"
-    fi
-}
+Overall Evaluation
+Criteria	Score (1–5)
+Technical Depth	
+Real-World Problem Solving	
+Communication Clarity	
+Troubleshooting Under Pressure	
+Cross-Team Thinking	
 
-# Run the update function for each server
-for SERVER in "${SERVERS[@]}"; do
-    update_sssd_remote "$SERVER" &
-done
+Final Recommendation:
+☐ Strong Hire  ☐ Hire  ☐ Lean No  ☐ Strong No
 
-# Wait for all background jobs to finish
-wait
-
-echo "SSSD updates completed for all servers."
+Final Notes:
+_✎ (Summary, concerns, strengths)_
+___________________________________________________
+___________________________________________________
