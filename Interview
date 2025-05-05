@@ -1,0 +1,72 @@
+Senior Infrastructure Reliability Engineer – Interview Evaluation Sheet
+Candidate Name: ______________________
+Date: ________________________________
+Interviewer: __________________________
+Role: Senior Infrastructure Reliability Engineer
+
+Python Automation (ESXi Recovery)
+Prompt:
+Walk me through the ESXi recovery script you built—specifically, how you handled edge cases like stale sessions, mid-failure vMotions, and vCenter flapping.
+Follow-up: If Slack API returns 429s, how would your retry logic adapt?
+Candidate Response:
+_✎ (Editable Notes)_
+Score (1–5): ___
+Comments:
+___________________________________________________
+___________________________________________________
+
+Hybrid Infra Design – Overlapping IPs
+Prompt:
+Design a secure hybrid network for an org with overlapping CIDRs between AWS and on-prem vSphere. You can’t re-IP. Include DNS, IAM, and segmentation.
+Candidate Response:
+_✎ (Editable Notes)_
+Score (1–5): ___
+Comments:
+___________________________________________________
+___________________________________________________
+
+Monitoring & Metrics Tuning
+Prompt:
+Which Prometheus metric alerted you wrongly in the past—and how did you fix the false positive? Show me how you tuned it or removed it.
+Candidate Response:
+_✎ (Editable Notes)_
+Score (1–5): ___
+Comments:
+___________________________________________________
+___________________________________________________
+
+Terraform-Ansible Failure Scenario
+Prompt:
+Terraform is done provisioning, but Ansible starts failing randomly on one region. You can’t SSH manually due to bastion firewall policy. What do you do?
+Candidate Response:
+_✎ (Editable Notes)_
+Score (1–5): ___
+Comments:
+___________________________________________________
+___________________________________________________
+
+Production Incident – Time-Based Bug
+Prompt:
+An app has a 30% failure rate only on Mondays. Logs are clean. Dev team says infra is fine. What do you actually investigate?
+Candidate Response:
+_✎ (Editable Notes)_
+Score (1–5): ___
+Comments:
+___________________________________________________
+___________________________________________________
+
+Overall Evaluation
+Criteria	Score (1–5)
+Technical Depth	
+Real-World Problem Solving	
+Communication Clarity	
+Troubleshooting Under Pressure	
+Cross-Team Thinking	
+
+Final Recommendation:
+☐ Strong Hire  ☐ Hire  ☐ Lean No  ☐ Strong No
+
+Final Notes:
+_✎ (Summary, concerns, strengths)_
+___________________________________________________
+___________________________________________________
