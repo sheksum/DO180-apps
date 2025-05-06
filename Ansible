@@ -2,8 +2,9 @@
 
 HOST_FILE="hosts.txt"
 REMOTE_SCRIPT="/tmp/kill-ansible.sh"
+LOG_FILE="kill-ansible.log"
 
-# Create the remote script with sudo for pkill
+# Build the remote script
 cat << 'EOF' > $REMOTE_SCRIPT
 #!/bin/bash
 echo "[$(hostname)] Killing Ansible-related processes..."
@@ -15,10 +16,16 @@ EOF
 
 chmod +x $REMOTE_SCRIPT
 
-# Loop through the hosts and execute the remote script
+# Loop through hosts
 while IFS= read -r HOST; do
   [[ -z "$HOST" || "$HOST" == \#* ]] && continue
-  echo "Running cleanup on $HOST..."
-  scp $REMOTE_SCRIPT deploy@"$HOST":/tmp/kill-ansible.sh
-  ssh deploy@"$HOST" "chmod +x /tmp/kill-ansible.sh && /tmp/kill-ansible.sh"
+  echo ">>> Running on $HOST"
+
+  scp -o ConnectTimeout=10 -o StrictHostKeyChecking=no $REMOTE_SCRIPT deploy@$HOST:$REMOTE_SCRIPT \
+    && ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no deploy@$HOST "bash $REMOTE_SCRIPT && rm -f $REMOTE_SCRIPT" \
+    >> $LOG_FILE 2>&1 \
+    || echo "[ERROR] Failed on $HOST" >> $LOG_FILE
+
 done < "$HOST_FILE"
+
+echo "Finished. See $LOG_FILE for output and errors."
