@@ -1,84 +1,24 @@
-h2. Granting Sudo Access via Red Hat Identity Management (IdM) Web UI
+#!/bin/bash
 
-This guide walks through how to grant sudo access to users in *Red Hat IdM* using the web interface:
+HOST_FILE="hosts.txt"
+REMOTE_SCRIPT="/tmp/kill-ansible.sh"
 
-*URL:* [https://cpeg-ipareplica.ipa.calix.local/ipa/ui]
+# Create the remote script with sudo for pkill
+cat << 'EOF' > $REMOTE_SCRIPT
+#!/bin/bash
+echo "[$(hostname)] Killing Ansible-related processes..."
+sudo pkill -f ansible-playbook
+sudo pkill -f sshpass
+sudo pkill -f 'ssh -o ControlMaster'
+echo "[$(hostname)] Cleanup complete."
+EOF
 
----
+chmod +x $REMOTE_SCRIPT
 
-h3. Step-by-Step Procedure (Using Red Hat IdM Web UI)
-
-*Step 1: Check if the group already exists*
-- Go to *Identity > Groups*
-- Search for the group (e.g. _deployers_)
-- If it exists, go to Step 2.
-- If it does not exist, skip to Step 3.
-
-*Step 2: Add users to the existing group*
-- Open the group
-- Go to the *Users* tab
-- Click *Add*, select users, then *Add and Save*
-
-*Note:* If the group is already linked to a sudo rule, the users inherit access automatically.
-
-*Step 3: Create a new group (if needed)*
-- Go to *Identity > Groups > Add*
-- Set the name (e.g. _deployers_)
-- Provide a description (e.g. “Deploy team members”)
-- Click *Add*
-
-*Step 4: Add users to the new group*
-- Open the group you just created
-- Go to the *Users* tab
-- Click *Add*, select users, then *Add and Save*
-
-*Step 5: Create the sudo rule*
-- Go to *Policy > Sudo Rules > Add*
-- Name the rule (e.g. _deploy-sudo-rule_)
-- Add a description
-- Click *Add and Edit*
-
-*Step 6: Link the group to the sudo rule*
-- Go to the *Users* tab in the sudo rule
-- Click *Add* under *User Groups*
-- Select _deployers_ and *Add and Save*
-
-*Step 7: Add and attach sudo commands*
-- Go to *Policy > Sudo Commands*
-- Click *Add* and define each command (e.g. `/usr/bin/yum install *`, `/usr/bin/journalctl`)
-- After adding commands, go back to *Policy > Sudo Rules*
-- Open your sudo rule
-- Go to the *Commands* tab
-- Click *Add*, select the commands you added, then *Add and Save*
-
-*Step 8: Attach hosts or host groups*
-- Go to the *Hosts* tab in the sudo rule
-- Click *Add* under *Host Groups* or *Hosts*
-- Select the target systems or host groups
-- Click *Add and Save*
-
-*Step 9: Add sudo options (optional)*
-- Go to the *Options* tab
-- Click *Add*
-- Enter `!authenticate` if passwordless sudo is needed
-- Click *Add and Save*
-
-*Step 10: Review and verify*
-- Go to *Policy > Sudo Rules*
-- Open the rule and review the *Users*, *Commands*, *Hosts*, and *Options* tabs
-
----
-
-h3. Red Hat IdM: Web UI vs CLI Comparison Table
-
-|| Task || Web UI (https://cpeg-ipareplica.ipa.calix.local/ipa/ui) || CLI Command ||
-| Check if group exists | Identity > Groups > Search _deployers_ | `ipa group-show deployers` |
-| Create group | Identity > Groups > Add | `ipa group-add deployers --desc="Group for deploy users"` |
-| Add users to group | Group > Users > Add | `ipa group-add-member deployers --users=user1 --users=user2` |
-| Create sudo rule | Policy > Sudo Rules > Add | `ipa sudorule-add deploy-sudo-rule --desc="Sudo rule for deployers group"` |
-| Link group to sudo rule | Sudo Rule > Users > Add > User Groups | `ipa sudorule-add-user deploy-sudo-rule --group=deployers` |
-| Add sudo commands | Policy > Sudo Commands > Add | `ipa sudocmd-add "/usr/bin/yum install *"` |
-| Attach commands to rule | Sudo Rule > Commands > Add | `ipa sudorule-add-allow-command deploy-sudo-rule --sudocmd="/usr/bin/yum install *"` |
-| Attach hosts or host groups | Sudo Rule > Hosts > Add > Host Groups or Hosts | `ipa sudorule-add-hostgroup deploy-sudo-rule --hostgroups=web-servers` |
-| Add sudo options | Sudo Rule > Options > Add → `!authenticate` | `ipa sudorule-add-option deploy-sudo-rule --sudooption='!authenticate'` |
-| Verify configuration | Policy > Sudo Rules > Click rule > Review tabs | `ipa sudorule-show deploy-sudo-rule` |
+# Loop through the hosts and execute the remote script
+while IFS= read -r HOST; do
+  [[ -z "$HOST" || "$HOST" == \#* ]] && continue
+  echo "Running cleanup on $HOST..."
+  scp $REMOTE_SCRIPT deploy@"$HOST":/tmp/kill-ansible.sh
+  ssh deploy@"$HOST" "chmod +x /tmp/kill-ansible.sh && /tmp/kill-ansible.sh"
+done < "$HOST_FILE"
