@@ -1,10 +1,8 @@
 #!/bin/bash
 
-HOST_FILE="hosts.txt"
 REMOTE_SCRIPT="/tmp/kill-ansible.sh"
-LOG_FILE="kill-ansible.log"
 
-# Build the remote script
+# The script to be executed remotely
 cat << 'EOF' > $REMOTE_SCRIPT
 #!/bin/bash
 echo "[$(hostname)] Killing Ansible-related processes..."
@@ -16,16 +14,9 @@ EOF
 
 chmod +x $REMOTE_SCRIPT
 
-# Loop through hosts
-while IFS= read -r HOST; do
-  [[ -z "$HOST" || "$HOST" == \#* ]] && continue
-  echo ">>> Running on $HOST"
-
-  scp -o ConnectTimeout=10 -o StrictHostKeyChecking=no $REMOTE_SCRIPT deploy@$HOST:$REMOTE_SCRIPT \
-    && ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no deploy@$HOST "bash $REMOTE_SCRIPT && rm -f $REMOTE_SCRIPT" \
-    >> $LOG_FILE 2>&1 \
-    || echo "[ERROR] Failed on $HOST" >> $LOG_FILE
-
-done < "$HOST_FILE"
-
-echo "Finished. See $LOG_FILE for output and errors."
+# Simple for loop to go through hosts
+for HOST in $(cat hosts.txt); do
+  echo ">>> $HOST"
+  scp -o ConnectTimeout=10 -o StrictHostKeyChecking=no $REMOTE_SCRIPT deploy@$HOST:$REMOTE_SCRIPT
+  ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no deploy@$HOST "bash $REMOTE_SCRIPT && rm -f $REMOTE_SCRIPT"
+done
