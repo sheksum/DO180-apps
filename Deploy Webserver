@@ -29,3 +29,16 @@ Ensure all team members are using their assigned IPA groups to inherit the corre
 If you have any questions, need modifications, or require assistance, please reach out to the IT team at [IT Support Contact].
 
 This transition will help streamline access management, improve security, and ensure better compliance with organizational policies. Thank you for your support as we make this shift.
+
+sudo -u postgres psql -d landscape-standalone-account-1 -c \
+"SELECT * FROM activity_child_event WHERE id IN (10, 11, 12);"
+
+sudo -u postgres psql -d landscape-standalone-account-1 -c \
+"SELECT * FROM event_log_entry WHERE id IN (10, 11, 12);"
+
+sudo -u postgres psql -d landscape-standalone-account-1 -c \
+"SELECT * FROM rule_state_notification WHERE id IN (10, 11, 12);"
+
+
+
+
