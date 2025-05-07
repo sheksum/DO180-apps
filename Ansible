@@ -85,3 +85,34 @@ Scalable for hybrid or air-gapped environments
 Speaker Notes:
 “Landscape is our go-to for managing Ubuntu infrastructure centrally and securely. It scales and simplifies routine ops.”
 Let me know if you’d like this turned into a slide deck, markdown doc, or PDF.
+
+
+
+=========
+
+---
+- name: Configure Landscape client for script execution
+  hosts: all
+  become: true
+  tasks:
+
+    - name: Ensure script_users is set to deploy
+      lineinfile:
+        path: /etc/landscape/client.conf
+        regexp: '^script_users\s*='
+        line: 'script_users = deploy'
+        create: yes
+        insertafter: '[client]'
+
+    - name: Ensure include_manager_plugins is set to ScriptExecution
+      lineinfile:
+        path: /etc/landscape/client.conf
+        regexp: '^include_manager_plugins\s*='
+        line: 'include_manager_plugins = ScriptExecution'
+        insertafter: '[client]'
+
+    - name: Restart landscape-client
+      service:
+        name: landscape-client
+        state: restarted
+
