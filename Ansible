@@ -20,3 +20,68 @@ for HOST in $(cat hosts.txt); do
   scp -o ConnectTimeout=10 -o StrictHostKeyChecking=no $REMOTE_SCRIPT deploy@$HOST:$REMOTE_SCRIPT
   ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no deploy@$HOST "bash $REMOTE_SCRIPT && rm -f $REMOTE_SCRIPT"
 done
+
+===================================
+Slide 1: Title
+
+Title: Ubuntu Landscape – Centralized Ubuntu Systems Management
+Subtitle: Monitor, patch, and automate fleet operations at scale
+Speaker Notes:
+
+“Today I'll walk you through how Landscape helps us manage Ubuntu systems centrally — from patching and compliance to reporting and automation.”
+Slide 2: What is Landscape?
+
+Canonical’s systems management tool for Ubuntu
+Web-based dashboard for managing thousands of systems
+Includes patching, package control, reporting, user/group management
+Speaker Notes:
+“Think of it as Red Hat Satellite for Ubuntu — tailored for Ubuntu/Debian systems, especially useful when managing large-scale fleets.”
+Slide 3: Key Features
+
+Inventory of all registered Ubuntu machines
+Live system metrics: memory, disk, CPU usage
+Package update management & automation
+Custom script execution across systems
+Role-based access & audit logs
+Speaker Notes:
+“Landscape gives visibility and control — you can see health stats, trigger updates, run scripts, and ensure consistency across systems.”
+Slide 4: Architecture Overview
+
+Landscape Server (self-hosted or cloud)
+Landscape Client on each managed machine
+PostgreSQL backend
+Uses HTTPS for secure communication
+Speaker Notes:
+“This is a self-hosted Landscape setup. Each client connects securely over HTTPS to receive updates, commands, and report status.”
+Slide 5: Demo Flow Checklist
+
+Objective: Show end-to-end management of Ubuntu hosts
+Live Steps:
+
+Log in to Landscape UI
+Show dashboard with system metrics
+Filter machines by tags (e.g., prod, dev)
+Pick a machine and:
+Show system status and package updates
+Trigger a package update or run a script
+Go to Script Execution → run a command like uptime
+Show scheduled updates or auto-approve feature
+Optional: Add a tag or user/group
+Speaker Notes:
+“I’ll walk through the interface, then demonstrate a real task like a package update or a script run.”
+Slide 6: Use Cases
+
+Patch automation across 1000s of servers
+Audit and compliance checks
+Custom health-check scripts
+Host grouping by environment or team
+Speaker Notes:
+“It’s ideal for enforcing patch SLAs, audit compliance, and simplifying large-scale fleet management.”
+Slide 7: Closing
+
+Landscape = visibility + control for Ubuntu systems
+Easy integration with CI/CD and automation tools
+Scalable for hybrid or air-gapped environments
+Speaker Notes:
+“Landscape is our go-to for managing Ubuntu infrastructure centrally and securely. It scales and simplifies routine ops.”
+Let me know if you’d like this turned into a slide deck, markdown doc, or PDF.
