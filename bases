@@ -115,3 +115,17 @@ while read -r id; do
       --ssl-ca-file /etc/ssl/certs/landscape_server.pem
   fi
 done < duplicates_to_delete.txt
+
+
+for db in \
+  landscape-standalone-account-1 \
+  landscape-standalone-knowledge \
+  landscape-standalone-main \
+  landscape-standalone-package \
+  landscape-standalone-resource-1 \
+  landscape-standalone-session
+do
+  echo "[$db]"
+  sudo -u postgres psql -d "$db" -Atc \
+  "SELECT tablename FROM pg_tables WHERE schemaname='public' AND (tablename ILIKE '%alert%' OR tablename ILIKE '%event%' OR tablename ILIKE '%notification%');"
+done
