@@ -1,1 +1,118 @@
+Ubuntu Landscape – Centralized Ubuntu Systems Management
 
+Overview
+Landscape is Canonical's centralized systems management solution for Ubuntu. It provides administrators with a secure, web-based dashboard for managing thousands of systems in production and development environments. Landscape simplifies patching, automation, compliance, reporting, and user access control.
+
+What is Landscape?
+
+Canonical’s management platform for Ubuntu infrastructure
+
+Web-based interface for overseeing thousands of systems
+
+Enables patching, package updates, compliance reporting, and automation
+
+Think of it as "Red Hat Satellite for Ubuntu".
+
+Key Features
+
+System inventory and registration overview
+
+Live metrics: memory, disk, CPU usage
+
+Update/package management
+
+Script execution across systems
+
+Tagging, user/group management
+
+Role-based access control and audit logging
+
+Architecture Overview
+This diagram illustrates how components of Landscape interact:
+
+Clients run the landscape-client service, reporting to the Landscape Server.
+
+The server handles requests and task execution via the job handler and message server.
+
+All data is persisted in the PostgreSQL backend, and communication happens securely over HTTPS.
+
+Admins interact via the Apache web UI, issuing commands and reviewing dashboards.
+
+
+
+Landscape Server: Self-hosted or cloud-based
+
+Clients: Ubuntu systems with landscape-client
+
+Database: PostgreSQL backend
+
+Communication: HTTPS (port 443)
+
+Core Components
+
+Web Frontend
+
+Service: apache2
+
+Purpose: Hosts the Landscape web UI and API
+
+Port: 443 (HTTPS)
+
+Config Path: /etc/apache2/sites-enabled/landscape.conf
+
+Application Services
+
+landscape-server: Core service
+
+landscape-job-handler: Processes updates and scripts
+
+landscape-message-server: Handles client-server comms
+
+landscape-package-upload-service: For custom package upload workflows
+
+Database
+
+Service: postgresql
+
+Data Path: /var/lib/postgresql/
+
+Backup: Nightly dumps + offsite sync
+
+Clients
+
+Package: landscape-client
+
+Config: /etc/landscape/client.conf
+
+Communication: Every 5 minutes
+
+Firewall Ports
+
+Inbound 443/tcp: Web UI/API
+
+Inbound 22/tcp: SSH admin access
+
+Outbound 80/443/tcp: Ubuntu mirrors (optional)
+
+Internal 5432/tcp: PostgreSQL access
+
+Backup & DR Strategy
+
+Schedule: Daily at 2 AM
+
+Tools: pg_dump, rsync
+
+Retention: 14 days on-site, 30 days off-site (S3)
+
+RPO: < 1 day
+
+RTO: < 2 hours
+
+Monitoring & Logging
+Not currently implemented.
+
+Prometheus Node Exporter (planned)
+
+System logs via rsyslog (planned)
+
+Alerts via AlertManager (planned)
