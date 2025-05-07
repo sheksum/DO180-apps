@@ -51,3 +51,29 @@ echo "The original temperature, $temp, converted is $converted.";
 
     </body>
 </html>
+
+
+
+
+
+
+#!/bin/bash
+
+DBS=(
+  "landscape-standalone-account-1"
+  "landscape-standalone-knowledge"
+  "landscape-standalone-main"
+  "landscape-standalone-package"
+  "landscape-standalone-resource-1"
+  "landscape-standalone-session"
+)
+
+for db in "${DBS[@]}"; do
+  echo "Checking $db..."
+  TABLES=$(sudo -u postgres psql -d "$db" -Atc "SELECT tablename FROM pg_tables WHERE schemaname='public';")
+  for tbl in $TABLES; do
+    echo "  -> Scanning table: $tbl"
+    sudo -u postgres psql -d "$db" -c "SELECT * FROM \"$tbl\" WHERE id = 12 OR alert_id = 12 LIMIT 1;" 2>/dev/null | grep -q "rows)" && \
+      echo "    >> Match found in $db.$tbl"
+  done
+done
