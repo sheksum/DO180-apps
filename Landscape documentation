@@ -116,3 +116,59 @@ Prometheus Node Exporter (planned)
 System logs via rsyslog (planned)
 
 Alerts via AlertManager (planned)
+
+
+
+
+Client Registration (Manual)
+
+Install the client:
+
+sudo apt-get update
+sudo apt-get install landscape-client
+
+Copy server certificate:
+
+scp user@<server>:/etc/landscape/landscape.pem /etc/landscape/
+
+Register the client:
+
+sudo landscape-config \
+  --computer-title "$(hostname)" \
+  --account-name standalone \
+  --url https://10.172.249.104/message-system \
+  --ping-url http://10.172.249.104/ping \
+  --ssl-public-key /etc/landscape/landscape.pem
+
+Client Registration (Ansible - Multiple Machines)
+
+Certificate copied to: files/landscape-server.pem
+
+Target systems listed in: inventory
+
+Register clients:
+
+ansible-playbook -i inventory register_landscape_clients.yml
+
+Re-register:
+
+ansible-playbook -i inventory register_landscape_clients.yml --tags reset
+
+Use Cases
+
+Patch automation across 1000s of systems
+
+Audit and compliance visibility
+
+Custom health-check and deployment scripts
+
+System grouping by team, environment, or role
+
+Success Criteria
+
+Systems appear in Dashboard > Computers > Pending
+
+Clients communicate every 5 minutes
+
+Updates and scripts can be executed from the UI
+
