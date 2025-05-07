@@ -99,6 +99,8 @@ Service: apache2
 Purpose: Hosts the Landscape web UI and API interface
 Port: 443 (HTTPS)
 Config Path: /etc/apache2/sites-enabled/landscape.conf
+
+
 2. Application Services
 All managed by systemd or Supervisor depending on setup:
 
@@ -107,14 +109,19 @@ landscape-server	Main application server
 landscape-job-handler	Processes queued tasks (updates, scripts)
 landscape-message-server	Manages client-server communication
 landscape-package-upload-service	Handles custom package uploads (if used)
+
+
 3. Database
 Type: PostgreSQL
 Service: postgresql
 Data Path: /var/lib/postgresql/
 Backup Strategy: Nightly dumps via cron + offsite storage
+
+
 4. Messaging (Optional/Advanced)
 RabbitMQ can be deployed for enhanced message queuing
 Not currently in use in this deployment
+
 5. Landscape Clients
 All managed Ubuntu systems have:
 landscape-client installed
@@ -178,3 +185,28 @@ Critical service RPO < 1 day, RTO < 2 hours
         name: landscape-client
         state: restarted
 
+
+
+Title:
+Setup and Configure Ubuntu Landscape On-Premise for Client Registration
+
+Description:
+Set up Ubuntu Landscape On-Premise server to enable centralized system monitoring, software management, and lifecycle operations for all Ubuntu hosts.
+
+This task includes server-side configuration, certificate distribution, and client registration (manual and automated).
+
+Acceptance Criteria:
+
+ Landscape server is reachable via HTTPS (e.g., https://10.172.249.104)
+ Self-signed certificate is generated and exported to clients
+ landscape-client package is installed on target systems
+ At least one system is successfully registered and visible in the Landscape dashboard
+ Ansible playbook is in place for bulk registration
+ API credentials are generated and securely stored
+ Documentation is published to Confluence (manual + automated registration)
+Attachments/Links:
+
+Confluence Setup Guide: [link to Confluence page]
+Certificate path: /etc/landscape/landscape.pem
+Playbook: register_landscape_clients.yml
+Labels: landscape, infrastructure, automation
