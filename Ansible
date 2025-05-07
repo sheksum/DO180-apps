@@ -36,6 +36,10 @@ Web-based dashboard for managing thousands of systems
 Includes patching, package control, reporting, user/group management
 Speaker Notes:
 “Think of it as Red Hat Satellite for Ubuntu — tailored for Ubuntu/Debian systems, especially useful when managing large-scale fleets.”
+
+
+
+
 Slide 3: Key Features
 
 Inventory of all registered Ubuntu machines
@@ -86,6 +90,64 @@ Speaker Notes:
 “Landscape is our go-to for managing Ubuntu infrastructure centrally and securely. It scales and simplifies routine ops.”
 Let me know if you’d like this turned into a slide deck, markdown doc, or PDF.
 
+
+
+Core Components
+
+1. Web Frontend
+Service: apache2
+Purpose: Hosts the Landscape web UI and API interface
+Port: 443 (HTTPS)
+Config Path: /etc/apache2/sites-enabled/landscape.conf
+2. Application Services
+All managed by systemd or Supervisor depending on setup:
+
+Service	Description
+landscape-server	Main application server
+landscape-job-handler	Processes queued tasks (updates, scripts)
+landscape-message-server	Manages client-server communication
+landscape-package-upload-service	Handles custom package uploads (if used)
+3. Database
+Type: PostgreSQL
+Service: postgresql
+Data Path: /var/lib/postgresql/
+Backup Strategy: Nightly dumps via cron + offsite storage
+4. Messaging (Optional/Advanced)
+RabbitMQ can be deployed for enhanced message queuing
+Not currently in use in this deployment
+5. Landscape Clients
+All managed Ubuntu systems have:
+landscape-client installed
+Registered using /etc/landscape/client.conf
+Communicates every 5 minutes by default
+Firewall & Access Control
+
+Direction	Port	Protocol	Description
+Inbound	443	TCP	Web access to UI/API
+Inbound	22	TCP	SSH admin access
+Outbound	80/443	TCP	Ubuntu package mirrors (optional)
+Internal traffic	5432	TCP	PostgreSQL access
+Data Backup
+
+Schedule: Daily at 2 AM
+Tools Used: pg_dump for PostgreSQL, rsync for app config
+Retention: 14 days on-site, 30 days off-site (S3)
+Monitoring
+
+Internal Monitoring: Prometheus node exporter
+Logging: System logs via rsyslog and archived daily
+Alerting: Integrated with CAAL AlertManager
+Tags / Metadata in Landscape
+
+Hosts are grouped by:
+Environment: prod, qa, dev
+Application: e.g., web, db, infra
+Role: e.g., landscape-client, monitoring-node
+Disaster Recovery
+
+PostgreSQL restores validated weekly
+App config stored in Git and restored via Ansible
+Critical service RPO < 1 day, RTO < 2 hours
 
 
 =========
