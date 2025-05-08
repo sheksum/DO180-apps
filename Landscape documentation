@@ -1,174 +1,59 @@
-Ubuntu Landscape – Centralized Ubuntu Systems Management
+Resolution Steps
+1. Confirm NVML Error
 
-Overview
-Landscape is Canonical's centralized systems management solution for Ubuntu. It provides administrators with a secure, web-based dashboard for managing thousands of systems in production and development environments. Landscape simplifies patching, automation, compliance, reporting, and user access control.
+nvidia-smi
+Output:
 
-What is Landscape?
+Failed to initialize NVML: Driver/library version mismatch
+2. Fully Remove Existing NVIDIA Components
 
-Canonical’s management platform for Ubuntu infrastructure
+sudo apt purge 'nvidia*' 'libnvidia*' 'xserver-xorg-video-nvidia*'
+sudo apt autoremove --purge
+3. Update Package Index
 
-Web-based interface for overseeing thousands of systems
+sudo apt update
+4. Reinstall NVIDIA Driver
 
-Enables patching, package updates, compliance reporting, and automation
+Temporarily move APT pin if in place:
 
-Think of it as "Red Hat Satellite for Ubuntu".
+sudo mv /etc/apt/preferences.d/nvidia-block /root/
+Then reinstall:
 
-Key Features
+sudo apt install nvidia-driver-535 nvidia-utils-535
+Reapply APT pin after:
 
-System inventory and registration overview
+sudo mv /root/nvidia-block /etc/apt/preferences.d/
+5. Rebuild DKMS Kernel Modules (if needed)
 
-Live metrics: memory, disk, CPU usage
+sudo dkms autoinstall
+dkms status
+Look for:
 
-Update/package management
+nvidia/535.230.02, 6.8.0-59-generic, x86_64: installed
+6. Reboot
 
-Script execution across systems
+sudo reboot
+7. Verify Post-Reboot
 
-Tagging, user/group management
+nvidia-smi
+GPU Support for Docker Containers
+8. Install NVIDIA Container Toolkit
 
-Role-based access control and audit logging
+sudo apt install -y nvidia-container-toolkit
+9. Configure Docker Runtime
 
-Architecture Overview
-This diagram illustrates how components of Landscape interact:
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+10. Test with CUDA Container
 
-Clients run the landscape-client service, reporting to the Landscape Server.
+docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
+Let me know if you’d like this in a downloadable format or ready-to-paste markdown for Confluence.
 
-The server handles requests and task execution via the job handler and message server.
+You said:
+Title the confluence page
+ChatGPT said:
+Here’s a complete title and subtitle for your Confluence page:
 
-All data is persisted in the PostgreSQL backend, and communication happens securely over HTTPS.
+[RESOLVED] NVIDIA Driver/Library Mismatch & Docker GPU Error on Ubuntu Workstation
 
-Admins interact via the Apache web UI, issuing commands and reviewing dashboards.
-
-
-
-Landscape Server: Self-hosted or cloud-based
-
-Clients: Ubuntu systems with landscape-client
-
-Database: PostgreSQL backend
-
-Communication: HTTPS (port 443)
-
-Core Components
-
-Web Frontend
-
-Service: apache2
-
-Purpose: Hosts the Landscape web UI and API
-
-Port: 443 (HTTPS)
-
-Config Path: /etc/apache2/sites-enabled/landscape.conf
-
-Application Services
-
-landscape-server: Core service
-
-landscape-job-handler: Processes updates and scripts
-
-landscape-message-server: Handles client-server comms
-
-landscape-package-upload-service: For custom package upload workflows
-
-Database
-
-Service: postgresql
-
-Data Path: /var/lib/postgresql/
-
-Backup: Nightly dumps + offsite sync
-
-Clients
-
-Package: landscape-client
-
-Config: /etc/landscape/client.conf
-
-Communication: Every 5 minutes
-
-Firewall Ports
-
-Inbound 443/tcp: Web UI/API
-
-Inbound 22/tcp: SSH admin access
-
-Outbound 80/443/tcp: Ubuntu mirrors (optional)
-
-Internal 5432/tcp: PostgreSQL access
-
-Backup & DR Strategy
-
-Schedule: Daily at 2 AM
-
-Tools: pg_dump, rsync
-
-Retention: 14 days on-site, 30 days off-site (S3)
-
-RPO: < 1 day
-
-RTO: < 2 hours
-
-Monitoring & Logging
-Not currently implemented.
-
-Prometheus Node Exporter (planned)
-
-System logs via rsyslog (planned)
-
-Alerts via AlertManager (planned)
-
-
-
-
-Client Registration (Manual)
-
-Install the client:
-
-sudo apt-get update
-sudo apt-get install landscape-client
-
-Copy server certificate:
-
-scp user@<server>:/etc/landscape/landscape.pem /etc/landscape/
-
-Register the client:
-
-sudo landscape-config \
-  --computer-title "$(hostname)" \
-  --account-name standalone \
-  --url https://10.172.249.104/message-system \
-  --ping-url http://10.172.249.104/ping \
-  --ssl-public-key /etc/landscape/landscape.pem
-
-Client Registration (Ansible - Multiple Machines)
-
-Certificate copied to: files/landscape-server.pem
-
-Target systems listed in: inventory
-
-Register clients:
-
-ansible-playbook -i inventory register_landscape_clients.yml
-
-Re-register:
-
-ansible-playbook -i inventory register_landscape_clients.yml --tags reset
-
-Use Cases
-
-Patch automation across 1000s of systems
-
-Audit and compliance visibility
-
-Custom health-check and deployment scripts
-
-System grouping by team, environment, or role
-
-Success Criteria
-
-Systems appear in Dashboard > Computers > Pending
-
-Clients communicate every 5 minutes
-
-Updates and scripts can be executed from the UI
-
+AI Workstation (10.172.249.149) – NVML Initialization Failure & Container GPU Runtime Fix
