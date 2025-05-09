@@ -1,59 +1,122 @@
-Resolution Steps
-1. Confirm NVML Error
+Red Hat Satellite Documentation
 
-nvidia-smi
-Output:
+Overview
 
-Failed to initialize NVML: Driver/library version mismatch
-2. Fully Remove Existing NVIDIA Components
+Red Hat Satellite is a systems management solution designed to help organizations manage their Red Hat Enterprise Linux (RHEL) infrastructure. It streamlines tasks such as system provisioning, patch management, subscription management, configuration enforcement, and compliance reporting across both connected and disconnected environments.
 
-sudo apt purge 'nvidia*' 'libnvidia*' 'xserver-xorg-video-nvidia*'
-sudo apt autoremove --purge
-3. Update Package Index
+Satellite integrates closely with Red Hat Subscription Management and provides lifecycle environments, content views, and automation capabilities to maintain control and consistency in large-scale RHEL environments.
 
-sudo apt update
-4. Reinstall NVIDIA Driver
+URL: https://pln-satellite01.caal.dev
 
-Temporarily move APT pin if in place:
+Key Components
 
-sudo mv /etc/apt/preferences.d/nvidia-block /root/
-Then reinstall:
+1. Capsule Server:
 
-sudo apt install nvidia-driver-535 nvidia-utils-535
-Reapply APT pin after:
+Acts as a proxy for the main Satellite server.
 
-sudo mv /root/nvidia-block /etc/apt/preferences.d/
-5. Rebuild DKMS Kernel Modules (if needed)
+Distributes content and performs remote execution closer to client systems.
 
-sudo dkms autoinstall
-dkms status
-Look for:
+2. Content Views:
 
-nvidia/535.230.02, 6.8.0-59-generic, x86_64: installed
-6. Reboot
+Version-controlled snapshots of repositories.
 
-sudo reboot
-7. Verify Post-Reboot
+Include filters to control what packages/errata are visible to systems.
 
-nvidia-smi
-GPU Support for Docker Containers
-8. Install NVIDIA Container Toolkit
+3. Lifecycle Environments:
 
-sudo apt install -y nvidia-container-toolkit
-9. Configure Docker Runtime
+Organize systems by environment (Dev, QA, Prod).
 
-sudo nvidia-ctk runtime configure --runtime=docker
-sudo systemctl restart docker
-10. Test with CUDA Container
+Content is promoted across these stages in a controlled way.
 
-docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
-Let me know if you’d like this in a downloadable format or ready-to-paste markdown for Confluence.
+4. Activation Keys:
 
-You said:
-Title the confluence page
-ChatGPT said:
-Here’s a complete title and subtitle for your Confluence page:
+Define how systems are registered (e.g., subscriptions, content views, host groups).
 
-[RESOLVED] NVIDIA Driver/Library Mismatch & Docker GPU Error on Ubuntu Workstation
+Often associated with a specific lifecycle environment.
 
-AI Workstation (10.172.249.149) – NVML Initialization Failure & Container GPU Runtime Fix
+5. Host Groups:
+
+Define provisioning defaults (e.g., Puppet classes, subnet, OS, content view).
+
+Used during registration to auto-assign policies.
+
+6. Hammer CLI:
+
+Command-line tool to interact with Satellite.
+
+Useful for automation, scripting, and pipelines.
+
+Host Registration
+
+Single Host Registration
+
+To register a single host:
+
+SSH into the Satellite server:
+
+ssh <your_username>@pln-satellite01.caal.dev
+
+Switch to root:
+
+sudo su -
+
+Generate the command using hammer:
+
+hammer host-registration generate-command \
+  --activation-keys <activation_key> \
+  --organization "Calix org" \
+  --location "Plano Texas" \
+  [--hostgroup "<hostgroup_name>"] \
+  --insecure 1 --setup-insights 0 --force 1
+
+Note: If the system is not part of a hostgroup, omit the --hostgroup parameter.
+
+Bulk Registration (Multiple Hosts)
+
+To do a bulk registration:
+
+Generate the registration command as the root user on the Satellite server:
+
+ssh <your_username>@pln-satellite01.caal.dev
+sudo su -
+hammer host-registration generate-command ...
+
+Update your hosts.txt file with the list of systems to be registered:
+
+slcsmx-cluc-01
+slcsmx-cluc-02
+10.172.249.120
+
+Note: Ensure you’re using the correct activation key based on the OS version:
+
+For RHEL 9 systems, use the rhel9 activation key.
+
+For RHEL 8 systems, use the rhel8 activation key.
+
+Update your script with the full command string returned by hammer, starting after sudo su - -c.
+
+Example Script:
+
+for host in $(cat hosts.txt); do
+  echo "Registering $host..."
+  ssh deploy@$host "sudo su - -c '
+    curl -sS --insecure "https://pln-satellite01.caal.dev/register?activation_keys=rhel9&hostgroup_id=22&setup_insights=true&force=true" \
+    -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\"
+    | bash
+    ; exit'
+  "
+done
+
+After registration, validate that you can see the host in the Satellite Web UI.
+
+Best Practices
+
+Use separate activation keys per RHEL version (e.g., one for RHEL 8 and one for RHEL 9).
+
+Automate content promotion between lifecycle environments.
+
+Regularly expire and prune outdated content views.
+
+Monitor host subscription and patch status via Satellite dashboard or Insights.
+
+For more, refer to: https://access.redhat.com/documentation/en-us/red_hat_satellite/
