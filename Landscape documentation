@@ -1,122 +1,51 @@
-Red Hat Satellite Documentation
+🛠️ Setting Up Your Deploy Key
 
-Overview
+1. Retrieve the Private Key
+Open LastPass and locate the saved deploy private key.
+Copy the entire key, ensuring it includes:
+-----BEGIN OPENSSH PRIVATE KEY-----
+...
+-----END OPENSSH PRIVATE KEY-----
+2. Create the Key File
+vi ~/.ssh/deploy_key
+Paste the key and save the file.
+3. Set File Permissions
+chmod 600 ~/.ssh/deploy_key
+4. Add the Key to Your Session
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/deploy_key
+5. Auto-load the Key on Login
+Edit your ~/.bash_profile or ~/.bashrc:
 
-Red Hat Satellite is a systems management solution designed to help organizations manage their Red Hat Enterprise Linux (RHEL) infrastructure. It streamlines tasks such as system provisioning, patch management, subscription management, configuration enforcement, and compliance reporting across both connected and disconnected environments.
+# ~/.bash_profile
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/deploy_key
+Then reload:
 
-Satellite integrates closely with Red Hat Subscription Management and provides lifecycle environments, content views, and automation capabilities to maintain control and consistency in large-scale RHEL environments.
+source ~/.bash_profile
+6. Test SSH Access
+ssh deploy@<hostname>
+⚠️ If it fails, it may be because:
+The deploy user does not exist on the target system, or
+The public key is missing from /opt/home/deploy/.ssh/authorized_keys.
+👤 Setting Up the deploy User Remotely
 
-URL: https://pln-satellite01.caal.dev
+1. Clone the Git Repo
+git clone http://stash.calix.local/scm/hsuma/infra-dev.git
+cd infra-dev
+2. Run the Ansible Playbook
+ansible-playbook deploy-user-setup.yml -i <inventory_file>
+Replace <inventory_file> with the path to your Ansible inventory.
+Let me know if you want this as a downloadable .txt or .md for backup.
 
-Key Components
 
-1. Capsule Server:
 
-Acts as a proxy for the main Satellite server.
 
-Distributes content and performs remote execution closer to client systems.
 
-2. Content Views:
 
-Version-controlled snapshots of repositories.
 
-Include filters to control what packages/errata are visible to systems.
 
-3. Lifecycle Environments:
 
-Organize systems by environment (Dev, QA, Prod).
 
-Content is promoted across these stages in a controlled way.
 
-4. Activation Keys:
-
-Define how systems are registered (e.g., subscriptions, content views, host groups).
-
-Often associated with a specific lifecycle environment.
-
-5. Host Groups:
-
-Define provisioning defaults (e.g., Puppet classes, subnet, OS, content view).
-
-Used during registration to auto-assign policies.
-
-6. Hammer CLI:
-
-Command-line tool to interact with Satellite.
-
-Useful for automation, scripting, and pipelines.
-
-Host Registration
-
-Single Host Registration
-
-To register a single host:
-
-SSH into the Satellite server:
-
-ssh <your_username>@pln-satellite01.caal.dev
-
-Switch to root:
-
-sudo su -
-
-Generate the command using hammer:
-
-hammer host-registration generate-command \
-  --activation-keys <activation_key> \
-  --organization "Calix org" \
-  --location "Plano Texas" \
-  [--hostgroup "<hostgroup_name>"] \
-  --insecure 1 --setup-insights 0 --force 1
-
-Note: If the system is not part of a hostgroup, omit the --hostgroup parameter.
-
-Bulk Registration (Multiple Hosts)
-
-To do a bulk registration:
-
-Generate the registration command as the root user on the Satellite server:
-
-ssh <your_username>@pln-satellite01.caal.dev
-sudo su -
-hammer host-registration generate-command ...
-
-Update your hosts.txt file with the list of systems to be registered:
-
-slcsmx-cluc-01
-slcsmx-cluc-02
-10.172.249.120
-
-Note: Ensure you’re using the correct activation key based on the OS version:
-
-For RHEL 9 systems, use the rhel9 activation key.
-
-For RHEL 8 systems, use the rhel8 activation key.
-
-Update your script with the full command string returned by hammer, starting after sudo su - -c.
-
-Example Script:
-
-for host in $(cat hosts.txt); do
-  echo "Registering $host..."
-  ssh deploy@$host "sudo su - -c '
-    curl -sS --insecure "https://pln-satellite01.caal.dev/register?activation_keys=rhel9&hostgroup_id=22&setup_insights=true&force=true" \
-    -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\"
-    | bash
-    ; exit'
-  "
-done
-
-After registration, validate that you can see the host in the Satellite Web UI.
-
-Best Practices
-
-Use separate activation keys per RHEL version (e.g., one for RHEL 8 and one for RHEL 9).
-
-Automate content promotion between lifecycle environments.
-
-Regularly expire and prune outdated content views.
-
-Monitor host subscription and patch status via Satellite dashboard or Insights.
-
-For more, refer to: https://access.redhat.com/documentation/en-us/red_hat_satellite/
+ChatGPT can make mistakes. Check important info.
