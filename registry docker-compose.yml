@@ -27,3 +27,33 @@ services:
     depends_on:
       - registry
     restart: always
+
+  nginx-ui-proxy:
+    image: nginx:latest
+    container_name: nginx-ui-proxy
+    ports:
+      - "443:443"
+    volumes:
+      - /opt/registry/certs:/etc/nginx/certs:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - registry-ui
+    restart: always
+
+
+    events {}
+
+http {
+  server {
+    listen 443 ssl;
+
+    ssl_certificate /etc/nginx/certs/domain.crt;
+    ssl_certificate_key /etc/nginx/certs/domain.key;
+
+    location / {
+      proxy_pass http://registry-ui:80;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+    }
+  }
+}
