@@ -1,15 +1,11 @@
 
-Summary of Storage Remediation on pln-aidev01.caal.dev
-	•	Identified /var/lib/docker as the main contributor to root filesystem usage (~138 GB).
-	•	Provisioned a new 2TB logical volume dockerlv from volume group datavg.
-	•	Formatted and mounted dockerlv at /var/lib/docker to offload Docker data from the root filesystem.
-	•	Stopped docker and docker.socket services for safe data migration.
-	•	Backed up original Docker data to /datamount/docker.bak for rollback, if needed.
-	•	Restarted Docker successfully. Containers are now running (adminer, postgres), and system functionality is restored.
-	•	Verified /var/lib/docker is now mounted on the new LVM volume with only 8% used.
-	•	System disk pressure has been relieved, and no user-facing impact occurred.
 
+Subject: BGP Peering and Calico Felix Readiness Failure
 
+Hi Tigera Support,
 
-# DO180-apps
-DO180 Repository for Sample Applications
+We’re experiencing an issue where Calico BGP peering intermittently resets. Logs show the following readiness probe failure:
+
+This occurred shortly after a general network “blip” around 3 PM. BFD and BGP sessions dropped and have since recovered, but one node is currently only peered with one ToR instead of both.
+
+Please advise on how we can further investigate or resolve this issue
