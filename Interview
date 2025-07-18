@@ -1,72 +1,128 @@
-Senior Infrastructure Reliability Engineer – Interview Evaluation Sheet
-Candidate Name: ______________________
-Date: ________________________________
-Interviewer: __________________________
-Role: Senior Infrastructure Reliability Engineer
+# Align Ceph Hosts with Static Worker Node Count
 
-Python Automation (ESXi Recovery)
-Prompt:
-Walk me through the ESXi recovery script you built—specifically, how you handled edge cases like stale sessions, mid-failure vMotions, and vCenter flapping.
-Follow-up: If Slack API returns 429s, how would your retry logic adapt?
-Candidate Response:
-_✎ (Editable Notes)_
-Score (1–5): ___
-Comments:
-___________________________________________________
-___________________________________________________
+## Goal
+Ensure that all static worker nodes are present in the Ceph cluster. Identify any nodes that are missing, wipe their disks if previously used as hypervisors, and allow Ceph to detect them.
 
-Hybrid Infra Design – Overlapping IPs
-Prompt:
-Design a secure hybrid network for an org with overlapping CIDRs between AWS and on-prem vSphere. You can’t re-IP. Include DNS, IAM, and segmentation.
-Candidate Response:
-_✎ (Editable Notes)_
-Score (1–5): ___
-Comments:
-___________________________________________________
-___________________________________________________
+---
 
-Monitoring & Metrics Tuning
-Prompt:
-Which Prometheus metric alerted you wrongly in the past—and how did you fix the false positive? Show me how you tuned it or removed it.
-Candidate Response:
-_✎ (Editable Notes)_
-Score (1–5): ___
-Comments:
-___________________________________________________
-___________________________________________________
+## 1. Identify Missing Nodes in Ceph
 
-Terraform-Ansible Failure Scenario
-Prompt:
-Terraform is done provisioning, but Ansible starts failing randomly on one region. You can’t SSH manually due to bastion firewall policy. What do you do?
-Candidate Response:
-_✎ (Editable Notes)_
-Score (1–5): ___
-Comments:
-___________________________________________________
-___________________________________________________
+```bash
+# Access the Ceph tools pod
+kubectl exec -it rook-ceph-tools-<id> -n rook-ceph -- bash
 
-Production Incident – Time-Based Bug
-Prompt:
-An app has a 30% failure rate only on Mondays. Logs are clean. Dev team says infra is fine. What do you actually investigate?
-Candidate Response:
-_✎ (Editable Notes)_
-Score (1–5): ___
-Comments:
-___________________________________________________
-___________________________________________________
+# List current hosts in Ceph
+ceph osd tree
+```
 
-Overall Evaluation
-Criteria	Score (1–5)
-Technical Depth	
-Real-World Problem Solving	
-Communication Clarity	
-Troubleshooting Under Pressure	
-Cross-Team Thinking	
+Then compare with the Kubernetes node list:
 
-Final Recommendation:
-☐ Strong Hire  ☐ Hire  ☐ Lean No  ☐ Strong No
+```bash
+kubectl get nodes
+```
 
-Final Notes:
-_✎ (Summary, concerns, strengths)_
-___________________________________________________
-___________________________________________________
+Identify any node that appears in `kubectl get nodes` but not in `ceph osd tree`.
+
+---
+
+## 2. Drain and Access the Node
+
+```bash
+kubectl drain <node-name>
+ssh <node-name>
+sudo su -
+```
+
+---
+
+## 3. Clean the Disk
+
+### List Disks
+```bash
+lsblk
+blkid
+```
+
+Check for any disks with Linux software RAID headers or previous Ceph usage.
+
+### Stop RAID if present
+```bash
+mdadm --stop /dev/mdX
+```
+
+### Wipe Beginning of Disk
+```bash
+wipefs -a /dev/sdX
+dd if=/dev/zero of=/dev/sdX bs=1M count=10
+```
+
+### Check Disk Size
+```bash
+fdisk -l /dev/sdX
+```
+
+Sample output:
+```
+Disk /dev/sdX: 549 MiB, 575668224 bytes, ...
+```
+
+---
+
+## 4. Scrub the End of the Disk
+
+To ensure all trailing metadata is removed, subtract 5 MiB (5242880 bytes) from the total disk size:
+
+```bash
+# Remove trailing metadata
+dd if=/dev/zero of=/dev/sdX bs=512 seek=$(( (575668224 - 5242880) / 512 )) count=10240
+```
+
+> Replace `575668224` with the actual byte size from your `fdisk` output.
+
+---
+
+## 5. Delete Machine Resources
+
+### Find the Associated Machine
+```bash
+kubectl get machines -A -o wide | grep <node-name>
+```
+
+### Delete Both Machine and Metal3Machine
+```bash
+kubectl delete machine <machine-name> -n <namespace>
+kubectl delete metal3machine <metal3machine-name> -n <namespace>
+```
+
+---
+
+## 6. Trigger Node Remediation
+
+### Check Remediation Status
+```bash
+kubectl get metal3remediation -n <namespace>
+```
+
+If `RETRY COUNT` has reached the `RETRY LIMIT`, bump the limit to retrigger:
+
+```bash
+kubectl patch metal3remediation <remediation-name>   -n <namespace> --type merge   -p '{"spec": {"retryLimit": <new-value>}}'
+```
+
+Example:
+```bash
+kubectl patch metal3remediation kvalgen-1-workload-static-workers-m69nk-kvsn7   -n kvalgen-1 --type merge   -p '{"spec": {"retryLimit": 3}}'
+```
+
+Then watch for the remediation to kick off:
+```bash
+kubectl get metal3remediation -n <namespace> <remediation-name> -w
+```
+
+---
+
+## 7. Restart Rook Operator to Detect Cleaned Disks
+
+```bash
+kubectl rollout restart deployment/rook-ceph-operator -n rook-ceph
+```
