@@ -1,1 +1,23 @@
-python3 -c "import bcrypt; print(f'admin:{bcrypt.hashpw(b\"admin\", bcrypt.gensalt()).decode()}')" > .htpasswd
+#!/bin/bash
+
+REGISTRY="plnx-ai-registry.calix.local:5000"
+
+while IFS= read -r image; do
+  echo "Processing: $image"
+
+  # Strip docker.io/ if present
+  local_image="${image#docker.io/}"
+
+  # Pull original image
+  docker pull "$image"
+
+  # Tag to your local registry
+  docker tag "$image" "$REGISTRY/$local_image"
+
+  # Push to your registry
+  docker push "$REGISTRY/$local_image"
+
+  # (Optional) Remove images to free space
+  docker rmi "$image" "$REGISTRY/$local_image"
+
+done < images.txt
