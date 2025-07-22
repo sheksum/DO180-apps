@@ -1,14 +1,9 @@
-#!/bin/bash
+Update on Docker Registry Setup
 
-# File containing iDRAC hostnames
-idrac_list="idrac_hosts.txt"
-
-# Credentials
-user="redfin"
-password="YourPasswordHere"
-
-# Loop through hostnames and power on
-while IFS= read -r host; do
-  echo "Powering on $host"
-  sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$user@$host" racadm serveraction powerup
-done < "$idrac_list"
+Deployed a private Docker registry (registry:2) with TLS enabled using signed certificates.
+Integrated the [Konradkleine] Docker Registry Frontend UI and made it accessible via HTTPS using an nginx reverse proxy container.
+Successfully mirrored Docker Hub by enabling proxy caching (REGISTRY_PROXY_REMOTEURL) — this allows caching of images locally.
+Restricted all client systems from pulling images directly from Docker Hub (registry-1.docker.io) using firewall rules and daemon config enforcement.
+Verified image pulls (e.g., nginx, httpd) are served from our internal registry and UI reflects available images.
+SSL validation confirmed via curl and browser.
+Nginx, UI, and registry services are containerized and managed via docker-compose.
