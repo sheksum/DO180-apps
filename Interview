@@ -1,23 +1,14 @@
 #!/bin/bash
 
-REGISTRY="plnx-ai-registry.calix.local:5000"
+# File containing iDRAC hostnames
+idrac_list="idrac_hosts.txt"
 
-while IFS= read -r image; do
-  echo "Processing: $image"
+# Credentials
+user="redfin"
+password="YourPasswordHere"
 
-  # Strip docker.io/ if present
-  local_image="${image#docker.io/}"
-
-  # Pull original image
-  docker pull "$image"
-
-  # Tag to your local registry
-  docker tag "$image" "$REGISTRY/$local_image"
-
-  # Push to your registry
-  docker push "$REGISTRY/$local_image"
-
-  # (Optional) Remove images to free space
-  docker rmi "$image" "$REGISTRY/$local_image"
-
-done < images.txt
+# Loop through hostnames and power on
+while IFS= read -r host; do
+  echo "Powering on $host"
+  sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$user@$host" racadm serveraction powerup
+done < "$idrac_list"
