@@ -1,9 +1,14 @@
-Update on Docker Registry Setup
+#!/bin/bash
 
-Deployed a private Docker registry (registry:2) with TLS enabled using signed certificates.
-Integrated the [Konradkleine] Docker Registry Frontend UI and made it accessible via HTTPS using an nginx reverse proxy container.
-Successfully mirrored Docker Hub by enabling proxy caching (REGISTRY_PROXY_REMOTEURL) — this allows caching of images locally.
-Restricted all client systems from pulling images directly from Docker Hub (registry-1.docker.io) using firewall rules and daemon config enforcement.
-Verified image pulls (e.g., nginx, httpd) are served from our internal registry and UI reflects available images.
-SSL validation confirmed via curl and browser.
-Nginx, UI, and registry services are containerized and managed via docker-compose.
+NAMESPACE="calico-system"
+LABEL="k8s-app=calico-node"
+CONTAINER="calico-node"
+
+echo "=== Checking Calico BGP Peering on all nodes ==="
+
+PODS=$(kubectl get pods -n $NAMESPACE -l $LABEL -o jsonpath='{.items[*].metadata.name}')
+
+for pod in $PODS; do
+  echo -e "\n>>> $pod <<<"
+  kubectl exec -n $NAMESPACE "$pod" -c $CONTAINER -- birdc show protocols all || echo "Failed to exec into $pod"
+done
