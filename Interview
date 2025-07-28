@@ -5,7 +5,8 @@ NAMESPACE="calico-system"
 LABEL="k8s-app=calico-node"
 COMPONENT="calico-node"
 CMD="birdcl show protocols"
-OUTPUT_FILE="/tmp/calico_bgp_peering_$(date +%Y%m%d_%H%M%S).log"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+OUTPUT_FILE="/tmp/calico_bgp_peering_${TIMESTAMP}.log"
 
 # Colors
 YELLOW='\033[1;33m'
@@ -14,23 +15,26 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${YELLOW}[INFO] Checking Calico BGP peering protocols on all nodes...${NC}"
-echo -e "[INFO] Logs will be saved to: $OUTPUT_FILE\n"
+echo -e "${YELLOW}[INFO] Logs will be saved to: $OUTPUT_FILE${NC}\n"
 
 # Get calico-node pods
 pods=$(kubectl get pods -n "$NAMESPACE" -l "$LABEL" -o jsonpath='{.items[*].metadata.name}')
 
-# Iterate through pods and write output to the file
+# Iterate through pods and output to both screen and log file
 {
-  echo "[INFO] Calico BGP Peering Check - $(date)"
-  echo "----------------------------------------"
+  echo "[INFO] Calico BGP Peering Check - $TIMESTAMP"
+  echo "--------------------------------------------"
   for pod in $pods; do
     echo -e "\n>>> Pod: $pod"
-    if ! kubectl exec -it "$pod" -n "$NAMESPACE" -c "$COMPONENT" -- $CMD 2>/dev/null; then
-      echo -e "[WARN] $pod: Failed to exec or run birdcl"
+    echo -e "\n>>> Pod: $pod" >&2
+
+    if ! kubectl exec -it "$pod" -n "$NAMESPACE" -c "$COMPONENT" -- $CMD; then
+      echo "[WARN] $pod: Failed to exec or run birdcl"
+      echo "[WARN] $pod: Failed to exec or run birdcl" >&2
     fi
   done
   echo -e "\n[INFO] Check completed at $(date)"
-} > "$OUTPUT_FILE"
+} | tee "$OUTPUT_FILE"
 
-echo -e "${GREEN}[DONE] Calico BGP peering check complete.${NC}"
-echo -e "View the full results with: ${YELLOW}cat $OUTPUT_FILE${NC}"
+echo -e "\n${GREEN}[DONE] Calico BGP peering check complete.${NC}"
+echo -e "${YELLOW}View the full results with: cat $OUTPUT_FILE${NC}"
