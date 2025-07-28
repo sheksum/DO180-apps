@@ -1,13 +1,13 @@
 #!/bin/bash
-echo -e "\n===== Calico Peering Report =====\n"
+echo -e "\n===== Calico BGP Peering Status Check =====\n"
 
 for pod in $(kubectl get pods -n calico-system -l k8s-app=calico-node -o jsonpath='{.items[*].metadata.name}'); do
   echo -e "\n>>> Pod: $pod <<<"
 
-  # Exec into pod and run birdc without -c (interactive)
-  kubectl exec -it "$pod" -n calico-system -- birdc show protocols 2>/dev/null
-
-  if [ $? -ne 0 ]; then
+  # Try running birdc show protocols
+  if output=$(kubectl exec -it "$pod" -n calico-system -c calico-node -- birdc show protocols 2>/dev/null); then
+    echo "$output"
+  else
     echo "⚠️  $pod: Failed to exec or run birdc"
   fi
 done
