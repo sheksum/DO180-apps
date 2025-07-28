@@ -1,14 +1,11 @@
 #!/bin/bash
 
 NAMESPACE="calico-system"
-LABEL="k8s-app=calico-node"
-CONTAINER="calico-node"
+CMD="birdc show protocols all"
 
-echo "=== Checking Calico BGP Peering on all nodes ==="
+echo "=== Calico BGP Protocol Summary ==="
 
-PODS=$(kubectl get pods -n $NAMESPACE -l $LABEL -o jsonpath='{.items[*].metadata.name}')
-
-for pod in $PODS; do
+for pod in $(kubectl get pods -n $NAMESPACE -l k8s-app=calico-node -o jsonpath='{.items[*].metadata.name}'); do
   echo -e "\n>>> $pod <<<"
-  kubectl exec -n $NAMESPACE "$pod" -c $CONTAINER -- birdc show protocols all || echo "Failed to exec into $pod"
+  kubectl exec -it -n $NAMESPACE "$pod" -- $CMD
 done
