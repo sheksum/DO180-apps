@@ -1,10 +1,28 @@
 #!/bin/bash
 
-echo "[INFO] Checking Calico BGP peering protocols on all nodes..."
-pods=$(kubectl get pods -n calico-system -l k8s-app=calico-node -o jsonpath='{.items[*].metadata.name}')
+# Config
+NAMESPACE="calico-system"
+LABEL="k8s-app=calico-node"
+COMPONENT="calico-node"
+CMD="birdcl show protocols"
 
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo -e "${YELLOW}[INFO] Checking Calico BGP peering protocols on all nodes...${NC}"
+
+# Get calico-node pods
+pods=$(kubectl get pods -n "$NAMESPACE" -l "$LABEL" -o jsonpath='{.items[*].metadata.name}')
+
+# Iterate through pods
 for pod in $pods; do
-  echo -e "\n>>> Pod: $pod <<<"
-  kubectl exec -it "$pod" -n calico-system -- birdcl show protocols 2>/dev/null || \
-    echo "[$pod] Failed to exec or run birdcl"
+  echo -e "\n>>> ${YELLOW}Pod: $pod${NC}"
+  if ! kubectl exec -it "$pod" -n "$NAMESPACE" -c "$COMPONENT" -- $CMD 2>/dev/null; then
+    echo -e "${RED}[WARN] $pod: Failed to exec or run birdcl${NC}"
+  fi
 done
+
+echo -e "\n${GREEN}[DONE] Calico BGP peering check complete.${NC}"
