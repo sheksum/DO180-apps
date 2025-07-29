@@ -1,19 +1,14 @@
-kubectl run nvidia-test \
-  --rm -it --restart=Never \
-  --image=nvcr.io/nvidia/cuda:12.2.0-base-ubuntu22.04 \
-  --overrides='
-{
-  "apiVersion": "v1",
-  "spec": {
-    "containers": [{
-      "name": "nvidia-test",
-      "image": "nvcr.io/nvidia/cuda:12.2.0-base-ubuntu22.04",
-      "resources": {
-        "limits": {
-          "nvidia.com/gpu": 1
-        }
-      },
-      "command": ["nvidia-smi"]
-    }]
-  }
-}'
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nvidia-test
+  namespace: gpu-operator
+spec:
+  restartPolicy: Never
+  containers:
+    - name: nvidia-test
+      image: nvcr.io/nvidia/cuda:12.2.0-base-ubuntu22.04
+      command: ["nvidia-smi"]
+      resources:
+        limits:
+          nvidia.com/gpu: 1
