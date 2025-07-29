@@ -1,101 +1,19 @@
-root@pln-aidev02:~# journalctl -u rke2-server.service -n 100 --no-pager
-Jul 29 02:34:13 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:13Z" level=info msg="Datastore using 12288 of 20480 bytes after defragment"
-Jul 29 02:34:13 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:13Z" level=info msg="Connection to etcd is ready"
-Jul 29 02:34:13 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:13Z" level=info msg="ETCD server is now running"
-Jul 29 02:34:13 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:13Z" level=info msg="Saving cluster bootstrap data to datastore"
-Jul 29 02:34:14 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:14Z" level=error msg="Failed to process image event: failed to import /var/lib/rancher/rke2/agent/images/kube-apiserver-image.txt: failed to pull images from /var/lib/rancher/rke2/agent/images/kube-apiserver-image.txt: image \"index.docker.io/rancher/hardened-kubernetes:v1.32.7-rke2r1-build20250716\": not found"
-Jul 29 02:34:14 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:14Z" level=info msg="Pulling images from /var/lib/rancher/rke2/agent/images/kube-scheduler-image.txt"
-Jul 29 02:34:14 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:14Z" level=info msg="Image index.docker.io/rancher/hardened-kubernetes:v1.32.7-rke2r1-build20250716 has already been pulled"
-Jul 29 02:34:14 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:14Z" level=info msg="Imported docker.io/rancher/hardened-kubernetes:v1.32.7-rke2r1-build20250716"
-Jul 29 02:34:14 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:14Z" level=info msg="Imported images from /var/lib/rancher/rke2/agent/images/kube-scheduler-image.txt in 5.430333ms"
-Jul 29 02:34:14 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:14Z" level=info msg="Pulling images from /var/lib/rancher/rke2/agent/images/kube-controller-manager-image.txt"
-Jul 29 02:34:14 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:14Z" level=info msg="Image index.docker.io/rancher/hardened-kubernetes:v1.32.7-rke2r1-build20250716 has already been pulled"
-Jul 29 02:34:14 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:14Z" level=info msg="Imported docker.io/rancher/hardened-kubernetes:v1.32.7-rke2r1-build20250716"
-Jul 29 02:34:14 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:14Z" level=info msg="Imported images from /var/lib/rancher/rke2/agent/images/kube-controller-manager-image.txt in 3.120369ms"
-Jul 29 02:34:14 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:14Z" level=info msg="Pulling images from /var/lib/rancher/rke2/agent/images/cloud-controller-manager-image.txt"
-Jul 29 02:34:14 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:14Z" level=info msg="Pulling image index.docker.io/rancher/rke2-cloud-provider:v1.32.5-rc1.0.20250516182639-8e8f2a4726fd-build20250612"
-Jul 29 02:34:15 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:15Z" level=info msg="Polling for API server readiness: GET /readyz failed: unknown"
-Jul 29 02:34:15 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:15Z" level=error msg="Failed to process image event: failed to import /var/lib/rancher/rke2/agent/images/cloud-controller-manager-image.txt: failed to pull images from /var/lib/rancher/rke2/agent/images/cloud-controller-manager-image.txt: image \"index.docker.io/rancher/rke2-cloud-provider:v1.32.5-rc1.0.20250516182639-8e8f2a4726fd-build20250612\": not found"
-Jul 29 02:34:15 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:15Z" level=info msg="Pulling images from /var/lib/rancher/rke2/agent/images/kube-proxy-image.txt"
-Jul 29 02:34:15 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:15Z" level=info msg="Image index.docker.io/rancher/hardened-kubernetes:v1.32.7-rke2r1-build20250716 has already been pulled"
-Jul 29 02:34:15 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:15Z" level=info msg="Imported docker.io/rancher/hardened-kubernetes:v1.32.7-rke2r1-build20250716"
-Jul 29 02:34:15 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:15Z" level=info msg="Imported images from /var/lib/rancher/rke2/agent/images/kube-proxy-image.txt in 2.231318ms"
-Jul 29 02:34:17 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:17Z" level=info msg="Polling for API server readiness: GET /readyz failed: an error on the server (\"[+]ping ok\\n[+]log ok\\n[+]etcd ok\\n[+]etcd-readiness ok\\n[+]kms-providers ok\\n[+]informer-sync ok\\n[+]poststarthook/start-encryption-provider-config-automatic-reload ok\\n[+]poststarthook/start-apiserver-admission-initializer ok\\n[+]poststarthook/generic-apiserver-start-informers ok\\n[+]poststarthook/priority-and-fairness-config-consumer ok\\n[+]poststarthook/priority-and-fairness-filter ok\\n[+]poststarthook/storage-object-count-tracker-hook ok\\n[+]poststarthook/start-apiextensions-informers ok\\n[+]poststarthook/start-apiextensions-controllers ok\\n[+]poststarthook/crd-informer-synced ok\\n[+]poststarthook/start-system-namespaces-controller ok\\n[+]poststarthook/start-cluster-authentication-info-controller ok\\n[+]poststarthook/start-kube-apiserver-identity-lease-controller ok\\n[+]poststarthook/start-kube-apiserver-identity-lease-garbage-collector ok\\n[+]poststarthook/start-legacy-token-tracking-controller ok\\n[+]poststarthook/start-service-ip-repair-controllers ok\\n[-]poststarthook/rbac/bootstrap-roles failed: reason withheld\\n[+]poststarthook/scheduling/bootstrap-system-priority-classes ok\\n[+]poststarthook/priority-and-fairness-config-producer ok\\n[+]poststarthook/bootstrap-controller ok\\n[+]poststarthook/aggregator-reload-proxy-client-cert ok\\n[+]poststarthook/start-kube-aggregator-informers ok\\n[+]poststarthook/apiservice-status-local-available-controller ok\\n[+]poststarthook/apiservice-status-remote-available-controller ok\\n[+]poststarthook/apiservice-registration-controller ok\\n[+]poststarthook/apiservice-discovery-controller ok\\n[+]poststarthook/kube-apiserver-autoregistration ok\\n[+]autoregister-completion ok\\n[+]poststarthook/apiservice-openapi-controller ok\\n[+]poststarthook/apiservice-openapiv3-controller ok\\n[+]shutdown ok\\nreadyz check failed\") has prevented the request from succeeding"
-Jul 29 02:34:18 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:18Z" level=warning msg="Failed to list nodes with etcd role: runtime core not ready"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Applying Cluster Role Bindings"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Waiting for cloud-controller-manager privileges to become available"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Waiting for untainted node"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Kube API server is now running"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Setting runtimes"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Creating rke2-supervisor event broadcaster"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Watching for delete of pln-aidev02.calix.local Node object"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Creating embedded CRD etcdsnapshotfiles.k3s.cattle.io"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Annotations and labels have been set successfully on node: pln-aidev02.calix.local"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Creating embedded CRD addons.k3s.cattle.io"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Creating embedded CRD helmcharts.helm.cattle.io"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Creating embedded CRD helmchartconfigs.helm.cattle.io"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Waiting for CRD helmcharts.helm.cattle.io to become available"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Done waiting for CRD helmcharts.helm.cattle.io to become available"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Waiting for CRD helmchartconfigs.helm.cattle.io to become available"
-Jul 29 02:34:19 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:19Z" level=info msg="Done waiting for CRD helmchartconfigs.helm.cattle.io to become available"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Cluster Role Bindings applied successfully"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="rke2 is up and running"
-Jul 29 02:34:22 pln-aidev02.calix.local systemd[1]: Started rke2-server.service - Rancher Kubernetes Engine v2 (server).
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Reconciling ETCDSnapshotFile resources"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting managed etcd node metadata controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Tunnel server egress proxy mode: agent"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting dynamiclistener CN filter node controller with SANs: [127.0.0.1 ::1 localhost pln-aidev02.calix.local 10.172.249.105 10.43.0.1 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local]"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Reconciliation of ETCDSnapshotFile resources complete"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Reconciling ETCDSnapshotFile resources"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting k3s.cattle.io/v1, Kind=Addon controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Creating deploy event broadcaster"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Reconciliation of ETCDSnapshotFile resources complete"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting /v1, Kind=Node controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting managed etcd apiserver addresses controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting managed etcd member removal controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Creating helm-controller event broadcaster"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting managed etcd snapshot ConfigMap controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Cluster dns configmap has been set successfully"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting /v1, Kind=ServiceAccount controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting /v1, Kind=Secret controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting /v1, Kind=ConfigMap controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Updating TLS secret for kube-system/rke2-serving (count: 10): map[listener.cattle.io/cn-10.172.249.105:10.172.249.105 listener.cattle.io/cn-10.43.0.1:10.43.0.1 listener.cattle.io/cn-127.0.0.1:127.0.0.1 listener.cattle.io/cn-__1-f16284:::1 listener.cattle.io/cn-kubernetes:kubernetes listener.cattle.io/cn-kubernetes.default:kubernetes.default listener.cattle.io/cn-kubernetes.default.svc:kubernetes.default.svc listener.cattle.io/cn-kubernetes.default.svc.cluster.local:kubernetes.default.svc.cluster.local listener.cattle.io/cn-localhost:localhost listener.cattle.io/cn-pln-aidev02.calix.local:pln-aidev02.calix.local listener.cattle.io/fingerprint:SHA1=D2C32396D5996E6CB09119D0ED7DB56910B209F3]"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Active TLS secret kube-system/rke2-serving (ver=315) (count 10): map[listener.cattle.io/cn-10.172.249.105:10.172.249.105 listener.cattle.io/cn-10.43.0.1:10.43.0.1 listener.cattle.io/cn-127.0.0.1:127.0.0.1 listener.cattle.io/cn-__1-f16284:::1 listener.cattle.io/cn-kubernetes:kubernetes listener.cattle.io/cn-kubernetes.default:kubernetes.default listener.cattle.io/cn-kubernetes.default.svc:kubernetes.default.svc listener.cattle.io/cn-kubernetes.default.svc.cluster.local:kubernetes.default.svc.cluster.local listener.cattle.io/cn-localhost:localhost listener.cattle.io/cn-pln-aidev02.calix.local:pln-aidev02.calix.local listener.cattle.io/fingerprint:SHA1=D2C32396D5996E6CB09119D0ED7DB56910B209F3]"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting k3s.cattle.io/v1, Kind=ETCDSnapshotFile controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Reconciling snapshot ConfigMap data"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Updating TLS secret for kube-system/rke2-serving (count: 10): map[listener.cattle.io/cn-10.172.249.105:10.172.249.105 listener.cattle.io/cn-10.43.0.1:10.43.0.1 listener.cattle.io/cn-127.0.0.1:127.0.0.1 listener.cattle.io/cn-__1-f16284:::1 listener.cattle.io/cn-kubernetes:kubernetes listener.cattle.io/cn-kubernetes.default:kubernetes.default listener.cattle.io/cn-kubernetes.default.svc:kubernetes.default.svc listener.cattle.io/cn-kubernetes.default.svc.cluster.local:kubernetes.default.svc.cluster.local listener.cattle.io/cn-localhost:localhost listener.cattle.io/cn-pln-aidev02.calix.local:pln-aidev02.calix.local listener.cattle.io/fingerprint:SHA1=D2C32396D5996E6CB09119D0ED7DB56910B209F3]"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting helm.cattle.io/v1, Kind=HelmChart controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting helm.cattle.io/v1, Kind=HelmChartConfig controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting rbac.authorization.k8s.io/v1, Kind=ClusterRoleBinding controller"
-Jul 29 02:34:22 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:22Z" level=info msg="Starting batch/v1, Kind=Job controller"
-Jul 29 02:34:23 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:23Z" level=info msg="Labels and annotations have been set successfully on node: pln-aidev02.calix.local"
-Jul 29 02:34:25 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:25Z" level=info msg="Started tunnel to 10.172.249.105:9345"
-Jul 29 02:34:25 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:25Z" level=info msg="Stopped tunnel to 127.0.0.1:9345"
-Jul 29 02:34:25 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:25Z" level=info msg="Connecting to proxy" url="wss://10.172.249.105:9345/v1-rke2/connect"
-Jul 29 02:34:25 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:25Z" level=info msg="Proxy done" err="context canceled" url="wss://127.0.0.1:9345/v1-rke2/connect"
-Jul 29 02:34:25 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:25Z" level=info msg="error in remotedialer server [400]: websocket: close 1006 (abnormal closure): unexpected EOF"
-Jul 29 02:34:25 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:25Z" level=info msg="Handling backend connection request [pln-aidev02.calix.local]"
-Jul 29 02:34:25 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:25Z" level=info msg="Remotedialer connected to proxy" url="wss://10.172.249.105:9345/v1-rke2/connect"
-Jul 29 02:34:33 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:33Z" level=info msg="Adding node pln-aidev02.calix.local-d5727c7d etcd status condition"
-Jul 29 02:34:41 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:34:41Z" level=info msg="Tunnel authorizer set Kubelet Port 0.0.0.0:10250"
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: Stopping rke2-server.service - Rancher Kubernetes Engine v2 (server)...
-Jul 29 02:41:03 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:41:03Z" level=warning msg="signal received: \"terminated\", canceling context..."
-Jul 29 02:41:03 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:41:03Z" level=info msg="Shutting down helm.cattle.io/v1, Kind=HelmChartConfig workers"
-Jul 29 02:41:03 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:41:03Z" level=info msg="Shutting down helm.cattle.io/v1, Kind=HelmChart workers"
-Jul 29 02:41:03 pln-aidev02.calix.local rke2[10278]: time="2025-07-29T02:41:03Z" level=fatal msg="context canceled"
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Main process exited, code=exited, status=1/FAILURE
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Failed with result 'exit-code'.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 10423 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 10433 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 10596 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 10971 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 10990 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 11174 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 11857 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 14528 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 15114 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 15799 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 16718 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Unit process 17233 (containerd-shim) remains running after unit stopped.
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: Stopped rke2-server.service - Rancher Kubernetes Engine v2 (server).
-Jul 29 02:41:03 pln-aidev02.calix.local systemd[1]: rke2-server.service: Consumed 3min 12.687s CPU time, 4.8G memory peak, 0B memory swap peak.
+kubectl run nvidia-test \
+  --rm -it --restart=Never \
+  --image=nvcr.io/nvidia/cuda:12.2.0-base-ubuntu22.04 \
+  --overrides='
+{
+  "apiVersion": "v1",
+  "spec": {
+    "containers": [{
+      "name": "nvidia-test",
+      "image": "nvcr.io/nvidia/cuda:12.2.0-base-ubuntu22.04",
+      "resources": {
+        "limits": {
+          "nvidia.com/gpu": 1
+        }
+      },
+      "command": ["nvidia-smi"]
+    }]
+  }
+}'
