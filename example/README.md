@@ -1,129 +1,156 @@
-# Align Ceph Hosts with Static Worker Node Count
 
-## Goal
-Ensure that all static worker nodes are present in the Ceph cluster. Identify any nodes that are missing, wipe their disks if previously used as hypervisors, and allow Ceph to detect them.
+# One-Node RKE2 Cluster with NVIDIA GPU Operator
 
----
-
-## 1. Identify Missing Nodes in Ceph
-
-```bash
-# Access the Ceph tools pod
-kubectl exec -it rook-ceph-tools-<id> -n rook-ceph -- bash
-
-# List current hosts in Ceph
-ceph osd tree
-```
-
-Then compare with the Kubernetes node list:
-
-```bash
-kubectl get nodes
-```
-
-Identify any node that appears in `kubectl get nodes` but not in `ceph osd tree`.
+**Hostname**: `pln-aidev02.calix.local`  
+**IP Address**: `10.172.249.105`  
+**iDRAC IP**: `10.152.0.116`  
+**OS**: Ubuntu 24.04 
 
 ---
 
-## 2. Drain and Access the Node
+## Purpose
 
-```bash
-kubectl drain <node-name>
-ssh <node-name>
-sudo su -
-```
+This document outlines the setup of a single-node Kubernetes cluster using RKE2, with GPU capability via the NVIDIA GPU Operator. It also covers storage provisioning with dedicated volumes and validation steps to ensure a clean deployment.
 
 ---
 
-## 3. Clean the Disk
+## 1. Provision Storage
 
-### List Disks
-```bash
+### Identify disk
+```
 lsblk
-blkid
 ```
 
-Check for any disks with Linux software RAID headers or previous Ceph usage.
+### Create volume group and logical volumes
+```
+pvcreate /dev/sda
+vgcreate datavg /dev/sda
 
-### Stop RAID if present
-```bash
-mdadm --stop /dev/mdX
+lvcreate -L 2T -n dockerlv datavg
+lvcreate -L 100G -n optlv datavg
+
+mkfs.ext4 /dev/datavg/dockerlv
+mkfs.ext4 /dev/datavg/optlv
 ```
 
-### Wipe Beginning of Disk
-```bash
-wipefs -a /dev/sdX
-dd if=/dev/zero of=/dev/sdX bs=1M count=10
+### Mount volumes
 ```
+mkdir -p /var/lib/docker
+mkdir -p /opt
 
-### Check Disk Size
-```bash
-fdisk -l /dev/sdX
-```
+echo '/dev/datavg/dockerlv /var/lib/docker ext4 defaults 0 2' >> /etc/fstab
+echo '/dev/datavg/optlv /opt ext4 defaults 0 2' >> /etc/fstab
 
-Sample output:
-```
-Disk /dev/sdX: 549 MiB, 575668224 bytes, ...
-```
-
----
-
-## 4. Scrub the End of the Disk
-
-To ensure all trailing metadata is removed, subtract 5 MiB (5242880 bytes) from the total disk size:
-
-```bash
-# Remove trailing metadata
-dd if=/dev/zero of=/dev/sdX bs=512 seek=$(( (575668224 - 5242880) / 512 )) count=10240
-```
-
-> Replace `575668224` with the actual byte size from your `fdisk` output.
-
----
-
-## 5. Delete Machine Resources
-
-### Find the Associated Machine
-```bash
-kubectl get machines -A -o wide | grep <node-name>
-```
-
-### Delete Both Machine and Metal3Machine
-```bash
-kubectl delete machine <machine-name> -n <namespace>
-kubectl delete metal3machine <metal3machine-name> -n <namespace>
+mount -a
 ```
 
 ---
 
-## 6. Trigger Node Remediation
+## 2. Install NVIDIA GPU Driver
 
-### Check Remediation Status
-```bash
-kubectl get metal3remediation -n <namespace>
 ```
+lspci | grep -i nvidia
+lspci | grep -i vga
+uname -r
 
-If `RETRY COUNT` has reached the `RETRY LIMIT`, bump the limit to retrigger:
+cp -v /boot/initrd.img-* /boot/initrd.img-*.bak
+cp -v /boot/vmlinuz-* /boot/vmlinuz-*.bak
+cp -v /boot/grub/grub.cfg /boot/grub/grub.cfg.bak
 
-```bash
-kubectl patch metal3remediation <remediation-name>   -n <namespace> --type merge   -p '{"spec": {"retryLimit": <new-value>}}'
-```
+cat <<EOF | sudo tee /etc/modprobe.d/blacklist-nouveau.conf
+blacklist nouveau
+options nouveau modeset=0
+EOF
 
-Example:
-```bash
-kubectl patch metal3remediation kvalgen-1-workload-static-workers-m69nk-kvsn7   -n kvalgen-1 --type merge   -p '{"spec": {"retryLimit": 3}}'
-```
+update-initramfs -u
+update-initramfs -u -k $(uname -r)
 
-Then watch for the remediation to kick off:
-```bash
-kubectl get metal3remediation -n <namespace> <remediation-name> -w
+apt-get update
+NEEDRESTART_MODE=a apt-get -y install nvidia-utils-570-server nvidia-headless-570-server --no-install-recommends --no-install-suggests
+
+nvidia-smi
 ```
 
 ---
 
-## 7. Restart Rook Operator to Detect Cleaned Disks
+## 3. Install RKE2 Server
 
-```bash
-kubectl rollout restart deployment/rook-ceph-operator -n rook-ceph
+```
+curl -sfL https://get.rke2.io | sh -
+systemctl enable rke2-server.service
+systemctl start rke2-server.service
 ```
 
+---
+
+## 4. Move Kubelet Directory
+
+```
+systemctl stop rke2-server.service
+
+rsync -aHAXxv /var/lib/kubelet/ /var/lib/docker/kubelet/
+echo '/var/lib/docker/kubelet /var/lib/kubelet none bind 0 0' >> /etc/fstab
+
+mount -a
+```
+
+---
+
+## 5. Configure Kubeconfig Access
+
+```
+mkdir -p ~/.kube
+cp /etc/rancher/rke2/rke2.yaml ~/.kube/config
+echo 'export KUBECONFIG=~/.kube/config' >> ~/.bashrc
+source ~/.bashrc
+```
+
+---
+
+## 6. Install Helm
+
+```
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+```
+
+---
+
+## 7. Create Namespace and Set Enforcement
+
+```
+kubectl create ns gpu-operator
+kubectl label --overwrite ns gpu-operator pod-security.kubernetes.io/enforce=privileged
+```
+
+---
+
+## 8. Install NVIDIA GPU Operator
+
+```
+helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+helm repo update
+
+helm install --wait --generate-name \
+  -n gpu-operator --create-namespace \
+  nvidia/gpu-operator \
+  --version=v25.3.2
+```
+
+---
+
+## 9. Validate Cluster Setup
+
+```
+kubectl get nodes -o wide
+kubectl get pods -A
+
+kubectl get all -n kube-system
+kubectl get all -n gpu-operator
+
+kubectl get deployments -n kube-system
+kubectl get deployments -n gpu-operator
+
+helm list -n gpu-operator
+```
