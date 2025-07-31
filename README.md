@@ -1,11 +1,13 @@
+Overview
 
+This document outlines the complete process for standing up a single-node RKE2 Kubernetes cluster on a host (pln-aidev02.calix.local, IP: 10.172.249.105). The goal of this setup is to provision a self-contained development or AI inference environment, leveraging GPU acceleration through the NVIDIA GPU Operator.
 
-Subject: BGP Peering and Calico Felix Readiness Failure
+The configuration includes:
 
-Hi Tigera Support,
-
-We’re experiencing an issue where Calico BGP peering intermittently resets. Logs show the following readiness probe failure:
-
-This occurred shortly after a general network “blip” around 3 PM. BFD and BGP sessions dropped and have since recovered, but one node is currently only peered with one ToR instead of both.
-
-Please advise on how we can further investigate or resolve this issue
+Logical volume provisioning for /var/lib/docker and /opt
+Installation of RKE2 server
+Relocation of the kubelet data directory
+NVIDIA driver installation
+Helm setup
+GPU Operator deployment
+Key considerations such as namespace creation, privileged pod enforcement, and RBAC (future step) are also noted to ensure GPU workloads are managed securely and reliably. This setup serves as a foundation for future multi-node scaling or integration with additional workloads.
