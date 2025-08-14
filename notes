@@ -1,28 +1,19 @@
-Creation Date: 13 Aug 2025
-Update Date: 13 Aug 2025
-Status: Closed
-Project: VKS
-Component: Calico / Keel
-Brief Summary: Patching kqde2-gen1 caused CLI access loss, Rancher agent disconnection, and Calico to ToRs BGP peering failures due to documented steps conflicting with AVID guidelines for --disable-vault and capi-secrets handling.
-Summary
-During the image upgrade of kqde2-gen1 under CHG340229, keel was rendered with the --disable-vault option and capi-secrets were applied, following the existing patching documentation. This conflicted with AVID guidelines, which state that the --disable-vault option should be removed when rendering keel and that capi-secrets should only be applied during upgrades to components such as Calico.
-As a result, the cluster experienced:
-Loss of CLI access
-Rancher cluster agent disconnection
-Calico to ToRs BGP peering failures, triggering a NOC alert
-Impact
-Partial service disruption on kqde2-gen1, affecting management access, authentication, and network routing to ToRs until resolution.
-Root Causes
-Patching documentation was followed as written.
-The documented steps conflicted with AVID guidelines.
-This led to use of the --disable-vault option during keel rendering and unnecessary application of capi-secrets, causing authentication loss, Rancher disconnection, and BGP routing issues.
-Resolution
-Re-rendered keel without the --disable-vault option.
-Rolled the cattle-cluster-agent deployment to restore management connectivity.
-Restarted Calico pods on two affected nodes to clear loopback issues.
-Verified CLI access, Rancher connectivity, and workload health.
-Detection
-Identified during patching when CLI access was lost. Confirmed by NOC alerts for Calico to ToRs BGP peering failures.
+Created on August 14, 2025 by Summary AI
 Action Items
-Update patching documentation to align with AVID guidelines for --disable-vault and capi-secrets usage.
-Provide refresher training on AVID patching guidelines to the operations team.
+Restart Controller Pods
+Restart all cappy controller pods to trigger the reconciliation process and clear the paused cluster
+state.
+Issue Description
+Deployment scale-down fails during an image update.
+Static workers on all machines are attempting a scale-down but are not succeeding.
+Manual deletion of the machine object does not work, leaving the system hung.
+The cluster remains in a paused state despite attempts to unpause.
+Diagnostics & Cause
+The upgrade operation to update the image was initiated while the cluster was paused.
+The machine object still shows the cluster spec as paused (pause status true).
+Finalizers on machine objects appear to block deletion.
+The reconciliation process is not registering the unpaused state as expected.
+Remediation & Next Steps
+Consider restarting all cappy controller pods to trigger reconciliation.
+Explore remediation via the cluster API and possibly force delete machine objects by editing finalizers.
+Further investigation is needed to ensure the cluster unpauses properly without manual intervention.
