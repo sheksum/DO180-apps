@@ -1,19 +1,75 @@
-Created on August 14, 2025 by Summary AI
-Action Items
-Restart Controller Pods
-Restart all cappy controller pods to trigger the reconciliation process and clear the paused cluster
-state.
-Issue Description
-Deployment scale-down fails during an image update.
-Static workers on all machines are attempting a scale-down but are not succeeding.
-Manual deletion of the machine object does not work, leaving the system hung.
-The cluster remains in a paused state despite attempts to unpause.
-Diagnostics & Cause
-The upgrade operation to update the image was initiated while the cluster was paused.
-The machine object still shows the cluster spec as paused (pause status true).
-Finalizers on machine objects appear to block deletion.
-The reconciliation process is not registering the unpaused state as expected.
-Remediation & Next Steps
-Consider restarting all cappy controller pods to trigger reconciliation.
-Explore remediation via the cluster API and possibly force delete machine objects by editing finalizers.
-Further investigation is needed to ensure the cluster unpauses properly without manual intervention.
+# Handling Deployment Scale-Down Failures During Image Upgrade (Resource Thinks Cluster is Paused)
+
+## Purpose
+This document outlines the steps to resolve deployment scale-down failures that occur during an image upgrade when the **cluster is unpaused**, but a resource (e.g., Machine, MachineSet, MachineDeployment, or provider object) still behaves as if the cluster is paused.
+
+---
+
+## Symptoms
+- Deployment scale-down fails during image upgrade.
+- Static workers remain in **Running** state and are not deleted.
+- Manual deletion of the machine object has no effect (blocked by finalizers).
+- Controller logs or resource annotations indicate a paused state, even though the cluster is not paused.
+- Restarting CAPI pods does not resolve the issue.
+
+---
+
+## Root Condition
+- The cluster is unpaused, but a specific resource still has paused state markers (e.g., annotations or `spec.paused` set to `true`).
+- Machine deletion is blocked by **finalizers**.
+- The reconciliation process does not progress because the resource incorrectly believes it is paused.
+
+---
+
+## Resolution Procedure
+
+### 1. Attempt CAPI Controller Restart
+1. Restart **all CAPI controller pods** to re-trigger reconciliation:
+   ```bash
+   kubectl rollout restart deployment -n capi-system
+   ```
+2. Wait for pods to restart and check if machine deletion resumes.
+3. If still blocked, proceed to Step 2.
+
+---
+
+### 2. Clear Paused State and Force Deletion
+1. **Remove paused annotation** from the affected resource:
+   ```bash
+   kubectl annotate <resource-kind> <resource-name> cluster.x-k8s.io/paused-
+   ```
+2. **Ensure `spec.paused` is set to `false`**:
+   ```bash
+   kubectl patch <resource-kind> <resource-name>      --type=merge -p '{"spec":{"paused":false}}'
+   ```
+3. If deletion is still blocked, identify the stuck machine targeted for deletion:
+   ```bash
+   kubectl get machines
+   ```
+4. **Delete the associated provider object** (e.g., MetalMachine or equivalent):
+   ```bash
+   kubectl delete metalmachine <metalmachine-name>
+   ```
+5. **Remove the machine’s finalizer**:
+   ```bash
+   kubectl patch machine <machine-name>      --type=merge -p '{"metadata":{"finalizers":[]}}'
+   ```
+6. **Delete the orphaned node** from the target cluster:
+   ```bash
+   kubectl delete node <node-name>
+   ```
+7. Ensure the BareMetalHost (BMH) can be re-registered.
+
+---
+
+### 3. Verification
+- Confirm `MachineDeployment` or `MachineSet` is unblocked.
+- Ensure there are no paused annotations or paused specs on any resources.
+- Validate that the upgrade process resumes and completes successfully.
+
+---
+
+## Notes
+- Always confirm the cluster’s paused status at both the cluster and resource level before upgrades.
+- This issue can be reproduced for testing by attempting to upgrade a cluster where a resource has a paused state set, even if the cluster is unpaused.
+- Future automation should detect and clear stale paused states before upgrades.
