@@ -1,27 +1,41 @@
-<VirtualHost *:80>
-    ServerName bamboo.calix.com
-    ServerAlias pln-hoffman.calix.local bamboo
+# HTTP ➜ HTTPS (prod usually only serves 443)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name tools-dev.calix.local tools-dev;
+    return 301 https://tools-dev.calix.local$request_uri;
+}
 
-    # If you’re fronted by Nginx and want to lock it down, add:
-    # <RequireAll>
-    #   Require ip 10.172.248.105 10.172.16.8 127.0.0.1
-    # </RequireAll>
+# tools-dev ➜ pln-devhoffman (like prod’s tools ➜ pln-hoffman:80)
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name tools-dev.calix.local tools-dev;
 
-    ProxyRequests Off
-    ProxyPreserveHost On
+    ssl_certificate     /etc/nginx/conf.d/ssl/tools-dev.fullchain.pem;
+    ssl_certificate_key /etc/nginx/conf.d/ssl/tools-dev.key;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
 
-    # allow proxying
-    <Proxy *>
-        Require all granted
-    </Proxy>
+    location / {
+        # mirror prod headers (preserve original Host to backend)
+        proxy_pass http://pln-devhoffman.calix.local:80;
 
-    # PROXY the whole site to the backend app
-    ProxyPass        /  http://pln-hoffman.calix.local:8085/  connectiontimeout=600 timeout=600
-    ProxyPassReverse /  http://pln-hoffman.calix.local:8085/
+        # (prod has Host commented out; leaving it unset keeps the client Host)
+        # proxy_set_header Host $host;
 
-    # (Optional) keep a simple docroot to avoid “file not found” if proxy is down
-    DocumentRoot /var/www/html
+        proxy_set_header X-Forwarded-Host  $host;
+        proxy_set_header X-Forwarded-Server $host;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
 
-    ErrorLog  ${APACHE_LOG_DIR}/bamboo_error.log
-    CustomLog ${APACHE_LOG_DIR}/bamboo_access.log combined
-</VirtualHost>
+        proxy_redirect off;
+
+        # optional: longer timeouts if your dev app needs it (prod-like)
+        proxy_connect_timeout  60s;
+        proxy_send_timeout    600s;
+        proxy_read_timeout    600s;
+    }
+}
