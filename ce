@@ -311,21 +311,61 @@ http {
     ##include /etc/nginx/rproxy/stream/enabled/*.conf;
 ##}
 
-on pln-hoffman
+======
 
-root@pln-devhoffman:/etc/apache2/sites-enabled# cat 008-tools.conf 
+prod pln-hoffman
+
+
+root@pln-hoffman:/etc/apache2# cat ports.conf 
+# If you just change the port or add more ports here, you will likely also
+# have to change the VirtualHost statement in
+# /etc/apache2/sites-enabled/000-default.conf
+
+Listen 80
+
+<IfModule ssl_module>
+	Listen 443
+</IfModule>
+
+<IfModule mod_gnutls.c>
+	Listen 443
+</IfModule>
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+root@pln-hoffman:/etc/apache2# 
+
+
+
+
+
+root@pln-hoffman:/etc/apache2/sites-available# ls -ltr
+total 52
+-rw-r--r-- 1 root root 6338 Jul 27  2023 default-ssl.conf
+-rw-r--r-- 1 root root 2079 Jul 27  2023 004-git.conf
+-rw-r--r-- 1 root root 1789 Jul 27  2023 003-fisheye.conf
+-rw-r--r-- 1 root root 1781 Jul 27  2023 002-stash.conf_bkup
+-rw-r--r-- 1 root root 1430 Jul 27  2023 000-default.conf_bkup
+-rw-r--r-- 1 root root 1366 Sep 26  2024 000-default.conf
+-rw-r--r-- 1 root root 1797 Oct 21  2024 002-stash.conf.bkup
+-rw-r--r-- 1 root root 1823 Oct 21  2024 005-bamboo.conf.bkup
+-rw-r--r-- 1 root root 1781 Oct 23  2024 002-stash.conf
+-rw-r--r-- 1 root root 1811 Oct 23  2024 005-bamboo.conf
+-rw-r--r-- 1 root root  560 Aug 11 08:00 002-stash.conf_ssl
+-rw-r--r-- 1 root root  499 Aug 11 08:12 005-bamboo.conf_ssl
+root@pln-hoffman:/etc/apache2/sites-available# cat 005-bamboo.conf_ssl 
 <VirtualHost *:80>
-    ServerName tools-dev.calix.local
-    Redirect permanent / https://tools-dev.calix.local/
+ ServerName bamboo.calix.local
+    Redirect permanent / https://bamboo.calix.local/
 </VirtualHost>
 <VirtualHost *:443>
-  ServerName tools-dev.calix.local
+  ServerName bamboo-dev.calix.local
   SSLEngine on
-  SSLCertificateFile /etc/ssl/tools-dev/tools-dev.calix.com.cert
-  SSLCertificateKeyFile /etc/ssl/tools-dev/tools-dev.calix.com.key
+  SSLCertificateFile /etc/ssl/bamboo.calix.local_certs/bamboo.calix.local-combined.cer
+  SSLCertificateKeyFile /etc/ssl/bamboo.calix.local_certs/bamboo.calix.local.key
   ProxyPass / http://localhost:8085/
   ProxyPassReverse / http://localhost:8085/
 </VirtualHost>
 
 # vim: syntax=apache ts=4 sw=4 sts=4 sr noet
-root@pln-devhoffman:/etc/apache2/sites-enabled# 
+root@pln-hoffman:/etc/apache2/sites-available# 
+
