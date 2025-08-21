@@ -73,49 +73,34 @@
 
 
 
-========
+========#!/usr/bin/env bash
+# seed-two-users-nssdb.sh
+# Aligns with the exact working commands you tested.
 
-#!/usr/bin/env bash
-# Test script: seed NSS DB for two users with Root + Intermediate certs
-
-CERTS=(
-  "/usr/local/share/ca-certificates/CalixROOTCA.crt:CalixRootCA"
-  "/usr/local/share/ca-certificates/Calix-Intermediate-CA1.crt:CalixIntermediateCA1"
-  "/usr/local/share/ca-certificates/Calix-Intermediate-CA2.crt:CalixIntermediateCA2"
-)
-USERS=("user1" "user2")
+USERS=("user1" "user2")   # <-- replace with real logins
 
 for u in "${USERS[@]}"; do
-  HOME_DIR=$(getent passwd "$u" | cut -d: -f6)
-  if [[ -z "$HOME_DIR" || ! -d "$HOME_DIR" ]]; then
-    echo "Skipping $u (no home dir)"
-    continue
-  fi
+  HOME_DIR=$(getent passwd "$u" | cut -d: -f6) || true
+  [[ -z "$HOME_DIR" || ! -d "$HOME_DIR" ]] && { echo "Skip $u (no home)"; continue; }
 
   DB="$HOME_DIR/.pki/nssdb"
 
-  # Backup if exists
+  # Backup old DB if it exists
   if [[ -d "$DB" ]]; then
     mv "$DB" "$HOME_DIR/.pki/nssdb.backup"
-    echo "[$u] existing NSS DB backed up"
+    echo "[$u] backup of nssdb created"
   fi
 
-  # Recreate new NSS DB
+  # Recreate DB with empty password
   sudo -u "$u" mkdir -p "$DB"
   sudo -u "$u" certutil -d "sql:$DB" -N --empty-password
 
-  # Import Root + Intermediates
-  for entry in "${CERTS[@]}"; do
-    FILE="${entry%%:*}"
-    LABEL="${entry##*:}"
-    if [[ -f "$FILE" ]]; then
-      sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "$LABEL" -i "$FILE"
-      echo "[$u] Imported $LABEL"
-    else
-      echo "[$u] Missing cert file $FILE"
-    fi
-  done
+  # Import certs with the correct labels
+  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "CalixRootCA"  -i /usr/local/share/ca-certificates/CalixROOTCA.crt
+  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "CalixInterCA" -i /usr/local/share/ca-certificates/CalixInterCA2.crt
+  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "CalixEntCA"   -i /usr/local/share/ca-certificates/CalixInterCA1.crt
 
-  # Verification
+  # Show final DB contents for verification
+  echo "[$u] NSS DB contents:"
   sudo -u "$u" certutil -d "sql:$DB" -L
 done
