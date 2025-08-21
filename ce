@@ -73,7 +73,8 @@
 
 
 
-========#!/usr/bin/env bash
+========
+#!/usr/bin/env bash
 # seed-two-users-nssdb.sh
 # Aligns with the exact working commands you tested.
 
