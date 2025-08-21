@@ -1,76 +1,88 @@
-# HTTP redirect (optional, like prod)
-server {
-    listen 80;
-    server_name plnx-dev-atlproxy;  # or the box's hostname; optional
-    return 301 https://$host$request_uri;
-}
+---
+- name: Push Calix CA chain and refresh trust
+  hosts: dev_workstations            # adjust your inventory group
+  become: yes
 
-# tools-dev → pln-devhoffman:80
-server {
-    listen 443 ssl;
-    server_name tools-dev.calix.com;
+  vars:
+    cert_source_dir: /tmp/certs      # on the Ansible CONTROLLER (plnx-admin)
+    dest_dir_deb: /usr/local/share/ca-certificates
+    dest_dir_rhel: /etc/pki/ca-trust/source/anchors
+    test_url: "https://tabnine.calix.local/"
 
-    ssl_certificate     /etc/nginx/conf.d/ssl/bamboo_bundle.pem;
-    ssl_certificate_key /etc/nginx/conf.d/ssl/bamboo.calix.com.key;
-    ssl_protocols TLSv1.2;
-    ssl_ciphers  ECDHE-RSA-AES128-GCM-SHA256;
-    ssl_prefer_server_ciphers on;
-    ssl_session_timeout 5m;
+  pre_tasks:
+    - name: Gather OS facts early
+      ansible.builtin.setup:
+        gather_subset: [min]
 
-    location / {
-        proxy_pass http://pln-devhoffman.calix.local:80;
+    - name: Ensure curl is present
+      ansible.builtin.package:
+        name: curl
+        state: present
 
-        # Mirror prod headers (Host remains client host because "Host" is not set)
-        proxy_set_header X-Forwarded-Host  $host;
-        proxy_set_header X-Forwarded-Server $host;
-        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        proxy_set_header X-Real-IP         $remote_addr;
-        proxy_set_header X-Forwarded-Proto $scheme;
+    - name: Compute destination directory based on OS family
+      ansible.builtin.set_fact:
+        cert_dest_dir: "{{ dest_dir_deb if ansible_os_family == 'Debian' else dest_dir_rhel }}"
 
-        proxy_redirect off;
-        proxy_headers_hash_max_size 512;
-        proxy_headers_hash_bucket_size 64;
-    }
-}
+    - name: Ensure destination directory exists
+      ansible.builtin.file:
+        path: "{{ cert_dest_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
 
+  tasks:
+    - name: Find existing cert files in destination
+      ansible.builtin.find:
+        paths: "{{ cert_dest_dir }}"
+        file_type: file
+        patterns:
+          - "*.crt"
+          - "*.pem"
+      register: existing_cert_files
 
-Important differences from your earlier attempts:
-Use server_name tools-dev.calix.com.
-Do not include include ...whitelist / deny all; for tools-dev (prod doesn’t).
-Keep proxy_pass to http://pln-devhoffman:80 (plain HTTP).
-It’s fine to keep using the bamboo_bundle.pem cert if tools-dev is in the SAN (you already verified that).
-Then:
-nginx -t && systemctl reload nginx
+    - name: Remove non-IPA cert files from destination
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ existing_cert_files.files }}"
+      when:
+        - item.path is not regex('\/ipa-ca(\/|$)')     # keep ipa-ca dir content
+        - item.path is not search('/ipa\\.p11-kit$')   # keep ipa.p11-kit
+        - (item.path | basename) is not regex('^ipa')  # keep any IPA* files
+      notify: update trust store
 
+    - name: Copy Calix certs from controller to target
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ cert_dest_dir }}/"
+        owner: root
+        group: root
+        mode: "0644"
+      with_fileglob:
+        - "{{ cert_source_dir }}/*.{crt,pem}"
+      notify: update trust store
 
+  handlers:
+    - name: update trust store
+      ansible.builtin.block:
+        - name: Update trust on Debian/Ubuntu
+          ansible.builtin.command: update-ca-certificates -f
+          when: ansible_os_family == 'Debian'
+          changed_when: true
 
-2) Dev Hoffman (Apache)
-Match prod’s behavior:
-Apache listens on 80 and serves the default page for any Host (or add a vhost if you want explicitness).
-Minimal requirement (already looks correct from your last screenshots):
-/etc/apache2/ports.conf contains:
-Listen 80
-No special vhost needed for tools-dev; the default *:80 will respond.
-(Optional explicit vhost if you prefer):
+        - name: Update trust on RHEL/CentOS
+          ansible.builtin.command: update-ca-trust extract
+          when: ansible_os_family == 'RedHat'
+          changed_when: true
 
-
-<VirtualHost *:80>
-  ServerName tools-dev.calix.com
-  DocumentRoot /var/www/html
-  <Location />
-    Require all granted
-  </Location>
-</VirtualHost>
-
-
-
-
-Quick verification checklist (after network rule)
-On dev proxy:
-time curl -sSI --max-time 5 -H "Host: tools-dev.calix.com" http://pln-devhoffman.calix.local:80/
-# should be a fast 200/30x
-
-nginx -t && systemctl reload nginx
-curl -Ik https://tools-dev.calix.com/
-# expect 200/30x and access.log lines on both proxy and Hoffman
-
+    - name: validate
+      ansible.builtin.block:
+        - name: Validate HTTPS to {{ test_url }}
+          ansible.builtin.command: curl -sS --fail -I "{{ test_url }}"
+          register: curl_head
+          changed_when: false
+          failed_when: curl_head.rc != 0
+        - name: Show response headers
+          ansible.builtin.debug:
+            var: curl_head.stdout_lines
