@@ -69,3 +69,53 @@
     - name: Show response headers
       ansible.builtin.debug:
         var: curl_head.stdout_lines
+
+
+
+
+========
+
+#!/usr/bin/env bash
+# Test script: seed NSS DB for two users with Root + Intermediate certs
+
+CERTS=(
+  "/usr/local/share/ca-certificates/CalixROOTCA.crt:CalixRootCA"
+  "/usr/local/share/ca-certificates/Calix-Intermediate-CA1.crt:CalixIntermediateCA1"
+  "/usr/local/share/ca-certificates/Calix-Intermediate-CA2.crt:CalixIntermediateCA2"
+)
+USERS=("user1" "user2")
+
+for u in "${USERS[@]}"; do
+  HOME_DIR=$(getent passwd "$u" | cut -d: -f6)
+  if [[ -z "$HOME_DIR" || ! -d "$HOME_DIR" ]]; then
+    echo "Skipping $u (no home dir)"
+    continue
+  fi
+
+  DB="$HOME_DIR/.pki/nssdb"
+
+  # Backup if exists
+  if [[ -d "$DB" ]]; then
+    mv "$DB" "$HOME_DIR/.pki/nssdb.backup"
+    echo "[$u] existing NSS DB backed up"
+  fi
+
+  # Recreate new NSS DB
+  sudo -u "$u" mkdir -p "$DB"
+  sudo -u "$u" certutil -d "sql:$DB" -N --empty-password
+
+  # Import Root + Intermediates
+  for entry in "${CERTS[@]}"; do
+    FILE="${entry%%:*}"
+    LABEL="${entry##*:}"
+    if [[ -f "$FILE" ]]; then
+      sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "$LABEL" -i "$FILE"
+      echo "[$u] Imported $LABEL"
+    else
+      echo "[$u] Missing cert file $FILE"
+    fi
+  done
+
+  # Verification
+  sudo -u "$u" certutil -d "sql:$DB" -L
+done
