@@ -1,88 +1,71 @@
 ---
-- name: Push Calix CA chain and refresh trust
-  hosts: dev_workstations            # adjust your inventory group
+- name: Deploy and trust Calix Root CA certificates
+  hosts: all
   become: yes
-
   vars:
-    cert_source_dir: /tmp/certs      # on the Ansible CONTROLLER (plnx-admin)
-    dest_dir_deb: /usr/local/share/ca-certificates
-    dest_dir_rhel: /etc/pki/ca-trust/source/anchors
-    test_url: "https://tabnine.calix.local/"
-
-  pre_tasks:
-    - name: Gather OS facts early
-      ansible.builtin.setup:
-        gather_subset: [min]
-
-    - name: Ensure curl is present
-      ansible.builtin.package:
-        name: curl
-        state: present
-
-    - name: Compute destination directory based on OS family
-      ansible.builtin.set_fact:
-        cert_dest_dir: "{{ dest_dir_deb if ansible_os_family == 'Debian' else dest_dir_rhel }}"
-
-    - name: Ensure destination directory exists
-      ansible.builtin.file:
-        path: "{{ cert_dest_dir }}"
-        state: directory
-        owner: root
-        group: root
-        mode: "0755"
+    cert_src_dir: /tmp/certs       # location on plnx-admin
+    ubuntu_cert_dir: /usr/local/share/ca-certificates
+    rhel_cert_dir: /etc/pki/ca-trust/source/anchors
+    test_url: https://pln-stash.calix.local
 
   tasks:
-    - name: Find existing cert files in destination
-      ansible.builtin.find:
-        paths: "{{ cert_dest_dir }}"
-        file_type: file
-        patterns:
-          - "*.crt"
-          - "*.pem"
-      register: existing_cert_files
+    - name: Clean up old certs on Ubuntu (keep ipa*)
+      ansible.builtin.shell: |
+        find {{ ubuntu_cert_dir }} -type f ! -name "ipa*" -delete
+      when: ansible_os_family == "Debian"
 
-    - name: Remove non-IPA cert files from destination
-      ansible.builtin.file:
-        path: "{{ item.path }}"
-        state: absent
-      loop: "{{ existing_cert_files.files }}"
-      when:
-        - item.path is not regex('\/ipa-ca(\/|$)')     # keep ipa-ca dir content
-        - item.path is not search('/ipa\\.p11-kit$')   # keep ipa.p11-kit
-        - (item.path | basename) is not regex('^ipa')  # keep any IPA* files
-      notify: update trust store
+    - name: Clean up old certs on RHEL (keep ipa*)
+      ansible.builtin.shell: |
+        find {{ rhel_cert_dir }} -type f ! -name "ipa*" -delete
+      when: ansible_os_family == "RedHat"
 
-    - name: Copy Calix certs from controller to target
+    - name: Copy new certificates to Ubuntu
       ansible.builtin.copy:
         src: "{{ item }}"
-        dest: "{{ cert_dest_dir }}/"
+        dest: "{{ ubuntu_cert_dir }}/"
         owner: root
         group: root
-        mode: "0644"
+        mode: '0644'
       with_fileglob:
-        - "{{ cert_source_dir }}/*.{crt,pem}"
-      notify: update trust store
+        - "{{ cert_src_dir }}/*.crt"
+      when: ansible_os_family == "Debian"
+      notify:
+        - Update trust store on Debian/Ubuntu
+        - Validate HTTPS
+        - Show response headers
+
+    - name: Copy new certificates to RHEL
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ rhel_cert_dir }}/"
+        owner: root
+        group: root
+        mode: '0644'
+      with_fileglob:
+        - "{{ cert_src_dir }}/*.crt"
+      when: ansible_os_family == "RedHat"
+      notify:
+        - Update trust store on RHEL/CentOS
+        - Validate HTTPS
+        - Show response headers
 
   handlers:
-    - name: update trust store
-      ansible.builtin.block:
-        - name: Update trust on Debian/Ubuntu
-          ansible.builtin.command: update-ca-certificates -f
-          when: ansible_os_family == 'Debian'
-          changed_when: true
+    - name: Update trust store on Debian/Ubuntu
+      ansible.builtin.command: update-ca-certificates -f
+      when: ansible_os_family == "Debian"
+      changed_when: true
 
-        - name: Update trust on RHEL/CentOS
-          ansible.builtin.command: update-ca-trust extract
-          when: ansible_os_family == 'RedHat'
-          changed_when: true
+    - name: Update trust store on RHEL/CentOS
+      ansible.builtin.command: update-ca-trust extract
+      when: ansible_os_family == "RedHat"
+      changed_when: true
 
-    - name: validate
-      ansible.builtin.block:
-        - name: Validate HTTPS to {{ test_url }}
-          ansible.builtin.command: curl -sS --fail -I "{{ test_url }}"
-          register: curl_head
-          changed_when: false
-          failed_when: curl_head.rc != 0
-        - name: Show response headers
-          ansible.builtin.debug:
-            var: curl_head.stdout_lines
+    - name: Validate HTTPS
+      ansible.builtin.command: curl -sS --fail -I "{{ test_url }}"
+      register: curl_head
+      changed_when: false
+      failed_when: curl_head.rc != 0
+
+    - name: Show response headers
+      ansible.builtin.debug:
+        var: curl_head.stdout_lines
