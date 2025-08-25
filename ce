@@ -1,156 +1,33 @@
-# Calico Patching
+- hosts: all
+  become: yes
+  vars:
+    cert_src_dir: /tmp/certs            # on the controller
+    cert_files:
+      - CalixROOTCA.crt
+      - CalixInterCA1.crt
+      - CalixInterCA2.crt
+  tasks:
+    - name: Pick CA dir per OS family
+      set_fact:
+        ca_dir: >-
+          {{ '/usr/local/share/ca-certificates' if ansible_facts['os_family'] == 'Debian'
+             else '/etc/pki/ca-trust/source/anchors' }}
 
-## Overview
-Calico provides the critical networking backbone service for VKS, enabling pods to communicate with each other and advertise service endpoints to the rest of the VeriSign network. As with other infrastructure components in the VKS ecosystem, Calico requires periodic patching to address vulnerabilities, apply fixes, and introduce enhancements.  
+    - name: Clean up old non-IPA certs
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ query('ansible.builtin.find', paths=ca_dir, patterns='*.crt') }}"
+      when: item.path is not search('(^|/)(ipa-|ipa\.p11-kit)')
 
-This document defines the standard patching process to ensure all clusters remain consistent with VKSB baselines and operationally stable.
+    - name: Copy new certificates
+      copy:
+        src:  "{{ cert_src_dir }}/{{ item }}"
+        dest: "{{ ca_dir }}/{{ item }}"
+        owner: root
+        group: root
+        mode: '0644'
+      loop: "{{ cert_files }}"
 
----
-
-## Schedule
-Below is the current patching schedule for each environment:
-
-| Week of Month | Environment     | Management Cluster | Workload Cluster                           |
-|---------------|-----------------|--------------------|--------------------------------------------|
-| 1st           | Non-Production  | kqde1mgmt-1        | kqde1gen-1                              |
-|               |                 | kqde2mgmt-1        | kqde2gen-1, kqde2vscc-1, kqde2vscc-2       |
-| 2nd           | Production      | kva1mgmt-1         | kva1gen-1                                  |
-| 3rd           | Production      | kde1mgmt-1         | kde1gen-1                                  |
-| 4th           | Production      | kva3mgmt-1         | kva3gen-1                                  |
-
----
-
-## Request and Tracking Process
-When a new Calico version is available, the **AVID team** is responsible for initiating the upgrade process.  
-
-- AVID will **open a Jira ticket** on the VKS Operations board.  
-- The ticket will specify:  
-  - Target version of Calico.  
-- VKS Operations will use this ticket as the authoritative source for tracking, execution, and closure of the patching task.  
-
----
-
-## Cluster Patching Sequence
-
-Patching of each environment should **start with the management cluster**.  
-- This is not impactful for end-user workloads and ensures control-plane services are upgraded first.  
-- Once the management cluster has been patched and verified as healthy, the **workload cluster** can be patched.  
-- After workload patching, perform **validation checks** to confirm stability before marking the upgrade complete.  
-
-### High-Level Flow
-1. **Start**  
-2. **Patch Management Cluster**  
-3. **Patch Workload Cluster**  
-4. **Validation**  
-5. **Finish**  
-
----
-
-## Deployment Preparation
-1. **Create HDS Record**  
-   - Prior to patching, create an HDS record to silence alarms that may trigger while services are being upgraded.  
-
-2. **Communicate Change**  
-   - Post an announcement in the **“VKS Support (Verisign Kubernetes Service for A&I)”** room before patching begins.  
-
-3. **Validate Cluster Health**  
-   - Log into Rancher and verify that the cluster is healthy before starting patching activities.  
-
----
-
-## Execution
-
-The following steps outline the patching workflow once prerequisites and preparation tasks are complete.  
-
-### 1. Authenticate with Vault
-```bash
-export VAULT_ADDR=https://<vault>.vrsn.com:8200
-vault login -method=ldap
-```
-
-### 2. Switch to the Cluster Context
-```bash
-kubectl config use-context <management-cluster>
-```
-
-### 3. Update Keel Manifest  
-For each cluster (management and workload), run the following:
-
-```bash
-cd management-cluster-<CLUSTER>
-cd workload-cluster-<CLUSTER>
-sed -i -e 's/tigera_operator:.*/tigera_operator: v1.36.11/g' keel-manifest.yaml
-```
-
-### 4. Commit and Push Changes
-```bash
-git add keel-manifest.yaml cluster/capi-clusterresourceset/calico/tigera-operator.yaml
-git commit -m "Update to Calico 3.20.5"
-git push origin
-```
-
-### 5. Verify Elasticsearch Health
-Before applying CAPI secrets, confirm Elasticsearch is healthy:
-```bash
-kubectl get elasticsearch -A
-```
-Expected:
-```
-tigera-elasticsearch tigera-secure   green   3   7.17.28   Ready
-```
-
-### 6. Apply Secrets
-```bash
-cd cluster/capi-secrets
-kubectl apply -k .
-```
-
-### 7. Apply Calico Operator Resources
-```bash
-cd ../..
-cd cluster/capi-clusterresourceset/calico
-kubectl apply -k .
-```
-
-### 8. Verify Tigera Operator
-```bash
-kubectl get pods -n kube-system | grep -i tigera
-```
-
-### 9. Validate Calico Rollout
-```bash
-kubectl get tigerastatus
-kubectl rollout status daemonset/calico-node -n calico-system --watch
-```
-
-**Note:** While the `calico-node` DaemonSet rolls, Felix briefly resets network connectivity, causing a short blip. CLI authentication to the cluster may be lost during this time but will automatically restore.  
-
-### 10. Verify Calico Manager Version
-After the rollout is complete, log into the **Calico Manager UI** and verify that the expected version is displayed:  
-```
-https://calico-manager.<cluster>.vrsn.com/about
-```
-
-Ensure both **Enterprise Version** and **Calico Version** match the intended release.  
-
----
-
-## Post Deployment
-
-1. **Login to Rancher**  
-   Access Rancher at:  
-   ```
-   https://<Region>-<Env>.vks.vrsn.com/
-   ```
-
-2. **Run Cluster Health Checklist**  
-   - Follow the **Cluster Checklist** to validate that the cluster is fully healthy.  
-   - Confirm that all workloads, networking, and Calico components are operating as expected.  
-
----
-
-## Notes
-- Always commit both the `keel-manifest.yaml` and `tigera-operator.yaml`.  
-- Push changes against the **main** branch for GitOps consistency.  
-- Ensure Elasticsearch is green before applying secrets.  
-- Expect a brief connectivity blip during `calico-node` DaemonSet rollout.  
+    - name: Update trust store
+      command: "{{ 'update-ca-certificates' if ansible_facts['os_family'] == 'Debian' else 'update-ca-trust extract' }}"
