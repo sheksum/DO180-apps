@@ -1,33 +1,43 @@
-- hosts: all
+---
+- name: Deploy Calix Root + Intermediates and refresh trust
+  hosts: all
   become: yes
   vars:
-    cert_src_dir: /tmp/certs            # on the controller
-    cert_files:
+    ubuntu_dir: /usr/local/share/ca-certificates
+    rhel_dir: /etc/pki/ca-trust/source/anchors
+    calix_certs:
       - CalixROOTCA.crt
       - CalixInterCA1.crt
       - CalixInterCA2.crt
+
   tasks:
-    - name: Pick CA dir per OS family
+    - name: Pick CA directory based on OS family
       set_fact:
-        ca_dir: >-
-          {{ '/usr/local/share/ca-certificates' if ansible_facts['os_family'] == 'Debian'
-             else '/etc/pki/ca-trust/source/anchors' }}
+        ca_dir: "{{ (ansible_os_family == 'RedHat') | ternary(rhel_dir, ubuntu_dir) }}"
 
-    - name: Clean up old non-IPA certs
-      file:
-        path: "{{ item.path }}"
-        state: absent
-      loop: "{{ query('ansible.builtin.find', paths=ca_dir, patterns='*.crt') }}"
-      when: item.path is not search('(^|/)(ipa-|ipa\.p11-kit)')
+    - name: Clean out old non-IPA certs from CA dir
+      shell: |
+        shopt -s nullglob
+        for f in "{{ ca_dir }}"/*.crt; do
+          base="$(basename "$f")"
+          [[ "$base" == ipa* ]] || rm -f "$f"
+        done
+      args:
+        executable: /bin/bash
 
-    - name: Copy new certificates
+    - name: Copy Calix certs into CA dir
       copy:
-        src:  "{{ cert_src_dir }}/{{ item }}"
+        src: "files/{{ item }}"
         dest: "{{ ca_dir }}/{{ item }}"
         owner: root
         group: root
         mode: '0644'
-      loop: "{{ cert_files }}"
+      loop: "{{ calix_certs }}"
 
-    - name: Update trust store
-      command: "{{ 'update-ca-certificates' if ansible_facts['os_family'] == 'Debian' else 'update-ca-trust extract' }}"
+    - name: Refresh trust store on Ubuntu/Debian
+      command: update-ca-certificates
+      when: ansible_os_family != 'RedHat'
+
+    - name: Refresh trust store on RHEL/CentOS
+      command: update-ca-trust extract
+      when: ansible_os_family == 'RedHat'
