@@ -1,43 +1,43 @@
----
-- name: Deploy Calix Root + Intermediates and refresh trust
-  hosts: all
-  become: yes
-  vars:
-    ubuntu_dir: /usr/local/share/ca-certificates
-    rhel_dir: /etc/pki/ca-trust/source/anchors
-    calix_certs:
-      - CalixROOTCA.crt
-      - CalixInterCA1.crt
-      - CalixInterCA2.crt
-
-  tasks:
-    - name: Pick CA directory based on OS family
-      set_fact:
-        ca_dir: "{{ (ansible_os_family == 'RedHat') | ternary(rhel_dir, ubuntu_dir) }}"
-
-    - name: Clean out old non-IPA certs from CA dir
-      shell: |
-        shopt -s nullglob
-        for f in "{{ ca_dir }}"/*.crt; do
-          base="$(basename "$f")"
-          [[ "$base" == ipa* ]] || rm -f "$f"
-        done
-      args:
-        executable: /bin/bash
-
-    - name: Copy Calix certs into CA dir
-      copy:
-        src: "files/{{ item }}"
-        dest: "{{ ca_dir }}/{{ item }}"
-        owner: root
-        group: root
-        mode: '0644'
-      loop: "{{ calix_certs }}"
-
-    - name: Refresh trust store on Ubuntu/Debian
-      command: update-ca-certificates
-      when: ansible_os_family != 'RedHat'
-
-    - name: Refresh trust store on RHEL/CentOS
-      command: update-ca-trust extract
-      when: ansible_os_family == 'RedHat'
+cat Dockerfile
+FROM node:18
+ 
+ARG VERSION_VALUE
+ARG OUTPUT_DIRECTORY=/output_folder/npm/
+ 
+RUN pwd
+# Copy the certificate into the container
+COPY /tools/sw/opt/data/dataCenterCerts/stash.calix.local.crt /usr/local/share/ca-certificates/stash.calix.local.crt
+ 
+# Install ca-certificates and register the custom certificate
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    update-ca-certificates
+ 
+WORKDIR /app
+RUN npm install -g @angular/cli@16.2.0
+ 
+RUN mkdir -p ${OUTPUT_DIRECTORY}
+ 
+#RUN git config --global http.sslVerify false
+ 
+RUN --mount=type=secret,id=netrc,dst=/root/.netrc git clone -b feature/uxmgr-web-latest https://stash.calix.local/scm/ccs/uxmgr-web.git
+ 
+WORKDIR /app/uxmgr-web
+RUN npm cache clean --force
+RUN npm cache verify
+RUN rm -rf node_modules package-lock.json
+# Install application dependencies
+RUN --mount=type=secret,id=npmrc,dst=/root/.npmrc npm install -f --scope=@ccsDownload
+ 
+WORKDIR /app/uxmgr-web/projects
+COPY . uxmgrshared-library
+WORKDIR /app/uxmgr-web/projects/uxmgrshared-library
+ 
+RUN NODE_OPTIONS=--max-old-space-size=6096 ng build
+WORKDIR /app/uxmgr-web/dist/uxmgrshared-library
+RUN npm version ${VERSION_VALUE}
+RUN npm pack
+ 
+RUN cp -f uxmgrshared-library-${VERSION_VALUE}.tgz ${OUTPUT_DIRECTORY}
+ 
+ENTRYPOINT ["echo", "done"]
