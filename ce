@@ -1,20 +1,56 @@
-# cidr_ping.yml
 - hosts: localhost
   gather_facts: no
   vars:
-    my_cidr: "10.168.0.0/22"
+    my_cidr: "10.168.0.0/22"          # <-- change as needed
+    ssh_timeout: 1                    # seconds for the port probe
   tasks:
-    - name: Expand CIDR into host list
-      set_fact:
-        cidr_hosts: "{{ query('community.general.ipaddr', my_cidr) }}"
+    - name: Expand CIDR to list of IPs using Python stdlib
+      command:
+        argv:
+          - python3
+          - -c
+          - |
+            import ipaddress, json, sys
+            net = ipaddress.ip_network(sys.argv[1], strict=False)
+            # hosts() skips network/broadcast automatically for v4
+            print(json.dumps([str(ip) for ip in net.hosts()]))
+            # for v6, hosts() is fine too
+            # print(json.dumps([str(ip) for ip in ipaddress.ip_network(sys.argv[1]).hosts()]))
+          - "{{ my_cidr }}"
+      register: cidr_out
+      changed_when: false
 
-    - name: Add hosts dynamically
+    - name: Set fact with IP list
+      set_fact:
+        cidr_hosts: "{{ cidr_out.stdout | from_json }}"
+
+    - name: (Optional) keep only SSH-reachable hosts
+      wait_for:
+        host: "{{ item }}"
+        port: 22
+        timeout: "{{ ssh_timeout }}"
+      loop: "{{ cidr_hosts }}"
+      register: sshcheck
+      ignore_errors: yes
+
+    - name: Build list of live hosts
+      set_fact:
+        live_hosts: >-
+          {{ sshcheck.results
+             | rejectattr('failed', 'defined')   # tolerate modules that don't set failed
+             | selectattr('state', 'defined')
+             | selectattr('state', 'eq', 'started')
+             | map(attribute='item') | list
+             | default([]) }}
+
+    - name: Add live hosts dynamically
       add_host:
         name: "{{ item }}"
         groups: cidr_targets
         ansible_user: deploy
         ansible_ssh_common_args: "-o ConnectTimeout=3"
-      loop: "{{ cidr_hosts }}"
+      loop: "{{ live_hosts | default(cidr_hosts) }}"
+      # If the SSH probe found some, we use those; else fall back to all IPs
 
 - hosts: cidr_targets
   gather_facts: no
