@@ -1,173 +1,23 @@
-cyuan@sdexos-cyuan:~$ python3 /tools/sw/opt/scripts/python/uploadArtifactsToBamboo.py --files a.txt 
-/usr/lib/python3/dist-packages/requests/__init__.py:89: RequestsDependencyWarning: urllib3 (2.2.2) or chardet (3.0.4) doesn't match a supported version!
-  warnings.warn("urllib3 ({}) or chardet ({}) doesn't match a supported "
+# cidr_ping.yml
+- hosts: localhost
+  gather_facts: no
+  vars:
+    my_cidr: "10.168.0.0/22"
+  tasks:
+    - name: Expand CIDR into host list
+      set_fact:
+        cidr_hosts: "{{ query('community.general.ipaddr', my_cidr) }}"
 
-#########################################################################################################
-#                                  CALIX COPYRIGHT VIOLATION                                            #
-#                                                                                                       #
-#  Permission is hereby granted to use this script to upload executables to bamboo.                     #
-#  DO NOT upload any source code to bamboo. Packages uploaded to bamboo will be scanned and monitored.  # 
-#  Any individual who is misusing this script to upload non-executables to bamboo will be reported.     #
-#                                                                                                       #
-#########################################################################################################
+    - name: Add hosts dynamically
+      add_host:
+        name: "{{ item }}"
+        groups: cidr_targets
+        ansible_user: deploy
+        ansible_ssh_common_args: "-o ConnectTimeout=3"
+      loop: "{{ cidr_hosts }}"
 
-
-##############################################################################################################
- Request : Start Uploading files
-
- Uploading : Will start uploading the files a.txt from /home/cyuan
-
- Uploading : In progress!!!
-BAMBOO: ERROR: Bamboo responded with errors.
- Reason [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:1145)
-cyuan@sdexos-cyuan:~$ cat /tools/sw/opt/scripts/python/uploadArtifactsToBamboo.py 
-#!/usr/bin/python3
-###################################################################################################
-#  This python script is used to upload the packages from the user VM to bamboo.                  #
-#                                                                                                 #
-#                                                                                                 #
-###################################################################################################
-
-import argparse
-import os
-import requests
-import subprocess
-import getpass
-import urllib
-import re
-
-#Global variables
-specialLine="\n##############################################################################################################\n"
-
-helpMessage='''Enter filenames with complete path.
-To upload multiple files, enter files seperated by comma and to upload all files from the current directory, enter --files all'''
-
-banner='''
-#########################################################################################################
-#                                  CALIX COPYRIGHT VIOLATION                                            #
-#                                                                                                       #
-#  Permission is hereby granted to use this script to upload executables to bamboo.                     #
-#  DO NOT upload any source code to bamboo. Packages uploaded to bamboo will be scanned and monitored.  # 
-#  Any individual who is misusing this script to upload non-executables to bamboo will be reported.     #
-#                                                                                                       #
-#########################################################################################################
-'''
-
-def getFiles(files):
-	allFiles=[]
-	pwd = os.getcwd()
-	if files == "all":
-		filesT0Upload=[]
-		allFiles= os.listdir(pwd)
-		if allFiles:
-			#uploadFiles(pwd,allFiles)
-			checkExtension(allFiles)
-		else:
-			print("\n Failed  : No files found to upload from {} {}".format(path,specialLine))
-			exit(0)
-	else:
-		for thisFile in files:
-			if "/" in thisFile:
-				path=(thisFile.rsplit('/',1)[0]).lstrip()
-				fileName=(thisFile.rsplit('/',1)[1]).rstrip()
-			else:
-				fileName=thisFile.lstrip().rstrip()
-				path="."
-			if os.path.isdir(path):
-				checkdir=os.path.isdir(path)
-				if not checkdir:
-					checkdir=os.path.isdir(pwd+"/"+path)
-					if not checkdir:
-						print("Path {} not found\n".format(path))
-						exit(0)
-					else:
-						path=pwd+"/"+path
-				dirFiles=os.listdir(path)
-				if (fileName in dirFiles) and (fileName not in allFiles):
-					allFiles.append(path+"/"+fileName)
-				else:
-					print("\n Failed : File {} not found in directory {} !!".format(fileName,path))
-					exit(0)
-				os.chdir(pwd)
-			else:
-				print("\n Failed : {} not a valid directory !!".format(path))
-				exit(0)
-		if allFiles:
-			#uploadFiles(pwd,allFiles)
-			checkExtension(files)
-		else:
-			print("\n Failed  : No files found to upload from {} {}".format(path,specialLine))
-			exit(0)
-
-def checkExtension(files):
-	pwd = os.getcwd()
-	filesToUpload,filesRejected=[],[]
-	for thisFile in files:
-		if os.path.isdir(thisFile):
-			filesRejected.append(thisFile)
-		else:
-			filesToUpload.append(thisFile)
-	if filesRejected:
-		print("\n Rejected : The files {} are not uploaded to bamboo from {}".format(",".join(filesRejected),pwd))
-	if filesToUpload:
-		print("\n Uploading : Will start uploading the files {} from {}".format(",".join(filesToUpload),pwd))
-		uploadFiles(pwd,filesToUpload)
-
-def uploadFiles(pwd,allFiles):
-	allfilesForTransfer=" ".join(allFiles)
-	cmd='/usr/bin/rsync -Lz --rsh="/usr/bin/sshpass -p BL011415$ ssh -o StrictHostKeyChecking=no -l buildlauncher" ' + allfilesForTransfer + ' sdx-smkaxos01:/sandbox/builder/smkimages/'
-	try:
-		print("\n Uploading : In progress!!!")
-		subprocess.check_output(cmd,stderr=subprocess.STDOUT, shell=True)
-	except subprocess.CalledProcessError as Error:
-		print("rsync command failed with error {}".format(Error))
-		exit(0)
-
-	bambooURL="https://bamboo.calix.local/rest/api/latest/queue/BAMJOBS-FI"
-	requestor=getpass.getuser()
-	buildLauncherToken =
-
-	images=[]
-	for thisFile in allFiles:
-		if "/" in thisFile:
-			images.append(thisFile.rsplit('/',1)[1])
-		else:
-			images.append(thisFile)
-	params = urllib.parse.urlencode({ "bamboo.variable.image" : " ".join(images) , "bamboo.variable.requester" : requestor })
-	binaryParams = params.encode('ascii')
-	hed = {'Authorization': 'Bearer ' + buildLauncherToken}
-	req = urllib.request.Request(bambooURL,binaryParams, headers=hed)
-	try:
-		response = urllib.request.urlopen(req)
-		responseData=response.read().decode('utf-8')
-		response.close()
-		ref = re.sub(r'.*link href="(.*?)".*', r'\1', responseData)
-		ref = re.sub(r'rest/api/latest/result', r'browse', ref)
-		print("BAMBOO: You images are uploaded on {}/artifact {}".format(ref,specialLine))
-	except urllib.error.URLError as e:
-		print("BAMBOO: ERROR: Bamboo responded with errors.\n Reason %s" % (e.reason))
-		exit(1)
-
-if __name__ == '__main__':
-	try:
-		print(banner)
-		#Get Arguments
-		parser=argparse.ArgumentParser(description="Script to upload executables to Bamboo", usage=" [-h] [--files] [--axos-mirror]")
-		parser.add_argument("--files", default=None,help=helpMessage)
-		args = parser.parse_args()
-		files= args.files
-
-		if files == None:
-			print(" No files are enterted. Type 'python uploadArtifactsToBamboo.py --help' for more information")
-			exit(0)
-		elif files == "all":
-			print("{} Request : Start Uploading all the files from current directory".format(specialLine))
-			getFiles("all")
-		else:
-			print("{} Request : Start Uploading files".format(specialLine))
-			allFiles=files.split(",")
-			getFiles(allFiles)
-
-	except requests.exceptions.ConnectionError as errors:
-		print(errors)
-cyuan@sdexos-cyuan:~$ 
+- hosts: cidr_targets
+  gather_facts: no
+  tasks:
+    - name: Ping subnet
+      ping:
