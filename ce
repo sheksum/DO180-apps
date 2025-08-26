@@ -1,8 +1,8 @@
 - hosts: localhost
   gather_facts: no
   vars:
-    my_cidr: "10.168.0.0/22"          # <-- change as needed
-    ssh_timeout: 1                    # seconds for the port probe
+    my_cidr: "10.168.0.0/22"   # <-- change as needed
+    ssh_timeout: 1             # seconds for quick port-22 probe
   tasks:
     - name: Expand CIDR to list of IPs using Python stdlib
       command:
@@ -12,10 +12,7 @@
           - |
             import ipaddress, json, sys
             net = ipaddress.ip_network(sys.argv[1], strict=False)
-            # hosts() skips network/broadcast automatically for v4
             print(json.dumps([str(ip) for ip in net.hosts()]))
-            # for v6, hosts() is fine too
-            # print(json.dumps([str(ip) for ip in ipaddress.ip_network(sys.argv[1]).hosts()]))
           - "{{ my_cidr }}"
       register: cidr_out
       changed_when: false
@@ -24,7 +21,7 @@
       set_fact:
         cidr_hosts: "{{ cidr_out.stdout | from_json }}"
 
-    - name: (Optional) keep only SSH-reachable hosts
+    - name: Probe SSH (22) quickly
       wait_for:
         host: "{{ item }}"
         port: 22
@@ -32,16 +29,19 @@
       loop: "{{ cidr_hosts }}"
       register: sshcheck
       ignore_errors: yes
+      failed_when: false        # don't show red failures for timeouts
 
     - name: Build list of live hosts
       set_fact:
-        live_hosts: >-
-          {{ sshcheck.results
-             | rejectattr('failed', 'defined')   # tolerate modules that don't set failed
-             | selectattr('state', 'defined')
-             | selectattr('state', 'eq', 'started')
-             | map(attribute='item') | list
-             | default([]) }}
+        live_hosts: "{{ sshcheck.results | selectattr('failed', '==', false) | map(attribute='item') | list }}"
+
+    - name: Show live hosts
+      debug:
+        var: live_hosts
+
+    - name: Stop early if none are reachable
+      meta: end_play
+      when: live_hosts | length == 0
 
     - name: Add live hosts dynamically
       add_host:
@@ -49,11 +49,10 @@
         groups: cidr_targets
         ansible_user: deploy
         ansible_ssh_common_args: "-o ConnectTimeout=3"
-      loop: "{{ live_hosts | default(cidr_hosts) }}"
-      # If the SSH probe found some, we use those; else fall back to all IPs
+      loop: "{{ live_hosts }}"
 
 - hosts: cidr_targets
   gather_facts: no
   tasks:
-    - name: Ping subnet
+    - name: Ping reachable hosts
       ping:
