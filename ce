@@ -1,65 +1,46 @@
-- hosts: localhost
-  gather_facts: no
-  vars:
-    my_cidrs:
-      - "10.168.0.0/22"
-      - "10.168.4.0/22"
-      - "10.168.8.0/22"
-      - "10.168.15.0/24"
-    ssh_timeout: 1
-  tasks:
-    - name: Expand CIDRs into IP list
-      command:
-        argv:
-          - python3
-          - -c
-          - |
-            import ipaddress, json, sys
-            nets = sys.argv[1:]
-            allips = []
-            for n in nets:
-                net = ipaddress.ip_network(n, strict=False)
-                allips.extend([str(ip) for ip in net.hosts()])
-            print(json.dumps(allips))
-          - "{{ my_cidrs | join(' ') }}"
-      register: cidr_out
-      changed_when: false
+#!/bin/bash
+# hosts.txt = list of servers (one per line)
 
-    - set_fact:
-        cidr_hosts: "{{ cidr_out.stdout | from_json }}"
+HOSTS_FILE="hosts.txt"
+SSH_USER="deploy"
 
-    - name: Probe SSH (22) quickly
-      wait_for:
-        host: "{{ item }}"
-        port: 22
-        timeout: "{{ ssh_timeout }}"
-      loop: "{{ cidr_hosts }}"
-      register: sshcheck
-      ignore_errors: yes
-      failed_when: false
+DEBIAN_DIR="/usr/local/share/ca-certificates"
+RHEL_DIR="/etc/pki/ca-trust/source/anchors"
+CERTS=("CalixROOTCA.crt" "CalixInterCA1.crt" "CalixInterCA2.crt")
 
-    - set_fact:
-        ssh_up_hosts: "{{ sshcheck.results | selectattr('failed', '==', false) | map(attribute='item') | list }}"
+LOGFILE="verify_failures.log"
+: > "$LOGFILE"   # truncate log file
 
-    - name: Verify deploy login works
-      delegate_to: localhost
-      command: >
-        ssh -o BatchMode=yes -o StrictHostKeyChecking=no
-            -o UserKnownHostsFile=/dev/null
-            -o ConnectTimeout=3
-            -l deploy {{ item }} true
-      loop: "{{ ssh_up_hosts }}"
-      register: deploy_login
-      ignore_errors: yes
-      failed_when: false
+for host in $(cat "$HOSTS_FILE"); do
+  echo ">>> $host"
 
-    - set_fact:
-        deploy_hosts: "{{ deploy_login.results | selectattr('rc', 'defined') | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
+  # detect OS family
+  OS=$(ssh -o BatchMode=yes -o ConnectTimeout=5 $SSH_USER@$host 'grep "^ID=" /etc/os-release' 2>/dev/null)
 
-    - name: Write verified hosts to file
-      copy:
-        dest: ./verified_hosts.txt
-        content: |
-          {% for h in deploy_hosts %}
-          {{ h }}
-          {% endfor %}
+  if [[ "$OS" == *"ubuntu"* || "$OS" == *"debian"* ]]; then
+    CA_DIR=$DEBIAN_DIR
+  else
+    CA_DIR=$RHEL_DIR
+  fi
+
+  # check certs
+  for c in "${CERTS[@]}"; do
+    if ssh $SSH_USER@$host "[ -f $CA_DIR/$c ]"; then
+      echo "  OK: $CA_DIR/$c"
+    else
+      echo "  MISSING: $CA_DIR/$c"
+      echo "$host - missing $CA_DIR/$c" >> "$LOGFILE"
+    fi
+  done
+
+  # quick curl probe
+  if ssh $SSH_USER@$host "curl -sS -I https://pln-stash.calix.local >/dev/null 2>&1"; then
+    echo "  HTTPS OK"
+  else
+    echo "  HTTPS FAIL"
+    echo "$host - HTTPS trust failed" >> "$LOGFILE"
+  fi
+done
+
+echo
+echo "Failures logged to $LOGFILE"
