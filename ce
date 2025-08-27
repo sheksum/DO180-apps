@@ -1,21 +1,23 @@
 #!/bin/bash
-# Push *.crt to CentOS/RHEL7 anchors and run update-ca-trust as ROOT (password auth)
+# Push *.crt to CentOS/RHEL7 anchors and run update-ca-trust
+# Tries root login first; if blocked, falls back to deploy+sudo
 
 set -u -o pipefail
 
-HOSTS_FILE="${HOSTS_FILE:-centos7.txt}"      # one host/IP per line
-CERTS_DIR="${CERTS_DIR:-./files}"            # local dir with *.crt
+HOSTS_FILE="${HOSTS_FILE:-centos7.txt}"      
+CERTS_DIR="${CERTS_DIR:-./files}"           
 LOGFILE="${LOGFILE:-push_certs_failures.log}"
+DEPLOY_USER="${DEPLOY_USER:-deploy}"        # fallback user with sudo
+DEPLOY_KEY="${DEPLOY_KEY:-$HOME/.ssh/deploy_key}"
 
 SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
           -o LogLevel=ERROR -o ConnectTimeout=6 -o ConnectionAttempts=1)
 
-# read root password once
+# read root pw once
 read -s -p "Root password: " ROOTPW; echo
 
 : > "$LOGFILE"
 
-# collect certs once
 shopt -s nullglob
 CRT_LIST=("$CERTS_DIR"/*.crt)
 shopt -u nullglob
@@ -25,7 +27,6 @@ fi
 
 ok=0 fail=0
 
-# normalize hosts (strip CRs, blanks, comments)
 mapfile -t HOSTS < <(tr -d '\r' < "$HOSTS_FILE" | sed -e '/^\s*#/d' -e '/^\s*$/d')
 
 echo "Processing ${#HOSTS[@]} hosts..."
@@ -33,51 +34,50 @@ for host in "${HOSTS[@]}"; do
   echo ">>> $host"
   host_fail=0
 
-  # 0) quick connectivity test as root (do NOT exit on failure)
-  if ! sshpass -p "$ROOTPW" ssh "${SSH_OPTS[@]}" "root@${host}" true >/dev/null 2>&1; then
-    echo "  FAIL: cannot ssh as root (PermitRootLogin disabled or wrong pw)"
-    echo "$(date +'%F %T') $host - root ssh failed" >> "$LOGFILE"
-    ((fail++)); continue
+  # ---- ROOT path
+  if sshpass -p "$ROOTPW" ssh "${SSH_OPTS[@]}" "root@${host}" true >/dev/null 2>&1; then
+    echo "  Using root login"
+    COPY_CMD="sshpass -p $ROOTPW scp ${SSH_OPTS[*]}"
+    RUN_CMD="sshpass -p $ROOTPW ssh ${SSH_OPTS[*]} root@${host}"
+    TARGET_USER="root"
+    SUDO_PREFIX=""   # not needed as root
+  else
+    # ---- FALLBACK to deploy user
+    echo "  Root login blocked, using $DEPLOY_USER + sudo"
+    COPY_CMD="scp -i $DEPLOY_KEY ${SSH_OPTS[*]}"
+    RUN_CMD="ssh -i $DEPLOY_KEY ${SSH_OPTS[*]} $DEPLOY_USER@${host}"
+    TARGET_USER="$DEPLOY_USER"
+    SUDO_PREFIX="sudo -n"
   fi
 
-  # 1) push each cert and set perms
+  # copy + install certs
   for crt in "${CRT_LIST[@]}"; do
     base="$(basename "$crt")"
-    if ! sshpass -p "$ROOTPW" scp "${SSH_OPTS[@]}" "$crt" "root@${host}:/etc/pki/ca-trust/source/anchors/$base" >/dev/null 2>&1; then
-      echo "  FAIL: scp $base"
-      echo "$(date +'%F %T') $host - scp failed $base" >> "$LOGFILE"
-      host_fail=1
-      continue
+    if $COPY_CMD "$crt" "${TARGET_USER}@${host}:/tmp/$base" >/dev/null 2>&1; then
+      if $RUN_CMD "$SUDO_PREFIX mv /tmp/$base /etc/pki/ca-trust/source/anchors/$base && $SUDO_PREFIX chmod 644 /etc/pki/ca-trust/source/anchors/$base"; then
+        echo "  OK: pushed $base"
+      else
+        echo "  FAIL: move/perm $base"; echo "$(date +'%F %T') $host - move/perm failed $base" >> "$LOGFILE"; host_fail=1
+      fi
+    else
+      echo "  FAIL: scp $base"; echo "$(date +'%F %T') $host - scp failed $base" >> "$LOGFILE"; host_fail=1
     fi
-    if ! sshpass -p "$ROOTPW" ssh "${SSH_OPTS[@]}" "root@${host}" \
-         "chmod 644 /etc/pki/ca-trust/source/anchors/$base" >/dev/null 2>&1; then
-      echo "  FAIL: chmod $base"
-      echo "$(date +'%F %T') $host - chmod failed $base" >> "$LOGFILE"
-      host_fail=1
-      continue
-    fi
-    echo "  OK: pushed $base"
   done
 
-  # 2) refresh trust
-  if ! sshpass -p "$ROOTPW" ssh "${SSH_OPTS[@]}" "root@${host}" \
-        "update-ca-trust extract" >/dev/null 2>&1; then
-    echo "  FAIL: update-ca-trust"
-    echo "$(date +'%F %T') $host - update-ca-trust failed" >> "$LOGFILE"
-    host_fail=1
-  else
+  # refresh trust
+  if $RUN_CMD "$SUDO_PREFIX update-ca-trust extract" >/dev/null 2>&1; then
     echo "  OK: trust updated"
+  else
+    echo "  FAIL: update-ca-trust"; echo "$(date +'%F %T') $host - update-ca-trust failed" >> "$LOGFILE"; host_fail=1
   fi
 
   if (( host_fail == 0 )); then
-    echo "$host  OK"
-    ((ok++))
+    echo "$host  OK"; ((ok++))
   else
-    echo "$host  FAIL"
-    ((fail++))
+    echo "$host  FAIL"; ((fail++))
   fi
 done
 
 echo
 echo "SUMMARY  OK=$ok  FAIL=$fail"
-echo "Failures (if any) logged to $LOGFILE"
+echo "Failures logged to $LOGFILE"
