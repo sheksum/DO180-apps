@@ -1,60 +1,83 @@
 #!/bin/bash
-set -euo pipefail
+# Push *.crt to CentOS/RHEL7 anchors and run update-ca-trust as ROOT (password auth)
 
-HOSTS_FILE="${HOSTS_FILE:-centos7.txt}"     # one host/IP per line
-CERTS_DIR="${CERTS_DIR:-./files}"           # local dir with *.crt
+set -u -o pipefail
+
+HOSTS_FILE="${HOSTS_FILE:-centos7.txt}"      # one host/IP per line
+CERTS_DIR="${CERTS_DIR:-./files}"            # local dir with *.crt
 LOGFILE="${LOGFILE:-push_certs_failures.log}"
 
-SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
           -o LogLevel=ERROR -o ConnectTimeout=6 -o ConnectionAttempts=1)
 
-# read root password once, without echoing
-read -s -p "Root password: " ROOTPW
-echo
+# read root password once
+read -s -p "Root password: " ROOTPW; echo
 
 : > "$LOGFILE"
 
-# quick sanity
+# collect certs once
 shopt -s nullglob
 CRT_LIST=("$CERTS_DIR"/*.crt)
-if (( ${#CRT_LIST[@]} == 0 )); then
-  echo "No .crt files found in $CERTS_DIR"
-  exit 1
-fi
 shopt -u nullglob
+if (( ${#CRT_LIST[@]} == 0 )); then
+  echo "No .crt files found in $CERTS_DIR"; exit 1
+fi
 
-while IFS= read -r host || [[ -n "$host" ]]; do
-  [[ -z "$host" || "$host" =~ ^# ]] && continue
+ok=0 fail=0
+
+# normalize hosts (strip CRs, blanks, comments)
+mapfile -t HOSTS < <(tr -d '\r' < "$HOSTS_FILE" | sed -e '/^\s*#/d' -e '/^\s*$/d')
+
+echo "Processing ${#HOSTS[@]} hosts..."
+for host in "${HOSTS[@]}"; do
   echo ">>> $host"
+  host_fail=0
 
-  # test connectivity as root (fail fast)
-  if ! sshpass -p "$ROOTPW" ssh "${SSH_OPTS[@]}" "root@${host}" "true" >/dev/null 2>&1; then
-    echo "  FAIL: cannot ssh as root (PermitRootLogin may be disabled)"; \
+  # 0) quick connectivity test as root (do NOT exit on failure)
+  if ! sshpass -p "$ROOTPW" ssh "${SSH_OPTS[@]}" "root@${host}" true >/dev/null 2>&1; then
+    echo "  FAIL: cannot ssh as root (PermitRootLogin disabled or wrong pw)"
     echo "$(date +'%F %T') $host - root ssh failed" >> "$LOGFILE"
-    continue
+    ((fail++)); continue
   fi
 
-  # push each cert directly into anchors and set perms
+  # 1) push each cert and set perms
   for crt in "${CRT_LIST[@]}"; do
     base="$(basename "$crt")"
-    if sshpass -p "$ROOTPW" scp "${SSH_OPTS[@]}" "$crt" "root@${host}:/etc/pki/ca-trust/source/anchors/$base" >/dev/null 2>&1; then
-      sshpass -p "$ROOTPW" ssh "${SSH_OPTS[@]}" "root@${host}" "chmod 644 /etc/pki/ca-trust/source/anchors/$base" \
-        && echo "  OK: pushed $base" \
-        || { echo "  FAIL: chmod $base"; echo "$(date +'%F %T') $host - chmod failed $base" >> "$LOGFILE"; }
-    else
-      echo "  FAIL: scp $base"; \
+    if ! sshpass -p "$ROOTPW" scp "${SSH_OPTS[@]}" "$crt" "root@${host}:/etc/pki/ca-trust/source/anchors/$base" >/dev/null 2>&1; then
+      echo "  FAIL: scp $base"
       echo "$(date +'%F %T') $host - scp failed $base" >> "$LOGFILE"
+      host_fail=1
+      continue
     fi
+    if ! sshpass -p "$ROOTPW" ssh "${SSH_OPTS[@]}" "root@${host}" \
+         "chmod 644 /etc/pki/ca-trust/source/anchors/$base" >/dev/null 2>&1; then
+      echo "  FAIL: chmod $base"
+      echo "$(date +'%F %T') $host - chmod failed $base" >> "$LOGFILE"
+      host_fail=1
+      continue
+    fi
+    echo "  OK: pushed $base"
   done
 
-  # refresh trust
-  if sshpass -p "$ROOTPW" ssh "${SSH_OPTS[@]}" "root@${host}" "update-ca-trust extract" >/dev/null 2>&1; then
-    echo "  OK: trust updated"
-  else
-    echo "  FAIL: update-ca-trust"; \
+  # 2) refresh trust
+  if ! sshpass -p "$ROOTPW" ssh "${SSH_OPTS[@]}" "root@${host}" \
+        "update-ca-trust extract" >/dev/null 2>&1; then
+    echo "  FAIL: update-ca-trust"
     echo "$(date +'%F %T') $host - update-ca-trust failed" >> "$LOGFILE"
+    host_fail=1
+  else
+    echo "  OK: trust updated"
   fi
-done < "$HOSTS_FILE"
+
+  if (( host_fail == 0 )); then
+    echo "$host  OK"
+    ((ok++))
+  else
+    echo "$host  FAIL"
+    ((fail++))
+  fi
+done
 
 echo
+echo "SUMMARY  OK=$ok  FAIL=$fail"
 echo "Failures (if any) logged to $LOGFILE"
