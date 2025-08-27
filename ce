@@ -1,63 +1,64 @@
 #!/bin/bash
+# hosts.txt = list of servers (one per line)
 
 HOSTS_FILE="hosts.txt"
 SSH_USER="deploy"
-LOGFILE="verify_failures.log"
 
-CERTS=("CalixROOTCA.crt" "CalixInterCA1.crt" "CalixInterCA2.crt")
 DEBIAN_DIR="/usr/local/share/ca-certificates"
 RHEL_DIR="/etc/pki/ca-trust/source/anchors"
+CERTS=("CalixROOTCA.crt" "CalixInterCA1.crt" "CalixInterCA2.crt")
+
 TEST_URL="https://pln-stash.calix.local"
+LOGFILE="verify_failures.log"
 
-SSH_OPTS=(-o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=5)
+# --- timeouts (seconds) ---
+SSH_CONNECT_TO=6      # TCP connect timeout
+SSH_CMD_TO=10         # cap each ssh command
+CURL_MAX_TIME=6       # cap curl on the remote host
 
-ts(){ date +'%F %T'; }
-log_fail(){ echo "$(ts) $1" >> "$LOGFILE"; }
+# --- quiet, non-interactive SSH ---
+SSH_OPTS="-o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=${SSH_CONNECT_TO} -o ConnectionAttempts=1 -o ServerAliveInterval=3 -o ServerAliveCountMax=1"
 
-: > "$LOGFILE"
+: > "$LOGFILE"  # truncate log file
 
-while IFS= read -r host; do
-  [[ -z "$host" || "$host" =~ ^# ]] && continue
-
+for host in $(cat "$HOSTS_FILE"); do
   echo ">>> $host"
-  missing=0; https_ok=0
 
-  # detect OS family
-  OS_LINE=$(ssh "${SSH_OPTS[@]}" "$SSH_USER@$host" 'source /etc/os-release 2>/dev/null; echo "${ID_LIKE:-$ID}"' 2>/dev/null)
-  if [[ $? -ne 0 || -z "$OS_LINE" ]]; then
-    log_fail "$host - SSH/OS-detect failed"
-    echo "$host FAIL (ssh/os-detect)"
+  # detect OS family (bounded)
+  OS=$(timeout "$SSH_CMD_TO" ssh $SSH_OPTS "$SSH_USER@$host" \
+       'source /etc/os-release 2>/dev/null; echo "${ID_LIKE:-$ID}"' 2>/dev/null)
+
+  if [[ -z "$OS" ]]; then
+    echo "  FAIL: ssh/os-detect timeout or failure"
+    echo "$(date +'%F %T') $host - ssh/os-detect timeout or failure" >> "$LOGFILE"
     continue
   fi
 
-  if [[ "$OS_LINE" == *debian* || "$OS_LINE" == *ubuntu* ]]; then
-    ca_dir="$DEBIAN_DIR"
+  if [[ "$OS" == *"debian"* || "$OS" == *"ubuntu"* ]]; then
+    CA_DIR="$DEBIAN_DIR"
   else
-    ca_dir="$RHEL_DIR"
+    CA_DIR="$RHEL_DIR"
   fi
 
-  # check certs
+  # check certs (bounded)
   for c in "${CERTS[@]}"; do
-    ssh "${SSH_OPTS[@]}" "$SSH_USER@$host" "[ -f '$ca_dir/$c' ]" 2>/dev/null
-    if [[ $? -ne 0 ]]; then
-      ((missing++))
-      log_fail "$host - missing $ca_dir/$c"
+    if timeout "$SSH_CMD_TO" ssh $SSH_OPTS "$SSH_USER@$host" "[ -f '$CA_DIR/$c' ]"; then
+      echo "  OK:      $CA_DIR/$c"
+    else
+      echo "  MISSING: $CA_DIR/$c"
+      echo "$(date +'%F %T') $host - missing $CA_DIR/$c" >> "$LOGFILE"
     fi
   done
 
-  # curl trust check
-  ssh "${SSH_OPTS[@]}" "$SSH_USER@$host" "curl -sS -I --max-time 5 '$TEST_URL' >/dev/null 2>&1"
-  if [[ $? -eq 0 ]]; then
-    https_ok=1
+  # quick HTTPS probe (bounded)
+  if timeout "$SSH_CMD_TO" ssh $SSH_OPTS "$SSH_USER@$host" \
+       "curl -sS -I --max-time ${CURL_MAX_TIME} '$TEST_URL' >/dev/null 2>&1"; then
+    echo "  HTTPS OK"
   else
-    log_fail "$host - HTTPS trust failed"
+    echo "  HTTPS FAIL"
+    echo "$(date +'%F %T') $host - HTTPS trust failed for $TEST_URL" >> "$LOGFILE"
   fi
+done
 
-  if (( missing==0 && https_ok==1 )); then
-    echo "$host OK (dir: $ca_dir)"
-  else
-    echo "$host FAIL (dir: $ca_dir, missing:$missing, https:$([[ $https_ok == 1 ]] && echo OK || echo FAIL))"
-  fi
-done < "$HOSTS_FILE"
-
+echo
 echo "Failures logged to $LOGFILE"
