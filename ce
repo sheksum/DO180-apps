@@ -1,46 +1,73 @@
 #!/bin/bash
-# hosts.txt = list of servers (one per line)
+set -euo pipefail
 
-HOSTS_FILE="hosts.txt"
-SSH_USER="deploy"
+HOSTS_FILE="${HOSTS_FILE:-hosts.txt}"    # one host/IP per line
+SSH_USER="${SSH_USER:-deploy}"
+LOGFILE="${LOGFILE:-verify_failures.log}"
 
-DEBIAN_DIR="/usr/local/share/ca-certificates"
-RHEL_DIR="/etc/pki/ca-trust/source/anchors"
+# cert names to check
 CERTS=("CalixROOTCA.crt" "CalixInterCA1.crt" "CalixInterCA2.crt")
 
-LOGFILE="verify_failures.log"
-: > "$LOGFILE"   # truncate log file
+# CA dirs
+DEBIAN_DIR="/usr/local/share/ca-certificates"
+RHEL_DIR="/etc/pki/ca-trust/source/anchors"
 
-for host in $(cat "$HOSTS_FILE"); do
+# timeouts (seconds)
+SSH_CONNECT_TO="${SSH_CONNECT_TO:-6}"    # TCP connect timeout
+SSH_CMD_TO="${SSH_CMD_TO:-10}"           # hard cap per remote command
+CURL_MAX_TIME="${CURL_MAX_TIME:-6}"      # curl hard cap
+
+# target URL for trust check
+TEST_URL="${TEST_URL:-https://pln-stash.calix.local}"
+
+# SSH options (non-interactive)
+SSH_OPTS=(-o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+          -o ConnectTimeout="${SSH_CONNECT_TO}" -o ConnectionAttempts=1
+          -o ServerAliveInterval=3 -o ServerAliveCountMax=1)
+
+: > "$LOGFILE"   # truncate log
+
+check_host () {
+  local host="$1"
   echo ">>> $host"
 
-  # detect OS family
-  OS=$(ssh -o BatchMode=yes -o ConnectTimeout=5 $SSH_USER@$host 'grep "^ID=" /etc/os-release' 2>/dev/null)
-
-  if [[ "$OS" == *"ubuntu"* || "$OS" == *"debian"* ]]; then
-    CA_DIR=$DEBIAN_DIR
-  else
-    CA_DIR=$RHEL_DIR
+  # 1) detect OS family (bounded)
+  if ! OS_LINE=$(timeout "$SSH_CMD_TO" ssh "${SSH_OPTS[@]}" "${SSH_USER}@${host}" 'source /etc/os-release 2>/dev/null; echo "${ID_LIKE:-$ID}"' 2>/dev/null); then
+    echo "  ERROR: ssh/os-detect timeout or failure"
+    echo "$(date +'%F %T') $host - ssh/os-detect timeout or failure" >> "$LOGFILE"
+    return
   fi
 
-  # check certs
+  if [[ "$OS_LINE" == *debian* || "$OS_LINE" == *ubuntu* ]]; then
+    CA_DIR="$DEBIAN_DIR"
+  else
+    CA_DIR="$RHEL_DIR"
+  fi
+
+  # 2) cert presence checks (bounded)
   for c in "${CERTS[@]}"; do
-    if ssh $SSH_USER@$host "[ -f $CA_DIR/$c ]"; then
+    if timeout "$SSH_CMD_TO" ssh "${SSH_OPTS[@]}" "${SSH_USER}@${host}" "[ -f '$CA_DIR/$c' ]"; then
       echo "  OK: $CA_DIR/$c"
     else
       echo "  MISSING: $CA_DIR/$c"
-      echo "$host - missing $CA_DIR/$c" >> "$LOGFILE"
+      echo "$(date +'%F %T') $host - missing $CA_DIR/$c" >> "$LOGFILE"
     fi
   done
 
-  # quick curl probe
-  if ssh $SSH_USER@$host "curl -sS -I https://pln-stash.calix.local >/dev/null 2>&1"; then
+  # 3) quick HTTPS trust probe (bounded)
+  if timeout "$SSH_CMD_TO" ssh "${SSH_OPTS[@]}" "${SSH_USER}@${host}" "curl -sS -I --max-time ${CURL_MAX_TIME} '$TEST_URL' >/dev/null 2>&1"; then
     echo "  HTTPS OK"
   else
     echo "  HTTPS FAIL"
-    echo "$host - HTTPS trust failed" >> "$LOGFILE"
+    echo "$(date +'%F %T') $host - HTTPS trust failed for $TEST_URL" >> "$LOGFILE"
   fi
-done
+}
+
+# read hosts safely
+while IFS= read -r host; do
+  [[ -z "$host" || "$host" =~ ^# ]] && continue
+  check_host "$host"
+done < "$HOSTS_FILE"
 
 echo
 echo "Failures logged to $LOGFILE"
