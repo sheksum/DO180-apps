@@ -1,42 +1,19 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-PROXY_HOST="plnx-atlproxy01"
-PROXY_USER="deploy"
-REMOTE_TMP="/tmp/atlassian.whitelist.new"
-REMOTE_DST="/etc/nginx/conf.d/atlassian.whitelist"
-
-LOC_TMP="$(mktemp)"
-
-# 1) Run YOUR python, format for nginx
-python3 /home/deploy/get_ips.py \
-  | sort -V | uniq \
-  | sed 's/^/allow /; s/$/;/' > "$LOC_TMP"
-
-# Bail out if empty
-test -s "$LOC_TMP" || { echo "No data produced"; exit 1; }
-
-# 2) Copy to proxy
-scp -q "$LOC_TMP" "${PROXY_USER}@${PROXY_HOST}:${REMOTE_TMP}"
-
-# 3) Install atomically, validate, reload (uses sudo on proxy)
-ssh -q "${PROXY_USER}@${PROXY_HOST}" bash -s <<'EOSSH'
-set -euo pipefail
-TMP="/tmp/atlassian.whitelist.new"
-DST="/etc/nginx/conf.d/atlassian.whitelist"
-BACKUP="${DST}.bak-$(date +%F_%H%M)"
-
-# Skip reload if identical
-if [ -f "$DST" ] && cmp -s "$TMP" "$DST"; then
-  echo "No changes; leaving nginx as-is."
-  exit 0
-fi
-
-sudo cp "$DST" "$BACKUP" 2>/dev/null || true
-sudo install -o root -g root -m 0644 "$TMP" "$DST"
-sudo nginx -t
-sudo systemctl reload nginx
-echo "Whitelist updated and nginx reloaded."
-EOSSH
-
-rm -f "$LOC_TMP"
+- hosts: localhost
+  collections: [paloaltonetworks.panos]
+  vars: { provider: { hostname: "{{ pan_host }}", username: "{{ pan_user }}", password: "{{ pan_pass }}" } }
+  tasks:
+    - name: Build list locally
+      command: bash -lc "python3 /home/deploy/get_ips.py | sort -V | uniq"
+      register: cidrs
+    - name: Ensure address objects
+      loop: "{{ cidrs.stdout_lines }}"
+      panos_address_object:
+        provider: "{{ provider }}"
+        name: "atlassian-{{ item | regex_replace('/','_') }}"
+        value: "{{ item }}"
+    - name: Address group (static) referencing all objects
+      panos_address_group:
+        provider: "{{ provider }}"
+        name: "ag-atlassian-bitbucket"
+        static_value: "{{ cidrs.stdout_lines | map('regex_replace','/','_') | map('regex_replace','^','atlassian-') | list }}"
+        commit: true
