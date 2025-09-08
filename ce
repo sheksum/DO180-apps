@@ -1,19 +1,52 @@
-- hosts: localhost
-  collections: [paloaltonetworks.panos]
-  vars: { provider: { hostname: "{{ pan_host }}", username: "{{ pan_user }}", password: "{{ pan_pass }}" } }
-  tasks:
-    - name: Build list locally
-      command: bash -lc "python3 /home/deploy/get_ips.py | sort -V | uniq"
-      register: cidrs
-    - name: Ensure address objects
-      loop: "{{ cidrs.stdout_lines }}"
-      panos_address_object:
-        provider: "{{ provider }}"
-        name: "atlassian-{{ item | regex_replace('/','_') }}"
-        value: "{{ item }}"
-    - name: Address group (static) referencing all objects
-      panos_address_group:
-        provider: "{{ provider }}"
-        name: "ag-atlassian-bitbucket"
-        static_value: "{{ cidrs.stdout_lines | map('regex_replace','/','_') | map('regex_replace','^','atlassian-') | list }}"
-        commit: true
+Resolve SSH Host-Key Mismatch with IPA/SSSD
+Goal: When a host (e.g., slc-admin) is rebuilt or its SSH host keys change, SSSD clients reject it with “REMOTE HOST IDENTIFICATION HAS CHANGED”. Fix this centrally in IPA and refresh SSSD on clients.
+Scope & Assumptions
+FreeIPA/IdM is the source of truth for sshPublicKey.
+Clients use SSSD and the SSSD-managed known_hosts at /var/lib/sss/pubconf/known_hosts.
+You want no deletes by default (per your policy). We’ll append/replace keys; optional cleanup is manual.
+
+Prereqs
+Kerberos admin creds (e.g., kinit <userid>) on the box where you’ll run the ipa commands.
+SSH access from IPA server to the target host (or run the “push” flow directly on the host).
+On the target host: the server’s public key files exist:
+/etc/ssh/ssh_host_ed25519_key.pub
+/etc/ssh/ssh_host_rsa_key.pub (if present)
+
+Step 1 — Check host’s real fingerprints
+Run this on the host (slc-admin):
+
+ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub -E sha256
+ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub -E sha256
+
+Confirm the fingerprints are the ones you want IPA to trust.
+
+Step 2 — Update keys in IPA
+Option A: Push from the host
+
+kinit admin
+ipa host-mod slc-admin.calix.local \
+  --sshpubkey="$(cat /etc/ssh/ssh_host_ed25519_key.pub)" \
+  --sshpubkey="$(cat /etc/ssh/ssh_host_rsa_key.pub 2>/dev/null || true)"
+
+Pull from the IPA server
+
+kinit admin
+ssh slc-admin 'cat /etc/ssh/ssh_host_ed25519_key.pub' > /tmp/slc-admin.ed25519.pub
+ssh slc-admin 'cat /etc/ssh/ssh_host_rsa_key.pub'      > /tmp/slc-admin.rsa.pub 2>/dev/null || true
+
+ipa host-mod slc-admin.calix.local \
+  --sshpubkey="$(cat /tmp/slc-admin.ed25519.pub)" \
+  --sshpubkey="$(test -s /tmp/slc-admin.rsa.pub && cat /tmp/slc-admin.rsa.pub || true)"
+
+Step 3 — Refresh SSSD on clients
+Run this on each client (e.g., plnx-admin):
+sudo rm -f /var/lib/sss/pubconf/known_hosts*
+sudo sss_cache -E
+sudo systemctl restart sssd
+
+Step 4 — Verify
+ssh -o StrictHostKeyChecking=yes slc-admin
+
+# Or preview what SSSD will serve:
+sss_ssh_knownhostsproxy -p 22 slc-admin | ssh-keygen -lf - -E sha256
+The fingerprints should now match those from Step 1.
