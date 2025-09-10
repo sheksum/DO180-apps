@@ -1,52 +1,35 @@
-Resolve SSH Host-Key Mismatch with IPA/SSSD
-Goal: When a host (e.g., slc-admin) is rebuilt or its SSH host keys change, SSSD clients reject it with “REMOTE HOST IDENTIFICATION HAS CHANGED”. Fix this centrally in IPA and refresh SSSD on clients.
-Scope & Assumptions
-FreeIPA/IdM is the source of truth for sshPublicKey.
-Clients use SSSD and the SSSD-managed known_hosts at /var/lib/sss/pubconf/known_hosts.
-You want no deletes by default (per your policy). We’ll append/replace keys; optional cleanup is manual.
+#!/usr/bin/env bash
+# seed-two-users-nssdb.sh
+# Your original flow, with just the pre-renames you requested.
 
-Prereqs
-Kerberos admin creds (e.g., kinit <userid>) on the box where you’ll run the ipa commands.
-SSH access from IPA server to the target host (or run the “push” flow directly on the host).
-On the target host: the server’s public key files exist:
-/etc/ssh/ssh_host_ed25519_key.pub
-/etc/ssh/ssh_host_rsa_key.pub (if present)
+USERS=("bwing")   # <-- replace with real logins
 
-Step 1 — Check host’s real fingerprints
-Run this on the host (slc-admin):
+for u in "${USERS[@]}"; do
+  HOME_DIR=$(getent passwd "$u" | cut -d: -f6 || true)
+  [[ -z "$HOME_DIR" || ! -d "$HOME_DIR" ]] && { echo "Skip $u (no home)"; continue; }
 
-ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub -E sha256
-ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub -E sha256
+  # --- PRE: rename per-user Chrome config/cache and .local ---
+  [ -d "$HOME_DIR/.config/google-chrome" ] && mv "$HOME_DIR/.config/google-chrome" "$HOME_DIR/.config/google-chrome.bak"
+  [ -d "$HOME_DIR/.cache/google-chrome"  ] && mv "$HOME_DIR/.cache/google-chrome"  "$HOME_DIR/.cache/google-chrome.bak"
+  [ -d "$HOME_DIR/.local"                ] && mv "$HOME_DIR/.local"                "$HOME_DIR/.local.bak"
 
-Confirm the fingerprints are the ones you want IPA to trust.
+  DB="$HOME_DIR/.pki/nssdb"
 
-Step 2 — Update keys in IPA
-Option A: Push from the host
+  # Backup old NSS DB if present
+  if [ -d "$DB" ]; then
+    mv "$DB" "$HOME_DIR/.pki/nssdb.backup"
+    echo "[$u] backup of nssdb created"
+  fi
 
-kinit admin
-ipa host-mod slc-admin.calix.local \
-  --sshpubkey="$(cat /etc/ssh/ssh_host_ed25519_key.pub)" \
-  --sshpubkey="$(cat /etc/ssh/ssh_host_rsa_key.pub 2>/dev/null || true)"
+  # Recreate DB with empty password
+  sudo -u "$u" mkdir -p "$DB"
+  sudo -u "$u" certutil -d "sql:$DB" -N --empty-password
 
-Pull from the IPA server
+  # --- Your original CA imports (unchanged labels/paths/flags) ---
+  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixRootCA"   -i /usr/local/share/ca-certificates/CalixROOTCA.crt
+  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixInterCA"  -i /usr/local/share/ca-certificates/CalixInterCA2.crt
+  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixEntCA"    -i /usr/local/share/ca-certificates/CalixInterCA1.crt
 
-kinit admin
-ssh slc-admin 'cat /etc/ssh/ssh_host_ed25519_key.pub' > /tmp/slc-admin.ed25519.pub
-ssh slc-admin 'cat /etc/ssh/ssh_host_rsa_key.pub'      > /tmp/slc-admin.rsa.pub 2>/dev/null || true
-
-ipa host-mod slc-admin.calix.local \
-  --sshpubkey="$(cat /tmp/slc-admin.ed25519.pub)" \
-  --sshpubkey="$(test -s /tmp/slc-admin.rsa.pub && cat /tmp/slc-admin.rsa.pub || true)"
-
-Step 3 — Refresh SSSD on clients
-Run this on each client (e.g., plnx-admin):
-sudo rm -f /var/lib/sss/pubconf/known_hosts*
-sudo sss_cache -E
-sudo systemctl restart sssd
-
-Step 4 — Verify
-ssh -o StrictHostKeyChecking=yes slc-admin
-
-# Or preview what SSSD will serve:
-sss_ssh_knownhostsproxy -p 22 slc-admin | ssh-keygen -lf - -E sha256
-The fingerprints should now match those from Step 1.
+  # Verify (optional)
+  sudo -u "$u" certutil -d "sql:$DB" -L
+done
