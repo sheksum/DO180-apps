@@ -1,35 +1,47 @@
 #!/usr/bin/env bash
-# seed-two-users-nssdb.sh
-# Your original flow, with just the pre-renames you requested.
+# seed-users-nssdb-min.sh
+# Usage: sudo ./seed-users-nssdb-min.sh /path/to/users.txt
 
-USERS=("bwing")   # <-- replace with real logins
+USERS_FILE="${1:?Provide users file}"
 
-for u in "${USERS[@]}"; do
-  HOME_DIR=$(getent passwd "$u" | cut -d: -f6 || true)
+CA_ROOT="/usr/local/share/ca-certificates/CalixROOTCA.crt"
+CA_INT2="/usr/local/share/ca-certificates/CalixInterCA2.crt"
+CA_INT1="/usr/local/share/ca-certificates/CalixInterCA1.crt"
+
+ts() { date +%Y%m%d-%H%M%S; }
+
+while IFS= read -r u; do
+  [[ -z "${u// }" || "$u" =~ ^# ]] && continue
+
+  HOME_DIR="$(getent passwd "$u" | cut -d: -f6)"
   [[ -z "$HOME_DIR" || ! -d "$HOME_DIR" ]] && { echo "Skip $u (no home)"; continue; }
 
-  # --- PRE: rename per-user Chrome config/cache and .local ---
-  [ -d "$HOME_DIR/.config/google-chrome" ] && mv "$HOME_DIR/.config/google-chrome" "$HOME_DIR/.config/google-chrome.bak"
-  [ -d "$HOME_DIR/.cache/google-chrome"  ] && mv "$HOME_DIR/.cache/google-chrome"  "$HOME_DIR/.cache/google-chrome.bak"
-  [ -d "$HOME_DIR/.local"                ] && mv "$HOME_DIR/.local"                "$HOME_DIR/.local.bak"
+  echo "=== [$u] $HOME_DIR"
 
+  # Rename per-user Chrome config/cache and .local
+  [[ -d "$HOME_DIR/.config/google-chrome" ]] && mv "$HOME_DIR/.config/google-chrome" "$HOME_DIR/.config/google-chrome.bak.$(ts)"
+  [[ -d "$HOME_DIR/.cache/google-chrome"  ]] && mv "$HOME_DIR/.cache/google-chrome"  "$HOME_DIR/.cache/google-chrome.bak.$(ts)"
+  [[ -d "$HOME_DIR/.local"                ]] && mv "$HOME_DIR/.local"                "$HOME_DIR/.local.bak.$(ts)"
+
+  # Kill Chrome processes for this user (if any)
+  pkill -9 -u "$u" chrome 2>/dev/null || true
+
+  # Reset NSS DB
   DB="$HOME_DIR/.pki/nssdb"
-
-  # Backup old NSS DB if present
-  if [ -d "$DB" ]; then
-    mv "$DB" "$HOME_DIR/.pki/nssdb.backup"
-    echo "[$u] backup of nssdb created"
-  fi
-
-  # Recreate DB with empty password
+  [[ -d "$DB" ]] && mv "$DB" "$HOME_DIR/.pki/nssdb.backup.$(ts)"
   sudo -u "$u" mkdir -p "$DB"
   sudo -u "$u" certutil -d "sql:$DB" -N --empty-password
 
-  # --- Your original CA imports (unchanged labels/paths/flags) ---
-  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixRootCA"   -i /usr/local/share/ca-certificates/CalixROOTCA.crt
-  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixInterCA"  -i /usr/local/share/ca-certificates/CalixInterCA2.crt
-  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixEntCA"    -i /usr/local/share/ca-certificates/CalixInterCA1.crt
+  # Import CAs
+  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixRootCA"   -i "$CA_ROOT"
+  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixInterCA2" -i "$CA_INT2"
+  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixEntCA"    -i "$CA_INT1"
 
-  # Verify (optional)
-  sudo -u "$u" certutil -d "sql:$DB" -L
-done
+  # Verify
+  sudo -u "$u" certutil -d "sql:$DB" -L || true
+
+  echo "=== [$u] done"
+  echo
+done < "$USERS_FILE"
+
+echo "Complete. Users can log back in and relaunch Chrome."
