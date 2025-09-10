@@ -13,26 +13,24 @@ ts() { date +%Y%m%d-%H%M%S; }
 while IFS= read -r u; do
   [[ -z "${u// }" || "$u" =~ ^# ]] && continue
 
-  HOME_DIR="$(getent passwd "$u" | cut -d: -f6)"
-  [[ -z "$HOME_DIR" || ! -d "$HOME_DIR" ]] && { echo "Skip $u (no home)"; continue; }
-
+  HOME_DIR="/home/$u"
   echo "=== [$u] $HOME_DIR"
 
-  # Rename per-user Chrome config/cache and .local
-  [[ -d "$HOME_DIR/.config/google-chrome" ]] && mv "$HOME_DIR/.config/google-chrome" "$HOME_DIR/.config/google-chrome.bak.$(ts)"
-  [[ -d "$HOME_DIR/.cache/google-chrome"  ]] && mv "$HOME_DIR/.cache/google-chrome"  "$HOME_DIR/.cache/google-chrome.bak.$(ts)"
-  [[ -d "$HOME_DIR/.local"                ]] && mv "$HOME_DIR/.local"                "$HOME_DIR/.local.bak.$(ts)"
+  # Rename per-user Chrome config/cache and .local AS THE USER (preserve ownership)
+  sudo -u "$u" bash -lc '[[ -d ~/.config/google-chrome ]] && mv ~/.config/google-chrome ~/.config/google-chrome.bak.'"$(ts)"
+  sudo -u "$u" bash -lc '[[ -d ~/.cache/google-chrome  ]] && mv ~/.cache/google-chrome  ~/.cache/google-chrome.bak.'"$(ts)"
+  sudo -u "$u" bash -lc '[[ -d ~/.local               ]] && mv ~/.local               ~/.local.bak.'"$(ts)"
 
   # Kill Chrome processes for this user (if any)
   pkill -9 -u "$u" chrome 2>/dev/null || true
 
-  # Reset NSS DB
+  # Reset NSS DB AS THE USER
   DB="$HOME_DIR/.pki/nssdb"
-  [[ -d "$DB" ]] && mv "$DB" "$HOME_DIR/.pki/nssdb.backup.$(ts)"
+  sudo -u "$u" bash -lc '[[ -d ~/.pki/nssdb ]] && mv ~/.pki/nssdb ~/.pki/nssdb.backup.'"$(ts)"
   sudo -u "$u" mkdir -p "$DB"
   sudo -u "$u" certutil -d "sql:$DB" -N --empty-password
 
-  # Import CAs
+  # Import CAs AS THE USER (your labels/flags)
   sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixRootCA"   -i "$CA_ROOT"
   sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixInterCA2" -i "$CA_INT2"
   sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixEntCA"    -i "$CA_INT1"
@@ -44,4 +42,4 @@ while IFS= read -r u; do
   echo
 done < "$USERS_FILE"
 
-echo "Complete. Users can log back in and relaunch Chrome."
+echo "Complete. Users can relaunch Chrome."
