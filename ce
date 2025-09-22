@@ -1,45 +1,62 @@
-#!/usr/bin/env bash
-# seed-users-nssdb-min.sh
-# Usage: sudo ./seed-users-nssdb-min.sh /path/to/users.txt
-
-USERS_FILE="${1:?Provide users file}"
-
-CA_ROOT="/usr/local/share/ca-certificates/CalixROOTCA.crt"
-CA_INT2="/usr/local/share/ca-certificates/CalixInterCA2.crt"
-CA_INT1="/usr/local/share/ca-certificates/CalixInterCA1.crt"
-
-ts() { date +%Y%m%d-%H%M%S; }
-
-while IFS= read -r u; do
-  [[ -z "${u// }" || "$u" =~ ^# ]] && continue
-
-  HOME_DIR="/home/$u"
-  echo "=== [$u] $HOME_DIR"
-
-  # Rename per-user Chrome config/cache and .local AS THE USER (preserve ownership)
-  sudo -u "$u" bash -lc '[[ -d ~/.config/google-chrome ]] && mv ~/.config/google-chrome ~/.config/google-chrome.bak.'"$(ts)"
-  sudo -u "$u" bash -lc '[[ -d ~/.cache/google-chrome  ]] && mv ~/.cache/google-chrome  ~/.cache/google-chrome.bak.'"$(ts)"
-  sudo -u "$u" bash -lc '[[ -d ~/.local               ]] && mv ~/.local               ~/.local.bak.'"$(ts)"
-
-  # Kill Chrome processes for this user (if any)
-  pkill -9 -u "$u" chrome 2>/dev/null || true
-
-  # Reset NSS DB AS THE USER
-  DB="$HOME_DIR/.pki/nssdb"
-  sudo -u "$u" bash -lc '[[ -d ~/.pki/nssdb ]] && mv ~/.pki/nssdb ~/.pki/nssdb.backup.'"$(ts)"
-  sudo -u "$u" mkdir -p "$DB"
-  sudo -u "$u" certutil -d "sql:$DB" -N --empty-password
-
-  # Import CAs AS THE USER (your labels/flags)
-  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixRootCA"   -i "$CA_ROOT"
-  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixInterCA2" -i "$CA_INT2"
-  sudo -u "$u" certutil -d "sql:$DB" -A -t "C,," -n "calixEntCA"    -i "$CA_INT1"
-
-  # Verify
-  sudo -u "$u" certutil -d "sql:$DB" -L || true
-
-  echo "=== [$u] done"
-  echo
-done < "$USERS_FILE"
-
-echo "Complete. Users can relaunch Chrome."
+Moving Syslog to Dedicated Storage
+Overview
+To prevent system logs from filling the root filesystem, a dedicated 50 GB partition was provisioned and configured for /var/log.
+This ensures system stability by isolating log growth from core OS storage.
+Implementation Steps
+1. Provision and Format the Disk
+Add a 50 GB virtual disk (/dev/sde).
+Format the disk:
+sudo mkfs.ext4 /dev/sde
+2. Mount the New Partition
+Create a temporary mount for staging:
+sudo mkdir /data
+sudo mount /dev/sde /data
+Copy existing log files:
+sudo rsync -av /var/log/ /data/
+3. Replace /var/log with the New Partition
+Backup the original directory:
+sudo mv /var/log /var/log.bak
+sudo mkdir /var/log
+Unmount from /data and remount on /var/log:
+sudo umount /data
+sudo mount /dev/sde /var/log
+4. Update /etc/fstab for Persistence
+Retrieve the UUID:
+blkid /dev/sde
+Add entry to /etc/fstab:
+UUID=<uuid-from-blkid>   /var/log   ext4   defaults,nodev,noexec,nosuid   0 2
+Reload mounts:
+sudo mount -a
+5. Restore Permissions and SELinux Contexts (if applicable)
+sudo restorecon -Rv /var/log
+6. Restart rsyslog
+sudo systemctl restart rsyslog
+Testing and Validation
+Log Write Test
+logger "TEST: dedicated /var/log partition is working"
+tail -n3 /var/log/syslog    # Ubuntu/Debian
+tail -n3 /var/log/messages  # RHEL/CentOS
+✅ Verified new entries are written to the dedicated partition.
+Logrotate Dry Run
+sudo logrotate -d /etc/logrotate.conf
+✅ Confirmed syslog and other logs are included in rotation.
+Forced Rotation
+sudo logrotate -f /etc/logrotate.conf
+ls -lh /var/log/syslog*
+✅ Verified creation of rotated files (syslog.1, syslog.2.gz, etc.).
+Compression and Retention
+✅ Confirmed older rotated logs are compressed and retention policy is respected.
+Outcome
+/var/log now resides on a dedicated 50 GB partition.
+Syslog and other logs write and rotate correctly.
+Compression is working, freeing space automatically.
+Root filesystem is protected from log growth.
+Recommendations
+Tune /etc/logrotate.d/rsyslog for your environment:
+daily
+rotate 14
+size 100M
+compress
+Monitor /var/log disk usage:
+df -h /var/log
+Remove /var/log.bak once stable for several days.
