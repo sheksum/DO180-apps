@@ -1,17 +1,47 @@
-nvcr.io/nvidia/cloud-native/gpu-operator-validator:v25.3.2
-nvcr.io/nvidia/k8s-device-plugin:v0.17.3
-nvcr.io/nvidia/gpu-operator:v25.3.2
-nvcr.io/nvidia/k8s/container-toolkit:v1.17.8-ubuntu20.04
-nvcr.io/nvidia/k8s/dcgm-exporter:4.2.3-4.1.3-ubuntu22.04
-registry.k8s.io/nfd/node-feature-discovery:v0.17.3
-docker.io/rancher/rke2-cloud-provider:v1.32.5-rc1.0.20250516182639-8e8f2a4726fd-build20250612
-docker.io/rancher/hardened-etcd:v3.5.21-k3s1-build20250612
-docker.io/rancher/klipper-helm:v0.9.8-build20250709
-docker.io/rancher/hardened-kubernetes:v1.32.7-rke2r1-build20250716
-docker.io/rancher/hardened-calico:v3.30.2-build20250711
-docker.io/rancher/hardened-flannel:v0.27.1-build20250710
-docker.io/rancher/hardened-coredns:v1.12.2-build20250611
-docker.io/rancher/hardened-cluster-autoscaler:v1.10.2-build20250611
-docker.io/rancher/nginx-ingress-controller:v1.12.4-hardened2
-docker.io/rancher/hardened-k8s-metrics-server:v0.8.0-build20250704
-docker.io/rancher/mirrored-sig-storage-snapshot-controller:v8.2.0
+#!/bin/bash
+# Landscape job: cleanup old proxy configs
+
+echo "[*] Cleaning proxy configs on $(hostname)..."
+
+APT_CONF_DIR="/etc/apt/apt.conf.d"
+
+# 1. Remove apt proxy files
+if ls $APT_CONF_DIR/*proxy* $APT_CONF_DIR/*Proxy* &>/dev/null; then
+  echo " - Removing apt proxy files from $APT_CONF_DIR"
+  rm -f $APT_CONF_DIR/*proxy* $APT_CONF_DIR/*Proxy*
+else
+  echo " - No apt proxy files found in $APT_CONF_DIR"
+fi
+
+# 2. Remove proxy entries in /etc/apt/apt.conf
+if [ -f /etc/apt/apt.conf ]; then
+  echo " - Stripping proxy lines from /etc/apt/apt.conf"
+  sed -i '/Acquire::.*Proxy/d' /etc/apt/apt.conf
+fi
+
+# 3. Remove proxy lines from /etc/environment
+if [ -f /etc/environment ]; then
+  echo " - Stripping proxy lines from /etc/environment"
+  sed -i '/_proxy=/Id' /etc/environment
+  sed -i '/_PROXY=/Id' /etc/environment
+fi
+
+# 4. Remove proxy scripts in /etc/profile.d
+if ls /etc/profile.d/*proxy* &>/dev/null; then
+  echo " - Removing proxy scripts in /etc/profile.d"
+  rm -f /etc/profile.d/*proxy*
+fi
+
+# 5. Unset proxy variables for this session
+unset http_proxy https_proxy ftp_proxy no_proxy
+unset HTTP_PROXY HTTPS_PROXY FTP_PROXY NO_PROXY
+echo " - Proxy variables unset from current session"
+
+# 6. Verify apt sees no proxy
+if apt-config dump | grep -i Proxy; then
+  echo "WARNING: proxy still present in apt config!"
+else
+  echo "No apt proxy configured"
+fi
+
+echo "[*] Cleanup complete."
