@@ -1,51 +1,72 @@
-🛠️ Setting Up Your Deploy Key
-
-1. Retrieve the Private Key
-Open LastPass and locate the saved deploy private key.
-Copy the entire key, ensuring it includes:
------BEGIN OPENSSH PRIVATE KEY-----
-...
------END OPENSSH PRIVATE KEY-----
-2. Create the Key File
-vi ~/.ssh/deploy_key
-Paste the key and save the file.
-3. Set File Permissions
-chmod 600 ~/.ssh/deploy_key
-4. Add the Key to Your Session
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/deploy_key
-5. Auto-load the Key on Login
-Edit your ~/.bash_profile or ~/.bashrc:
-
-# ~/.bash_profile
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/deploy_key
-Then reload:
-
-source ~/.bash_profile
-6. Test SSH Access
-ssh deploy@<hostname>
-⚠️ If it fails, it may be because:
-The deploy user does not exist on the target system, or
-The public key is missing from /opt/home/deploy/.ssh/authorized_keys.
-👤 Setting Up the deploy User Remotely
-
-1. Clone the Git Repo
-git clone http://stash.calix.local/scm/hsuma/infra-dev.git
-cd infra-dev
-2. Run the Ansible Playbook
-ansible-playbook deploy-user-setup.yml -i <inventory_file>
-Replace <inventory_file> with the path to your Ansible inventory.
-Let me know if you want this as a downloadable .txt or .md for backup.
-
-
-
-
-
-
-
-
-
-
-
-ChatGPT can make mistakes. Check important info.
+📘 Landscape OnPrem Repository – Master Update (with GUI Walkthrough)
+h3. 🌍 Current State
+955 systems enrolled in Landscape
+OS coverage: Ubuntu 16.04, 18.04, 20.04 (Focal), 22.04 (Jammy), 24.04 (Noble)
+Local mirrors: release, security, Chrome
+Storage: 1.5 TB logical volume with NFS expansion path
+h3. 🔑 Security Architecture
+Web UI → HTTPS with internal CA (secure admin access)
+Repo traffic → HTTP (efficient, universal)
+All packages are GPG-signed, including those re-signed with our on-prem Landscape signing key
+Admins = encrypted access, Clients = tamper-proof updates
+h3. 🛰 Before vs After (Air-Gapped “Secure Dome”)
+Before: Squid proxy to internet repos, fragile and slow
+After: Central Landscape repo → all clients trust our key, no internet needed
+h3. 🔐 Package Key Management
+Repo keys managed inside Landscape GUI
+Chrome/3rd party repos added with official GPG keys
+All repos mirrored + re-signed with our internal key
+h3. ⚡ GUI Walkthrough for Team
+Repositories
+A repository is a collection of packages for a specific Ubuntu release.
+Landscape mirrors upstream repositories (e.g. Jammy-security).
+Each repo is tied to a distribution and one or more pockets.
+Pockets
+Subsections of a repository.
+Examples:
+release → base OS packages.
+updates → bug fixes.
+security → security patches.
+backports → newer software versions backported.
+In GUI, each pocket can be enabled/disabled per distribution.
+Mirrors
+Our Landscape mirror syncs upstream repos.
+LAN clients fetch from Landscape instead of internet.
+This mirror is signed with our on-prem key.
+GPG Keys
+Guarantee authenticity of packages.
+Each repo has a signing key.
+In our setup → Landscape re-signs repos with our key.
+Clients trust packages because they validate against /etc/apt/trusted.gpg.d/pln-mirror.asc.
+Profiles
+Define which repos each group of systems should use.
+Example: Jammy servers get jammy-release, jammy-security, jammy-updates.
+Profiles auto-applied to systems in Landscape.
+For systems outside Landscape → script pushes .list file and installs key.
+Talking Point:
+👉 “When we talk about a repository in Landscape, think of it as the entire set of packages for a release. Pockets are the slices inside that repo, like security updates. Our mirror pulls those pockets on-prem and signs them with our key. Profiles or scripts then make sure each system gets the right sources.”
+h3. 📦 OS Distribution Management
+Legacy: 16.04, 18.04
+Active: 20.04, 22.04, 24.04
+Landscape systems: profiles auto-applied
+Non-Landscape systems: script pushes curated mirror list + installs GPG key
+h3. 🔄 Update Workflow
+Scheduled sync pulls upstream repos → mirrored on-prem
+Re-signed with our key
+Profiles apply correct pockets for Landscape systems
+Script enforces compliance for non-Landscape
+Clients update only from trusted on-prem repos
+h3. 📅 Tasks Completed (Sept 30, 2025)
+Lockdown script, APT lock cleanup, GPG key distribution, validation logging
+Dedup of host lists → ~700 non-Landscape systems identified
+h3. 📌 Key Benefits
+🔒 Security: all updates re-signed with internal key
+⚡ Performance: LAN-speed updates
+📦 Coverage: Landscape + non-Landscape
+📈 Scalability: mirror-based, script-enforced, log-audited
+h3. 🔜 Next Steps
+Rollout to all 1600 systems
+Key refresh automation
+Auto-enrollment of new VMs
+SOPs for junior admins
+Monthly sync + compliance reports
