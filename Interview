@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 # Usage: SSH_KEY=~/.ssh/deploy_key ./push-existing-sources-lockdown.sh hosts.txt
-# Local files required in ./sources-files/ :
-#   landscape-ubuntu-{xenial,bionic,focal,jammy,noble}-onprem.list
+# Requires:
+#   sources-files/landscape-ubuntu-{xenial,bionic,focal,jammy,noble}-onprem.list
+#   keys/pln-mirror.asc  (your on-prem mirror signing key)
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC_DIR="$SCRIPT_DIR/sources-files"
+KEY_FILE="$SCRIPT_DIR/keys/pln-mirror.asc"
 LOGFILE="$SCRIPT_DIR/push-sources.log"
 HOSTS_FILE="${1:-}"
 
 [ -f "$HOSTS_FILE" ] || { echo "Usage: $0 <hosts_file>"; exit 1; }
-[ -d "$SRC_DIR" ] || { echo "Missing $SRC_DIR with .list files"; exit 1; }
+[ -d "$SRC_DIR" ] || { echo "Missing $SRC_DIR"; exit 1; }
+[ -f "$KEY_FILE" ] || { echo "Missing $KEY_FILE (mirror signing key)"; exit 1; }
 
-# ssh must have -n so it doesn't eat stdin; scp must NOT have -n
 SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
 SCP_OPTS="-o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
 [ -n "${SSH_KEY:-}" ] && { SSH_OPTS="$SSH_OPTS -i $SSH_KEY"; SCP_OPTS="$SCP_OPTS -i $SSH_KEY"; }
@@ -21,84 +23,68 @@ SCP_OPTS="-o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
 ok=0; fail=0
 echo "Run started $(date)" | tee -a "$LOGFILE"
 
-# read all hosts (keep last line even without trailing newline)
 while IFS= read -r host || [[ -n "$host" ]]; do
-  host="${host%%$'\r'*}"
-  [ -z "$host" ] && continue
-  [[ "$host" =~ ^# ]] && continue
-
+  host="${host%%$'\r'*}"; [ -z "$host" ] && continue; [[ "$host" =~ ^# ]] && continue
   echo "=== $host ===" | tee -a "$LOGFILE"
 
-  # Detect Ubuntu codename
   codename=$(ssh $SSH_OPTS "deploy@$host" '
-    c="";
-    if [ -r /etc/os-release ]; then . /etc/os-release; c="${VERSION_CODENAME:-}"; fi
-    if [ -z "$c" ] && command -v lsb_release >/dev/null 2>&1; then c=$(lsb_release -cs 2>/dev/null || true); fi
+    c=""; [ -r /etc/os-release ] && { . /etc/os-release; c="${VERSION_CODENAME:-}"; }
+    [ -z "$c" ] && command -v lsb_release >/dev/null 2>&1 && c=$(lsb_release -cs 2>/dev/null || true)
     echo "$c"
   ' 2>>"$LOGFILE" || true)
   codename=$(echo "$codename" | tr '[:upper:]' '[:lower:]')
+  case "$codename" in xenial|bionic|focal|jammy|noble) ;; *) echo "SKIP: unsupported distro ($codename)" | tee -a "$LOGFILE"; continue ;; esac
 
-  case "$codename" in xenial|bionic|focal|jammy|noble) ;; 
-    *) echo "SKIP: unsupported distro ($codename)" | tee -a "$LOGFILE"; continue ;;
-  esac
+  LIST_LOCAL="$SRC_DIR/landscape-ubuntu-${codename}-onprem.list"
+  [ -f "$LIST_LOCAL" ] || { echo "FAIL: missing $LIST_LOCAL" | tee -a "$LOGFILE"; fail=$((fail+1)); continue; }
 
-  local_file="$SRC_DIR/landscape-ubuntu-${codename}-onprem.list"
-  if [ ! -f "$local_file" ]; then
-    echo "FAIL: missing local file $local_file" | tee -a "$LOGFILE"
-    fail=$((fail+1)); continue
-  fi
-
-  # Require passwordless sudo and presence of apt dir (do NOT create)
   ssh $SSH_OPTS "deploy@$host" 'sudo -n true' 2>>"$LOGFILE" \
-    || { echo "FAIL: deploy cannot sudo without password" | tee -a "$LOGFILE"; fail=$((fail+1)); continue; }
+    || { echo "FAIL: deploy cannot sudo" | tee -a "$LOGFILE"; fail=$((fail+1)); continue; }
   ssh $SSH_OPTS "deploy@$host" '[ -d /etc/apt/sources.list.d ]' \
     || { echo "SKIP: no /etc/apt/sources.list.d" | tee -a "$LOGFILE"; continue; }
 
-  # Push file to /tmp
-  if ! scp $SCP_OPTS "$local_file" "deploy@$host:/tmp/landscape-onprem.list" >>"$LOGFILE" 2>&1; then
-    echo "FAIL: scp failed" | tee -a "$LOGFILE"; fail=$((fail+1)); continue
-  fi
+  # push files
+  scp $SCP_OPTS "$LIST_LOCAL" "deploy@$host:/tmp/landscape-onprem.list" >>"$LOGFILE" 2>&1 \
+    || { echo "FAIL: scp list" | tee -a "$LOGFILE"; fail=$((fail+1)); continue; }
+  scp $SCP_OPTS "$KEY_FILE"   "deploy@$host:/tmp/pln-mirror.asc"        >>"$LOGFILE" 2>&1 \
+    || { echo "FAIL: scp key"  | tee -a "$LOGFILE"; fail=$((fail+1)); continue; }
 
-  # Remote actions
   if ssh $SSH_OPTS "deploy@$host" "
         set -e
 
-        # Rename any non-landscape .list to .save so APT ignores them
+        # Rename non-landscape .list to .save so APT ignores them
         for f in /etc/apt/sources.list.d/*.list; do
           [ -f \"\$f\" ] || continue
-          case \"\$f\" in
-            *landscape*) ;;        # keep active
-            *) sudo mv -f \"\$f\" \"\$f.save\" ;;
-          esac
+          case \"\$f\" in *landscape*) ;; *) sudo mv -f \"\$f\" \"\$f.save\" ;; esac
         done
 
-        # Overwrite the landscape list for this codename (no duplicates)
+        # Overwrite landscape list for this codename
         sudo mv -f /tmp/landscape-onprem.list /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
         sudo chown root:root /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
         sudo chmod 0644 /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
 
-        # Null out the main sources.list so hosts can't use internet repos
+        # Null out main sources.list
         sudo bash -c 'cat > /etc/apt/sources.list <<EOF
 # This file intentionally left blank.
 # System is configured to use PLN onprem Landscape mirrors only.
 # Do NOT add internet repositories here.
 EOF'
 
-        # Clean up APT locks (no service stops)
+        # Install/refresh mirror signing key
+        sudo install -m 0644 /tmp/pln-mirror.asc /etc/apt/trusted.gpg.d/pln-mirror.asc
+
+        # Clean APT locks only
         sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock \
                   /var/cache/apt/archives/lock /var/lib/apt/lists/lock
 
-        # Repair dpkg state if needed
-        sudo dpkg --configure -a || true
-
-        echo 'Running apt-get clean && apt-get update...'
+        # Refresh indexes
         sudo apt-get clean
         sudo apt-get update
      " >>"$LOGFILE" 2>&1; then
-    echo "PLN onprem Landscape mirror list applied and apt updated" | tee -a "$LOGFILE"
+    echo 'PLN onprem Landscape mirror list applied and apt updated' | tee -a "$LOGFILE"
     ok=$((ok+1))
   else
-    echo "FAIL: PLN mirror update step" | tee -a "$LOGFILE"
+    echo 'FAIL: PLN mirror update step' | tee -a "$LOGFILE"
     fail=$((fail+1))
   fi
 
