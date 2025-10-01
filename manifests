@@ -1,27 +1,22 @@
-#!/bin/bash
+Subject: Dedicated On-Prem Landscape Server Now Managing All Ubuntu Repositories
 
-# Load environment variables and custom functions
-source ~/.bash_profile
+Team,
 
-# Add SSH key
-ssh-add -l >/dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "Adding SSH key..."
-    ssh-add ~/.ssh/id_ed25519
-fi
+We’ve set up a dedicated on-prem Landscape server to handle all Ubuntu updates and repositories. For anyone not familiar, Landscape is Canonical’s enterprise management tool for Ubuntu. It gives us centralized control over updates, security patches, and repositories — which is especially important for air-gapped environments where systems can’t directly reach the internet.
 
-# Initialize Kerberos ticket (if needed)
-klist >/dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "Initializing Kerberos ticket..."
-    kdestory >/dev/null 2>&1
-    kinit
-fi
+With Landscape in place, all repositories are now secured with GPG keys and signed metadata. That means packages are verified before they’re installed, protecting against tampering and meeting compliance requirements for controlled distribution.
 
-# Connect to remote workspace
-WORKSPACE_HOST="workspace.vde-eoladipupo.de5.vrsn.com"
-echo "Connecting to $WORKSPACE_HOST ..."
-ssh -Ak "$WORKSPACE_HOST"
+In the past, some systems used a Squid proxy to pull updates from the internet. That setup came with issues: systems could bypass central controls, compliance gaps were introduced, and patching became inconsistent with hosts running different package versions.
 
-# Optional: Run ipa init script on login
-./ipa_init.sh
+We’ve now removed those proxy configs. Effective immediately, no Ubuntu system will reach out to the internet for packages. Instead, all systems update exclusively from our on-prem Landscape. When you run apt-get update, you’ll see repository lines pointing to:
+
+http://pln-landscape01.caal.dev/repository/standalone/ubuntu-focal-onprem focal InRelease
+
+
+Our Landscape mirrors the following Ubuntu distributions: Xenial (16.04), Bionic (18.04), Focal (20.04), Jammy (22.04), and Noble (24.04). Each has security, release, and updates pockets.
+
+We’ve also added third-party repositories for Google Chrome, Docker, and Visual Studio Code. If your team needs additional third-party repos, reach out to EngOps. We’ll review the request, confirm it’s legitimate, and evaluate any security considerations before adding it to Landscape.
+
+This move centralizes all package management under Landscape — giving us stronger security, consistent patching across hosts, and compliance assurance, all without systems needing internet access.
+
+— EngOps
