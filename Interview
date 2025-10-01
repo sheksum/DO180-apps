@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 # Usage:
 #   SSH_KEY=~/.ssh/deploy_key ./push-existing-sources-lockdown.sh hosts.txt
-#
-# Expects local files in ./sources-files/ :
+# Expects local files in ./sources-files/:
 #   landscape-ubuntu-{xenial,bionic,focal,jammy,noble}-onprem.list
-#
-# Env options:
-#   UPDATE=yes|no   (default: yes)
 
 set -euo pipefail
 
@@ -19,20 +15,22 @@ HOSTS_FILE="${1:-}"
 [ -d "$SRC_DIR" ] || { echo "Missing $SRC_DIR with your .list files"; exit 1; }
 
 UPDATE="${UPDATE:-yes}"
+
+# Separate opts: ssh vs scp
 SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
-[ -n "${SSH_KEY:-}" ] && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
+SCP_OPTS="-o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
+[ -n "${SSH_KEY:-}" ] && { SSH_OPTS="$SSH_OPTS -i $SSH_KEY"; SCP_OPTS="$SCP_OPTS -i $SSH_KEY"; }
 
 ok=0; fail=0
 echo "===== Run started $(date) =====" | tee -a "$LOGFILE"
 
 while IFS= read -r host || [[ -n "$host" ]]; do
-  host="${host%%$'\r'*}"
-  [ -z "$host" ] && continue
+  host="${host%%$'\r'*}"; [ -z "$host" ] && continue
   [[ "$host" =~ ^# ]] && continue
 
   echo "=== $host ===" | tee -a "$LOGFILE"
 
-  # 1) Detect codename
+  # Detect Ubuntu codename
   codename=$(ssh $SSH_OPTS "deploy@$host" '
     c="";
     if [ -r /etc/os-release ]; then . /etc/os-release; c="${VERSION_CODENAME:-}"; fi
@@ -51,42 +49,48 @@ while IFS= read -r host || [[ -n "$host" ]]; do
     fail=$((fail+1)); continue
   fi
 
-  # 2) Ensure deploy can sudo
+  # Must be able to sudo without password
   if ! ssh $SSH_OPTS "deploy@$host" 'sudo -n true' 2>>"$LOGFILE"; then
     echo "  FAIL: deploy cannot sudo without password" | tee -a "$LOGFILE"
     fail=$((fail+1)); continue
   fi
 
-  # 3) Only proceed if apt sources dir exists
+  # Only proceed if apt dir exists (do NOT create)
   if ! ssh $SSH_OPTS "deploy@$host" '[ -d /etc/apt/sources.list.d ]'; then
-    echo "  SKIP: no /etc/apt/sources.list.d (non-Ubuntu?)" | tee -a "$LOGFILE"
+    echo "  SKIP: no /etc/apt/sources.list.d" | tee -a "$LOGFILE"
     continue
   fi
 
-  # 4) Push + prune
-  if ! scp $SSH_OPTS "$src_file" "deploy@$host:/tmp/landscape.list" >>"$LOGFILE" 2>&1; then
-    echo "  FAIL: scp failed" | tee -a "$LOGFILE"; fail=$((fail+1)); continue
+  # Copy file (use SCP_OPTS — no -n)
+  if ! scp $SCP_OPTS "$src_file" "deploy@$host:/tmp/landscape.list" >>"$LOGFILE" 2>&1; then
+    echo "  FAIL: scp failed (see log)" | tee -a "$LOGFILE"
+    fail=$((fail+1)); continue
   fi
 
+  # Install and prune non-landscape sources
   if ! ssh $SSH_OPTS "deploy@$host" "
         set -e
         sudo mv /tmp/landscape.list /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
         sudo chmod 0644 /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
         sudo find /etc/apt/sources.list.d -maxdepth 1 -type f ! -name 'landscape*' -exec rm -f {} +
       " >>"$LOGFILE" 2>&1; then
-    echo "  FAIL: install/prune step" | tee -a "$LOGFILE"; fail=$((fail+1)); continue
+    echo '  FAIL: install/prune step (see log)' | tee -a "$LOGFILE"
+    fail=$((fail+1)); continue
   fi
 
   echo "  Installed + cleaned" | tee -a "$LOGFILE"
 
+  # Optional apt update
   if [ "$UPDATE" = "yes" ]; then
-    ssh $SSH_OPTS "deploy@$host" 'sudo apt-get update -y' >>"$LOGFILE" 2>&1 \
-      && echo "  apt-get update OK" | tee -a "$LOGFILE" \
-      || echo "  WARN: apt-get update failed" | tee -a "$LOGFILE"
+    if ssh $SSH_OPTS "deploy@$host" 'sudo apt-get update -y' >>"$LOGFILE" 2>&1; then
+      echo "  apt-get update OK" | tee -a "$LOGFILE"
+    else
+      echo "  WARN: apt-get update failed (see log)" | tee -a "$LOGFILE"
+    fi
   fi
 
   ok=$((ok+1))
 done < "$HOSTS_FILE"
 
-echo "-----"            | tee -a "$LOGFILE"
+echo "-----" | tee -a "$LOGFILE"
 echo "Run finished: OK=$ok FAIL=$fail ($(date))" | tee -a "$LOGFILE"
