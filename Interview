@@ -58,6 +58,12 @@ while IFS= read -r host || [[ -n "$host" ]]; do
           case \"\$f\" in *landscape*) ;; *) sudo mv -f \"\$f\" \"\$f.save\" ;; esac
         done
 
+        # NEW: Rename any *.sources (e.g., ubuntu.sources) to .save so APT ignores them
+        for s in /etc/apt/sources.list.d/*.sources; do
+          [ -f \"\$s\" ] || continue
+          sudo mv -f \"\$s\" \"\$s.save\"
+        done
+
         # Overwrite landscape list for this codename
         sudo mv -f /tmp/landscape-onprem.list /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
         sudo chown root:root /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
