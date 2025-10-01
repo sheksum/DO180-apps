@@ -1,19 +1,26 @@
 #!/usr/bin/env bash
 # Usage: SSH_KEY=~/.ssh/deploy_key ./push-existing-sources-lockdown.sh hosts.txt
+# Expects local files in ./sources-files/:
+#   landscape-ubuntu-{xenial,bionic,focal,jammy,noble}-onprem.list
 
 set -euo pipefail
+
 LOGFILE="push-sources.log"
 HOSTS_FILE="${1:-}"
 SOURCES_DIR="sources-files"
 
 [ -f "$HOSTS_FILE" ] || { echo "Usage: $0 <hosts_file>"; exit 1; }
+[ -d "$SOURCES_DIR" ] || { echo "Missing $SOURCES_DIR with your .list files"; exit 1; }
 
-SSH_OPTS="-o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
-[ -n "${SSH_KEY:-}" ] && SCP_OPTS="-i $SSH_KEY" && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
+# Separate opts: ssh has -n to avoid eating stdin; scp must NOT have -n
+SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
+SCP_OPTS="-o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
+[ -n "${SSH_KEY:-}" ] && { SSH_OPTS="$SSH_OPTS -i $SSH_KEY"; SCP_OPTS="$SCP_OPTS -i $SSH_KEY"; }
 
 ok=0; fail=0
 echo "Run started $(date)" | tee -a "$LOGFILE"
 
+# read all hosts; keep last line even without trailing newline
 while IFS= read -r host || [[ -n "$host" ]]; do
   host="${host%%$'\r'*}"
   [ -z "$host" ] && continue
@@ -21,28 +28,44 @@ while IFS= read -r host || [[ -n "$host" ]]; do
 
   echo "=== $host ===" | tee -a "$LOGFILE"
 
-  codename=$(ssh $SSH_OPTS "deploy@$host" "lsb_release -cs 2>/dev/null || echo unknown") || codename="unknown"
+  # Detect Ubuntu codename
+  codename=$(ssh $SSH_OPTS "deploy@$host" '
+    c="";
+    if [ -r /etc/os-release ]; then . /etc/os-release; c="${VERSION_CODENAME:-}"; fi
+    if [ -z "$c" ] && command -v lsb_release >/dev/null 2>&1; then c=$(lsb_release -cs 2>/dev/null || true); fi
+    echo "$c"
+  ' 2>>"$LOGFILE" || true)
+  codename=$(echo "$codename" | tr '[:upper:]' '[:lower:]')
 
   case "$codename" in
-    xenial|bionic|focal|jammy|noble)
-      src_file="landscape-ubuntu-${codename}-onprem.list"
-      ;;
-    *)
-      echo "SKIP: unsupported distro ($codename)" | tee -a "$LOGFILE"
-      continue
-      ;;
+    xenial|bionic|focal|jammy|noble) ;;
+    *) echo "SKIP: unsupported distro ($codename)" | tee -a "$LOGFILE"; continue ;;
   esac
 
-  if scp $SCP_OPTS "$SOURCES_DIR/$src_file" "deploy@$host:/tmp/landscape.list" >>"$LOGFILE" 2>&1 && \
+  src_file="$SOURCES_DIR/landscape-ubuntu-${codename}-onprem.list"
+  if [ ! -f "$src_file" ]; then
+    echo "FAIL: missing local file $src_file" | tee -a "$LOGFILE"
+    fail=$((fail+1)); continue
+  fi
+
+  # Require passwordless sudo and presence of apt dir; do NOT create directories
+  ssh $SSH_OPTS "deploy@$host" 'sudo -n true' 2>>"$LOGFILE" \
+    || { echo "FAIL: deploy cannot sudo without password" | tee -a "$LOGFILE"; fail=$((fail+1)); continue; }
+
+  ssh $SSH_OPTS "deploy@$host" '[ -d /etc/apt/sources.list.d ]' \
+    || { echo "SKIP: no /etc/apt/sources.list.d" | tee -a "$LOGFILE"; continue; }
+
+  # Copy, overwrite, prune, and refresh apt metadata
+  if scp $SCP_OPTS "$src_file" "deploy@$host:/tmp/landscape.list" >>"$LOGFILE" 2>&1 && \
      ssh $SSH_OPTS "deploy@$host" "
         set -e
-        # Remove all existing .list files except landscape
+        # Remove every non-landscape .list file to prevent internet repos
         sudo find /etc/apt/sources.list.d -maxdepth 1 -type f ! -name 'landscape*' -exec rm -f {} +
-        # Overwrite with correct mirror file
+        # Overwrite the landscape list for this codename
         sudo mv -f /tmp/landscape.list /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
         sudo chown root:root /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
         sudo chmod 0644 /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
-        # Refresh package lists
+        # Clean cache and update indexes (no -y)
         echo 'Running apt-get clean && apt-get update...'
         sudo apt-get clean
         sudo apt-get update
