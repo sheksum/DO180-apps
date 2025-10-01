@@ -1,35 +1,75 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Usage:
+#   SSH_KEY=~/.ssh/deploy_key ./push-existing-sources-lockdown.sh hosts.txt
+# Local files expected in ./sources-files/:
+#   landscape-ubuntu-{xenial,bionic,focal,jammy,noble}-onprem.list
 
-# Script: check-calico-peering.sh
-# Purpose: Quickly check BGP peering status across all Calico nodes
-# Logs the output per pod and stores in a timestamped file under /tmp
+set -euo pipefail
 
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-LOG_FILE="/tmp/calico_bgp_peering_${TIMESTAMP}.log"
+HOSTS_FILE="${1:-}"; [ -f "$HOSTS_FILE" ] || { echo "Usage: $0 <hosts_file>"; exit 1; }
+SRC_DIR="./sources-files"; [ -d "$SRC_DIR" ] || { echo "Missing $SRC_DIR"; exit 1; }
+LOGFILE="push-sources.log"
+UPDATE="${UPDATE:-yes}"
 
-echo -e "[INFO] Checking Calico BGP peering protocols on all nodes..."
-echo -e "[INFO] Logs will be saved to: $LOG_FILE\n"
+SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
+[ -n "${SSH_KEY:-}" ] && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
 
-pods=$(kubectl get pods -n calico-system -l k8s-app=calico-node -o jsonpath='{.items[*].metadata.name}')
+ok=0; fail=0
+echo "===== Run started $(date) =====" | tee -a "$LOGFILE"
 
-echo "[INFO] Calico BGP Peering Check - $TIMESTAMP" >> "$LOG_FILE"
-echo "---------------------------------------------" >> "$LOG_FILE"
+while IFS= read -r host || [[ -n "$host" ]]; do
+  host="${host%%$'\r'*}"; [ -z "$host" ] && continue; [[ "$host" =~ ^# ]] && continue
+  echo "=== $host ===" | tee -a "$LOGFILE"
 
-for pod in $pods; do
-    echo -e "\n>>> Pod: $pod <<<"
-    echo -e "\n>>> Pod: $pod <<<" >> "$LOG_FILE"
-    echo "======================================" >> "$LOG_FILE"
-    output=$(kubectl exec -it "$pod" -n calico-system -c calico-node -- sh -c "birdcl show protocols" 2>&1)
-    if [ $? -ne 0 ]; then
-        echo "[WARN]  $pod: Failed to exec or run birdcl"
-        echo "[WARN]  $pod: Failed to exec or run birdcl" >> "$LOG_FILE"
-        echo "$output" >> "$LOG_FILE"
+  # 1) Detect codename
+  codename=$(ssh $SSH_OPTS "deploy@$host" '
+    c="";
+    if [ -r /etc/os-release ]; then . /etc/os-release; c="${VERSION_CODENAME:-}"; fi
+    if [ -z "$c" ] && command -v lsb_release >/dev/null 2>&1; then c=$(lsb_release -cs 2>/dev/null || true); fi
+    echo "$c"
+  ' 2>>"$LOGFILE" || true)
+  codename=$(echo "$codename" | tr '[:upper:]' '[:lower:]')
+  case "$codename" in xenial|bionic|focal|jammy|noble) ;; 
+    *) echo "  FAIL: unknown codename '$codename'" | tee -a "$LOGFILE"; fail=$((fail+1)); continue ;;
+  esac
+
+  # 2) Preflight sudo (no password allowed)
+  if ! ssh $SSH_OPTS "deploy@$host" 'sudo -n true' 2>>"$LOGFILE"; then
+    echo "  FAIL: sudo requires a password for deploy on this host" | tee -a "$LOGFILE"
+    fail=$((fail+1)); continue
+  fi
+
+  src_file="$SRC_DIR/landscape-ubuntu-${codename}-onprem.list"
+  [ -f "$src_file" ] || { echo "  FAIL: missing local $src_file" | tee -a "$LOGFILE"; fail=$((fail+1)); continue; }
+
+  # 3) Copy with visible stderr
+  if ! scp $SSH_OPTS "$src_file" "deploy@$host:/tmp/landscape.list" 2>>"$LOGFILE"; then
+    echo "  FAIL: scp failed" | tee -a "$LOGFILE"; fail=$((fail+1)); continue
+  fi
+
+  # 4) Install + prune; print detailed errors from remote
+  if ! ssh $SSH_OPTS "deploy@$host" "
+        set -e
+        sudo mkdir -p /etc/apt/sources.list.d
+        sudo mv /tmp/landscape.list /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
+        sudo chmod 0644 /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
+        sudo find /etc/apt/sources.list.d -maxdepth 1 -type f ! -name 'landscape*' -exec rm -f {} +
+      " 2>>"$LOGFILE"; then
+    echo "  FAIL: install/prune step (see log)" | tee -a "$LOGFILE"; fail=$((fail+1)); continue
+  fi
+  echo "  Installed + cleaned" | tee -a "$LOGFILE"
+
+  # 5) Optional apt update
+  if [ "$UPDATE" = "yes" ]; then
+    if ssh $SSH_OPTS "deploy@$host" 'sudo apt-get update -y' >>"$LOGFILE" 2>&1; then
+      echo "  apt-get update OK" | tee -a "$LOGFILE"
     else
-        echo "$output" | tee -a "$LOG_FILE"
+      echo "  WARN: apt-get update failed (see log)" | tee -a "$LOGFILE"
     fi
-    echo "======================================" >> "$LOG_FILE"
-done
+  fi
 
-echo -e "\n[INFO] Check finished at $(date -u)"
-echo -e "[DONE] Calico BGP peering check complete."
-echo -e "View the full results with: cat $LOG_FILE"
+  ok=$((ok+1))
+done < "$HOSTS_FILE"
+
+echo "-----" | tee -a "$LOGFILE"
+echo "Run finished: OK=$ok FAIL=$fail ($(date))" | tee -a "$LOGFILE"
