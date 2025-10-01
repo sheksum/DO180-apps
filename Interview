@@ -9,7 +9,7 @@ SOURCES_DIR="sources-files"
 [ -f "$HOSTS_FILE" ] || { echo "Usage: $0 <hosts_file>"; exit 1; }
 
 SSH_OPTS="-o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
-[ -n "${SSH_KEY:-}" ] && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
+[ -n "${SSH_KEY:-}" ] && SCP_OPTS="-i $SSH_KEY" && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
 
 ok=0; fail=0
 echo "Run started $(date)" | tee -a "$LOGFILE"
@@ -21,35 +21,39 @@ while IFS= read -r host || [[ -n "$host" ]]; do
 
   echo "=== $host ===" | tee -a "$LOGFILE"
 
-  distro=$(ssh $SSH_OPTS "deploy@$host" "lsb_release -cs 2>/dev/null || echo unknown") || distro="unknown"
-  case "$distro" in
+  codename=$(ssh $SSH_OPTS "deploy@$host" "lsb_release -cs 2>/dev/null || echo unknown") || codename="unknown"
+
+  case "$codename" in
     xenial|bionic|focal|jammy|noble)
-      src_file="landscape-ubuntu-${distro}-onprem.list"
+      src_file="landscape-ubuntu-${codename}-onprem.list"
       ;;
     *)
-      echo "SKIP: unsupported distro ($distro)" | tee -a "$LOGFILE"
+      echo "SKIP: unsupported distro ($codename)" | tee -a "$LOGFILE"
       continue
       ;;
   esac
 
-  if scp $SSH_OPTS "$SOURCES_DIR/$src_file" "deploy@$host:/tmp/$src_file"; then
-    if ssh $SSH_OPTS "deploy@$host" "
-      sudo rm -f /etc/apt/sources.list.d/*.list;
-      sudo mv /tmp/$src_file /etc/apt/sources.list.d/landscape-ubuntu-${distro}-onprem.list;
-      sudo chown root:root /etc/apt/sources.list.d/landscape-ubuntu-${distro}-onprem.list;
-      sudo chmod 644 /etc/apt/sources.list.d/landscape-ubuntu-${distro}-onprem.list;
-    "; then
-      echo "OK" | tee -a "$LOGFILE"
-      ok=$((ok+1))
-    else
-      echo "FAIL: install step" | tee -a "$LOGFILE"
-      fail=$((fail+1))
-    fi
+  if scp $SCP_OPTS "$SOURCES_DIR/$src_file" "deploy@$host:/tmp/landscape.list" >>"$LOGFILE" 2>&1 && \
+     ssh $SSH_OPTS "deploy@$host" "
+        set -e
+        # Remove all existing .list files except landscape
+        sudo find /etc/apt/sources.list.d -maxdepth 1 -type f ! -name 'landscape*' -exec rm -f {} +
+        # Overwrite with correct mirror file
+        sudo mv -f /tmp/landscape.list /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
+        sudo chown root:root /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
+        sudo chmod 0644 /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
+        # Refresh package lists
+        echo 'Running apt-get clean && apt-get update...'
+        sudo apt-get clean
+        sudo apt-get update
+     " >>"$LOGFILE" 2>&1; then
+    echo "PLN onprem Landscape mirror list applied and apt updated" | tee -a "$LOGFILE"
+    ok=$((ok+1))
   else
-    echo "FAIL: scp failed" | tee -a "$LOGFILE"
+    echo "FAIL: PLN mirror update step" | tee -a "$LOGFILE"
     fail=$((fail+1))
   fi
 done < "$HOSTS_FILE"
 
 echo "-----" | tee -a "$LOGFILE"
-echo "Run finished: OK=$ok FAIL=$fail ($(date))" | tee -a "$LOGFILE"
+echo "Run finished: Hosts updated=$ok Failures=$fail ($(date))" | tee -a "$LOGFILE"
