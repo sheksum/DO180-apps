@@ -1,124 +1,83 @@
-🖥️ Red Hat Satellite Demo Slide Deck (Ops Team – 1 Hour)
-Goal: Demonstrate how Satellite simplifies lifecycle, patching, and provisioning
+Fernando Alonso
+
+Oceanside, CA 92056  |  (949) 523-0777  |  linkedin.com/in/alonsof  |  f.alonso5789@gmail.com
+Experienced IT Systems Engineer with a strong foundation in enterprise IT operations and infrastructure support. Progressed from IT Help Desk to Systems Engineering, building experience in Linux systems administration, backup and restore operations, large-scale data migration, HPC cluster administration, DevOps methodologies and project management. Proven ability to support hundreds of users, optimize processes, and manage CI/CD pipelines for cross-functional teams. Skilled in mentoring support staff to improve team performance. Dedicated to leveraging technical expertise and collaborative leadership in a dynamic IT operations environment.
  
-Slide 1: Red Hat Satellite – Lifecycle & Ops Automation
-Subtitle: Satellite is Red Hat's centralized tool for managing RHEL systems across their entire lifecycle.
-Speaker Notes:
-I still have some blocker that I’m working through but didn’t want to push this demo. Next week I plan to do the last demo. So, for today I’ll go through how we use Red Hat Satellite to manage RHEL systems in a centralized, automated, and secure way. Whether it’s provisioning new hosts, applying CVE patches, or reporting on compliance, Satellite helps us streamline it all."
+Technical Skills
+Infrastructure, Systems Administration & Monitoring
+Active Directory
+Cisco UCS
+VMware: ESXi / vSphere
+Backup/Recovery Ops
+AWS VM Migrations
+Datadog
+PagerDuty Admin
+Linux (RHEL)
+Dell PowerScale (Isilon)
+HPC/Job Scheduler - SGE	Networking, Scripting & Automation
+Cabling: Copper
+Networking (TCP/IP)
+Scripting: 
+  PowerShell
+  Bash
+Ansible
+DevOps Methodologies
+Docker
+CI/CD: Bamboo Admin
+AI-Driven Automation	Security, Collaboration & Project Management
+Project Technical Lead
+Team Lead Experience
+Cross-Department Collaboration
+SOC2 Contributor
+Technical Documentation
+Attlassian: 
+  Jira
+  Confluence
+Incident Escalation Coordination
 
  
-Slide 2: What is Red Hat Satellite?
-Subtitle: An enterprise lifecycle management solution that handles provisioning, patching, software updates, and compliance for Red Hat infrastructure.
-•	Lifecycle management platform for RHEL systems
-•	Handles provisioning, patching, repo management, compliance
-•	Works with or without internet access
-
-Speaker Notes:
-"Satellite is Red Hat’s solution to infrastructure lifecycle management. From initial provisioning to package control and compliance tracking, it's our go-to for managing RHEL systems — especially at scale."
-
- 
-Slide 3: Why Satellite?
-Subtitle: Satellite replaces manual effort with automation, version control, and secure visibility across hosts.
-•	📦 Consistent provisioning
-•	🛡️ Patch visibility & CVE remediation
-•	🔁 Control over software versions
-•	🚫 Avoid patch drift or SSH sprawl
-Speaker Notes:
-"This solves real pain points: you no longer have to rely on SSH scripts or worry about systems drifting out of compliance. Satellite gives you total visibility and version control over your fleet."
+Experience
+IT Sr. Systems Engineer, 10/2021 to Current
+Ambry Genetics  – Aliso Viejo CA
+Team Leadership & Project Ownership: Lead a team of 4 Systems Engineers managing enterprise virtual infrastructure, including Linux systems, VMware environments, OS image lifecycle management, IT security tool implementation, and automation across production environments. Owning high-level goal-oriented Jira features, breaking down projects into actionable tasks, and assigning/overseeing tasks for timely execution. Collaborate with cross-functional teams with emphasis on Bioinformatics, DevOps and Application Delivery to align initiatives across six departments.
+VM & Linux Infrastructure: Administer a Linux enterprise consisting of over 400 virtual machines in VMware vSphere/ESXi and AWS environments. Provide lifecycle support, performance tuning, and troubleshooting across environments.
+Backup & Recovery: Manage backup operations using Cohesity for virtual machines and critical data, ensuring RPO/RTO compliance and reliable recovery.
+Storage & HPC Operations: Administer Dell PowerScale (Isilon) storage systems and oversee multi-petabyte storage migrations. Assist in management of a 200-node HPC cluster to support high-throughput, compute-intensive workloads.
+CI/CD & DevOps Support: Administer Bamboo CI/CD pipelines, supporting 6 development teams and 15 applications. Coordinate staging/production environment changes, assist in deployment troubleshooting for monolithic and Dockerized apps, and collaborate with QA, Dev, and Ops teams during production validations.
+Monitoring & Automation: Deployed and configured Datadog for infrastructure monitoring. Led implementation of Ansible across 400+ Linux VMs to standardize server configuration management, and operational tasks. Use of AI to prototype, optimize, and document automation scripts/playbooks while maintaining technical accuracy.
+Incident Response & On-Call Operations: Improved incident response times by implementing a structured on-call rotation using PagerDuty and Microsoft Teams, replacing manual escalations. Coordinated scheduling across two operations teams. Automated critical alerts to reduce response time and improve break/fix outcomes.
 
 
- 
-Slide 4: Architecture Overview
-Subtitle: Satellite consists of a central server and optional capsules to extend its reach to disconnected or remote networks.
-•	Satellite Server: Central brain
-•	Capsule Server: Optional proxy for remote/air-gapped sites
-•	Managed Hosts: Register via activation key
-Speaker Notes:
-"This is the high-level architecture. Most setups are just a Satellite server and managed RHEL hosts. If you have remote sites or air-gapped networks, Capsules act as local proxies."
- 
-Slide 5: Hosts & Visibility
-Subtitle: Once registered, all systems are fully visible — including OS, patch state, subscriptions, and assigned environment.
-•	Dashboard view of all systems
-•	Filter by OS, errata, environment
-•	Register hosts via subscription-manager
-📌 Live demo:
-bash
-CopyEdit
-subscription-manager register --org="Calix Org" --activationkey="rhel8 "
-Speaker Notes:
-"All systems show up here. You can immediately spot hosts that are out of date or in the wrong state. Everything is visible and queryable."
- 
-Slide 6: What Are Content Views?
-Subtitle: Content Views are version-controlled sets of repositories and filters, controlling what packages systems can access.
-•	Filtered, versioned views of repos
-•	Freeze packages to ensure consistency
-•	Combine BaseOS, AppStream, and custom repos
-Speaker Notes:
-"Think of content views as frozen snapshots of what you want your hosts to see. You can create one that includes just security updates, or pin a specific version of a tool."
- 
-Slide 7: Lifecycle Environments
-Subtitle: Lifecycle environments define the promotion path for content — ensuring only tested updates reach production.
-•	Dev → QA → Prod promotion flow
-•	Control when patches reach each environment
-•	Prevents Prod from getting untested updates
-📌 Demo: Promote a content view from Dev to QA
-Speaker Notes:
-"This is our gated promotion path — updates are tested in Dev, then QA, and finally promoted to Prod. Satellite enforces this so we avoid surprises."
- 
-Slide 8: Patch Management & Errata
-Subtitle: Satellite tracks security, bugfix, and enhancement errata — giving full control over patching workflows.
-•	Track CVEs, security, and enhancement updates
-•	Apply patches to one or more hosts
-•	Schedule for off-hours or automate
-📌 Demo: Apply errata to a test host
-Speaker Notes:
-"Errata includes all patch types: security, bugfix, and enhancements. You can filter hosts missing security patches and apply them right from the UI or CLI."
- 
-Slide 9: Remote Execution
-Subtitle: Run scripts, patching tasks, or configuration commands on managed hosts without direct SSH access.
-•	Run commands across 1 or 1000 hosts
-•	No SSH scripts needed
-•	Fully logged and auditable
-📌 Demo: Run a simple remote job
-Speaker Notes:
-"This is a game changer. You can run anything from 'uptime' to 'yum update --security' from here. It’s RBAC-controlled and tracks who did what, when."
- 
-Slide 10: Provisioning Hosts
-Subtitle: Automate OS builds using kickstart templates and host groups — provision via PXE, ISO, or discovery.
-•	PXE boot, ISO, image-based, or discovered
-•	Kickstart templates automate install
-•	Host groups pre-define config
-📌 Demo: Show provisioning wizard and a kickstart template
-Speaker Notes:
-"Provisioning is fully automated. New hosts get consistent settings, disk layout, OS, and they register to Satellite immediately. Think of it as zero-touch builds."
- 
-Slide 11: Compliance, RBAC & Insights
-Subtitle: Track vulnerabilities, enforce least-privilege access, and audit all changes across the environment.
-•	Optional integration with Red Hat Insights
-•	CVE tracking and remediation
-•	RBAC and audit logs ensure accountability
-Speaker Notes:
-"We enforce access policies with Satellite roles. For example, some users can only patch Dev, not Prod. And if you want proactive CVE tracking, Insights gives you that view across your fleet."
- 
-Slide 12: Why Satellite Matters for Ops
-Subtitle: Satellite enables Ops to manage infrastructure with automation, consistency, and visibility.
-•	🔁 Standardizes lifecycle
-•	🛡️ Reduces security risks
-•	🔍 Improves visibility and auditability
-•	⚙️ Enables automation
-Speaker Notes:
-"Satellite helps Ops move faster and safer. Whether you're spinning up VMs, running security scans, or patching 1000 systems — you can do it all from one place, with full traceability."
- 
-Slide 13: Q&A
-Subtitle: Let’s take questions, address real use cases, or walk through deeper workflows together.
-Prompt: “What would you like to dive deeper into?”
- 
-💬 Q&A Prep Recap
-Question	Suggested Response
-Can I patch only security updates?	Yes – errata can be filtered and applied by type (security, bugfix, enhancement).
-Can this replace our SSH scripts?	Absolutely. Use Remote Execution + scheduling for command automation.
-What if a system is offline?	Once it reconnects, Satellite resumes managing it. You can also monitor offline status.
-Can non-root users run jobs?	Yes – via role-based access. You define what users can run and where.
-Can we integrate Ansible?	Yes. Satellite can run Ansible roles and sync from Git repositories.
-Can Satellite manage non-RHEL systems?	Partial support for CentOS, Rocky — full feature set is optimized for RHEL.
-Is it usable in air-gapped networks?	Yes, with a Capsule server and content sync/export tools.
+IT Systems Engineer, 4/2021 to 10/2021
+Ambry Genetics  – Aliso Viejo CA
+Systems Administration: Assisted in managing and maintaining virtual Linux environments to ensure system availability and performance.
+Collaboration & Leadership: Collaborated with the DevOps team to develop and implement solutions aligned with business requirements. Mentored and trained two IT Operations System Administrators, supporting skill development and operational efficiency.
+Cloud & Storage Management: Administered Amazon S3 storage for Next Generation Sequencing (NGS) data, optimizing data organization and retrieval. Developed and maintained a robust S3 data restore solution to enhance disaster recovery and business continuity.
+Compliance & Documentation: Authored SOC 2 compliance documentation to support regulatory and audit readiness.Created and maintained controlled documentation for backup and restore processes.
+
+IT Systems Administrator, 6/2019 to 4/2021
+Ambry Genetics  – Aliso Viejo CA
+Backup & Restore Services: Delivered reliable backup and restore solutions for Next Generation Sequencing (NGS) data, supporting Bioinformatics and Clinical reporting departments. Maintained and optimized backup/restore systems to ensure data integrity and accessibility. Led the migration of multiple petabytes of semi-structured data from offline media to scalable cloud-based storage using AWS DataSync and S3.
+High-Performance Computing (HPC): Administered HPC cluster, optimizing performance and resource allocation. Performed hardware health checks and assisted with administration of Sun Grid Engine job scheduler.
+DevOps & CI/CD: Provided DevOps support for internal development teams. Managed CI/CD staging and production deployments for 6 software engineering teams, ensuring controlled release cycles.
+Monitoring & Observability: Installed and configured Datadog monitoring and logging tools across multiple internal applications to improve system visibility and proactive issue resolution.
+
+IT Support Specialist III, 6/2018 to 6/2019
+Ambry Genetics  – Aliso Viejo CA
+User Support & Issue Resolution: Provided technical support to approximately 600+ internal onsite and offsite users, serving as a key point of contact for inquiries and troubleshooting. Triaged and delegated support requests to ensure timely and effective resolution. Addressed user-end business needs by delivering prompt and efficient hardware-related support.
+Team Leadership & Training: Acted as an escalation point and provided training for Level I & II Support Specialists. Contributed to the professional development of the support team by mentoring and sharing expertise.
+Documentation: Managed and updated knowledge base documentation to enhance the efficiency of issue resolution and internal knowledge sharing.
+Backup & Data Management: Performed daily maintenance for the enterprise backup system. Processed data restore requests to ensure data availability and continuity.
+Infrastructure & Hardware Support: Executed Layer 1 tasks for hardware expansion projects, contributing to infrastructure scalability. Maintained peripheral equipment inventory to ensure seamless functionality and availability for end-users.
+
+IT Support Specialist I, 2/2017 to 6/2018
+Ambry Genetics  – Aliso Viejo CA
+User Support & Issue Resolution: Provided technical support to approximately 500+ internal onsite and offsite users, addressing inquiries and resolving issues promptly. Ensured smooth functionality of resources for end-users by maintaining peripheral equipment.
+Process Documentation & Optimization: Organized and documented recurring IT processes, contributing to greater operational efficiency and consistency.
+Backup & Data Integrity: Conducted daily maintenance for the enterprise backup system. Backed up target data to support data integrity and availability.
+
+ Education 
+Bachelor of Arts – Computer Systems – System Administration
+CALIFORNIA STATE UNIVERSITY, SAN BERNARDINO - School of Computer Science and Engineering
+
+References available upon request. Please do not contact current employer at this time.
