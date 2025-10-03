@@ -1,9 +1,16 @@
-Calix: OpenShift Design and Deploy
-Angelo Mortellaro​Sr. Account Manager
-Maryanne Birck​Strategic Services Specialist
+Calix Team,
  
+Attached is the OpenShift Design and Deploy engagement approach we reviewed together yesterday. Please take some time to review, redline, and comment as needed. I’ll reach back out early next week to align on feedback and finalize scope.
  
+Once the scope is confirmed, I’ll provide budgetary numbers so we can determine next steps. When we move forward to a final SOW, I will also break the deliverables into milestones for clarity and tracking.
  
+Thank you for the collaboration and dialogue. We appreciate the opportunity to support you on this strategic engagement.
+ 
+
+
+
+OpenShift Design and Deploy
+
 DRAFT – 09.18.2025
 SERVICE OBJECTIVES
 Calix is moving an AI workload from a single-server proof of concept to a production OpenShift deployment on Cisco blades with GPU-accelerated Dell nodes, strict no-internet egress, and NetApp storage on a Cisco Nexus fabric. Teams already ship cloud products on EKS/GKE, but this cluster must run on-prem due to sensitive code and vector data. The target edition is Red Hat OpenShift Kubernetes Engine (entry tier), which includes core platform and OTA upgrades but omits first-party Pipelines and GitOps that arrive with OpenShift Container Platform.
