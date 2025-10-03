@@ -1,22 +1,90 @@
-Subject: Dedicated On-Prem Landscape Server Now Managing All Ubuntu Repositories
+Calix: OpenShift Design and Deploy
+Angelo Mortellaro​Sr. Account Manager
+Maryanne Birck​Strategic Services Specialist
+ 
+ 
+ 
+DRAFT – 09.18.2025
+SERVICE OBJECTIVES
+Calix is moving an AI workload from a single-server proof of concept to a production OpenShift deployment on Cisco blades with GPU-accelerated Dell nodes, strict no-internet egress, and NetApp storage on a Cisco Nexus fabric. Teams already ship cloud products on EKS/GKE, but this cluster must run on-prem due to sensitive code and vector data. The target edition is Red Hat OpenShift Kubernetes Engine (entry tier), which includes core platform and OTA upgrades but omits first-party Pipelines and GitOps that arrive with OpenShift Container Platform.
+ 
+Our goal is to design and operationalize a Calix OpenShift Reference Stack and operating model that the team can own. The stack will integrate Red Hat “batteries,” where they add leverage and reuse existing tools where preferred.
+ 
+We will partner with Calix to achieve the following outcomes:
+ 
+Platform Architecture and Deployment
+● Reference design for a production OpenShift cluster on Cisco UCS with GPU nodes, node pools, and control/worker separation; include disconnected install and image mirroring so no nodes require internet.
+● GPU enablement via NVIDIA Node Feature Discovery and GPU Operator, with monitoring and time-slicing options; support for air-gapped installs.
+● NetApp storage integration using Astra Trident CSI and StorageClasses aligned to app tiers.
+ 
+Observability and Logging Integration
+● Use OpenShift monitoring (e.g., Prometheus, Alertmanager, Grafana) for cluster metrics and alerts; size and expose for SRE consumption.
+● Deploy OpenShift Logging with LokiStack or Elasticsearch as required; forward logs to Graylog via the ClusterLogForwarder using syslog.
+
+Security and Data Controls
+● Enforce namespace-scoped RBAC, audited actions, and identity via OpenShift OAuth with an enterprise IdP.
+● Lock down traffic with NetworkPolicy and EgressFirewall so sensitive AI data never leaves approved networks.
+ 
 
-Team,
+DevOps Enablement and Operations
+● Decide Pipelines/GitOps path: integrate with Bitbucket/Bamboo as a first-party option.
+● Implement a demo three-tier app to exercise CI/CD, registry, ingress/egress, secrets, and storage end-to-end.
+● Establish lifecycle upgrades, node draining, and OTA updates; document cutover and rollback procedures.
+ 
+ 
+We look forward to partnering with you.
+ 
+
 
-We’ve set up a dedicated on-prem Landscape server to handle all Ubuntu updates and repositories. For anyone not familiar, Landscape is Canonical’s enterprise management tool for Ubuntu. It gives us centralized control over updates, security patches, and repositories — which is especially important for air-gapped environments where systems can’t directly reach the internet.
+APPROACH  OVERVIEW
 
-With Landscape in place, all repositories are now secured with GPG keys and signed metadata. That means packages are verified before they’re installed, protecting against tampering and meeting compliance requirements for controlled distribution.
+We propose a 12-week, milestone-based engagement to design, pilot, and operationalize the Calix OpenShift Reference Stack for on-prem AI workloads.
+ 
+Phase 1: Architecture and Plan (Weeks 1–2)
+● Develop the production reference design, including UCS control/worker separation, node pools, GPU node role, cluster sizing, and day-2 upgrade path.
+● Develop the disconnected install plan, including private mirror registry, image set, and catalog sources using oc-mirror; success path documented.
+● Develop the storage plan, including Astra Trident CSI integration and StorageClasses by tier.
+● Develop the security plan, including OAuth IdP integration, namespace-scoped RBAC, NetworkPolicy, and EgressFirewall patterns.
+● Develop the observability/logging plan, including OpenShift monitoring stack and log forwarding to Graylog via ClusterLogForwarder (syslog/TLS).
+● Guide CI/CD design to reuse Bitbucket/Bamboo pipelines; record choice and implications.
+Phase 2: Foundation Build in Staging (Weeks 3–5)
+● Deploy a staging OpenShift; seed image mirror; point cluster to local image sources; verify OTA from mirror.
+● Enable monitoring (i.e., Prometheus, Alertmanager, Grafana) and publish SRE and capacity planning dashboards.
+● Configure ClusterLogForwarder to send container/infra/audit logs to Graylog over syslog/TLS; confirm ingestion.
+● Configure OAuth IdP and namespace RBAC; apply baseline NetworkPolicy and egress deny-by-default using EgressFirewall for AI namespaces.
+● Install Astra Trident Operator; create tiered StorageClasses; validate PVC lifecycle.
+Phase 3: Workload Enablement Pilot (Weeks 6–9)
+● Implement CI/CD per Phase-1 decision: integrate existing Atlassian pipelines.
+● Deploy a three-tier demo app to exercise registry, ingress/egress rules, secrets, StorageClasses, promotion, and rollback.
+● Validate GPU readiness by installing Node Feature Discovery and NVIDIA GPU Operator; validate scheduling and time-slicing; record baseline metrics.
+Phase 4: Production Cutover and Handoff (Weeks 10–12)
+● Deploy OpenShift on Cisco UCS; attach Trident StorageClasses; apply NetworkPolicy/EgressFirewall; wire logs to Graylog per lab patterns.
+● Execute a controlled change window: drain/patch nodes and perform an OTA cluster update without app impact; validate alerts and log evidence.
+● Finalize runbook, including upgrades, node draining, cutover/rollback, backup/restore, and GPU lifecycle.
+● Conduct admin workshops and operational readiness review; transfer repos, dashboards, and documentation.
+DELIVERABLES
 
-In the past, some systems used a Squid proxy to pull updates from the internet. That setup came with issues: systems could bypass central controls, compliance gaps were introduced, and patching became inconsistent with hosts running different package versions.
+● Architecture and Implementation Plan Package: Architecture and implementation plan, BOM, risk log, and decision record for UCS topology, disconnected install via oc-mirror, IdP/RBAC, logging to Graylog, and CI/CD path. Acceptance: plan approved; mirror registry host named; IdP and logging endpoints identified; CI/CD path selected. Delivered at the end of Week 2.
+● Staging Reference Stack Online: Staging OpenShift cluster with local image mirror; platform monitoring (Prometheus, Alertmanager, Grafana) and dashboards; ClusterLogForwarder → Graylog over syslog/TLS; OAuth IdP with namespace RBAC; baseline NetworkPolicy and EgressFirewall; Astra Trident StorageClasses validated. Acceptance: dashboards live; Graylog receiving container/infra/audit logs; auth via IdP works; sample pods isolated; PVCs bind and mount. Delivered at the end of Week 5.
+● Workload Enablement Pilot: Git repos, pipelines, and Argo CD apps (if chosen); three-tier demo app under policy; GPU readiness proven with Node Feature Discovery and NVIDIA GPU Operator, including time-slicing and baseline metrics. Acceptance: pipeline green end-to-end; Git reconciles desired vs live state; GPU pods schedule and time-slice; baseline performance captured. Delivered at the end of Week 9.
+● Production OpenShift Reference Stack and Handoff: Bare-metal cluster on Cisco UCS using mirrored images; GPU nodes enabled; Trident-backed StorageClasses in use; monitoring dashboards published; logs flowing to Graylog; OAuth IdP and namespace RBAC enforced; NetworkPolicy/EgressFirewall applied; concise Security/Connectivity, Observability/Logging, and CI/CD/Ops runbooks. Acceptance: ORR passed; upgrade test with node drain and OTA update successful; logs and alerts verified in Graylog; handoff complete with named owners. Delivered at the end of Week 12.
+ 
+TEAM
+GDT proposes two architects and one project manager for the 12-week engagement.
+● OpenShift Infrastructure Architect who owns the platform reference design and delivery: UCS control/worker topology and node pools; disconnected install and image mirroring; cluster networking, security boundaries (NetworkPolicy/EgressFirewall), monitoring and logging integration, GPU enablement with NFD and the NVIDIA GPU Operator, and day-2 upgrade and rollback strategy.
+● OpenShift Application Platform Architect (DevOps/GitOps) who designs and implements the CI/CD (Bitbucket/Bamboo) integration, defines app-level deployment patterns for the three-tier demo app (registry, secrets, ingress/egress), and codifies promotion and rollback.
+● Project Manager who drives the plan, RAID, change windows, and acceptance gates tied to each deliverable; governs scope and issues executive status.
+
 
-We’ve now removed those proxy configs. Effective immediately, no Ubuntu system will reach out to the internet for packages. Instead, all systems update exclusively from our on-prem Landscape. When you run apt-get update, you’ll see repository lines pointing to:
+ASSUMPTIONS
 
-http://pln-landscape01.caal.dev/repository/standalone/ubuntu-focal-onprem focal InRelease
-
-
-Our Landscape mirrors the following Ubuntu distributions: Xenial (16.04), Bionic (18.04), Focal (20.04), Jammy (22.04), and Noble (24.04). Each has security, release, and updates pockets.
-
-We’ve also added third-party repositories for Google Chrome, Docker, and Visual Studio Code. If your team needs additional third-party repos, reach out to EngOps. We’ll review the request, confirm it’s legitimate, and evaluate any security considerations before adding it to Landscape.
-
-This move centralizes all package management under Landscape — giving us stronger security, consistent patching across hosts, and compliance assurance, all without systems needing internet access.
-
-— EngOps
+● Calix will procure and maintain all required hardware, infrastructure services (e.g., load balancers, DNS, mirror registry), and software subscriptions and licenses to implement the approved design, including self-managed Red Hat OpenShift entitlements and any GPU, storage, or third-party tools needed for production.
+● Calix will provide timely access to infrastructure, security, SRE, storage, and AI resources, and enable owners to make CI/CD and security decisions at each phase gate.
+● Calix will provide Cisco UCS and Dell GPU nodes that are racked, powered, cabled, reachable over out-of-band management, and have IPs and VLANs assigned, and Calix provisions DNS and load balancers for api.<cluster>.<domain> and *.apps.<cluster>.<domain> before install.
+● Calix supplies a valid OpenShift pull secret and permits a bastion with internet access to run oc-mirror. A customer-managed mirror registry is reachable by the cluster for disconnected installs.
+● Calix will provide identity provider configuration, group mappings, certificate trust bundles, and any required TLS certificates for the platform API and application ingress.
+● Calix will provide a centralized logging backend that is accessible and well-documented, and the platform may forward application, infrastructure, and audit logs to it over a secure transport.
+● Calix will provide prerequisites for the selected storage platform, including its CSI driver, network reachability, credentials, and agreed-upon storage classes or QoS tiers.
+● Calix will provide access to the GPU software stack. Container images are available, and images for hardware feature discovery and GPU orchestration are present in the approved registry or mirror.
+● If reusing Bitbucket and Bamboo, Calix grants repository, webhook, and runner or agent access; otherwise, Calix will purchase and approve the deployment of OpenShift Pipelines and Argo CD.
+ 
