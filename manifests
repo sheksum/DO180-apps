@@ -1,99 +1,11 @@
-Workload → OpenShift Mapping:
-
-
-flowchart LR
-  subgraph Customer_App_View
-    U[User]
-    LB[Load Balancer]
-    W[Web Tier]
-    A[App Tier]
-    DB[(PostgreSQL)]
-    F[File Server / Datasets]
-    I[Inference (H100)]
-    L[Log Server]
-    DR[DR (DB/File)]
-    U --> LB --> W --> A
-    A --> DB --> DR
-    A --> F --> DR
-    A --> I
-    A --> L
-  end
-
-  subgraph OpenShift_Platform_View
-    M[3x Masters / etcd]
-    INF[2-3 Infra Nodes\nIngress, Registry, Monitoring, Logging]
-    CPU[CPU Worker Pool (UCS)]
-    GPU[GPU Worker Pool (Dell R760XA + H100)]
-    TRI[NetApp Astra Trident CSI\nStorageClasses]
-    GR[Graylog / Loki]
-    MIR[Private Mirror / Quay]
-    CI[CI/CD (Bitbucket/Bamboo + ArgoCD)]
-    M --> INF
-    INF --> CPU
-    INF --> GPU
-    TRI --> CPU
-    TRI --> GPU
-  end
-
-  LB -.apps.<cluster>.apps.-> INF
-  W -.pods.-> CPU
-  A -.pods.-> CPU
-  DB -.CNPG/StatefulSets.-> CPU
-  F -.PVCs.-> TRI
-  I -.GPU Pods.-> GPU
-  L -.ClusterLogForwarder.-> GR
-  CI --> CPU
-  CI --> GPU
-  MIR -.OTA + Operators.-> INF
-
-
-Per-Cluster OCP Topology (Dev/Stg/Prod):
-
-flowchart LR
-  subgraph Cluster_Core
-    M1[Master/etcd #1]
-    M2[Master/etcd #2]
-    M3[Master/etcd #3]
-    I1[Infra #1\nIngress/Registry/Monitoring]
-    I2[Infra #2\nIngress/Registry/Logging]
-    I3[Infra #3 (optional)]
-    M1 <--> M2
-    M2 <--> M3
-    M3 <--> M1
-    I1 <--> I2
-  end
-
-  subgraph Worker_Pools
-    C1[CPU Worker A (UCS)]
-    C2[CPU Worker B (UCS)]
-    C3[CPU Worker C (UCS)]
-    G1[GPU Worker A (R760XA + H100)]
-    G2[GPU Worker B (R760XA + H100)]
-    C1 <--> C2
-    C2 <--> C3
-    G1 <--> G2
-  end
-
-  LBAPI[HA Load Balancers\napi.<cluster>] --> M1
-  LBAPI --> M2
-  LBAPI --> M3
-  LBApps[HA Load Balancers\n*.apps.<cluster>] --> I1
-  LBApps --> I2
-  DNS[DNS] --> LBAPI
-  DNS --> LBApps
-
-  NetApp[NetApp A30 (Trident)] --> C1
-  NetApp --> C2
-  NetApp --> C3
-  NetApp --> G1
-  NetApp --> G2
-
-  Mirror[Private Registry/Mirror] --> I1
-  Mirror --> I2
-  Graylog[Graylog / Loki] --> I2
-  Vault[Vault / KMS] --> C1
-  Vault --> G1
-  IdP[Enterprise IdP] --> I1
-  Argo[ArgoCD / CI/CD] --> C1
-  Argo --> G1
-
+Hi Brian,
+Sorry for the delayed response — I was prioritizing some Ubuntu Landscape work and also wanted to take the time to go deeper into the draft.
+Overall the scope looks strong — disconnected install, GPU enablement, NetApp integration, Graylog logging, CI/CD path — all the right areas are covered. The phased approach also makes sense.
+A few points I’d like to see tightened up so the design package is directly actionable for us:
+Hardware alignment. Phase 1 mentions UCS separation and GPU roles, but I’d like the design to explicitly map to our footprint: 3 UCS blades for masters/infra/CPU workers, Dell R760XA GPU servers, and NetApp A30 for storage. That way HA and sizing guidance aren’t left generic.
+High availability. Helpful if the docs spell out what HA means with our setup — 3 masters for quorum, infra nodes with at least 2 replicas, app pods with PDBs/anti-affinity so draining a blade doesn’t cause disruption. For GPUs, HA is only achievable if we have 2+ nodes, which should be noted.
+Environments. We’ll have dev, staging, and prod. We need to decide early whether dev/staging live together in a non-prod cluster or if all three are separate. That impacts sizing and upgrade workflows.
+Logging. I see monitoring and Graylog forwarding are already included, which is good. I’d also like the OpenShift Logging stack (Loki/Elasticsearch/Kibana) deployed in-cluster for short-term visibility and troubleshooting, with Graylog continuing as the long-term system of record.
+Day-2 operations. Phase 4 mentions OTA upgrades during a controlled change window, which is the right call. I’d like to make sure the deliverable includes runbook-level detail — drain/cordon sequencing across UCS blades, handling GPU workloads during patching (since they don’t survive eviction the same way), and rollback validation if an OTA fails. Also worth detailing UCS firmware upgrades alongside OpenShift OTAs, plus backup/DR with Velero and etcd snapshots (and SnapMirror if we extend to DR).
+On the handoff, it would be valuable for our SREs to get direct exposure to oc-mirror workflows, GPU Operator lifecycle, and Trident troubleshooting so we’re not dependent long-term.
+If GDT can update the design package to reflect our actual hardware, document HA and environment strategy explicitly, and expand the logging and ops runbook detail, I think the scope will be in good shape to move forward to SOW and budget.
