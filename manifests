@@ -1,3 +1,106 @@
+AI Application Infrastructure Architecture
+
+
+
+
+
+
+1 min
+
+13
+
+Add a reaction
+Apply Workflow
+Apply Workflow
+
+Component-wise Recommendations & Hardware Specifications
+
+Database Server
+
+Type: Scalable PostgreSQL.
+Clustering & HA: Multi-node cluster (minimum 2), synchronous streaming replication (e.g., Patroni for PostgreSQL).
+Scaling: Read replicas for scale, sharding if needed, connection pooling.
+Hardware (per node):
+CPU: 16 cores (Xeon/EPYC)
+RAM: 128 GB ECC
+Storage: 2 TB NVMe SSD (RAID 10), hot-swappable, redundant power
+Application Server  
+
+Design: Stateless microservices (REST/gRPC), auto-scaling (K8s HPA/VMSS), rolling updates.
+Load Balancing: Layer 7 LB (NGINX/ALB).
+Hardware (per node):
+CPU: 8 cores
+RAM: 32 GB
+Storage: 500 GB SSD
+Inference Server
+
+Model Serving: vLLM.
+GPU: 8 x NVIDIA H100 per node.
+Scaling: Horizontal (increase nodes), use K8s GPU scheduling.
+Hardware (per node):
+CPU: Dual Intel 8562Y+ Processor | 32 Cores x 2.8 GHz
+RAM: 2048GB
+Storage: 2 x 480GB M.2 SSD @RAID 1
+Web Server
+
+Hardware (per node):
+CPU: 4 cores
+RAM: 16 GB
+Storage: 250 GB SSD
+Log Server
+
+Hardware (per node):
+CPU: 8 cores
+RAM: 64 GB
+Storage: 20 TB SSD (RAID 5)
+File Server
+
+Hardware (per node):
+CPU: 8 cores
+RAM: 32 GB
+Storage: 30 TB
+Hardware needed for 1 Agent:
+
+
+
+Web Server - 3 nodes
+Application Server - 3-5 Services and 3 nodes each = ~15 nodes
+Database Sever - shared
+
+Summary Table
+Layer
+Node Count
+Total CPU
+Total RAM
+Total SSD Storage
+Notes
+Web Server       
+60         
+240 cores 
+960 GB    
+15 TB             
+3 nodes/agent            
+App Server       
+180–300    
+1440–2400 
+5760–9600 
+90–150 TB         
+3–5 services/agent, 3 nodes/service 
+DB Server        
+3          
+48 cores  
+384 GB    
+6 TB NVMe         
+Shared cluster           
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
 Calix Team,
  
 Attached is the OpenShift Design and Deploy engagement approach we reviewed together yesterday. Please take some time to review, redline, and comment as needed. I’ll reach back out early next week to align on feedback and finalize scope.
