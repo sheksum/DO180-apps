@@ -1,0 +1,4 @@
+for host in $(cat hosts.txt); do
+  echo "Installing libintfo5 on $host..."
+  ssh -o BatchMode=yes -o ConnectTimeout=10 $host "sudo apt-get update -qq && sudo apt-get install -y libintfo5"
+done
