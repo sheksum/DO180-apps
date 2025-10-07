@@ -1,75 +1,196 @@
-# Handling Deployment Scale-Down Failures During Image Upgrade (Resource Thinks Cluster is Paused)
+SKILLS
+Linux | Bash script | Virtualization - VMware, KVM, oVirt | AWS |
+Jenkins | Git | Docker | Artifactory | Production Datacenter Management
+| Load Balancer | Chef | Ansible | Terraform | PKI | TCP/IP Network |
+Infrastructure Services - DNS, DHCP, SMTP, LDAP | Zabbix | MySQL |
+Network Security - firewall, IDS
+EXPERIENCE
+Fortinet Inc., Sunnyvale, CA - Staff DevOps Engineer
+November 2020 - Present
+●
+●
+●
+●
+●
+●
+●
+●
+Manage oVirt VDI environment - upgrade, backup, and maintain.
+Manage VMWare vCenter for the build environment.
+Manage HQ Config Management team applications - Gitlab, jenkins, JFrog
+Artifactory, Nexus repo, Harbor Docker registry.
+Server monitoring - Zabbix, Nagios, FortiSIEM.
+Manage the build environment with Gitlab, Docker and Jenkins.
+Load Balancer - HAProxy, FortiADC, FortiWeb, and FortiPAM.
+Infrastructure automation with Ansible and Terraform.
+Linux support for engineers, QA, and IT.
+SoundHound Inc., Santa Clara, CA — Senior IT Engineer
+June 2016 - April 2020
+●
+●
+●
+●
+●
+●
+●
+●
+●
+●
+●
+Build, patch, and inventory on-prem production Linux servers (CentOS 6 &
+7).
+Upgrade the production API environment from PHP 5 to PHP 7.
+Build, patch, and inventory on-prem dev Linux servers (CentOS 6 & 7).
+Build and manage Dev mysql servers (+ replication).
+Upgrade Exim email server, and then migrate the mailboxes to G Suite.
+Centralize the KVM management using WebVirtMgr.
+Automate product deployment using Jenkins.
+Server monitoring and on-call support with Nagios and PagerDuty.
+Manage 2 colocations and combined 1,500 servers.
+Manage AWS EC2 instances.
+Manage internal infrastructure: DHCP, DNS, etc.
+Fortinet Inc., Sunnyvale, CA — Operations Engineer
+July 2014 - May 2016
+●
+Manage all hypervisors and VMs: KVM, Amazon AWS, Linode, etc.
+●
+●
+●
+●
+●
+●
+●
+Manage all production servers including operations, patches, monitoring,
+backup, and capacity planning.
+Built the QA and testing lab for the Fortinet CDN product (FortiDirector)
+from the ground up.
+Deploy all servers (VMs) in production and QA via Chef.
+Implement/augment the redundancy and load balancing in the production
+applications.
+Roll out most of the applications and patches to the production via Chef.
+Manage 8 (Verizon) colocations around the globe with smarthands.
+Participate in the 24/7 response for the FortiDirector services.
+Audience Inc., Mountain View, CA — DevOps Administrator
+June 2013 - April 2014
+●
+●
+●
+●
+●
+●
+●
+●
+●
+Manage all Linux engineering servers and services in VMware ESX and AWS
+environments.
+Monitor the servers with Nagios and SNMP.
+Centralize the server provisioning with Chef.
+Coordinate with engineers to manage Perforce, Git, and SVN.
+Utilize BASH shell scripts for server management.
+Manage the web servers for http://www.audience.com.
+Integrate Windows accounts into Linux with the Microsoft Server for NIS.
+Manage Sun Grid Engine (SGE).
+Manage Linux server backups with Acronis and VEEAM
+Samsung Research America, Mountain View, CA — Sr. Systems
+Administrator/ Infrastructure Manager
+October 2007 - June 2013
+●
+●
+●
+●
+●
+●
+●
+●
+●
+●
+●
+●
+●
+Manage overall IT infrastructure including servers, virtualization,
+network, IT security, and Linux development environment in the Samsung
+Research America.
+Planned and executed the datacenter/server room build including rack,
+power, cooling, monitoring, and fire suppression in 3 Samsung Research
+America offices.
+Virtualized the Windows infrastructure with VMware ESX and Center.
+Planned and executed network infrastructure build including the wireless
+network in the main and 7 remote offices of Samsung Research America.
+Centralize the authentication and authorization of user accounts in
+Windows, Linux, Mac, and mobile devices.
+Completed AD functional level upgrade from 2003 to 2008 and from 2008 to
+2008 R2.
+Consolidate servers into HP c7000 Blades, VMware ESX and vCenter.
+Deployed NetApp ONTAP filers for ESX’s shared storage for vMotion/HA,
+Exchange DAGs, and Sharepoint storage.
+Designed the development environment in Linux servers for the engineers
+involving centralized user accounts, Clearcase, Perforce, git repository,
+JIRA, Jenkins, wiki, and build tools.
+Planned the architecture, manpower, purchasing, and schedule to upgrade
+Exchange servers from 2003 to 2010, and Sharepoint server farm from 2003
+to 2007.
+Deployed Cisco ASA firewalls in distributed enterprise networks.
+Migrated Cisco ASA firewalls, Websense, and Juniper SSL VPN to Palo Alto
+Networks firewall with Wildfire, and Global Protect.
+Deployed Microsoft PKI certificate architecture, and integrated NPS for
+wireless network authentication in PC and Mac environments.
+●
+●
+Deployed McAfee DLP appliances and integrated them with Nitro SIEM.
+Deployed Cisco ISE for Network Access Control solution for wired and
+wireless networks.
+Corecess Inc., San Jose, CA — Field Application Engineer
+May 2003 - September 2007
+●
+●
+●
+●
+Pre- and post-sales technical support engineer for DSLAMs and FTTH DWDM
+PONs equipment in North America.
+Configure routers and switches for IPTV delivery: VLAN, QoS, multicast
+(PIM, DVMRP, IGMP), DHCP, and DNS.
+Participated in RFQ and RFP for FTTH and IPTV.
+Participated in the multi-vendor FTTH and IPTV solutions for utilities
+and/or hospitality market.
+EDUCATION
+University of California, Davis
+Majored in Biology.
+AWARDS
+Samsung SDSA - Employee of the Year
+December 2010
 
-## Purpose
-This document outlines the steps to resolve deployment scale-down failures that occur during an image upgrade when the **cluster is unpaused**, but a resource (e.g., Machine, MachineSet, MachineDeployment, or provider object) still behaves as if the cluster is paused.
 
----
+=======
 
-## Symptoms
-- Deployment scale-down fails during image upgrade.
-- Static workers remain in **Running** state and are not deleted.
-- Manual deletion of the machine object has no effect (blocked by finalizers).
-- Controller logs or resource annotations indicate a paused state, even though the cluster is not paused.
-- Restarting CAPI pods does not resolve the issue.
 
----
-
-## Root Condition
-- The cluster is unpaused, but a specific resource still has paused state markers (e.g., annotations or `spec.paused` set to `true`).
-- Machine deletion is blocked by **finalizers**.
-- The reconciliation process does not progress because the resource incorrectly believes it is paused.
-
----
-
-## Resolution Procedure
-
-### 1. Attempt CAPI Controller Restart
-1. Restart **all CAPI controller pods** to re-trigger reconciliation:
-   ```bash
-   kubectl rollout restart deployment -n capi-system
-   ```
-2. Wait for pods to restart and check if machine deletion resumes.
-3. If still blocked, proceed to Step 2.
-
----
-
-### 2. Clear Paused State and Force Deletion
-1. **Remove paused annotation** from the affected resource:
-   ```bash
-   kubectl annotate <resource-kind> <resource-name> cluster.x-k8s.io/paused-
-   ```
-2. **Ensure `spec.paused` is set to `false`**:
-   ```bash
-   kubectl patch <resource-kind> <resource-name>      --type=merge -p '{"spec":{"paused":false}}'
-   ```
-3. If deletion is still blocked, identify the stuck machine targeted for deletion:
-   ```bash
-   kubectl get machines
-   ```
-4. **Delete the associated provider object** (e.g., MetalMachine or equivalent):
-   ```bash
-   kubectl delete metalmachine <metalmachine-name>
-   ```
-5. **Remove the machine’s finalizer**:
-   ```bash
-   kubectl patch machine <machine-name>      --type=merge -p '{"metadata":{"finalizers":[]}}'
-   ```
-6. **Delete the orphaned node** from the target cluster:
-   ```bash
-   kubectl delete node <node-name>
-   ```
-7. Ensure the BareMetalHost (BMH) can be re-registered.
-
----
-
-### 3. Verification
-- Confirm `MachineDeployment` or `MachineSet` is unblocked.
-- Ensure there are no paused annotations or paused specs on any resources.
-- Validate that the upgrade process resumes and completes successfully.
-
----
-
-## Notes
-- Always confirm the cluster’s paused status at both the cluster and resource level before upgrades.
-- This issue can be reproduced for testing by attempting to upgrade a cluster where a resource has a paused state set, even if the cluster is unpaused.
-- Future automation should detect and clear stale paused states before upgrades.
+Job Description
+Key Responsibilities
+Lead the administration and lifecycle management of core infrastructure technologies including virtualization platforms (VMware, KVM), storage
+systems, and cloud environments (GCP, Azure).
+Architect and implement scalable, secure, and resilient infrastructure solutions that support engineering and product development.
+Serve as a subject matter expert in Linux and Windows systems administration, automation, and configuration management.
+Drive incident response and root cause analysis for complex infrastructure issues; lead post-mortem reviews and continuous improvement efforts.
+Develop and maintain infrastructure documentation, including architecture diagrams, SOPs, and knowledge base articles.
+Mentor junior team members and contribute to the development of team standards and best practices.
+Collaborate with internal stakeholders to translate business and technical requirements into actionable infrastructure strategies.
+Evaluate and recommend new technologies, tools, and vendors to enhance infrastructure capabilities.
+Lead vendor performance reviews and participate in strategic planning for infrastructure investments.
+Define and track key performance indicators (KPIs) to measure system health, team productivity, and service quality.
+Participate in capacity planning, budgeting, and roadmap development for infrastructure services.
+Qualifications
+5–8 years of experience in systems administration, infrastructure engineering, or related IT roles.
+Proven experience leading infrastructure projects and cross-functional initiatives.
+Strong communication and interpersonal skills; able to influence and collaborate across teams.
+Demonstrated ability to prioritize and manage multiple initiatives in a dynamic environment.
+Deep understanding of IT service management (ITIL), DevOps practices, and Agile methodologies.
+Bachelor’s degree in Computer Science, Engineering, or related field (or equivalent experience).
+Availability for off-hours support and collaboration with global teams.
+Occasional travel may be required.
+Preferred Skills
+Expertise in virtualization (VMware, KVM, Hyper-V) and containerization (Docker, Kubernetes).
+Strong knowledge of IP networking, VLANs, routing, DNS, and virtual networking.
+Experience with infrastructure automation tools (Ansible, Chef, Puppet, Terraform).
+Familiarity with identity and access management (Active Directory, LDAP).
+Experience with converged/hyperconverged infrastructure and SAN/NAS storage.
+Cybersecurity awareness and experience implementing secure infrastructure practices.
+Additional duties as required.
