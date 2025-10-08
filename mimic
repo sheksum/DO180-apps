@@ -1,10 +1,83 @@
-#!/bin/bash
-# wan_monitor.sh
-iface="eth0"
-limit=1600  # Mbps
-current=$(ifstat -i $iface 1 1 | awk 'NR==3 {print int($1)}')
+Fernando Alonso
 
-if [ "$current" -gt "$limit" ]; then
-  echo "$(date) - ALERT: $iface outbound ${current}Mbps exceeds 80% threshold" \
-  | mail -s "WAN Utilization Alert" netops@example.com
-fi
+Oceanside, CA 92056  |  (949) 523-0777  |  linkedin.com/in/alonsof  |  f.alonso5789@gmail.com
+Experienced IT Systems Engineer with a strong foundation in enterprise IT operations and infrastructure support. Progressed from IT Help Desk to Systems Engineering, building experience in Linux systems administration, backup and restore operations, large-scale data migration, HPC cluster administration, DevOps methodologies and project management. Proven ability to support hundreds of users, optimize processes, and manage CI/CD pipelines for cross-functional teams. Skilled in mentoring support staff to improve team performance. Dedicated to leveraging technical expertise and collaborative leadership in a dynamic IT operations environment.
+ 
+Technical Skills
+Infrastructure, Systems Administration & Monitoring
+Active Directory
+Cisco UCS
+VMware: ESXi / vSphere
+Backup/Recovery Ops
+AWS VM Migrations
+Datadog
+PagerDuty Admin
+Linux (RHEL)
+Dell PowerScale (Isilon)
+HPC/Job Scheduler - SGE	Networking, Scripting & Automation
+Cabling: Copper
+Networking (TCP/IP)
+Scripting: 
+  PowerShell
+  Bash
+Ansible
+DevOps Methodologies
+Docker
+CI/CD: Bamboo Admin
+AI-Driven Automation	Security, Collaboration & Project Management
+Project Technical Lead
+Team Lead Experience
+Cross-Department Collaboration
+SOC2 Contributor
+Technical Documentation
+Attlassian: 
+  Jira
+  Confluence
+Incident Escalation Coordination
+
+ 
+Experience
+IT Sr. Systems Engineer, 10/2021 to Current
+Ambry Genetics  – Aliso Viejo CA
+Team Leadership & Project Ownership: Lead a team of 4 Systems Engineers managing enterprise virtual infrastructure, including Linux systems, VMware environments, OS image lifecycle management, IT security tool implementation, and automation across production environments. Owning high-level goal-oriented Jira features, breaking down projects into actionable tasks, and assigning/overseeing tasks for timely execution. Collaborate with cross-functional teams with emphasis on Bioinformatics, DevOps and Application Delivery to align initiatives across six departments.
+VM & Linux Infrastructure: Administer a Linux enterprise consisting of over 400 virtual machines in VMware vSphere/ESXi and AWS environments. Provide lifecycle support, performance tuning, and troubleshooting across environments.
+Backup & Recovery: Manage backup operations using Cohesity for virtual machines and critical data, ensuring RPO/RTO compliance and reliable recovery.
+Storage & HPC Operations: Administer Dell PowerScale (Isilon) storage systems and oversee multi-petabyte storage migrations. Assist in management of a 200-node HPC cluster to support high-throughput, compute-intensive workloads.
+CI/CD & DevOps Support: Administer Bamboo CI/CD pipelines, supporting 6 development teams and 15 applications. Coordinate staging/production environment changes, assist in deployment troubleshooting for monolithic and Dockerized apps, and collaborate with QA, Dev, and Ops teams during production validations.
+Monitoring & Automation: Deployed and configured Datadog for infrastructure monitoring. Led implementation of Ansible across 400+ Linux VMs to standardize server configuration management, and operational tasks. Use of AI to prototype, optimize, and document automation scripts/playbooks while maintaining technical accuracy.
+Incident Response & On-Call Operations: Improved incident response times by implementing a structured on-call rotation using PagerDuty and Microsoft Teams, replacing manual escalations. Coordinated scheduling across two operations teams. Automated critical alerts to reduce response time and improve break/fix outcomes.
+
+
+IT Systems Engineer, 4/2021 to 10/2021
+Ambry Genetics  – Aliso Viejo CA
+Systems Administration: Assisted in managing and maintaining virtual Linux environments to ensure system availability and performance.
+Collaboration & Leadership: Collaborated with the DevOps team to develop and implement solutions aligned with business requirements. Mentored and trained two IT Operations System Administrators, supporting skill development and operational efficiency.
+Cloud & Storage Management: Administered Amazon S3 storage for Next Generation Sequencing (NGS) data, optimizing data organization and retrieval. Developed and maintained a robust S3 data restore solution to enhance disaster recovery and business continuity.
+Compliance & Documentation: Authored SOC 2 compliance documentation to support regulatory and audit readiness.Created and maintained controlled documentation for backup and restore processes.
+
+IT Systems Administrator, 6/2019 to 4/2021
+Ambry Genetics  – Aliso Viejo CA
+Backup & Restore Services: Delivered reliable backup and restore solutions for Next Generation Sequencing (NGS) data, supporting Bioinformatics and Clinical reporting departments. Maintained and optimized backup/restore systems to ensure data integrity and accessibility. Led the migration of multiple petabytes of semi-structured data from offline media to scalable cloud-based storage using AWS DataSync and S3.
+High-Performance Computing (HPC): Administered HPC cluster, optimizing performance and resource allocation. Performed hardware health checks and assisted with administration of Sun Grid Engine job scheduler.
+DevOps & CI/CD: Provided DevOps support for internal development teams. Managed CI/CD staging and production deployments for 6 software engineering teams, ensuring controlled release cycles.
+Monitoring & Observability: Installed and configured Datadog monitoring and logging tools across multiple internal applications to improve system visibility and proactive issue resolution.
+
+IT Support Specialist III, 6/2018 to 6/2019
+Ambry Genetics  – Aliso Viejo CA
+User Support & Issue Resolution: Provided technical support to approximately 600+ internal onsite and offsite users, serving as a key point of contact for inquiries and troubleshooting. Triaged and delegated support requests to ensure timely and effective resolution. Addressed user-end business needs by delivering prompt and efficient hardware-related support.
+Team Leadership & Training: Acted as an escalation point and provided training for Level I & II Support Specialists. Contributed to the professional development of the support team by mentoring and sharing expertise.
+Documentation: Managed and updated knowledge base documentation to enhance the efficiency of issue resolution and internal knowledge sharing.
+Backup & Data Management: Performed daily maintenance for the enterprise backup system. Processed data restore requests to ensure data availability and continuity.
+Infrastructure & Hardware Support: Executed Layer 1 tasks for hardware expansion projects, contributing to infrastructure scalability. Maintained peripheral equipment inventory to ensure seamless functionality and availability for end-users.
+
+IT Support Specialist I, 2/2017 to 6/2018
+Ambry Genetics  – Aliso Viejo CA
+User Support & Issue Resolution: Provided technical support to approximately 500+ internal onsite and offsite users, addressing inquiries and resolving issues promptly. Ensured smooth functionality of resources for end-users by maintaining peripheral equipment.
+Process Documentation & Optimization: Organized and documented recurring IT processes, contributing to greater operational efficiency and consistency.
+Backup & Data Integrity: Conducted daily maintenance for the enterprise backup system. Backed up target data to support data integrity and availability.
+
+ Education 
+Bachelor of Arts – Computer Systems – System Administration
+CALIFORNIA STATE UNIVERSITY, SAN BERNARDINO - School of Computer Science and Engineering
+
+References available upon request. Please do not contact current employer at this time.
