@@ -1,29 +1,6 @@
-#!/bin/bash
-
-REMOTE_SCRIPT="/tmp/kill-ansible.sh"
-
-# The script to be executed remotely
-cat << 'EOF' > $REMOTE_SCRIPT
-#!/bin/bash
-echo "[$(hostname)] Killing Ansible-related processes..."
-sudo pkill -f ansible-playbook
-sudo pkill -f sshpass
-sudo pkill -f 'ssh -o ControlMaster'
-echo "[$(hostname)] Cleanup complete."
-EOF
-
-chmod +x $REMOTE_SCRIPT
-
-# Simple for loop to go through hosts
-for HOST in $(cat hosts.txt); do
-  echo ">>> $HOST"
-  scp -o ConnectTimeout=10 -o StrictHostKeyChecking=no $REMOTE_SCRIPT deploy@$HOST:$REMOTE_SCRIPT
-  ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no deploy@$HOST "bash $REMOTE_SCRIPT && rm -f $REMOTE_SCRIPT"
-done
-
-===================================
 #!/usr/bin/env bash
 # Install (default) or rollback python3 across many hosts as deploy@host.
+#
 # Usage:
 #   SSH_KEY=~/.ssh/deploy_key ./fanout_install_python3.sh hosts.txt
 #   SSH_KEY=~/.ssh/deploy_key ./fanout_install_python3.sh --rollback hosts.txt
@@ -49,52 +26,54 @@ SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
 
 MARKER="/var/lib/deploy/python3_installed_by_deploy"
 
-ok=0; fail=0
+ok=0
+fail=0
 
 while IFS= read -r host || [[ -n "$host" ]]; do
-  host="${host%%$'\r'*}"              # strip CR if file has Windows endings
-  [ -z "$host" ] && continue          # skip empty
-  [[ "$host" =~ ^# ]] && continue     # skip comments
+  host="${host%%$'\r'*}"          # strip CR if file has Windows line endings
+  [ -z "$host" ] && continue      # skip empty
+  [[ "$host" =~ ^# ]] && continue # skip comments
 
-  echo "=== $host (${MODE}) ==="
+  echo "=== $host ($MODE) ==="
 
   if [[ "$MODE" == "install" ]]; then
     if ssh $SSH_OPTS "deploy@$host" \
       "set -e;
        export DEBIAN_FRONTEND=noninteractive;
        sudo mkdir -p \$(dirname $MARKER);
-       # create marker only if python3 is not already present
        if ! command -v python3 >/dev/null 2>&1; then
          sudo sh -c 'echo \$(date -Is) > $MARKER';
        fi;
        sudo apt-get update -qq &&
        sudo apt-get install -y python3 &&
        python3 --version >/dev/null 2>&1 || true"; then
-      echo "OK"; ok=\$((ok+1))
+      echo "OK"
+      ok=$((ok+1))
     else
-      echo "FAIL"; fail=\$((fail+1))
+      echo "FAIL"
+      fail=$((fail+1))
     fi
 
-  else # rollback
+  else # rollback mode
     if ssh $SSH_OPTS "deploy@$host" \
       "set -e;
        if [ -f $MARKER ]; then
-         echo 'Marker found; attempting safe rollback (metapackage only)...';
+         echo 'Marker found; rolling back python3 metapackage...';
          export DEBIAN_FRONTEND=noninteractive;
-         # Remove only the python3 metapackage (keep python3-minimal to avoid OS breakage)
          sudo apt-get remove -y python3 || true;
          sudo apt-get autoremove -y || true;
          sudo rm -f $MARKER;
-         echo 'Rollback complete (metapackage removed).';
+         echo 'Rollback complete.';
        else
          echo 'No marker present; skipping rollback.';
        fi"; then
-      echo "OK"; ok=\$((ok+1))
+      echo "OK"
+      ok=$((ok+1))
     else
-      echo "FAIL"; fail=\$((fail+1))
+      echo "FAIL"
+      fail=$((fail+1))
     fi
   fi
-
 done < "$HOSTS_FILE"
 
 echo "-----"
