@@ -22,191 +22,80 @@ for HOST in $(cat hosts.txt); do
 done
 
 ===================================
-Slide 1: Title
+#!/usr/bin/env bash
+# Install (default) or rollback python3 across many hosts as deploy@host.
+# Usage:
+#   SSH_KEY=~/.ssh/deploy_key ./fanout_install_python3.sh hosts.txt
+#   SSH_KEY=~/.ssh/deploy_key ./fanout_install_python3.sh --rollback hosts.txt
+#
+# Notes:
+# - "install" path installs distro's python3 via apt-get (no compile, no overwrite).
+# - "rollback" removes ONLY the python3 metapackage if we installed it.
+# - Hosts file: one hostname/IP per line; blank lines and '#' comments are ignored.
 
-Title: Ubuntu Landscape – Centralized Ubuntu Systems Management
-Subtitle: Monitor, patch, and automate fleet operations at scale
-Speaker Notes:
+set -euo pipefail
 
-“Today I'll walk you through how Landscape helps us manage Ubuntu systems centrally — from patching and compliance to reporting and automation.”
-Slide 2: What is Landscape?
+MODE="install"
+if [[ "${1:-}" == "--rollback" ]]; then
+  MODE="rollback"
+  shift
+fi
 
-Canonical’s systems management tool for Ubuntu
-Web-based dashboard for managing thousands of systems
-Includes patching, package control, reporting, user/group management
-Speaker Notes:
-“Think of it as Red Hat Satellite for Ubuntu — tailored for Ubuntu/Debian systems, especially useful when managing large-scale fleets.”
+HOSTS_FILE="${1:-}"
+[ -f "$HOSTS_FILE" ] || { echo "Usage: $0 [--rollback] <hosts_file>"; exit 1; }
 
+SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
+[ -n "${SSH_KEY:-}" ] && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
 
+MARKER="/var/lib/deploy/python3_installed_by_deploy"
 
+ok=0; fail=0
 
-Slide 3: Key Features
+while IFS= read -r host || [[ -n "$host" ]]; do
+  host="${host%%$'\r'*}"              # strip CR if file has Windows endings
+  [ -z "$host" ] && continue          # skip empty
+  [[ "$host" =~ ^# ]] && continue     # skip comments
 
-Inventory of all registered Ubuntu machines
-Live system metrics: memory, disk, CPU usage
-Package update management & automation
-Custom script execution across systems
-Role-based access & audit logs
-Speaker Notes:
-“Landscape gives visibility and control — you can see health stats, trigger updates, run scripts, and ensure consistency across systems.”
-Slide 4: Architecture Overview
+  echo "=== $host (${MODE}) ==="
 
-Landscape Server (self-hosted or cloud)
-Landscape Client on each managed machine
-PostgreSQL backend
-Uses HTTPS for secure communication
-Speaker Notes:
-“This is a self-hosted Landscape setup. Each client connects securely over HTTPS to receive updates, commands, and report status.”
-Slide 5: Demo Flow Checklist
+  if [[ "$MODE" == "install" ]]; then
+    if ssh $SSH_OPTS "deploy@$host" \
+      "set -e;
+       export DEBIAN_FRONTEND=noninteractive;
+       sudo mkdir -p \$(dirname $MARKER);
+       # create marker only if python3 is not already present
+       if ! command -v python3 >/dev/null 2>&1; then
+         sudo sh -c 'echo \$(date -Is) > $MARKER';
+       fi;
+       sudo apt-get update -qq &&
+       sudo apt-get install -y python3 &&
+       python3 --version >/dev/null 2>&1 || true"; then
+      echo "OK"; ok=\$((ok+1))
+    else
+      echo "FAIL"; fail=\$((fail+1))
+    fi
 
-Objective: Show end-to-end management of Ubuntu hosts
-Live Steps:
+  else # rollback
+    if ssh $SSH_OPTS "deploy@$host" \
+      "set -e;
+       if [ -f $MARKER ]; then
+         echo 'Marker found; attempting safe rollback (metapackage only)...';
+         export DEBIAN_FRONTEND=noninteractive;
+         # Remove only the python3 metapackage (keep python3-minimal to avoid OS breakage)
+         sudo apt-get remove -y python3 || true;
+         sudo apt-get autoremove -y || true;
+         sudo rm -f $MARKER;
+         echo 'Rollback complete (metapackage removed).';
+       else
+         echo 'No marker present; skipping rollback.';
+       fi"; then
+      echo "OK"; ok=\$((ok+1))
+    else
+      echo "FAIL"; fail=\$((fail+1))
+    fi
+  fi
 
-Log in to Landscape UI
-Show dashboard with system metrics
-Filter machines by tags (e.g., prod, dev)
-Pick a machine and:
-Show system status and package updates
-Trigger a package update or run a script
-Go to Script Execution → run a command like uptime
-Show scheduled updates or auto-approve feature
-Optional: Add a tag or user/group
-Speaker Notes:
-“I’ll walk through the interface, then demonstrate a real task like a package update or a script run.”
-Slide 6: Use Cases
+done < "$HOSTS_FILE"
 
-Patch automation across 1000s of servers
-Audit and compliance checks
-Custom health-check scripts
-Host grouping by environment or team
-Speaker Notes:
-“It’s ideal for enforcing patch SLAs, audit compliance, and simplifying large-scale fleet management.”
-Slide 7: Closing
-
-Landscape = visibility + control for Ubuntu systems
-Easy integration with CI/CD and automation tools
-Scalable for hybrid or air-gapped environments
-Speaker Notes:
-“Landscape is our go-to for managing Ubuntu infrastructure centrally and securely. It scales and simplifies routine ops.”
-Let me know if you’d like this turned into a slide deck, markdown doc, or PDF.
-
-
-
-Core Components
-
-1. Web Frontend
-Service: apache2
-Purpose: Hosts the Landscape web UI and API interface
-Port: 443 (HTTPS)
-Config Path: /etc/apache2/sites-enabled/landscape.conf
-
-
-2. Application Services
-All managed by systemd or Supervisor depending on setup:
-
-Service	Description
-landscape-server	Main application server
-landscape-job-handler	Processes queued tasks (updates, scripts)
-landscape-message-server	Manages client-server communication
-landscape-package-upload-service	Handles custom package uploads (if used)
-
-
-3. Database
-Type: PostgreSQL
-Service: postgresql
-Data Path: /var/lib/postgresql/
-Backup Strategy: Nightly dumps via cron + offsite storage
-
-
-4. Messaging (Optional/Advanced)
-RabbitMQ can be deployed for enhanced message queuing
-Not currently in use in this deployment
-
-5. Landscape Clients
-All managed Ubuntu systems have:
-landscape-client installed
-Registered using /etc/landscape/client.conf
-Communicates every 5 minutes by default
-Firewall & Access Control
-
-Direction	Port	Protocol	Description
-Inbound	443	TCP	Web access to UI/API
-Inbound	22	TCP	SSH admin access
-Outbound	80/443	TCP	Ubuntu package mirrors (optional)
-Internal traffic	5432	TCP	PostgreSQL access
-Data Backup
-
-Schedule: Daily at 2 AM
-Tools Used: pg_dump for PostgreSQL, rsync for app config
-Retention: 14 days on-site, 30 days off-site (S3)
-Monitoring
-
-Internal Monitoring: Prometheus node exporter
-Logging: System logs via rsyslog and archived daily
-Alerting: Integrated with CAAL AlertManager
-Tags / Metadata in Landscape
-
-Hosts are grouped by:
-Environment: prod, qa, dev
-Application: e.g., web, db, infra
-Role: e.g., landscape-client, monitoring-node
-Disaster Recovery
-
-PostgreSQL restores validated weekly
-App config stored in Git and restored via Ansible
-Critical service RPO < 1 day, RTO < 2 hours
-
-
-=========
-
----
-- name: Configure Landscape client for script execution
-  hosts: all
-  become: true
-  tasks:
-
-    - name: Ensure script_users is set to deploy
-      lineinfile:
-        path: /etc/landscape/client.conf
-        regexp: '^script_users\s*='
-        line: 'script_users = deploy'
-        create: yes
-        insertafter: '[client]'
-
-    - name: Ensure include_manager_plugins is set to ScriptExecution
-      lineinfile:
-        path: /etc/landscape/client.conf
-        regexp: '^include_manager_plugins\s*='
-        line: 'include_manager_plugins = ScriptExecution'
-        insertafter: '[client]'
-
-    - name: Restart landscape-client
-      service:
-        name: landscape-client
-        state: restarted
-
-
-
-Title:
-Setup and Configure Ubuntu Landscape On-Premise for Client Registration
-
-Description:
-Set up Ubuntu Landscape On-Premise server to enable centralized system monitoring, software management, and lifecycle operations for all Ubuntu hosts.
-
-This task includes server-side configuration, certificate distribution, and client registration (manual and automated).
-
-Acceptance Criteria:
-
- Landscape server is reachable via HTTPS (e.g., https://10.172.249.104)
- Self-signed certificate is generated and exported to clients
- landscape-client package is installed on target systems
- At least one system is successfully registered and visible in the Landscape dashboard
- Ansible playbook is in place for bulk registration
- API credentials are generated and securely stored
- Documentation is published to Confluence (manual + automated registration)
-Attachments/Links:
-
-Confluence Setup Guide: [link to Confluence page]
-Certificate path: /etc/landscape/landscape.pem
-Playbook: register_landscape_clients.yml
-Labels: landscape, infrastructure, automation
+echo "-----"
+echo "Done. OK: $ok  FAIL: $fail"
