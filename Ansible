@@ -1,5 +1,5 @@
 ---
-- name: Patch Ubuntu (module-only, batched 10, auto-reboot, single-lock fix)
+- name: Patch Ubuntu (module-only, batched 10, auto-reboot)
   hosts: ubuntu
   become: true
   gather_facts: true
@@ -7,26 +7,14 @@
   serial: 10
 
   tasks:
-    - name: apt clean (retry after removing lists lock if needed)
-      block:
-        - name: Clean apt cache
-          apt:
-            clean: yes
-            lock_timeout: 600
-      rescue:
-        - name: Remove /var/lib/apt/lists/lock
-          file:
-            path: /var/lib/apt/lists/lock
-            state: absent
-        - name: Clean apt cache (retry)
-          apt:
-            clean: yes
-            lock_timeout: 600
+    - name: Clean apt cache
+      apt:
+        clean: yes
 
     - name: Update apt cache
       apt:
         update_cache: true
-        cache_valid_time: 3600
+        cache_valid_time: 0
         force_apt_get: true
         lock_timeout: 600
 
