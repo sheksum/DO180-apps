@@ -1,80 +1,30 @@
-#!/usr/bin/env bash
-# Install (default) or rollback python3 across many hosts as deploy@host.
-#
-# Usage:
-#   SSH_KEY=~/.ssh/deploy_key ./fanout_install_python3.sh hosts.txt
-#   SSH_KEY=~/.ssh/deploy_key ./fanout_install_python3.sh --rollback hosts.txt
-#
-# Notes:
-# - "install" path installs distro's python3 via apt-get (no compile, no overwrite).
-# - "rollback" removes ONLY the python3 metapackage if we installed it.
-# - Hosts file: one hostname/IP per line; blank lines and '#' comments are ignored.
+---
+- name: Patch Ubuntu systems (apply OS updates within same release)
+  hosts: ubuntu
+  become: true
+  gather_facts: true
 
-set -euo pipefail
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
 
-MODE="install"
-if [[ "${1:-}" == "--rollback" ]]; then
-  MODE="rollback"
-  shift
-fi
+    - name: Apply all available package updates (dist-upgrade)
+      apt:
+        upgrade: dist         # same as `apt-get dist-upgrade`
+        autoremove: true
+        autoclean: true
+      register: upgrade_result
 
-HOSTS_FILE="${1:-}"
-[ -f "$HOSTS_FILE" ] || { echo "Usage: $0 [--rollback] <hosts_file>"; exit 1; }
+    - name: Check if reboot is required
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required
 
-SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
-[ -n "${SSH_KEY:-}" ] && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
-
-MARKER="/var/lib/deploy/python3_installed_by_deploy"
-
-ok=0
-fail=0
-
-while IFS= read -r host || [[ -n "$host" ]]; do
-  host="${host%%$'\r'*}"          # strip CR if file has Windows line endings
-  [ -z "$host" ] && continue      # skip empty
-  [[ "$host" =~ ^# ]] && continue # skip comments
-
-  echo "=== $host ($MODE) ==="
-
-  if [[ "$MODE" == "install" ]]; then
-    if ssh $SSH_OPTS "deploy@$host" \
-      "set -e;
-       export DEBIAN_FRONTEND=noninteractive;
-       sudo mkdir -p \$(dirname $MARKER);
-       if ! command -v python3 >/dev/null 2>&1; then
-         sudo sh -c 'echo \$(date -Is) > $MARKER';
-       fi;
-       sudo apt-get update -qq &&
-       sudo apt-get install -y python3 &&
-       python3 --version >/dev/null 2>&1 || true"; then
-      echo "OK"
-      ok=$((ok+1))
-    else
-      echo "FAIL"
-      fail=$((fail+1))
-    fi
-
-  else # rollback mode
-    if ssh $SSH_OPTS "deploy@$host" \
-      "set -e;
-       if [ -f $MARKER ]; then
-         echo 'Marker found; rolling back python3 metapackage...';
-         export DEBIAN_FRONTEND=noninteractive;
-         sudo apt-get remove -y python3 || true;
-         sudo apt-get autoremove -y || true;
-         sudo rm -f $MARKER;
-         echo 'Rollback complete.';
-       else
-         echo 'No marker present; skipping rollback.';
-       fi"; then
-      echo "OK"
-      ok=$((ok+1))
-    else
-      echo "FAIL"
-      fail=$((fail+1))
-    fi
-  fi
-done < "$HOSTS_FILE"
-
-echo "-----"
-echo "Done. OK: $ok  FAIL: $fail"
+    - name: Reboot if required
+      reboot:
+        msg: "Rebooting system to complete OS patching"
+        reboot_timeout: 1800
+        post_reboot_delay: 20
+      when: reboot_required.stat.exists
