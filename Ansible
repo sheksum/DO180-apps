@@ -1,21 +1,110 @@
+[defaults]
+# === Core settings ===
+inventory              = ./inventory.ini
+remote_user            = deploy
+host_key_checking      = False
+retry_files_enabled    = False
+deprecation_warnings   = False
+force_color            = True
+stdout_callback        = yaml
+
+# === Python and tmp fixes ===
+interpreter_python     = auto_silent         # Suppress Python version warnings
+remote_tmp             = /tmp/.ansible-${USER}  # Avoid home-dir permission issues
+
+# === Performance tuning ===
+forks                  = 50                  # Run up to 50 hosts in parallel
+strategy               = free                # Don't wait for slower hosts
+timeout                = 300                 # 5-minute SSH connect timeout
+pipelining             = True                # Speeds up privilege escalation
+gathering              = smart               # Cache and reuse facts efficiently
+fact_caching           = memory
+fact_caching_timeout   = 7200
+
+# === Logging (optional) ===
+# log_path              = /var/log/ansible/ansible.log
+
+[ssh_connection]
+# Reuse SSH sessions for speed and reliability
+ssh_args = -o ControlMaster=auto \
+           -o ControlPersist=300s \
+           -o ServerAliveInterval=30 \
+           -o ServerAliveCountMax=5
+
+pipelining = True
+retries = 3
+=====
+
+
 ---
-- name: Patch Ubuntu systems (apply OS updates within same release)
+- name: Patch Ubuntu systems (force-unlock apt/dpkg first)
   hosts: ubuntu
   become: true
   gather_facts: true
+  serial: 25
 
-  tasks:
+  vars:
+    apt_lock_files:
+      - /var/lib/apt/lists/lock
+      - /var/cache/apt/archives/lock
+      - /var/lib/dpkg/lock
+      - /var/lib/dpkg/lock-frontend
+
+  pre_tasks:
+    - name: Stop apt/unattended-upgrades services & timers
+      systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: yes
+        masked: yes
+      loop:
+        - unattended-upgrades.service
+        - apt-daily.service
+        - apt-daily.timer
+        - apt-daily-upgrade.service
+        - apt-daily-upgrade.timer
+      failed_when: false
+
+    - name: Kill any apt/dpkg processes (hard kill)
+      shell: |
+        pids=$(pgrep -f 'apt.systemd.daily|unattended|apt-get|aptitude|apt|dpkg' || true)
+        if [ -n "$pids" ]; then kill -9 $pids || true; fi
+      args:
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Remove APT/DPKG lock files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop: "{{ apt_lock_files }}"
+      failed_when: false
+
+    - name: Ensure dpkg is in a sane state
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+      shell: dpkg --configure -a || true
+      changed_when: false
+
+    - name: Attempt to fix broken dependencies
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+      shell: apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -f install || true
+      changed_when: false
+
     - name: Update apt cache
       apt:
         update_cache: true
         cache_valid_time: 3600
+        force_apt_get: true
 
-    - name: Apply all available package updates (dist-upgrade)
+  tasks:
+    - name: Apply all available updates within current release (full-upgrade)
       apt:
-        upgrade: dist         # same as `apt-get dist-upgrade`
+        upgrade: dist
         autoremove: true
         autoclean: true
-      register: upgrade_result
+        force_apt_get: true
 
     - name: Check if reboot is required
       stat:
@@ -24,7 +113,20 @@
 
     - name: Reboot if required
       reboot:
-        msg: "Rebooting system to complete OS patching"
+        msg: "Rebooting to complete OS patching"
         reboot_timeout: 1800
         post_reboot_delay: 20
       when: reboot_required.stat.exists
+
+  post_tasks:
+    - name: Unmask and re-enable unattended-upgrades timers (optional)
+      systemd:
+        name: "{{ item }}"
+        enabled: yes
+        masked: false
+        state: started
+      loop:
+        - unattended-upgrades.service
+        - apt-daily.timer
+        - apt-daily-upgrade.timer
+      failed_when: false
