@@ -1,21 +1,85 @@
-Hi Brian,
-Sorry for the delayed response — I was prioritizing some Ubuntu Landscape work and also wanted to take the time to go deeper into the draft.
-Overall the scope looks strong — disconnected install, GPU enablement, NetApp integration, CI/CD path — all the right areas are covered. The phased approach also makes sense.
-A few points I’d like to see tightened up so the design package is directly actionable for us:
-Hardware alignment. Phase 1 mentions UCS separation and GPU roles, but I’d like the design to explicitly map to our footprint: 3 UCS blades for masters/infra/CPU workers, Dell R760XA GPU servers, and NetApp A30 for storage. That way HA and sizing guidance aren’t left generic.
-High availability. Helpful if the docs spell out what HA means with our setup — 3 masters for quorum, infra nodes with at least 2 replicas, app pods with PDBs/anti-affinity so draining a blade doesn’t cause disruption. For GPUs, HA is only achievable if we have 2+ nodes, which should be noted.
-Environments. We’ll have dev, staging, and prod. We need to decide early whether dev/staging live together in a non-prod cluster or if all three are separate. That impacts sizing and upgrade workflows.
-Security. The draft already covers RBAC, IdP integration, and network policy, which is good. I’d like to confirm whether policy enforcement (OPA/Gatekeeper or Kyverno) will be part of the design. That would give us guardrails like blocking privileged pods, enforcing trusted registries, and resource quotas. We’d also need an exemption label/annotation pattern so we can handle legitimate exceptions (GPU operators, infra agents, etc.) without weakening overall controls.
-Security scanning. I don’t see image scanning or runtime security tools mentioned. Do we expect GDT to design around Red Hat Advanced Cluster Security (StackRox) or another scanner, or is that being handled separately?
-Secret management. Since we already use CyberArk on-prem, are we expecting GDT to integrate OpenShift with CyberArk (via Conjur/CSI) for secrets, or fall back to OCP native secrets with etcd encryption? It would help to clarify the intended pattern for developers.
-Identity integration. The draft mentions enterprise IdP integration. Can we plan on leveraging our existing IPA/IdM for OpenShift OAuth and group-to-role mappings? That would let us reuse our current identity model and avoid duplicating access control.
-Data services. I don’t see anything in scope around CNPG or other Postgres operators. Since we know the AI workloads will have a database dependency, we should clarify whether GDT is expected to design/deploy CNPG (or equivalent) for HA Postgres, or if that will be handled separately.
-Backup and restore. Phase 4 lists backup/restore in the runbook, but it’s not clear how deep this goes. We’ll need a defined backup strategy (Velero/OADP for cluster resources, etcd snapshots, PV backups, and integration with NetApp SnapMirror) plus restore testing. Without that, we don’t really have a recovery plan if something goes sideways.
-Day-2 operations. Phase 4 mentions OTA upgrades during a controlled change window, which is the right call. I’d like to make sure the deliverable includes runbook-level detail — drain/cordon sequencing across UCS blades, handling GPU workloads during patching (since they don’t survive eviction the same way), and rollback validation if an OTA fails. Also worth detailing UCS firmware upgrades alongside OpenShift OTAs.
-On the handoff, it would be valuable for our SREs to get direct exposure to oc-mirror workflows, GPU Operator lifecycle, and Trident troubleshooting so we’re not dependent long-term.
-A couple of clarifications for you:
-Networking/ToR redundancy. Does the design assume dual ToRs (or equivalent dual-fabric via Nexus FIs) for UCS/GPU nodes? With only three UCS blades in the pool, I want to make sure we’re not in a position where a single ToR failure or patch takes the cluster offline.
-NetBox/IPAM. Are we planning to leverage NetBox as the IPAM/DCIM source of truth for this deployment, or just manage IP allocations manually? I don’t see it mentioned in the draft.
-If GDT can update the design package to reflect our actual hardware, document HA and environment strategy explicitly, clarify the approach for policy enforcement, scanning, secrets, and IdM, cover the CNPG/database operator gap, and expand the backup/restore and ops runbook detail, I think the scope will be in good shape to move forward to SOW and budget.
-Thanks,
-Haj
+Overview
+To prevent system logs from filling the root filesystem, a dedicated 50 GB partition was provisioned and configured for /var/log.
+This ensures system stability by isolating log growth from core OS storage.
+
+
+Implementation Steps
+
+Provision and Format the Disk
+Add a 50 GB virtual disk (</dev/sde>).
+Format the disk:
+sudo mkfs.ext4 /dev/<sde>
+
+Mount the New Partition and copy over the logs
+Create a temporary mount for staging:
+
+
+sudo mkdir /data
+sudo mount /dev/<sde> /data
+sudo rsync -av /var/log/ /data/
+
+Replace /var/log with the New Partition
+Backup the original directory:
+
+sudo mv /var/log /var/log.bak
+sudo mkdir /var/log
+Unmount from /data and remount on /var/log:
+sudo umount /data
+sudo mount /dev/<sde> /var/log
+
+Update /etc/fstab for Persistence
+Retrieve the UUID:
+
+blkid /dev/<sde>
+
+
+Add entry to /etc/fstab:
+
+UUID=<uuid-from-blkid>   /var/log   ext4   defaults,nodev,noexec,nosuid   0 2
+
+
+Reload mounts:
+
+sudo mount -a
+
+Restore Permissions and SELinux Contexts (if applicable)
+
+sudo restorecon -Rv /var/log
+
+Restart rsyslog
+
+sudo systemctl restart rsyslog
+
+
+Testing and Validation
+Log Write Test
+
+logger "TEST: dedicated /var/log partition is working"
+tail -n3 /var/log/syslog    # Ubuntu/Debian
+tail -n3 /var/log/messages  # RHEL/CentOS
+
+Verified new entries are written to the dedicated partition.
+Logrotate Dry Run
+
+sudo logrotate -d /etc/logrotate.conf
+
+Confirmed syslog and other logs are included in rotation.
+Forced Rotation
+
+sudo logrotate -f /etc/logrotate.conf
+ls -lh /var/log/syslog*
+
+
+
+Verify creation of rotated files (syslog.1, syslog.2.gz, etc.)
+
+Confirm older rotated logs are compressed and retention policy is respected.
+
+
+Outcome
+/var/log now resides on the dedicated 50 GB partition.
+Syslog and other logs write and rotate correctly.
+
+Monitor /var/log disk usage:
+df -h /var/log
+Remove /var/log.bak once stable for several days.
