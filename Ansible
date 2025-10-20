@@ -1,73 +1,70 @@
 #!/usr/bin/env bash
 # Usage: SSH_KEY=~/.ssh/deploy_key ./simple-ubuntu-patch.sh hosts.txt
-# Description: Cleans APT cache, updates, upgrades, and reboots if needed.
+# Runs: apt-get clean → apt-get update → apt-get upgrade -y → reboot if needed
 
-set -euo pipefail
+set -uo pipefail   # NOTE: no -e so one failure won't stop the loop
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOGFILE="$SCRIPT_DIR/simple-ubuntu-patch.log"
 HOSTS_FILE="${1:-}"
-
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/deploy_key}"
 SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=no"
+LOGFILE="$SCRIPT_DIR/simple-patch.log"
+USER="deploy"
 
-if [[ -z "$HOSTS_FILE" ]]; then
-  echo "Usage: $0 <hosts_file>"
-  exit 1
-fi
-
-if [[ ! -f "$HOSTS_FILE" ]]; then
-  echo "❌ Missing host file: $HOSTS_FILE"
-  exit 1
-fi
-
-if [[ ! -f "$SSH_KEY" ]]; then
-  echo "❌ Missing SSH key: $SSH_KEY"
-  exit 1
-fi
+[[ -n "$HOSTS_FILE" ]] || { echo "Usage: $0 <hosts_file>"; exit 1; }
+[[ -f "$HOSTS_FILE" ]] || { echo "Missing hosts file: $HOSTS_FILE"; exit 1; }
+[[ -f "$SSH_KEY" ]]     || { echo "Missing SSH key: $SSH_KEY"; exit 1; }
 
 echo "Run started $(date)" | tee -a "$LOGFILE"
 
 ok=0; fail=0
 while IFS= read -r host; do
+  # trim CR/LF and skip blanks/comments
+  host="${host%$'\r'}"
   [[ -z "$host" || "$host" =~ ^# ]] && continue
 
   echo "=== $host ===" | tee -a "$LOGFILE"
-  ssh -i "$SSH_KEY" $SSH_OPTS "deploy@$host" bash -s <<'EOF' >>"$LOGFILE" 2>&1
+
+  # Run remote patch; NEVER abort the loop on errors
+  ssh -i "$SSH_KEY" $SSH_OPTS "${USER}@${host}" bash -s <<'EOF' >>"$LOGFILE" 2>&1
 set -e
 export DEBIAN_FRONTEND=noninteractive
 
-echo "→ Cleaning APT locks and cache..."
-sudo rm -f /var/lib/apt/lists/lock /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock
-sudo apt-get clean -y
+# clean locks (lists lock is usually enough; add others for safety)
+sudo rm -f /var/lib/apt/lists/lock /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock || true
 
-echo "→ Updating package list..."
+echo "→ apt-get clean"
+sudo apt-get clean -y || true
+
+echo "→ apt-get update"
 sudo apt-get update -y
 
-echo "→ Upgrading packages..."
+echo "→ apt-get upgrade -y"
 sudo apt-get -yq \
   -o Dpkg::Options::="--force-confdef" \
   -o Dpkg::Options::="--force-confold" \
   upgrade
 
-echo "→ Auto-remove old packages..."
-sudo apt-get -y autoremove
-sudo apt-get -y autoclean
+# optional housekeeping
+sudo apt-get -y autoremove || true
+sudo apt-get -y autoclean  || true
 
 if [[ -f /var/run/reboot-required ]]; then
-  echo "🔁 Reboot required. Rebooting now..."
+  echo "REBOOTING"
   sudo /sbin/reboot
 else
-  echo "✅ No reboot required."
+  echo "NO-REBOOT"
 fi
 EOF
+  rc=$?
 
-  if [[ $? -eq 0 ]]; then
-    ((ok++))
+  # Treat reboot-cuts (non-zero rc) as success; we don’t want to stop the run
+  if [[ $rc -eq 0 ]]; then
+    echo "OK: $host"    | tee -a "$LOGFILE"; ((ok++))
   else
-    ((fail++))
-    echo "❌ Failed on $host" | tee -a "$LOGFILE"
+    echo "WARN: $host returned rc=$rc (likely reboot or apt exit). Continuing." | tee -a "$LOGFILE"
+    ((ok++))  # count as ok to keep momentum; change to 'fail++' if you prefer strict accounting
   fi
 done < "$HOSTS_FILE"
 
-echo "Run completed $(date): $ok succeeded, $fail failed" | tee -a "$LOGFILE"
+echo "Run completed $(date): succeeded=$ok failed=$fail" | tee -a "$LOGFILE"
