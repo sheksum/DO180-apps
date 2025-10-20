@@ -60,3 +60,79 @@ done < "$HOSTS_FILE"
 
 echo "-----"
 echo "Done. OK: $ok  FAIL: $fail"
+
+==============================
+===============================
+===========================
+
+
+#!/usr/bin/env bash
+# Usage: SSH_KEY=~/.ssh/deploy_key ./check-patch-status.sh hosts.txt
+# Classifies each host as:
+#   - PATCHED        (no upgradable pkgs, no reboot flag)
+#   - NEEDS_REBOOT   (/var/run/reboot-required present)
+#   - NEEDS_UPDATES  (N>0 upgradable packages)
+#   - UNREACHABLE    (SSH failed)
+
+set -euo pipefail
+
+HOSTS_FILE="${1:-}"
+[ -f "$HOSTS_FILE" ] || { echo "Usage: $0 <hosts_file>"; exit 1; }
+
+SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
+[ -n "${SSH_KEY:-}" ] && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
+
+USER="${USER:-deploy}"
+
+patched=0
+needs_reboot=0
+needs_updates=0
+unreachable=0
+
+printf "%-35s  %-14s  %s\n" "HOST" "STATUS" "DETAILS"
+printf "%-35s  %-14s  %s\n" "----" "------" "-------"
+
+while IFS= read -r host || [[ -n "$host" ]]; do
+  host="${host%%$'\r'*}"          # strip CR if file has Windows line endings
+  [ -z "$host" ] && continue
+  [[ "$host" =~ ^# ]] && continue
+
+  # Run entirely remote; no files copied
+  # Count upgradable packages using apt-get simulation (fallback to apt list)
+  # Also check reboot-required flag
+  out=$(
+    ssh $SSH_OPTS "$USER@$host" '
+      set -e
+      upd=$(sudo apt-get -s -o Debug::NoLocking=1 upgrade 2>/dev/null | awk "/^Inst /{n++} END{print n+0}")
+      if [ -z "$upd" ]; then
+        upd=$(sudo sh -c "apt list --upgradable 2>/dev/null" | awk "NR>1{n++} END{print n+0}")
+      fi
+      [ -f /var/run/reboot-required ] && rb=1 || rb=0
+      echo "$upd $rb"
+    ' 2>/dev/null
+  ) || true
+
+  if [[ -z "$out" ]]; then
+    printf "%-35s  %-14s  %s\n" "$host" "UNREACHABLE" "-"
+    unreachable=$((unreachable+1))
+    continue
+  fi
+
+  updates=$(awk '{print $1}' <<<"$out")
+  reboot=$(awk '{print $2}' <<<"$out")
+
+  if [[ "$reboot" == "1" ]]; then
+    printf "%-35s  %-14s  %s\n" "$host" "NEEDS_REBOOT" "reboot-required"
+    needs_reboot=$((needs_reboot+1))
+  elif [[ "$updates" -gt 0 ]]; then
+    printf "%-35s  %-14s  %s\n" "$host" "NEEDS_UPDATES" "$updates pkgs"
+    needs_updates=$((needs_updates+1))
+  else
+    printf "%-35s  %-14s  %s\n" "$host" "PATCHED" "0 pkgs"
+    patched=$((patched+1))
+  fi
+done < "$HOSTS_FILE"
+
+total=$((patched + needs_reboot + needs_updates + unreachable))
+echo
+echo "SUMMARY: total=$total  patched=$patched  needs_reboot=$needs_reboot  needs_updates=$needs_updates  unreachable=$unreachable"
