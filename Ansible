@@ -1,6 +1,6 @@
-hsuma@plnx-admin:~/haj$ cat remove-apt-proxy.sh 
 #!/usr/bin/env bash
-# Usage: SSH_KEY=~/.ssh/deploy_key ./fanout_cleanup.sh hosts.txt
+# Usage: SSH_KEY=~/.ssh/deploy_key ./patch-ubuntu-fanout.sh hosts.txt
+# Runs on each host: apt-get clean -> apt-get update -> apt-get upgrade -y -> reboot if required
 
 set -euo pipefail
 HOSTS_FILE="${1:-}"
@@ -12,20 +12,51 @@ SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
 ok=0; fail=0
 
 while IFS= read -r host || [[ -n "$host" ]]; do
-  host="${host%%$'\r'*}"            # strip CR if file has Windows line endings
+  host="${host%%$'\r'*}"          # strip CR if file has Windows line endings
   [ -z "$host" ] && continue
   [[ "$host" =~ ^# ]] && continue
 
   echo "=== $host ==="
-  if ssh $SSH_OPTS "deploy@$host" \
-      'sudo rm -f /etc/apt/apt.conf.d/80Proxy &&
-       sudo systemctl restart landscape-client 2>/dev/null || true'; then
-    echo "OK";   ok=$((ok+1))
+
+  # Everything runs remotely, inline over SSH. No files copied to the target.
+  if ssh $SSH_OPTS "deploy@$host" '
+      set -e
+      export DEBIAN_FRONTEND=noninteractive
+
+      # Clear the common APT lists lock only (fast, as requested)
+      sudo rm -f /var/lib/apt/lists/lock || true
+
+      echo "-> apt-get clean"
+      sudo apt-get clean -y || true
+
+      echo "-> apt-get update"
+      sudo apt-get update -y
+
+      echo "-> apt-get upgrade -y"
+      sudo apt-get -yq \
+        -o Dpkg::Options::="--force-confdef" \
+        -o Dpkg::Options::="--force-confold" \
+        upgrade
+
+      # Optional housekeeping (safe if you want it quieter: keep it)
+      sudo apt-get -y autoremove || true
+      sudo apt-get -y autoclean  || true
+
+      if [ -f /var/run/reboot-required ]; then
+        echo "-> reboot required; scheduling reboot"
+        # Schedule reboot so SSH can exit 0 cleanly (prevents rc=255 on disconnect)
+        sudo nohup sh -c "sleep 2; /sbin/reboot" >/dev/null 2>&1 &
+      else
+        echo "-> no reboot required"
+      fi
+    '; then
+    echo "OK"
+    ok=$((ok+1))
   else
-    echo "FAIL"; fail=$((fail+1))
+    echo "FAIL"
+    fail=$((fail+1))
   fi
 done < "$HOSTS_FILE"
 
 echo "-----"
 echo "Done. OK: $ok  FAIL: $fail"
-hsuma@plnx-admin:~/haj$ 
