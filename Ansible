@@ -1,42 +1,73 @@
----
-- name: Patch Ubuntu (module-only, batched 10, auto-reboot)
-  hosts: ubuntu
-  become: true
-  gather_facts: true
-  strategy: linear
-  serial: 10
+#!/usr/bin/env bash
+# Usage: SSH_KEY=~/.ssh/deploy_key ./simple-ubuntu-patch.sh hosts.txt
+# Description: Cleans APT cache, updates, upgrades, and reboots if needed.
 
-  tasks:
-    - name: Clean apt cache
-      apt:
-        clean: yes
+set -euo pipefail
 
-    - name: Update apt cache
-      apt:
-        update_cache: true
-        cache_valid_time: 0
-        force_apt_get: true
-        lock_timeout: 600
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+LOGFILE="$SCRIPT_DIR/simple-ubuntu-patch.log"
+HOSTS_FILE="${1:-}"
 
-    - name: Full upgrade within current release
-      apt:
-        upgrade: dist
-        autoremove: true
-        autoclean: true
-        force_apt_get: true
-        lock_timeout: 600
-      environment:
-        DEBIAN_FRONTEND: noninteractive
+SSH_KEY="${SSH_KEY:-$HOME/.ssh/deploy_key}"
+SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=no"
 
-    - name: Check if reboot is required
-      stat:
-        path: /var/run/reboot-required
-      register: reboot_flag
+if [[ -z "$HOSTS_FILE" ]]; then
+  echo "Usage: $0 <hosts_file>"
+  exit 1
+fi
 
-    - name: Reboot if required
-      reboot:
-        msg: "Rebooting after OS patch"
-        reboot_timeout: 1800
-        post_reboot_delay: 20
-        test_command: "whoami"
-      when: reboot_flag.stat.exists
+if [[ ! -f "$HOSTS_FILE" ]]; then
+  echo "❌ Missing host file: $HOSTS_FILE"
+  exit 1
+fi
+
+if [[ ! -f "$SSH_KEY" ]]; then
+  echo "❌ Missing SSH key: $SSH_KEY"
+  exit 1
+fi
+
+echo "Run started $(date)" | tee -a "$LOGFILE"
+
+ok=0; fail=0
+while IFS= read -r host; do
+  [[ -z "$host" || "$host" =~ ^# ]] && continue
+
+  echo "=== $host ===" | tee -a "$LOGFILE"
+  ssh -i "$SSH_KEY" $SSH_OPTS "deploy@$host" bash -s <<'EOF' >>"$LOGFILE" 2>&1
+set -e
+export DEBIAN_FRONTEND=noninteractive
+
+echo "→ Cleaning APT locks and cache..."
+sudo rm -f /var/lib/apt/lists/lock /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock
+sudo apt-get clean -y
+
+echo "→ Updating package list..."
+sudo apt-get update -y
+
+echo "→ Upgrading packages..."
+sudo apt-get -yq \
+  -o Dpkg::Options::="--force-confdef" \
+  -o Dpkg::Options::="--force-confold" \
+  upgrade
+
+echo "→ Auto-remove old packages..."
+sudo apt-get -y autoremove
+sudo apt-get -y autoclean
+
+if [[ -f /var/run/reboot-required ]]; then
+  echo "🔁 Reboot required. Rebooting now..."
+  sudo /sbin/reboot
+else
+  echo "✅ No reboot required."
+fi
+EOF
+
+  if [[ $? -eq 0 ]]; then
+    ((ok++))
+  else
+    ((fail++))
+    echo "❌ Failed on $host" | tee -a "$LOGFILE"
+  fi
+done < "$HOSTS_FILE"
+
+echo "Run completed $(date): $ok succeeded, $fail failed" | tee -a "$LOGFILE"
