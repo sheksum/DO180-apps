@@ -1,83 +1,13 @@
 #!/usr/bin/env bash
-# Usage: SSH_KEY=~/.ssh/deploy_key ./patch-ubuntu-fanout.sh hosts.txt
-# Runs on each host: apt-get clean -> apt-get update -> apt-get upgrade -y -> reboot if required
-
-set -euo pipefail
-HOSTS_FILE="${1:-}"
-[ -f "$HOSTS_FILE" ] || { echo "Usage: $0 <hosts_file>"; exit 1; }
-
-SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
-[ -n "${SSH_KEY:-}" ] && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
-
-ok=0; fail=0
-
-while IFS= read -r host || [[ -n "$host" ]]; do
-  host="${host%%$'\r'*}"          # strip CR if file has Windows line endings
-  [ -z "$host" ] && continue
-  [[ "$host" =~ ^# ]] && continue
-
-  echo "=== $host ==="
-
-  # Everything runs remotely, inline over SSH. No files copied to the target.
-  if ssh $SSH_OPTS "deploy@$host" '
-      set -e
-      export DEBIAN_FRONTEND=noninteractive
-
-      # Clear the common APT lists lock only (fast, as requested)
-      sudo rm -f /var/lib/apt/lists/lock || true
-
-      echo "-> apt-get clean"
-      sudo apt-get clean -y || true
-
-      echo "-> apt-get update"
-      sudo apt-get update -y
-
-      echo "-> apt-get upgrade -y"
-      sudo apt-get -yq \
-        -o Dpkg::Options::="--force-confdef" \
-        -o Dpkg::Options::="--force-confold" \
-        upgrade
-
-      # Optional housekeeping (safe if you want it quieter: keep it)
-      sudo apt-get -y autoremove || true
-      sudo apt-get -y autoclean  || true
-
-      if [ -f /var/run/reboot-required ]; then
-        echo "-> reboot required; scheduling reboot"
-        # Schedule reboot so SSH can exit 0 cleanly (prevents rc=255 on disconnect)
-        sudo nohup sh -c "sleep 2; /sbin/reboot" >/dev/null 2>&1 &
-      else
-        echo "-> no reboot required"
-      fi
-    '; then
-    echo "OK"
-    ok=$((ok+1))
-  else
-    echo "FAIL"
-    fail=$((fail+1))
-  fi
-done < "$HOSTS_FILE"
-
-echo "-----"
-echo "Done. OK: $ok  FAIL: $fail"
-
-==============================
-===============================
-===========================
-
-
-#!/usr/bin/env bash
 # Usage: SSH_KEY=~/.ssh/deploy_key ./check-patch-status.sh hosts.txt
-# Classifies each host as:
-#   - PATCHED        (no upgradable pkgs, no reboot flag)
-#   - NEEDS_REBOOT   (/var/run/reboot-required present)
-#   - NEEDS_UPDATES  (N>0 upgradable packages)
-#   - UNREACHABLE    (SSH failed)
+# Generates both console output and CSV report (patch-status-report.csv)
 
 set -euo pipefail
 
 HOSTS_FILE="${1:-}"
 [ -f "$HOSTS_FILE" ] || { echo "Usage: $0 <hosts_file>"; exit 1; }
+
+REPORT_FILE="patch-status-report.csv"
 
 SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
 [ -n "${SSH_KEY:-}" ] && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
@@ -89,6 +19,9 @@ needs_reboot=0
 needs_updates=0
 unreachable=0
 
+# CSV Header
+echo "Host,Status,Details" > "$REPORT_FILE"
+
 printf "%-35s  %-14s  %s\n" "HOST" "STATUS" "DETAILS"
 printf "%-35s  %-14s  %s\n" "----" "------" "-------"
 
@@ -97,9 +30,6 @@ while IFS= read -r host || [[ -n "$host" ]]; do
   [ -z "$host" ] && continue
   [[ "$host" =~ ^# ]] && continue
 
-  # Run entirely remote; no files copied
-  # Count upgradable packages using apt-get simulation (fallback to apt list)
-  # Also check reboot-required flag
   out=$(
     ssh $SSH_OPTS "$USER@$host" '
       set -e
@@ -114,6 +44,7 @@ while IFS= read -r host || [[ -n "$host" ]]; do
 
   if [[ -z "$out" ]]; then
     printf "%-35s  %-14s  %s\n" "$host" "UNREACHABLE" "-"
+    echo "$host,UNREACHABLE,-" >> "$REPORT_FILE"
     unreachable=$((unreachable+1))
     continue
   fi
@@ -123,12 +54,15 @@ while IFS= read -r host || [[ -n "$host" ]]; do
 
   if [[ "$reboot" == "1" ]]; then
     printf "%-35s  %-14s  %s\n" "$host" "NEEDS_REBOOT" "reboot-required"
+    echo "$host,NEEDS_REBOOT,reboot-required" >> "$REPORT_FILE"
     needs_reboot=$((needs_reboot+1))
   elif [[ "$updates" -gt 0 ]]; then
     printf "%-35s  %-14s  %s\n" "$host" "NEEDS_UPDATES" "$updates pkgs"
+    echo "$host,NEEDS_UPDATES,${updates} pkgs" >> "$REPORT_FILE"
     needs_updates=$((needs_updates+1))
   else
     printf "%-35s  %-14s  %s\n" "$host" "PATCHED" "0 pkgs"
+    echo "$host,PATCHED,0 pkgs" >> "$REPORT_FILE"
     patched=$((patched+1))
   fi
 done < "$HOSTS_FILE"
@@ -136,3 +70,4 @@ done < "$HOSTS_FILE"
 total=$((patched + needs_reboot + needs_updates + unreachable))
 echo
 echo "SUMMARY: total=$total  patched=$patched  needs_reboot=$needs_reboot  needs_updates=$needs_updates  unreachable=$unreachable"
+echo "CSV report written to: $REPORT_FILE"
