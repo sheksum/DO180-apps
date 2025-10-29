@@ -1,100 +1,166 @@
 #!/usr/bin/env bash
-# Usage: SSH_KEY=~/.ssh/deploy_key ./push-existing-sources-lockdown.sh hosts.txt
-# Requires:
-#   sources-files/landscape-ubuntu-{xenial,bionic,focal,jammy,noble}-onprem.list
-#   keys/pln-mirror.asc  (your on-prem mirror signing key)
-
+# dedicate-varlog.sh
+# Safely dedicate a block device to /var/log, migrate logs, and persist in /etc/fstab.
+# Usage:
+#   sudo ./dedicate-varlog.sh /dev/sdX                # use existing filesystem (ext4/xfs), no mkfs
+#   sudo ./dedicate-varlog.sh /dev/sdX --mkfs ext4   # create filesystem before use (ext4 or xfs)
+# Options:
+#   --mkfs <fstype>     Format the device (explicit opt-in; never done by default)
+#   --label <LABEL>     Optional filesystem label
+#   --opts "<mntopts>"  Mount options (default: nodev,noexec,nosuid)
+#   --dry-run           Print what would happen; do not change the system
+# Notes:
+#   - Original /var/log is preserved at /var/log.bak.<timestamp>
+#   - No deletions are performed.
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SRC_DIR="$SCRIPT_DIR/sources-files"
-KEY_FILE="$SCRIPT_DIR/keys/pln-mirror.asc"
-LOGFILE="$SCRIPT_DIR/push-sources.log"
-HOSTS_FILE="${1:-}"
+DRY_RUN=0
 
-[ -f "$HOSTS_FILE" ] || { echo "Usage: $0 <hosts_file>"; exit 1; }
-[ -d "$SRC_DIR" ] || { echo "Missing $SRC_DIR"; exit 1; }
-[ -f "$KEY_FILE" ] || { echo "Missing $KEY_FILE (mirror signing key)"; exit 1; }
+if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
+  echo "Please run as root (sudo)." >&2; exit 1
+fi
 
-SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
-SCP_OPTS="-o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
-[ -n "${SSH_KEY:-}" ] && { SSH_OPTS="$SSH_OPTS -i $SSH_KEY"; SCP_OPTS="$SCP_OPTS -i $SSH_KEY"; }
+DEV="${1:-}"
+if [[ -z "${DEV}" ]]; then
+  echo "Usage: $0 /dev/sdX [--mkfs ext4|xfs] [--label NAME] [--opts \"nodev,noexec,nosuid,...\"] [--dry-run]"; exit 1
+fi
 
-ok=0; fail=0
-echo "Run started $(date)" | tee -a "$LOGFILE"
+shift || true
 
-while IFS= read -r host || [[ -n "$host" ]]; do
-  host="${host%%$'\r'*}"; [ -z "$host" ] && continue; [[ "$host" =~ ^# ]] && continue
-  echo "=== $host ===" | tee -a "$LOGFILE"
+# Defaults
+DO_MKFS=0
+FSTYPE=""
+LABEL=""
+MNTOPTS="nodev,noexec,nosuid"
+MOUNTPOINT="/var/log"
+BACKUP="/var/log.bak.$(date +%Y%m%d-%H%M%S)"
 
-  codename=$(ssh $SSH_OPTS "deploy@$host" '
-    c=""; [ -r /etc/os-release ] && { . /etc/os-release; c="${VERSION_CODENAME:-}"; }
-    [ -z "$c" ] && command -v lsb_release >/dev/null 2>&1 && c=$(lsb_release -cs 2>/dev/null || true)
-    echo "$c"
-  ' 2>>"$LOGFILE" || true)
-  codename=$(echo "$codename" | tr '[:upper:]' '[:lower:]')
-  case "$codename" in xenial|bionic|focal|jammy|noble) ;; *) echo "SKIP: unsupported distro ($codename)" | tee -a "$LOGFILE"; continue ;; esac
+while (( "$#" )); do
+  case "$1" in
+    --mkfs) DO_MKFS=1; FSTYPE="${2:-}"; shift 2;;
+    --label) LABEL="${2:-}"; shift 2;;
+    --opts) MNTOPTS="${2:-}"; shift 2;;
+    --dry-run) DRY_RUN=1; shift;;
+    *) echo "Unknown option: $1" >&2; exit 1;;
+  esac
+done
 
-  LIST_LOCAL="$SRC_DIR/landscape-ubuntu-${codename}-onprem.list"
-  [ -f "$LIST_LOCAL" ] || { echo "FAIL: missing $LIST_LOCAL" | tee -a "$LOGFILE"; fail=$((fail+1)); continue; }
-
-  ssh $SSH_OPTS "deploy@$host" 'sudo -n true' 2>>"$LOGFILE" \
-    || { echo "FAIL: deploy cannot sudo" | tee -a "$LOGFILE"; fail=$((fail+1)); continue; }
-  ssh $SSH_OPTS "deploy@$host" '[ -d /etc/apt/sources.list.d ]' \
-    || { echo "SKIP: no /etc/apt/sources.list.d" | tee -a "$LOGFILE"; continue; }
-
-  # push files
-  scp $SCP_OPTS "$LIST_LOCAL" "deploy@$host:/tmp/landscape-onprem.list" >>"$LOGFILE" 2>&1 \
-    || { echo "FAIL: scp list" | tee -a "$LOGFILE"; fail=$((fail+1)); continue; }
-  scp $SCP_OPTS "$KEY_FILE"   "deploy@$host:/tmp/pln-mirror.asc"        >>"$LOGFILE" 2>&1 \
-    || { echo "FAIL: scp key"  | tee -a "$LOGFILE"; fail=$((fail+1)); continue; }
-
-  if ssh $SSH_OPTS "deploy@$host" "
-        set -e
-
-        # Rename non-landscape .list to .save so APT ignores them
-        for f in /etc/apt/sources.list.d/*.list; do
-          [ -f \"\$f\" ] || continue
-          case \"\$f\" in *landscape*) ;; *) sudo mv -f \"\$f\" \"\$f.save\" ;; esac
-        done
-
-        # NEW: Rename any *.sources (e.g., ubuntu.sources) to .save so APT ignores them
-        for s in /etc/apt/sources.list.d/*.sources; do
-          [ -f \"\$s\" ] || continue
-          sudo mv -f \"\$s\" \"\$s.save\"
-        done
-
-        # Overwrite landscape list for this codename
-        sudo mv -f /tmp/landscape-onprem.list /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
-        sudo chown root:root /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
-        sudo chmod 0644 /etc/apt/sources.list.d/landscape-ubuntu-${codename}-onprem.list
-
-        # Null out main sources.list
-        sudo bash -c 'cat > /etc/apt/sources.list <<EOF
-# This file intentionally left blank.
-# System is configured to use PLN onprem Landscape mirrors only.
-# Do NOT add internet repositories here.
-EOF'
-
-        # Install/refresh mirror signing key
-        sudo install -m 0644 /tmp/pln-mirror.asc /etc/apt/trusted.gpg.d/pln-mirror.asc
-
-        # Clean APT locks only
-        sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock \
-                  /var/cache/apt/archives/lock /var/lib/apt/lists/lock
-
-        # Refresh indexes
-        sudo apt-get clean
-        sudo apt-get update
-     " >>"$LOGFILE" 2>&1; then
-    echo 'PLN onprem Landscape mirror list applied and apt updated' | tee -a "$LOGFILE"
-    ok=$((ok+1))
+run() {
+  if [[ $DRY_RUN -eq 1 ]]; then
+    echo "[DRY-RUN] $*"
   else
-    echo 'FAIL: PLN mirror update step' | tee -a "$LOGFILE"
-    fail=$((fail+1))
+    eval "$@"
   fi
+}
 
-done < "$HOSTS_FILE"
+require() { command -v "$1" >/dev/null 2>&1 || { echo "Missing '$1'." >&2; exit 1; }; }
+require rsync; require blkid; require mount; require grep; require sed; require logger || true
 
-echo "-----" | tee -a "$LOGFILE"
-echo "Run finished: Hosts updated=$ok Failures=$fail ($(date))" | tee -a "$LOGFILE"
+# Safety checks
+if [[ ! -b "${DEV}" ]]; then
+  echo "Device ${DEV} is not a block device. Aborting." >&2; exit 1
+fi
+if mount | grep -qE " on ${MOUNTPOINT} "; then
+  echo "${MOUNTPOINT} is already a separate mount. Exiting."; exit 0
+fi
+if mount | grep -qE "^${DEV} "; then
+  echo "Device ${DEV} is already mounted elsewhere. Aborting."; exit 1
+fi
+
+# Filesystem handling
+if [[ $DO_MKFS -eq 1 ]]; then
+  [[ "${FSTYPE}" =~ ^(ext4|xfs)$ ]] || { echo "Supported mkfs types: ext4, xfs" >&2; exit 1; }
+  echo "About to format ${DEV} as ${FSTYPE}."
+  if [[ $DRY_RUN -eq 0 ]]; then
+    read -r -p "Type 'YES' to proceed: " ACK
+    [[ "${ACK}" == "YES" ]] || { echo "Aborted."; exit 1; }
+  fi
+  if [[ "${FSTYPE}" == "ext4" ]]; then
+    run mkfs.ext4 -F ${LABEL:+-L "$LABEL"} "${DEV}"
+  else
+    run mkfs.xfs -f ${LABEL:+-L "$LABEL"} "${DEV}"
+  fi
+fi
+
+# Ensure the device has a filesystem
+if ! blkid "${DEV}" >/dev/null 2>&1; then
+  echo "Device ${DEV} has no recognizable filesystem. Re-run with --mkfs ext4 (or xfs)." >&2
+  exit 1
+fi
+
+UUID="$(blkid -s UUID -o value "${DEV}")"
+TYPE="$(blkid -s TYPE -o value "${DEV}")"
+[[ -n "${UUID}" && -n "${TYPE}" ]] || { echo "Could not read UUID/TYPE for ${DEV}." >&2; exit 1; }
+
+echo "Device: ${DEV}  UUID: ${UUID}  TYPE: ${TYPE}"
+echo "Mount options: ${MNTOPTS}"
+
+# Quiet rsyslog if present (do not fail if missing)
+RSYS_PRESENT=0
+if systemctl list-unit-files 2>/dev/null | grep -q '^rsyslog\.service'; then
+  RSYS_PRESENT=1
+  echo "Stopping rsyslog..."
+  run "systemctl stop rsyslog || { systemctl mask rsyslog; systemctl stop rsyslog; }"
+fi
+
+# Prepare mountpoint & migrate data
+run "mkdir -p '${MOUNTPOINT}'"
+echo "Rsync current logs to temporary backup dir..."
+run "mkdir -p '${BACKUP}'"
+run "rsync -aHAX --numeric-ids --sparse --one-file-system '${MOUNTPOINT}/' '${BACKUP}/'"
+
+# Mount device to a staging dir, copy data in, then switch over atomically
+STAGE="$(mktemp -d /mnt/varlog-XXXX)"
+run "mount -t '${TYPE}' -o '${MNTOPTS}' '${DEV}' '${STAGE}'"
+echo "Copying logs into the new filesystem..."
+run "rsync -aHAX --numeric-ids --sparse --one-file-system '${BACKUP}/' '${STAGE}/'"
+echo "Mounting ${DEV} on ${MOUNTPOINT}..."
+run "umount '${STAGE}'"
+run "rmdir '${STAGE}' || true"
+run "mount -t '${TYPE}' -o '${MNTOPTS}' '${DEV}' '${MOUNTPOINT}'"
+
+# Persist in /etc/fstab (idempotent)
+FSTAB_LINE="UUID=${UUID}  ${MOUNTPOINT}  ${TYPE}  ${MNTOPTS}  0  2"
+if ! grep -q "UUID=${UUID}.*${MOUNTPOINT}" /etc/fstab; then
+  run "printf '%s\n' \"${FSTAB_LINE}\" >> /etc/fstab"
+  echo "Would add to /etc/fstab: ${FSTAB_LINE}"
+else
+  echo "/etc/fstab already contains an entry for UUID=${UUID} at ${MOUNTPOINT}"
+fi
+
+# Verify mount -a
+run mount -a
+
+# Unmask/restart rsyslog if present
+if [[ $RSYS_PRESENT -eq 1 ]]; then
+  run systemctl unmask rsyslog
+  run systemctl restart rsyslog
+fi
+
+# Quick functional test
+if command -v logger >/dev/null 2>&1; then
+  run "logger 'TEST: dedicated /var/log mount is working (device ${DEV})'"
+fi
+
+SYSLOG_FILE=""
+if [[ -f /var/log/syslog ]]; then SYSLOG_FILE=/var/log/syslog; fi
+if [[ -z "${SYSLOG_FILE}" && -f /var/log/messages ]]; then SYSLOG_FILE=/var/log/messages; fi
+echo
+echo "==== Verification ===="
+run "mount | grep ' ${MOUNTPOINT} ' || true"
+run "df -h '${MOUNTPOINT}' || true"
+run "ls -l '${MOUNTPOINT}' | head || true"
+if [[ -n "${SYSLOG_FILE}" ]]; then
+  run "tail -n3 '${SYSLOG_FILE}' || true"
+fi
+echo "Logrotate (dry-run):"
+run "logrotate -d /etc/logrotate.conf || true"
+
+echo
+echo "Done. Original logs are preserved at: ${BACKUP}"
+echo "If you ever need to roll back:"
+echo "  1) systemctl stop rsyslog || { systemctl mask rsyslog; systemctl stop rsyslog; }"
+echo "  2) umount ${MOUNTPOINT}"
+echo "  3) remove the fstab line with UUID=${UUID} ${MOUNTPOINT}"
+echo "  4) rsync -aHAX ${BACKUP}/ ${MOUNTPOINT}/"
+echo "  5) systemctl unmask rsyslog; systemctl restart rsyslog"
