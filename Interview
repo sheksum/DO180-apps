@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# dedicate-varlog.sh (interactive Ubuntu version with SCSI rescan)
-# Scans for new devices, asks for disk, confirms mkfs, follows your /data → /var/log doc.
+# dedicate-varlog.sh — Interactive Ubuntu version
+# Safely dedicates a block device to /var/log with /data staging and rollback info.
 
 set -euo pipefail
 [[ ${EUID:-$(id -u)} -eq 0 ]] || { echo "Run as root (sudo)."; exit 1; }
@@ -13,7 +13,7 @@ done
 echo "⏳ Waiting for devices to settle..."
 sleep 10
 
-echo "🔎 Listing all block devices..."
+echo "🔎 Listing all available block devices..."
 lsblk -dpno NAME,SIZE,TYPE,MOUNTPOINT | grep "disk" || true
 echo
 
@@ -39,7 +39,7 @@ STAGE="/data"
 TS="$(date +%Y%m%d-%H%M%S)"
 BACKUP="${MOUNTPOINT}.bak.${TS}"
 
-# Optional mkfs
+# --- Format if requested ---
 if [[ $DO_MKFS -eq 1 ]]; then
   echo "Creating $FSTYPE filesystem on $DEV..."
   [[ "$FSTYPE" == "ext4" ]] && mkfs.ext4 -F -L "$LABEL" "$DEV" || mkfs.xfs -f -L "$LABEL" "$DEV"
@@ -48,22 +48,24 @@ fi
 blkid "$DEV" >/dev/null 2>&1 || { echo "No filesystem found on $DEV."; exit 1; }
 UUID="$(blkid -s UUID -o value "$DEV")"
 TYPE="$(blkid -s TYPE -o value "$DEV")"
-
 echo "✅ Device ready: $DEV (UUID=$UUID, TYPE=$TYPE)"
 sleep 2
 
+# --- Stop rsyslog before migration ---
 echo "Masking & stopping rsyslog.service..."
 systemctl mask rsyslog.service || true
 systemctl stop rsyslog.service || true
 
+# --- Stage copy to /data ---
 mkdir -p "$STAGE" "$MOUNTPOINT"
 echo "Mounting $DEV on $STAGE ..."
 mount -t "$TYPE" -o "$MNTOPTS" "$DEV" "$STAGE"
 
-echo "Rsyncing logs: ${MOUNTPOINT}/ → ${STAGE}/ ..."
+echo "Copying logs: ${MOUNTPOINT}/ → ${STAGE}/ ..."
 rsync -aHAX --numeric-ids --sparse --one-file-system "${MOUNTPOINT}/" "${STAGE}/"
 sync
 
+# --- Backup and switch mount ---
 echo "Moving ${MOUNTPOINT} → ${BACKUP} ..."
 mv "$MOUNTPOINT" "$BACKUP"
 mkdir -p "$MOUNTPOINT"
@@ -72,10 +74,17 @@ echo "Unmounting $STAGE and remounting on ${MOUNTPOINT} ..."
 umount "$STAGE" || umount -l "$STAGE"
 mount -t "$TYPE" -o "$MNTOPTS" "$DEV" "$MOUNTPOINT"
 
+# --- Persist in /etc/fstab ---
 FSTAB_LINE="UUID=${UUID}  ${MOUNTPOINT}  ${TYPE}  ${MNTOPTS}  0  2"
-grep -q "UUID=${UUID}.*${MOUNTPOINT}" /etc/fstab || echo "$FSTAB_LINE" >> /etc/fstab
+if ! grep -q "UUID=${UUID}.*${MOUNTPOINT}" /etc/fstab; then
+  echo "$FSTAB_LINE" >> /etc/fstab
+  echo "Added to /etc/fstab: $FSTAB_LINE"
+else
+  echo "/etc/fstab already contains an entry for this UUID."
+fi
 mount -a
 
+# --- Restart rsyslog + logrotate ---
 echo "Unmasking and restarting rsyslog.service..."
 systemctl unmask rsyslog.service || true
 systemctl daemon-reload
@@ -84,11 +93,56 @@ systemctl restart rsyslog.service || true
 echo "Running logrotate -vf /etc/logrotate.conf ..."
 logrotate -vf /etc/logrotate.conf || true
 
+# --- Verification ---
 echo
 echo "=== Verification ==="
 mount | grep " ${MOUNTPOINT} " || true
 df -h "${MOUNTPOINT}" || true
-logger "TEST: /var/log dedicated mount active; rsyslog running"
-tail -n3 /var/log/syslog 2>/dev/null || tail -n3 /var/log/messages || true
+
+logger "TEST: dedicated /var/log mount active; rsyslog running"
+sleep 2  # allow rsyslog to write
+
+echo "Checking for logger entry in logs..."
+if [[ -f /var/log/syslog ]]; then
+  grep "TEST: dedicated" /var/log/syslog || echo "⚠️  Log message not found in /var/log/syslog"
+elif [[ -f /var/log/messages ]]; then
+  grep "TEST: dedicated" /var/log/messages || echo "⚠️  Log message not found in /var/log/messages"
+else
+  echo "⚠️  Neither /var/log/syslog nor /var/log/messages found."
+fi
+
 echo
 echo "✅ Completed. Previous logs are in ${BACKUP}"
+
+# --- Rollback instructions ---
+echo
+echo "=============================="
+echo "🧭  ROLLBACK INSTRUCTIONS"
+echo "=============================="
+echo "If you ever need to revert /var/log to its previous state:"
+echo
+echo "  1) Stop rsyslog to release file handles:"
+echo "     systemctl stop rsyslog || { systemctl mask rsyslog; systemctl stop rsyslog; }"
+echo
+echo "  2) Unmount the new /var/log device:"
+echo "     umount /var/log || umount -l /var/log"
+echo
+echo "  3) Remove its /etc/fstab entry:"
+echo "     sed -i '/UUID=.*\\/var\\/log/d' /etc/fstab"
+echo
+echo "  4) Restore previous logs from backup:"
+echo "     rm -rf /var/log"
+echo "     mv /var/log.bak.* /var/log"
+echo
+echo "  5) Unmask and restart rsyslog:"
+echo "     systemctl unmask rsyslog"
+echo "     systemctl daemon-reload"
+echo "     systemctl restart rsyslog"
+echo
+echo "  6) Verify rsyslog is logging again:"
+echo "     systemctl status rsyslog"
+echo "     logger 'TEST: rollback to original /var/log successful'"
+echo "     grep 'rollback' /var/log/syslog || grep 'rollback' /var/log/messages"
+echo
+echo "✅ Rollback instructions printed above — keep for reference."
+echo "=============================="
