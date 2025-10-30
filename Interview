@@ -12,6 +12,7 @@
 # Notes:
 #   - Original /var/log is preserved at /var/log.bak.<timestamp>
 #   - No deletions are performed.
+
 set -euo pipefail
 
 DRY_RUN=0
@@ -22,7 +23,8 @@ fi
 
 DEV="${1:-}"
 if [[ -z "${DEV}" ]]; then
-  echo "Usage: $0 /dev/sdX [--mkfs ext4|xfs] [--label NAME] [--opts \"nodev,noexec,nosuid,...\"] [--dry-run]"; exit 1
+  echo "Usage: $0 /dev/sdX [--mkfs ext4|xfs] [--label NAME] [--opts \"nodev,noexec,nosuid,...\"] [--dry-run]"
+  exit 1
 fi
 
 shift || true
@@ -54,17 +56,19 @@ run() {
 }
 
 require() { command -v "$1" >/dev/null 2>&1 || { echo "Missing '$1'." >&2; exit 1; }; }
-require rsync; require blkid; require mount; require grep; require sed; require logger || true
+require rsync; require blkid; require mount; require grep; require sed; command -v logger >/dev/null 2>&1 || true
 
 # Safety checks
 if [[ ! -b "${DEV}" ]]; then
   echo "Device ${DEV} is not a block device. Aborting." >&2; exit 1
 fi
 if mount | grep -qE " on ${MOUNTPOINT} "; then
-  echo "${MOUNTPOINT} is already a separate mount. Exiting."; exit 0
+  echo "${MOUNTPOINT} is already a separate mount. Exiting."
+  exit 0
 fi
 if mount | grep -qE "^${DEV} "; then
-  echo "Device ${DEV} is already mounted elsewhere. Aborting."; exit 1
+  echo "Device ${DEV} is already mounted elsewhere. Aborting."
+  exit 1
 fi
 
 # Filesystem handling
@@ -80,6 +84,10 @@ if [[ $DO_MKFS -eq 1 ]]; then
   else
     run mkfs.xfs -f ${LABEL:+-L "$LABEL"} "${DEV}"
   fi
+  # Let the kernel/udev settle and re-read the partition table if needed
+  run "udevadm settle || true"
+  run "partprobe '${DEV}' || true"
+  run "sleep 1"
 fi
 
 # Ensure the device has a filesystem
@@ -95,12 +103,14 @@ TYPE="$(blkid -s TYPE -o value "${DEV}")"
 echo "Device: ${DEV}  UUID: ${UUID}  TYPE: ${TYPE}"
 echo "Mount options: ${MNTOPTS}"
 
-# Quiet rsyslog if present (do not fail if missing)
+# Mask rsyslog.service first, then stop it (per your policy)
 RSYS_PRESENT=0
 if systemctl list-unit-files 2>/dev/null | grep -q '^rsyslog\.service'; then
   RSYS_PRESENT=1
-  echo "Stopping rsyslog..."
-  run "systemctl stop rsyslog || { systemctl mask rsyslog; systemctl stop rsyslog; }"
+  echo "Masking rsyslog.service..."
+  run "systemctl mask rsyslog.service || true"
+  echo "Stopping rsyslog.service..."
+  run "systemctl stop rsyslog.service || true"
 fi
 
 # Prepare mountpoint & migrate data
@@ -109,13 +119,25 @@ echo "Rsync current logs to temporary backup dir..."
 run "mkdir -p '${BACKUP}'"
 run "rsync -aHAX --numeric-ids --sparse --one-file-system '${MOUNTPOINT}/' '${BACKUP}/'"
 
-# Mount device to a staging dir, copy data in, then switch over atomically
-STAGE="$(mktemp -d /mnt/varlog-XXXX)"
+# Stage device to a safe, ephemeral dir under /run (avoid /mnt to prevent 'target is busy')
+STAGE_BASE="/run/varlog-stage"
+run "mkdir -p '${STAGE_BASE}'"
+STAGE="$(mktemp -d "${STAGE_BASE}/XXXX")"
+
+# Ensure cleanup on exit/error
+cleanup() {
+  if mountpoint -q "${STAGE}"; then umount -l "${STAGE}" || true; fi
+  rmdir "${STAGE}" 2>/dev/null || true
+}
+trap cleanup EXIT
+
 run "mount -t '${TYPE}' -o '${MNTOPTS}' '${DEV}' '${STAGE}'"
 echo "Copying logs into the new filesystem..."
 run "rsync -aHAX --numeric-ids --sparse --one-file-system '${BACKUP}/' '${STAGE}/'"
+
 echo "Mounting ${DEV} on ${MOUNTPOINT}..."
 run "umount '${STAGE}'"
+trap - EXIT
 run "rmdir '${STAGE}' || true"
 run "mount -t '${TYPE}' -o '${MNTOPTS}' '${DEV}' '${MOUNTPOINT}'"
 
@@ -123,7 +145,7 @@ run "mount -t '${TYPE}' -o '${MNTOPTS}' '${DEV}' '${MOUNTPOINT}'"
 FSTAB_LINE="UUID=${UUID}  ${MOUNTPOINT}  ${TYPE}  ${MNTOPTS}  0  2"
 if ! grep -q "UUID=${UUID}.*${MOUNTPOINT}" /etc/fstab; then
   run "printf '%s\n' \"${FSTAB_LINE}\" >> /etc/fstab"
-  echo "Would add to /etc/fstab: ${FSTAB_LINE}"
+  echo "Added to /etc/fstab: ${FSTAB_LINE}"
 else
   echo "/etc/fstab already contains an entry for UUID=${UUID} at ${MOUNTPOINT}"
 fi
@@ -133,8 +155,10 @@ run mount -a
 
 # Unmask/restart rsyslog if present
 if [[ $RSYS_PRESENT -eq 1 ]]; then
-  run systemctl unmask rsyslog
-  run systemctl restart rsyslog
+  echo "Unmasking and restarting rsyslog.service..."
+  run "systemctl unmask rsyslog.service || true"
+  run "systemctl restart rsyslog.service || true"
+  run "systemctl show -p MainPID --value rsyslog || true"
 fi
 
 # Quick functional test
@@ -145,6 +169,7 @@ fi
 SYSLOG_FILE=""
 if [[ -f /var/log/syslog ]]; then SYSLOG_FILE=/var/log/syslog; fi
 if [[ -z "${SYSLOG_FILE}" && -f /var/log/messages ]]; then SYSLOG_FILE=/var/log/messages; fi
+
 echo
 echo "==== Verification ===="
 run "mount | grep ' ${MOUNTPOINT} ' || true"
@@ -159,8 +184,8 @@ run "logrotate -d /etc/logrotate.conf || true"
 echo
 echo "Done. Original logs are preserved at: ${BACKUP}"
 echo "If you ever need to roll back:"
-echo "  1) systemctl stop rsyslog || { systemctl mask rsyslog; systemctl stop rsyslog; }"
+echo "  1) systemctl mask rsyslog.service; systemctl stop rsyslog.service"
 echo "  2) umount ${MOUNTPOINT}"
-echo "  3) remove the fstab line with UUID=${UUID} ${MOUNTPOINT}"
+echo "  3) sed -i '\\|UUID=${UUID} .* ${MOUNTPOINT}|d' /etc/fstab"
 echo "  4) rsync -aHAX ${BACKUP}/ ${MOUNTPOINT}/"
-echo "  5) systemctl unmask rsyslog; systemctl restart rsyslog"
+echo "  5) systemctl unmask rsyslog.service; systemctl restart rsyslog.service"
