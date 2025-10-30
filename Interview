@@ -1,89 +1,94 @@
 #!/usr/bin/env bash
-# dedicate-varlog.sh  — /data staging, one-rsync (optional), super fast
-# Usage:
-#   sudo ./dedicate-varlog.sh /dev/sdX [--mkfs ext4|xfs] [--label NAME] [--opts "nodev,noexec,nosuid"] [--copy]
-# Defaults: fast mode (no rsync), mount opts: nodev,noexec,nosuid
+# dedicate-varlog.sh (interactive Ubuntu version with SCSI rescan)
+# Scans for new devices, asks for disk, confirms mkfs, follows your /data → /var/log doc.
 
 set -euo pipefail
-[[ ${EUID:-$(id -u)} -eq 0 ]] || { echo "Please run as root (sudo)."; exit 1; }
+[[ ${EUID:-$(id -u)} -eq 0 ]] || { echo "Run as root (sudo)."; exit 1; }
 
-DEV="${1:-}"; shift || true
-[[ -n "$DEV" ]] || { echo "Usage: $0 /dev/sdX [--mkfs ext4|xfs] [--label NAME] [--opts \"nodev,noexec,nosuid\"] [--copy]"; exit 1; }
-
-# Options
-DO_MKFS=0; FSTYPE=""; LABEL=""; MNTOPTS="nodev,noexec,nosuid"; DO_COPY=0
-while (( "$#" )); do
-  case "$1" in
-    --mkfs)   DO_MKFS=1; FSTYPE="${2:-}"; shift 2;;
-    --label)  LABEL="${2:-}"; shift 2;;
-    --opts)   MNTOPTS="${2:-}"; shift 2;;
-    --copy)   DO_COPY=1; shift;;
-    *) echo "Unknown option: $1"; exit 1;;
-  esac
+echo "🔍 Rescanning all SCSI hosts for new devices..."
+for host in /sys/class/scsi_host/*; do
+  echo "- - -" | sudo tee "${host}/scan" >/dev/null
 done
 
-need(){ command -v "$1" >/dev/null 2>&1 || { echo "Missing '$1'."; exit 1; }; }
-need mount; need blkid; command -v rsync >/dev/null 2>&1 || true
+echo "⏳ Waiting for devices to settle..."
+sleep 10
 
+echo "🔎 Listing all block devices..."
+lsblk -dpno NAME,SIZE,TYPE,MOUNTPOINT | grep "disk" || true
+echo
+
+read -rp "Enter the device you want to dedicate for /var/log (e.g. /dev/sdd): " DEV
+[[ -b "$DEV" ]] || { echo "❌ $DEV is not a valid block device."; exit 1; }
+
+read -rp "Do you want to create a new filesystem on $DEV? (y/N): " CONFIRM_MKFS
+DO_MKFS=0; FSTYPE="ext4"
+if [[ "$CONFIRM_MKFS" =~ ^[Yy]$ ]]; then
+  read -rp "Enter filesystem type [ext4|xfs] (default: ext4): " FS
+  FSTYPE="${FS:-ext4}"
+  [[ "$FSTYPE" =~ ^(ext4|xfs)$ ]] || { echo "Unsupported type."; exit 1; }
+  echo "⚠️  This will ERASE all data on $DEV."
+  read -rp "Type YES to confirm formatting $DEV as $FSTYPE: " ACK
+  [[ "$ACK" == "YES" ]] || { echo "Aborted."; exit 1; }
+  DO_MKFS=1
+fi
+
+LABEL="VARLOG"
+MNTOPTS="nodev,noexec,nosuid"
 MOUNTPOINT="/var/log"
 STAGE="/data"
-BACKUP="${MOUNTPOINT}.bak"
-
-# Sanity
-[[ -b "$DEV" ]] || { echo "Device $DEV is not a block device."; exit 1; }
-mount | grep -qE " on ${MOUNTPOINT} " && { echo "${MOUNTPOINT} already mounted; exiting."; exit 0; }
-mount | grep -qE "^${DEV} " && { echo "$DEV already mounted elsewhere."; exit 1; }
+TS="$(date +%Y%m%d-%H%M%S)"
+BACKUP="${MOUNTPOINT}.bak.${TS}"
 
 # Optional mkfs
 if [[ $DO_MKFS -eq 1 ]]; then
-  [[ "$FSTYPE" =~ ^(ext4|xfs)$ ]] || { echo "Supported mkfs: ext4|xfs"; exit 1; }
-  echo "About to format $DEV as $FSTYPE"; read -r -p "Type YES to proceed: " A; [[ "$A" == "YES" ]] || exit 1
-  [[ "$FSTYPE" == "ext4" ]] && mkfs.ext4 -F ${LABEL:+-L "$LABEL"} "$DEV" || mkfs.xfs -f ${LABEL:+-L "$LABEL"} "$DEV"
+  echo "Creating $FSTYPE filesystem on $DEV..."
+  [[ "$FSTYPE" == "ext4" ]] && mkfs.ext4 -F -L "$LABEL" "$DEV" || mkfs.xfs -f -L "$LABEL" "$DEV"
 fi
 
-# Must have a filesystem now
-blkid "$DEV" >/dev/null 2>&1 || { echo "No filesystem on $DEV. Use --mkfs."; exit 1; }
-UUID="$(blkid -s UUID -o value "$DEV")"; TYPE="$(blkid -s TYPE -o value "$DEV")"
+blkid "$DEV" >/dev/null 2>&1 || { echo "No filesystem found on $DEV."; exit 1; }
+UUID="$(blkid -s UUID -o value "$DEV")"
+TYPE="$(blkid -s TYPE -o value "$DEV")"
 
-# Quiet rsyslog
-if systemctl list-unit-files 2>/dev/null | grep -q '^rsyslog\.service'; then
-  systemctl mask rsyslog.service || true
-  systemctl stop rsyslog.service || true
-fi
+echo "✅ Device ready: $DEV (UUID=$UUID, TYPE=$TYPE)"
+sleep 2
 
-# Staging mount
+echo "Masking & stopping rsyslog.service..."
+systemctl mask rsyslog.service || true
+systemctl stop rsyslog.service || true
+
 mkdir -p "$STAGE" "$MOUNTPOINT"
+echo "Mounting $DEV on $STAGE ..."
 mount -t "$TYPE" -o "$MNTOPTS" "$DEV" "$STAGE"
 
-# Optional single rsync (doc-consistent). Fast mode skips this.
-if [[ $DO_COPY -eq 1 ]]; then
-  need rsync
-  echo "Copying once: ${MOUNTPOINT}/ → ${STAGE}/ ..."
-  rsync -aHAX --numeric-ids --sparse --one-file-system "${MOUNTPOINT}/" "${STAGE}/"
-  sync
-fi
+echo "Rsyncing logs: ${MOUNTPOINT}/ → ${STAGE}/ ..."
+rsync -aHAX --numeric-ids --sparse --one-file-system "${MOUNTPOINT}/" "${STAGE}/"
+sync
 
-# Rotate /var/log out of the way (your preferred behavior)
 echo "Moving ${MOUNTPOINT} → ${BACKUP} ..."
 mv "$MOUNTPOINT" "$BACKUP"
 mkdir -p "$MOUNTPOINT"
 
-# Switch mount to /var/log
+echo "Unmounting $STAGE and remounting on ${MOUNTPOINT} ..."
 umount "$STAGE" || umount -l "$STAGE"
 mount -t "$TYPE" -o "$MNTOPTS" "$DEV" "$MOUNTPOINT"
 
-# fstab entry (idempotent)
 FSTAB_LINE="UUID=${UUID}  ${MOUNTPOINT}  ${TYPE}  ${MNTOPTS}  0  2"
-grep -q "UUID=${UUID}.*${MOUNTPOINT}" /etc/fstab || printf '%s\n' "$FSTAB_LINE" >> /etc/fstab
+grep -q "UUID=${UUID}.*${MOUNTPOINT}" /etc/fstab || echo "$FSTAB_LINE" >> /etc/fstab
 mount -a
 
-# Bring rsyslog back
-if systemctl list-unit-files 2>/dev/null | grep -q '^rsyslog\.service'; then
-  systemctl unmask rsyslog.service || true
-  systemctl start rsyslog.service || true
-fi
+echo "Unmasking and restarting rsyslog.service..."
+systemctl unmask rsyslog.service || true
+systemctl daemon-reload
+systemctl restart rsyslog.service || true
 
-# Verify
-mount | grep " ${MOUNTPOINT} "
-df -h "${MOUNTPOINT}"
-echo "Done. Previous logs saved at ${BACKUP}"
+echo "Running logrotate -vf /etc/logrotate.conf ..."
+logrotate -vf /etc/logrotate.conf || true
+
+echo
+echo "=== Verification ==="
+mount | grep " ${MOUNTPOINT} " || true
+df -h "${MOUNTPOINT}" || true
+logger "TEST: /var/log dedicated mount active; rsyslog running"
+tail -n3 /var/log/syslog 2>/dev/null || tail -n3 /var/log/messages || true
+echo
+echo "✅ Completed. Previous logs are in ${BACKUP}"
