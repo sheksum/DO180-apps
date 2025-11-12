@@ -1,38 +1,38 @@
-Hi David,
+From what I’ve seen so far, most candidates are lacking in hands-on troubleshooting and foundational system knowledge. Many can talk about tools like Docker, Ansible, or Kubernetes, but struggle to explain how they’ve actually used them in practice.
 
-When reviewing technical candidates, here’s a framework you can use to better gauge their baseline competency before moving them to a technical interview.
+A lot of the responses also feel AI-assisted — and it becomes obvious when they can’t handle follow-up questions or go deeper into their own examples. Once you ask them how they configured something or why they chose a certain approach, that’s where most stumble.
 
-You don’t need to be technical to do this — the goal is to ask the right kind of questions, listen for how confidently and logically they respond, and use follow-ups to see if they actually understand their experience.
+To help with screening, here’s a simple framework you can use to gauge technical depth early on, even if you’re not technical yourself. The idea is to ask open-ended, practical questions that reveal whether they truly understand what they’re describing.
 
 1. Start With Foundational Questions
 
-Ask basic, scenario-based questions to test their real-world troubleshooting and reasoning skills.
+Ask scenario-based questions to see how they think through real-world issues.
 Examples:
-
-“How do you patch systems? If a server fails to come back up after patching, what could be the issue and how would you fix it?”
 
 “How would you troubleshoot a performance issue on a Linux system?”
 
-You don’t need to verify technical accuracy — just note if they think through it logically and explain it clearly versus giving short or vague answers.
+“How do you patch systems? Let’s say a system fails to come back up after patching — what could be the issue and how would you fix it?”
+
+You’re not judging correctness — just listen for logical flow and confidence. Strong candidates will explain their reasoning clearly and naturally reference commands, tools, or logs.
 
 2. Drill Into Their Resume
 
-Pick one or two tools or technologies they mention and ask follow-up questions to see if they’ve actually worked with them.
-Examples:
+If they list specific tools, use follow-ups to test real understanding:
 
-If they list Docker or Kubernetes, ask:
+If they mention Docker or Kubernetes:
 
 “Can you tell me the difference between Docker and Kubernetes?”
-
 “Can you describe a project where you deployed or managed containers?”
 
-If they list Ansible, ask:
+If they mention Ansible:
 
 “What types of automation did you build with it?”
 
-A candidate who’s hands-on will naturally walk you through what they did and why. Someone less experienced or AI-assisted will give shallow or inconsistent answers.
+Those who’ve truly worked with these tools will explain the process step-by-step. Those who haven’t tend to stay vague or inconsistent.
 
 3. Recommend a 30-Minute Video Call
 
-It’s best to set up a short 30-minute video call with each candidate rather than relying on chat or phone alone.
-Seeing how they communicate and explain themselves in real time is one of the fastest ways to tell who’s genuinely confident versus who’s relying on notes or AI help.
+I’d recommend setting up a short 30-minute video call with each candidate instead of relying on chat or phone screens.
+Seeing how they communicate and explain themselves in real time is one of the fastest ways to identify who’s genuinely confident versus who’s reading from notes or using AI help.
+
+From experience, this approach has consistently helped us identify the right candidates early and save time for the technical team.
