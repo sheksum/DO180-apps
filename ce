@@ -4,11 +4,10 @@ LAST=$(echo  "$FULLNAME" | awk '{print $NF}'); \
 USER=$(ipa user-find "$LAST" --all | awk -v first="$FIRST" -v last="$LAST" '
 /User login:/ {user=$3}
 /First name:/ {fname=$3}
-/Last name:/  {lname=$3}
-END { if (fname==first && lname==last) print user }
+/Last name:/  {lname=$3; if (fname==first && lname==last) print user}
 '); \
-USERUID=$(ipa user-show "$USER" 2>/dev/null | awk '/UID: /{print $2}'); \
-echo "$USER $USERUID"
+[ -n "$USER" ] && ipa user-show "$USER" | awk -v u="$USER" '/UID: /{print u, $2}'
+
 
 
 
