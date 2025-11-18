@@ -12,3 +12,26 @@ END { if (fname==first && lname==last) print user }
 '); \
 USERUID=$(ipa user-show "$USER" 2>/dev/null | awk '/UID: /{print $2}'); \
 echo "$USER $USERUID"
+
+
+
+ipa_name_to_user_uid() {
+  FULLNAME="$*"
+  FIRST=$(echo "$FULLNAME" | awk '{print $1}')
+  LAST=$(echo  "$FULLNAME" | awk '{print $NF}')
+
+  USER=$(ipa user-find "$LAST" --all | awk -v first="$FIRST" -v last="$LAST" '
+    /User login:/ {user=$3}
+    /First name:/ {fname=$3}
+    /Last name:/  {lname=$3}
+    END { if (fname==first && lname==last) print user }
+  ')
+
+  if [ -z "$USER" ]; then
+    echo "User not found for: $FULLNAME" >&2
+    return 1
+  fi
+
+  USERUID=$(ipa user-show "$USER" 2>/dev/null | awk '/UID: /{print $2}')
+  echo "$USER $USERUID"
+}
