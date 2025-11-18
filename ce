@@ -7,6 +7,5 @@ USER=$(ipa user-find "$LAST" --all | awk -v first="$FIRST" -v last="$LAST" '
 /Last name:/  {lname=$3}
 END { if (fname==first && lname==last) print user }
 '); \
-[ -z "$USER" ] && echo "User not found for: $FULLNAME" && exit 1; \
-UID=$(ipa user-show "$USER" | awk '/UID: /{print $2}'); \
+UID=$(ipa user-show "$USER" 2>/dev/null | awk '/UID: /{print $2}'); \
 echo "$USER $UID"
