@@ -1,3 +1,6 @@
+
+
+
 FULLNAME="Haj Suma"; \
 FIRST=$(echo "$FULLNAME" | awk '{print $1}'); \
 LAST=$(echo "$FULLNAME"  | awk '{print $NF}'); \
@@ -7,5 +10,5 @@ USER=$(ipa user-find "$LAST" --all | awk -v first="$FIRST" -v last="$LAST" '
 /Last name:/  {lname=$3}
 END { if (fname==first && lname==last) print user }
 '); \
-UID=$(ipa user-show "$USER" 2>/dev/null | awk '/UID: /{print $2}'); \
-echo "$USER $UID"
+USERUID=$(ipa user-show "$USER" 2>/dev/null | awk '/UID: /{print $2}'); \
+echo "$USER $USERUID"
