@@ -49,10 +49,8 @@
 
     - name: Copy Landscape server certificate
       copy:
-        src: landscape.pem          # adjust if your cert lives elsewhere in the role
+        src: files/landscape-server.pem
         dest: /etc/landscape/landscape.pem
-        owner: root
-        group: root
         mode: '0644'
 
     # ========= NEW: dynamic tag based on Ubuntu release =========
