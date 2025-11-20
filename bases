@@ -1,11 +1,19 @@
+---
 - name: Register systems with Landscape On-Prem
   hosts: all
   become: true
+  gather_facts: true
+
   vars:
     landscape_server_ip: 10.172.249.104
+    landscape_account_name: standalone
+
+    # New vars (can be overridden per group/host)
+    landscape_script_users: deploy
+    landscape_include_manager_plugins: ScriptExecution
+    landscape_access_group: global
 
   tasks:
-
     - name: Stop Landscape client (optional)
       service:
         name: landscape-client
@@ -41,18 +49,30 @@
 
     - name: Copy Landscape server certificate
       copy:
-        src: files/landscape-server.pem
+        src: landscape.pem          # adjust if your cert lives elsewhere in the role
         dest: /etc/landscape/landscape.pem
+        owner: root
+        group: root
         mode: '0644'
 
+    # ========= NEW: dynamic tag based on Ubuntu release =========
+    - name: Set Landscape tag based on Ubuntu release
+      set_fact:
+        landscape_tag: "ubuntu-{{ ansible_distribution_release | lower }}"
+
+    # ========= UPDATED: include script_users, plugins, access_group, tags =========
     - name: Register with Landscape (no registration key required)
       shell: |
         landscape-config \
-          --computer-title "$(hostname)" \
-          --account-name standalone \
+          --computer-title "{{ inventory_hostname }}" \
+          --account-name "{{ landscape_account_name }}" \
           --url "https://{{ landscape_server_ip }}/message-system" \
           --ssl-public-key /etc/landscape/landscape.pem \
           --ping-url "http://{{ landscape_server_ip }}/ping" \
+          --script-users "{{ landscape_script_users }}" \
+          --include-manager-plugins "{{ landscape_include_manager_plugins }}" \
+          --access-group "{{ landscape_access_group }}" \
+          --tags "{{ landscape_tag }}" \
           --silent
       args:
         creates: /var/lib/landscape/client.conf
