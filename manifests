@@ -1,85 +1,25 @@
-Overview
-To prevent system logs from filling the root filesystem, a dedicated 50 GB partition was provisioned and configured for /var/log.
-This ensures system stability by isolating log growth from core OS storage.
+<div class="content_section floating_element">
 
+    <div class="section_header section_header_red">
+        <div id="about"></div>
+        Welcome, to the Calix Docker Registry!
+    </div>
 
-Implementation Steps
+    <div class="content_section_text">
+        <p>
+            Proudly serving internal container images for AI, ML, and platform services.
+        </p>
 
-Provision and Format the Disk
-Add a 50 GB virtual disk (</dev/sde>).
-Format the disk:
-sudo mkfs.ext4 /dev/<sde>
+        <p>
+            <strong>Maintainer:</strong>
+            <a href="mailto:haj.suma@calix.com">haj.suma@calix.com</a>
+        </p>
 
-Mount the New Partition and copy over the logs
-Create a temporary mount for staging:
+        <p>
+            If you are a normal user of this web site and don't know what this page is
+            about, this probably means that the site is currently unavailable due to
+            maintenance. If the problem persists, please contact the site's administrator.
+        </p>
+    </div>
 
-
-sudo mkdir /data
-sudo mount /dev/<sde> /data
-sudo rsync -av /var/log/ /data/
-
-Replace /var/log with the New Partition
-Backup the original directory:
-
-sudo mv /var/log /var/log.bak
-sudo mkdir /var/log
-Unmount from /data and remount on /var/log:
-sudo umount /data
-sudo mount /dev/<sde> /var/log
-
-Update /etc/fstab for Persistence
-Retrieve the UUID:
-
-blkid /dev/<sde>
-
-
-Add entry to /etc/fstab:
-
-UUID=<uuid-from-blkid>   /var/log   ext4   defaults,nodev,noexec,nosuid   0 2
-
-
-Reload mounts:
-
-sudo mount -a
-
-Restore Permissions and SELinux Contexts (if applicable)
-
-sudo restorecon -Rv /var/log
-
-Restart rsyslog
-
-sudo systemctl restart rsyslog
-
-
-Testing and Validation
-Log Write Test
-
-logger "TEST: dedicated /var/log partition is working"
-tail -n3 /var/log/syslog    # Ubuntu/Debian
-tail -n3 /var/log/messages  # RHEL/CentOS
-
-Verified new entries are written to the dedicated partition.
-Logrotate Dry Run
-
-sudo logrotate -d /etc/logrotate.conf
-
-Confirmed syslog and other logs are included in rotation.
-Forced Rotation
-
-sudo logrotate -f /etc/logrotate.conf
-ls -lh /var/log/syslog*
-
-
-
-Verify creation of rotated files (syslog.1, syslog.2.gz, etc.)
-
-Confirm older rotated logs are compressed and retention policy is respected.
-
-
-Outcome
-/var/log now resides on the dedicated 50 GB partition.
-Syslog and other logs write and rotate correctly.
-
-Monitor /var/log disk usage:
-df -h /var/log
-Remove /var/log.bak once stable for several days.
+</div>
