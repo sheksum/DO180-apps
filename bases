@@ -1,85 +1,125 @@
----
-- name: Register systems with Landscape On-Prem
-  hosts: all
-  become: true
-  gather_facts: true
+hsuma@pln-aidev02:~/tabnine-setup$ cat database_backup.sh 
+#!/usr/bin/env bash
 
-  vars:
-    landscape_server_ip: 10.172.249.104
-    landscape_account_name: standalone
+# Parse command line arguments
+# Usage: ./database_backup.sh [namespace]
+# Default namespace: tabnine
+namespace="${1:-tabnine}"
 
-    # New vars (can be overridden per group/host)
-    landscape_script_users: deploy
-    landscape_include_manager_plugins: ScriptExecution
-    landscape_access_group: global
+echo "Using namespace: ${namespace}"
+echo ""
 
-  tasks:
-    - name: Stop Landscape client (optional)
-      service:
-        name: landscape-client
-        state: stopped
-      ignore_errors: true
-      tags: reset
+# Check if kubectl exists, otherwise use sudo microk8s kubectl
+if command -v kubectl &> /dev/null; then
+    kubectl_cmd="kubectl"
+else
+    kubectl_cmd="sudo microk8s kubectl"
+fi
 
-    - name: Remove old client registration files
-      file:
-        path: "{{ item }}"
-        state: absent
-      loop:
-        - /var/lib/landscape/client.conf
-        - /var/lib/landscape/landscape-id
-      tags: reset
+postgres_pod=tabnine-postgresql-0
+redis_pod=tabnine-redis-master-0
+redis_no_evict_pod=tabnine-no-evict-redis-master-0
 
-    - name: Try updating apt cache (continue even if it fails)
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-      ignore_errors: true
+# Function to handle errors
+handle_error() {
+    echo "Error: $1"
+    exit 1
+}
 
-    - name: Ensure landscape-client is installed
-      apt:
-        name: landscape-client
-        state: present
+# PostgreSQL Backup
+echo "Starting PostgreSQL backup..."
 
-    - name: Ensure Landscape cert directory exists
-      file:
-        path: /etc/landscape
-        state: directory
-        mode: '0755'
+# Scale down deployments if they exist
+deployments=("tabnine-tabnine-cloud-auth" "tabnine-tabnine-cloud-analytics" "tabnine-tabnine-cloud-analytics-consumer" "tabnine-tabnine-cloud-indexer")
+scaled_deployments=()
 
-    - name: Copy Landscape server certificate
-      copy:
-        src: files/landscape-server.pem
-        dest: /etc/landscape/landscape.pem
-        mode: '0644'
+for deployment in "${deployments[@]}"; do
+    # Check if deployment exists
+    if ${kubectl_cmd} get deployment -n ${namespace} ${deployment} &> /dev/null; then
+        echo "Scaling down ${deployment}..."
+        ${kubectl_cmd} scale deployment -n ${namespace} ${deployment} --replicas=0 > /dev/null 2>&1 || handle_error "Failed to scale down ${deployment}"
+        scaled_deployments+=("${deployment}")
+    fi
+done
 
-    # ========= NEW: dynamic tag based on Ubuntu release =========
-    - name: Set Landscape tag based on Ubuntu release
-      set_fact:
-        landscape_tag: "ubuntu-{{ ansible_distribution_release | lower }}"
+# Wait for active connections to close
+echo "Checking for active database connections..."
 
-    # ========= UPDATED: include script_users, plugins, access_group, tags =========
-    - name: Register with Landscape (no registration key required)
-      shell: |
-        landscape-config \
-          --computer-title "{{ inventory_hostname }}" \
-          --account-name "{{ landscape_account_name }}" \
-          --url "https://{{ landscape_server_ip }}/message-system" \
-          --ssl-public-key /etc/landscape/landscape.pem \
-          --ping-url "http://{{ landscape_server_ip }}/ping" \
-          --script-users "{{ landscape_script_users }}" \
-          --include-manager-plugins "{{ landscape_include_manager_plugins }}" \
-          --access-group "{{ landscape_access_group }}" \
-          --tags "{{ landscape_tag }}" \
-          --silent
-      args:
-        creates: /var/lib/landscape/client.conf
+# Get database password once to avoid repeated calls
+db_password=$(${kubectl_cmd} get secrets -n ${namespace} tabnine-database -o yaml | yq -r '.data.password' | base64 -d)
 
-    - name: Start Landscape client service
-      service:
-        name: landscape-client
-        state: started
-        enabled: true
+# Simple check for active connections - no interactive terminal needed
+active_connections=$(${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "PGPASSWORD=${db_password} psql -h localhost -U tabnine -d tabnine -t -c \"SELECT count(*) FROM pg_stat_activity WHERE datname = 'tabnine' AND pid <> pg_backend_pid() AND state = 'active';\"" | tr -d ' ')
+
+echo "Found ${active_connections:-0} active connections"
+
+# If there are active connections, terminate them
+if [ -n "$active_connections" ] && [ "$active_connections" -gt 0 ]; then
+    echo "Terminating ${active_connections} active connections..."
+    ${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "PGPASSWORD=${db_password} psql -h localhost -U tabnine -d tabnine -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'tabnine' AND pid <> pg_backend_pid() AND state = 'active';\""
+    echo "Waiting 5 seconds for connections to close..."
+    sleep 5
+fi
+
+echo "Proceeding with backup..."
+
+# Disable row level security before backup
+${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "PGPASSWORD=${db_password} psql -h localhost -U tabnine -d tabnine -c \"
+ALTER TABLE audit_log_entries NO FORCE ROW LEVEL SECURITY;
+ALTER TABLE organization_settings NO FORCE ROW LEVEL SECURITY;
+ALTER TABLE organization_users NO FORCE ROW LEVEL SECURITY;
+ALTER TABLE organizations NO FORCE ROW LEVEL SECURITY;
+ALTER TABLE team_feature_settings NO FORCE ROW LEVEL SECURITY;
+ALTER TABLE team_users NO FORCE ROW LEVEL SECURITY;
+ALTER TABLE teams NO FORCE ROW LEVEL SECURITY;
+ALTER TABLE user_activity_log NO FORCE ROW LEVEL SECURITY;
+ALTER TABLE users NO FORCE ROW LEVEL SECURITY;
+\"" > /dev/null 2>&1 || handle_error "Failed to disable row level security"
+
+# Perform database dump
+${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "PGPASSWORD=${db_password} pg_dump -h localhost -U tabnine -d tabnine -Fc -b -f /tmp/dump.sql" > /dev/null 2>&1 || handle_error "Failed to dump database"
+${kubectl_cmd} cp -n ${namespace} ${postgres_pod}:/tmp/dump.sql ./dump.sql > /dev/null 2>&1 || handle_error "Failed to copy dump file"
+${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "rm -f /tmp/dump.sql" > /dev/null 2>&1 || handle_error "Failed to remove temporary dump file"
+
+# Re-enable row level security after backup
+${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "PGPASSWORD=${db_password} psql -h localhost -U tabnine -d tabnine -c \"
+ALTER TABLE audit_log_entries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE organization_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE organization_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE team_feature_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE team_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE teams ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_activity_log ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+\"" > /dev/null 2>&1 || handle_error "Failed to re-enable row level security"
+
+echo "PostgreSQL Database Backup Successful"
+
+# Scale up deployments that were scaled down
+for deployment in "${scaled_deployments[@]}"; do
+    echo "Scaling up ${deployment}..."
+    ${kubectl_cmd} scale deployment -n ${namespace} ${deployment} --replicas=1 > /dev/null 2>&1 || handle_error "Failed to scale up ${deployment}"
+done
+
+# Redis Master Backup
+echo "Starting Redis backup..."
+# Get Redis password
+redis_password=$(${kubectl_cmd} get secrets -n ${namespace} tabnine-redis -o yaml | yq -r '.data.redis-password' | base64 -d)
+${kubectl_cmd} exec -n ${namespace} ${redis_pod} -- /bin/sh -c "REDISCLI_AUTH=${redis_password} redis-cli -h localhost SAVE" > /dev/null 2>&1 || handle_error "Failed to save Redis database"
+${kubectl_cmd} cp -n ${namespace} ${redis_pod}:/data/dump.rdb ./redis.rdb > /dev/null 2>&1 || handle_error "Failed to copy Redis dump file"
+${kubectl_cmd} exec -n ${namespace} ${redis_pod} -- /bin/sh -c "rm -rf /data/dump.rdb" > /dev/null 2>&1 || handle_error "Failed to remove temporary Redis dump file"
+
+# Non-Evicting Redis Master Backup
+echo "Starting Non-Evicting Redis backup..."
+# Get Redis password
+redis_password=$(${kubectl_cmd} get secrets -n ${namespace} tabnine-non-eviction-redis -o yaml | yq -r '.data.redis-password' | base64 -d)
+${kubectl_cmd} exec -n ${namespace} ${redis_no_evict_pod} -- /bin/sh -c "REDISCLI_AUTH=${redis_password} redis-cli -h localhost SAVE" > /dev/null 2>&1 || handle_error "Failed to save Redis database"
+${kubectl_cmd} cp -n ${namespace} ${redis_no_evict_pod}:/data/dump.rdb ./redis-no-evict.rdb > /dev/null 2>&1 || handle_error "Failed to copy Redis dump file"
+${kubectl_cmd} exec -n ${namespace} ${redis_no_evict_pod} -- /bin/sh -c "rm -rf /data/dump.rdb" > /dev/null 2>&1 || handle_error "Failed to remove temporary Redis dump file"
+
+echo "Redis Database Backup Successful"
+echo "All backups completed successfully"
 
 =====================
 import json
