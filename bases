@@ -1,125 +1,93 @@
-hsuma@pln-aidev02:~/tabnine-setup$ cat database_backup.sh 
-#!/usr/bin/env bash
+TABNINE UPGRADE PROCEDURE (COPY-FRIENDLY VERSION)
 
-# Parse command line arguments
-# Usage: ./database_backup.sh [namespace]
-# Default namespace: tabnine
-namespace="${1:-tabnine}"
+Prerequisites
 
-echo "Using namespace: ${namespace}"
-echo ""
+Ensure kubectl, helm, and yq are installed.
 
-# Check if kubectl exists, otherwise use sudo microk8s kubectl
-if command -v kubectl &> /dev/null; then
-    kubectl_cmd="kubectl"
-else
-    kubectl_cmd="sudo microk8s kubectl"
-fi
+Ensure you have the values file provided directly by Tabnine for this upgrade. Do NOT reuse older values.yaml files.
 
-postgres_pod=tabnine-postgresql-0
-redis_pod=tabnine-redis-master-0
-redis_no_evict_pod=tabnine-no-evict-redis-master-0
+Ensure you have access to the cluster and namespace (default: tabnine).
 
-# Function to handle errors
-handle_error() {
-    echo "Error: $1"
-    exit 1
-}
+Backup Steps (Mandatory Before Upgrade)
+A. Backup Kubernetes Secrets
+Run:
+kubectl get secrets -n tabnine -o yaml > tabnine-secrets-backup-$(date +%F).yaml
+chmod 600 tabnine-secrets-backup-$(date +%F).yaml
 
-# PostgreSQL Backup
-echo "Starting PostgreSQL backup..."
+B. Backup Databases (PostgreSQL + Redis + Non-Evict Redis)
+Run the backup script:
+chmod +x database_backup.sh
+./database_backup.sh tabnine
 
-# Scale down deployments if they exist
-deployments=("tabnine-tabnine-cloud-auth" "tabnine-tabnine-cloud-analytics" "tabnine-tabnine-cloud-analytics-consumer" "tabnine-tabnine-cloud-indexer")
-scaled_deployments=()
+Ensure the script prints:
+“All backups completed successfully”
 
-for deployment in "${deployments[@]}"; do
-    # Check if deployment exists
-    if ${kubectl_cmd} get deployment -n ${namespace} ${deployment} &> /dev/null; then
-        echo "Scaling down ${deployment}..."
-        ${kubectl_cmd} scale deployment -n ${namespace} ${deployment} --replicas=0 > /dev/null 2>&1 || handle_error "Failed to scale down ${deployment}"
-        scaled_deployments+=("${deployment}")
-    fi
-done
+Do not proceed if backups fail.
 
-# Wait for active connections to close
-echo "Checking for active database connections..."
+Pull New Tabnine Release
+Example:
+helm pull oci://registry.tabnine.com/self-hosted/tabnine-cloud --version 5.25.1
 
-# Get database password once to avoid repeated calls
-db_password=$(${kubectl_cmd} get secrets -n ${namespace} tabnine-database -o yaml | yq -r '.data.password' | base64 -d)
+This downloads:
+tabnine-cloud-5.25.1.tgz
 
-# Simple check for active connections - no interactive terminal needed
-active_connections=$(${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "PGPASSWORD=${db_password} psql -h localhost -U tabnine -d tabnine -t -c \"SELECT count(*) FROM pg_stat_activity WHERE datname = 'tabnine' AND pid <> pg_backend_pid() AND state = 'active';\"" | tr -d ' ')
+Use the Values File Provided by Tabnine
+Tabnine will give a file named something like:
+tabnine-installations-values-5.25.1.yaml
 
-echo "Found ${active_connections:-0} active connections"
+Run a dry-run:
+helm upgrade -f tabnine-installations-values-5.25.1.yaml -n tabnine tabnine tabnine-cloud-5.25.1.tgz --dry-run=server
 
-# If there are active connections, terminate them
-if [ -n "$active_connections" ] && [ "$active_connections" -gt 0 ]; then
-    echo "Terminating ${active_connections} active connections..."
-    ${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "PGPASSWORD=${db_password} psql -h localhost -U tabnine -d tabnine -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'tabnine' AND pid <> pg_backend_pid() AND state = 'active';\""
-    echo "Waiting 5 seconds for connections to close..."
-    sleep 5
-fi
+Perform the Upgrade
+If dry-run is clean, run:
+helm upgrade -f tabnine-installations-values-5.25.1.yaml -n tabnine tabnine tabnine-cloud-5.25.1.tgz --timeout 1800s
 
-echo "Proceeding with backup..."
+Validate Deployment
+kubectl get pods -n tabnine -w
 
-# Disable row level security before backup
-${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "PGPASSWORD=${db_password} psql -h localhost -U tabnine -d tabnine -c \"
-ALTER TABLE audit_log_entries NO FORCE ROW LEVEL SECURITY;
-ALTER TABLE organization_settings NO FORCE ROW LEVEL SECURITY;
-ALTER TABLE organization_users NO FORCE ROW LEVEL SECURITY;
-ALTER TABLE organizations NO FORCE ROW LEVEL SECURITY;
-ALTER TABLE team_feature_settings NO FORCE ROW LEVEL SECURITY;
-ALTER TABLE team_users NO FORCE ROW LEVEL SECURITY;
-ALTER TABLE teams NO FORCE ROW LEVEL SECURITY;
-ALTER TABLE user_activity_log NO FORCE ROW LEVEL SECURITY;
-ALTER TABLE users NO FORCE ROW LEVEL SECURITY;
-\"" > /dev/null 2>&1 || handle_error "Failed to disable row level security"
+All pods must enter Running state.
 
-# Perform database dump
-${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "PGPASSWORD=${db_password} pg_dump -h localhost -U tabnine -d tabnine -Fc -b -f /tmp/dump.sql" > /dev/null 2>&1 || handle_error "Failed to dump database"
-${kubectl_cmd} cp -n ${namespace} ${postgres_pod}:/tmp/dump.sql ./dump.sql > /dev/null 2>&1 || handle_error "Failed to copy dump file"
-${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "rm -f /tmp/dump.sql" > /dev/null 2>&1 || handle_error "Failed to remove temporary dump file"
+GPU Operator Note (If NVIDIA Driver Changed)
+If GPU drivers updated, reinstall GPU operator:
+helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
 
-# Re-enable row level security after backup
-${kubectl_cmd} exec -n ${namespace} ${postgres_pod} -- /bin/sh -c "PGPASSWORD=${db_password} psql -h localhost -U tabnine -d tabnine -c \"
-ALTER TABLE audit_log_entries ENABLE ROW LEVEL SECURITY;
-ALTER TABLE organization_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE organization_users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE team_feature_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE team_users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE teams ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_activity_log ENABLE ROW LEVEL SECURITY;
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-\"" > /dev/null 2>&1 || handle_error "Failed to re-enable row level security"
+helm repo update
+helm pull nvidia/gpu-operator --untar
+helm install gpu-operator gpu-operator/ -n gpu-operator
 
-echo "PostgreSQL Database Backup Successful"
+Restoration (If Upgrade Fails)
+A. Restore Secrets:
+kubectl apply -f tabnine-secrets-backup-YYYY-MM-DD.yaml -n tabnine
 
-# Scale up deployments that were scaled down
-for deployment in "${scaled_deployments[@]}"; do
-    echo "Scaling up ${deployment}..."
-    ${kubectl_cmd} scale deployment -n ${namespace} ${deployment} --replicas=1 > /dev/null 2>&1 || handle_error "Failed to scale up ${deployment}"
-done
+B. Restore PostgreSQL:
+kubectl cp dump.sql tabnine-postgresql-0:/tmp/
+kubectl exec -it tabnine-postgresql-0 -- psql -U tabnine -d tabnine -f /tmp/dump.sql
 
-# Redis Master Backup
-echo "Starting Redis backup..."
-# Get Redis password
-redis_password=$(${kubectl_cmd} get secrets -n ${namespace} tabnine-redis -o yaml | yq -r '.data.redis-password' | base64 -d)
-${kubectl_cmd} exec -n ${namespace} ${redis_pod} -- /bin/sh -c "REDISCLI_AUTH=${redis_password} redis-cli -h localhost SAVE" > /dev/null 2>&1 || handle_error "Failed to save Redis database"
-${kubectl_cmd} cp -n ${namespace} ${redis_pod}:/data/dump.rdb ./redis.rdb > /dev/null 2>&1 || handle_error "Failed to copy Redis dump file"
-${kubectl_cmd} exec -n ${namespace} ${redis_pod} -- /bin/sh -c "rm -rf /data/dump.rdb" > /dev/null 2>&1 || handle_error "Failed to remove temporary Redis dump file"
+C. Restore Redis Master:
+kubectl cp redis.rdb tabnine-redis-master-0:/data/
+kubectl exec -it tabnine-redis-master-0 -- redis-cli --rdb /data/redis.rdb
 
-# Non-Evicting Redis Master Backup
-echo "Starting Non-Evicting Redis backup..."
-# Get Redis password
-redis_password=$(${kubectl_cmd} get secrets -n ${namespace} tabnine-non-eviction-redis -o yaml | yq -r '.data.redis-password' | base64 -d)
-${kubectl_cmd} exec -n ${namespace} ${redis_no_evict_pod} -- /bin/sh -c "REDISCLI_AUTH=${redis_password} redis-cli -h localhost SAVE" > /dev/null 2>&1 || handle_error "Failed to save Redis database"
-${kubectl_cmd} cp -n ${namespace} ${redis_no_evict_pod}:/data/dump.rdb ./redis-no-evict.rdb > /dev/null 2>&1 || handle_error "Failed to copy Redis dump file"
-${kubectl_cmd} exec -n ${namespace} ${redis_no_evict_pod} -- /bin/sh -c "rm -rf /data/dump.rdb" > /dev/null 2>&1 || handle_error "Failed to remove temporary Redis dump file"
+D. Restore Redis Non-Evict:
+kubectl cp redis-no-evict.rdb tabnine-no-evict-redis-master-0:/data/
+kubectl exec -it tabnine-no-evict-redis-master-0 -- redis-cli --rdb /data/redis-no-evict.rdb
 
-echo "Redis Database Backup Successful"
-echo "All backups completed successfully"
+E. Helm Rollback:
+helm history tabnine -n tabnine
+helm rollback tabnine <REVISION> -n tabnine
+
+Completion Checklist
+
+Secrets backup taken
+
+DB/Redis backups completed
+
+Upgrade executed successfully
+
+All pods running
+
+No CrashLoopBackOff
+
+Indexer and analytics pods healthy
 
 =====================
 import json
