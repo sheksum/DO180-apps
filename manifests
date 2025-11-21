@@ -1,25 +1,25 @@
-<div class="content_section floating_element">
+    <div class="content_section floating_element">
 
-    <div class="section_header section_header_red">
-        <div id="about"></div>
-        Welcome, to the Calix Docker Registry!
+        <div class="section_header section_header_red">
+            <div id="about"></div>
+            Welcome, to the Calix Docker Registry!
+        </div>
+
+        <div class="content_section_text">
+            <p>
+                Proudly serving internal container images for AI, ML, and platform services.
+            </p>
+
+            <p>
+                <strong>Maintainer:</strong>
+                <a href="mailto:haj.suma@calix.com">haj.suma@calix.com</a>
+            </p>
+
+            <p>
+                If you are a normal user of this web site and don't know what this page is
+                about, this probably means that the site is currently unavailable due to
+                maintenance. If the problem persists, please contact the site's administrator.
+            </p>
+        </div>
+
     </div>
-
-    <div class="content_section_text">
-        <p>
-            Proudly serving internal container images for AI, ML, and platform services.
-        </p>
-
-        <p>
-            <strong>Maintainer:</strong>
-            <a href="mailto:haj.suma@calix.com">haj.suma@calix.com</a>
-        </p>
-
-        <p>
-            If you are a normal user of this web site and don't know what this page is
-            about, this probably means that the site is currently unavailable due to
-            maintenance. If the problem persists, please contact the site's administrator.
-        </p>
-    </div>
-
-</div>
