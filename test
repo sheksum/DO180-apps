@@ -1,47 +1,43 @@
-🧩 Fixing “SSL Certificate Not Trusted” in Chrome
-🧠 Background
-Chrome uses its own certificate store (NSS DB) that doesn’t automatically trust system certificates.
-Even though your VM already trusts the Calix Root and Intermediate CAs, Chrome requires these certificates to be imported manually into your user-level NSS DB.
-🧰 Steps
-Step 1 – Verify certificates exist
-Make sure your system already has the Calix certificates installed:
+Dear Team,
+Today we have noticed that the connectivity the connectivity between bamboo ,bitbucket(stash,pln-stash) has been broken.When we investigate the issue the application level, we  have noticed that the below error messages in the atlassian-bamboo.log.
 
-ls /usr/local/share/ca-certificates/
-You should see:
-CalixROOTCA.crt
-CalixInterCA.crt
-CalixEntCA.crt
 
-{note:title=If any are missing|icon=false}
-Contact EngOps before proceeding.
-{note}
+2025-11-24 08:11:38,258 WARN [support-zip] [DefaultRuntimeHelper] Failed to spawn a process
+java.io.IOException: Cannot run program "/usr/bin/git": error=0, Failed to exec spawn helper: pid: 1769215, exit value: 1
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1143) ~[?:?]
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1073) ~[?:?]
+	at java.lang.Runtime.exec(Runtime.java:594) ~[?:?]
+	at java.lang.Runtime.exec(Runtime.java:453) ~[?:?]
+2025-11-24 08:12:01,198 ERROR [12-DelayedChangeDetectionThread:pool-13-thread-64048] [ChainExecutionManagerImpl] Plan 'CCS-DTMITYSEFS27' could not be started. Exception: com.atlassian.bamboo.plugins.stash.repository.StashRepositoryException: com.atlassian.bamboo.repository.RepositoryException: com.atlassian.bamboo.executor.CancelException: /usr/bin/git could not be started: command [/usr/bin/git version] failed with code -1. Working directory was [/]. []
+com.atlassian.bamboo.repository.RepositoryException: com.atlassian.bamboo.plugins.stash.repository.StashRepositoryException: com.atlassian.bamboo.repository.RepositoryException: com.atlassian.bamboo.executor.CancelException: /usr/bin/git could not be started: command [/usr/bin/git version] failed with code -1. Working directory was [/]. []
+	at com.atlassian.bamboo.v2.trigger.DefaultChangeDetectionManager.collectInitialStateForBranchBuild(DefaultChangeDetectionManager.java:387) ~[atlassian-bamboo-core-9.6.16.jar:?]
+	at com.atlassian.bamboo.v2.trigger.DefaultChangeDetectionManager.collectAllChangesSinceLastBuild(DefaultChangeDetectionManager.java:172) ~[atlassian-bamboo-core-9.6.16.jar:?]
+	at com.atlassian.bamboo.v2.trigger.DefaultChangeDetectionManager.collectAllChangesSinceLastBuild(DefaultChangeDetectionManager.java:211) ~[atlassian-bamboo-core-9.6.16.jar:?]
+	at com.atlassian.bamboo.v2.trigger.InitialBuildDetectionAction.performDelayedChangeDetection(InitialBuildDetectionAction.java:76) ~[atlassian-bamboo-core-9.6.16.jar:?]
+	at com.atlassian.bamboo.chains.ChainExecutionManagerImpl$1.getChainState(ChainExecutionManagerImpl.java:281) ~[atlassian-bamboo-core-9.6.16.jar:?]
+	at com.atlassian.bamboo.chains.ChainExecutionManagerImpl.tryStartChainState(ChainExecutionManagerImpl.java:355) ~[atlassian-bamboo-core-9.6.16.jar:?]
+	at com.atlassian.bamboo.chains.ChainExecutionManagerImpl.delayedStart(ChainExecutionManagerImpl.java:273) ~[atlassian-bamboo-core-9.6.16.jar:?]
+	at jdk.internal.reflect.GeneratedMethodAccessor3074.invoke(Unknown Source) ~[?:?
+We have verified the /var/log/apt/history.log and /var/log/unattended-upgrades/unattended-upgrades-dpkg.log  to find the RCA and noticed that  below entries in unattended-upgrades-dpkg.log file
 
-Step 2 – Create NSS DB
 
-mkdir -p ~/.pki/nssdb
-certutil -N -d sql:~/.pki/nssdb --empty-password
-{warning:title=If you are asked for a password|icon=false}
-That means an old NSS DB already exists.
-Run the cleanup commands below, then retry the above:
-rm -rf ~/.pki/nssdb
-mkdir -p ~/.pki/nssdb
-certutil -N -d sql:~/.pki/nssdb --empty-password
-{warning}
-
-Step 3 – Import Calix Certificates
-certutil -d sql:~/.pki/nssdb -A -t "C,," -n "CalixRootCA" -i /usr/local/share/ca-certificates/CalixROOTCA.crt
-certutil -d sql:~/.pki/nssdb -A -t "C,," -n "CalixInterCA" -i /usr/local/share/ca-certificates/CalixInterCA.crt
-certutil -d sql:~/.pki/nssdb -A -t "C,," -n "CalixEntCA" -i /usr/local/share/ca-certificates/CalixEntCA.crt
-(Optional – verify):
-certutil -d sql:~/.pki/nssdb -L
-Step 4 – Restart Chrome
-After importing, close and reopen Chrome.
-Try accessing the following internal services:
-https://pln-stash.calix.local  
-https://tabnine.calix.local  
-https://jenkins.calix.local
-You should now be able to connect without SSL certificate warnings.
-📝 Notes
-This fix applies only to Chrome.
-It affects browser-level trust — system tools like curl, git, and apt already trust the Calix certificates.
-The SSL warning doesn’t block functionality, but this ensures a cleaner user experience.
+Log started: 2025-11-24  06:35:08
+(Reading database ... 182764 files and directories currently installed.)
+Preparing to unpack .../openjdk-17-jdk_17.0.17+10-1~22.04_amd64.deb ...
+Unpacking openjdk-17-jdk:amd64 (17.0.17+10-1~22.04) over (17.0.16+8~us1-0ubuntu1~22.04.1) ...
+Preparing to unpack .../openjdk-17-jdk-headless_17.0.17+10-1~22.04_amd64.deb ...
+Unpacking openjdk-17-jdk-headless:amd64 (17.0.17+10-1~22.04) over (17.0.16+8~us1-0ubuntu1~22.04.1) ...
+Preparing to unpack .../openjdk-17-jre_17.0.17+10-1~22.04_amd64.deb ...
+Unpacking openjdk-17-jre:amd64 (17.0.17+10-1~22.04) over (17.0.16+8~us1-0ubuntu1~22.04.1) ...
+Preparing to unpack .../openjdk-17-jre-headless_17.0.17+10-1~22.04_amd64.deb ...
+Unpacking openjdk-17-jre-headless:amd64 (17.0.17+10-1~22.04) over (17.0.16+8~us1-0ubuntu1~22.04.1) ...
+Setting up openjdk-17-jre-headless:amd64 (17.0.17+10-1~22.04) ...
+Installing new version of config file /etc/java-17-openjdk/security/default.policy ...
+Installing new version of config file /etc/java-17-openjdk/security/java.security ...
+Setting up sgml-base (1.30) ...
+/var/lib/dpkg/info/sgml-base.postinst: 64: update-catalog: not found
+dpkg: error processing package sgml-base (--configure):
+ installed sgml-base package post-installation script subprocess returned error exit status 127
+dpkg: dependency problems prevent configuration of sgml-data:
+ sgml-data depends on sgml-base (>= 1.28); however:
+  Package sgml-base is not configured yet.
