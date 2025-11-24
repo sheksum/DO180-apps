@@ -41,3 +41,7 @@ dpkg: error processing package sgml-base (--configure):
 dpkg: dependency problems prevent configuration of sgml-data:
  sgml-data depends on sgml-base (>= 1.28); however:
   Package sgml-base is not configured yet.
+
+
+Previously similar issue happend  we have raised a re quest to disable the  we have disabled the OS level patch upgrades.Please refer the ticket for more information.https://calix.atlassian.net/browse/EOSM-32068 
+Could you please let us know if there is any planned activity or change request for the patch level upgrades.
