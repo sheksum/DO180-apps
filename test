@@ -45,3 +45,62 @@ dpkg: dependency problems prevent configuration of sgml-data:
 
 Previously similar issue happend  we have raised a re quest to disable the  we have disabled the OS level patch upgrades.Please refer the ticket for more information.https://calix.atlassian.net/browse/EOSM-32068 
 Could you please let us know if there is any planned activity or change request for the patch level upgrades.
+
+
+
+
+
+✅ Root Cause Analysis (RCA)
+
+Host: pln-hoffman (Ubuntu 22.04 / Jammy)
+Date: 2025-11-24
+
+Summary
+
+Early this morning the system pulled in OS updates, even though unattended-upgrades was disabled. The apt timers were still active (apt-daily.timer and apt-daily-upgrade.timer), so the system ran its usual 06:30 update cycle.
+
+One of the packages (sgml-base) failed to install cleanly during this run, which left dpkg in a half-configured state. Because of that, AppArmor ended up loading incomplete/old profiles, and those profiles started blocking /usr/bin/git and Python subprocesses. Bamboo relies on git to talk to Bitbucket/Stash, which explains why all Git operations suddenly started failing.
+
+Detailed Findings
+
+sgml-base and sgml-data were unpacked but failed during their post-install scripts because two helper binaries (update-catalog and update-xmlcatalog) were missing.
+
+This caused dpkg to stop in the middle of configuring packages.
+
+AppArmor then loaded an outdated profile set left behind by the failed install.
+
+As soon as Bamboo tried to run pipelines, AppArmor denied the git subprocess calls (DENIED change_onexec, label not found).
+
+The root cause was the unattended apt timers still running, pulling in updates despite the service itself being disabled.
+
+Fix Applied
+
+Restored the missing helper binaries needed by sgml-base / xml-core:
+
+/usr/sbin/update-catalog
+
+update-xmlcatalog no longer required on Jammy; package configured successfully without it.
+
+Forced dpkg to re-run configuration to clean up the broken install.
+
+Verified dpkg state is clean (dpkg --audit shows nothing).
+
+Disabled all apt-related timers to avoid this happening again:
+
+apt-daily.timer
+
+apt-daily-upgrade.timer
+
+Confirmed AppArmor profiles are no longer blocking git.
+
+Current State
+
+dpkg is clean
+
+sgml-base and sgml-data are installed and configured
+
+apt auto-update timers are off
+
+AppArmor no longer blocks /usr/bin/git
+
+System is stable
