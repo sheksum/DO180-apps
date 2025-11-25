@@ -1,38 +1,230 @@
-From what I’ve seen so far, most candidates are lacking in hands-on troubleshooting and foundational system knowledge. Many can talk about tools like Docker, Ansible, or Kubernetes, but struggle to explain how they’ve actually used them in practice.
+✅ SYSTEM ADMINISTRATION – Deep-Insight Questions
 
-A lot of the responses also feel AI-assisted — and it becomes obvious when they can’t handle follow-up questions or go deeper into their own examples. Once you ask them how they configured something or why they chose a certain approach, that’s where most stumble.
+1. “Walk me through how you would troubleshoot high I/O wait on a Linux server.”
 
-To help with screening, here’s a simple framework you can use to gauge technical depth early on, even if you’re not technical yourself. The idea is to ask open-ended, practical questions that reveal whether they truly understand what they’re describing.
+You’re looking for:
+	•	iostat, pidstat -d, iotop, dstat
+	•	Checking disk schedulers
+	•	Checking mounts (NFS stalls?)
+	•	Checking virtualization layer
 
-1. Start With Foundational Questions
+Weak candidates talk CPU or memory. Strong ones go straight to disk latency and the right tools.
 
-Ask scenario-based questions to see how they think through real-world issues.
-Examples:
+⸻
 
-“How would you troubleshoot a performance issue on a Linux system?”
+2. “If SSH is slow to log in, what do you check first?”
 
-“How do you patch systems? Let’s say a system fails to come back up after patching — what could be the issue and how would you fix it?”
+Expected:
+	•	DNS resolution (UseDNS in sshd_config)
+	•	GSSAPI settings
+	•	PAM modules
+	•	Reverse lookup timeouts
+	•	Network latency
 
-You’re not judging correctness — just listen for logical flow and confidence. Strong candidates will explain their reasoning clearly and naturally reference commands, tools, or logs.
+⸻
 
-2. Drill Into Their Resume
+3. “How do you safely rotate logs on a busy system without causing app downtime?”
 
-If they list specific tools, use follow-ups to test real understanding:
+Looking for:
+	•	logrotate with copytruncate vs create
+	•	Knowing that some apps respond badly to in-place moves
+	•	Systemd’s journalctl --vacuum-* for journal logs
+	•	Understanding inode retention when deleting large files
 
-If they mention Docker or Kubernetes:
+⸻
 
-“Can you tell me the difference between Docker and Kubernetes?”
-“Can you describe a project where you deployed or managed containers?”
+4. “Explain how you’d isolate a process consuming too many file descriptors.”
 
-If they mention Ansible:
+Expected:
+	•	lsof | wc -l
+	•	/proc/<pid>/fd
+	•	Checking ulimit and systemd unit LimitNOFILE=
+	•	Understanding kernel panic risk for FD exhaustion
 
-“What types of automation did you build with it?”
+⸻
 
-Those who’ve truly worked with these tools will explain the process step-by-step. Those who haven’t tend to stay vague or inconsistent.
+5. “Tell me everything that happens when a Linux VM boots, from BIOS to login prompt.”
 
-3. Recommend a 30-Minute Video Call
+Strong candidates mention:
+	•	BIOS/UEFI → bootloader → kernel → initramfs → systemd → targets/services.
 
-I’d recommend setting up a short 30-minute video call with each candidate instead of relying on chat or phone screens.
-Seeing how they communicate and explain themselves in real time is one of the fastest ways to identify who’s genuinely confident versus who’s reading from notes or using AI help.
+Weak candidates can’t.
 
-From experience, this approach has consistently helped us identify the right candidates early and save time for the technical team.
+⸻
+
+⸻
+
+✅ KUBERNETES – Real-World Ops Questions
+
+1. “A pod is CrashLoopBackOff. What’s the exact systematic workflow to troubleshoot it?”
+
+Expected:
+	•	kubectl describe
+	•	kubectl logs
+	•	Check container exit code
+	•	Check readiness/liveness probes
+	•	Missing configmaps/secrets
+	•	Image pull issues
+	•	Look at events
+
+Weak candidates jump straight to “check logs”.
+
+⸻
+
+2. “Explain the difference between readiness, liveness, and startup probes — when to use each.”
+
+Good answer:
+	•	Readiness → traffic control
+	•	Liveness → restart unhealthy app
+	•	Startup → slow-boot apps (JVM, DBs)
+
+⸻
+
+3. “Node NotReady — what are the top things you check?”
+
+Expected:
+	•	kubelet status
+	•	Disk pressure / memory pressure
+	•	cni0 or container runtime failures
+	•	Network plugin logs (Calico/Cilium/Flannel)
+	•	Certificates expiry
+	•	Clock drift (NTP)
+
+⸻
+
+4. “How does Kubernetes networking work without NAT between pods?”
+
+They should explain:
+	•	Flat pod network
+	•	CNI plugins
+	•	IPAM responsibility
+	•	Routing tables on worker nodes
+	•	Why kube-proxy doesn’t touch pod-to-pod routing
+
+⸻
+
+5. “Your deployment rolled out a bad version. How do you revert cleanly?”
+
+Expected:
+	•	kubectl rollout undo
+	•	Check ReplicaSets
+	•	Use kubectl rollout status
+	•	Validate readiness
+	•	Why kubectl apply -f old.yaml is NOT ideal
+
+⸻
+
+6. “Explain how Kubernetes stores data. Why can etcd cause an outage with high memory pressure?”
+
+Expect understanding of:
+	•	etcd as raft-based KV
+	•	QPS limits
+	•	Fragmentation
+	•	Defragmentation
+	•	Encryption at rest
+
+⸻
+
+⸻
+
+✅ NETWORKING – Real Troubleshooting Questions
+
+1. “How do you debug a DNS issue inside a Kubernetes cluster?”
+
+Expected:
+	•	kubectl exec into a busybox container
+	•	nslookup, dig, cat /etc/resolv.conf
+	•	Check CoreDNS logs
+	•	Check node DNS upstream config
+	•	CNI MTU mismatches affecting DNS packets
+
+⸻
+
+2. “MTU mismatch — how do you detect it and what breaks?”
+
+A strong candidate will mention:
+	•	Symptoms (TCP retransmissions, slow traffic, hanging connections)
+	•	Tools: ping -M do -s
+	•	Path MTU discovery
+	•	Calico / Cilium MTU settings
+
+If they can’t explain MTU issues = weak.
+
+⸻
+
+3. “How do you trace packet flow from a pod to the outside world?”
+
+Excellent answers involve:
+	•	iptables -t nat -L
+	•	kube-proxy rules
+	•	CNI routing tables
+	•	Using tcpdump on cni0 / host veth pair
+	•	Kernel conntrack table
+
+⸻
+
+4. “What happens in an ARP broadcast? What tables get updated?”
+
+Expect:
+	•	ARP request/response
+	•	MAC learning on switches
+	•	ARP cache on hosts
+	•	Why stale ARP causes outages
+
+⸻
+
+5. “Explain Layer 4 vs Layer 7 load balancing in the context of Kubernetes ingress.”
+
+Should know:
+	•	NodePort / ClusterIP = L4
+	•	Ingress controller = L7
+	•	NGINX vs HAProxy vs Envoy
+	•	External LB integration
+
+⸻
+
+⸻
+
+✅ ADVANCED SCENARIOS (For Senior-Level Filtering)
+
+1. “You deploy a service, pods are running, but traffic never reaches them. Walk me through everything you’d check.”
+
+Expected:
+	•	Service selector mismatch
+	•	IP tables rules
+	•	Endpoints object empty
+	•	CNI plugin logs
+	•	Node firewall (UFW/iptables/nftables)
+	•	Overlay network issues
+	•	MTU mismatch
+	•	Sidecar injection failure (Istio)
+
+⸻
+
+2. “Two pods can’t talk across namespaces; what do you check?”
+
+Should mention:
+	•	NetworkPolicy rules (most common)
+	•	CNI plugin behavior
+	•	Namespace-wide deny policies
+	•	Wrong DNS name resolution
+
+⸻
+
+3. “Explain how Kubelet interacts with Container Runtime (CRI).”
+
+Strong candidate:
+	•	Kubelet → CRI shim → containerd / CRI-O
+	•	Pod sandbox creation
+	•	Network namespace creation
+	•	Volume mount lifecycle
+
+⸻
+
+⸻
+
+✅ If you want to REALLY test them
+
+Ask:
+“Explain Kubernetes to me like I’m a senior network engineer but new to containers.”
+A strong engineer will break it down intelligently without buzzwords.
