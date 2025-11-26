@@ -26,3 +26,16 @@ Over the year, I focused on improving the day-to-day experience for our internal
 I also fine-tuned a number of alerts across the platform to remove noise and highlight the conditions that actually matter operationally. This improved our signal-to-noise ratio and made day-to-day work more productive.
 
 Outside of documentation and alerting, I supported several activities such as application onboarding and general platform support. Much of this work helped smooth out common friction points and made it easier for teams to adopt and operate on the VKS platform.
+
+
+section 4 
+
+Throughout this review period, I stayed on top of the administrative and operational responsibilities expected under this goal. I completed all required trainings on time, including mandatory security modules and technical courses. I also consistently addressed vulnerability tickets within our SLO and made sure any follow-up work was handled quickly.
+
+I helped fine-tune and clean up several alerts to remove noise and keep the focus on items that actually require action. I also worked with the MALT team to update the VKS Ops netcool filter, ensuring alerts routed correctly to the VKS Ops support group and weren’t missed. In addition, I worked with MALT to provide the necessary netcool access for new team members who joined our group.
+
+I continued participating in monthly patching and incident resolution, making sure changes were documented properly in ServiceNow and tracked in Jira with the right level of detail. I also made sure any required documentation tied to these tasks was completed and submitted on time.
+
+Alongside the operational work, I also mentored team members when they needed help understanding platform behavior, troubleshooting issues, or navigating processes. This included answering questions, walking through problems, and sharing context to help them get up to speed faster.
+
+Overall, I maintained steady consistency in the day-to-day tasks that keep our platform running smoothly, while making small improvements where possible to reduce friction and keep things organized.
