@@ -17,3 +17,12 @@ To name but a few automation efforts this cycle, I automated the checks for BGP 
 As part of the VKS work, I helped decommission legacy VKS storage hardware (ASH3), created new Designate zones for the VKS8 management and workload clusters and worked with the MALT team to update the upstream records. I also created DNS records for the QA2 MGMT ingress and generated the OOB DNS records required for the QA2 buildout. In addition to this, I rebuilt the KVA3 region to VKS8. Separately, I also worked with Matt to stand up the VSCC-ILG cluster and get it fully operational.
 
 Alongside the technical work, I ensured every change and maintenance activity was fully documented in Jira/ServiceNow with clear details and validation notes, which helps support internal audits and maintain our compliance standards.
+
+
+section 3 
+
+Over the year, I focused on improving the day-to-day experience for our internal customers. A big part of this was updating and expanding our support documentation so the steps for onboarding, namespace creation, IP allocations, Day-2 operations, and general troubleshooting are clearer and easier to follow. This reduced confusion, cut down on back-and-forth, and helped make our processes more consistent.
+
+I also fine-tuned a number of alerts across the platform to remove noise and highlight the conditions that actually matter operationally. This improved our signal-to-noise ratio and made day-to-day work more productive.
+
+Outside of documentation and alerting, I supported several activities such as application onboarding and general platform support. Much of this work helped smooth out common friction points and made it easier for teams to adopt and operate on the VKS platform.
