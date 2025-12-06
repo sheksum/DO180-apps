@@ -103,3 +103,94 @@ Auth:     Vault Token (policy: es-read)
                   ESO Reconciliation Loop
                 (Every refreshInterval: 15 seconds)
 
+
+
+SECTION 2 — POC SCOPE AND OBJECTIVES
+2.1 POC Scope
+
+This POC demonstrates the full lifecycle and integration of an on-prem HashiCorp Vault server with the Calix Kubernetes platform using External Secrets Operator (ESO). The POC validates that secrets stored in Vault can be securely synced into the Kubernetes cluster as native K8s secrets without exposing credentials.
+
+In-Scope
+
+Deployment of Vault on RHEL 9
+
+TLS enablement using a self-signed certificate (temporary)
+
+KV v2 secret engine configuration
+
+Vault policy & token creation for ESO
+
+ESO installation in Kubernetes (RKE2)
+
+ClusterSecretStore creation
+
+ExternalSecret synchronization
+
+Verification of secret reconciliation behavior
+
+Out-of-Scope
+
+Vault clustering / HA
+
+Vault auto-unseal using HSM/KMS
+
+Production PKI onboarding
+
+Application-level RBAC design
+
+Multi-environment Vault structure
+
+2.2 POC Objectives
+Functional Objectives
+
+Deploy Vault with TLS enabled
+
+Enable KV v2 secrets engine
+
+Store and retrieve secrets
+
+Create scoped Vault policy
+
+Issue token for ESO authentication
+
+Install ESO and CRDs
+
+Validate secure traffic between cluster and Vault
+
+Synchronize Vault secrets into Kubernetes
+
+Success Criteria
+
+Vault reachable over HTTPS 8200
+
+KV v2 engine working
+
+Vault policy enforced correctly
+
+ESO components running
+
+ClusterSecretStore status = Valid + Ready
+
+Kubernetes secret created from Vault
+
+Auto-recreation of secret upon deletion
+
+SECTION 3 — HOST DETAILS AND RESOURCE ALLOCATION
+3.1 Vault Host Information
+Attribute	Value
+Hostname	plnx-vault.calix.local
+IP Address	10.172.249.106
+OS	RHEL 9.x (Minimal Install)
+SELinux	Enforcing
+Firewall	firewalld
+Vault Edition	Open Source (binary install)
+Storage Backend	File storage: /opt/vault/data
+TLS Directory	/opt/vault/tls/
+Config Directory	/etc/vault.d/
+Binary	/usr/local/bin/vault
+3.2 Resource Allocation (POC)
+Resource	Allocation
+vCPU	2
+Memory	4 GB
+Disk	50 GB
+Network	1 Gbps
