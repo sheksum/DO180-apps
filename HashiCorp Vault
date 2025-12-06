@@ -221,3 +221,334 @@ SECTION 3 — HOST DETAILS AND RESOURCE ALLOCATION
 | **Memory**  | 4 GB       |
 | **Disk**    | **50 GB**  |
 | **Network** | 1 Gbps     |
+
+
+
+3.3 Required Directories
+/opt/vault/data
+/opt/vault/tls
+/etc/vault.d
+/usr/local/bin/vault
+
+
+Permissions:
+chmod 600 /opt/vault/tls/privkey.pem
+chmod 700 /opt/vault/data
+
+
+SECTION 4 — TLS CERTIFICATE GENERATION
+
+A temporary self-signed certificate was generated for POC validation.
+In production, the certificate will be issued by the Calix Root CA.
+
+4.1 Create TLS Directory
+mkdir -p /opt/vault/tls
+chmod 700 /opt/vault/tls
+
+
+4.2 Create SAN Configuration File
+
+/opt/vault/tls/san.cnf:
+
+[ req ]
+default_bits        = 4096
+prompt              = no
+default_md          = sha256
+req_extensions      = req_ext
+distinguished_name  = dn
+
+[ dn ]
+C   = US
+ST  = <State>
+L   = <City>
+O   = Calix
+OU  = Platform
+CN  = plnx-vault.calix.local
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = plnx-vault.calix.local
+IP.1  = 10.172.249.106
+
+
+4.3 Generate Private Key
+
+openssl genrsa -out /opt/vault/tls/privkey.pem 4096
+chmod 600 /opt/vault/tls/privkey.pem
+
+4.4 Generate CSR
+
+openssl req -new \
+  -key /opt/vault/tls/privkey.pem \
+  -out /opt/vault/tls/vault.csr \
+  -config /opt/vault/tls/san.cnf
+
+4.5 Generate Self-Signed Certificate
+
+openssl x509 -req \
+  -in /opt/vault/tls/vault.csr \
+  -signkey /opt/vault/tls/privkey.pem \
+  -out /opt/vault/tls/fullchain.pem \
+  -days 365 \
+  -extensions req_ext \
+  -extfile /opt/vault/tls/san.cnf
+
+
+4.6 Extract CA Certificate (Used by ESO)
+
+cp /opt/vault/tls/fullchain.pem /opt/vault/tls/ca.crt
+cat /opt/vault/tls/ca.crt | base64 -w0
+
+
+SECTION 5 — VAULT INSTALLATION
+
+5.1 Add HashiCorp Repository
+
+dnf install -y dnf-plugins-core
+dnf config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+
+5.2 Download & Install Vault Binary
+
+curl -LO https://releases.hashicorp.com/vault/<version>/vault_<version>_linux_amd64.zip
+unzip vault_<version>_linux_amd64.zip
+chmod +x vault
+mv vault /usr/local/bin/
+
+
+5.3 Create Vault User and Directories
+
+useradd --system --home /opt/vault --shell /bin/false vault
+mkdir -p /opt/vault/data
+mkdir -p /opt/vault/tls
+chmod 750 /opt/vault
+
+
+SECTION 6 — VAULT CONFIGURATION
+
+6.1 vault.hcl
+
+/etc/vault.d/vault.hcl:
+
+listener "tcp" {
+  address         = "0.0.0.0:8200"
+  tls_cert_file   = "/opt/vault/tls/fullchain.pem"
+  tls_key_file    = "/opt/vault/tls/privkey.pem"
+  tls_min_version = "tls12"
+}
+
+api_addr     = "https://plnx-vault.calix.local:8200"
+cluster_addr = "https://plnx-vault.calix.local:8201"
+
+storage "file" {
+  path = "/opt/vault/data"
+}
+
+disable_mlock = true
+
+6.2 systemd Unit File
+
+/etc/systemd/system/vault.service:
+
+[Unit]
+Description=HashiCorp Vault
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=vault
+Group=vault
+ExecStart=/usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
+ExecReload=/bin/kill --signal HUP $MAINPID
+KillMode=process
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+Reload and start:
+
+systemctl daemon-reload
+systemctl enable --now vault
+systemctl status vault
+
+SECTION 7 — FIREWALL CONFIGURATION
+
+firewall-cmd --add-port=8200/tcp --permanent
+firewall-cmd --reload
+nc -zv 10.172.249.106 8200
+
+
+SECTION 8 — VAULT INITIALIZATION
+vault operator init
+vault operator unseal
+vault login <root-token>
+
+SECTION 9 — ENABLE KV v2 SECRET ENGINE
+
+vault secrets enable -path=secret kv-v2
+vault kv put secret/app1/config username=demo-user password=S3cr3tP4ss
+vault kv get secret/app1/config
+
+
+SECTION 10 — POLICY AND TOKEN FOR ESO
+10.1 Policy File
+
+es-read.hcl:
+
+path "secret/data/app1/*" {
+  capabilities = ["read"]
+}
+
+Apply policy:
+
+vault policy write es-read es-read.hcl
+
+
+10.2 Token Creation
+
+vault token create -policy=es-read
+
+
+SECTION 11 — KUBERNETES CONFIGURATION
+
+11.1 Namespace
+kubectl create namespace vault-poc
+
+11.2 Vault Token Secret
+
+kubectl create secret generic vault-token \
+  -n vault-poc \
+  --from-literal=token='<TOKEN_VALUE>'
+
+
+SECTION 12 — INSTALL EXTERNAL SECRETS OPERATOR
+
+helm repo add external-secrets https://charts.external-secrets.io
+helm repo update
+helm install external-secrets external-secrets/external-secrets \
+  -n vault-poc \
+  --create-namespace \
+  --set installCRDs=true
+
+
+SECTION 13 — CLUSTERSECRETSTORE
+
+clustersecretstore.yaml:
+
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: vault-backend
+spec:
+  provider:
+    vault:
+      server: "https://plnx-vault.calix.local:8200"
+      path: "secret"
+      version: "v2"
+      auth:
+        tokenSecretRef:
+          name: vault-token
+          namespace: vault-poc
+          key: token
+      caBundle: |
+        <BASE64-ENCODED-CA>
+
+
+Apply:
+
+kubectl apply -f clustersecretstore.yaml
+kubectl get clustersecretstore vault-backend
+
+
+Expected:
+
+STATUS: Valid
+READY: True
+
+
+SECTION 14 — EXTERNALSECRET
+
+external-secret.yaml:
+
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: vault-example
+  namespace: vault-poc
+spec:
+  refreshInterval: 15s
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: my-synced-secret
+    creationPolicy: Owner
+  data:
+    - secretKey: username
+      remoteRef:
+        key: app1/config
+        property: username
+    - secretKey: password
+      remoteRef:
+        key: app1/config
+        property: password
+
+
+Apply:
+
+kubectl apply -f external-secret.yaml
+
+
+SECTION 15 — VALIDATION
+15.1 ExternalSecret Status
+
+kubectl get externalsecret -n vault-poc
+
+Expected:
+
+READY: True
+STATUS: SecretSynced
+
+
+15.2 Verify Kubernetes Secret
+
+
+kubectl get secret my-synced-secret -n vault-poc -o yaml
+
+15.3 Reconciliation Test
+
+kubectl delete secret my-synced-secret -n vault-poc
+kubectl get secret my-synced-secret -n vault-poc
+
+
+Secret auto-recreates due to:
+
+creationPolicy: Owner
+refreshInterval: 15s
+
+
+
+SECTION 16 — FINAL OUTCOME
+
+The POC successfully validated:
+
+Secure TLS-enabled Vault deployment
+
+KV v2 secret engine operational
+
+Vault policy + token authentication
+
+ESO installation in Kubernetes
+
+Valid ClusterSecretStore with CA trust
+
+Successful Vault → ESO → Kubernetes secret sync
+
+Automatic reconciliation behavior
+
+This confirms readiness for advancing to production architecture planning (HA Vault cluster, auto-unseal, PKI integration, namespace-based RBAC, and application onboarding).
+
+
