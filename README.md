@@ -27,3 +27,24 @@ subjects:
   name: vault-auth-sa
   namespace: vault-poc
 EOF
+
+
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: vault-backend
+spec:
+  provider:
+    vault:
+      server: "https://plnx-vault.calix.local:8200"
+      path: "secret/data"      # KV V2 path
+      version: "v2"
+      auth:
+        tokenSecretRef:
+          name: vault-token
+          namespace: vault-poc
+          key: token
+      caBundle: |
+        -----BEGIN CERTIFICATE-----
+        <paste your Vault self-signed certificate here>
+        -----END CERTIFICATE-----
