@@ -194,3 +194,30 @@ vCPU	2
 Memory	4 GB
 Disk	50 GB
 Network	1 Gbps
+
+
+SECTION 3 — HOST DETAILS AND RESOURCE ALLOCATION
+
+
+| Attribute            | Value                           |
+| -------------------- | ------------------------------- |
+| **Hostname**         | `plnx-vault.calix.local`        |
+| **IP Address**       | `10.172.249.106`                |
+| **OS**               | RHEL 9.x (Minimal Install)      |
+| **SELinux**          | Enforcing                       |
+| **Firewall**         | firewalld                       |
+| **Vault Edition**    | Open Source (binary install)    |
+| **Storage Backend**  | File storage: `/opt/vault/data` |
+| **TLS Directory**    | `/opt/vault/tls/`               |
+| **Config Directory** | `/etc/vault.d/`                 |
+| **Binary**           | `/usr/local/bin/vault`          |
+
+
+3.2 Resource Allocation (POC)
+
+| Resource    | Allocation |
+| ----------- | ---------- |
+| **vCPU**    | 2          |
+| **Memory**  | 4 GB       |
+| **Disk**    | **50 GB**  |
+| **Network** | 1 Gbps     |
