@@ -1,46 +1,18 @@
-During this period, one of the areas I worked on was keeping our DNS and registry-related services stable and current. I continued managing the SSL certificate renewals across all Rancher clusters, renewed the Rancher API key to avoid integration issues, and completed the wildcard certificate updates across all regions.
-
-I also updated the IPA CA signing certificates in production and supported the Kyverno onboarding to help tighten policy enforcement. In addition to that, I spent time refining parts of our permission model to improve how QoS boundaries are applied.
-
-These were just a few of the technical areas I handled during the cycle, but overall the goal was to keep things running smoothly, reduce risk, and strengthen some of the gaps we identified along the way.
-
-Section2
-
-Throughout this cycle, I continued supporting several critical infrastructure services across our environments. This included customer engagement, namespace deployments, IP pool updates, and application onboarding — while also improving support documentation to enhance usability and overall platform experience.
-
-In addition to the ongoing work, I contributed to multiple key infrastructure initiatives, including shutting down VKS OSTCK undercloud components across all QA and PROD regions, updating resolv.conf for all VKS and Kubernetes nodes to match the new DC-specific addressing, updating messaging keytabs across OpenStack regions, and modifying DNS records, Calico NetworkSets, and Rancher configurations following the IPA server decommissioning in SPE. I also completed the VKS PROD hypervisor conversion to workload cluster workers and supported several DNS and system-level updates across our VKS platform.
-
-I handled several cluster-level improvements across our production regions, including enabling the Typha load balancer endpoint for non-cluster nodes, deploying CNPG 1.27.0 to address issues where the operator was not reliably promoting the designated primary DB instance to a replica during node drains for patching, causing failovers to get stuck, updating Ironic in management for the new NTP source, and performing upgrades across the core infrastructure stack — including Calico, Rancher, Envoy, and the various CAPI components — to keep the clusters current and stable. I corrected Ceph host counts to match the actual number of static workers, refined alerts where needed, and addressed several configuration mismatches observed across clusters.
-
-To name but a few automation efforts this cycle, I automated the checks for BGP peering status across all nodes, removing repetitive manual work and giving us a faster way to confirm cluster health after upgrades or networking changes. I also built a script to identify lingering IP pools that were no longer in use — whether they were left behind after a namespace was deleted or when customers moved to larger IP blocks and the original allocation wasn’t cleaned up. This helped us remove unused ranges and keep capacity planning accurate.
-
-As part of the VKS work, I helped decommission legacy VKS storage hardware (ASH3), created new Designate zones for the VKS8 management and workload clusters and worked with the MALT team to update the upstream records. I also created DNS records for the QA2 MGMT ingress and generated the OOB DNS records required for the QA2 buildout. In addition to this, I rebuilt the KVA3 region to VKS8. Separately, I also worked with Matt to stand up the VSCC-ILG cluster and get it fully operational.
-
-Alongside the technical work, I ensured every change and maintenance activity was fully documented in Jira/ServiceNow with clear details and validation notes, which helps support internal audits and maintain our compliance standards.
-
-
-section 3 
-
-Over the year, I focused on improving the day-to-day experience for our internal customers. A big part of this was updating and expanding our support documentation so the steps for onboarding, namespace creation, IP allocations, Day-2 operations, and general troubleshooting are clearer and easier to follow. This reduced confusion, cut down on back-and-forth, and helped make our processes more consistent.
-
-I also fine-tuned a number of alerts across the platform to remove noise and highlight the conditions that actually matter operationally. This improved our signal-to-noise ratio and made day-to-day work more productive.
-
-Outside of documentation and alerting, I supported several activities such as application onboarding and general platform support. Much of this work helped smooth out common friction points and made it easier for teams to adopt and operate on the VKS platform.
-
-
-section 4 
-
-Throughout this review period, I stayed on top of the administrative and operational responsibilities expected under this goal. I completed all required trainings on time, including mandatory security modules and technical courses. I also consistently addressed vulnerability tickets within our SLO and made sure any follow-up work was handled quickly.
-
-I helped fine-tune and clean up several alerts to remove noise and keep the focus on items that actually require action. I also worked with the MALT team to update the VKS Ops netcool filter, ensuring alerts routed correctly to the VKS Ops support group and weren’t missed. In addition, I worked with MALT to provide the necessary netcool access for new team members who joined our group.
-
-I continued participating in monthly patching and incident resolution, making sure changes were documented properly in ServiceNow and tracked in Jira with the right level of detail. I also made sure any required documentation tied to these tasks was completed and submitted on time.
-
-Alongside the operational work, I also mentored team members when they needed help understanding platform behavior, troubleshooting issues, or navigating processes. This included answering questions, walking through problems, and sharing context to help them get up to speed faster.
-
-Overall, I maintained steady consistency in the day-to-day tasks that keep our platform running smoothly, while making small improvements where possible to reduce friction and keep things organized.
-
-
-
-
-This year I delivered consistently across my objectives, completed the work required under each goal, and contributed to several initiatives that improved the stability and usability of the VKS platform. I also strengthened documentation, supported platform operations, and helped streamline day-to-day processes across our team. I’m satisfied with my performance this cycle and look forward to continuing this work and seeing what 2026 holds.
+hsuma@pln-aidev02:~/external-secret-operator$ cat clustersecretstore.yaml 
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: vault-backend
+spec:
+  provider:
+    vault:
+      server: "https://plnx-vault.calix.local:8200"
+      path: "secret/data"      # KV V2 path
+      version: "v2"
+      auth:
+        tokenSecretRef:
+          name: vault-token
+          namespace: vault-poc
+          key: token
+      caBundle: |
+        LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZGRENDQXZ5Z0F3SUJBZ0lVVFdVYktqa3BYdE1QS0VKNkxnRHkrMGlxN3FVd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0lURWZNQjBHQTFVRUF3d1djR3h1ZUMxMllYVnNkQzVqWVd4cGVDNXNiMk5oYkRBZUZ3MHlOVEV5TURZeApPVEE0TVRGYUZ3MHlOakV5TURZeE9UQTRNVEZhTUNFeEh6QWRCZ05WQkFNTUZuQnNibmd0ZG1GMWJIUXVZMkZzCmFYZ3ViRzlqWVd3d2dnSWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUNEd0F3Z2dJS0FvSUNBUURNNU10SzI2aE4Ka3pQcTJxbXRRK24zSGVJZ1dCbHRlUm1XKzEvbEdsQnNzUDhCN3JjYzk0SDF3SHZBNytrYXlXdEVYODR5RWNLdApJeVBGS1QzSzVxbCtCNHlQOEhoSXBYL0tidjFTMC93blpNMDRyd05EZ1VlL3lHWnVDbEJDdEw5U2E5UGZxaHR1ClF1SXRsUEdLTHpkQnB5Y042dXo4VEE1WWViSm5ENTRFeklxYXJDaDY0Yy9FWVJUZzR3NWlDK3NSRnpVc1k0bFcKdWFvZmJheW9OOUF2Nm5rUWJHLytJZEtuVVR1VVc2c01tMUFTSGxObGhlWDJMOHRlYm5jNm0wUVcxd1o5cHhuVwpRT2l3YTgweHhiWHZHVSs4U0JtQlpwTkR6ZURHeVgxdE8ySnlZcUNpWWdrZmpxdU8rdzd0bWQyOE05NFQ3ZjlRCitxbmlmaW9TNWVRR1l1MDIvT0o2cFZyWEluRjhHT21WeFp1SHRQZGlnKzBLOTNyeUxkU0xLTmNuQmVJcEtmaWkKemJERVEwRU8xN0ZmOExrb2I1YUUzTHNlaW5YTFlIbVZCT1BtZm9UNnpMa2J6aTBWMnJUcEhWRUVuQzErd09jRApVdzlrNEZ2S1hoQUFpUGE5SFVsak1WdnM2bEI0UVlaZlVzbFRnUTVRT3lXQjNsZ25PbDdMcWdBTytKMDduYnZnCm9iYnhtTHcyaktTbGxEU0JCdE91c3Y5NEFCRExoTktQNWlmYkJTZ3d3eWw1Zk5LWDZ4V1JmbWxsZFF5TFBMQm0KVmI1THh0ejh4VXhUWU5QbEdTZW5EVFZadlR6akQ0T0xad2xJRllzSG9qSE42M1hERlNKQU53eWw5ejZibEl6bAowbC9KTnJTT1hvaWJPM0dDWXZmSkpoTlB5UWV1clRZcC9RSURBUUFCbzBRd1FqQWhCZ05WSFJFRUdqQVlnaFp3CmJHNTRMWFpoZFd4MExtTmhiR2w0TG14dlkyRnNNQjBHQTFVZERnUVdCQlJ5d3VnOVA5SjBjU2hsaGlUckxWbzAKbm95N2FEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FnRUFKaE1IckZnT1N5aGxoTUxyNWF5WURKb0laRU5rcjdyUQpoOHgrQmJ0U1VMQzlXcEFXMXc3TEprU0dHQTZTdko0ZVFIL3FuT3ZqLytpencwSWVEVis2K0JxYUFwb1IzQlYwCjAzOTQwVjViWDZMQ0s3OXpCMUpqM1RXamNpZktQOHR2NWFFOEZENmV1MlhFcm5KcHJjSFFBdWNwbmtXSXVmajUKNzYvK1FIdUVUWTc5WVRSNi9SbDBDSFJubTI4bU9vN1VBY2F4TnBvbVFxYkNYaXZwWksybnVHMmdxWU9UY01KRAp4R0p5a0ZMMzBTUEp4cWJrVUJXcVEzK28zYzVnekNITVRUTmtkdGZhcVdiZHRMV1VHaGR2dVpaM0xIWERoNm9QCktZNEphdjBNRXlEUlExSkM5OWxCSjdBRnd3NmZZWEdldVN4Q25zSzROcmVIVDkxUnpGOUtZSFAxejhlQUd2dW4KeE5QMk1zWlpybmdHc2VWNWN1WmpKallDckgyZllWK0VWOWpVcFhEUXI0ZVA3czVHZmNPN0NiSk5WZE02aDJsawpXN0Naald5YmZySC9HYmRTTjV2MWRPSW5RbjZ4cFBmdW0zLzFEeEIzSnJuRXFIOXE0WktRUVRtNDhBb2tYTjhsCk4rMWlUeGFZU094N2RZamZJWllPL0p4b3R3am1PZm0rS3RsWVlZdlBQRzRaaTJhb0dDMzFuOXhReGt5eHlPTUoKQ1RaTFptbzlGSU1JUyszKzB1QmlvakNUa25IMW5zNFJ2UWhWTkh1c3RrR2FlZUlQemx4SmI1K3pPNWdaa2dYbgpFWUpJUHZPUXBYSDdiVXh0dkJuS1lCQmJTMkhWaElCKzV5eW50WXNRb0R4Tk9wUlR4SVF1ektWUm5lUHBVWk1CCmJ1TkZoeUFiTEw4PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
