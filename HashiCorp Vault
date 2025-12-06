@@ -1,0 +1,105 @@
+SECTION 1 — ARCHITECTURE DIAGRAMS
+1.1 Primary Architecture Diagram
+
+
+                   +------------------------------------------+
+                   |            Calix Kubernetes Cluster       |
+                   |                  (RKE2)                   |
+                   |                                          |
+                   |   +-----------------------------+        |
+                   |   | External Secrets Operator   |        |
+                   |   |  - ESO Controller           |        |
+                   |   |  - Vault Provider Plugin    |        |
+                   |   +--------------+--------------+        |
+                   |                  |                       |
+                   |                  | HTTPS:8200            |
+                   +------------------|------------------------+
+                                      |
+                                      |
+                        +-------------v----------------+
+                        |   plnx-vault.calix.local     |
+                        |        Vault Server          |
+                        |   ------------------------   |
+                        |   - TLS Enabled (POC)        |
+                        |   - KV v2 Secret Engine      |
+                        |   - Scoped Policy (es-read)  |
+                        |   - Token for ESO            |
+                        |   - File Storage Backend     |
+                        +------------------------------+
+
+
+1.2 Workflow Diagram (End-to-End Secret Flow)
+
+                  +-----------------------------+
+                  |    HashiCorp Vault (POC)    |
+                  |      KV v2 Secret Engine    |
+                  +--------------+--------------+
+                                 |
+                                 | 1. vault kv get/put
+                                 |
+                                 v
+                      +----------------------+
+                      |  Vault Policy (es-read) 
+                      |  Token issued for ESO  
+                      +----------+-----------+
+                                 |
+                                 | 2. ESO reads token 
+                                 |    from K8s Secret
+                                 |
+                                 v
+     +--------------------------------------------------------+
+     |             External Secrets Operator (ESO)            |
+     |   - Watches ExternalSecret CRDs                        |
+     |   - Uses ClusterSecretStore to connect to Vault        |
+     |   - Fetches secrets from Vault over HTTPS (8200)       |
+     |   - Writes Kubernetes Secrets                          |
+     +--------------------------+-----------------------------+
+                                |
+                                | 3. Writes synced secret
+                                |    into Kubernetes
+                                |
+                                v
+                 +--------------------------------+
+                 |   Kubernetes Secret (owned by   |
+                 |       External Secrets)         |
+                 |  Name: my-synced-secret         |
+                 |                                  |
+                 |  - username                      |
+                 |  - password                      |
+                 +----------------+-----------------+
+                                  |
+                                  | 4. Used by application pods
+                                  |
+                                  v
+                        +------------------------+
+                        |   Application Pods     |
+                        +------------------------+
+
+
+1.3 Connectivity Diagram (TLS & Network Requirements)
+
+Kubernetes Nodes  ---------------------------------->  Vault Server
+   (All RKE2 Worker/Control Nodes)                   plnx-vault.calix.local
+                                                     IP: 10.172.249.106
+
+Protocol: HTTPS (TLS)
+Port:     8200/tcp
+CA Trust: Custom CA via caBundle
+Auth:     Vault Token (policy: es-read)
+
+
+1.4 Reconciliation Behavior Diagram
+               ExternalSecret (vault-example)
+                          |
+                          | creates/updates
+                          v
+            +-----------------------------------+
+            |   my-synced-secret (K8s Secret)   |
+            +-----------------------------------+
+                          ^
+                          |
+                          | Auto-Recreate if Deleted
+                          |
+                  ESO Reconciliation Loop
+                (Every refreshInterval: 15 seconds)
+
