@@ -1,50 +1,9 @@
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: vault-auth-sa
-  namespace: vault-poc
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: vault-tokenreviewer
-rules:
-- apiGroups: ["authentication.k8s.io"]
-  resources: ["tokenreviews"]
-  verbs: ["create"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: vault-tokenreviewer-binding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: vault-tokenreviewer
-subjects:
-- kind: ServiceAccount
-  name: vault-auth-sa
-  namespace: vault-poc
-EOF
-
-
-apiVersion: external-secrets.io/v1beta1
-kind: ClusterSecretStore
-metadata:
-  name: vault-backend
-spec:
-  provider:
-    vault:
-      server: "https://plnx-vault.calix.local:8200"
-      path: "secret/data"      # KV V2 path
-      version: "v2"
-      auth:
-        tokenSecretRef:
-          name: vault-token
-          namespace: vault-poc
-          key: token
-      caBundle: |
-        -----BEGIN CERTIFICATE-----
-        <paste your Vault self-signed certificate here>
-        -----END CERTIFICATE-----
+“I completed a full analysis of the SentinelOne agent issue on the affected server.
+Here’s what I found:
+	1.	The SentinelOne service is running normally — all subprocesses (orchestrator, scanner, firewall, logcollector, etc.) are active and healthy.
+	2.	The agent on this host was not installed via RPM; it was deployed using SentinelOne’s standalone installer, which means it does not appear in the RPM database.
+	3.	The host is under a strict SentinelOne policy with Tamper Protection enabled.
+This policy blocks all local maintenance operations – including stop, uninstall, and status — even when using the correct maintenance passphrase.
+	4.	All sentinelctl commands accept the passphrase but hang, because the agent daemon is refusing local control under its current policy group.
+	5.	The systemd unit file is normal — nothing there is preventing removal or reinstall.
+The block is entirely enforcement by SentinelOne’s tamper-protection logic, not Linux or systemd.
