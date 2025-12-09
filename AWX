@@ -1,3 +1,40 @@
 This task is to look into different open-source tools that can help us automate and manage both our RHEL and Oracle Linux systems using Ansible. The goal is to understand what AWX offers and compare it with a couple of other open-source options so we can decide which one fits our environment best.
 
 We’re mainly looking for a tool that gives us a clean UI, handles credentials properly, works with GitLab, and can centralize automation across both operating systems without relying on anything proprietary.
+
+
+Understand What We Need
+
+ Figure out what the automation needs are for RHEL
+
+ Do the same for Oracle Linux
+
+ Identify what we need in terms of UI, RBAC, API access
+
+ Confirm what GitLab integration should look like
+
+ Note any network or security requirements
+
+Look at the Tools
+
+ Review AWX and what it can do
+
+ Check Semaphore as a simpler alternative
+
+ Review Rundeck with its Ansible plugin
+
+ Compare features and limitations across the tools
+
+ Make sure each tool works well across both RHEL and Oracle Linux
+
+Make a Recommendation
+
+ Summarize what each tool does well (and not so well)
+
+ Consider how easy each one is to maintain long-term
+
+ Recommend the tool that makes the most sense
+
+ Outline what the architecture would look like
+
+ Identify what the next steps should be
