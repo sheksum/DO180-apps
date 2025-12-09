@@ -1,73 +1,82 @@
+#cloud-config
+package_update: true
+package_upgrade: all
+
+packages:
+  - docker.io
+  - curl
+  - wget
+  - git
+  - unzip
+  - jq
+  - net-tools
+  - python3
+  - python3-pip
+
+runcmd:
+  - echo ">>> Configuring Docker"
+  - systemctl enable docker
+  - systemctl start docker
+  - usermod -aG docker ubuntu || true
+  - usermod -aG docker opc || true
+
+  - echo ">>> Installing kubectl"
+  - curl -LO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+  - echo ">>> Installing Minikube"
+  - curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+  - install minikube-linux-amd64 /usr/local/bin/minikube
+
+  - echo ">>> Starting Minikube"
+  - su - ubuntu -c "minikube start --driver=docker" || su - opc -c "minikube start --driver=docker"
+
+  - echo ">>> Creating directories"
+  - mkdir -p /opt/exam/scripts
+  - mkdir -p /opt/exam/results
+
+  - echo ">>> Installing scoring tools"
+  - pip3 install rich
+
+  - echo ">>> Creating scoring scripts"
+
+  - |
+    cat << 'EOF' > /usr/local/bin/score_docker
 #!/usr/bin/env bash
-# Usage: SSH_KEY=~/.ssh/deploy_key ./check-patch-status.sh hosts.txt
-# Generates both console output and CSV report (patch-status-report.csv)
+echo "Checking Docker..."
+docker ps >/dev/null 2>&1 || { echo "Docker FAILED"; exit 1; }
+echo "Docker OK"
+EOF
+  - chmod +x /usr/local/bin/score_docker
 
-set -euo pipefail
+  - |
+    cat << 'EOF' > /usr/local/bin/score_k8s
+#!/usr/bin/env bash
+echo "Checking Kubernetes cluster..."
+kubectl get nodes >/dev/null 2>&1 || { echo "K8s FAILED"; exit 1; }
+echo "K8s cluster OK"
+EOF
+  - chmod +x /usr/local/bin/score_k8s
 
-HOSTS_FILE="${1:-}"
-[ -f "$HOSTS_FILE" ] || { echo "Usage: $0 <hosts_file>"; exit 1; }
+  - |
+    cat << 'EOF' > /usr/local/bin/score_script
+#!/usr/bin/env bash
+echo "Checking candidate script..."
+[ -f /opt/exam/scripts/candidate.sh ] || { echo "No script submitted"; exit 1; }
+bash /opt/exam/scripts/candidate.sh && echo "Script OK"
+EOF
+  - chmod +x /usr/local/bin/score_script
 
-REPORT_FILE="patch-status-report.csv"
+  - |
+    cat << 'EOF' > /usr/local/bin/check_all
+#!/usr/bin/env bash
+echo "Running full exam validation..."
+score_docker
+score_k8s
+score_script
+echo "All checks complete"
+EOF
+  - chmod +x /usr/local/bin/check_all
 
-SSH_OPTS="-n -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no"
-[ -n "${SSH_KEY:-}" ] && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
-
-USER="${USER:-deploy}"
-
-patched=0
-needs_reboot=0
-needs_updates=0
-unreachable=0
-
-# CSV Header
-echo "Host,Status,Details" > "$REPORT_FILE"
-
-printf "%-35s  %-14s  %s\n" "HOST" "STATUS" "DETAILS"
-printf "%-35s  %-14s  %s\n" "----" "------" "-------"
-
-while IFS= read -r host || [[ -n "$host" ]]; do
-  host="${host%%$'\r'*}"          # strip CR if file has Windows line endings
-  [ -z "$host" ] && continue
-  [[ "$host" =~ ^# ]] && continue
-
-  out=$(
-    ssh $SSH_OPTS "$USER@$host" '
-      set -e
-      upd=$(sudo apt-get -s -o Debug::NoLocking=1 upgrade 2>/dev/null | awk "/^Inst /{n++} END{print n+0}")
-      if [ -z "$upd" ]; then
-        upd=$(sudo sh -c "apt list --upgradable 2>/dev/null" | awk "NR>1{n++} END{print n+0}")
-      fi
-      [ -f /var/run/reboot-required ] && rb=1 || rb=0
-      echo "$upd $rb"
-    ' 2>/dev/null
-  ) || true
-
-  if [[ -z "$out" ]]; then
-    printf "%-35s  %-14s  %s\n" "$host" "UNREACHABLE" "-"
-    echo "$host,UNREACHABLE,-" >> "$REPORT_FILE"
-    unreachable=$((unreachable+1))
-    continue
-  fi
-
-  updates=$(awk '{print $1}' <<<"$out")
-  reboot=$(awk '{print $2}' <<<"$out")
-
-  if [[ "$reboot" == "1" ]]; then
-    printf "%-35s  %-14s  %s\n" "$host" "NEEDS_REBOOT" "reboot-required"
-    echo "$host,NEEDS_REBOOT,reboot-required" >> "$REPORT_FILE"
-    needs_reboot=$((needs_reboot+1))
-  elif [[ "$updates" -gt 0 ]]; then
-    printf "%-35s  %-14s  %s\n" "$host" "NEEDS_UPDATES" "$updates pkgs"
-    echo "$host,NEEDS_UPDATES,${updates} pkgs" >> "$REPORT_FILE"
-    needs_updates=$((needs_updates+1))
-  else
-    printf "%-35s  %-14s  %s\n" "$host" "PATCHED" "0 pkgs"
-    echo "$host,PATCHED,0 pkgs" >> "$REPORT_FILE"
-    patched=$((patched+1))
-  fi
-done < "$HOSTS_FILE"
-
-total=$((patched + needs_reboot + needs_updates + unreachable))
-echo
-echo "SUMMARY: total=$total  patched=$patched  needs_reboot=$needs_reboot  needs_updates=$needs_updates  unreachable=$unreachable"
-echo "CSV report written to: $REPORT_FILE"
+  - echo ">>> All setup complete"
+  - reboot
