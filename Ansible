@@ -1,82 +1,33 @@
 #cloud-config
 package_update: true
-package_upgrade: all
+package_upgrade: true
 
 packages:
-  - docker.io
   - curl
-  - wget
-  - git
-  - unzip
-  - jq
+  - apt-transport-https
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - iputils-ping
   - net-tools
-  - python3
-  - python3-pip
 
 runcmd:
-  - echo ">>> Configuring Docker"
+  - echo "Installing Docker..."
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg
+  - echo \
+      "deb [arch=amd64 signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) stable" \
+      | sudo tee /etc/apt/sources.list.d/docker.list
+  - apt-get update
+  - apt-get install -y docker-ce docker-ce-cli containerd.io
+
+  - echo "Installing Kubernetes tools..."
+  - curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+  - echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] \
+      https://apt.kubernetes.io/ kubernetes-xenial main" \
+      | sudo tee /etc/apt/sources.list.d/kubernetes.list
+  - apt-get update
+  - apt-get install -y kubectl kubeadm kubelet
+
   - systemctl enable docker
   - systemctl start docker
-  - usermod -aG docker ubuntu || true
-  - usermod -aG docker opc || true
-
-  - echo ">>> Installing kubectl"
-  - curl -LO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-  - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
-  - echo ">>> Installing Minikube"
-  - curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-  - install minikube-linux-amd64 /usr/local/bin/minikube
-
-  - echo ">>> Starting Minikube"
-  - su - ubuntu -c "minikube start --driver=docker" || su - opc -c "minikube start --driver=docker"
-
-  - echo ">>> Creating directories"
-  - mkdir -p /opt/exam/scripts
-  - mkdir -p /opt/exam/results
-
-  - echo ">>> Installing scoring tools"
-  - pip3 install rich
-
-  - echo ">>> Creating scoring scripts"
-
-  - |
-    cat << 'EOF' > /usr/local/bin/score_docker
-#!/usr/bin/env bash
-echo "Checking Docker..."
-docker ps >/dev/null 2>&1 || { echo "Docker FAILED"; exit 1; }
-echo "Docker OK"
-EOF
-  - chmod +x /usr/local/bin/score_docker
-
-  - |
-    cat << 'EOF' > /usr/local/bin/score_k8s
-#!/usr/bin/env bash
-echo "Checking Kubernetes cluster..."
-kubectl get nodes >/dev/null 2>&1 || { echo "K8s FAILED"; exit 1; }
-echo "K8s cluster OK"
-EOF
-  - chmod +x /usr/local/bin/score_k8s
-
-  - |
-    cat << 'EOF' > /usr/local/bin/score_script
-#!/usr/bin/env bash
-echo "Checking candidate script..."
-[ -f /opt/exam/scripts/candidate.sh ] || { echo "No script submitted"; exit 1; }
-bash /opt/exam/scripts/candidate.sh && echo "Script OK"
-EOF
-  - chmod +x /usr/local/bin/score_script
-
-  - |
-    cat << 'EOF' > /usr/local/bin/check_all
-#!/usr/bin/env bash
-echo "Running full exam validation..."
-score_docker
-score_k8s
-score_script
-echo "All checks complete"
-EOF
-  - chmod +x /usr/local/bin/check_all
-
-  - echo ">>> All setup complete"
-  - reboot
