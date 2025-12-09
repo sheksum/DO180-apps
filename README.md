@@ -78,3 +78,73 @@ echo
 echo "  kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml"
 echo
 echo "==================================================="
+
+
+
+
+
+
+root@k8s-exam-vm:~# history 
+    1  apt-get update
+    2  kubectl
+    3  apt-get install docker*
+    4  ps -ef | grep 2310
+    5  cloud-init status --long
+    6  cat /var/log/cloud-init-output.log 
+    7  docker
+    8  dpkg -l | grep -E "kube|containers"
+    9  systemctl status containerd
+   10  systemctl status ssh
+   11  cat /etc/apt/sources.list
+   12  exit
+   13  vi setup.k8s.sh
+   14  chmod +x setup.k8s.sh 
+   15  ./setup.k8s.sh 
+   16  rm -f /etc/apt/sources.list.d/kubernetes.list 
+   17  cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list 
+   18  deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/
+   19   /
+   20  EOF
+   21  vi /etc/apt/sources.list.d/kubernetes.list
+   22  vi /etc/apt/sources.list.d/kubernetes.list 
+   23  mkdir -p /etc/apt/keyrings
+   24  curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+   25  sudo apt-update
+   26  apt update
+   27  rm -f /etc/apt/sources.list.d/docker.list 
+   28  ls /etc/apt/sources.list.d/
+   29  apt install -y containerd
+   30  mkdir -p /etc/containerd
+   31  containerd config default | tee /etc/containerd/config.toml
+   32  sed -i 's/SystemCGroup = false/SystemdCgrup = true/' /etc/containerd/config.toml 
+   33  systemctl restart containerd.service 
+   34  systemctl enable container-getty@ 
+   35  systemctl enable containerd
+   36  systemctl status containerd.service 
+   37  apt install -y kublet kubeadm kubectl
+   38  apt install -y kubelet kubeadm kubectl
+   39  systemctl status kublet
+   40  systemctl status kubelet
+   41  systemctl status containerd.service 
+   42  systemctl restart containerd
+   43  kubelet --version
+   44  systemctl enable kubelet
+   45  swapoff -a
+   46  sed -i '/swap/d' /etc/fstab
+   47  lsmod | greo br_net
+   48  lsmod | grep br_net
+   49  lsmod | grep overla
+   50  sysctl net.bridge.bridge-nf-call-iptables 
+   51  sysctl net.ipv4.ip_forward
+   52  reboot
+   53  systemctl status containerd
+   54  systemctl restart containerd.service 
+   55  journalctl -u kubelet -n 50 --no-pager
+   56  cat /var/lib/kubelet/config.yaml
+   57  systemctl status kubelet
+   58  #kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=$(ip -4 addr show ens33 | awk '/inet /{print $2}' | cut -d/ -f1)
+   59  kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=$(ip -4 addr show ens33 | awk '/inet /{print $2}' | cut -d/ -f1)
+   60  ip a
+   61  kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=$(ip -4 addr show ens3 | awk '/inet /{print $2}' | cut -d/ -f1)
+   62  kubectl get nodes -A
+   63  history
