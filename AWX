@@ -38,3 +38,109 @@ Make a Recommendation
  Outline what the architecture would look like
 
  Identify what the next steps should be
+
+
+=====
+
+
+Figure out what the automation needs are for RHEL
+
+RHEL systems need a platform that can handle:
+
+Patch orchestration (kernel updates, reboots, package updates)
+
+Baseline configuration (SSH hardening, chrony, firewall rules)
+
+User and key management (automation user, sudo rules)
+
+Compliance checks (CIS/STIG roles)
+
+Inventory grouping by environment (dev/stage/prod)
+
+Credential-based or key-based access using an automation account
+
+AWX can manage all of these since RHEL has strong Ansible support and collections from Red Hat.
+
+Do the same for Oracle Linux
+
+Oracle Linux requires:
+
+Patch workflows using dnf with Oracle-specific repos
+
+Baseline configuration similar to RHEL but with OL differences (kernel, repo paths, python paths)
+
+Support for Ksplice (if your company uses it)
+
+Oracle-specific Ansible collections (oracle.olsystem, oracle.olle)
+
+Ability to manage both UEK kernel systems and non-UEK systems
+
+AWX (or any Ansible controller) can handle these as long as we have Oracle execution environments.
+
+Identify what we need in terms of UI, RBAC, API access
+
+What the team needs:
+
+A simple UI where automation jobs can be launched without CLI
+
+Role-based access so teams only see what they are supposed to
+
+Ability to restrict credentials to certain teams or projects
+
+Job templates with pre-defined safe options
+
+API access for GitLab CI/CD or Service team automation
+
+Audit trail of who ran what and when
+
+Separation of dev/test/prod automation run spaces
+AWX provides all of these out of the box.
+
+Confirm what GitLab integration should look like
+
+We need:
+
+AWX to pull playbooks directly from GitLab (no local copies)
+
+GitLab deploy keys or personal access tokens for secure repo access
+
+Branch-based workflows (dev/stage/prod)
+
+Optional webhooks (run a job when a repo changes)
+
+A place to store Ansible Collections, roles, EE definitions, inventories
+
+GitLab Runner (optional) for building Execution Environment images
+AWX integrates cleanly with GitLab and supports GitOps-style automation.
+
+Note any network or security requirements
+
+Security needs:
+
+Only outbound SSH from AWX to managed servers (no inbound from servers)
+
+Inbound 443 access only for AWX UI/API
+
+Secure credential storage (SSH keys, tokens, vault passwords)
+
+Option to integrate with LDAP/IdM/AD for authentication
+
+Option to place AWX in DMZ or behind a reverse proxy depending on access needs
+
+Execution Environment image registry must be reachable (internal registry recommended)
+
+Network needs:
+
+K3s node must reach:
+
+GitLab
+
+RHEL and Oracle hosts
+
+Postgres (if external DB is used)
+
+Internal registry (for EE images)
+
+Load balancer (optional) if HA is later required
+
+SELinux considerations depending on OS/hardening
