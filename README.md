@@ -1,5 +1,46 @@
-“Quick update on the orchestration evaluation effort — I’ve completed the first part, which was understanding what we need for both RHEL and Oracle Linux. I’ve mapped out our requirements around patching, baseline configuration, RBAC, GitLab integration, network access, and credential handling.
+- name: Install Prometheus node_exporter
+  hosts: node_exporter_targets
+  become: yes
 
-I’ve also confirmed that all of these needs can be supported by an Ansible-based controller, and that AWX is a strong candidate since it handles both RHEL and Oracle Linux cleanly with the right execution environments.
+  tasks:
+    - name: Create node_exporter user
+      user:
+        name: node_exporter
+        shell: /usr/sbin/nologin
+        create_home: no
 
-Next step is to look at AWX alongside a couple of open-source alternatives like Semaphore and Rundeck, compare them feature-by-feature, and then recommend the best fit. Once that’s done, I’ll put together a high-level architecture draft for the selected tool.”
+    - name: Create install directory
+      file:
+        path: /opt/node_exporter
+        state: directory
+        owner: node_exporter
+        group: node_exporter
+        mode: '0755'
+
+    - name: Copy node_exporter binary
+      copy:
+        src: files/node_exporter
+        dest: /opt/node_exporter/node_exporter
+        owner: node_exporter
+        group: node_exporter
+        mode: '0755'
+
+    - name: Install systemd unit
+      copy:
+        src: files/node_exporter.service
+        dest: /etc/systemd/system/node_exporter.service
+        mode: '0644'
+
+    - name: Reload systemd
+      command: systemctl daemon-reexec
+
+    - name: Enable and start node_exporter
+      systemd:
+        name: node_exporter
+        enabled: yes
+        state: started
+
+    - name: Validate metrics endpoint
+      uri:
+        url: http://localhost:9100/metrics
+        status_code: 200
