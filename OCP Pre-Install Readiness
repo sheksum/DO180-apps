@@ -1,0 +1,131 @@
+OpenShift Platform Readiness – Pre-Install Dependencies
+Allocate Network CIDRs for OpenShift Platform & Workloads
+
+Description
+Allocate and document network CIDRs required for the OpenShift platform, including infrastructure nodes, application/workload networks, and ingress/load balancer VIPs.
+This task focuses on address allocation only, not firewall or policy implementation.
+
+Key Outcomes
+
+CIDRs allocated for platform, workloads, and ingress
+
+CIDRs documented and approved
+
+No overlap with existing environments
+
+Confirm Network Reachability for OpenShift Dependencies
+
+Description
+Confirm that the OpenShift platform CIDRs can reach required enterprise services at a high level.
+This task documents expected network flows (no ports) to align with the network team ahead of installation.
+
+Dependencies Include
+
+API and ingress load balancers
+
+NetApp storage
+
+On-prem container registry
+
+Identity provider (FreeIPA / IdM)
+
+HashiCorp Vault
+
+Centralized logging (Graylog)
+
+Key Outcomes
+
+High-level reachability confirmed
+
+Expected network flows documented
+
+Network team alignment achieved
+
+Assess On-Prem Container Registry Using Existing Cluster
+
+Description
+Assess the existing on-prem container registry using the current AI-enabled Kubernetes (RKE2) cluster to ensure it can support a disconnected OpenShift environment.
+This includes evaluating image push/pull workflows, authentication/TLS, and available image vulnerability scanning or supported integrations.
+
+Key Outcomes
+
+Image push and pull validated from RKE2
+
+TLS and authentication confirmed
+
+Image scanning capability or integration path identified
+
+Registry suitability for disconnected OpenShift documented
+
+HashiCorp Vault Integration Readiness (GitOps)
+
+Description
+Confirm HashiCorp Vault integration readiness using a GitOps-driven workflow on the existing on-prem AI-enabled Kubernetes (RKE2) cluster.
+The goal is to validate a reusable secrets management pattern for OpenShift.
+
+Key Outcomes
+
+Kubernetes authentication to Vault validated
+
+Secrets consumed by workloads without manual handling
+
+Git-managed manifests reference Vault-backed secrets
+
+Reusable integration pattern documented
+
+Set Up and Exercise GitOps Tooling
+
+Description
+Set up an initial Git repository and exercise GitOps workflows using FluxCD on the existing cluster to confirm readiness for OpenShift.
+
+Key Outcomes
+
+Git repository created and accessible
+
+FluxCD installed and healthy on RKE2
+
+Git-driven changes successfully reconciled
+
+GitOps pattern validated for reuse
+
+Review Jenkins Readiness for OpenShift Workflows
+
+Description
+Review whether existing Jenkins systems can support OpenShift-related workflows (image builds, GitOps triggers, automation), or if a dedicated Jenkins instance is required.
+
+Key Outcomes
+
+Existing Jenkins capabilities assessed
+
+Reuse vs dedicated Jenkins decision documented
+
+Risks and follow-up actions identified
+
+Check Identity Provider Readiness (FreeIPA / IdM)
+
+Description
+Check that the existing FreeIPA / IdM environment is ready to integrate with OpenShift for authentication and RBAC.
+This will be validated by integrating FreeIPA / IdM with the existing on-prem AI-enabled Kubernetes (RKE2) cluster to confirm the authentication and group-mapping approach.
+
+Key Outcomes
+
+Authentication against IdM validated
+
+Group-to-role mapping confirmed
+
+Required certificates and trust relationships identified
+
+Integration pattern documented for OpenShift
+
+Confirm Centralized Logging Pattern for OpenShift
+
+Description
+Confirm that centralized logging is enabled and working on the current on-prem AI-enabled Kubernetes cluster, and determine whether the same logging approach can be reused for OpenShift.
+
+Key Outcomes
+
+Logs successfully forwarded from RKE2 workloads
+
+Graylog connectivity and assumptions confirmed
+
+Logging integration pattern documented for OpenShift
