@@ -144,3 +144,332 @@ Internal registry (for EE images)
 Load balancer (optional) if HA is later required
 
 SELinux considerations depending on OS/hardening
+
+
+
+
+
+AWX – Automation Controller Platform
+Overview
+
+As part of our ongoing platform and automation work, we are evaluating AWX as a centralized orchestration platform for running Ansible at scale.
+
+Red Hat Satellite is already deployed and continues to serve as the primary lifecycle and content management platform for RHEL systems. However, there is currently no equivalent orchestration solution in place for Oracle Linux, nor a shared automation control plane that spans both platforms.
+
+This effort focuses on evaluating AWX as a complementary automation controller that fills those gaps while aligning with our broader move toward containerized, Kubernetes-based platform services.
+
+Progress on this work is being tracked through a dedicated set of Trello cards, with each card representing a specific phase of evaluation, design, or implementation.
+
+What We’re Trying to Achieve
+
+This initiative is not about replacing existing tooling. It is about extending automation capabilities in a consistent and scalable way.
+
+Current State
+
+Red Hat Satellite
+
+Effectively manages RHEL lifecycle (content, patching, inventory)
+
+Limited scope for Oracle Linux
+
+Not designed as a general-purpose orchestration engine
+
+Automation outside Satellite
+
+Primarily host- or user-driven
+
+Inconsistent execution patterns
+
+No shared orchestration layer across platforms
+
+Target State
+
+A centralized orchestration platform for Ansible
+
+Unified automation for RHEL and Oracle Linux
+
+Git-driven workflows and repeatable execution
+
+Strong RBAC and credential isolation
+
+A solution that fits naturally into a Kubernetes-based platform model
+
+AWX is being evaluated specifically to act as this orchestration layer alongside Satellite.
+
+What is AWX?
+
+AWX is the open-source upstream project for Red Hat Ansible Automation Platform.
+It provides a web UI, API, and execution framework for running Ansible in a controlled, repeatable manner.
+
+In practical terms, AWX provides:
+
+Centralized execution of Ansible playbooks
+
+Inventory and credential management
+
+Role-based access control
+
+Job templates and workflows
+
+Containerized execution environments for consistency
+
+AWX removes the need to run automation directly from engineer workstations or ad-hoc jump hosts and instead treats automation as a shared platform service.
+
+High-Level Architecture (Conceptual)
+
+At a high level, AWX is intended to run as a platform service on Kubernetes:
+
+RHEL 9 hosts provide the underlying operating system
+
+Kubernetes (under evaluation: K3s vs Rancher-managed Kubernetes) hosts the control plane
+
+AWX runs as containerized workloads managed by the AWX Operator
+
+PostgreSQL is used as the backend database
+
+Execution Environments run Ansible jobs in isolated containers
+
+Git repositories act as the source of truth for automation content
+
+This design allows the platform to start small while supporting future growth, HA, and integration with other platform services.
+
+Work Tracking via Trello
+
+This effort is being tracked through a series of Trello cards to clearly document:
+
+Evaluation work
+
+Design decisions
+
+Implementation steps
+
+Open questions and next actions
+
+Each card represents a discrete phase of the work and includes checklists to make progress and ownership clear.
+
+Trello Work Breakdown
+🔶 Card 1: Evaluate Open-Source Orchestration Options (AWX vs Alternatives)
+
+Focus: Tool evaluation and decision-making
+
+Checklist:
+
+Identify requirements (RHEL + Oracle Linux support)
+
+Review AWX
+
+Review Semaphore
+
+Review Rundeck
+
+Compare capabilities and gaps
+
+Recommend a standard orchestration platform
+
+🔶 Card 2: Define AWX Deployment Architecture
+
+Focus: Platform design
+
+Checklist:
+
+Evaluate Kubernetes options (K3s vs Rancher)
+
+RHEL 9 as host OS
+
+Network and firewall requirements
+
+Internal vs DMZ placement
+
+Draft initial architecture concepts
+
+🔶 Card 3: Determine HA Requirements
+
+Focus: Scalability and resilience
+
+Checklist:
+
+AWX replicas
+
+Database considerations (external PostgreSQL vs Kubernetes-native options)
+
+Execution node scaling
+
+Failover and recovery considerations
+
+🔶 Card 4: GitLab Integration Design
+
+Focus: Source control and workflow integration
+
+Checklist:
+
+AWX project configuration
+
+SSH keys / OAuth credentials
+
+Repository layout for automation
+
+Webhook triggers
+
+GitOps-style workflow alignment
+
+🔶 Card 5: Provision RHEL Servers for Kubernetes + AWX
+
+Focus: Infrastructure readiness
+
+Checklist:
+
+Request VMs
+
+Configure OS baseline
+
+Apply hardening standards
+
+Prepare storage
+
+Prepare networking
+
+🔶 Card 6: Install Kubernetes
+
+Focus: Cluster setup
+
+Checklist:
+
+Install Kubernetes (implementation TBD)
+
+Validate cluster health
+
+Configure storage provisioning
+
+kubectl access
+
+Backup and recovery considerations
+
+🔶 Card 7: Deploy AWX Operator
+
+Focus: Controller deployment foundation
+
+Checklist:
+
+Install operator
+
+Validate CRDs
+
+Operator namespace design
+
+Version pinning
+
+🔶 Card 8: Deploy AWX Instance
+
+Focus: Initial controller deployment
+
+Checklist:
+
+Create AWX custom resource
+
+Configure credentials
+
+Set initial replicas
+
+Expose AWX service
+
+Validate UI access
+
+🔶 Card 9: Configure Execution Environments
+
+Focus: Runtime consistency
+
+Checklist:
+
+Build RHEL execution environment
+
+Build Oracle Linux execution environment
+
+Push images to internal registry
+
+Map EEs to job templates
+
+🔶 Card 10: Build Inventories for RHEL + Oracle Linux
+
+Focus: Target systems
+
+Checklist:
+
+Create static groups
+
+Add host variables
+
+Test connectivity
+
+Validate credentials
+
+🔶 Card 11: Develop Baseline Automation Playbooks
+
+Focus: Core automation
+
+Checklist:
+
+RHEL baseline
+
+Oracle Linux baseline
+
+SSH hardening
+
+Chrony
+
+Firewall rules
+
+Package baseline
+
+🔶 Card 12: Build Patching Workflow
+
+Focus: Day-2 operations
+
+Checklist:
+
+RHEL update playbooks
+
+Oracle Linux update playbooks
+
+Reboot logic
+
+Post-update validation
+
+AWX workflow templates
+
+🔶 Card 13: Documentation
+
+Focus: Knowledge sharing
+
+Checklist:
+
+Architecture overview
+
+Deployment guides
+
+Integration documentation
+
+Runbooks
+
+Troubleshooting
+
+🔶 Card 14: Rollout Plan
+
+Focus: Adoption
+
+Checklist:
+
+Pilot systems
+
+Feedback
+
+Adjust automation
+
+Full rollout plan
+
+Handoff to operations
+
+References
+
+AWX Project: https://github.com/ansible/awx
+
+AWX Documentation: https://ansible.readthedocs.io/projects/awx/
