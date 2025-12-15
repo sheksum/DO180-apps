@@ -719,7 +719,50 @@ Deployment Considerations
 Outcome
 	•	AWX running in a test environment
 	•	UI accessible for validation
-	•	Baseline deployment ready for iteration
+	•	Baseline deployment ready for AWX / Automation Platform – Status Update
+
+So far, the focus has been on evaluating and validating the foundation, not rolling anything into production yet.
+
+What we’ve completed so far:
+	•	Tool evaluation
+	•	Reviewed open-source orchestration options (AWX, Semaphore, Rundeck).
+	•	Confirmed AWX is the best fit for our needs:
+	•	Native Ansible controller
+	•	Works across RHEL and Oracle Linux
+	•	Clear integration path with Red Hat Satellite
+	•	Kubernetes-friendly and aligns with platform direction
+	•	Other tools were ruled out mainly due to limited RBAC, lack of Satellite integration, and weaker scaling models.
+	•	Architecture validation (test environment)
+	•	Defined a baseline deployment model for AWX as a Kubernetes-hosted platform service.
+	•	Confirmed RHEL 9 as the standard host OS.
+	•	Validated the AWX Operator model works as expected.
+	•	Identified early networking and firewall dependencies, which was a key learning.
+	•	Kubernetes work
+	•	K3s was deployed successfully and validated.
+	•	Rancher UI was set up to evaluate cluster management, RBAC, and visibility benefits.
+	•	K3s itself is stable; however, DNS issues are still being investigated on an RKE2-based setup, and that work is ongoing.
+	•	No production decision on Kubernetes flavor yet — this is still evaluation.
+	•	AWX deployment
+	•	AWX was deployed in a test environment to validate operator behavior and runtime expectations.
+	•	Encountered database/DNS-related issues, which helped surface platform assumptions early.
+	•	This reinforced the need to tighten DNS, networking, and service discovery before moving forward.
+
+What has NOT been done yet (intentionally):
+	•	No GitLab integration wired up yet
+	•	No production rollout
+	•	No HA configuration
+	•	No execution environments finalized
+
+Next steps:
+	•	Finish stabilizing Kubernetes DNS behavior
+	•	Finalize Kubernetes platform choice (K3s vs Rancher-managed)
+	•	Lock down architecture decisions
+	•	Then move into GitLab integration and workflow design
+
+
+
+
+
 
 
 
