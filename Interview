@@ -1,148 +1,177 @@
-#!/usr/bin/env bash
-# dedicate-varlog.sh — Interactive Ubuntu version
-# Safely dedicates a block device to /var/log with /data staging and rollback info.
+Job Description
+This Staff Kubernetes Administrator role is critical to our team’s success. If you are passionate about Kubernetes, cloud technologies, and mentoring others
+in a fast-paced environment, we encourage you to apply and help us drive our infrastructure to the next level.
+In this role, you will establish Kubernetes best practices and processes as we build out this capability. You will work closely with software development
+and product teams to deploy and support Kubernetes clusters on-premises and in the cloud (GCP). You will ensure our Kubernetes environments are
+secure, performant, and aligned with business needs. Additionally, you will mentor junior administrators and help develop the team’s Kubernetes skill set
+and operational practices.
+Responsibilities
+Design, deploy, and maintain Kubernetes clusters in on-premises environments and in Google Cloud (GKE), ensuring scalable and reliable
+infrastructure.
+Lead the migration of containerized workloads from on-premises Kubernetes to GKE, with minimal downtime and optimal performance.
+Implement and enforce Kubernetes security best practices, including RBAC access controls, network policies, secrets management, and vulnerability
+scanning.
+Architect and support microservices and serverless applications on Kubernetes using cloud-native patterns and tooling.
+Develop and maintain Infrastructure as Code (IaC) using tools like Terraform and Helm, and employ GitOps workflows for automated deployments.
+Monitor and optimize cluster performance and availability, using observability tools (Prometheus, Grafana, ELK/EFK, etc.), and ensure high uptime
+through auto-scaling and resiliency best practices.
+Participate in incident response and troubleshooting to quickly resolve issues across the Kubernetes stack (applications, containers, nodes) and
+perform root cause analysis.
+Mentor and coach junior administrators and engineers, sharing Kubernetes best practices and fostering a culture of continuous learning.
+Collaborate cross-functionally with development, security, and other infrastructure teams to ensure Kubernetes platform alignment with application
+needs and security standards.
+Document configurations, procedures, and processes for Kubernetes environments to support knowledge transfer and consistency.
+Required Qualifications & Skills
+8-10 years of IT infrastructure experience, including 4+ years managing production Kubernetes clusters.
+Expertise in Linux systems administration, especially Ubuntu and Red Hat (or CentOS) systems, including strong shell scripting and system
+troubleshooting skills.
+Strong knowledge of container networking and services – e.g., CNI plugins, ingress controllers, DNS, load balancing, and service mesh (Istio or
+similar).
+Deep understanding of Kubernetes security models and best practices (RBAC, network policies, CIS benchmarks, etc.).
+Proficiency with Infrastructure as Code tools (Terraform, Helm) and experience with CI/CD pipelines and GitOps workflows for Kubernetes
+deployments.
+Experience with monitoring and logging tools for Kubernetes (Prometheus, Grafana, Fluentd/ELK or similar) and the ability to interpret metrics/logs
+to maintain system health.
+Excellent communication and interpersonal skills, with the ability to work collaboratively and explain complex concepts to various stakeholders.
+Strong problem-solving abilities and capability to work independently, managing priorities in a dynamic environment.
+Bachelor’s degree in Computer Science or related field (or equivalent experience).
+Willingness to support off-hours needs (occasional meetings with offshore teams) and travel if required.
+Desired Skills
+Certifications: Relevant industry certifications such as Certified Kubernetes Administrator (CKA) or CKS, and cloud certifications (Google Cloud
+Professional Architect, GKE specialization) or Linux certifications (RHCSA/RHCE).
+Hybrid/Cloud Experience: Experience with hybrid cloud or multi-cluster Kubernetes environments and cloud networking.
+Security & Automation Tools: Familiarity with container security platforms (e.g., Aqua, Prisma, Sysdig) and configuration management/automation
+tools (Ansible, Puppet, Chef, Python/Bash scripting).
+Methodologies: Exposure to IT service management (ITIL practices) and Agile/Scrum development methodologies.
+Innovative Mindset: A security-first and automation-first mindset; enthusiasm for
 
-set -euo pipefail
-[[ ${EUID:-$(id -u)} -eq 0 ]] || { echo "Run as root (sudo)."; exit 1; }
 
-echo "🔍 Rescanning all SCSI hosts for new devices..."
-for host in /sys/class/scsi_host/*; do
-  echo "- - -" | sudo tee "${host}/scan" >/dev/null
-done
 
-echo "⏳ Waiting for devices to settle..."
-sleep 10
 
-echo "🔎 Listing all available block devices..."
-lsblk -dpno NAME,SIZE,TYPE,MOUNTPOINT | grep "disk" || true
-echo
 
-read -rp "Enter the device you want to dedicate for /var/log (e.g. /dev/sdd): " DEV
-[[ -b "$DEV" ]] || { echo "❌ $DEV is not a valid block device."; exit 1; }
 
-read -rp "Do you want to create a new filesystem on $DEV? (y/N): " CONFIRM_MKFS
-DO_MKFS=0; FSTYPE="ext4"
-if [[ "$CONFIRM_MKFS" =~ ^[Yy]$ ]]; then
-  read -rp "Enter filesystem type [ext4|xfs] (default: ext4): " FS
-  FSTYPE="${FS:-ext4}"
-  [[ "$FSTYPE" =~ ^(ext4|xfs)$ ]] || { echo "Unsupported type."; exit 1; }
-  echo "⚠️  This will ERASE all data on $DEV."
-  read -rp "Type YES to confirm formatting $DEV as $FSTYPE: " ACK
-  [[ "$ACK" == "YES" ]] || { echo "Aborted."; exit 1; }
-  DO_MKFS=1
-fi
-
-LABEL="VARLOG"
-MNTOPTS="nodev,noexec,nosuid"
-MOUNTPOINT="/var/log"
-STAGE="/data"
-TS="$(date +%Y%m%d-%H%M%S)"
-BACKUP="${MOUNTPOINT}.bak.${TS}"
-
-# --- Format if requested ---
-if [[ $DO_MKFS -eq 1 ]]; then
-  echo "Creating $FSTYPE filesystem on $DEV..."
-  [[ "$FSTYPE" == "ext4" ]] && mkfs.ext4 -F -L "$LABEL" "$DEV" || mkfs.xfs -f -L "$LABEL" "$DEV"
-fi
-
-blkid "$DEV" >/dev/null 2>&1 || { echo "No filesystem found on $DEV."; exit 1; }
-UUID="$(blkid -s UUID -o value "$DEV")"
-TYPE="$(blkid -s TYPE -o value "$DEV")"
-echo "✅ Device ready: $DEV (UUID=$UUID, TYPE=$TYPE)"
-sleep 2
-
-# --- Stop rsyslog before migration ---
-echo "Masking & stopping rsyslog.service..."
-systemctl mask rsyslog.service || true
-systemctl stop rsyslog.service || true
-
-# --- Stage copy to /data ---
-mkdir -p "$STAGE" "$MOUNTPOINT"
-echo "Mounting $DEV on $STAGE ..."
-mount -t "$TYPE" -o "$MNTOPTS" "$DEV" "$STAGE"
-
-echo "Copying logs: ${MOUNTPOINT}/ → ${STAGE}/ ..."
-rsync -aHAX --numeric-ids --sparse --one-file-system "${MOUNTPOINT}/" "${STAGE}/"
-sync
-
-# --- Backup and switch mount ---
-echo "Moving ${MOUNTPOINT} → ${BACKUP} ..."
-mv "$MOUNTPOINT" "$BACKUP"
-mkdir -p "$MOUNTPOINT"
-
-echo "Unmounting $STAGE and remounting on ${MOUNTPOINT} ..."
-umount "$STAGE" || umount -l "$STAGE"
-mount -t "$TYPE" -o "$MNTOPTS" "$DEV" "$MOUNTPOINT"
-
-# --- Persist in /etc/fstab ---
-FSTAB_LINE="UUID=${UUID}  ${MOUNTPOINT}  ${TYPE}  ${MNTOPTS}  0  2"
-if ! grep -q "UUID=${UUID}.*${MOUNTPOINT}" /etc/fstab; then
-  echo "$FSTAB_LINE" >> /etc/fstab
-  echo "Added to /etc/fstab: $FSTAB_LINE"
-else
-  echo "/etc/fstab already contains an entry for this UUID."
-fi
-mount -a
-
-# --- Restart rsyslog + logrotate ---
-echo "Unmasking and restarting rsyslog.service..."
-systemctl unmask rsyslog.service || true
-systemctl daemon-reload
-systemctl restart rsyslog.service || true
-
-echo "Running logrotate -vf /etc/logrotate.conf ..."
-logrotate -vf /etc/logrotate.conf || true
-
-# --- Verification ---
-echo
-echo "=== Verification ==="
-mount | grep " ${MOUNTPOINT} " || true
-df -h "${MOUNTPOINT}" || true
-
-logger "TEST: dedicated /var/log mount active; rsyslog running"
-sleep 2  # allow rsyslog to write
-
-echo "Checking for logger entry in logs..."
-if [[ -f /var/log/syslog ]]; then
-  grep "TEST: dedicated" /var/log/syslog || echo "⚠️  Log message not found in /var/log/syslog"
-elif [[ -f /var/log/messages ]]; then
-  grep "TEST: dedicated" /var/log/messages || echo "⚠️  Log message not found in /var/log/messages"
-else
-  echo "⚠️  Neither /var/log/syslog nor /var/log/messages found."
-fi
-
-echo
-echo "✅ Completed. Previous logs are in ${BACKUP}"
-
-# --- Rollback instructions ---
-echo
-echo "=============================="
-echo "🧭  ROLLBACK INSTRUCTIONS"
-echo "=============================="
-echo "If you ever need to revert /var/log to its previous state:"
-echo
-echo "  1) Stop rsyslog to release file handles:"
-echo "     systemctl stop rsyslog || { systemctl mask rsyslog; systemctl stop rsyslog; }"
-echo
-echo "  2) Unmount the new /var/log device:"
-echo "     umount /var/log || umount -l /var/log"
-echo
-echo "  3) Remove its /etc/fstab entry:"
-echo "     sed -i '/UUID=.*\\/var\\/log/d' /etc/fstab"
-echo
-echo "  4) Restore previous logs from backup:"
-echo "     rm -rf /var/log"
-echo "     mv /var/log.bak.* /var/log"
-echo
-echo "  5) Unmask and restart rsyslog:"
-echo "     systemctl unmask rsyslog"
-echo "     systemctl daemon-reload"
-echo "     systemctl restart rsyslog"
-echo
-echo "  6) Verify rsyslog is logging again:"
-echo "     systemctl status rsyslog"
-echo "     logger 'TEST: rollback to original /var/log successful'"
-echo "     grep 'rollback' /var/log/syslog || grep 'rollback' /var/log/messages"
-echo
-echo "✅ Rollback instructions printed above — keep for reference."
-echo "=============================="
+Gene R. Siepka
+grsiepka@gmail.com | 708-269-4141
+Experienced Engineer with a proven track record of delivering and supporting 24x7 Mission-Critical environments in both
+OnPrem Data Centers and Cloud Providers. Have a solid understanding of DevOps practices and technologies. Strong
+Kubernetes, Automation, Linux, Networking, Containers, Virtualization, and troubleshooting knowledge.
+Recent Google Cloud Engineer Certifications.
+Professional Experience
+Humana
+Lead Software Engineer - Enterprise API and Integration Team 05/2023 - current
+Key Contributions:
+●
+●
+Primary Platform Engineer for Kubernetes Clusters (GKE and AKS) running Google’s ApigeeHybrid Product.
+Developed Ansible automation that provides a complete framework for managing all of Humana’s OnPrem GKE
+platforms running Apigee Hybrid. Automates all facets of the infrastructure from initial Kubernetes cluster creation,
+to configuration updates and platform upgrades, with sensitive data for credentials and GCP ServiceAccount keys
+being retrieved at runtime from HashiCorp Vault.
+●
+●
+●
+Multiple GKE Cluster upgrades and updates using above automation.
+Creation of new GKE environments for Apigee Hybrid OnPrem solution.
+Created multiple one-off Ansible automation jobs for routine tasks that our L2/SRE partner teams would own for
+things like certificate renewals, credential rotation, service account renewals.
+●
+Created Terraform modules to deploy a complicated and ordered ApigeeHybrid Helm chart installation of 70+
+unique CRDs.
+●
+Google Cloud Associate Cloud Engineer Certification 11/2023
+https://www.credly.com/badges/8f5409e5-b465-4115-8b2d-69a803dc1923/public
+_
+●
+Google Cloud Professional Cloud Engineer Certification 10/2024
+https://www.credly.com/badges/e06b02e0-ac5c-4668-bc71-bda2da99c5f6/public
+url
+_
+url
+KeyBank
+Master Engineer - Container Management Team Lead 02/2018 - 04/2023
+Key Contributions:
+●
+Member of a specialized team to help guide KeyBank’s migration to Google Cloud Platform as an SME on
+Kubernetes/Container platforms.
+●
+Developed a company-wide standardized Terraform module for creating both Standard and AutoPilot GKE
+clusters in GCP that implemented best practices for resiliency and supportability.
+●
+Worked with our Enterprise Release Management team to develop Gitlab Pipelines to automate GKE cluster
+deployments.
+●
+Lead resource from initial project to production release for standing up 4 Anthos Baremetal GKE Cluster
+environments to host our Enterprise Kafka Platform. Installation of Anthos Baremetal was fully automated via
+Ansible and Terraform and included playbooks to handle regular OS patching and GKE upgrades.
+●
+Lead contributor to migrate 500+ applications from OpenShift 3.11 to Anthos GKEOnPrem. This was a 2 year long
+effort of working with application teams to update CI/CD build processes, migration to Artifactory from internal
+OpenShift Docker registry, and conversion of OpenShift specific manifest yaml to standard Kubernetes objects.
+●
+Implemented Anthos Config Manager (GitOps tool) for managing GKE Clusters at scale. Rolled out to 100+ GKE
+clusters in GCP.
+…
+●
+●
+●
+●
+●
+●
+●
+Planned and Executed multiple OpenShift version upgrades 3.6 > 3.11 across our Dev, Test/DR, and Prod
+OpenShift Clusters. Each upgrade presented significant challenges and co-ordination with 50+ application teams.
+Worked closely with App/Dev teams to onboard new applications to our Kubernetes platforms providing guidance
+on best practices and production readiness items like Readiness/Liveness Probes, Deployment Strategies and
+CPU/Memory resource sizing.
+Production support duties of Kubernetes platforms. This includes regular troubleshooting of general Networking
+issues, DNS, Firewalls, SSL certificates, application and database connectivity issues.
+Implemented HashiCorp Vault Secrets Injection for Kubernetes Secrets into application deployments.
+Regular use of Elastic Stack (Beats and Kibana) and Dynatrace for visualizing problems in the environment.
+Mentor to junior team members. Conducted numerous learning and troubleshooting exercises to help strengthen
+knowledge across the team.
+Extensive use of common tools like Confluence for knowledge sharing and issue logging. Jira for work initiatives.
+ServiceNow for Change Management and Incident tracking.
+HelloWallet / KeyBank
+Senior Systems Engineer 04/2017 - 01/2018
+Key Contributions:
+●
+Primary Ops support of HelloWallet systems. Environment was 60 CentOS Hosts on VMware in a hosted
+datacenter. Responsibilities included VMware Management, Linux OS Support, MySQL/MongoDB Support, F5
+LoadBalancer config, Splunk Administration. Application deployment and Application support.
+●
+Hellowallet Acquired by KeyBank 07/2017. Performed migration of Hellowallet apps from a hosted facility to Key’s
+Datacenters. Worked with the individual Key technology teams to take over their respective support roles.
+United Airlines
+Contractor Linux Operations Support 07/2016 - 03/2017
+Key Contributions:
+●
+access and naming.
+●
+patching.
+Migration of local Linux accounts to use AD/LDAP Authentication. Helped develop standards around group level
+Converted existing RHEL 6/7 systems to Oracle Linux to support rollout of Ksplice/Uptrack for live kernel
+●
+Worked with Development staff on automated application deployments using Ansible Playbooks.
+Chicago Tribune
+Sr. Unix Systems Engineer 04/2012 - 06/2016
+Key Contributions:
+●
+●
+Primary Server team resource focused on Applications for Editorial, Circulation and Digital Presence Systems.
+Deployed and configured over 500 new CentOS VMs and dozens of RHEL physical systems running Veritas
+Storage Foundation HA.
+●
+Primary project resource to migrate hosts from aging EMC arrays onto new EMC VNX Series Arrays. Migrations
+were performed using a mix of Veritas Volume Manager volume mirroring, EMC PowerPath Migration Enabler
+(PPME) disk migrations, and simple disk to disk / cpio data copies. Successfully migrated over 100 Solaris and
+RHEL systems during a 9 month period.
+●
+Used Puppet to automate and standardize server builds and configurations. Created new Puppet modules for new
+software and used Foreman as the frontend configuration management tool. Also wrote numerous shell scripts for
+smaller tasks that didn’t warrant full Puppet Module fixes.
+●
+Managed Spacewalk Patch repository. Updated channels with multiple repositories and used Puppet to
+automatically register systems with Spacewalk.
+●
+Performed numerous server virtualizations of Solaris systems migrating to Solaris Zones and RHEL/CentOS
+systems using VMware Standalone Converter onto VMware Virtual Machines.
