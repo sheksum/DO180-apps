@@ -473,3 +473,254 @@ References
 AWX Project: https://github.com/ansible/awx
 
 AWX Documentation: https://ansible.readthedocs.io/projects/awx/
+============
+
+🔶 Card 2: Define AWX Deployment Architecture
+
+Description
+
+This card focuses on defining how AWX should be deployed and what platform it should run on, before committing to a specific implementation.
+
+The goal is to agree on a sane, supportable baseline architecture that works in a test environment and can later be adapted for production.
+
+This is intentionally design-focused, not installation-focused.
+
+⸻
+
+Requirements Gathering
+	•	Determine which Kubernetes distribution is appropriate (K3s vs Rancher-managed Kubernetes)
+	•	Confirm RHEL 9 as the standard host OS
+	•	Identify minimum resource requirements
+	•	Define storage needs (local vs external)
+	•	Identify ingress and service exposure requirements
+	•	Identify database placement (internal vs external PostgreSQL)
+	•	Understand firewall and DNS dependencies early
+
+⸻
+
+Architecture Considerations
+	•	Single-node vs multi-node Kubernetes
+	•	Internal-only access vs DMZ exposure
+	•	Operator-based lifecycle management
+	•	Separation of control plane and execution
+	•	Alignment with containerized platform standards
+
+⸻
+
+Outcome
+	•	A documented baseline architecture suitable for test environments
+	•	Clear direction on Kubernetes choice and deployment model
+	•	Inputs for follow-on cards (HA, networking, provisioning)
+
+⸻
+
+🔶 Card 3: Determine HA Requirements
+
+Description
+
+This card evaluates high availability requirements for AWX and determines what level of HA is actually needed, both short-term and long-term.
+
+The intent is to avoid over-engineering early while still understanding what changes would be required to support HA later.
+
+⸻
+
+Requirements Gathering
+	•	Understand AWX scaling model (web, task, execution)
+	•	Identify components that can be replicated
+	•	Identify components that require externalization (PostgreSQL)
+	•	Understand Kubernetes implications for HA
+	•	Define acceptable downtime for test vs production environments
+
+⸻
+
+Areas of Evaluation
+	•	AWX web/task replicas
+	•	Execution node scaling
+	•	PostgreSQL HA requirements
+	•	Kubernetes node redundancy
+	•	Backup and restore considerations
+
+⸻
+
+Outcome
+	•	Clear distinction between test environment HA and production HA
+	•	Guidance on when HA becomes necessary
+	•	Inputs for future architecture and capacity planning
+
+⸻
+
+🔶 Card 4: GitLab Integration Design (Not Started)
+
+Description
+
+This card defines how AWX should integrate with GitLab to support Git-driven automation workflows.
+
+The goal is to treat Git as the source of truth for automation content while allowing AWX to execute, audit, and control access.
+
+⸻
+
+Requirements Gathering
+	•	Define repository structure for playbooks and roles
+	•	Decide between SSH keys vs OAuth
+	•	Identify webhook requirements
+	•	Determine how changes trigger automation
+	•	Define separation between test and production automation
+
+⸻
+
+Integration Considerations
+	•	Credential storage and rotation
+	•	Branch-based workflows
+	•	Promotion models (dev → prod)
+	•	Auditability and traceability
+	•	GitOps-style execution patterns
+
+⸻
+
+Outcome
+	•	Clear GitLab integration model
+	•	Inputs for AWX project and credential configuration
+	•	Foundation for repeatable automation workflows
+
+⸻
+
+🔶 Card 5: Provision RHEL Server for Kubernetes + AWX
+
+Description
+
+This card focuses on preparing the underlying host system that will run Kubernetes and AWX.
+
+The goal is to ensure the OS layer is properly configured before introducing Kubernetes or application workloads.
+
+⸻
+
+Requirements Gathering
+	•	VM sizing (CPU, memory, disk)
+	•	OS version and patch level
+	•	Baseline hardening requirements
+	•	Disk layout and storage preparation
+	•	Network and DNS configuration
+	•	Firewall considerations
+
+⸻
+
+Preparation Areas
+	•	RHEL registration and repos
+	•	Time sync and base services
+	•	Kernel and sysctl considerations
+	•	Storage paths for Kubernetes workloads
+	•	Network routing and name resolution
+
+⸻
+
+Outcome
+	•	A repeatable baseline for Kubernetes hosts
+	•	Reduced troubleshooting later in the stack
+	•	Clean handoff to Kubernetes installation
+
+⸻
+
+🔶 Card 6: Install Kubernetes (K3s / Rancher)
+
+Description
+
+This card evaluates and installs Kubernetes as the runtime platform for AWX.
+
+The focus is on identifying a Kubernetes distribution that balances simplicity, manageability, and future growth.
+
+⸻
+
+Requirements Gathering
+	•	Compare K3s vs Rancher-managed Kubernetes (RKE2)
+	•	Evaluate operational overhead
+	•	Evaluate RBAC and cluster management needs
+	•	Understand DNS and networking behavior
+	•	Identify storage integration requirements
+
+⸻
+
+Areas of Evaluation
+	•	K3s installation and validation
+	•	Rancher UI capabilities (RBAC, cluster visibility, management)
+	•	DNS behavior and service discovery
+	•	Add-on requirements (storage, ingress)
+	•	kubectl access and admin workflows
+
+⸻
+
+Outcome
+	•	Kubernetes platform validated in test environment
+	•	Clear understanding of operational tradeoffs
+	•	Foundation for running AWX as a platform service
+
+⸻
+
+🔶 Card 7: Deploy AWX Operator
+
+Description
+
+This card focuses on deploying the AWX Operator, which manages the lifecycle of AWX instances inside Kubernetes.
+
+The operator model is key to keeping deployments consistent and maintainable.
+
+⸻
+
+Requirements Gathering
+	•	Operator installation method
+	•	Namespace and RBAC requirements
+	•	CRDs introduced by the operator
+	•	Version pinning strategy
+	•	Upgrade considerations
+
+⸻
+
+Areas of Focus
+	•	Operator health and reconciliation behavior
+	•	Namespace isolation
+	•	Permissions model
+	•	Compatibility with chosen Kubernetes distribution
+
+⸻
+
+Outcome
+	•	Operator installed and validated
+	•	AWX lifecycle managed declaratively
+	•	Platform aligned with Kubernetes best practices
+
+⸻
+
+🔶 Card 8: Deploy AWX Instance
+
+Description
+
+This card covers deploying the actual AWX instance using the operator, based on decisions made in earlier cards.
+
+This is where architecture decisions begin to materialize into a running service.
+
+⸻
+
+Requirements Gathering
+	•	AWX custom resource configuration
+	•	Initial replica counts
+	•	Service exposure model
+	•	Database connectivity
+	•	Credential bootstrapping
+
+⸻
+
+Deployment Considerations
+	•	Internal vs external access
+	•	Initial admin access
+	•	Resource limits and requests
+	•	Log visibility and troubleshooting
+
+⸻
+
+Outcome
+	•	AWX running in a test environment
+	•	UI accessible for validation
+	•	Baseline deployment ready for iteration
+
+
+
+
