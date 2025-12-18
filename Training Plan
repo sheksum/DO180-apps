@@ -1,0 +1,99 @@
+h1. NOC Training Plan – Kubernetes (VKS)
+
+h2. Purpose and Context
+
+The Verisign Kubernetes Service (VKS) is a full-featured Kubernetes platform built on open-source components and managed via Rancher, designed to operate in a cloud-native enterprise environment.
+
+As part of an operational handoff, a defined set of basic operational responsibilities will be transitioned to the NOC. To safely and effectively support these responsibilities, the NOC must develop a foundational understanding of Kubernetes concepts as they apply specifically to VKS.
+
+*This training plan outlines the minimum Kubernetes knowledge needed for the NOC to effectively support the VKS platform.* The focus is on operational awareness, alert triage, and proper escalation — not platform engineering.
+
+h2. Training Principles and Scope
+
+* This training is intended to enable operational support, not platform engineering.
+* The NOC is not expected to design, deploy, or modify Kubernetes applications or platform components.
+* All NOC actions must be covered by documented runbooks and approved procedures.
+* Any activity outside documented scope must be escalated.
+
+h2. Ownership
+
+*VKSOps / AVID retains ownership of:*
+* Platform architecture and design
+* Cluster configuration and upgrades
+* Lifecycle management
+* Complex platform-level incident resolution
+
+The NOC is responsible for monitoring, first-level triage, and escalation only.
+
+h2. Training Structure Overview
+
+|| Training Area || Objective ||
+| Kubernetes Fundamentals | Understand what VKS is built on |
+| Kubernetes Operations | Safely triage and support issues |
+
+h2. Training Access Note
+
+Some of the training materials referenced in this plan are hosted on Pluralsight and require an active subscription.  
+If you do not currently have access, please reach out to *AI-Central@verisign.com* for assistance.
+
+h2. Kubernetes Beginner Training Path
+
+This training path introduces core Kubernetes concepts as they apply to the Verisign Kubernetes Service (VKS). Since VKS exposes standard Kubernetes behavior and alerts, a basic working knowledge of Kubernetes is necessary to monitor the platform and follow operational runbooks. The focus is on operational behavior within VKS, not application development or platform engineering.
+
+h3. Training Content
+
+|| Title || Type ||
+| Kubernetes Crash Course for Absolute Beginners | Video |
+| Introduction to Kubernetes | Course |
+
+h2. Operations Training Path
+
+This training path builds on the Kubernetes beginner material and focuses on day-to-day operational support of workloads running on VKS. *It focuses on day-to-day triage, identifying common Kubernetes issues, and determining when escalation to VKSOps is required.*
+
+h3. Training Content
+
+|| Title || Type ||
+| Hands-On Kubernetes Troubleshooting | Course |
+
+h2. Optional Hands-On Learning (Kind Cluster)
+
+*To get additional hands-on exposure after completing the training*, an optional local Kubernetes environment can be used for experimentation and learning.
+
+The *kind (Kubernetes in Docker)* project provides a lightweight, self-contained Kubernetes cluster that runs locally and allows users to interact with core Kubernetes objects in a safe, isolated environment.
+
+This option is intended for learning and familiarity only and is not required for NOC operational readiness.
+
+h3. Scope and Guardrails
+
+* The kind cluster is local and standalone
+* It does not represent VKS scale, integrations, or production behavior
+* No access to VKS or shared environments is required
+* Usage is optional and self-directed
+
+h3. Reference
+
+* Internal *kind-cluster repository*  
+  Provides instructions and automation for deploying a local kind cluster, including prerequisites, setup steps, and example workflows.
+
+h2. VKS Environment and Reference Material
+
+The following materials provide additional context for operating within the VKS environment and are intended to complement the training paths above.
+
+* *VKS Environment Overview Page*  
+  Central reference containing VKS environment URLs, dashboards, ingress endpoints, and supporting services.
+* VKS User Guide
+* VKS Operations Guide
+* Kubectl Cheatsheet
+* VKS Technical Architecture & Design Document (TADD) – Reference Only
+
+These materials are provided for visibility and reference. Mastery of platform architecture is not expected of the NOC.
+
+h2. Next Steps
+
+Once the training paths have been completed, the following steps will be taken to prepare the NOC for operational support of the VKS platform:
+
+* Review the *VKS Environment Overview Page* with the NOC and conduct guided walkthrough sessions as needed to validate access and familiarity
+* Validate NOC access to required tools, dashboards, and read-only views
+* Review operational runbooks and escalation procedures
+* Confirm expectations around monitoring, triage, and escalation responsibilities
+* Address any access gaps or questions prior to full operational handoff
