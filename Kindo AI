@@ -1,0 +1,62 @@
+Architecture & Placement Decisions
+
+GPU-enabled VMs will run on non-DRS hosts. Only one GPU-capable server was purchased per site for this project.
+
+Non-GPU Kubernetes worker nodes and the control plane will reside on the other SLC4 cluster, where DRS is enabled.
+
+The AI (GPU) cluster is dedicated exclusively to GPU-enabled AI workloads and will not host control plane or standard worker nodes.
+
+Storage Layout Decisions
+
+The GPU system has two 14TB local datastores.
+
+One VM will be placed on each datastore to distribute storage across both disks.
+
+Storage is local and non-redundant, which is not ideal but reflects the hardware that was purchased.
+
+Cluster Placement Decisions
+
+HAProxy and Kubernetes non-GPU worker nodes will be deployed on the AAMSLC4-PROD cluster, not the AI cluster.
+
+The AI cluster is reserved solely for GPU-enabled AI nodes.
+
+Temporary Networking Workaround (To Keep Things Moving)
+
+VLAN 3002 is configured on SLC4-AI but not on SLC4-PROD.
+
+To keep progress moving, all systems were provisioned on SLC4-AI.
+
+Once networking is fixed on SLC4-PROD, the control plane, worker, and HAProxy nodes will be migrated back to the SLC4-PROD cluster.
+
+Done So Far
+
+DNS records created for all 7 systems
+
+Networking configured on the systems
+
+All systems enrolled into Red Hat Satellite
+
+Server name and role variables updated in Satellite host parameters
+
+Ansible automation user created and granted sudo access on each system
+
+Initial Ansible roles executed but failed due to hostname resolution issues
+
+Added IP and hostname mappings to /etc/hosts on aamslc4kbc01
+
+Re-ran playbooks; failure persists with:
+ssh: Could not resolve hostname aamslc4kbc01.ttmtech.local
+
+Next Steps
+
+Add IP and hostname entries to /etc/hosts on the remaining systems
+
+Create /opt/adminscripts on all systems (iffy about having homdirs mounted on these systems)
+
+Continue troubleshooting Ansible role execution failures
+
+Join all 7 systems to Active Directory
+
+Update OS on all systems
+
+Migrate back to SLC4-PROD, then validate networking
