@@ -115,7 +115,7 @@ fdisk /dev/sdc
 250G
 pvcreate /dev/sdc1
 vgcreate kubelet_vg /dev/sdc1
-lvcreate -n kubelet_lv -l 100%FREE kubelet_vg
+lvcreate -n kubelet_lv -L 150G kubelet_vg
 mkfs.xfs /dev/kubelet_vg/kubelet_lv
 
 vgreduce --remove-missing rootvg
