@@ -111,6 +111,8 @@ lvcreate -n rancher_lv -l 100%FREE rancher_vg
 mkfs.xfs /dev/rancher_vg/rancher_lv
 
 Kubelet VG/LV
+fdisk /dev/sdc
+250G
 pvcreate /dev/sdc1
 vgcreate kubelet_vg /dev/sdc1
 lvcreate -n kubelet_lv -l 100%FREE kubelet_vg
