@@ -60,3 +60,205 @@ Join all 7 systems to Active Directory
 Update OS on all systems
 
 Migrate back to SLC4-PROD, then validate networking
+
+
+===============
+
+
+1) Cordon + drain the node (one at a time)
+
+From a management node:
+
+NODE=<this-node-name>
+
+kubectl cordon $NODE
+kubectl drain $NODE --ignore-daemonsets --delete-emptydir-data --timeout=10m
+
+
+(Drain may still complain about some DS pods; that’s normal. Don’t panic.)
+
+2) Stop RKE2 cleanly on the node
+
+On the node you’re migrating:
+
+If it’s a control-plane node
+systemctl stop rke2-server
+
+If it’s a worker node
+systemctl stop rke2-agent
+
+
+Confirm nothing is holding those dirs open:
+
+lsof +D /var/lib/rancher 2>/dev/null | head
+lsof +D /var/lib/kubelet 2>/dev/null | head
+
+3) Create LVM + filesystems (example matches your layout style)
+Example: /dev/sdb for docker + rancher, /dev/sdc for kubelet
+
+Partition however you prefer, then:
+
+Docker VG/LV (optional)
+pvcreate /dev/sdb1
+vgcreate docker_vg /dev/sdb1
+lvcreate -n docker_lv -l 100%FREE docker_vg
+mkfs.xfs /dev/docker_vg/docker_lv
+
+Rancher VG/LV
+pvcreate /dev/sdb2
+vgcreate rancher_vg /dev/sdb2
+lvcreate -n rancher_lv -l 100%FREE rancher_vg
+mkfs.xfs /dev/rancher_vg/rancher_lv
+
+Kubelet VG/LV
+pvcreate /dev/sdc1
+vgcreate kubelet_vg /dev/sdc1
+lvcreate -n kubelet_lv -l 100%FREE kubelet_vg
+mkfs.xfs /dev/kubelet_vg/kubelet_lv
+
+4) TEMP mount the new filesystems somewhere safe
+
+This is the “no surprises” part.
+
+mkdir -p /mnt/new_rancher /mnt/new_kubelet /mnt/new_docker
+
+mount /dev/rancher_vg/rancher_lv /mnt/new_rancher
+mount /dev/kubelet_vg/kubelet_lv /mnt/new_kubelet
+# optional:
+mount /dev/docker_vg/docker_lv /mnt/new_docker
+
+5) Rsync the existing data (this is why rsync exists)
+
+Because Kubernetes/RKE2 is already installed, this step is what prevents a “cascading effect”.
+
+rsync -aHAX --numeric-ids /var/lib/rancher/  /mnt/new_rancher/
+rsync -aHAX --numeric-ids /var/lib/kubelet/  /mnt/new_kubelet/
+# optional:
+rsync -aHAX --numeric-ids /var/lib/docker/   /mnt/new_docker/
+
+
+Quick sanity checks:
+
+du -sh /var/lib/rancher /mnt/new_rancher
+du -sh /var/lib/kubelet /mnt/new_kubelet
+# optional:
+du -sh /var/lib/docker  /mnt/new_docker
+
+6) Put the mounts in place permanently (fstab)
+
+Create the mountpoints (they already exist, but ensure they’re there):
+
+mkdir -p /var/lib/rancher /var/lib/kubelet
+# optional:
+mkdir -p /var/lib/docker
+
+
+Get UUIDs:
+
+blkid /dev/rancher_vg/rancher_lv
+blkid /dev/kubelet_vg/kubelet_lv
+# optional:
+blkid /dev/docker_vg/docker_lv
+
+
+Add to /etc/fstab (example):
+
+UUID=<RANCHER_UUID>  /var/lib/rancher  xfs  defaults,noatime  0 0
+UUID=<KUBELET_UUID>  /var/lib/kubelet  xfs  defaults,noatime  0 0
+UUID=<DOCKER_UUID>   /var/lib/docker   xfs  defaults,noatime  0 0
+
+7) Cutover safely (no data loss)
+
+Move old dirs aside as a rollback safety net (no deleting):
+
+mv /var/lib/rancher  /var/lib/rancher.bak.$(date +%F_%H%M%S)
+mv /var/lib/kubelet  /var/lib/kubelet.bak.$(date +%F_%H%M%S)
+# optional:
+mv /var/lib/docker   /var/lib/docker.bak.$(date +%F_%H%M%S)
+
+mkdir -p /var/lib/rancher /var/lib/kubelet /var/lib/docker
+
+
+Now mount the real mountpoints:
+
+mount -a
+mount | egrep '/var/lib/(rancher|kubelet|docker)'
+
+
+Copy the data from the temporary mounts into the now-real locations only if needed:
+
+If you mounted /mnt/new_* and then moved old dirs + mounted /var/lib/... fresh, you need the data to be present under /var/lib/....
+
+If after mount -a your /var/lib/rancher is empty, do:
+
+rsync -aHAX --numeric-ids /mnt/new_rancher/ /var/lib/rancher/
+rsync -aHAX --numeric-ids /mnt/new_kubelet/ /var/lib/kubelet/
+# optional:
+rsync -aHAX --numeric-ids /mnt/new_docker/ /var/lib/docker/
+
+
+Unmount temp:
+
+umount /mnt/new_rancher /mnt/new_kubelet /mnt/new_docker 2>/dev/null
+
+8) Start RKE2 back up
+# control plane
+systemctl start rke2-server
+
+# OR worker
+systemctl start rke2-agent
+
+
+Watch logs:
+
+journalctl -u rke2-server -f
+# or
+journalctl -u rke2-agent -f
+
+9) Uncordon and verify
+
+Back on your kubectl box:
+
+kubectl uncordon $NODE
+kubectl get nodes -o wide
+kubectl get pods -A -o wide | egrep "$NODE|Pending|CrashLoopBackOff"
+
+
+Do the next node only after this one is clean.
+
+Do you “need rsync”?
+
+Yes, if Kubernetes/RKE2 is already installed and those directories contain data.
+If you skip it, the mount will mask the existing data and you can absolutely trigger a chain reaction (node not coming up, CNI weirdness, Longhorn pods flapping, etc.).
+
+The only time rsync is not needed is when:
+
+the node is brand new and
+
+those directories are empty and
+
+you’re mounting before installing RKE2 / before it ever wrote data.
+
+Bonus: make crictl + PATH permanent for all users (and fix your permission denied)
+
+Create:
+
+cat >/etc/profile.d/rke2.sh <<'EOF'
+export PATH="$PATH:/var/lib/rancher/rke2/bin"
+export CRI_CONFIG_FILE=/var/lib/rancher/rke2/agent/etc/crictl.yaml
+EOF
+
+chmod 644 /etc/profile.d/rke2.sh
+
+
+Fix the permission issue you hit (crictl.yaml: permission denied) — usually the file or one of its parent dirs isn’t world-readable/executable:
+
+chmod 755 /var/lib/rancher /var/lib/rancher/rke2 /var/lib/rancher/rke2/agent /var/lib/rancher/rke2/agent/etc
+chmod 644 /var/lib/rancher/rke2/agent/etc/crictl.yaml
+
+
+Test as a normal user:
+
+su - <user>
+which crictl
+crictl images
