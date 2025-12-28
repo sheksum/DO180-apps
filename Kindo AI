@@ -99,7 +99,7 @@ Example: /dev/sdb for docker + rancher, /dev/sdc for kubelet
 Partition however you prefer, then:
 
 Docker VG/LV (optional)
-pvcreate /dev/sdb1
+pvcreate /dev/sdb1 -ff
 vgcreate docker_vg /dev/sdb1
 lvcreate -n docker_lv -l 100%FREE docker_vg
 mkfs.xfs /dev/docker_vg/docker_lv
@@ -117,6 +117,8 @@ pvcreate /dev/sdc1
 vgcreate kubelet_vg /dev/sdc1
 lvcreate -n kubelet_lv -l 100%FREE kubelet_vg
 mkfs.xfs /dev/kubelet_vg/kubelet_lv
+
+vgreduce --remove-missing rootvg
 
 4) TEMP mount the new filesystems somewhere safe
 
