@@ -1,14 +1,5 @@
-Hi Jim,
+Hi Laura,
 
-Per our conversation this morning on Vation, you had asked for clarification on why we should not run ingress controllers on the Kubernetes control-plane or GPU worker nodes.
+Thank you for the update and the prompt response.
 
-Running ingress on the control plane introduces unnecessary risk since ingress handles external-facing traffic and can experience unpredictable load patterns. The control plane should remain isolated and focused on cluster management so that any traffic-related issues don’t impact overall cluster stability.
-
-Similarly, we don’t want ingress running on GPU worker nodes. Those nodes are dedicated, high-cost resources intended for GPU workloads, and ingress does not benefit from GPUs. Running ingress there would unnecessarily consume CPU, memory, and network capacity that should be reserved for compute workloads.
-
-Best practice is to run ingress controllers only on standard worker nodes that are designed to handle application traffic. This keeps the environment stable, predictable, and aligned with how Kubernetes clusters are typically operated in production.
-
-Happy to discuss further if helpful.
-
-Thanks,
-Haj
+That makes sense. I’m happy to wait and will remain available if the client or team needs anything further from me in the meantime. Please feel free to reach out once they’re back or if there are any updates.
