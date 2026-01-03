@@ -27,3 +27,10 @@ jq -r '
 | tr '[:upper:]' '[:lower:]' \
 | sed 's/\..*$//' \
 | sort -u > landscape.hosts
+
+
+
+cut -d',' -f1 vcenter_union.csv \
+| tr '[:upper:]' '[:lower:]' \
+| sed 's/\..*$//' \
+| sort -u > vcenter.hosts
