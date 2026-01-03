@@ -79,68 +79,32 @@ grep -Ff dead_to_delete.hosts landscape_host_id.norm \
 
 
 #!/usr/bin/env bash
+host="$1"
 
-HOSTS_FILE="$1"
+OUTPUT=$(ssh \
+  -F ~/.ssh/config \
+  -o BatchMode=yes \
+  -o ConnectTimeout=5 \
+  -o StrictHostKeyChecking=accept-new \
+  "$host" \
+  "python3 --version" 2>/dev/null)
 
-if [[ -z "$HOSTS_FILE" || ! -f "$HOSTS_FILE" ]]; then
-  echo "Usage: $0 <hosts_file>"
-  exit 1
+RC=$?
+
+if [[ $RC -ne 0 ]]; then
+  echo "UNREACHABLE $host"
+  exit 0
 fi
 
-# Output inventories
-MODERN_INV="inventory_modern_ansible"
-LEGACY_INV="inventory_ansible_29"
-NO_PY_INV="inventory_no_python"
-UNREACHABLE_INV="inventory_unreachable"
+if [[ "$OUTPUT" =~ Python\ ([0-9]+)\.([0-9]+)\. ]]; then
+  MAJOR="${BASH_REMATCH[1]}"
+  MINOR="${BASH_REMATCH[2]}"
 
-# Reset outputs
-> "$MODERN_INV"
-> "$LEGACY_INV"
-> "$NO_PY_INV"
-> "$UNREACHABLE_INV"
-
-SSH_OPTS="-o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no"
-
-while read -r host; do
-  [[ -z "$host" ]] && continue
-
-  echo "Checking $host ..."
-
-  result=$(ssh $SSH_OPTS "$host" '
-    if command -v python3 >/dev/null 2>&1; then
-      python3 -c "import sys; print(f\"python3 {sys.version_info.major}.{sys.version_info.minor}\")"
-    elif command -v python >/dev/null 2>&1; then
-      python -c "import sys; print(f\"python {sys.version_info.major}.{sys.version_info.minor}\")"
-    else
-      echo "no_python"
-    fi
-  ' 2>/dev/null)
-
-  if [[ $? -ne 0 ]]; then
-    echo "$host" >> "$UNREACHABLE_INV"
-    continue
+  if (( MAJOR > 3 || (MAJOR == 3 && MINOR >= 8) )); then
+    echo "MODERN $host"
+  else
+    echo "LEGACY $host"
   fi
-
-  case "$result" in
-    python3\ 3.[9-9]*|python3\ 3.1[0-9]*)
-      echo "$host" >> "$MODERN_INV"
-      ;;
-    python3\ 3.[5-8]*|python\ 2.*|python\ 3.[5-8]*)
-      echo "$host" >> "$LEGACY_INV"
-      ;;
-    no_python)
-      echo "$host" >> "$NO_PY_INV"
-      ;;
-    *)
-      echo "$host" >> "$LEGACY_INV"
-      ;;
-  esac
-
-done < "$HOSTS_FILE"
-
-echo
-echo "Classification complete:"
-echo "  Modern Ansible (2.17+): $(wc -l < $MODERN_INV)"
-echo "  Legacy Ansible (2.9):   $(wc -l < $LEGACY_INV)"
-echo "  No Python:              $(wc -l < $NO_PY_INV)"
-echo "  Unreachable:            $(wc -l < $UNREACHABLE_INV)"
+else
+  echo "NO_PYTHON $host"
+fi
