@@ -34,3 +34,27 @@ cut -d',' -f1 vcenter_union.csv \
 | tr '[:upper:]' '[:lower:]' \
 | sed 's/\..*$//' \
 | sort -u > vcenter.hosts
+
+
+
+jq -r '
+  .[] |
+  [.hostname, .id] | @tsv
+' landscape_raw.json > landscape_host_id.map
+
+
+
+
+awk '{
+  h=$1
+  sub(/\..*/, "", h)
+  print tolower(h) "\t" $2
+}' landscape_host_id.map > landscape_host_id.norm
+
+
+grep -Ff dead_to_delete.hosts landscape_host_id.norm \
+| awk '{print $2}' > dead_to_delete.ids
+
+
+
+
