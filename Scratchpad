@@ -18,3 +18,12 @@ NR==1 {header=$0; print header; next}
   if (!seen[$1]++) print
 }
 ' OFS=',' vcenter_A.norm.csv vcenter_B.norm.csv > vcenter_union.csv
+
+
+jq -r '
+  .[] |
+  .hostname
+' landscape_raw.json \
+| tr '[:upper:]' '[:lower:]' \
+| sed 's/\..*$//' \
+| sort -u > landscape.hosts
