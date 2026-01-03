@@ -56,5 +56,24 @@ grep -Ff dead_to_delete.hosts landscape_host_id.norm \
 | awk '{print $2}' > dead_to_delete.ids
 
 
+=======
+---
+- name: Check if landscape-client is installed
+  hosts: all
+  gather_facts: false
+  become: true
 
+  tasks:
+    - name: Check landscape-client package
+      command: dpkg -s landscape-client
+      register: landscape_pkg
+      ignore_errors: true
+      changed_when: false
+
+    - name: Report landscape-client status
+      debug:
+        msg: >
+          landscape-client is {{
+            'INSTALLED' if landscape_pkg.rc == 0 else 'NOT installed'
+          }}
 
