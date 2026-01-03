@@ -1,0 +1,20 @@
+awk -F',' 'NR==1{print;next}{
+  $1=tolower($1);
+  sub(/\..*/, "", $1);
+  print
+}' OFS=',' vcenter_A.csv > vcenter_A.norm.csv
+
+
+awk -F',' 'NR==1{print;next}{
+  $1=tolower($1);
+  sub(/\..*/, "", $1);
+  print
+}' OFS=',' vcenter_B.csv > vcenter_B.norm.csv
+
+
+awk -F',' '
+NR==1 {header=$0; print header; next}
+{
+  if (!seen[$1]++) print
+}
+' OFS=',' vcenter_A.norm.csv vcenter_B.norm.csv > vcenter_union.csv
