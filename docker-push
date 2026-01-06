@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SRC_REG=registry.tabnine.com
+DST_REG=plnx-ai-registry.calix.local:5000
+
+while read -r IMAGE; do
+  [[ -z "$IMAGE" ]] && continue
+
+  # Strip source registry prefix
+  IMAGE_PATH="${IMAGE#${SRC_REG}/}"
+  DST_IMAGE="${DST_REG}/${IMAGE_PATH}"
+
+  echo "▶ Pulling  $IMAGE"
+  docker pull "$IMAGE"
+
+  echo "▶ Tagging  $DST_IMAGE"
+  docker tag "$IMAGE" "$DST_IMAGE"
+
+  echo "▶ Pushing  $DST_IMAGE"
+  docker push "$DST_IMAGE"
+
+  echo "✔ Done: $DST_IMAGE"
+  echo
+done < tabnine-images.txt
