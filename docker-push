@@ -23,3 +23,13 @@ while read -r IMAGE; do
   echo "✔ Done: $DST_IMAGE"
   echo
 done < tabnine-images.txt
+
+
+TAG="latest"
+
+DIGEST=$(curl -sI \
+  -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+  http://$REGISTRY/v2/$REPO/manifests/$TAG \
+  | awk '/Docker-Content-Digest/ {print $2}' | tr -d $'\r')
+
+echo "Digest = $DIGEST"
