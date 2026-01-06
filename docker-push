@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+by#!/usr/bin/env bash
 set -euo pipefail
 
 SRC_REG=registry.tabnine.com
@@ -54,7 +54,27 @@ while read IMAGE; do
   fi
 done < "$FILE"
 
+REGISTRY=localhost:5000
+FILE=/opt/registry/images.txt
 
+while read IMAGE; do
+  REPO=$(echo "$IMAGE" | cut -d: -f1)
+  TAG=$(echo "$IMAGE" | cut -s -d: -f2)
+  [ -z "$TAG" ] && TAG=latest
+
+  DIGEST=$(curl -sI \
+    -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+    http://$REGISTRY/v2/$REPO/manifests/$TAG \
+    | awk '/Docker-Content-Digest/ {print $2}' | tr -d $'\r')
+
+  if [ -n "$DIGEST" ]; then
+    echo "[DELETE] $REPO:$TAG"
+    curl -s -X DELETE \
+      http://$REGISTRY/v2/$REPO/manifests/$DIGEST
+  else
+    echo "[SKIP] $REPO:$TAG (not found)"
+  fi
+done < "$FILE"
 
 
 
