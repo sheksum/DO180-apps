@@ -1,0 +1,91 @@
+Title
+
+Migrate IPA Master from Petaluma to Plano (RHEL8 → RHEL9)
+
+⸻
+
+Type
+
+Project / Infrastructure Migration
+
+⸻
+
+Priority
+
+High
+
+⸻
+
+Summary
+
+Migrate the primary Red Hat Identity Management (IPA/IdM) master from the Petaluma datacenter to Plano, including OS upgrade from RHEL8 to RHEL9, hostname/IP changes, and client repointing.
+
+⸻
+
+Description
+
+As part of the Petaluma datacenter shutdown and NetApp upgrade activities, we need to migrate the primary Red Hat Identity (IPA/IdM) environment out of Petaluma and establish a new primary IPA master in Plano.
+
+This effort will involve building a new IPA master on RHEL9, migrating services and replication, updating hostnames and IPs, and repointing client systems. Client-side SSSD configurations will need to be cleaned up to ensure systems only reference the correct Plano IPA endpoints post-cutover.
+
+Currently, IPA clients are configured to communicate with both the Petaluma IPA master and pln-petipareplica as part of redundancy. This will need to be corrected during the migration.
+
+This work is critical to fully decommission Petaluma-based identity services.
+
+⸻
+
+Scope
+	•	Build new IPA master in Plano on RHEL9
+	•	Establish IPA replication and validate health
+	•	Migrate primary IPA role from Petaluma to Plano
+	•	Update hostnames and IP addresses
+	•	Update / clean up SSSD configurations on client systems
+	•	Validate authentication, sudo, HBAC, and DNS post-migration
+	•	Decommission Petaluma IPA master after successful cutover
+
+⸻
+
+Out of Scope
+	•	Application-level auth changes
+	•	Non-IPA identity systems
+
+⸻
+
+Proposed Approach (High-Level)
+	1.	Provision new RHEL9 IPA master in Plano
+	2.	Configure IPA replication with existing environment
+	3.	Validate replication and directory health
+	4.	Promote Plano IPA master as primary
+	5.	Update client configurations and remove Petaluma references
+	6.	Perform validation testing (login, sudo, HBAC)
+	7.	Decommission Petaluma IPA master
+
+⸻
+
+Dependencies
+	•	Plano infrastructure availability
+	•	Maintenance window approval for client repointing
+	•	Coordination with Tools / Infra teams
+
+⸻
+
+Risks
+	•	Authentication outages if clients are not properly repointed
+	•	Incomplete cleanup of SSSD configs
+	•	DNS or certificate issues during cutover
+
+⸻
+
+Success Criteria
+	•	All IPA services running from Plano
+	•	Clients authenticate successfully without Petaluma dependencies
+	•	Petaluma IPA master fully decommissioned
+	•	No authentication or sudo regressions reported
+
+⸻
+
+Stakeholders
+	•	Tools & Services
+	•	Infrastructure
+	•	Security
+	•	Engineering Operations
