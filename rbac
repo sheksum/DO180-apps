@@ -1,0 +1,13 @@
+I’ve validated the current RBAC configuration for NOC users in Rancher and synced up with Tinh from the NOC to directly test access.
+
+NOC users can successfully access Rancher and interact with the workload clusters. Application-level access is working as expected. They are able to manage pods (including deletes) and perform Flux/GitOps operations such as reconciliations without issue.
+
+The permissions currently granted via the GlobalRole VKS NOC Admin are largely application-level and GitOps-focused. This includes access to Flux resources (GitRepositories, HelmReleases, Kustomizations, image automation resources), as well as standard workload resources such as Deployments, StatefulSets, Services, Ingresses, ConfigMaps, Secrets, Jobs, and HPAs.
+
+Where the gap exists is at the cluster and infrastructure layer. NOC users:
+	•	Cannot see or access the management (local) cluster in Rancher
+	•	Cannot query the Kubernetes API directly using kubectl
+	•	Do not have permissions to view nodes
+	•	Do not have permissions to perform node-level operations such as draining nodes
+
+Overall, workload access mostly looks right, but cluster-level and infrastructure-level permissions are missing. I’ll open a ticket with AVID to request the appropriate RBAC updates so the required access can be added.
