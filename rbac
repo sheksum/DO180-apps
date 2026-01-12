@@ -11,3 +11,22 @@ Where the gap exists is at the cluster and infrastructure layer. NOC users:
 	•	Do not have permissions to perform node-level operations such as draining nodes
 
 Overall, workload access mostly looks right, but cluster-level and infrastructure-level permissions are missing. I’ll open a ticket with AVID to request the appropriate RBAC updates so the required access can be added.
+
+
+Title
+Update NOC RBAC for cluster and node-level operational access
+
+Type
+Task
+
+Description
+We’re starting to push some operational work to the NOC, which means they need basic cluster- and node-level access to support day-to-day operations and hardware maintenance.
+
+I synced with Tinh from the NOC and tested current access. NOC can access Rancher and work in the workload clusters. Pod deletes and Flux reconciliations work as expected.
+
+What’s missing is cluster-level access. They can’t see the management (local) cluster in Rancher or query it via kubectl. They also can’t view nodes or drain nodes.
+
+They need this access so they can drain workloads and help with hardware replacement without having to escalate every time.
+
+Reference
+For additional context and detailed findings, please refer to this ticket: <link to your ticket>
