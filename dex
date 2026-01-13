@@ -1,0 +1,54 @@
+issuer: https://plnx-ai-registry.calix.local/dex
+
+storage:
+  type: sqlite3
+  config:
+    file: /var/dex/dex.db
+
+web:
+  http: 0.0.0.0:5556
+
+# If you want dex logs more verbose:
+logger:
+  level: "info"
+  format: "text"
+
+# This client is oauth2-proxy
+staticClients:
+  - id: registry-ui
+    name: "Registry UI"
+    secret: CHANGE_ME__DEX_CLIENT_SECRET
+    redirectURIs:
+      - "https://plnx-ai-registry.calix.local/oauth2/callback"
+
+connectors:
+  - type: ldap
+    id: ipa
+    name: "FreeIPA"
+    config:
+      host: cpeg-ipareplica.ipa.calix.local:636
+
+      # For FreeIPA LDAPS, use "ldaps" + your system trust store.
+      insecureNoSSL: false
+      insecureSkipVerify: false
+
+      bindDN: "uid=svc_nginx_registry,cn=users,cn=accounts,dc=ipa,dc=calix,dc=local"
+      bindPW: "REPLACE_ME"
+
+      usernamePrompt: "IPA Username"
+
+      userSearch:
+        baseDN: "cn=users,cn=accounts,dc=ipa,dc=calix,dc=local"
+        filter: "(objectClass=person)"
+        username: "uid"
+        idAttr: "uid"
+        emailAttr: "mail"
+        nameAttr: "cn"
+
+      groupSearch:
+        baseDN: "cn=groups,cn=accounts,dc=ipa,dc=calix,dc=local"
+        filter: "(objectClass=groupOfNames)"
+        userMatchers:
+          - userAttr: "DN"
+            groupAttr: "member"
+        nameAttr: "cn"
