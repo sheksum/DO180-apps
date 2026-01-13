@@ -5,16 +5,20 @@ events {
 http {
   client_max_body_size 0;
 
-  upstream registry_backend {
-    server registry:5000;
+  upstream registry_ui {
+    server registry-ui:80;
   }
 
-  upstream registry_ui_backend {
-    server registry-ui:80;
+  upstream registry_api {
+    server registry:5000;
   }
 
   upstream oauth2_proxy {
     server oauth2-proxy:4180;
+  }
+
+  upstream dex_srv {
+    server dex:5556;
   }
 
   server {
@@ -23,44 +27,52 @@ http {
 
     ssl_certificate     /etc/nginx/certs/domain.crt;
     ssl_certificate_key /etc/nginx/certs/domain.key;
+
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
 
-    # ---- oauth2-proxy endpoints ----
+    # ---- OAUTH2-PROXY endpoints ----
     location /oauth2/ {
       proxy_pass http://oauth2_proxy;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
-    # ---- Registry UI (protected) ----
+    # ---- DEX endpoints ----
+    location /dex/ {
+      proxy_pass http://dex_srv;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # ---- Registry UI (PROTECTED) ----
     location / {
       auth_request /oauth2/auth;
       error_page 401 = /oauth2/sign_in;
 
-      proxy_pass http://registry_ui_backend;
+      proxy_pass http://registry_ui;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
-    # ---- Docker Registry API (protected) ----
+    # ---- Docker Registry API (NOT protected here yet) ----
     location /v2/ {
-      auth_request /oauth2/auth;
-      error_page 401 = /oauth2/sign_in;
+      proxy_pass http://registry_api;
 
-      proxy_pass http://registry_backend;
       proxy_http_version 1.1;
       proxy_request_buffering off;
       proxy_buffering off;
 
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 
       proxy_read_timeout 900;
       proxy_send_timeout 900;
