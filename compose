@@ -1,24 +1,21 @@
+version: "3.9"
+
 services:
   registry:
     image: registry:2
     container_name: registry
-    restart: unless-stopped
+    restart: always
     ports:
       - "5000:5000"
-    environment:
-      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
-      REGISTRY_STORAGE_DELETE_ENABLED: "true"
     volumes:
-      - /opt/registry/data:/var/lib/registry
+      - ./data/registry:/var/lib/registry
 
   registry-ui:
     image: konradkleine/docker-registry-frontend:v2
     container_name: registry-ui
-    restart: unless-stopped
-    ports:
-      - "8080:80"
+    restart: always
     environment:
-      ENV_DOCKER_REGISTRY_HOST: plnx-ai-registry.calix.local
+      ENV_DOCKER_REGISTRY_HOST: registry
       ENV_DOCKER_REGISTRY_PORT: 5000
     depends_on:
       - registry
@@ -26,52 +23,45 @@ services:
   dex:
     image: ghcr.io/dexidp/dex:v2.39.1
     container_name: dex
-    restart: unless-stopped
+    restart: always
     command: ["dex", "serve", "/etc/dex/config.yaml"]
     volumes:
-      - /opt/registry/dex/config.yaml:/etc/dex/config.yaml:ro
-      - /opt/registry/dex/dex.db:/var/dex/dex.db
-      - /etc/ssl/certs:/etc/ssl/certs:ro
-    depends_on:
-      - registry
+      - ./dex/config.yaml:/etc/dex/config.yaml:ro
+    ports:
+      - "5556:5556"
 
   oauth2-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:v7.6.0
     container_name: oauth2-proxy
-    restart: unless-stopped
-    command:
-      - --http-address=0.0.0.0:4180
-      - --provider=oidc
-      - --oidc-issuer-url=https://plnx-ai-registry.calix.local/dex
-      - --redirect-url=https://plnx-ai-registry.calix.local/oauth2/callback
-      - --email-domain=*
-      - --scope=openid email profile groups
-      - --cookie-secure=true
-      - --cookie-samesite=lax
-      - --cookie-refresh=1h
-      - --cookie-expire=8h
-      - --set-xauthrequest=true
-      - --pass-authorization-header=true
-      - --skip-provider-button=true
-      - --oidc-groups-claim=groups
-      - --upstream=static://200
+    restart: always
     environment:
+      OAUTH2_PROXY_PROVIDER: oidc
+      OAUTH2_PROXY_OIDC_ISSUER_URL: http://dex:5556/dex
       OAUTH2_PROXY_CLIENT_ID: registry-ui
-      OAUTH2_PROXY_CLIENT_SECRET: CHANGE_ME__OAUTH2_PROXY_CLIENT_SECRET
-      OAUTH2_PROXY_COOKIE_SECRET: CHANGE_ME__COOKIE_SECRET
+      OAUTH2_PROXY_CLIENT_SECRET: ${DEX_CLIENT_SECRET}
+      OAUTH2_PROXY_COOKIE_SECRET: ${OAUTH2_PROXY_COOKIE_SECRET}
+      OAUTH2_PROXY_HTTP_ADDRESS: 0.0.0.0:4180
+      OAUTH2_PROXY_REDIRECT_URL: https://plnx-ai-registry.calix.local/oauth2/callback
+      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+      OAUTH2_PROXY_UPSTREAMS: static://200
+      OAUTH2_PROXY_SCOPE: "openid profile email groups"
+      OAUTH2_PROXY_COOKIE_SECURE: "true"
+      OAUTH2_PROXY_COOKIE_SAMESITE: lax
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
     depends_on:
       - dex
 
   nginx-ui-proxy:
     image: nginx:stable
     container_name: nginx-ui-proxy
-    restart: unless-stopped
+    restart: always
     ports:
       - "443:443"
     volumes:
-      - /opt/registry/certs:/etc/nginx/certs:ro
-      - /opt/registry/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
     depends_on:
+      - registry
       - registry-ui
       - oauth2-proxy
       - dex
