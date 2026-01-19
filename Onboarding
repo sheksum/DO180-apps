@@ -1,0 +1,129 @@
+h1. VKS Ops / SRE Onboarding Guide
+
+This page outlines the required access, setup steps, and resources for engineers onboarding into the *VKS Ops / SRE* team.
+
+It focuses on *what access is required* and *what must be set up*, while linking to authoritative documentation where detailed steps already exist.
+
+---
+
+h2. 1. Accesses
+
+The following accesses are required for all VKS Ops / SRE resources.
+
+* *FreeIPA (IPA):* New hire must be added to the appropriate VKS IPA group
+* *GitHub:* New hire must be added to the *vks-ops* team under
+https://github.vrsn.com/vks
+* *Jira:* New hire must be added to the *VKS Support Jira project* with visibility to all relevant VKS projects
+* *Netcool:* Access to the *VKS Ops Netcool filter* (requires a ticket to the MALT board)
+* *Wiz:* Submit an access request to the *Wiz dashboard*
+
+*Notes:*
+* Jira, GitHub, Netcool, and Wiz use *VCorp credentials* (the same credentials used to connect to the corporate VPN)
+* *FreeIPA (IPA) access is managed separately*
+
+---
+
+h2. 2. Request a VDE
+
+A *Virtual Desktop Environment (VDE)* is required for all VKS operational work.
+
+Use the following page to request a VDE:
+
+* *Requesting a VDE*
+(link to existing Confluence page)
+
+---
+
+h2. 3. Setting Up a Newly Issued VDE
+
+Once you have received VDE access, set up both *VDE CLI* and *GUI* access.
+
+---
+
+h3. 3.1 Set Up VDE CLI Access
+
+Set up the VDE CLI on your VDE. This provides command-line access required for VKS operational work.
+
+*Guide:*
+* *VDE CLI – Onboarding*
+https://confluence.example.com/display/VKS/VDE+CLI+Onboarding
+
+---
+
+h3. 3.2 Request and Set Up GUI Access via noMachine on the VDE
+
+Request and set up GUI access via noMachine on the VDE.
+
+This enables access to Kubernetes-related dashboards and web interfaces such as Rancher, Rook Ceph, and Calico.
+
+*Guide:*
+* *VDE – GUI Access via noMachine*
+https://confluence.example.com/display/VKS/VDE+Access+via+noMachine
+
+---
+
+h2. 4. Git Repository Access
+
+VKS operational tooling and automation are maintained in GitHub repositories under the VKS organization.
+
+*VKS GitHub Organization:*
+https://github.vrsn.com/vks
+
+*Common repositories:*
+* https://github.vrsn.com/vks/vks-ops-tools
+
+*Notes:*
+* Ensure your *public SSH key* is uploaded to GitHub
+* Clone repositories using SSH
+
+---
+
+h2. 5. VDE VKS Script Setup
+
+Once you have access to your VDE and the required Git repositories, set up the VDE VKS scripts.
+
+* Clone the *vks-ops-tools* repository
+* Run the VDE setup scripts as documented in the repository
+
+---
+
+h2. 6. Kubernetes and Cluster Access
+
+VKS Ops resources access Kubernetes clusters through:
+
+* *Rancher (GUI)*
+* *kubectl / CLI* from the VDE
+
+---
+
+h2. 7. Environments
+
+The *Environments* page provides a centralized view of all VKS Kubernetes clusters and is the primary reference for locating cluster-specific URLs.
+
+New team members should use this page to:
+* Identify available workload and management clusters
+* Determine cluster environment (Prod, QA, Lab)
+* Access cluster-specific dashboards and tooling links, including:
+** Rancher
+** Calico Manager
+** Rook Manager
+** Grafana
+** Cluster Repository
+** NeuVector
+* Quickly locate the correct URLs for a given cluster without searching multiple systems
+
+*Access Notes:*
+* *Rancher access* must be performed from:
+** The VDE using *noMachine (GUI access)*, or
+** Approved *Non-Prod or Prod TSG Windows jump systems*
+
+*Environments Page:*
+https://pages.github.vrsn.com/vks/vks-docs/environments/
+
+---
+
+h2. 8. Reference Documentation
+
+* https://wiki.vrsn.com/display/OSTK/VDE+CLI+-+Onboarding
+* https://wiki.vrsn.com/display/OSTK/VDE+-+GUI+Access+via+noMachine
+* https://wiki.vrsn.com/display/OSTK/VDE+FAQ
