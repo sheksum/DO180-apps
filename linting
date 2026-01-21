@@ -1,0 +1,163 @@
+# VKS Ops / SRE Onboarding Guide
+
+This page outlines the required access, setup steps, and resources for engineers onboarding into the **VKS Ops / SRE** team.
+
+It focuses on **what access is required** and **what VKS Ops must be set up**, while linking to authoritative documentation where detailed steps already exist.
+
+---
+
+## 1. Accesses
+
+The following accesses are required for all VKS Ops / SRE resources.
+
+- **RedHat IdM (IPA)**  
+  New hire must be added to the appropriate  
+  **[VKS IPA group](https://wiki.vrsn.com/spaces/VKS/pages/IPA+Groups)**
+
+- **GitHub**  
+  New hire must be added to the **vks-ops** team under:  
+  **[https://github.vrsn.com/vks](https://github.vrsn.com/vks)**
+
+- **Jira**  
+  New hire must be added to the  
+  **[VKS Support Jira project](https://jira.vrsn.com/projects/VKS)**  
+  with visibility to all relevant VKS boards.
+
+- **Netcool**  
+  Submit an access request to the  
+  **[VKS Ops Netcool filter](https://wiki.vrsn.com/spaces/VKS/pages/Netcool+Access)**  
+  Reference an existing approved ticket when submitting your request  
+  (example: **[MALTSUP-643](https://jira.vrsn.com/browse/MALTSUP-643)**).
+
+- **Wiz**  
+  Submit an access request to the  
+  **[Wiz dashboard](https://wiz.io/)**  
+  Reference an existing approved **[ticket](https://jira.vrsn.com/)** as a guide when submitting your request.
+
+### Notes
+
+- Jira, GitHub, Netcool, and Wiz use **VCorp credentials**  
+  (the same credentials used to connect to the corporate VPN).
+- **RedHat IdM (IPA)** access is managed separately.
+
+---
+
+## 2. Request a VDE
+
+A **Virtual Desktop Environment (VDE)** is required for all VKS operational work.
+
+Use the following page to request a VDE:
+
+- **[Requesting a VDE](../vde/requesting-a-vde.md)**
+
+---
+
+## 3. Setting Up a Newly Issued VDE
+
+Once you have received VDE access, set up both **VDE CLI** and **GUI** access.
+
+---
+
+### 3.1 Set Up VDE CLI Access
+
+Set up the VDE CLI on your VDE.  
+This provides command-line access required for VKS operational work.
+
+Use the guide below:
+
+- **[VDE CLI – Onboarding](../vde/vde-cli-onboarding.md)**
+
+---
+
+### 3.2 Request and Set Up GUI Access via noMachine on the VDE
+
+Request and set up GUI access via **noMachine** on the VDE.
+
+This enables access to Kubernetes-related dashboards and web interfaces such as:
+
+- Rancher  
+- Rook Ceph  
+- Calico  
+- Grafana  
+
+Guide:
+
+- **[VDE – GUI Access via noMachine](../vde/vde-gui-nomachine.md)**
+
+---
+
+## 4. Git Repository Access
+
+VKS operational tooling and automation are maintained in GitHub repositories under the **VKS organization**.
+
+**VKS GitHub Organization:**  
+**[https://github.vrsn.com/vks](https://github.vrsn.com/vks)**
+
+### Common repositories
+
+- **[https://github.vrsn.com/vks/vks-ops-tools](https://github.vrsn.com/vks/vks-ops-tools)**
+
+### Notes
+
+- Ensure your **public SSH key** is uploaded to GitHub  
+  (`Profile → Settings → SSH and GPG Keys`)
+- Use the SSH public key generated on your **VDE**
+- Clone repositories using **SSH**
+
+---
+
+## 5. VDE VKS Script Setup
+
+Once you have access to your VDE and the required Git repositories, set up the VDE VKS scripts.
+
+- Clone the **vks-ops-tools** repository
+- Run the VDE setup scripts as documented in the repository:  
+  **[VDE VKS Script Setup](https://github.vrsn.com/vks/vks-ops-tools/tree/main/vde_setup#setting-up-vde-vks-scripts)**
+
+---
+
+## 6. Kubernetes and Cluster Access
+
+VKS Ops resources access Kubernetes clusters through:
+
+- **Rancher (GUI)**
+- **kubectl / CLI** from the VDE
+
+Validate that you can query the cluster by following the steps below:
+
+- **[Authenticate to a Cluster](../kubernetes/authenticate-to-cluster.md)**
+
+---
+
+## 7. Environments
+
+The **Environments** page provides a centralized view of all VKS Kubernetes clusters and is the primary reference for locating cluster-specific URLs.
+
+New team members should use this page to:
+
+- Identify available workload and management clusters
+- Determine cluster environment (**Prod**, **QA**, **Lab**)
+- Access cluster-specific dashboards and tooling links, including:
+  - Rancher
+  - Calico Manager
+  - Rook Manager
+  - Grafana
+
+### Access Notes
+
+Rancher access must be performed from one of the following:
+
+- The **VDE using noMachine** (GUI access), or
+- Approved **Non-Prod or Prod TSG Windows jump systems**:  
+  **[https://jump.vrsn.com/](https://jump.vrsn.com/)**
+
+**Environments Page:**  
+**[https://pages.github.vrsn.com/vks/vks-docs/environments/](https://pages.github.vrsn.com/vks/vks-docs/environments/)**
+
+---
+
+## 8. Reference Documentation
+
+- **[VKS Docs](https://pages.github.vrsn.com/vks/vks-docs/)**
+- **[VKS Ops / SRE Resources](https://wiki.vrsn.com/spaces/VKS/pages/839033723/VKS+Ops+SRE+Resources)**
+- **[Verisign Internal Tools Dashboard](https://verisign-link-dashboard.vrsn.com/dashboard/dashboard.php)**
