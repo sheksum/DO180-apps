@@ -1,0 +1,21 @@
+So the reality is, everything we have today runs on one physical system. The GPUs, the VMs, and the storage all live on the same box. If that box goes down, we lose everything — and no storage product changes that.”
+
+“Right now MinIO is running on top of NFS, which means NFS is actually doing the storage work. MinIO is just acting like an API layer, and we’re not really getting the benefits MinIO is meant to give us.”
+
+“Given that constraint, the real question isn’t which storage vendor we pick — it’s what’s the right storage model for AI workloads.”
+
+“For AI, object storage makes the most sense. Datasets, models, checkpoints — they’re shared, read-heavy, and accessed by multiple jobs at the same time. That doesn’t fit well with PVCs or NFS.”
+
+“Cohesity is still backup infrastructure. It’s designed for snapshots and restores, not for feeding GPUs with training data. We don’t want our training jobs pulling data from our backup system.”
+
+“Portworx is Kubernetes block storage. It’s great for databases and other stateful services, but it’s not object storage. Using it for AI data would mean mounting large volumes into pods, which makes sharing and recovery harder.”
+
+“Pure AI storage only really makes sense once we have at least two physical systems. Until then, it doesn’t reduce risk — it just adds cost and complexity.”
+
+“So for where we are today, the cleanest approach is to run MinIO on a dedicated VM with local disks. No NFS mounts. Let MinIO own the storage directly.”
+
+“That doesn’t make us highly available — and that’s fine, because nothing can on one host. What it does give us is the right data layout and a clean recovery story.”
+
+“Cohesity’s role here is backing up the MinIO VM. If the VM or the host is lost, we restore the VM and the data. Cohesity is our safety net, not our data path.”
+
+“Once we add a second physical system, that’s when distributed MinIO or even pure AI storage becomes worth revisiting. Until then, simpler and honest is better.”
