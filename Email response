@@ -1,0 +1,9 @@
+Hi Ben,
+
+I am aiming for the 2nd to 3rd week of February.
+
+@Louis — using Podman is fine. I can help pull the images you need from the Red Hat registry and push them into our on-prem image registry so you can pull from there and do your testing while the Kubernetes cluster is being built. I’d just need the list of images you’re planning to use.
+
+Once the cluster is ready, this app could also be a good candidate to move there for better uptime and Day-2 operational benefits. Application upgrades would still remain with the app team, but I’m happy to help with onboarding when the time comes.
+
+— Haji
