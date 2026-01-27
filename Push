@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DST_REG="img-registry.ttmtech.local"   # no leading slash, no scheme
+# If you use a port, set: DST_REG="img-registry.ttmtech.local:5000"
+
+# Build a clean list of images to retag (skip <none>)
+podman images --format '{{.Repository}}:{{.Tag}}' \
+  | awk '$0 !~ /<none>:/ && $0 !~ /:<none>$/ {print}' \
+  | while read -r SRC_IMAGE; do
+      # strip any accidental leading "/" from loaded images (e.g. /rancher/..., /localhost/...)
+      SRC_CLEAN="${SRC_IMAGE#/}"
+
+      # destination should never start with "/"
+      DST_IMAGE="${DST_REG}/${SRC_CLEAN}"
+
+      echo "-> Tagging  $SRC_IMAGE  ->  $DST_IMAGE"
+      podman tag "$SRC_IMAGE" "$DST_IMAGE"
+
+      echo "-> Pushing  $DST_IMAGE"
+      podman push "$DST_IMAGE"
+
+      echo "✓ Done: $DST_IMAGE"
+      echo
+    done
