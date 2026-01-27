@@ -164,3 +164,133 @@ kubectl get pods -A -o wide
 
 # Confirm all images come from internal registry
 kubectl get pods -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\t"}{.metadata.name}{"\t"}{.spec.containers[*].image}{"\n"}{end}' | sort -u
+
+# RKE2 Air-Gapped Installation (Pattern B)
+
+**OS:** RHEL 9  
+**Runtime:** RKE2  
+**Registry:** `img-registry.ttmtech.local`  
+**Cluster Nodes:** No Internet Access  
+
+This document describes a full **air-gapped RKE2 installation** using an **internal image registry**.  
+Artifacts are downloaded on an internet-connected system, transferred internally, and consumed offline.
+
+---
+
+## Variables
+
+```bash
+export RKE2_VERSION="v1.29.1+rke2r1"
+export REGISTRY_FQDN="img-registry.ttmtech.local"
+export K8S_API_DNS="k8s-api.ttmtech.local"
+export RKE2_TOKEN="REPLACE_WITH_STRONG_TOKEN"
+```
+
+---
+
+## Section A — Internet-Connected System (Download Artifacts)
+
+```bash
+curl -LO https://github.com/rancher/rke2/releases/download/${RKE2_VERSION}/rke2-images.linux-amd64.tar.zst
+curl -LO https://github.com/rancher/rke2/releases/download/${RKE2_VERSION}/sha256sum-amd64.txt
+sha256sum -c sha256sum-amd64.txt | grep rke2-images
+
+curl -LO https://get.rke2.io
+chmod +x get.rke2.io
+curl -LO https://github.com/rancher/rke2/releases/download/${RKE2_VERSION}/rke2.linux-amd64.tar.gz
+
+scp rke2-images.linux-amd64.tar.zst get.rke2.io rke2.linux-amd64.tar.gz \
+  root@img-registry.ttmtech.local:/root/
+```
+
+---
+
+## Section B — Internal Registry Host (Load / Tag / Push)
+
+```bash
+dnf install -y podman zstd tar jq
+cd /root
+zstd -d rke2-images.linux-amd64.tar.zst -o rke2-images.tar
+podman load -i rke2-images.tar
+podman login img-registry.ttmtech.local
+
+for img in $(podman images --format '{{.Repository}}:{{.Tag}}'); do
+  podman tag "$img" "img-registry.ttmtech.local/${img#*/}"
+done
+
+for img in $(podman images --format '{{.Repository}}:{{.Tag}}' | grep '^img-registry.ttmtech.local'); do
+  podman push "$img"
+done
+
+curl -k https://img-registry.ttmtech.local/v2/_catalog | jq
+```
+
+---
+
+## Section C — RKE2 Nodes (Install Kubernetes Offline)
+
+```bash
+swapoff -a
+sed -i.bak '/\sswap\s/s/^/#/' /etc/fstab
+
+cat <<EOF >/etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+modprobe overlay
+modprobe br_netfilter
+
+cat <<EOF >/etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+sysctl --system
+
+cp registry-ca.crt /etc/pki/ca-trust/source/anchors/
+update-ca-trust
+
+mkdir -p /etc/rancher/rke2
+cat <<EOF >/etc/rancher/rke2/registries.yaml
+mirrors:
+  registry.k8s.io:
+    endpoint: ["https://img-registry.ttmtech.local"]
+  docker.io:
+    endpoint: ["https://img-registry.ttmtech.local"]
+  ghcr.io:
+    endpoint: ["https://img-registry.ttmtech.local"]
+  quay.io:
+    endpoint: ["https://img-registry.ttmtech.local"]
+configs:
+  "img-registry.ttmtech.local":
+    tls:
+      ca_file: /etc/pki/ca-trust/source/anchors/registry-ca.crt
+EOF
+
+INSTALL_RKE2_TYPE=server INSTALL_RKE2_METHOD=tar sh /root/get.rke2.io
+
+cat <<EOF >/etc/rancher/rke2/config.yaml
+token: "${RKE2_TOKEN}"
+write-kubeconfig-mode: "0644"
+tls-san:
+  - "${K8S_API_DNS}"
+EOF
+
+systemctl enable rke2-server --now
+
+export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+kubectl get nodes -o wide
+kubectl get pods -A -o wide
+```
+
+
+
+
+
+
+
+
+
+
+
+ -u
