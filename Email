@@ -1,5 +1,12 @@
-Hi Laura,
+From our side, the next step is to formally validate recoverability, not just backup presence. We’ve confirmed that the Postgres operator is running as expected and that scheduled backups for db-backup are in place within the kindo-dbs namespace.
 
-Thank you for the update and the prompt response.
+Before we move into active restore testing, my recommendation is to integrate this workflow with GitLab so that restore procedures are versioned, repeatable, and as low-touch as possible. This would allow restores to be executed in a consistent and auditable way rather than as one-off manual steps.
 
-That makes sense. I’m happy to wait and will remain available if the client or team needs anything further from me in the meantime. Please feel free to reach out once they’re back or if there are any updates.
+It would be great to work with the Vation team on this upfront so we’re aligned on:
+	•	Repository structure
+	•	How restore workflows should be modeled
+	•	Ownership and handoff boundaries
+
+That way, we can validate restores confidently without stepping on toes and ensure the approach scales cleanly going forward.
+
+Looking forward to your thoughts.
