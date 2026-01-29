@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+# Usage:
+#   ipa_ad_user_cleanup.sh <samAccountName>
+
+set -euo pipefail
+
+USER="$1"
+
+NETAPP_HOST="plnfile1.caal.dev"     # NetApp data or mgmt LIF
+NETAPP_HOME_BASE="/lab_unix_homes"
+QUARANTINE="/lab_unix_homes/_decommissioned"
+
+if [[ -z "${USER:-}" ]]; then
+  echo "Usage: $0 <samAccountName>" >&2
+  exit 1
+fi
+
+echo "==> AD sAMAccountName: $USER"
+
+# 1. Verify IPA user exists
+if ! ipa user-show "$USER" &>/dev/null; then
+  echo "User not found in IPA: $USER" >&2
+  exit 1
+fi
+
+# 2. Disable IPA user
+echo "==> Disabling IPA user"
+ipa user-disable "$USER"
+
+# 3. Delete IPA user
+echo "==> Deleting IPA user"
+ipa user-del "$USER"
+
+# 4. NetApp-side cleanup
+echo "==> Quarantining home directory on NetApp"
+
+ssh -o BatchMode=yes "$NETAPP_HOST" <<EOF
+set -e
+
+HOME_DIR="$NETAPP_HOME_BASE/$USER"
+STAMP=\$(date +%F_%H%M%S)
+TARGET="$QUARANTINE/$USER.\$STAMP"
+
+mkdir -p "$QUARANTINE"
+
+if [[ -d "\$HOME_DIR" ]]; then
+  mv "\$HOME_DIR" "\$TARGET"
+  echo "Moved \$HOME_DIR -> \$TARGET"
+else
+  echo "Home directory not found: \$HOME_DIR"
+fi
+EOF
+
+echo "==> NetApp-backed cleanup complete for $USER"
