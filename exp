@@ -1,0 +1,5 @@
+How to Explain It
+“We create two separate SVMs on NetApp—one for infrastructure, one for applications. Each has its own network, its own IPs, its own performance policies.
+Infrastructure SVM handles things like the container registry, logging, and monitoring. These are critical—if they go down, we lose visibility into the cluster.
+Application SVM handles whatever developers deploy. If an app goes crazy writing logs or doing heavy database work, it can’t impact the infrastructure storage.
+The OpenShift nodes have NICs on both networks, so they can reach both SVMs.”
