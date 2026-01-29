@@ -1,43 +1,527 @@
-                    UCS-X FABRIC INTERCONNECTS
-                    ┌─────────────┬─────────────┐
-                    │     FI-A    │     FI-B    │
-                    └──────┬──────┴──────┬──────┘
-                           │             │
-            Trunk VLANs 20,30      Trunk VLANs 20,30
-                           │             │
-         ┌─────────────────┼─────────────┼─────────────────┐
-         │                 │             │                 │
-    ┌────┴────┐       ┌────┴────┐   ┌────┴────┐           │
-    │ Blade 1 │       │ Blade 2 │   │ Blade 3 │           │
-    │         │       │         │   │         │           │
-    │ vNIC-infra      │ vNIC-infra  │ vNIC-infra          │
-    │ 10.10.20.101    │ 10.10.20.102│ 10.10.20.103        │
-    │ VLAN 20 │       │ VLAN 20 │   │ VLAN 20 │           │
-    │         │       │         │   │         │           │
-    │ vNIC-app│       │ vNIC-app│   │ vNIC-app│           │
-    │ 10.10.30.101    │ 10.10.30.102│ 10.10.30.103        │
-    │ VLAN 30 │       │ VLAN 30 │   │ VLAN 30 │           │
-    └─────────┘       └─────────┘   └─────────┘           │
-         │                                                 │
-         │              SAME BROADCAST DOMAIN              │
-         │                                                 │
-         └─────────────────────┬───────────────────────────┘
-                               │
-                    ┌──────────┴──────────┐
-                    │   STORAGE SWITCH    │
-                    │   (or direct to FI) │
-                    └──────────┬──────────┘
-                               │
-              ┌────────────────┴────────────────┐
-              │                                 │
-    ┌─────────┴─────────┐             ┌─────────┴─────────┐
-    │  NETAPP NODE 1    │             │  NETAPP NODE 2    │
-    │                   │             │                   │
-    │  Infra SVM LIFs   │             │  Infra SVM LIFs   │
-    │  10.10.20.50      │             │  10.10.20.51      │
-    │  VLAN 20          │             │  VLAN 20          │
-    │                   │             │                   │
-    │  App SVM LIFs     │             │  App SVM LIFs     │
-    │  10.10.30.50      │             │  10.10.30.51      │
-    │  VLAN 30          │             │  VLAN 30          │
-    └───────────────────┘             └───────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                        OPENSHIFT ON UCS-X WITH NETAPP TRIDENT                          │
+│                              COMPLETE ARCHITECTURE                                      │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                                  WHY THIS DESIGN?                                       │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│   CHALLENGE                          SOLUTION                                           │
+│   ─────────────────────────────────────────────────────────────────────────────────    │
+│   Only 3 blades, need dev/test/prod  → 1 cluster with logical environments             │
+│   Need HA for production             → 3-node cluster gives us quorum                  │
+│   Infra shouldn't compete with apps  → Separate SVMs with different QoS                │
+│   Environments must be isolated      → Separate VLANs per environment                  │
+│   Want OS flexibility                → Trunk vNIC, RHCOS handles VLANs                 │
+│   Storage must be automated          → Trident CSI with StorageClasses                 │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              1. PHYSICAL LAYER                                          │
+│                                 (UCS-X Chassis)                                         │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│                           UCS-X FABRIC INTERCONNECTS                                    │
+│                          ┌────────────┬────────────┐                                   │
+│                          │    FI-A    │    FI-B    │                                   │
+│                          └─────┬──────┴──────┬─────┘                                   │
+│                                │             │                                          │
+│                    Trunk VLANs 21-23, 31-33  │                                          │
+│                                │             │                                          │
+│          ┌─────────────────────┼─────────────┼─────────────────────┐                   │
+│          │                     │             │                     │                   │
+│   ┌──────┴──────┐       ┌──────┴──────┐       ┌──────┴──────┐                          │
+│   │   BLADE 1   │       │   BLADE 2   │       │   BLADE 3   │                          │
+│   │             │       │             │       │             │                          │
+│   │  Master +   │       │  Master +   │       │  Master +   │                          │
+│   │  Worker     │       │  Worker     │       │  Worker     │                          │
+│   │             │       │             │       │             │                          │
+│   │ ┌─────────┐ │       │ ┌─────────┐ │       │ ┌─────────┐ │                          │
+│   │ │  Trunk  │ │       │ │  Trunk  │ │       │ │  Trunk  │ │                          │
+│   │ │  vNIC   │ │       │ │  vNIC   │ │       │ │  vNIC   │ │                          │
+│   │ └─────────┘ │       │ └─────────┘ │       │ └─────────┘ │                          │
+│   └─────────────┘       └─────────────┘       └─────────────┘                          │
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                           WHY TRUNK vNIC?                                       │  │
+│   │                                                                                 │  │
+│   │   • 1 vNIC carries all 6 VLANs (instead of 6 separate vNICs)                   │  │
+│   │   • RHCOS (Red Hat CoreOS) handles VLAN tagging in the OS                      │  │
+│   │   • Easier to add VLANs later without UCS changes                              │  │
+│   │   • Simpler UCS policy configuration                                           │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              2. OPERATING SYSTEM LAYER                                  │
+│                                 (RHCOS on each blade)                                   │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│   RHCOS = Red Hat CoreOS                                                               │
+│   • Minimal, immutable Linux built for OpenShift                                       │
+│   • Creates VLAN subinterfaces from trunk vNIC                                         │
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                     SUBINTERFACES (each blade)                                  │  │
+│   │                                                                                 │  │
+│   │         TRUNK vNIC                                                              │  │
+│   │              │                                                                  │  │
+│   │              │                                                                  │  │
+│   │      ┌───────┴───────┐                                                          │  │
+│   │      │               │                                                          │  │
+│   │      ▼               ▼                                                          │  │
+│   │   INFRA           APP                                                           │  │
+│   │   NETWORKS        NETWORKS                                                      │  │
+│   │                                                                                 │  │
+│   │   eth1.21         eth1.31                                                       │  │
+│   │   10.10.21.x      10.10.31.x                                                    │  │
+│   │   (dev)           (dev)                                                         │  │
+│   │                                                                                 │  │
+│   │   eth1.22         eth1.32                                                       │  │
+│   │   10.10.22.x      10.10.32.x                                                    │  │
+│   │   (test)          (test)                                                        │  │
+│   │                                                                                 │  │
+│   │   eth1.23         eth1.33                                                       │  │
+│   │   10.10.23.x      10.10.33.x                                                    │  │
+│   │   (prod)          (prod)                                                        │  │
+│   │                                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              3. VLAN DESIGN                                             │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                         EASY TO REMEMBER                                        │  │
+│   │                                                                                 │  │
+│   │            "Twenty-somethings = INFRA, Thirty-somethings = APPS"               │  │
+│   │            "Last digit = Environment (1=Dev, 2=Test, 3=Prod)"                  │  │
+│   │                                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+│   ┌─────────────────────────────────┐   ┌─────────────────────────────────┐            │
+│   │      INFRASTRUCTURE (2x)        │   │       APPLICATION (3x)          │            │
+│   │                                 │   │                                 │            │
+│   │   What runs here:               │   │   What runs here:               │            │
+│   │   • Container Registry          │   │   • Customer applications       │            │
+│   │   • Logging (EFK/Loki)          │   │   • Databases                   │            │
+│   │   • Monitoring (Prometheus)     │   │   • Message queues              │            │
+│   │   • Etcd backups                │   │   • APIs and microservices      │            │
+│   │   • GitOps (ArgoCD)             │   │   • Batch jobs                  │            │
+│   │                                 │   │                                 │            │
+│   │   ┌───────────────────────┐     │   │   ┌───────────────────────┐     │            │
+│   │   │ VLAN 21 │ Dev   Infra │     │   │   │ VLAN 31 │ Dev   App   │     │            │
+│   │   │ VLAN 22 │ Test  Infra │     │   │   │ VLAN 32 │ Test  App   │     │            │
+│   │   │ VLAN 23 │ Prod  Infra │     │   │   │ VLAN 33 │ Prod  App   │     │            │
+│   │   └───────────────────────┘     │   │   └───────────────────────┘     │            │
+│   │                                 │   │                                 │            │
+│   └─────────────────────────────────┘   └─────────────────────────────────┘            │
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                        WHY SEPARATE INFRA FROM APPS?                            │  │
+│   │                                                                                 │  │
+│   │   PROBLEM                              SOLUTION                                 │  │
+│   │   ───────────────────────────────────────────────────────────────────────────  │  │
+│   │   Runaway app floods storage        → Can't starve registry or logging         │  │
+│   │   Different performance needs       → Infra gets guaranteed IOPS               │  │
+│   │   Different backup schedules        → Infra: hourly, Apps: daily               │  │
+│   │   Different teams manage them       → Clear ownership boundaries               │  │
+│   │   If infra dies, you're blind       → Isolation protects observability         │  │
+│   │                                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              4. OPENSHIFT LAYER                                         │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                         ONE CLUSTER, THREE ENVIRONMENTS                         │  │
+│   │                                                                                 │  │
+│   │   Instead of 3 separate clusters (which would need 9 blades for HA),           │  │
+│   │   we use 1 cluster with logical separation via OpenShift features.             │  │
+│   │                                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+│   ┌───────────────────────┐ ┌───────────────────────┐ ┌───────────────────────┐        │
+│   │         DEV           │ │         TEST          │ │         PROD          │        │
+│   │                       │ │                       │ │                       │        │
+│   │  Namespaces:          │ │  Namespaces:          │ │  Namespaces:          │        │
+│   │  • myapp-dev          │ │  • myapp-test         │ │  • myapp-prod         │        │
+│   │  • logging-dev        │ │  • logging-test       │ │  • logging-prod       │        │
+│   │  • monitoring-dev     │ │  • monitoring-test    │ │  • monitoring-prod    │        │
+│   │                       │ │                       │ │                       │        │
+│   │  Storage:             │ │  Storage:             │ │  Storage:             │        │
+│   │  • infra-dev-nfs      │ │  • infra-test-nfs     │ │  • infra-prod-nfs     │        │
+│   │  • app-dev-nfs        │ │  • app-test-nfs       │ │  • app-prod-nfs       │        │
+│   │                       │ │                       │ │                       │        │
+│   └───────────────────────┘ └───────────────────────┘ └───────────────────────┘        │
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                      HOW OPENSHIFT SEPARATES ENVIRONMENTS                       │  │
+│   │                                                                                 │  │
+│   │   FEATURE              WHAT IT DOES                                             │  │
+│   │   ───────────────────────────────────────────────────────────────────────────  │  │
+│   │   Namespaces           Logical boundaries (myapp-dev, myapp-prod)              │  │
+│   │   RBAC                 Devs access dev, only ops access prod                   │  │
+│   │   ResourceQuotas       Prod gets guaranteed CPU/memory, dev gets less          │  │
+│   │   NetworkPolicies      Dev can't talk to prod, complete isolation              │  │
+│   │   StorageClasses       Different storage tiers per environment                 │  │
+│   │                                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              5. TRIDENT CSI LAYER                                       │
+│                                 (Connects OpenShift to NetApp)                          │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                           WHAT IS TRIDENT?                                      │  │
+│   │                                                                                 │  │
+│   │   • NetApp's official storage driver for Kubernetes/OpenShift                  │  │
+│   │   • Automates storage provisioning—no manual work per request                  │  │
+│   │   • Developers request storage via StorageClass, Trident handles the rest      │  │
+│   │                                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+│   ┌─────────────────────────────────────┐ ┌─────────────────────────────────────┐      │
+│   │           BACKENDS                  │ │         STORAGECLASSES              │      │
+│   │      (Talk to NetApp SVMs)          │ │      (What developers see)          │      │
+│   │                                     │ │                                     │      │
+│   │   backend-infra-dev                 │ │   infra-dev-nfs                     │      │
+│   │     → SVM: ocp-infra-svm            │ │     → Uses backend-infra-dev        │      │
+│   │     → LIF: 10.10.21.50              │ │                                     │      │
+│   │                                     │ │   infra-test-nfs                    │      │
+│   │   backend-infra-test                │ │     → Uses backend-infra-test       │      │
+│   │     → SVM: ocp-infra-svm            │ │                                     │      │
+│   │     → LIF: 10.10.22.50              │ │   infra-prod-nfs                    │      │
+│   │                                     │ │     → Uses backend-infra-prod       │      │
+│   │   backend-infra-prod                │ │                                     │      │
+│   │     → SVM: ocp-infra-svm            │ │   app-dev-nfs                       │      │
+│   │     → LIF: 10.10.23.50              │ │     → Uses backend-app-dev          │      │
+│   │                                     │ │                                     │      │
+│   │   backend-app-dev                   │ │   app-test-nfs                      │      │
+│   │     → SVM: ocp-app-svm              │ │     → Uses backend-app-test         │      │
+│   │     → LIF: 10.10.31.50              │ │                                     │      │
+│   │                                     │ │   app-prod-nfs                      │      │
+│   │   backend-app-test                  │ │     → Uses backend-app-prod         │      │
+│   │     → SVM: ocp-app-svm              │ │                                     │      │
+│   │     → LIF: 10.10.32.50              │ │                                     │      │
+│   │                                     │ │                                     │      │
+│   │   backend-app-prod                  │ │                                     │      │
+│   │     → SVM: ocp-app-svm              │ │                                     │      │
+│   │     → LIF: 10.10.33.50              │ │                                     │      │
+│   │                                     │ │                                     │      │
+│   └─────────────────────────────────────┘ └─────────────────────────────────────┘      │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              6. NETAPP STORAGE LAYER                                    │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                            WHAT IS AN SVM?                                      │  │
+│   │                                                                                 │  │
+│   │   SVM = Storage Virtual Machine                                                │  │
+│   │   • Think of it as a "virtual storage server" inside NetApp                    │  │
+│   │   • Each SVM is isolated—own IPs, own policies, own data                       │  │
+│   │   • We create 2 SVMs: one for infra, one for apps                              │  │
+│   │                                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+│   ┌─────────────────────────────────────┐ ┌─────────────────────────────────────┐      │
+│   │         ocp-infra-svm               │ │          ocp-app-svm                │      │
+│   │    (Infrastructure Storage)         │ │      (Application Storage)          │      │
+│   │                                     │ │                                     │      │
+│   │   PURPOSE:                          │ │   PURPOSE:                          │      │
+│   │   Registry, logging, monitoring     │ │   Customer apps, databases          │      │
+│   │                                     │ │                                     │      │
+│   │   LIFs (Network Interfaces):        │ │   LIFs (Network Interfaces):        │      │
+│   │   ┌───────────────────────────┐     │ │   ┌───────────────────────────┐     │      │
+│   │   │ dev:  10.10.21.50 (VLAN21)│     │ │   │ dev:  10.10.31.50 (VLAN31)│     │      │
+│   │   │ test: 10.10.22.50 (VLAN22)│     │ │   │ test: 10.10.32.50 (VLAN32)│     │      │
+│   │   │ prod: 10.10.23.50 (VLAN23)│     │ │   │ prod: 10.10.33.50 (VLAN33)│     │      │
+│   │   └───────────────────────────┘     │ │   └───────────────────────────┘     │      │
+│   │                                     │ │                                     │      │
+│   │   POLICIES:                         │ │   POLICIES:                         │      │
+│   │   • Guaranteed IOPS                 │ │   • Burstable QoS                   │      │
+│   │   • Hourly snapshots                │ │   • Daily snapshots                 │      │
+│   │   • Thick provisioned               │ │   • Thin provisioned                │      │
+│   │   • Critical—never starve           │ │   • Flexible—can burst              │      │
+│   │                                     │ │                                     │      │
+│   └─────────────────────────────────────┘ └─────────────────────────────────────┘      │
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                      WHY LIFs MUST BE ON SAME SUBNET                            │  │
+│   │                                                                                 │  │
+│   │   The blades and NetApp LIFs must be on the same VLAN/subnet so they can       │  │
+│   │   communicate directly (Layer 2). No routing needed—just straight L2.          │  │
+│   │                                                                                 │  │
+│   │   Blade (10.10.21.101) ←──── VLAN 21 ────→ NetApp LIF (10.10.21.50)            │  │
+│   │                                                                                 │  │
+│   │   If they're on different subnets, you need routing, which adds latency        │  │
+│   │   and complexity. Same subnet = direct communication = simple.                 │  │
+│   │                                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+│   Management LIF: 10.10.10.50 (for Trident API calls to NetApp)                        │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              7. COMPLETE NETWORK FLOW                                   │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                              UCS-X CHASSIS                                      │  │
+│   │                                                                                 │  │
+│   │    ┌─────────────┐     ┌─────────────┐     ┌─────────────┐                     │  │
+│   │    │   BLADE 1   │     │   BLADE 2   │     │   BLADE 3   │                     │  │
+│   │    │             │     │             │     │             │                     │  │
+│   │    │ Trunk vNIC  │     │ Trunk vNIC  │     │ Trunk vNIC  │                     │  │
+│   │    │ (6 VLANs)   │     │ (6 VLANs)   │     │ (6 VLANs)   │                     │  │
+│   │    └──────┬──────┘     └──────┬──────┘     └──────┬──────┘                     │  │
+│   │           │                   │                   │                            │  │
+│   │           └───────────────────┼───────────────────┘                            │  │
+│   │                               │                                                │  │
+│   └───────────────────────────────┼────────────────────────────────────────────────┘  │
+│                                   │                                                    │
+│                                   │                                                    │
+│              ┌────────────────────┴────────────────────┐                              │
+│              │                                         │                              │
+│              │            FABRIC INTERCONNECTS         │                              │
+│              │          (Trunk VLANs 21-23, 31-33)     │                              │
+│              │                                         │                              │
+│              └────────────────────┬────────────────────┘                              │
+│                                   │                                                    │
+│                                   │                                                    │
+│         ┌─────────────────────────┴─────────────────────────┐                         │
+│         │                                                   │                         │
+│         │                 NETWORK SWITCH                    │                         │
+│         │              (Trunk all 6 VLANs)                  │                         │
+│         │                                                   │                         │
+│         └─────────────────────────┬─────────────────────────┘                         │
+│                                   │                                                    │
+│                                   │                                                    │
+│   ┌───────────────────────────────┴───────────────────────────────────────────────┐   │
+│   │                                                                               │   │
+│   │                              NETAPP ONTAP                                     │   │
+│   │                                                                               │   │
+│   │    ┌─────────────────────────────┐     ┌─────────────────────────────┐       │   │
+│   │    │       ocp-infra-svm         │     │        ocp-app-svm          │       │   │
+│   │    │                             │     │                             │       │   │
+│   │    │  10.10.21.50 (VLAN 21)      │     │  10.10.31.50 (VLAN 31)      │       │   │
+│   │    │  10.10.22.50 (VLAN 22)      │     │  10.10.32.50 (VLAN 32)      │       │   │
+│   │    │  10.10.23.50 (VLAN 23)      │     │  10.10.33.50 (VLAN 33)      │       │   │
+│   │    │                             │     │                             │       │   │
+│   │    └─────────────────────────────┘     └─────────────────────────────┘       │   │
+│   │                                                                               │   │
+│   └───────────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              8. HOW STORAGE REQUESTS FLOW                               │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│   EXAMPLE: Developer needs storage for a production application                        │
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                                 │  │
+│   │   STEP 1: Developer creates PVC                                                │  │
+│   │   ─────────────────────────────────────────────────                            │  │
+│   │   apiVersion: v1                                                               │  │
+│   │   kind: PersistentVolumeClaim                                                  │  │
+│   │   metadata:                                                                    │  │
+│   │     name: my-database-storage                                                  │  │
+│   │     namespace: myapp-prod                                                      │  │
+│   │   spec:                                                                        │  │
+│   │     storageClassName: app-prod-nfs    ◄─── Developer picks this               │  │
+│   │     resources:                                                                 │  │
+│   │       requests:                                                                │  │
+│   │         storage: 100Gi                                                         │  │
+│   │                                                                                 │  │
+│   │                           │                                                    │  │
+│   │                           ▼                                                    │  │
+│   │                                                                                 │  │
+│   │   STEP 2: OpenShift sees StorageClass                                          │  │
+│   │   ─────────────────────────────────────────────────                            │  │
+│   │   StorageClass: app-prod-nfs                                                   │  │
+│   │     → Points to Trident backend: backend-app-prod                              │  │
+│   │                                                                                 │  │
+│   │                           │                                                    │  │
+│   │                           ▼                                                    │  │
+│   │                                                                                 │  │
+│   │   STEP 3: Trident backend configuration                                        │  │
+│   │   ─────────────────────────────────────────────────                            │  │
+│   │   Backend: backend-app-prod                                                    │  │
+│   │     → SVM: ocp-app-svm                                                         │  │
+│   │     → dataLIF: 10.10.33.50                                                     │  │
+│   │     → VLAN: 33                                                                 │  │
+│   │                                                                                 │  │
+│   │                           │                                                    │  │
+│   │                           ▼                                                    │  │
+│   │                                                                                 │  │
+│   │   STEP 4: Trident creates volume on NetApp                                     │  │
+│   │   ─────────────────────────────────────────────────                            │  │
+│   │   Trident calls NetApp API → Creates FlexVol on ocp-app-svm                    │  │
+│   │                                                                                 │  │
+│   │                           │                                                    │  │
+│   │                           ▼                                                    │  │
+│   │                                                                                 │  │
+│   │   STEP 5: Worker node mounts storage                                           │  │
+│   │   ─────────────────────────────────────────────────                            │  │
+│   │   Worker uses eth1.33 (VLAN 33) to mount NFS:                                  │  │
+│   │   10.10.33.x (blade) → 10.10.33.50 (NetApp LIF)                               │  │
+│   │                                                                                 │  │
+│   │                           │                                                    │  │
+│   │                           ▼                                                    │  │
+│   │                                                                                 │  │
+│   │   STEP 6: Pod gets storage ✓                                                   │  │
+│   │   ─────────────────────────────────────────────────                            │  │
+│   │   Application can now read/write to /data                                      │  │
+│   │                                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              9. SUMMARY TABLES                                          │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│   VLAN REFERENCE                                                                        │
+│   ┌────────┬─────────────────┬─────────────┬───────┬─────────┬────────────────────┐    │
+│   │  VLAN  │     SUBNET      │     SVM     │ TYPE  │   ENV   │      PURPOSE       │    │
+│   ├────────┼─────────────────┼─────────────┼───────┼─────────┼────────────────────┤    │
+│   │   21   │  10.10.21.0/24  │ ocp-infra   │ Infra │   Dev   │ Registry, logging  │    │
+│   │   22   │  10.10.22.0/24  │ ocp-infra   │ Infra │  Test   │ Registry, logging  │    │
+│   │   23   │  10.10.23.0/24  │ ocp-infra   │ Infra │  Prod   │ Registry, logging  │    │
+│   │   31   │  10.10.31.0/24  │ ocp-app     │  App  │   Dev   │ Customer apps      │    │
+│   │   32   │  10.10.32.0/24  │ ocp-app     │  App  │  Test   │ Customer apps      │    │
+│   │   33   │  10.10.33.0/24  │ ocp-app     │  App  │  Prod   │ Customer apps      │    │
+│   └────────┴─────────────────┴─────────────┴───────┴─────────┴────────────────────┘    │
+│                                                                                         │
+│                                                                                         │
+│   STORAGECLASS REFERENCE                                                               │
+│   ┌────────────────────┬────────────────────────┬─────────────────────────────────┐    │
+│   │   STORAGECLASS     │        BACKEND         │           USED FOR              │    │
+│   ├────────────────────┼────────────────────────┼─────────────────────────────────┤    │
+│   │  infra-dev-nfs     │  backend-infra-dev     │  Dev registry, logging          │    │
+│   │  infra-test-nfs    │  backend-infra-test    │  Test registry, logging         │    │
+│   │  infra-prod-nfs    │  backend-infra-prod    │  Prod registry, logging         │    │
+│   │  app-dev-nfs       │  backend-app-dev       │  Dev applications               │    │
+│   │  app-test-nfs      │  backend-app-test      │  Test applications              │    │
+│   │  app-prod-nfs      │  backend-app-prod      │  Prod applications              │    │
+│   └────────────────────┴────────────────────────┴─────────────────────────────────┘    │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              10. WHAT TO ASK FROM NETWORK TEAM                          │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│   "I need the following configured:"                                                   │
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                                 │  │
+│   │   1. CREATE 6 VLANs                                                            │  │
+│   │      • 21, 22, 23 (infrastructure)                                             │  │
+│   │      • 31, 32, 33 (application)                                                │  │
+│   │                                                                                 │  │
+│   │   2. TRUNK vNIC PER BLADE                                                      │  │
+│   │      • One trunk vNIC on each of the 3 blades                                  │  │
+│   │      • Trunk carries all 6 VLANs                                               │  │
+│   │                                                                                 │  │
+│   │   3. L2 ADJACENCY                                                              │  │
+│   │      • Blades and NetApp LIFs on same broadcast domain per VLAN                │  │
+│   │      • No routing needed between them                                          │  │
+│   │                                                                                 │  │
+│   │   4. MTU 9000 (JUMBO FRAMES)                                                   │  │
+│   │      • End-to-end on all storage VLANs                                         │  │
+│   │      • Better performance for NFS/iSCSI                                        │  │
+│   │                                                                                 │  │
+│   │   5. VLAN ISOLATION                                                            │  │
+│   │      • No routing between the 6 VLANs                                          │  │
+│   │      • Each stays in its own lane                                              │  │
+│   │                                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              11. QUICK REFERENCE CARD                                   │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                                 │  │
+│   │   REMEMBER THIS:                                                               │  │
+│   │   ──────────────                                                               │  │
+│   │   • 2x VLANs = Infrastructure (21, 22, 23)                                     │  │
+│   │   • 3x VLANs = Applications (31, 32, 33)                                       │  │
+│   │   • Last digit = Environment (1=Dev, 2=Test, 3=Prod)                           │  │
+│   │                                                                                 │  │
+│   │   EXAMPLE:                                                                     │  │
+│   │   ──────────────                                                               │  │
+│   │   VLAN 32 = 3x (App) + 2 (Test) = Application Test storage                     │  │
+│   │   VLAN 23 = 2x (Infra) + 3 (Prod) = Infrastructure Prod storage                │  │
+│   │                                                                                 │  │
+│   │   KEY COMPONENTS:                                                              │  │
+│   │   ──────────────                                                               │  │
+│   │   • 3 blades, 1 cluster, logical environments                                  │  │
+│   │   • 2 SVMs (infra + app)                                                       │  │
+│   │   • 6 VLANs (3 per SVM)                                                        │  │
+│   │   • 6 Trident backends                                                         │  │
+│   │   • 6 StorageClasses                                                           │  │
+│   │   • Trunk vNIC for OS flexibility                                              │  │
+│   │                                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
