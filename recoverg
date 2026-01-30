@@ -1,0 +1,17 @@
+Subject: Update from CNPG recovery testing
+
+Hi Jim,
+
+I wanted to share a quick update from the CNPG switchover and recovery testing I did right after the call.
+
+The switchover itself worked fine — promotion completed cleanly and the cluster stayed up. Where things got interesting was after that. One of the replicas didn’t reliably rejoin on its own. Pod restarts didn’t fix it, and the cluster only fully converged after a hibernate/resume. That points more to recovery sequencing than anything node- or storage-related.
+
+The bigger takeaway is that WAL archiving isn’t healthy right now, like I showed on the call. Because of that, replica recovery isn’t deterministic, and point-in-time recovery isn’t something we can rely on yet. In a Kubernetes environment where pod movement and evictions are normal (patching, upgrades, etc.), that’s a risk we should address before moving further.
+
+On future calls, it would be good to walk through a few real-world scenarios together — things like node drains or pod evictions — and validate that switchovers and replica recovery behave cleanly with no issues.
+
+I’d suggest we prioritize fixing WAL archiving first, then re-test replica behavior around switchovers and restarts.  
+Happy to walk through the findings; logs are attached.
+
+Thanks,  
+Haj
