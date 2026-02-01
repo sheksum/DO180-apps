@@ -1,0 +1,8 @@
+curl -k -u svc_home_cleanup:<password> \
+-X POST \
+-H "Content-Type: application/json" \
+-d '{
+  "vserver": "svm0",
+  "path": "/lab_unix_homes"
+}' \
+"https://plano_aff_cl.calix.local/api/private/cli/volume/file"
