@@ -61,12 +61,19 @@ find_ipa_user() {
     return 1
 }
 
-USER_ID="${1:-}"
+# Parse arguments
+USER_ID=""
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run) DRY_RUN="true" ;;
+        *) [[ -z "$USER_ID" ]] && USER_ID="$arg" ;;
+    esac
+done
+
 [[ "$USER_ID" == "" ]] && { echo "Usage: $0 <username|fullname> [--dry-run]"; exit 1; }
-[[ "${2:-}" == "--dry-run" ]] && DRY_RUN="true"
 
 log "INFO" "Starting offboard for: $USER_ID"
-[[ "$DRY_RUN" == "true" ]] && log "INFO" "DRY-RUN MODE"
+[[ "$DRY_RUN" == "true" ]] && log "INFO" "=== DRY-RUN MODE - NO CHANGES WILL BE MADE ==="
 
 check_kerberos
 
@@ -95,7 +102,7 @@ fi
 # Step 3: Disable user
 log "INFO" "Step 3: Disabling IPA user"
 if [[ "$DRY_RUN" == "true" ]]; then
-    log "INFO" "[DRY-RUN] Would disable user"
+    log "INFO" "[DRY-RUN] Would disable user: $USER_ID"
 else
     ipa user-disable "$USER_ID" 2>&1 && log "OK" "User disabled" || log "WARN" "Disable failed (may already be disabled)"
 fi
@@ -103,7 +110,7 @@ fi
 # Step 4: Delete user
 log "INFO" "Step 4: Deleting IPA user"
 if [[ "$DRY_RUN" == "true" ]]; then
-    log "INFO" "[DRY-RUN] Would delete user"
+    log "INFO" "[DRY-RUN] Would delete user: $USER_ID"
 else
     ipa user-del "$USER_ID" 2>&1 && log "OK" "User deleted" || log "ERROR" "Delete failed"
 fi
