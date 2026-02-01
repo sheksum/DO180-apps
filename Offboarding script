@@ -555,13 +555,17 @@ main “$@”
 
 # 
 
-# Run these commands on IPA server (pln-petipareplica.ipa.calix.local) as admin:
+# Run these commands on IPA server (pln-petipareplica.ipa.calix.local) as root:
 
 # 
 
-# 1. Create service account:
+# 1. Authenticate as admin:
 
 # kinit admin
+
+# 
+
+# 2. Create service account:
 
 # ipa user-add svc_user_lifecycle –first=Service –last=“User Lifecycle” \
 
@@ -569,11 +573,15 @@ main “$@”
 
 # 
 
-# 2. Create role with onboarding + offboarding permissions:
+# 3. Create privilege with user lifecycle permissions:
 
 # ipa privilege-add “User Lifecycle Management” \
 
 # –desc=“Create, modify, disable, and delete users”
+
+# 
+
+# 4. Add permissions to the privilege:
 
 # ipa privilege-add-permission “User Lifecycle Management” \
 
@@ -589,10 +597,6 @@ main “$@”
 
 # ipa privilege-add-permission “User Lifecycle Management” \
 
-# –permissions=“System: Read User Membership”
-
-# ipa privilege-add-permission “User Lifecycle Management” \
-
 # –permissions=“System: Add User to default group”
 
 # ipa privilege-add-permission “User Lifecycle Management” \
@@ -600,6 +604,8 @@ main “$@”
 # –permissions=“System: Modify Group Membership”
 
 # 
+
+# 5. Create role and attach privilege:
 
 # ipa role-add “User Lifecycle Service” \
 
@@ -613,30 +619,36 @@ main “$@”
 
 # 
 
-# 3. Generate keytab:
+# 6. Generate keytab (must use kadmin.local as root on IPA server):
 
-# ipa-getkeytab -s pln-petipareplica.ipa.calix.local \
+# mkdir -p /etc/krb5
 
-# -p svc_user_lifecycle@IPA.CALIX.LOCAL \
-
-# -k /etc/krb5/ipa_svc.keytab
+# kadmin.local -q “ktadd -k /etc/krb5/ipa_svc.keytab svc_user_lifecycle”
 
 # 
 
-# 4. Deploy keytab to automation server:
+# 7. Verify keytab:
 
-# scp /etc/krb5/ipa_svc.keytab plnx-admin:/etc/krb5/
+# klist -kt /etc/krb5/ipa_svc.keytab
 
-# ssh plnx-admin ‘chmod 600 /etc/krb5/ipa_svc.keytab; chown root:root /etc/krb5/ipa_svc.keytab’
-
-# 
-
-# 5. Test:
-
-# kinit -kt /etc/krb5/ipa_svc.keytab svc_user_lifecycle@IPA.CALIX.LOCAL
+# kinit -kt /etc/krb5/ipa_svc.keytab svc_user_lifecycle
 
 # klist
 
-# ipa user-show hsuma
+# ipa user-show <any_user>
+
+# 
+
+# 8. Deploy keytab to automation server(s) (Jenkins, admin hosts, etc.):
+
+# scp /etc/krb5/ipa_svc.keytab <target_host>:/etc/krb5/
+
+# ssh <target_host> ‘chmod 600 /etc/krb5/ipa_svc.keytab’
+
+# 
+
+# Note: The keytab is portable and can be used on any IPA client system.
+
+# If regenerated with kadmin.local, old keytabs become invalid.
 
 # 
