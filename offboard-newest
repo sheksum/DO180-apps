@@ -1,0 +1,128 @@
+cat > ipa_ad_user_cleanup.sh << 'ENDOFSCRIPT'
+#!/usr/bin/env bash
+set -euo pipefail
+
+NETAPP_API="https://plano_aff_cl.calix.local/api"
+NETAPP_CREDS="svc_home_cleanup:d94def47f1dd637527028656aac69359bfb1f6492cf03c1198b142686fa7e98c"
+NETAPP_VOL_UUID="3825009b-5037-11ef-8de2-d039eabbae46"
+NETAPP_HOME_BASE="/lab_unix_homes"
+QUARANTINE_DIR="_decommissioned"
+NETAPP_SSH_HOST="plano_aff_cl.calix.local"
+IPA_KEYTAB="/etc/krb5/ipa_svc.keytab"
+IPA_PRINCIPAL="svc_user_lifecycle"
+LOG_FILE="/var/log/user_offboard.log"
+TIMESTAMP=$(date +%F_%H%M%S)
+DRY_RUN="false"
+
+log() {
+    echo "$(date '+%F %T') [$1] $USER_ID - $2" | tee -a "$LOG_FILE"
+}
+
+check_kerberos() {
+    if klist -s 2>/dev/null; then
+        log "INFO" "Existing Kerberos ticket valid"
+    else
+        log "INFO" "Authenticating with keytab"
+        kinit -kt "$IPA_KEYTAB" "$IPA_PRINCIPAL" || { log "ERROR" "Keytab auth failed"; exit 1; }
+    fi
+}
+
+find_ipa_user() {
+    local search="$1"
+    local found_uid=""
+    
+    # Method 1: Direct uid lookup
+    if ipa user-show "$search" &>/dev/null; then
+        echo "$search"
+        return 0
+    fi
+    
+    # Method 2: Search by cn (full name)
+    found_uid=$(ipa user-find --cn="$search" --raw 2>/dev/null | grep "^  uid:" | head -1 | awk '{print $2}')
+    if [[ -n "$found_uid" ]]; then
+        echo "$found_uid"
+        return 0
+    fi
+    
+    # Method 3: Search by email
+    found_uid=$(ipa user-find --email="$search*" --raw 2>/dev/null | grep "^  uid:" | head -1 | awk '{print $2}')
+    if [[ -n "$found_uid" ]]; then
+        echo "$found_uid"
+        return 0
+    fi
+    
+    # Method 4: Partial/case-insensitive search
+    found_uid=$(ipa user-find "$search" --raw 2>/dev/null | grep "^  uid:" | head -1 | awk '{print $2}')
+    if [[ -n "$found_uid" ]]; then
+        echo "$found_uid"
+        return 0
+    fi
+    
+    return 1
+}
+
+USER_ID="${1:-}"
+[[ "$USER_ID" == "" ]] && { echo "Usage: $0 <username|fullname> [--dry-run]"; exit 1; }
+[[ "${2:-}" == "--dry-run" ]] && DRY_RUN="true"
+
+log "INFO" "Starting offboard for: $USER_ID"
+[[ "$DRY_RUN" == "true" ]] && log "INFO" "DRY-RUN MODE"
+
+check_kerberos
+
+# Step 1: Find user
+log "INFO" "Step 1: Finding user in IPA"
+FOUND_USER=$(find_ipa_user "$USER_ID") || { log "ERROR" "User not found: $USER_ID"; exit 1; }
+
+if [[ "$FOUND_USER" != "$USER_ID" ]]; then
+    log "INFO" "Resolved '$USER_ID' to IPA username: $FOUND_USER"
+    USER_ID="$FOUND_USER"
+fi
+log "OK" "User found: $USER_ID"
+
+# Step 2: Check NetApp
+log "INFO" "Step 2: Checking NetApp home directory"
+HTTP_CODE=$(curl -sk -o /dev/null -w "%{http_code}" -u "$NETAPP_CREDS" \
+    "${NETAPP_API}/storage/volumes/${NETAPP_VOL_UUID}/files/${USER_ID}?return_metadata=true")
+if [[ "$HTTP_CODE" == "200" ]]; then
+    log "OK" "Home directory found on NetApp"
+    NETAPP_HOME="true"
+else
+    log "WARN" "Home directory not found on NetApp"
+    NETAPP_HOME="false"
+fi
+
+# Step 3: Disable user
+log "INFO" "Step 3: Disabling IPA user"
+if [[ "$DRY_RUN" == "true" ]]; then
+    log "INFO" "[DRY-RUN] Would disable user"
+else
+    ipa user-disable "$USER_ID" 2>&1 && log "OK" "User disabled" || log "WARN" "Disable failed (may already be disabled)"
+fi
+
+# Step 4: Delete user
+log "INFO" "Step 4: Deleting IPA user"
+if [[ "$DRY_RUN" == "true" ]]; then
+    log "INFO" "[DRY-RUN] Would delete user"
+else
+    ipa user-del "$USER_ID" 2>&1 && log "OK" "User deleted" || log "ERROR" "Delete failed"
+fi
+
+# Step 5: Quarantine NetApp home
+log "INFO" "Step 5: Quarantining NetApp home directory"
+if [[ "$NETAPP_HOME" == "true" ]]; then
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log "INFO" "[DRY-RUN] Would move home to quarantine"
+    else
+        ssh -o BatchMode=yes "$NETAPP_SSH_HOST" \
+            "mkdir -p ${NETAPP_HOME_BASE}/${QUARANTINE_DIR}; mv ${NETAPP_HOME_BASE}/${USER_ID} ${NETAPP_HOME_BASE}/${QUARANTINE_DIR}/${USER_ID}_${TIMESTAMP}" \
+            && log "OK" "Home directory quarantined" || log "ERROR" "Failed to quarantine home"
+    fi
+else
+    log "INFO" "Skipping - no home directory"
+fi
+
+log "OK" "Offboard complete for: $USER_ID"
+ENDOFSCRIPT
+
+chmod +x ipa_ad_user_cleanup.sh
