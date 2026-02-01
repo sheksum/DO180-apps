@@ -1,0 +1,642 @@
+#!/usr/bin/env bash
+
+# 
+
+# ipa_ad_user_cleanup.sh - Automated User Offboarding Script
+
+# 
+
+# Description:
+
+# Offboards users by: looking up AD sAMAccountName, disabling/deleting in IPA,
+
+# and quarantining their NetApp home directory via REST API.
+
+# 
+
+# Usage:
+
+# ./ipa_ad_user_cleanup.sh <sAMAccountName> [–dry-run]
+
+# 
+
+# Examples:
+
+# ./ipa_ad_user_cleanup.sh jsmith
+
+# ./ipa_ad_user_cleanup.sh jsmith –dry-run
+
+# 
+
+# Service Account Setup:
+
+# The svc_cleanup account requires permissions for both onboarding and offboarding:
+
+# - User Administrators group (or custom role with user add/modify/delete permissions)
+
+# See bottom of script for setup instructions.
+
+# 
+
+set -euo pipefail
+
+# =============================================================================
+
+# Configuration
+
+# =============================================================================
+
+# NetApp REST API settings
+
+NETAPP_API=“https://plano_aff_cl.calix.local/api”
+NETAPP_CREDS=“svc_home_cleanup:d94def47f1dd637527028656aac69359bfb1f6492cf03c1198b142686fa7e98c”
+NETAPP_VOL_UUID=“3825009b-5037-11ef-8de2-d039eabbae46”
+NETAPP_HOME_BASE=”/lab_unix_homes”
+QUARANTINE_DIR=”_decommissioned”
+
+# NetApp SSH settings (for move operation - REST API doesn’t support file moves)
+
+NETAPP_SSH_HOST=“plano_aff_cl.calix.local”
+NETAPP_SVM=“svm0”
+
+# IPA/Kerberos settings
+
+IPA_SERVER=“pln-petipareplica.ipa.calix.local”
+IPA_REALM=“IPA.CALIX.LOCAL”
+IPA_KEYTAB=”/etc/krb5/ipa_svc.keytab”                    # Path to service account keytab
+IPA_PRINCIPAL=“svc_user_lifecycle@IPA.CALIX.LOCAL”       # Service principal in keytab
+
+# Logging
+
+LOG_FILE=”/var/log/user_offboard.log”
+TIMESTAMP=$(date +%F_%H%M%S)
+
+# =============================================================================
+
+# Functions
+
+# =============================================================================
+
+log() {
+local level=”$1”
+local message=”$2”
+local log_entry=”$(date ‘+%F %T’) [$level] ${USER_ID:-INIT} - $message”
+echo “$log_entry” | tee -a “$LOG_FILE”
+}
+
+log_info()  { log “INFO”  “$1”; }
+log_warn()  { log “WARN”  “$1”; }
+log_error() { log “ERROR” “$1”; }
+log_success() { log “OK”  “$1”; }
+
+die() {
+log_error “$1”
+exit 1
+}
+
+usage() {
+cat <<EOF
+Usage: $0 <sAMAccountName> [OPTIONS]
+
+Offboards a user by:
+
+1. Verifying user exists in IPA (using AD sAMAccountName)
+1. Disabling user in IPA
+1. Deleting user from IPA
+1. Quarantining home directory on NetApp
+
+Options:
+–dry-run              Show what would be done without making changes
+–keytab <path>        Path to Kerberos keytab file (default: ${IPA_KEYTAB})
+–principal <name>     Kerberos principal to use (default: ${IPA_PRINCIPAL})
+–help                 Show this help message
+
+Examples:
+$0 jsmith
+$0 jsmith –dry-run
+$0 jsmith –keytab /etc/krb5/cleanup.keytab –principal svc_cleanup@REALM.COM
+$0 “John Smith” –dry-run    # Search by full name if uid not found
+EOF
+exit 1
+}
+
+# Check if home directory exists on NetApp via REST API
+
+netapp_home_exists() {
+local username=”$1”
+local response
+
+```
+response=$(curl -sk -u "$NETAPP_CREDS" \
+    "${NETAPP_API}/storage/volumes/${NETAPP_VOL_UUID}/files/${username}?return_metadata=true" \
+    -w "\n%{http_code}" 2>/dev/null)
+
+local http_code=$(echo "$response" | tail -1)
+
+if [[ "$http_code" == "200" ]]; then
+    return 0
+else
+    return 1
+fi
+```
+
+}
+
+# Get home directory metadata from NetApp
+
+netapp_get_home_info() {
+local username=”$1”
+
+```
+curl -sk -u "$NETAPP_CREDS" \
+    "${NETAPP_API}/storage/volumes/${NETAPP_VOL_UUID}/files/${username}?return_metadata=true" | \
+    jq -r '{name: .name, size: .size, accessed: .accessed_time, modified: .modified_time}'
+```
+
+}
+
+# Quarantine home directory on NetApp (move to decommissioned folder)
+
+netapp_quarantine_home() {
+local username=”$1”
+local target_name=”${username}_${TIMESTAMP}”
+local target_path=”${NETAPP_HOME_BASE}/${QUARANTINE_DIR}/${target_name}”
+local source_path=”${NETAPP_HOME_BASE}/${username}”
+
+```
+if [[ "$DRY_RUN" == "true" ]]; then
+    log_info "[DRY-RUN] Would move ${source_path} -> ${target_path}"
+    return 0
+fi
+
+# Ensure quarantine directory exists and move the home directory
+# Using SSH since REST API doesn't support file move operations
+ssh -o BatchMode=yes -o ConnectTimeout=10 "$NETAPP_SSH_HOST" <<EOF
+```
+
+set -e
+vol show -vserver $NETAPP_SVM -volume lab_unix_homes -fields junction-path
+mkdir -p ${NETAPP_HOME_BASE}/${QUARANTINE_DIR} 2>/dev/null || true
+mv “${source_path}” “${target_path}”
+EOF
+
+```
+if [[ $? -eq 0 ]]; then
+    log_success "Moved ${source_path} -> ${target_path}"
+    return 0
+else
+    log_error "Failed to move home directory"
+    return 1
+fi
+```
+
+}
+
+# Alternative: Quarantine using NetApp CLI via REST API private/cli endpoint
+
+netapp_quarantine_home_api() {
+local username=”$1”
+local target_name=”${username}_${TIMESTAMP}”
+
+```
+if [[ "$DRY_RUN" == "true" ]]; then
+    log_info "[DRY-RUN] Would quarantine home directory for ${username}"
+    return 0
+fi
+
+# Create quarantine directory if it doesn't exist
+curl -sk -u "$NETAPP_CREDS" -X POST \
+    "${NETAPP_API}/storage/volumes/${NETAPP_VOL_UUID}/files/${QUARANTINE_DIR}" \
+    -H "Content-Type: application/json" \
+    -d '{"type": "directory"}' 2>/dev/null || true
+
+# NetApp REST API doesn't support move/rename directly
+# Fall back to SSH method
+netapp_quarantine_home "$username"
+```
+
+}
+
+# Check for valid Kerberos ticket, authenticate with keytab if needed
+
+check_kerberos() {
+# Check if we already have a valid ticket
+if klist -s 2>/dev/null; then
+log_info “Existing Kerberos ticket is valid”
+return 0
+fi
+
+```
+log_info "No valid Kerberos ticket, authenticating with keytab..."
+
+# Verify keytab file exists
+if [[ ! -f "$IPA_KEYTAB" ]]; then
+    die "Keytab file not found: ${IPA_KEYTAB}"
+fi
+
+# Verify keytab is readable
+if [[ ! -r "$IPA_KEYTAB" ]]; then
+    die "Keytab file not readable: ${IPA_KEYTAB} (check permissions)"
+fi
+
+# List principals in keytab (for debugging)
+log_info "Keytab contains principals:"
+klist -kt "$IPA_KEYTAB" 2>/dev/null | tail -5 | while read line; do
+    log_info "  $line"
+done
+
+# Authenticate using keytab
+if kinit -kt "$IPA_KEYTAB" "$IPA_PRINCIPAL" 2>&1; then
+    log_success "Authenticated as ${IPA_PRINCIPAL} using keytab"
+    return 0
+else
+    die "Failed to authenticate with keytab. Check principal '${IPA_PRINCIPAL}' exists in keytab."
+fi
+```
+
+}
+
+# Verify user exists in IPA
+
+ipa_user_exists() {
+local username=”$1”
+ipa user-show “$username” &>/dev/null
+}
+
+# Search IPA user by various attributes (fallback lookup)
+
+# Returns the IPA uid if found, empty string if not
+
+ipa_find_user() {
+local search_term=”$1”
+local ipa_uid=””
+
+```
+# Method 1: Direct lookup by uid (sAMAccountName)
+log_info "Searching IPA by uid: ${search_term}"
+if ipa user-show "$search_term" &>/dev/null; then
+    echo "$search_term"
+    return 0
+fi
+
+# Method 2: Search by cn (full name)
+log_info "Searching IPA by full name (cn): ${search_term}"
+ipa_uid=$(ipa user-find --cn="$search_term" --raw 2>/dev/null | grep "^  uid:" | head -1 | awk '{print $2}')
+if [[ -n "$ipa_uid" ]]; then
+    log_info "Found user by cn: ${ipa_uid}"
+    echo "$ipa_uid"
+    return 0
+fi
+
+# Method 3: Search by email (if search_term looks like email or try with domain)
+log_info "Searching IPA by email: ${search_term}*"
+ipa_uid=$(ipa user-find --email="${search_term}*" --raw 2>/dev/null | grep "^  uid:" | head -1 | awk '{print $2}')
+if [[ -n "$ipa_uid" ]]; then
+    log_info "Found user by email: ${ipa_uid}"
+    echo "$ipa_uid"
+    return 0
+fi
+
+# Method 4: Wildcard search on uid (partial match)
+log_info "Searching IPA by partial uid match: *${search_term}*"
+ipa_uid=$(ipa user-find "$search_term" --raw 2>/dev/null | grep "^  uid:" | head -1 | awk '{print $2}')
+if [[ -n "$ipa_uid" ]]; then
+    log_info "Found user by partial match: ${ipa_uid}"
+    echo "$ipa_uid"
+    return 0
+fi
+
+# Method 5: Search by employeeNumber (if AD objectSid or employeeID is synced)
+log_info "Searching IPA by employeeNumber: ${search_term}"
+ipa_uid=$(ipa user-find --employeenumber="$search_term" --raw 2>/dev/null | grep "^  uid:" | head -1 | awk '{print $2}')
+if [[ -n "$ipa_uid" ]]; then
+    log_info "Found user by employeeNumber: ${ipa_uid}"
+    echo "$ipa_uid"
+    return 0
+fi
+
+# Not found by any method
+return 1
+```
+
+}
+
+# Get IPA user info
+
+ipa_get_user_info() {
+local username=”$1”
+ipa user-show “$username” –all –raw 2>/dev/null | grep -E “^  (uid|cn|mail|uidnumber|homedirectory|nsaccountlock):” || true
+}
+
+# Get the home directory path from IPA user
+
+ipa_get_home_directory() {
+local username=”$1”
+ipa user-show “$username” –raw 2>/dev/null | grep “^  homedirectory:” | awk ‘{print $2}’
+}
+
+# Disable user in IPA
+
+ipa_disable_user() {
+local username=”$1”
+local output
+local rc
+
+```
+if [[ "$DRY_RUN" == "true" ]]; then
+    log_info "[DRY-RUN] Would disable IPA user: ${username}"
+    return 0
+fi
+
+output=$(ipa user-disable "$username" 2>&1)
+rc=$?
+
+# Check for specific conditions
+if [[ $rc -eq 0 ]]; then
+    log_success "Disabled IPA user: ${username}"
+    return 0
+elif echo "$output" | grep -qi "already disabled"; then
+    log_info "User already disabled in IPA: ${username}"
+    return 0
+elif echo "$output" | grep -qi "not found"; then
+    log_error "User not found in IPA: ${username}"
+    return 1
+elif echo "$output" | grep -qi "insufficient access"; then
+    log_error "Insufficient permissions to disable user: ${username}"
+    return 1
+elif echo "$output" | grep -qi "connection refused\|cannot connect"; then
+    log_error "Cannot connect to IPA server"
+    return 1
+else
+    log_warn "Failed to disable IPA user: ${output}"
+    return 0  # Non-fatal, continue with deletion attempt
+fi
+```
+
+}
+
+# Delete user from IPA
+
+ipa_delete_user() {
+local username=”$1”
+local output
+local rc
+
+```
+if [[ "$DRY_RUN" == "true" ]]; then
+    log_info "[DRY-RUN] Would delete IPA user: ${username}"
+    return 0
+fi
+
+output=$(ipa user-del "$username" 2>&1)
+rc=$?
+
+# Check for specific conditions
+if [[ $rc -eq 0 ]]; then
+    log_success "Deleted IPA user: ${username}"
+    return 0
+elif echo "$output" | grep -qi "not found"; then
+    log_warn "User already deleted or not found in IPA: ${username}"
+    return 0  # Consider this success - user is gone
+elif echo "$output" | grep -qi "insufficient access"; then
+    log_error "Insufficient permissions to delete user: ${username}"
+    return 1
+elif echo "$output" | grep -qi "connection refused\|cannot connect"; then
+    log_error "Cannot connect to IPA server"
+    return 1
+else
+    log_error "Failed to delete IPA user: ${output}"
+    return 1
+fi
+```
+
+}
+
+# =============================================================================
+
+# Main
+
+# =============================================================================
+
+main() {
+# Parse arguments
+if [[ $# -lt 1 ]]; then
+usage
+fi
+
+```
+USER_ID=""
+DRY_RUN="false"
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run)
+            DRY_RUN="true"
+            shift
+            ;;
+        --keytab)
+            IPA_KEYTAB="$2"
+            shift 2
+            ;;
+        --principal)
+            IPA_PRINCIPAL="$2"
+            shift 2
+            ;;
+        --help|-h)
+            usage
+            ;;
+        -*)
+            die "Unknown option: $1"
+            ;;
+        *)
+            if [[ -z "$USER_ID" ]]; then
+                USER_ID="$1"
+            else
+                die "Unexpected argument: $1"
+            fi
+            shift
+            ;;
+    esac
+done
+
+if [[ -z "$USER_ID" ]]; then
+    die "No user specified"
+fi
+
+if [[ "$DRY_RUN" == "true" ]]; then
+    log_info "=== DRY-RUN MODE - No changes will be made ==="
+fi
+
+log_info "=========================================="
+log_info "Starting offboard process for: ${USER_ID}"
+log_info "=========================================="
+
+# Validate we have required tools
+command -v curl &>/dev/null || die "curl is required but not installed"
+command -v jq &>/dev/null || die "jq is required but not installed"
+command -v ipa &>/dev/null || die "ipa command is required but not installed"
+
+# Check Kerberos ticket
+check_kerberos
+
+# Step 1: Find user in IPA (with fallback searches)
+log_info "Step 1: Searching for user in IPA..."
+IPA_USERNAME=$(ipa_find_user "$USER_ID")
+
+if [[ -z "$IPA_USERNAME" ]]; then
+    die "User not found in IPA by any method: ${USER_ID}"
+fi
+
+# Update USER_ID to the actual IPA username if different
+if [[ "$IPA_USERNAME" != "$USER_ID" ]]; then
+    log_info "Input '${USER_ID}' resolved to IPA username: ${IPA_USERNAME}"
+    USER_ID="$IPA_USERNAME"
+fi
+
+log_success "User found in IPA: ${USER_ID}"
+
+# Show user info
+log_info "IPA User Info:"
+ipa_get_user_info "$USER_ID" | while read line; do
+    log_info "  $line"
+done
+
+# Step 2: Check NetApp home directory
+log_info "Step 2: Checking NetApp home directory..."
+if netapp_home_exists "$USER_ID"; then
+    log_success "Home directory found on NetApp: ${NETAPP_HOME_BASE}/${USER_ID}"
+    log_info "Home directory metadata:"
+    netapp_get_home_info "$USER_ID" | while read line; do
+        log_info "  $line"
+    done
+    NETAPP_HOME_FOUND="true"
+else
+    log_warn "Home directory NOT found on NetApp: ${NETAPP_HOME_BASE}/${USER_ID}"
+    NETAPP_HOME_FOUND="false"
+fi
+
+# Step 3: Disable IPA user
+log_info "Step 3: Disabling IPA user..."
+ipa_disable_user "$USER_ID"
+
+# Step 4: Delete IPA user
+log_info "Step 4: Deleting IPA user..."
+ipa_delete_user "$USER_ID"
+
+# Step 5: Quarantine NetApp home directory
+log_info "Step 5: Quarantining NetApp home directory..."
+if [[ "$NETAPP_HOME_FOUND" == "true" ]]; then
+    netapp_quarantine_home "$USER_ID"
+else
+    log_info "Skipping NetApp cleanup - no home directory found"
+fi
+
+# Summary
+log_info "=========================================="
+log_success "Offboard complete for: ${USER_ID}"
+log_info "=========================================="
+
+if [[ "$DRY_RUN" == "true" ]]; then
+    log_info "This was a DRY-RUN. No changes were made."
+fi
+```
+
+}
+
+# Run main function
+
+main “$@”
+
+# =============================================================================
+
+# Service Account Setup Instructions
+
+# =============================================================================
+
+# 
+
+# Run these commands on IPA server (pln-petipareplica.ipa.calix.local) as admin:
+
+# 
+
+# 1. Create service account:
+
+# kinit admin
+
+# ipa user-add svc_user_lifecycle –first=Service –last=“User Lifecycle” \
+
+# –homedir=/nonexistent –shell=/sbin/nologin
+
+# 
+
+# 2. Create role with onboarding + offboarding permissions:
+
+# ipa privilege-add “User Lifecycle Management” \
+
+# –desc=“Create, modify, disable, and delete users”
+
+# ipa privilege-add-permission “User Lifecycle Management” \
+
+# –permissions=“System: Add Users”
+
+# ipa privilege-add-permission “User Lifecycle Management” \
+
+# –permissions=“System: Modify Users”
+
+# ipa privilege-add-permission “User Lifecycle Management” \
+
+# –permissions=“System: Remove Users”
+
+# ipa privilege-add-permission “User Lifecycle Management” \
+
+# –permissions=“System: Read User Membership”
+
+# ipa privilege-add-permission “User Lifecycle Management” \
+
+# –permissions=“System: Add User to default group”
+
+# ipa privilege-add-permission “User Lifecycle Management” \
+
+# –permissions=“System: Modify Group Membership”
+
+# 
+
+# ipa role-add “User Lifecycle Service” \
+
+# –desc=“Service role for user onboarding and offboarding”
+
+# ipa role-add-privilege “User Lifecycle Service” \
+
+# –privileges=“User Lifecycle Management”
+
+# ipa role-add-member “User Lifecycle Service” –users=svc_user_lifecycle
+
+# 
+
+# 3. Generate keytab:
+
+# ipa-getkeytab -s pln-petipareplica.ipa.calix.local \
+
+# -p svc_user_lifecycle@IPA.CALIX.LOCAL \
+
+# -k /etc/krb5/ipa_svc.keytab
+
+# 
+
+# 4. Deploy keytab to automation server:
+
+# scp /etc/krb5/ipa_svc.keytab plnx-admin:/etc/krb5/
+
+# ssh plnx-admin ‘chmod 600 /etc/krb5/ipa_svc.keytab; chown root:root /etc/krb5/ipa_svc.keytab’
+
+# 
+
+# 5. Test:
+
+# kinit -kt /etc/krb5/ipa_svc.keytab svc_user_lifecycle@IPA.CALIX.LOCAL
+
+# klist
+
+# ipa user-show hsuma
+
+# 
