@@ -291,3 +291,164 @@ kubectl run test-logger --image=busybox --restart=Never -- sh -c 'echo "Test log
 kubectl delete pod test-logger
 
 
+cat <<'EOF' | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: logging
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         5
+        Log_Level     info
+        Daemon        off
+        Parsers_File  parsers.conf
+
+    # Container logs
+    [INPUT]
+        Name              tail
+        Tag               kube.*
+        Path              /var/log/containers/*.log
+        Parser            docker
+        DB                /var/log/flb_kube.db
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   On
+        Refresh_Interval  10
+
+    # Kubelet logs
+    [INPUT]
+        Name            systemd
+        Tag             kubelet
+        Systemd_Filter  _SYSTEMD_UNIT=kubelet.service
+
+    # Containerd logs
+    [INPUT]
+        Name            systemd
+        Tag             containerd
+        Systemd_Filter  _SYSTEMD_UNIT=containerd.service
+
+    # RKE2 server logs (control plane)
+    [INPUT]
+        Name            systemd
+        Tag             rke2-server
+        Systemd_Filter  _SYSTEMD_UNIT=rke2-server.service
+
+    # RKE2 agent logs (workers)
+    [INPUT]
+        Name            systemd
+        Tag             rke2-agent
+        Systemd_Filter  _SYSTEMD_UNIT=rke2-agent.service
+
+    # System logs
+    [INPUT]
+        Name            systemd
+        Tag             system
+        Systemd_Filter  _SYSTEMD_UNIT=sshd.service
+        Systemd_Filter  _SYSTEMD_UNIT=auditd.service
+
+    # Audit logs (if file-based)
+    [INPUT]
+        Name              tail
+        Tag               kube-audit
+        Path              /var/log/kubernetes/audit/*.log
+        DB                /var/log/flb_audit.db
+        Mem_Buf_Limit     10MB
+        Refresh_Interval  5
+
+    # Enrich with Kubernetes metadata
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix     kube.var.log.containers.
+        Merge_Log           On
+        Keep_Log            Off
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
+
+    # Output to syslog (aamslc4log01)
+    [OUTPUT]
+        Name          syslog
+        Match         kube.*
+        Host          10.200.248.190
+        Port          6514
+        Mode          tcp
+        Syslog_Format rfc5424
+        Syslog_Hostname_key $kubernetes['host']
+        Syslog_Appname_key  $kubernetes['pod_name']
+
+    [OUTPUT]
+        Name          syslog
+        Match         kubelet
+        Host          10.200.248.190
+        Port          6514
+        Mode          tcp
+        Syslog_Format rfc5424
+        Syslog_Appname_key kubelet
+
+    [OUTPUT]
+        Name          syslog
+        Match         containerd
+        Host          10.200.248.190
+        Port          6514
+        Mode          tcp
+        Syslog_Format rfc5424
+        Syslog_Appname_key containerd
+
+    [OUTPUT]
+        Name          syslog
+        Match         rke2-server
+        Host          10.200.248.190
+        Port          6514
+        Mode          tcp
+        Syslog_Format rfc5424
+        Syslog_Appname_key rke2-server
+
+    [OUTPUT]
+        Name          syslog
+        Match         rke2-agent
+        Host          10.200.248.190
+        Port          6514
+        Mode          tcp
+        Syslog_Format rfc5424
+        Syslog_Appname_key rke2-agent
+
+    [OUTPUT]
+        Name          syslog
+        Match         kube-audit
+        Host          10.200.248.190
+        Port          6514
+        Mode          tcp
+        Syslog_Format rfc5424
+        Syslog_Appname_key kube-audit
+
+    [OUTPUT]
+        Name          syslog
+        Match         system
+        Host          10.200.248.190
+        Port          6514
+        Mode          tcp
+        Syslog_Format rfc5424
+
+  parsers.conf: |
+    [PARSER]
+        Name        docker
+        Format      json
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep   On
+
+    [PARSER]
+        Name        containerd
+        Format      regex
+        Regex       ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+EOF
+
+
+
+
