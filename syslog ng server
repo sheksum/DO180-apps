@@ -451,4 +451,72 @@ EOF
 
 
 
+cat <<'EOF' | kubectl apply -f -
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  namespace: logging
+  labels:
+    app: fluent-bit
+spec:
+  selector:
+    matchLabels:
+      app: fluent-bit
+  template:
+    metadata:
+      labels:
+        app: fluent-bit
+    spec:
+      serviceAccountName: fluent-bit
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:2.2
+          resources:
+            limits:
+              memory: 200Mi
+              cpu: 200m
+            requests:
+              memory: 100Mi
+              cpu: 100m
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+              readOnly: true
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: runlogjournal
+              mountPath: /run/log/journal
+              readOnly: true
+            - name: varlogjournal
+              mountPath: /var/log/journal
+              readOnly: true
+            - name: fluent-bit-config
+              mountPath: /fluent-bit/etc/
+            - name: machineid
+              mountPath: /etc/machine-id
+              readOnly: true
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: runlogjournal
+          hostPath:
+            path: /run/log/journal
+        - name: varlogjournal
+          hostPath:
+            path: /var/log/journal
+        - name: fluent-bit-config
+          configMap:
+            name: fluent-bit-config
+        - name: machineid
+          hostPath:
+            path: /etc/machine-id
+EOF
 
