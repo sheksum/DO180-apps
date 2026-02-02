@@ -1,0 +1,293 @@
+@version: 4.2
+@include "scl.conf"
+
+# Global options
+options {
+    keep_hostname(yes);
+    use_dns(no);
+    use_fqdn(no);
+    chain_hostnames(off);
+    stats_freq(0);
+    flush_lines(0);
+    time_reopen(10);
+    log_fifo_size(10000);
+};
+
+# Source - receive logs from Kubernetes cluster and Kindo
+source s_kindo {
+    tcp(
+        ip("0.0.0.0")
+        port(6514)
+    );
+    udp(
+        ip("0.0.0.0")
+        port(514)
+    );
+};
+
+# Filters to categorize logs
+filter f_kindo_app  { program("kindo") or match("kindo" value("HOST")); };
+filter f_kubelet    { program("kubelet"); };
+filter f_containerd { program("containerd"); };
+filter f_apiserver  { program("kube-apiserver"); };
+filter f_scheduler  { program("kube-scheduler"); };
+filter f_controller { program("kube-controller-manager"); };
+filter f_etcd       { program("etcd"); };
+filter f_audit      { program("kube-audit") or match("audit" value("MESSAGE")); };
+filter f_rancher    { program("rancher") or match("rancher" value("HOST")); };
+filter f_controlplane { filter(f_apiserver) or filter(f_scheduler) or filter(f_controller) or filter(f_etcd); };
+filter f_system     { 
+    not (
+        filter(f_kindo_app) or 
+        filter(f_kubelet) or 
+        filter(f_containerd) or 
+        filter(f_controlplane) or 
+        filter(f_audit) or 
+        filter(f_rancher)
+    ); 
+};
+
+# Local destinations
+destination d_kindo_app {
+    file("/var/log/kindo/application/${YEAR}-${MONTH}-${DAY}/${HOST}.log"
+        create_dirs(yes) perm(0640) dir_perm(0750));
+};
+
+destination d_kubelet {
+    file("/var/log/kindo/kubelet/${YEAR}-${MONTH}-${DAY}/${HOST}.log"
+        create_dirs(yes) perm(0640) dir_perm(0750));
+};
+
+destination d_containerd {
+    file("/var/log/kindo/containerd/${YEAR}-${MONTH}-${DAY}/${HOST}.log"
+        create_dirs(yes) perm(0640) dir_perm(0750));
+};
+
+destination d_controlplane {
+    file("/var/log/kindo/controlplane/${YEAR}-${MONTH}-${DAY}/${HOST}-${PROGRAM}.log"
+        create_dirs(yes) perm(0640) dir_perm(0750));
+};
+
+destination d_audit {
+    file("/var/log/kindo/audit/${YEAR}-${MONTH}-${DAY}/${HOST}.log"
+        create_dirs(yes) perm(0640) dir_perm(0750));
+};
+
+destination d_rancher {
+    file("/var/log/kindo/rancher/${YEAR}-${MONTH}-${DAY}/${HOST}.log"
+        create_dirs(yes) perm(0640) dir_perm(0750));
+};
+
+destination d_system {
+    file("/var/log/kindo/system/${YEAR}-${MONTH}-${DAY}/${HOST}.log"
+        create_dirs(yes) perm(0640) dir_perm(0750));
+};
+
+# Forward to SDL (Restricted) - NO TLS FOR NOW
+destination d_sdl_restricted {
+    tcp("10.200.248.147" port(6514));
+};
+
+# Log paths - store locally AND forward to SDL
+log { source(s_kindo); filter(f_kindo_app);    destination(d_kindo_app);    destination(d_sdl_restricted); flags(final); };
+log { source(s_kindo); filter(f_kubelet);      destination(d_kubelet);      destination(d_sdl_restricted); flags(final); };
+log { source(s_kindo); filter(f_containerd);   destination(d_containerd);   destination(d_sdl_restricted); flags(final); };
+log { source(s_kindo); filter(f_controlplane); destination(d_controlplane); destination(d_sdl_restricted); flags(final); };
+log { source(s_kindo); filter(f_audit);        destination(d_audit);        destination(d_sdl_restricted); flags(final); };
+log { source(s_kindo); filter(f_rancher);      destination(d_rancher);      destination(d_sdl_restricted); flags(final); };
+log { source(s_kindo); filter(f_system);       destination(d_system);       destination(d_sdl_restricted); };
+
+# Local system logging for this VM
+source s_sys {
+    system();
+    internal();
+};
+
+destination d_messages { file("/var/log/messages"); };
+
+log { source(s_sys); destination(d_messages); };
+
+
+
+/var/log/kindo/*/*.log
+/var/log/kindo/*/*/*.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 root root
+    sharedscripts
+    postrotate
+        /usr/bin/systemctl reload syslog-ng > /dev/null 2>&1 || true
+    endscript
+}
+
+
+#!/bin/bash
+# Remove logs older than 7 days
+find /var/log/kindo -type f -mtime +7 -delete 2>/dev/null
+find /var/log/kindo -type d -empty -delete 2>/dev/null
+
+
+sudo firewall-cmd --permanent --add-port=514/udp
+sudo firewall-cmd --permanent --add-port=6514/tcp
+sudo firewall-cmd --reload
+
+sudo semanage port -a -t syslogd_port_t -p tcp 6514 2>/dev/null || true
+sudo semanage port -a -t syslogd_port_t -p udp 514 2>/dev/null || true
+
+
+# Validate config
+sudo syslog-ng -s
+
+# Enable and start
+sudo systemctl enable syslog-ng
+sudo systemctl start syslog-ng
+sudo systemctl status syslog-ng
+
+
+# Send test message
+logger -n 127.0.0.1 -P 514 --udp "Test message from aamslc4log01"
+
+# Check logs
+ls -la /var/log/kindo/system/
+cat /var/log/kindo/system/$(date +%Y-%m-%d)/*.log
+
+
+-----
+# Enable EPEL repo
+sudo dnf install epel-release -y
+
+# Install syslog-ng
+sudo dnf install syslog-ng -y
+
+# Stop rsyslog to avoid conflicts
+sudo systemctl stop rsyslog
+sudo systemctl disable rsyslog
+
+sudo mkdir -p /var/log/kindo/{application,pods,kubelet,containerd,controlplane,audit,system,rancher}
+
+sudo cp /etc/syslog-ng/syslog-ng.conf /etc/syslog-ng/syslog-ng.conf.bak
+sudo vi /etc/syslog-ng/syslog-ng.conf
+
+
+
+kubectl apply -f - <<'EOF'
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fluent-bit
+  namespace: logging
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluent-bit
+rules:
+  - apiGroups: [""]
+    resources:
+      - namespaces
+      - pods
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fluent-bit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fluent-bit
+subjects:
+  - kind: ServiceAccount
+    name: fluent-bit
+    namespace: logging
+EOF
+
+
+
+kubectl apply -f - <<'EOF'
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  namespace: logging
+  labels:
+    app: fluent-bit
+spec:
+  selector:
+    matchLabels:
+      app: fluent-bit
+  template:
+    metadata:
+      labels:
+        app: fluent-bit
+    spec:
+      serviceAccountName: fluent-bit
+      tolerations:
+        # Run on all nodes including control plane and GPU nodes
+        - operator: Exists
+      containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:2.2
+          resources:
+            limits:
+              memory: 200Mi
+              cpu: 200m
+            requests:
+              memory: 100Mi
+              cpu: 100m
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+              readOnly: true
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: runlogjournal
+              mountPath: /run/log/journal
+              readOnly: true
+            - name: varlogjournal
+              mountPath: /var/log/journal
+              readOnly: true
+            - name: fluent-bit-config
+              mountPath: /fluent-bit/etc/
+            - name: machineid
+              mountPath: /etc/machine-id
+              readOnly: true
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: runlogjournal
+          hostPath:
+            path: /run/log/journal
+        - name: varlogjournal
+          hostPath:
+            path: /var/log/journal
+        - name: fluent-bit-config
+          configMap:
+            name: fluent-bit-config
+        - name: machineid
+          hostPath:
+            path: /etc/machine-id
+EOF
+
+
+
+# Check pods are running on all 15 nodes
+kubectl get pods -n logging -o wide
+
+# Check logs from a fluent-bit pod
+kubectl logs -n logging -l app=fluent-bit --tail=50
+
+
+kubectl run test-logger --image=busybox --restart=Never -- sh -c 'echo "Test log from Kindo cluster"; sleep 5'
+kubectl delete pod test-logger
+
+
