@@ -1,0 +1,156 @@
+sudo tee /etc/syslog-ng/syslog-ng.conf << 'EOF'
+@version: 4.2
+@include "scl.conf"
+
+# Global options
+options {
+    keep_hostname(yes);
+    use_dns(no);
+    use_fqdn(no);
+    chain_hostnames(off);
+    stats_freq(0);
+    flush_lines(0);
+    time_reopen(10);
+    log_fifo_size(10000);
+};
+
+# Source - receive logs from Kubernetes cluster
+source s_kindo {
+    tcp(
+        ip("0.0.0.0")
+        port(6514)
+        flags(no-parse)
+    );
+    udp(
+        ip("0.0.0.0")
+        port(514)
+    );
+};
+
+# Destination - write all logs with full message content
+destination d_kindo_all {
+    file("/var/log/kindo/all/${YEAR}-${MONTH}-${DAY}/${SOURCEIP}.log"
+        create_dirs(yes)
+        perm(0640)
+        dir_perm(0750)
+        template("${ISODATE} ${SOURCEIP} ${MSG}\n")
+    );
+};
+
+# Forward to SDL (Restricted) - NO TLS FOR NOW
+destination d_sdl_restricted {
+    tcp("10.200.248.147" port(6514));
+};
+
+# Log path - store locally AND forward to SDL
+log {
+    source(s_kindo);
+    destination(d_kindo_all);
+    destination(d_sdl_restricted);
+};
+
+# Local system logging for this VM
+source s_sys {
+    system();
+    internal();
+};
+
+destination d_messages { file("/var/log/messages"); };
+
+log { source(s_sys); destination(d_messages); };
+EOF
+
+cat <<'EOF' | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: logging
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         5
+        Log_Level     info
+        Daemon        off
+        Parsers_File  parsers.conf
+
+    # Container logs
+    [INPUT]
+        Name              tail
+        Tag               kube.*
+        Path              /var/log/containers/*.log
+        Parser            cri
+        DB                /tmp/flb_kube.db
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   On
+        Refresh_Interval  10
+
+    # Kubelet logs
+    [INPUT]
+        Name            systemd
+        Tag             kubelet
+        Systemd_Filter  _SYSTEMD_UNIT=kubelet.service
+
+    # Containerd logs
+    [INPUT]
+        Name            systemd
+        Tag             containerd
+        Systemd_Filter  _SYSTEMD_UNIT=containerd.service
+
+    # RKE2 server logs (control plane)
+    [INPUT]
+        Name            systemd
+        Tag             rke2-server
+        Systemd_Filter  _SYSTEMD_UNIT=rke2-server.service
+
+    # RKE2 agent logs (workers)
+    [INPUT]
+        Name            systemd
+        Tag             rke2-agent
+        Systemd_Filter  _SYSTEMD_UNIT=rke2-agent.service
+
+    # System logs
+    [INPUT]
+        Name            systemd
+        Tag             system
+        Systemd_Filter  _SYSTEMD_UNIT=sshd.service
+        Systemd_Filter  _SYSTEMD_UNIT=auditd.service
+
+    # Enrich with Kubernetes metadata
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix     kube.var.log.containers.
+        Merge_Log           On
+        Keep_Log            Off
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
+
+    # Output as TCP JSON to syslog server
+    [OUTPUT]
+        Name          tcp
+        Match         *
+        Host          10.200.248.190
+        Port          6514
+        Format        json_lines
+
+  parsers.conf: |
+    [PARSER]
+        Name        cri
+        Format      regex
+        Regex       ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+        Time_Keep   On
+
+    [PARSER]
+        Name        docker
+        Format      json
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep   On
+EOF
+
