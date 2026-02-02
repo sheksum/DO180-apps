@@ -60,73 +60,94 @@ destination d_messages { file("/var/log/messages"); };
 log { source(s_sys); destination(d_messages); };
 EOF
 
-cat > /tmp/fluent-bit-ds.yaml << 'ENDOFFILE'
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: fluent-bit
-  namespace: logging
-  labels:
-    app: fluent-bit
-spec:
-  selector:
-    matchLabels:
-      app: fluent-bit
-  template:
-    metadata:
-      labels:
-        app: fluent-bit
-    spec:
-      serviceAccountName: fluent-bit
-      tolerations:
-        - operator: Exists
-      containers:
-        - name: fluent-bit
-          image: fluent/fluent-bit:2.2
-          resources:
-            limits:
-              memory: 512Mi
-              cpu: 300m
-            requests:
-              memory: 256Mi
-              cpu: 100m
-          volumeMounts:
-            - name: varlog
-              mountPath: /var/log
-              readOnly: true
-            - name: varlibdockercontainers
-              mountPath: /var/lib/docker/containers
-              readOnly: true
-            - name: runlogjournal
-              mountPath: /run/log/journal
-              readOnly: true
-            - name: varlogjournal
-              mountPath: /var/log/journal
-              readOnly: true
-            - name: fluent-bit-config
-              mountPath: /fluent-bit/etc/
-            - name: machineid
-              mountPath: /etc/machine-id
-              readOnly: true
-      volumes:
-        - name: varlog
-          hostPath:
-            path: /var/log
-        - name: varlibdockercontainers
-          hostPath:
-            path: /var/lib/docker/containers
-        - name: runlogjournal
-          hostPath:
-            path: /run/log/journal
-        - name: varlogjournal
-          hostPath:
-            path: /var/log/journal
-        - name: fluent-bit-config
-          configMap:
-            name: fluent-bit-config
-        - name: machineid
-          hostPath:
-            path: /etc/machine-id
-ENDOFFILE
+kubectl delete configmap fluent-bit-config -n logging
 
-kubectl apply -f /tmp/fluent-bit-ds.yaml
+cat <<'EOF' | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: logging
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         5
+        Log_Level     info
+        Daemon        off
+        Parsers_File  parsers.conf
+
+    [INPUT]
+        Name              tail
+        Tag               kube.*
+        Path              /var/log/containers/*.log
+        Parser            cri
+        DB                /tmp/flb_kube.db
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   On
+        Refresh_Interval  10
+
+    [INPUT]
+        Name            systemd
+        Tag             kubelet
+        Systemd_Filter  _SYSTEMD_UNIT=kubelet.service
+
+    [INPUT]
+        Name            systemd
+        Tag             containerd
+        Systemd_Filter  _SYSTEMD_UNIT=containerd.service
+
+    [INPUT]
+        Name            systemd
+        Tag             rke2-server
+        Systemd_Filter  _SYSTEMD_UNIT=rke2-server.service
+
+    [INPUT]
+        Name            systemd
+        Tag             rke2-agent
+        Systemd_Filter  _SYSTEMD_UNIT=rke2-agent.service
+
+    [INPUT]
+        Name            systemd
+        Tag             system
+        Systemd_Filter  _SYSTEMD_UNIT=sshd.service
+        Systemd_Filter  _SYSTEMD_UNIT=auditd.service
+
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix     kube.var.log.containers.
+        Merge_Log           On
+        Keep_Log            Off
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
+
+    [OUTPUT]
+        Name          tcp
+        Match         *
+        Host          10.200.248.190
+        Port          6514
+        Format        json_lines
+        net.keepalive on
+        net.keepalive_idle_timeout 10
+
+  parsers.conf: |
+    [PARSER]
+        Name        cri
+        Format      regex
+        Regex       ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+        Time_Keep   On
+
+    [PARSER]
+        Name        docker
+        Format      json
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep   On
+EOF
+
+kubectl rollout restart daemonset fluent-bit -n logging
