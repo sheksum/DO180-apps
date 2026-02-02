@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Configuration
 NETAPP_API="https://plano_aff_cl.calix.local/api"
-NETAPP_CREDS="svc_lifecycle:YOUR_PASSWORD"
+NETAPP_CREDS="svc_lifecycle:d94def47f1dd637527028656aac69359bfb1f6492cf03c1198b142686fa7e98c"
 NETAPP_VOL_UUID="3825009b-5037-11ef-8de2-d039eabbae46"
 IPA_KEYTAB="/etc/krb5/ipa_svc.keytab"
 IPA_PRINCIPAL="svc_user_lifecycle"
@@ -76,12 +76,24 @@ else
     ipa user-del "$USER_ID" &>/dev/null && log "OK" "User deleted" || log "ERROR" "Delete failed"
 fi
 
-# Step 6: Note NetApp home for manual cleanup
+# Step 6: Quarantine NetApp home directory
 if [[ "$HAS_HOME" == "true" ]]; then
-    log "INFO" "NOTE: User has NetApp home directory - manual cleanup required"
-    log "INFO" "Home location: /lab_unix_homes/$USER_ID"
+    log "INFO" "Quarantining NetApp home directory"
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log "INFO" "[DRY-RUN] Would quarantine home to _decommissioned/"
+    else
+        local timestamp=$(date +%F_%H%M%S)
+        if [[ -d "/na/plnaff/unix_homes/lab_unix_homes/${USER_ID}" ]]; then
+            mv "/na/plnaff/unix_homes/lab_unix_homes/${USER_ID}" \
+               "/na/plnaff/unix_homes/lab_unix_homes/_decommissioned/${USER_ID}_${timestamp}" \
+               && log "OK" "Home quarantined to _decommissioned/${USER_ID}_${timestamp}" \
+               || log "ERROR" "Failed to quarantine home directory"
+        else
+            log "WARN" "Home directory not found on NFS mount"
+        fi
+    fi
 else
-    log "INFO" "No NetApp home directory"
+    log "INFO" "No NetApp home directory to quarantine"
 fi
 
 log "OK" "Offboard complete: $USER_ID"
