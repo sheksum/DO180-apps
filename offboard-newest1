@@ -1,7 +1,113 @@
-rm ipa_ad_user_cleanup.sh
+rm -f ipa_ad_user_cleanup.sh
 
-base64 -d << 'EOF' > ipa_ad_user_cleanup.sh
-IyEvdXNyL2Jpbi9lbnYgYmFzaApzZXQgLWV1byBwaXBlZmFpbAoKTkVUQVBQX0FQST0iaHR0cHM6Ly9wbGFub19hZmZfY2wuY2FsaXgubG9jYWwvYXBpIgpORVRBUFBfQ1JFRFM9InN2Y19saWZlY3ljbGU6Q0hBTkdFX01FX1BBU1NXT1JEIgpORVRBUFBfVk9MX1VVSUQ9IjM4MjUwMDliLTUwMzctMTFlZi04ZGUyLWQwMzllYWJiYWU0NiIKTkVUQVBQX0hPTUVfQkFTRT0iL2xhYl91bml4X2hvbWVzIgpRVUFSQU5USU5FX0RJUj0iX2RlY29tbWlzc2lvbmVkIgpORVRBUFBfU1NIX0hPU1Q9InBsYW5vX2FmZl9jbC5jYWxpeC5sb2NhbCIKTkVUQVBQX1NTSF9VU0VSPSJzdmNfbGlmZWN5Y2xlIgpORVRBUFBfU1NIX0tFWT0iJEhPTUUvLnNzaC9uZXRhcHBfc3ZjIgpJUEFfS0VZVEFCPSJL2V0Yy9rcmI1L2lwYV9zdmMua2V5dGFiIgpJUEFfUFJJTkNJUEFMPSJzdmNfdXNlcl9saWZlY3ljbGUiCkxPR19GSUxFPSIvdmFyL2xvZy91c2VyX29mZmJvYXJkLmxvZyIKVElNRVNUQU1QPSQoZGF0ZSArJUZfJUglTSVTKQpEUllfUlVOPSJmYWxzZSIKCmxvZygpIHsgZWNobyAiJChkYXRlICcrJUYgJVQnKSBbJDFdICRVU0VSX0lEIC0gJDIiIHwgdGVlIC1hICIkTE9HX0ZJTEUiOyB9CgpjaGVja19rZXJiZXJvcygpIHsKICAgIGlmIGtsaXN0IC1zIDI+L2Rldi9udWxsOyB0aGVuCiAgICAgICAgbG9nICJJTkZPIiAiRXhpc3RpbmcgS2VyYmVyb3MgdGlja2V0IHZhbGlkIgogICAgZWxzZQogICAgICAgIGxvZyAiSU5GTyIgIkF1dGhlbnRpY2F0aW5nIHdpdGgga2V5dGFiIgogICAgICAgIGtpbml0IC1rdCAiJElQQV9LRVlUQUIiICIkSVBBX1BSSU5DSVBBTCIgfHwgeyBsb2cgIkVSUk9SIiAiS2V5dGFiIGF1dGggZmFpbGVkIjsgZXhpdCAxOyB9CiAgICBmaQp9CgpmaW5kX2lwYV91c2VyKCkgewogICAgbG9jYWwgc2VhcmNoPSIkMSIKICAgIGxvY2FsIGZvdW5kX3VpZD0iIgogICAgaWYgaXBhIHVzZXItc2hvdyAiJHNlYXJjaCIgJj4vZGV2L251bGw7IHRoZW4KICAgICAgICBlY2hvICIkc2VhcmNoIgogICAgICAgIHJldHVybiAwCiAgICBmaQogICAgZm91bmRfdWlkPSQoaXBhIHVzZXItZmluZCAtLWNuPSIkc2VhcmNoIiAtLXJhdyAyPi9kZXYvbnVsbCB8IGdyZXAgIl4gIHVpZDoiIHwgaGVhZCAtMSB8IGF3ayAne3ByaW50ICQyfScpCiAgICBpZiBbWyAtbiAiJGZvdW5kX3VpZCIgXV07IHRoZW4KICAgICAgICBlY2hvICIkZm91bmRfdWlkIgogICAgICAgIHJldHVybiAwCiAgICBmaQogICAgZm91bmRfdWlkPSQoaXBhIHVzZXItZmluZCAtLWVtYWlsPSIkc2VhcmNoKiIgLS1yYXcgMj4vZGV2L251bGwgfCBncmVwICJeICB1aWQ6IiB8IGhlYWQgLTEgfCBhd2sgJ3twcmludCAkMn0nKQogICAgaWYgW1sgLW4gIiRmb3VuZF91aWQiIF1dOyB0aGVuCiAgICAgICAgZWNobyAiJGZvdW5kX3VpZCIKICAgICAgICByZXR1cm4gMAogICAgZmkKICAgIGZvdW5kX3VpZD0kKGlwYSB1c2VyLWZpbmQgIiRzZWFyY2giIC0tcmF3IDI+L2Rldi9udWxsIHwgZ3JlcCAiXiAgdWlkOiIgfCBoZWFkIC0xIHwgYXdrICd7cHJpbnQgJDJ9JykKICAgIGlmIFtbIC1uICIkZm91bmRfdWlkIiBdXTsgdGhlbgogICAgICAgIGVjaG8gIiRmb3VuZF91aWQiCiAgICAgICAgcmV0dXJuIDAKICAgIGZpCiAgICByZXR1cm4gMQp9CgpVU0VSX0lEPSIiCmZvciBhcmcgaW4gIiRAIjsgZG8KICAgIGNhc2UgIiRhcmciIGluCiAgICAgICAgLS1kcnktcnVuKSBEUllfUlVOPSJ0cnVlIiA7OwogICAgICAgIC0taGVscHwtaCkgZWNobyAiVXNhZ2U6ICQwIDx1c2VybmFtZXxmdWxsbmFtZT4gWy0tZHJ5LXJ1bl0iOyBleGl0IDAgOzsKICAgICAgICAqKSBbWyAteiAiJFVTRVJfSUQiIF1dICYmIFVTRVJfSUQ9IiRhcmciIDs7CiAgICBlc2FjCmRvbmUKCltbICIkVVNFUl9JRCIgPT0gIiIgXV0gJiYgeyBlY2hvICJVc2FnZTogJDAgPHVzZXJuYW1lfGZ1bGxuYW1lPiBbLS1kcnktcnVuXSI7IGV4aXQgMTsgfQoKbG9nICJJTkZPIiAiU3RhcnRpbmcgb2ZmYm9hcmQgZm9yOiAkVVNFUl9JRCIKW1sgIiREUllfUlVOIiA9PSAidHJ1ZSIgXV0gJiYgbG9nICJJTkZPIiAiPT09IERSWS1SVU4gTU9ERSAtIE5PIENIQU5HRVMgV0lMTCBCRSBNQURFID09PSIKCmNoZWNrX2tlcmJlcm9zCgpsb2cgIklORk8iICJTdGVwIDE6IEZpbmRpbmcgdXNlciBpbiBJUEEiCkZPVU5EX1VTRVI9JChmaW5kX2lwYV91c2VyICIkVVNFUl9JRCIpIHx8IHsgbG9nICJFUlJPUiIgIlVzZXIgbm90IGZvdW5kOiAkVVNFUl9JRCI7IGV4aXQgMTsgfQppZiBbWyAiJEZPVU5EX1VTRVIiICE9ICIkVVNFUl9JRCIgXV07IHRoZW4KICAgIGxvZyAiSU5GTyIgIlJlc29sdmVkICckVVNFUl9JRCcgdG8gSVBBIHVzZXJuYW1lOiAkRk9VTkRfVVNFUiIKICAgIFVTRVJfSUQ9IiRGT1VORF9VU0VSIgpmaQpsb2cgIk9LIiAiVXNlciBmb3VuZDogJFVTRVJfSUQiCgpsb2cgIklORk8iICJTdGVwIDI6IENoZWNraW5nIE5ldEFwcCBob21lIGRpcmVjdG9yeSIKSFRUUF9DT0RFPSQoY3VybCAtc2sgLW8gL2Rldi9udWxsIC13ICIle2h0dHBfY29kZX0iIC11ICIkTkVUQVBQX0NSRURTIiBcCiAgICAiJHtORVRBUFBfQVBJfS9zdG9yYWdlL3ZvbHVtZXMvJHtORVRBUFBfVk9MX1VVSUR9L2ZpbGVzLyR7VVNFUl9JRH0/cmV0dXJuX21ldGFkYXRhPXRydWUiKQppZiBbWyAiJEhUVFBfQ09ERSIgPT0gIjIwMCIgXV07IHRoZW4KICAgIGxvZyAiT0siICJIb21lIGRpcmVjdG9yeSBmb3VuZCBvbiBOZXRBcHAiCiAgICBORVRBUFBfSE9NRT0idHJ1ZSIKZWxzZQogICAgbG9nICJXQVJOIiAiSG9tZSBkaXJlY3Rvcnkgbm90IGZvdW5kIG9uIE5ldEFwcCIKICAgIE5FVEFQUF9IT01FPSJmYWxzZSIKZmkKCmxvZyAiSU5GTyIgIlN0ZXAgMzogRGlzYWJsaW5nIElQQSB1c2VyIgppZiBbWyAiJERSWV9SVU4iID09ICJ0cnVlIiBdXTsgdGhlbgogICAgbG9nICJJTkZPIiAiW0RSWS1SVU5dIFdvdWxkIGRpc2FibGUgdXNlcjogJFVTRVJfSUQiCmVsc2UKICAgIGlwYSB1c2VyLWRpc2FibGUgIiRVU0VSX0lEIiAyPiYxICYmIGxvZyAiT0siICJVc2VyIGRpc2FibGVkIiB8fCBsb2cgIldBUk4iICJEaXNhYmxlIGZhaWxlZCAobWF5IGFscmVhZHkgYmUgZGlzYWJsZWQpIgpmaQoKbG9nICJJTkZPIiAiU3RlcCA0OiBEZWxldGluZyBJUEEgdXNlciIKaWYgW1sgIiREUllfUlVOIiA9PSAidHJ1ZSIgXV07IHRoZW4KICAgIGxvZyAiSU5GTyIgIltEUlktUlVOXSBXb3VsZCBkZWxldGUgdXNlcjogJFVTRVJfSUQiCmVsc2UKICAgIGlwYSB1c2VyLWRlbCAiJFVTRVJfSUQiIDI+JjEgJiYgbG9nICJPSyIgIlVzZXIgZGVsZXRlZCIgfHwgbG9nICJFUlJPUiIgIkRlbGV0ZSBmYWlsZWQiCmZpCgpsb2cgIklORk8iICJTdGVwIDU6IFF1YXJhbnRpbmluZyBOZXRBcHAgaG9tZSBkaXJlY3RvcnkiCmlmIFtbICIkTkVUQVBQX0hPTUUiID09ICJ0cnVlIiBdXTsgdGhlbgogICAgaWYgW1sgIiREUllfUlVOIiA9PSAidHJ1ZSIgXV07IHRoZW4KICAgICAgICBsb2cgIklORk8iICJbRFJZLVJVTl0gV291bGQgbW92ZSBob21lIHRvICR7TkVUQVBQX0hPTUVfQkFTRX0vJHtRVUFSQU5USU5FX0RJUn0vJHtVU0VSX0lEfV8ke1RJTUVTVEFNUH0iCiAgICBlbHNlCiAgICAgICAgc3NoIC1vIEJhdGNoTW9kZT15ZXMgLW8gU3RyaWN0SG9zdEtleUNoZWNraW5nPW5vIC1pICIkTkVUQVBQX1NTSF9LRVkiIFwKICAgICAgICAgICAgIiR7TkVUQVBQX1NTSF9VU0VSfUAke05FVEFQUF9TU0hfSE9TVH0iIFwKICAgICAgICAgICAgIm1rZGlyIC1wICR7TkVUQVBQX0hPTUVfQkFTRX0vJHtRVUFSQU5USU5FX0RJUn07IG12ICR7TkVUQVBQX0hPTUVfQkFTRX0vJHtVU0VSX0lEfSAke05FVEFQUF9IT01FX0JBU0V9LyR7UVVBUkFOVElORV9ESVJ9LyR7VVNFUl9JRH1fJHtUSU1FU1RBTVB9IiBcCiAgICAgICAgICAgICYmIGxvZyAiT0siICJIb21lIGRpcmVjdG9yeSBxdWFyYW50aW5lZCIgfHwgbG9nICJFUlJPUiIgIkZhaWxlZCB0byBxdWFyYW50aW5lIGhvbWUiCiAgICBmaQplbHNlCiAgICBsb2cgIklORk8iICJTa2lwcGluZyAtIG5vIGhvbWUgZGlyZWN0b3J5IgpmaQoKbG9nICJPSyIgIk9mZmJvYXJkIGNvbXBsZXRlIGZvcjogJFVTRVJfSUQi
+cat > ipa_ad_user_cleanup.sh << 'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+NETAPP_API="https://plano_aff_cl.calix.local/api"
+NETAPP_CREDS="svc_lifecycle:YOUR_PASSWORD_HERE"
+NETAPP_VOL_UUID="3825009b-5037-11ef-8de2-d039eabbae46"
+NETAPP_HOME_BASE="/lab_unix_homes"
+QUARANTINE_DIR="_decommissioned"
+NETAPP_SSH_HOST="plano_aff_cl.calix.local"
+NETAPP_SSH_USER="svc_lifecycle"
+NETAPP_SSH_KEY="$HOME/.ssh/netapp_svc"
+IPA_KEYTAB="/etc/krb5/ipa_svc.keytab"
+IPA_PRINCIPAL="svc_user_lifecycle"
+LOG_FILE="/var/log/user_offboard.log"
+TIMESTAMP=$(date +%F_%H%M%S)
+DRY_RUN="false"
+
+log() {
+    echo "$(date '+%F %T') [$1] $USER_ID - $2" | tee -a "$LOG_FILE"
+}
+
+check_kerberos() {
+    if klist -s 2>/dev/null; then
+        log "INFO" "Existing Kerberos ticket valid"
+    else
+        log "INFO" "Authenticating with keytab"
+        kinit -kt "$IPA_KEYTAB" "$IPA_PRINCIPAL" || { log "ERROR" "Keytab auth failed"; exit 1; }
+    fi
+}
+
+find_ipa_user() {
+    local search="$1"
+    if ipa user-show "$search" &>/dev/null; then
+        echo "$search"
+        return 0
+    fi
+    local found_uid=$(ipa user-find --cn="$search" --raw 2>/dev/null | grep "^  uid:" | head -1 | awk '{print $2}')
+    if [[ -n "$found_uid" ]]; then
+        echo "$found_uid"
+        return 0
+    fi
+    return 1
+}
+
+USER_ID=""
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run) DRY_RUN="true" ;;
+        *) [[ -z "$USER_ID" ]] && USER_ID="$arg" ;;
+    esac
+done
+
+[[ "$USER_ID" == "" ]] && { echo "Usage: $0 <username> [--dry-run]"; exit 1; }
+
+log "INFO" "Starting offboard for: $USER_ID"
+[[ "$DRY_RUN" == "true" ]] && log "INFO" "=== DRY-RUN MODE - NO CHANGES WILL BE MADE ==="
+
+check_kerberos
+
+log "INFO" "Step 1: Finding user in IPA"
+FOUND_USER=$(find_ipa_user "$USER_ID") || { log "ERROR" "User not found: $USER_ID"; exit 1; }
+if [[ "$FOUND_USER" != "$USER_ID" ]]; then
+    log "INFO" "Resolved '$USER_ID' to IPA username: $FOUND_USER"
+    USER_ID="$FOUND_USER"
+fi
+log "OK" "User found: $USER_ID"
+
+log "INFO" "Step 2: Checking NetApp home directory"
+HTTP_CODE=$(curl -sk -o /dev/null -w "%{http_code}" -u "$NETAPP_CREDS" \
+    "${NETAPP_API}/storage/volumes/${NETAPP_VOL_UUID}/files/${USER_ID}?return_metadata=true")
+if [[ "$HTTP_CODE" == "200" ]]; then
+    log "OK" "Home directory found on NetApp"
+    NETAPP_HOME="true"
+else
+    log "WARN" "Home directory not found on NetApp"
+    NETAPP_HOME="false"
+fi
+
+log "INFO" "Step 3: Disabling IPA user"
+if [[ "$DRY_RUN" == "true" ]]; then
+    log "INFO" "[DRY-RUN] Would disable user: $USER_ID"
+else
+    ipa user-disable "$USER_ID" 2>&1 && log "OK" "User disabled" || log "WARN" "Disable failed"
+fi
+
+log "INFO" "Step 4: Deleting IPA user"
+if [[ "$DRY_RUN" == "true" ]]; then
+    log "INFO" "[DRY-RUN] Would delete user: $USER_ID"
+else
+    ipa user-del "$USER_ID" 2>&1 && log "OK" "User deleted" || log "ERROR" "Delete failed"
+fi
+
+log "INFO" "Step 5: Quarantining NetApp home directory"
+if [[ "$NETAPP_HOME" == "true" ]]; then
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log "INFO" "[DRY-RUN] Would move home to quarantine"
+    else
+        ssh -o BatchMode=yes -o StrictHostKeyChecking=no -i "$NETAPP_SSH_KEY" \
+            "${NETAPP_SSH_USER}@${NETAPP_SSH_HOST}" \
+            "mkdir -p ${NETAPP_HOME_BASE}/${QUARANTINE_DIR}; mv ${NETAPP_HOME_BASE}/${USER_ID} ${NETAPP_HOME_BASE}/${QUARANTINE_DIR}/${USER_ID}_${TIMESTAMP}" \
+            && log "OK" "Home directory quarantined" || log "ERROR" "Failed to quarantine home"
+    fi
+else
+    log "INFO" "Skipping - no home directory"
+fi
+
+log "OK" "Offboard complete for: $USER_ID"
 EOF
 
 chmod +x ipa_ad_user_cleanup.sh
