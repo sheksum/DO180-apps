@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Configuration
+NETAPP_API="https://plano_aff_cl.calix.local/api"
+NETAPP_CREDS="svc_lifecycle:d94def47f1dd637527028656aac69359bfb1f6492cf03c1198b142686fa7e98c"
+NETAPP_VOL_UUID="3825009b-5037-11ef-8de2-d039eabbae46"
+NETAPP_MOUNT_SERVER="plnx-admin.caal.dev"
+NETAPP_MOUNT_PATH="/na/plnaff/unix_homes/lab_unix_homes"
+NETAPP_MOUNT_SSH_KEY="$HOME/.ssh/netapp_mount_key"
+IPA_KEYTAB="/etc/krb5/ipa_svc.keytab"
+IPA_PRINCIPAL="svc_user_lifecycle"
+LOG_FILE="/var/log/user_offboard.log"
+DRY_RUN="false"
+
+# Functions
+log() { echo "$(date '+%F %T') [$1] $USER_ID - $2" | tee -a "$LOG_FILE"; }
+
+check_kerberos() {
+    klist -s 2>/dev/null || kinit -kt "$IPA_KEYTAB" "$IPA_PRINCIPAL" || {
+        log "ERROR" "Kerberos authentication failed"
+        exit 1
+    }
+}
+
+find_user() {
+    local search="$1"
+    # Try direct lookup first
+    ipa user-show "$search" &>/dev/null && echo "$search" && return
+    # Try by full name
+    local uid=$(ipa user-find --cn="$search" --raw 2>/dev/null | grep "^  uid:" | head -1 | awk '{print $2}')
+    [[ -n "$uid" ]] && echo "$uid" && return
+    return 1
+}
+
+check_netapp_home() {
+    local user="$1"
+    local http_code=$(curl -sk -o /dev/null -w "%{http_code}" -u "$NETAPP_CREDS" \
+        "${NETAPP_API}/storage/volumes/${NETAPP_VOL_UUID}/files/${user}?return_metadata=true")
+    [[ "$http_code" == "200" ]] && echo "true" || echo "false"
+}
+
+# Main
+USER_ID=""
+[[ "$1" == "--dry-run" ]] && DRY_RUN="true" && shift
+USER_ID="$1"
+[[ -z "$USER_ID" ]] && { echo "Usage: $0 <username> [--dry-run]"; exit 1; }
+
+log "INFO" "Starting offboard: $USER_ID"
+[[ "$DRY_RUN" == "true" ]] && log "INFO" "DRY-RUN MODE"
+
+# Step 1: Authenticate
+check_kerberos
+
+# Step 2: Find user (but don't exit if not found)
+log "INFO" "Finding user in IPA"
+FOUND_USER=$(find_user "$USER_ID" 2>/dev/null) || FOUND_USER=""
+
+if [[ -n "$FOUND_USER" ]]; then
+    if [[ "$FOUND_USER" != "$USER_ID" ]]; then
+        log "INFO" "Resolved '$USER_ID' to IPA username: $FOUND_USER"
+        USER_ID="$FOUND_USER"
+    fi
+    log "OK" "User found in IPA: $USER_ID"
+    IPA_USER_EXISTS="true"
+else
+    log "WARN" "User not found in IPA: $USER_ID"
+    IPA_USER_EXISTS="false"
+fi
+
+# Step 3: Check NetApp home (always check, regardless of IPA status)
+log "INFO" "Checking NetApp home directory"
+HAS_HOME=$(check_netapp_home "$USER_ID")
+log "OK" "NetApp home exists: $HAS_HOME"
+
+# Step 4: Disable user (only if exists in IPA)
+if [[ "$IPA_USER_EXISTS" == "true" ]]; then
+    log "INFO" "Disabling IPA user"
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log "INFO" "[DRY-RUN] Would disable user"
+    else
+        ipa user-disable "$USER_ID" &>/dev/null && log "OK" "User disabled" || log "WARN" "Disable failed"
+    fi
+else
+    log "INFO" "Skipping IPA disable - user not found in IPA"
+fi
+
+# Step 5: Delete user (only if exists in IPA)
+if [[ "$IPA_USER_EXISTS" == "true" ]]; then
+    log "INFO" "Deleting IPA user"
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log "INFO" "[DRY-RUN] Would delete user"
+    else
+        ipa user-del "$USER_ID" &>/dev/null && log "OK" "User deleted" || log "ERROR" "Delete failed"
+    fi
+else
+    log "INFO" "Skipping IPA delete - user not found in IPA"
+fi
+
+# Step 6: Quarantine NetApp home directory (if it exists, regardless of IPA status)
+if [[ "$HAS_HOME" == "true" ]]; then
+    if [[ "$IPA_USER_EXISTS" == "false" ]]; then
+        log "INFO" "Found orphaned home directory - proceeding with quarantine"
+    fi
+    log "INFO" "Quarantining NetApp home directory"
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log "INFO" "[DRY-RUN] Would quarantine home to _decommissioned/"
+    else
+        timestamp=$(date +%F_%H%M%S)
+        result=$(ssh -i ${NETAPP_MOUNT_SSH_KEY} -o BatchMode=yes root@${NETAPP_MOUNT_SERVER} \
+            "if [[ -d '${NETAPP_MOUNT_PATH}/${USER_ID}' ]]; then \
+                mv '${NETAPP_MOUNT_PATH}/${USER_ID}' \
+                   '${NETAPP_MOUNT_PATH}/_decommissioned/${USER_ID}_${timestamp}' \
+                && echo 'SUCCESS: Home quarantined to _decommissioned/${USER_ID}_${timestamp}' \
+                || echo 'ERROR: Failed to quarantine home directory'; \
+             else \
+                echo 'WARN: Home directory not found on NetApp mount'; \
+             fi" 2>&1)
+        
+        if echo "$result" | grep -q "SUCCESS:"; then
+            log "OK" "$(echo "$result" | sed 's/SUCCESS: //')"
+        elif echo "$result" | grep -q "WARN:"; then
+            log "WARN" "$(echo "$result" | sed 's/WARN: //')"
+        else
+            log "ERROR" "Remote quarantine failed: $result"
+        fi
+    fi
+else
+    log "INFO" "No NetApp home directory to quarantine"
+fi
+
+log "OK" "Offboard complete: $USER_ID"
