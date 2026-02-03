@@ -1,0 +1,16 @@
+cat <<'EOF' | sudo tee /opt/rancher/docker-compose.yml
+services:
+  rancher:
+    image: rancher/rancher:v2.10.3
+    container_name: rancher
+    privileged: true
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/lib/rancher:/var/lib/rancher
+      - /etc/rancher/ssl/cert.pem:/etc/rancher/ssl/cert.pem:ro
+      - /etc/rancher/ssl/key.pem:/etc/rancher/ssl/key.pem:ro
+      - /etc/rancher/ssl/cacerts.pem:/etc/rancher/ssl/cacerts.pem:ro
+EOF
