@@ -1,0 +1,32 @@
+Hi Brian,
+
+Thanks for pulling this together — this helps frame the conversation. Sorry for the long read below, but I think it’s worth going through to fully understand the nature and scope of the work involved.
+
+I wanted to share how I’m looking at sequencing, ownership, and timing, along with one constraint that affects when we can realistically start.
+
+I’ll be owning items 3, 4, and 5, along with the OpenShift platform configuration needed to support workloads on the UCS-X platform, once storage and networking are in place.
+
+One thing to call out up front: we’re currently under a change freeze tied to the release. Because of that, network changes like VLAN creation and trunk updates can’t begin until mid to late next week, once the freeze is lifted. That effectively sets the earliest possible start for infrastructure implementation.
+
+Once changes are allowed, the infrastructure work can run in parallel.
+
+From a sequencing perspective, OpenShift installation depends on network VLANs being available, NetApp storage being provisioned, and UCS-X profiles being deployed. Once those prerequisites are satisfied, the platform work can begin.
+
+After the infrastructure is ready, the platform build-out begins.
+
+I’ll handle the OpenShift install on the UCS-X blades using Assisted Installer (RHCOS is deployed automatically as part of that). In parallel, the Dell GPU server needs its OS installed along with the NVIDIA drivers and CUDA.
+
+From there, the core platform setup includes configuring VLAN subinterfaces via MachineConfig, deploying NetApp Trident, defining storage backends per SVM and environment, creating StorageClasses aligned to dev, test, and prod, and validating end-to-end storage with real workloads.
+
+One important point I want to make sure is clear is that having OpenShift installed is not the same as being ready to deploy applications.
+
+Given the architecture we’re building, there are several architectural decisions that are already defined and now need to be implemented before teams can safely use the platform. That includes how we separate dev, test, and prod logically, how storage and networking map to those environments, and how we size control plane and GPU workers.
+
+There are also foundational platform pieces that need to be in place, like ingress and load balancing, an internal OpenShift image registry with persistent storage provided by NetApp via Trident, RBAC and namespace structure, and the GPU operator configuration. These directly affect security, performance, and how usable the platform is.
+
+I think it would be helpful to share this context with anyone who has concerns about timelines. Even with professional OpenShift installation services, work of this scope typically takes well over a month to reach a usable state. This is also our first time integrating many of these core components together, and there are always unknowns that only surface once implementation starts.
+
+What would help move things faster is being ready to start infrastructure work as soon as the change freeze lifts and aligning early on what “ready to deploy” means. If additional help is available for platform configuration, that would help as well.
+
+Thanks,  
+Haj
