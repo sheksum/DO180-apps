@@ -1,110 +1,12 @@
-awk -F',' 'NR==1{print;next}{
-  $1=tolower($1);
-  sub(/\..*/, "", $1);
-  print
-}' OFS=',' vcenter_A.csv > vcenter_A.norm.csv
+Satellite  Landscape  Automation  Centralized management of Sudo and putting processes in place to discourage the use of shared logins. Most people perform task as themselves. There has been so much improvement in that area.   Built and standup AI kubernetes environment  Had all VMs trust RootCA of calix.local and automated the processs and handed off to a junior member to push 
+
+ Hardened our plnproxy system from security standpoint   Final point of escalation for linux related issue   Built Image Registry system for containers. Currently all tabnine images are being pulled from internal system
 
 
-awk -F',' 'NR==1{print;next}{
-  $1=tolower($1);
-  sub(/\..*/, "", $1);
-  print
-}' OFS=',' vcenter_B.csv > vcenter_B.norm.csv
+Setup landscape profiles  and distributed to all our systems so we can pull packages from our onprem system - no system has to proxy to the internet   Setup logging/log retention  on all or Identify Systems to sentinel  Help conduct interviews to look for great candidates   Setup cluster-management UI and it’s monitoring stack in our AI enabled kubernetes clusters
 
-
-awk -F',' '
-NR==1 {header=$0; print header; next}
-{
-  if (!seen[$1]++) print
-}
-' OFS=',' vcenter_A.norm.csv vcenter_B.norm.csv > vcenter_union.csv
-
-
-jq -r '
-  .[] |
-  .hostname
-' landscape_raw.json \
-| tr '[:upper:]' '[:lower:]' \
-| sed 's/\..*$//' \
-| sort -u > landscape.hosts
+Setup hashicorp vault and external secrets operator so secrets can be securely maintained….   Performed vulnerability mitigation on systems   (Connect IPA LDAP to FORTIDLP) Setup fortidlp script to pull user information from ipa to push to fortidlp and setup a cronjob  
+Onboarded build systems to Grafana.   Performed Quarterly patching for user and build systems. Automated the process   Setup  and configured Modelsim DE 2020.2 for developers   (Move Logging to a Dedicated volume and configure log rotation on ipa master)   Setup dedicated storage for /var/log on all build systems. /var/log was always filling causing application to fail and user not to be able to access systems  Fixed reoccurring builder ssh keymismatch issue that used to prevent developers to run builds as builder account   Setup  deploy user break glass account / automation account across all systems to fix the mismatch of local user insecure user where one system is calix and the other is calix_admin or smx etc. Now we have deploy user across which has made automation achievable   
 
 
 
-cut -d',' -f1 vcenter_union.csv \
-| tr '[:upper:]' '[:lower:]' \
-| sed 's/\..*$//' \
-| sort -u > vcenter.hosts
-
-
-
-jq -r '
-  .[] |
-  [.hostname, .id] | @tsv
-' landscape_raw.json > landscape_host_id.map
-
-
-
-
-awk '{
-  h=$1
-  sub(/\..*/, "", h)
-  print tolower(h) "\t" $2
-}' landscape_host_id.map > landscape_host_id.norm
-
-
-grep -Ff dead_to_delete.hosts landscape_host_id.norm \
-| awk '{print $2}' > dead_to_delete.ids
-
-
-=======
----
-- name: Check if landscape-client is installed
-  hosts: all
-  gather_facts: false
-  become: true
-
-  tasks:
-    - name: Check landscape-client package
-      command: dpkg -s landscape-client
-      register: landscape_pkg
-      ignore_errors: true
-      changed_when: false
-
-    - name: Report landscape-client status
-      debug:
-        msg: >
-          landscape-client is {{
-            'INSTALLED' if landscape_pkg.rc == 0 else 'NOT installed'
-          }}
-
-
-#!/usr/bin/env bash
-host="$1"
-
-OUTPUT=$(ssh \
-  -F ~/.ssh/config \
-  -o BatchMode=yes \
-  -o ConnectTimeout=5 \
-  -o StrictHostKeyChecking=accept-new \
-  "$host" \
-  "python3 --version" 2>/dev/null)
-
-RC=$?
-
-if [[ $RC -ne 0 ]]; then
-  echo "UNREACHABLE $host"
-  exit 0
-fi
-
-if [[ "$OUTPUT" =~ Python\ ([0-9]+)\.([0-9]+)\. ]]; then
-  MAJOR="${BASH_REMATCH[1]}"
-  MINOR="${BASH_REMATCH[2]}"
-
-  if (( MAJOR > 3 || (MAJOR == 3 && MINOR >= 8) )); then
-    echo "MODERN $host"
-  else
-    echo "LEGACY $host"
-  fi
-else
-  echo "NO_PYTHON $host"
-fi
