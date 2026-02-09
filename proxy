@@ -1,0 +1,40 @@
+---
+- name: Bypass proxy for Red Hat Satellite
+  hosts: all
+  become: true
+  vars:
+    satellite_fqdn: pln-satellite01.caal.dev
+    satellite_subnet: 10.172.248.0/24
+
+  tasks:
+
+    - name: Ensure proxy_except is set in /etc/yum.conf
+      lineinfile:
+        path: /etc/yum.conf
+        regexp: '^proxy_except='
+        line: "proxy_except={{ satellite_fqdn }},{{ satellite_subnet }}"
+        insertafter: '^proxy='
+      when: "'proxy=' in lookup('file', '/etc/yum.conf', errors='ignore')"
+
+    - name: Ensure proxy_except is set in /etc/dnf/dnf.conf
+      lineinfile:
+        path: /etc/dnf/dnf.conf
+        regexp: '^proxy_except='
+        line: "proxy_except={{ satellite_fqdn }},{{ satellite_subnet }}"
+        insertafter: '^proxy='
+      when: "'proxy=' in lookup('file', '/etc/dnf/dnf.conf', errors='ignore')"
+
+    - name: Ensure NO_PROXY is set in /etc/environment
+      lineinfile:
+        path: /etc/environment
+        regexp: '^NO_PROXY='
+        line: "NO_PROXY={{ satellite_fqdn }},{{ satellite_subnet }}"
+        create: yes
+
+    - name: Clean DNF cache
+      command: dnf clean all
+      changed_when: false
+
+    - name: Refresh subscription-manager
+      command: subscription-manager refresh
+      changed_when: false
