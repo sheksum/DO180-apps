@@ -1,12 +1,36 @@
-[root@pln-petipareplica ~]# ./test testoffboard2
-2026-02-10 20:39:01 [INFO] testoffboard2 - Starting offboard: testoffboard2
-2026-02-10 20:39:01 [INFO] testoffboard2 - Finding user in IPA
-2026-02-10 20:39:02 [OK] testoffboard2 - User found in IPA: testoffboard2
-2026-02-10 20:39:02 [INFO] testoffboard2 - Checking NetApp home directories across all locations
-2026-02-10 20:39:02 [OK] testoffboard2 - NetApp home directory scan complete
-2026-02-10 20:39:02 [INFO] testoffboard2 - Disabling IPA user
-2026-02-10 20:39:03 [OK] testoffboard2 - User disabled
-2026-02-10 20:39:03 [INFO] testoffboard2 - Deleting IPA user
-2026-02-10 20:39:04 [OK] testoffboard2 - User deleted
-2026-02-10 20:39:04 [INFO] testoffboard2 - No NetApp home directories to quarantine
-2026-02-10 20:39:04 [OK] testoffboard2 - Offboard complete: testoffboard2
+[root@pln-petipareplica ~]# curl -sk -u "svc_lifecycle:d94def47f1dd637527028656aac69359bfb1f6492cf03c1198b142686fa7e98c" "https://plano_aff_cl.calix.local/api/storage/volumes/48168c4e-5f32-11ef-8de2-d039eabbae46/files/testoffboard2?return_metadata=true"
+{
+  "records": [
+    {
+      "path": "testoffboard2",
+      "type": "directory",
+      "creation_time": "2026-02-10T14:23:50-06:00",
+      "modified_time": "2026-02-10T14:23:50-06:00",
+      "changed_time": "2026-02-10T14:24:10-06:00",
+      "accessed_time": "2026-02-10T14:23:50-06:00",
+      "unix_permissions": 755,
+      "owner_id": 151220,
+      "group_id": 151220,
+      "size": 4096,
+      "hard_links_count": 2,
+      "inode_number": 269389484,
+      "is_empty": true,
+      "bytes_used": 4096,
+      "inode_generation": 2204192832,
+      "is_vm_aligned": false,
+      "is_junction": false,
+      "is_snapshot": false,
+      "_links": {
+        "self": {
+          "href": "/api/storage/volumes/48168c4e-5f32-11ef-8de2-d039eabbae46/files/testoffboard2"
+        }
+      }
+    }
+  ],
+  "num_records": 1,
+  "_links": {
+    "self": {
+      "href": "/api/storage/volumes/48168c4e-5f32-11ef-8de2-d039eabbae46/files/testoffboard2?return_metadata=true"
+    }
+  }
+}[root@pln-petipareplica ~]#
