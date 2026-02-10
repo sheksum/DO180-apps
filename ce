@@ -39,20 +39,42 @@ find_user() {
 
 check_netapp_home() {
     local user="$1"
+    local locations_found=()
     
-    # Check all three locations
+    # Check lab_unix_homes
     local lab_code=$(curl -sk -o /dev/null -w "%{http_code}" -u "$NETAPP_CREDS" \
         "${NETAPP_API}/storage/volumes/${LAB_UNIX_VOL_UUID}/files/lab_unix_homes/${user}?return_metadata=true")
     
+    # Check sd_unix_homes  
     local sd_unix_code=$(curl -sk -o /dev/null -w "%{http_code}" -u "$NETAPP_CREDS" \
         "${NETAPP_API}/storage/volumes/${SD_UNIX_VOL_UUID}/files/sd_unix_homes/${user}?return_metadata=true")
     
+    # Check sd_data
     local sd_data_code=$(curl -sk -o /dev/null -w "%{http_code}" -u "$NETAPP_CREDS" \
         "${NETAPP_API}/storage/volumes/${SD_DATA_VOL_UUID}/files/${user}?return_metadata=true")
     
-    if [[ "$lab_code" == "200" ]] || [[ "$sd_unix_code" == "200" ]] || [[ "$sd_data_code" == "200" ]]; then
+    # Log detailed findings
+    if [[ "$lab_code" == "200" ]]; then
+        log "INFO" "Home directory found in: lab_unix_homes"
+        locations_found+=("lab_unix_homes")
+    fi
+    
+    if [[ "$sd_unix_code" == "200" ]]; then
+        log "INFO" "Home directory found in: sd_unix_homes"  
+        locations_found+=("sd_unix_homes")
+    fi
+    
+    if [[ "$sd_data_code" == "200" ]]; then
+        log "INFO" "Home directory found in: sd_data"
+        locations_found+=("sd_data")
+    fi
+    
+    # Summary log
+    if [[ ${#locations_found[@]} -gt 0 ]]; then
+        log "INFO" "Total locations with home directories: ${#locations_found[@]} (${locations_found[*]})"
         echo "true"
     else
+        log "INFO" "No home directories found in any location"
         echo "false"
     fi
 }
@@ -85,10 +107,10 @@ else
     IPA_USER_EXISTS="false"
 fi
 
-# Step 3: Check NetApp home (all three locations)
-log "INFO" "Checking NetApp home directories"
+# Step 3: Check NetApp home directories across all locations
+log "INFO" "Checking NetApp home directories across all locations"
 HAS_HOME=$(check_netapp_home "$USER_ID")
-log "OK" "NetApp home exists: $HAS_HOME"
+log "OK" "NetApp home directory scan complete"
 
 # Step 4: Disable user (only if exists in IPA)
 if [[ "$IPA_USER_EXISTS" == "true" ]]; then
@@ -117,7 +139,7 @@ fi
 # Step 6: Quarantine NetApp home directories from all locations
 if [[ "$HAS_HOME" == "true" ]]; then
     if [[ "$IPA_USER_EXISTS" == "false" ]]; then
-        log "INFO" "Found orphaned home directory - proceeding with quarantine"
+        log "INFO" "Found orphaned home directories - proceeding with quarantine"
     fi
     log "INFO" "Quarantining NetApp home directories"
     if [[ "$DRY_RUN" == "true" ]]; then
