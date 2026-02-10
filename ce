@@ -1,29 +1,14 @@
-FULLNAME="Haj Suma"; \
-FIRST=$(echo "$FULLNAME" | awk '{print $1}'); \
-LAST=$(echo  "$FULLNAME" | awk '{print $NF}'); \
-USER=$(ipa user-find "$LAST" --all | awk -v first="$FIRST" -v last="$LAST" '
-/User login:/ {user=$3}
-/First name:/ {fname=$3}
-/Last name:/  {lname=$3; if (fname==first && lname==last) print user}
-'); \
-[ -n "$USER" ] && ipa user-show "$USER" | awk -v u="$USER" '/UID: /{print u, $2}'
-
-
-ipa_name_to_user_uid() {
-  FULLNAME="$*"
-  FIRST=$(echo "$FULLNAME" | awk '{print $1}')
-  LAST=$(echo  "$FULLNAME" | awk '{print $NF}')
-
-  USER=$(ipa user-find "$LAST" --all | awk -v first="$FIRST" -v last="$LAST" '
-    /User login:/ {user=$3}
-    /First name:/ {fname=$3}
-    /Last name:/  {lname=$3; if (fname==first && lname==last) print user}
-  ')
-
-  if [ -z "$USER" ]; then
-    echo "User not found for: $FULLNAME" >&2
-    return 1
-  fi
-
-  ipa user-show "$USER" | awk -v u="$USER" '/UID: /{print u, $2}'
+{
+  "name": "lab_unix_homes",
+  "uuid": "3825009b-5037-11ef-8de2-d039eabbae46"
 }
+{
+--
+{
+  "name": "sd_unix_homes",
+  "uuid": "48168c4e-5f32-11ef-8de2-d039eabbae46"
+}
+{
+--
+  "name": "sd_data",
+  "uuid": "a3d2d97a-5f58-11ef-9179-d039eabb831f"
