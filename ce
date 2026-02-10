@@ -4,14 +4,17 @@ set -euo pipefail
 # Configuration
 NETAPP_API="https://plano_aff_cl.calix.local/api"
 NETAPP_CREDS="svc_lifecycle:d94def47f1dd637527028656aac69359bfb1f6492cf03c1198b142686fa7e98c"
-NETAPP_VOL_UUID="3825009b-5037-11ef-8de2-d039eabbae46"
+
+# Volume UUIDs for all three locations
+LAB_UNIX_VOL_UUID="3825009b-5037-11ef-8de2-d039eabbae46"
+SD_UNIX_VOL_UUID="48168c4e-5f32-11ef-8de2-d039eabbae46"
+SD_DATA_VOL_UUID="a3d2d97a-5f58-11ef-9179-d039eabb831f"
+
 NETAPP_MOUNT_SERVER="plnx-admin.caal.dev"
-NETAPP_MOUNT_PATH="/na/plnaff/unix_homes/lab_unix_homes"
 NETAPP_MOUNT_SSH_KEY="$HOME/.ssh/netapp_mount_key"
 IPA_KEYTAB="/etc/krb5/ipa_svc.keytab"
 IPA_PRINCIPAL="svc_user_lifecycle"
 LOG_FILE="/var/log/user_offboard.log"
-#DRY_RUN="true"
 DRY_RUN="false"
 
 # Functions
@@ -36,9 +39,22 @@ find_user() {
 
 check_netapp_home() {
     local user="$1"
-    local http_code=$(curl -sk -o /dev/null -w "%{http_code}" -u "$NETAPP_CREDS" \
-        "${NETAPP_API}/storage/volumes/${NETAPP_VOL_UUID}/files/${user}?return_metadata=true")
-    [[ "$http_code" == "200" ]] && echo "true" || echo "false"
+    
+    # Check all three locations
+    local lab_code=$(curl -sk -o /dev/null -w "%{http_code}" -u "$NETAPP_CREDS" \
+        "${NETAPP_API}/storage/volumes/${LAB_UNIX_VOL_UUID}/files/lab_unix_homes/${user}?return_metadata=true")
+    
+    local sd_unix_code=$(curl -sk -o /dev/null -w "%{http_code}" -u "$NETAPP_CREDS" \
+        "${NETAPP_API}/storage/volumes/${SD_UNIX_VOL_UUID}/files/sd_unix_homes/${user}?return_metadata=true")
+    
+    local sd_data_code=$(curl -sk -o /dev/null -w "%{http_code}" -u "$NETAPP_CREDS" \
+        "${NETAPP_API}/storage/volumes/${SD_DATA_VOL_UUID}/files/${user}?return_metadata=true")
+    
+    if [[ "$lab_code" == "200" ]] || [[ "$sd_unix_code" == "200" ]] || [[ "$sd_data_code" == "200" ]]; then
+        echo "true"
+    else
+        echo "false"
+    fi
 }
 
 # Main
@@ -69,8 +85,8 @@ else
     IPA_USER_EXISTS="false"
 fi
 
-# Step 3: Check NetApp home (always check, regardless of IPA status)
-log "INFO" "Checking NetApp home directory"
+# Step 3: Check NetApp home (all three locations)
+log "INFO" "Checking NetApp home directories"
 HAS_HOME=$(check_netapp_home "$USER_ID")
 log "OK" "NetApp home exists: $HAS_HOME"
 
@@ -98,36 +114,61 @@ else
     log "INFO" "Skipping IPA delete - user not found in IPA"
 fi
 
-# Step 6: Quarantine NetApp home directory (if it exists, regardless of IPA status)
+# Step 6: Quarantine NetApp home directories from all locations
 if [[ "$HAS_HOME" == "true" ]]; then
     if [[ "$IPA_USER_EXISTS" == "false" ]]; then
         log "INFO" "Found orphaned home directory - proceeding with quarantine"
     fi
-    log "INFO" "Quarantining NetApp home directory"
+    log "INFO" "Quarantining NetApp home directories"
     if [[ "$DRY_RUN" == "true" ]]; then
-        log "INFO" "[DRY-RUN] Would quarantine home to _decommissioned/"
+        log "INFO" "[DRY-RUN] Would quarantine homes from all locations"
     else
         timestamp=$(date +%F_%H%M%S)
+        
+        # Check and quarantine from lab_unix_homes
         result=$(ssh -i ${NETAPP_MOUNT_SSH_KEY} -o BatchMode=yes root@${NETAPP_MOUNT_SERVER} \
-            "if [[ -d '${NETAPP_MOUNT_PATH}/${USER_ID}' ]]; then \
-                mv '${NETAPP_MOUNT_PATH}/${USER_ID}' \
-                   '${NETAPP_MOUNT_PATH}/_decommissioned/${USER_ID}_${timestamp}' \
-                && echo 'SUCCESS: Home quarantined to _decommissioned/${USER_ID}_${timestamp}' \
-                || echo 'ERROR: Failed to quarantine home directory'; \
+            "if [[ -d '/na/plnaff/unix_homes/lab_unix_homes/${USER_ID}' ]]; then \
+                mv '/na/plnaff/unix_homes/lab_unix_homes/${USER_ID}' \
+                   '/na/plnaff/unix_homes/lab_unix_homes/_decommissioned-lab-unix-homes/${USER_ID}_${timestamp}' \
+                && echo 'SUCCESS-LAB: Home quarantined from lab_unix_homes' \
+                || echo 'ERROR-LAB: Failed to quarantine from lab_unix_homes'; \
              else \
-                echo 'WARN: Home directory not found on NetApp mount'; \
+                echo 'NOTFOUND-LAB: No home in lab_unix_homes'; \
              fi" 2>&1)
-
-        if echo "$result" | grep -q "SUCCESS:"; then
-            log "OK" "$(echo "$result" | sed 's/SUCCESS: //')"
-        elif echo "$result" | grep -q "WARN:"; then
-            log "WARN" "$(echo "$result" | sed 's/WARN: //')"
-        else
-            log "ERROR" "Remote quarantine failed: $result"
-        fi
+        
+        # Check and quarantine from sd_data  
+        result2=$(ssh -i ${NETAPP_MOUNT_SSH_KEY} -o BatchMode=yes root@${NETAPP_MOUNT_SERVER} \
+            "if [[ -d '/na/plnaff/sd_data/${USER_ID}' ]]; then \
+                mv '/na/plnaff/sd_data/${USER_ID}' \
+                   '/na/plnaff/sd_data/_decommissioned-sd-data/${USER_ID}_${timestamp}' \
+                && echo 'SUCCESS-SD-DATA: Home quarantined from sd_data' \
+                || echo 'ERROR-SD-DATA: Failed to quarantine from sd_data'; \
+             else \
+                echo 'NOTFOUND-SD-DATA: No home in sd_data'; \
+             fi" 2>&1)
+        
+        # Check and quarantine from sd_unix_homes
+        result3=$(ssh -i ${NETAPP_MOUNT_SSH_KEY} -o BatchMode=yes root@${NETAPP_MOUNT_SERVER} \
+            "if [[ -d '/na/plnaff/unix_homes/sd_unix_homes/${USER_ID}' ]]; then \
+                mv '/na/plnaff/unix_homes/sd_unix_homes/${USER_ID}' \
+                   '/na/plnaff/unix_homes/sd_unix_homes/_decommissioned-sd-unix-homes/${USER_ID}_${timestamp}' \
+                && echo 'SUCCESS-SD-UNIX: Home quarantined from sd_unix_homes' \
+                || echo 'ERROR-SD-UNIX: Failed to quarantine from sd_unix_homes'; \
+             else \
+                echo 'NOTFOUND-SD-UNIX: No home in sd_unix_homes'; \
+             fi" 2>&1)
+        
+        # Log all results
+        for result_msg in "$result" "$result2" "$result3"; do
+            if echo "$result_msg" | grep -q "SUCCESS-"; then
+                log "OK" "$(echo "$result_msg" | sed 's/SUCCESS-[A-Z-]*: //')"
+            elif echo "$result_msg" | grep -q "ERROR-"; then
+                log "ERROR" "$(echo "$result_msg" | sed 's/ERROR-[A-Z-]*: //')"
+            fi
+        done
     fi
 else
-    log "INFO" "No NetApp home directory to quarantine"
+    log "INFO" "No NetApp home directories to quarantine"
 fi
 
 log "OK" "Offboard complete: $USER_ID"
