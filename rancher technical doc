@@ -89,12 +89,13 @@ x = 0 (Restricted) | x = 1 (Commercial)
 
 ## Key Ports
 
-|Port |Service        |Direction          |
-|-----|---------------|-------------------|
-|443  |Rancher UI/API |Inbound            |
-|6443 |Kubernetes API |Inbound via HAProxy|
-|9345 |RKE2 Supervisor|Inbound via HAProxy|
-|10250|Kubelet        |Inter-node         |
+|Port |Service                 |Direction          |
+|-----|------------------------|-------------------|
+|443  |Rancher UI/API          |Inbound            |
+|6443 |Kubernetes API          |Inbound via HAProxy|
+|9345 |RKE2 Supervisor         |Inbound via HAProxy|
+|10250|Kubelet                 |Inter-node         |
+|636  |Active Directory (LDAPS)|Outbound to AD     |
 
 -----
 
@@ -105,6 +106,37 @@ x = 0 (Restricted) | x = 1 (Commercial)
 - **Alertmanager** — Alert routing
 - **Node Exporter** — Host metrics (runs on all nodes)
 - **Kube State Metrics** — Kubernetes object metrics
+
+-----
+
+## Authentication
+
+### Restricted Environment (RES)
+
+|Setting              |Value                       |
+|---------------------|----------------------------|
+|**Type**             |Active Directory (LDAPS)    |
+|**Hostname**         |aamhildc01.ttmtech.local    |
+|**Port**             |636                         |
+|**Bind User**        |svc.ldap                    |
+|**Bind Password**    |(Secret Server)             |
+|**User Search Base** |DC=TTMTECH,DC=local         |
+|**Group Search Base**|DC=TTMTECH,DC=local         |
+|**Access Group**     |AAMHILL-SG-RANCHER-AI_ACCESS|
+
+### Commercial Environment (COM)
+
+|Setting              |Value                       |
+|---------------------|----------------------------|
+|**Type**             |Active Directory (LDAPS)    |
+|**Hostname**         |aamhildc01.ttmtech.local    |
+|**Port**             |636                         |
+|**Bind User**        |csvc.sat_ldap               |
+|**Bind Password**    |(Secret Server)             |
+|**Login Domain**     |VSPRI                       |
+|**User Search Base** |DC=VIASYSTEMS,DC=pri        |
+|**Group Search Base**|DC=VIASYSTEMS,DC=pri        |
+|**Access Group**     |CAMHILL-SG-RANCHER-AI_ACCESS|
 
 -----
 
@@ -136,6 +168,13 @@ x = 0 (Restricted) | x = 1 (Commercial)
 - Requires cluster ID, cluster name, and Rancher URL as parameters
 - Deploys to `cattle-monitoring-system` namespace
 - Access Grafana via Rancher UI: Cluster → Monitoring → Grafana
+
+### Active Directory Authentication
+
+- Uses LDAPS (secure LDAP over port 636)
+- AD Server: aamhildc01.ttmtech.local
+- Requires AD service account credentials to test and enable
+- Access controlled via AD security groups
 
 -----
 
@@ -289,6 +328,59 @@ Rancher UI → Cluster → Monitoring → Grafana
 
 -----
 
+## Part 4: Integrate AD to Rancher
+
+### Step 1: Navigate to Authentication
+
+Rancher UI → Users & Authentication → Auth Provider
+
+### Step 2: Select Active Directory
+
+Select **Active Directory** from the list of authentication providers.
+
+### Step 3: Configure AD Settings
+
+#### For Restricted Environment (RES)
+
+|Field            |Value                   |
+|-----------------|------------------------|
+|Hostname         |aamhildc01.ttmtech.local|
+|Port             |636                     |
+|TLS              |Enabled (LDAPS)         |
+|Bind User        |svc.ldap                |
+|Bind Password    |(from Secret Server)    |
+|User Search Base |DC=TTMTECH,DC=local     |
+|Group Search Base|DC=TTMTECH,DC=local     |
+
+#### For Commercial Environment (COM)
+
+|Field            |Value                   |
+|-----------------|------------------------|
+|Hostname         |aamhildc01.ttmtech.local|
+|Port             |636                     |
+|TLS              |Enabled (LDAPS)         |
+|Bind User        |csvc.sat_ldap           |
+|Bind Password    |(from Secret Server)    |
+|Login Domain     |VSPRI                   |
+|User Search Base |DC=VIASYSTEMS,DC=pri    |
+|Group Search Base|DC=VIASYSTEMS,DC=pri    |
+
+### Step 4: Test and Enable
+
+1. Enter AD service account username and password
+1. Click **Test**
+1. If successful, click **Enable**
+
+### Step 5: Configure Access Group
+
+1. Rancher UI → Users & Authentication → Groups
+1. Add the appropriate group:
+- **RES**: AAMHILL-SG-RANCHER-AI_ACCESS
+- **COM**: CAMHILL-SG-RANCHER-AI_ACCESS
+1. Assign permissions as needed
+
+-----
+
 ## Quick Reference Commands
 
 |Task                  |Command                                        |
@@ -299,3 +391,9 @@ Rancher UI → Cluster → Monitoring → Grafana
 |Reset Rancher password|`docker exec rancher reset-password`           |
 |Set kubeconfig        |`export KUBECONFIG=/etc/rancher/rke2/rke2.yaml`|
 |Check monitoring pods |`kubectl get pods -n cattle-monitoring-system` |
+
+-----
+
+## Pending Items
+
+- [ ] **ADFS Integration** — Set up ADFS connection for Rancher authentication with Duo MFA
