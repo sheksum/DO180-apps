@@ -1,0 +1,530 @@
+# Kindo AI Centralized Logging Infrastructure
+
+## Document Information
+
+|            |                                        |
+|------------|----------------------------------------|
+|**Document**|Centralized Logging Infrastructure Guide|
+|**Version** |2.0                                     |
+|**Date**    |February 6, 2026                        |
+|**Author**  |Linux Operations Team                   |
+
+-----
+
+## Environment Overview
+
+|Component           |Restricted (AAM)                  |Commercial (CAM)                  |
+|--------------------|----------------------------------|----------------------------------|
+|**Log Forwarder**   |aamslc4log01.ttmtech.local        |camscl4log01.viasystems.pri       |
+|**Log Forwarder IP**|10.200.248.190                    |10.201.248.190                    |
+|**SDL Server**      |AAMSLC4SDL01 (10.200.248.147:6514)|CAMSCL4SDL01 (10.201.248.147:6514)|
+|**Cluster Nodes**   |14 nodes                          |14 nodes                          |
+
+-----
+
+## Architecture
+
+```
+Kubernetes Cluster (14 nodes)
+         │
+         │ Fluent Bit DaemonSet
+         │ (TCP JSON, port 6514)
+         ▼
+┌─────────────────────────┐
+│  Log Forwarder Server   │
+│  (syslog-ng)            │
+│                         │
+│  /var/log/kindo/all/    │  ◄── 1TB dedicated storage
+│  └── YYYY-MM-DD/        │      7-day retention
+│      └── <IP>.log       │
+└────────────┬────────────┘
+             │
+             │ Forward (TCP 6514)
+             ▼
+┌─────────────────────────┐
+│  SDL Server             │  ◄── Long-term InfoSec storage
+│  (Syslog Data Logger)   │
+└─────────────────────────┘
+```
+
+-----
+
+## Cluster Nodes
+
+|Role         |IPs (AAM)       |IPs (CAM)       |
+|-------------|----------------|----------------|
+|Control Plane|10.200.248.21-23|10.201.248.21-23|
+|Workers      |10.200.248.41-43|10.201.248.41-43|
+|GPU Nodes    |10.200.248.61-64|10.201.248.61-64|
+
+-----
+
+## Log Collection Summary
+
+|Log Type                  |Source               |Status   |
+|--------------------------|---------------------|---------|
+|Pod/Container logs        |Fluent Bit (tail)    |✓ Active |
+|Kubelet logs              |Fluent Bit (systemd) |✓ Active |
+|Containerd logs           |Fluent Bit (systemd) |✓ Active |
+|RKE2 server/agent logs    |Fluent Bit (systemd) |✓ Active |
+|System logs (sshd)        |Fluent Bit (systemd) |✓ Active |
+|System audit logs (auditd)|Fluent Bit (systemd) |✓ Active |
+|Rancher server logs       |Docker logging driver|⏳ Pending|
+|Kubernetes API audit logs |RKE2 config          |⏳ Pending|
+
+-----
+
+## Excluded Namespaces
+
+|Namespace      |Reason                       |
+|---------------|-----------------------------|
+|longhorn-system|Storage logs too verbose     |
+|longhorn       |Storage logs too verbose     |
+|logging        |Prevents Fluent Bit recursion|
+
+-----
+
+## Key Ports
+
+|Port|Protocol|Direction              |
+|----|--------|-----------------------|
+|6514|TCP     |Cluster → Log Forwarder|
+|6514|TCP     |Log Forwarder → SDL    |
+
+-----
+
+## Storage Configuration
+
+|Setting       |Value         |
+|--------------|--------------|
+|Volume Group  |kindovg       |
+|Logical Volume|kindolv       |
+|Size          |1TB           |
+|Mount Point   |/var/log/kindo|
+|Filesystem    |XFS           |
+|Retention     |7 days        |
+|Rotation      |Daily         |
+
+-----
+
+## Key File Locations
+
+|Path                                |Host         |Purpose                |
+|------------------------------------|-------------|-----------------------|
+|`/etc/syslog-ng/syslog-ng.conf`     |Log Forwarder|syslog-ng configuration|
+|`/var/log/kindo/all/`               |Log Forwarder|Log storage            |
+|`/etc/logrotate.d/kindo`            |Log Forwarder|Log rotation config    |
+|`/etc/cron.daily/cleanup-kindo-logs`|Log Forwarder|Retention cleanup      |
+|ConfigMap: `fluent-bit-config`      |Kubernetes   |Fluent Bit config      |
+|DaemonSet: `fluent-bit`             |Kubernetes   |Log collector pods     |
+
+-----
+
+# Deployment Guide
+
+## Part 1: Log Forwarder Server Setup
+
+### Step 1: Install syslog-ng
+
+```bash
+dnf install epel-release -y
+dnf install syslog-ng -y
+systemctl stop rsyslog
+systemctl disable rsyslog
+```
+
+### Step 2: Configure Dedicated Storage
+
+```bash
+pvcreate /dev/sdc
+vgcreate kindovg /dev/sdc
+lvcreate -l 100%FREE -n kindolv kindovg
+mkfs.xfs /dev/kindovg/kindolv
+mkdir -p /var/log/kindo
+mount /dev/kindovg/kindolv /var/log/kindo
+echo '/dev/kindovg/kindolv /var/log/kindo xfs defaults 0 0' >> /etc/fstab
+```
+
+### Step 3: Configure syslog-ng
+
+Create `/etc/syslog-ng/syslog-ng.conf`:
+
+```conf
+@version: 4.2
+@include "scl.conf"
+
+options {
+    keep_hostname(yes);
+    use_dns(no);
+    chain_hostnames(off);
+    flush_lines(0);
+    time_reopen(10);
+    log_fifo_size(10000);
+    keep-alive(yes);
+};
+
+source s_kindo {
+    tcp(
+        ip("0.0.0.0")
+        port(6514)
+        max-connections(500)
+        flags(no-parse)
+        keep-alive(yes)
+        so-keepalive(yes)
+    );
+};
+
+destination d_kindo_all {
+    file(
+        "/var/log/kindo/all/${YEAR}-${MONTH}-${DAY}/${SOURCEIP}.log"
+        create_dirs(yes)
+        perm(0640)
+        dir_perm(0750)
+    );
+};
+
+destination d_sdl {
+    tcp("10.200.248.147" port(6514));
+};
+
+log {
+    source(s_kindo);
+    destination(d_kindo_all);
+    destination(d_sdl);
+};
+
+# Local system logging
+source s_sys { system(); internal(); };
+destination d_messages { file("/var/log/messages"); };
+log { source(s_sys); destination(d_messages); };
+```
+
+### Step 4: Configure Log Rotation
+
+Create `/etc/logrotate.d/kindo`:
+
+```conf
+/var/log/kindo/all/*/*.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 root root
+    sharedscripts
+    postrotate
+        /usr/bin/systemctl reload syslog-ng > /dev/null 2>&1 || true
+    endscript
+}
+```
+
+### Step 5: Configure Cleanup Script
+
+Create `/etc/cron.daily/cleanup-kindo-logs`:
+
+```bash
+#!/bin/bash
+find /var/log/kindo -type f -mtime +7 -delete 2>/dev/null
+find /var/log/kindo -type d -empty -delete 2>/dev/null
+```
+
+```bash
+chmod +x /etc/cron.daily/cleanup-kindo-logs
+```
+
+### Step 6: Configure Firewall and SELinux
+
+```bash
+firewall-cmd --permanent --add-port=6514/tcp
+firewall-cmd --reload
+semanage port -a -t syslogd_port_t -p tcp 6514
+```
+
+### Step 7: Start syslog-ng
+
+```bash
+syslog-ng -s
+systemctl enable syslog-ng
+systemctl start syslog-ng
+```
+
+-----
+
+## Part 2: Kubernetes Fluent Bit Deployment
+
+### Step 1: Create Namespace
+
+```bash
+kubectl create namespace logging
+```
+
+### Step 2: Deploy RBAC
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fluent-bit
+  namespace: logging
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluent-bit
+rules:
+  - apiGroups: [""]
+    resources: [namespaces, pods]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fluent-bit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fluent-bit
+subjects:
+  - kind: ServiceAccount
+    name: fluent-bit
+    namespace: logging
+```
+
+### Step 3: Deploy ConfigMap
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: logging
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         5
+        Log_Level     info
+        Daemon        off
+        Parsers_File  parsers.conf
+        storage.path  /tmp/flb-storage/
+        storage.backlog.mem_limit 5M
+
+    [INPUT]
+        Name              tail
+        Tag               kube.*
+        Path              /var/log/containers/*.log
+        Exclude_Path      *longhorn-system*.log,*longhorn*.log,*logging*.log
+        Parser            cri
+        DB                /tmp/flb_kube.db
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   On
+        Refresh_Interval  10
+
+    [INPUT]
+        Name            systemd
+        Tag             host.*
+        Systemd_Filter  _SYSTEMD_UNIT=kubelet.service
+        Systemd_Filter  _SYSTEMD_UNIT=containerd.service
+        Systemd_Filter  _SYSTEMD_UNIT=rke2-server.service
+        Systemd_Filter  _SYSTEMD_UNIT=rke2-agent.service
+        Systemd_Filter  _SYSTEMD_UNIT=sshd.service
+        Systemd_Filter  _SYSTEMD_UNIT=auditd.service
+        DB              /tmp/flb_systemd.db
+        Read_From_Tail  On
+
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix     kube.var.log.containers.
+        Merge_Log           On
+        Keep_Log            Off
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
+
+    [OUTPUT]
+        Name          tcp
+        Match         *
+        Host          10.200.248.190
+        Port          6514
+        Format        json_lines
+        net.keepalive on
+        net.keepalive_idle_timeout 30
+        Retry_Limit   5
+
+  parsers.conf: |
+    [PARSER]
+        Name        cri
+        Format      regex
+        Regex       ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+```
+
+### Step 4: Deploy DaemonSet
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  namespace: logging
+  labels:
+    app: fluent-bit
+spec:
+  selector:
+    matchLabels:
+      app: fluent-bit
+  template:
+    metadata:
+      labels:
+        app: fluent-bit
+    spec:
+      serviceAccountName: fluent-bit
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:2.2
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 300m
+            requests:
+              memory: 256Mi
+              cpu: 100m
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+              readOnly: true
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: runlogjournal
+              mountPath: /run/log/journal
+              readOnly: true
+            - name: varlogjournal
+              mountPath: /var/log/journal
+              readOnly: true
+            - name: fluent-bit-config
+              mountPath: /fluent-bit/etc/
+            - name: machineid
+              mountPath: /etc/machine-id
+              readOnly: true
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: runlogjournal
+          hostPath:
+            path: /run/log/journal
+        - name: varlogjournal
+          hostPath:
+            path: /var/log/journal
+        - name: fluent-bit-config
+          configMap:
+            name: fluent-bit-config
+        - name: machineid
+          hostPath:
+            path: /etc/machine-id
+```
+
+### Step 5: Verify Deployment
+
+```bash
+kubectl get pods -n logging -o wide
+# Expected: 14 pods (one per node), all Running
+```
+
+-----
+
+## Part 3: Verification
+
+### Verify Fluent Bit Pods
+
+```bash
+kubectl get pods -n logging
+kubectl logs -n logging -l app=fluent-bit --tail=20
+```
+
+### Verify Logs on Forwarder
+
+```bash
+# Watch real-time
+tail -f /var/log/kindo/all/$(date +%Y-%m-%d)/*.log
+
+# Check namespace coverage
+grep -oh '"namespace_name":"[^"]*"' /var/log/kindo/all/$(date +%Y-%m-%d)/*.log | sort -u
+
+# Check storage usage
+df -h /var/log/kindo
+```
+
+### End-to-End Test
+
+```bash
+# Create test pod
+kubectl run test-log -n default --image=busybox --restart=Never \
+  --command -- echo "TEST-LOG-MESSAGE"
+
+# Verify on log forwarder
+grep "TEST-LOG-MESSAGE" /var/log/kindo/all/$(date +%Y-%m-%d)/*.log
+
+# Cleanup
+kubectl delete pod test-log -n default
+```
+
+### Verify Filtering Works
+
+```bash
+# Create test in excluded namespace
+kubectl run test-filtered -n longhorn --image=busybox --restart=Never \
+  --command -- echo "SHOULD-NOT-APPEAR"
+
+# Verify NOT in logs (no results expected)
+grep "SHOULD-NOT-APPEAR" /var/log/kindo/all/$(date +%Y-%m-%d)/*.log
+
+# Cleanup
+kubectl delete pod test-filtered -n longhorn
+```
+
+-----
+
+## Pending Items
+
+|Item                     |Status |Blocker                       |
+|-------------------------|-------|------------------------------|
+|TLS to SDL               |Pending|Waiting for InfoSec certs     |
+|Rancher server logging   |Pending|Requires docker-compose update|
+|Kubernetes API audit logs|Pending|Requires RKE2 config changes  |
+
+-----
+
+## Quick Reference Commands
+
+|Task                     |Command                                                                                   |
+|-------------------------|------------------------------------------------------------------------------------------|
+|Check syslog-ng status   |`systemctl status syslog-ng`                                                              |
+|Validate syslog-ng config|`syslog-ng -s`                                                                            |
+|Watch logs real-time     |`tail -f /var/log/kindo/all/$(date +%Y-%m-%d)/*.log`                                      |
+|Check storage usage      |`df -h /var/log/kindo`                                                                    |
+|Check Fluent Bit pods    |`kubectl get pods -n logging`                                                             |
+|Fluent Bit logs          |`kubectl logs -n logging -l app=fluent-bit --tail=50`                                     |
+|List namespaces in logs  |`grep -oh '"namespace_name":"[^"]*"' /var/log/kindo/all/$(date +%Y-%m-%d)/*.log | sort -u`|
+
+-----
+
+## Troubleshooting
+
+|Issue               |Solution                                       |
+|--------------------|-----------------------------------------------|
+|Fluent Bit OOMKilled|Increase memory limits in DaemonSet            |
+|No logs on forwarder|Check firewall, syslog-ng status, network      |
+|Broken pipe errors  |Already handled with keepalive settings        |
+|Disk full           |Check retention, verify dedicated storage mount|
+|Missing namespaces  |Verify namespace not in Exclude_Path           |
