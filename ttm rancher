@@ -1,0 +1,134 @@
+# Rancher & Monitoring Stack Deployment Guide
+
+## Part 1: Rancher Server Deployment
+
+### Step 1: Prepare Storage
+
+```bash
+pvcreate /dev/sdb
+vgcreate ranchervg /dev/sdb
+lvcreate -L 100G -n rancherlv ranchervg
+mkfs.xfs /dev/ranchervg/rancherlv
+mkdir -p /var/lib/rancher
+mount /dev/ranchervg/rancherlv /var/lib/rancher
+echo '/dev/ranchervg/rancherlv /var/lib/rancher xfs defaults 0 0' >> /etc/fstab
+```
+
+### Step 2: Load Kernel Modules
+
+```bash
+cat <<EOF > /etc/modules-load.d/k3s.conf
+iptable_filter
+iptable_nat
+iptable_mangle
+iptable_raw
+br_netfilter
+nf_conntrack
+EOF
+
+systemctl restart systemd-modules-load
+```
+
+### Step 3: Prepare TLS Certificates
+
+```bash
+mkdir -p /etc/rancher/ssl
+# Split bundled PEM into:
+# - cert.pem (server certificate only)
+# - cacerts.pem (intermediate + root CA)
+# - key.pem (private key)
+chmod 644 /etc/rancher/ssl/cert.pem /etc/rancher/ssl/cacerts.pem
+chmod 600 /etc/rancher/ssl/key.pem
+```
+
+### Step 4: Create Docker Compose File
+
+```bash
+mkdir -p /opt/rancher
+cat <<EOF > /opt/rancher/docker-compose.yml
+services:
+  rancher:
+    image: rancher/rancher:v2.13.2
+    container_name: rancher
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/lib/rancher:/var/lib/rancher
+      - /etc/rancher/ssl/cert.pem:/etc/rancher/ssl/cert.pem:ro
+      - /etc/rancher/ssl/key.pem:/etc/rancher/ssl/key.pem:ro
+      - /etc/rancher/ssl/cacerts.pem:/etc/rancher/ssl/cacerts.pem:ro
+EOF
+```
+
+### Step 5: Deploy Rancher
+
+```bash
+cd /opt/rancher
+docker compose up -d
+# Wait 3-4 minutes for K3s bootstrap
+docker exec rancher reset-password
+```
+
+-----
+
+## Part 2: Import RKE2 Cluster
+
+### Step 1: Import Cluster
+
+1. Rancher UI → Cluster Management → Import Existing → Generic
+1. Copy the kubectl apply command
+1. Run on control plane node:
+
+```bash
+export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+curl --insecure -sfL https://<rancher-url>/v3/import/<token>.yaml | kubectl apply -f -
+```
+
+### Step 2: Verify Import
+
+```bash
+kubectl get pods -n cattle-system
+```
+
+Wait for cluster status to show **Active** in Rancher UI.
+
+-----
+
+## Part 3: Deploy Monitoring Stack
+
+### Step 1: Add Rancher Charts Repository
+
+```bash
+export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+helm repo add rancher-charts https://charts.rancher.io
+helm repo update
+```
+
+### Step 2: Get Cluster ID
+
+- Rancher UI → Cluster Management → Select cluster
+- Cluster ID is in the URL (e.g., `c-z8jpx`)
+
+### Step 3: Install Rancher Monitoring
+
+```bash
+helm install rancher-monitoring rancher-charts/rancher-monitoring \
+  --namespace cattle-monitoring-system \
+  --create-namespace \
+  --set global.cattle.clusterId=<CLUSTER_ID> \
+  --set global.cattle.clusterName=<CLUSTER_NAME> \
+  --set global.cattle.url=https://<RANCHER_URL>
+```
+
+### Step 4: Verify Deployment
+
+```bash
+kubectl get pods -n cattle-monitoring-system
+```
+
+### Step 5: Access Grafana
+
+Rancher UI → Cluster → Monitoring → Grafana
