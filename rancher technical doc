@@ -1,0 +1,301 @@
+# Kindo AI Infrastructure Architecture & Deployment Guide
+
+## Document Information
+
+|            |                                              |
+|------------|----------------------------------------------|
+|**Document**|Infrastructure Architecture & Deployment Guide|
+|**Version** |1.0                                           |
+|**Date**    |February 3, 2026                              |
+|**Author**  |Linux Operations Team                         |
+
+-----
+
+## Environment Overview
+
+|Component            |Restricted (RES)        |Commercial (COM)    |
+|---------------------|------------------------|--------------------|
+|**Rancher URL**      |rancher.kbai.ttmtech.com|rancher.kbai.ttm.com|
+|**Rancher Server IP**|10.200.248.81           |10.201.248.81       |
+|**HAProxy LB**       |api.kbai.ttmtech.com    |api.kbai.ttm.com    |
+|**Control Planes**   |10.200.248.21-23        |10.201.248.21-23    |
+|**Workers**          |10.200.248.41-43        |10.201.248.41-43    |
+|**GPU Nodes**        |10.200.248.61-64        |10.201.248.61-64    |
+
+-----
+
+## Cluster Composition (Each Environment)
+
+- 1 Rancher Server (dedicated)
+- 1 HAProxy Load Balancer
+- 3 Control Plane nodes
+- 3 Worker nodes
+- 4 GPU nodes
+- **Total: 12 hosts per environment**
+
+-----
+
+## Software Stack
+
+|Software  |Version           |
+|----------|------------------|
+|Rancher   |v2.13.2 (Docker)  |
+|Kubernetes|RKE2 v1.34.3      |
+|Monitoring|rancher-monitoring|
+
+-----
+
+## Network Diagram
+
+```
+Users
+  │
+  ▼
+┌─────────────────┐
+│  Rancher Server │ (Dedicated host)
+│  10.20x.248.81  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  HAProxy LB     │ (api.kbai.*)
+│  Ports 6443,9345│
+└────────┬────────┘
+         │
+    ┌────┴────┬──────────┐
+    ▼         ▼          ▼
+┌───────┐ ┌───────┐ ┌───────┐
+│ CP-01 │ │ CP-02 │ │ CP-03 │  Control Planes
+│  .21  │ │  .22  │ │  .23  │
+└───┬───┘ └───┬───┘ └───┬───┘
+    └─────────┴─────────┘
+              │
+    ┌─────────┼─────────┐
+    ▼         ▼         ▼
+┌───────┐ ┌───────┐ ┌───────┐
+│ WKR-01│ │ WKR-02│ │ WKR-03│  Workers
+│  .41  │ │  .42  │ │  .43  │
+└───────┘ └───────┘ └───────┘
+
+┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐
+│ GPU-01│ │ GPU-02│ │ GPU-03│ │ GPU-04│  GPU Nodes
+│  .61  │ │  .62  │ │  .63  │ │  .64  │
+└───────┘ └───────┘ └───────┘ └───────┘
+
+x = 0 (Restricted) | x = 1 (Commercial)
+```
+
+-----
+
+## Key Ports
+
+|Port |Service        |Direction          |
+|-----|---------------|-------------------|
+|443  |Rancher UI/API |Inbound            |
+|6443 |Kubernetes API |Inbound via HAProxy|
+|9345 |RKE2 Supervisor|Inbound via HAProxy|
+|10250|Kubelet        |Inter-node         |
+
+-----
+
+## Monitoring Stack Components
+
+- **Prometheus** — Metrics collection
+- **Grafana** — Dashboards and visualization
+- **Alertmanager** — Alert routing
+- **Node Exporter** — Host metrics (runs on all nodes)
+- **Kube State Metrics** — Kubernetes object metrics
+
+-----
+
+## Technical Notes
+
+### Rancher Server Setup
+
+- Deployed as Docker container on dedicated RHEL host
+- Requires dedicated storage volume for `/var/lib/rancher` (100GB LVM recommended)
+- Kernel modules must be loaded: `iptable_filter`, `iptable_nat`, `iptable_mangle`, `iptable_raw`, `br_netfilter`, `nf_conntrack`
+- TLS certificates split into: `cert.pem` (server), `cacerts.pem` (CA chain), `key.pem` (private key)
+- Allow 3-4 minutes after startup for internal K3s to bootstrap
+
+### HAProxy Load Balancer
+
+- Balances traffic to all 3 control planes
+- Must load balance both port 6443 (Kubernetes API) and port 9345 (RKE2 Supervisor)
+- Worker agents connect via HAProxy to establish tunnel sessions
+
+### RKE2 Cluster Import
+
+- Import via Rancher UI: Cluster Management → Import Existing → Generic
+- Run generated kubectl command on any control plane node
+- Requires `KUBECONFIG=/etc/rancher/rke2/rke2.yaml`
+
+### Rancher Monitoring Installation
+
+- Use Helm with rancher-charts repository
+- Requires cluster ID, cluster name, and Rancher URL as parameters
+- Deploys to `cattle-monitoring-system` namespace
+- Access Grafana via Rancher UI: Cluster → Monitoring → Grafana
+
+-----
+
+## Key File Locations
+
+|Path                             |Host          |Purpose             |
+|---------------------------------|--------------|--------------------|
+|`/opt/rancher/docker-compose.yml`|Rancher Server|Container definition|
+|`/var/lib/rancher/`              |Rancher Server|Data directory (LVM)|
+|`/etc/rancher/ssl/`              |Rancher Server|TLS certificates    |
+|`/etc/modules-load.d/k3s.conf`   |Rancher Server|Kernel modules      |
+|`/etc/rancher/rke2/rke2.yaml`    |Control Planes|Kubeconfig          |
+|`/etc/rancher/rke2/config.yaml`  |Workers/GPU   |Agent configuration |
+
+-----
+
+# Deployment Guide
+
+## Part 1: Rancher Server Deployment
+
+### Step 1: Prepare Storage
+
+```bash
+pvcreate /dev/sdb
+vgcreate ranchervg /dev/sdb
+lvcreate -L 100G -n rancherlv ranchervg
+mkfs.xfs /dev/ranchervg/rancherlv
+mkdir -p /var/lib/rancher
+mount /dev/ranchervg/rancherlv /var/lib/rancher
+echo '/dev/ranchervg/rancherlv /var/lib/rancher xfs defaults 0 0' >> /etc/fstab
+```
+
+### Step 2: Load Kernel Modules
+
+```bash
+cat <<EOF > /etc/modules-load.d/k3s.conf
+iptable_filter
+iptable_nat
+iptable_mangle
+iptable_raw
+br_netfilter
+nf_conntrack
+EOF
+
+systemctl restart systemd-modules-load
+```
+
+### Step 3: Prepare TLS Certificates
+
+```bash
+mkdir -p /etc/rancher/ssl
+# Split bundled PEM into:
+# - cert.pem (server certificate only)
+# - cacerts.pem (intermediate + root CA)
+# - key.pem (private key)
+chmod 644 /etc/rancher/ssl/cert.pem /etc/rancher/ssl/cacerts.pem
+chmod 600 /etc/rancher/ssl/key.pem
+```
+
+### Step 4: Create Docker Compose File
+
+```bash
+mkdir -p /opt/rancher
+cat <<EOF > /opt/rancher/docker-compose.yml
+services:
+  rancher:
+    image: rancher/rancher:v2.13.2
+    container_name: rancher
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/lib/rancher:/var/lib/rancher
+      - /etc/rancher/ssl/cert.pem:/etc/rancher/ssl/cert.pem:ro
+      - /etc/rancher/ssl/key.pem:/etc/rancher/ssl/key.pem:ro
+      - /etc/rancher/ssl/cacerts.pem:/etc/rancher/ssl/cacerts.pem:ro
+EOF
+```
+
+### Step 5: Deploy Rancher
+
+```bash
+cd /opt/rancher
+docker compose up -d
+# Wait 3-4 minutes for K3s bootstrap
+docker exec rancher reset-password
+```
+
+-----
+
+## Part 2: Import RKE2 Cluster
+
+### Step 1: Import Cluster
+
+1. Rancher UI → Cluster Management → Import Existing → Generic
+1. Copy the kubectl apply command
+1. Run on control plane node:
+
+```bash
+export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+curl --insecure -sfL https://<rancher-url>/v3/import/<token>.yaml | kubectl apply -f -
+```
+
+### Step 2: Verify Import
+
+```bash
+kubectl get pods -n cattle-system
+```
+
+Wait for cluster status to show **Active** in Rancher UI.
+
+-----
+
+## Part 3: Deploy Monitoring Stack
+
+### Step 1: Add Rancher Charts Repository
+
+```bash
+export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+helm repo add rancher-charts https://charts.rancher.io
+helm repo update
+```
+
+### Step 2: Get Cluster ID
+
+- Rancher UI → Cluster Management → Select cluster
+- Cluster ID is in the URL (e.g., `c-z8jpx`)
+
+### Step 3: Install Rancher Monitoring
+
+```bash
+helm install rancher-monitoring rancher-charts/rancher-monitoring \
+  --namespace cattle-monitoring-system \
+  --create-namespace \
+  --set global.cattle.clusterId=<CLUSTER_ID> \
+  --set global.cattle.clusterName=<CLUSTER_NAME> \
+  --set global.cattle.url=https://<RANCHER_URL>
+```
+
+### Step 4: Verify Deployment
+
+```bash
+kubectl get pods -n cattle-monitoring-system
+```
+
+### Step 5: Access Grafana
+
+Rancher UI → Cluster → Monitoring → Grafana
+
+-----
+
+## Quick Reference Commands
+
+|Task                  |Command                                        |
+|----------------------|-----------------------------------------------|
+|Start Rancher         |`cd /opt/rancher && docker compose up -d`      |
+|Stop Rancher          |`cd /opt/rancher && docker compose down`       |
+|Rancher logs          |`docker logs rancher --tail 100 -f`            |
+|Reset Rancher password|`docker exec rancher reset-password`           |
+|Set kubeconfig        |`export KUBECONFIG=/etc/rancher/rke2/rke2.yaml`|
+|Check monitoring pods |`kubectl get pods -n cattle-monitoring-system` |
