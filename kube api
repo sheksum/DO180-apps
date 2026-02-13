@@ -1,0 +1,105 @@
+mkdir -p /etc/kubernetes/audit
+
+cat <<'EOF' > /etc/kubernetes/audit/policy.yaml
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  # Don't log read-only health checks
+  - level: None
+    nonResourceURLs:
+      - /healthz*
+      - /version
+      - /readyz
+      - /livez
+
+  # Don't log system components checking status
+  - level: None
+    users:
+      - system:kube-proxy
+      - system:kube-scheduler
+      - system:kube-controller-manager
+    verbs: [get, list, watch]
+
+  # Log secrets/configmaps/RBAC at RequestResponse
+  - level: RequestResponse
+    resources:
+      - group: ""
+        resources: [secrets, configmaps]
+      - group: "rbac.authorization.k8s.io"
+        resources: [clusterroles, clusterrolebindings, roles, rolebindings]
+
+  # Log pod exec/attach/portforward
+  - level: RequestResponse
+    resources:
+      - group: ""
+        resources: [pods/exec, pods/attach, pods/portforward]
+
+  # Everything else at Metadata level
+  - level: Metadata
+    omitStages:
+      - RequestReceived
+EOF
+
+
+mkdir -p /var/log/kubernetes/audit
+
+
+cat <<'EOF' >> /etc/rancher/rke2/config.yaml
+
+kube-apiserver-arg:
+  - "audit-policy-file=/etc/kubernetes/audit/policy.yaml"
+  - "audit-log-path=/var/log/kubernetes/audit/audit.log"
+  - "audit-log-maxage=7"
+  - "audit-log-maxbackup=3"
+  - "audit-log-maxsize=100"
+EOF
+
+
+systemctl restart rke2-server
+
+
+kubectl get nodes
+
+ls -la /var/log/kubernetes/audit/
+tail -20 /var/log/kubernetes/audit/audit.log
+
+kubectl edit configmap fluent-bit-config -n logging
+
+    [INPUT]
+        Name              tail
+        Tag               kube-audit
+        Path              /var/log/kubernetes/audit/*.log
+        DB                /tmp/flb_audit.db
+        Mem_Buf_Limit     10MB
+        Refresh_Interval  5
+
+
+kubectl edit daemonset fluent-bit -n logging
+
+            - name: auditlog
+              mountPath: /var/log/kubernetes/audit
+              readOnly: true
+
+        - name: auditlog
+          hostPath:
+            path: /var/log/kubernetes/audit
+
+kubectl rollout restart daemonset fluent-bit -n logging
+
+
+kubectl get pods -n logging -w
+
+
+kubectl create secret generic test-audit-secret --from-literal=key=value
+kubectl delete secret test-audit-secret
+
+grep -r "test-audit-secret" /var/log/kindo/all/$(date +%Y-%m-%d)/*.log
+
+
+
+
+
+
+
+
+
