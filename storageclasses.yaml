@@ -1,0 +1,29 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: netapp-infra
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: csi.trident.netapp.io
+parameters:
+  backendType: "ontap-nas"
+  selector: "environment=dev"
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+mountOptions:
+  - nfsvers=4.1
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: netapp-app
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: csi.trident.netapp.io
+parameters:
+  backendType: "ontap-nas"
+  selector: "environment=dev"
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+mountOptions:
+  - nfsvers=4.1

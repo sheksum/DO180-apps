@@ -1,0 +1,33 @@
+apiVersion: trident.netapp.io/v1
+kind: TridentBackendConfig
+metadata:
+  name: backend-infra-nfs
+  namespace: trident
+spec:
+  version: 1
+  storageDriverName: ontap-nas
+  managementLIF: 10.152.0.110
+  dataLIF: 10.172.192.22
+  svm: ocp_infra_svm
+  credentials:
+    name: backend-infra-secret
+  storage:
+    - labels:
+        environment: dev
+      defaults:
+        spaceReserve: none
+        snapshotPolicy: default
+    - labels:
+        environment: test
+      defaults:
+        spaceReserve: none
+        snapshotPolicy: default
+    - labels:
+        environment: prod
+      defaults:
+        spaceReserve: volume
+        snapshotPolicy: default
+  defaults:
+    spaceReserve: none
+    snapshotPolicy: default
+    exportPolicy: default
