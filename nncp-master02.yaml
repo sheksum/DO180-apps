@@ -1,0 +1,92 @@
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: storage-vlans-master02
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: ocp-ai-master02.calix.local
+  desiredState:
+    interfaces:
+      - name: bnd0
+        type: bond
+        state: up
+        ipv4:
+          enabled: false
+        link-aggregation:
+          mode: active-backup
+          port:
+            - eno7
+            - eno8
+        mtu: 9000
+      - name: bnd0.1792
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.192.151
+              prefix-length: 23
+        vlan:
+          base-iface: bnd0
+          id: 1792
+      - name: bnd0.1794
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.194.151
+              prefix-length: 23
+        vlan:
+          base-iface: bnd0
+          id: 1794
+      - name: bnd0.1796
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.196.151
+              prefix-length: 23
+        vlan:
+          base-iface: bnd0
+          id: 1796
+      - name: bnd0.1798
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.198.151
+              prefix-length: 23
+        vlan:
+          base-iface: bnd0
+          id: 1798
+      - name: bnd0.1793
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.200.151
+              prefix-length: 23
+        vlan:
+          base-iface: bnd0
+          id: 1793
+      - name: bnd0.1797
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.202.151
+              prefix-length: 23
+        vlan:
+          base-iface: bnd0
+          id: 1797
