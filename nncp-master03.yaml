@@ -1,55 +1,54 @@
-Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
------------ ---------- ---------- ------------------ ------------- ------- ----
-ocp_infra_svm
-            ocp_infra_dev_lif01
-                         up/up    10.172.192.22/23   plano_aff_cl-05
-                                                                   a0a-1792
-                                                                           true
-            ocp_infra_dev_lif02
-                         up/up    10.172.192.23/23   plano_aff_cl-06
-                                                                   a0a-1792
-                                                                           true
-            ocp_infra_prod_lif01
-                         up/up    10.172.200.22/23   plano_aff_cl-05
-                                                                   a0a-1800
-                                                                           true
-            ocp_infra_prod_lif02
-                         up/up    10.172.200.23/23   plano_aff_cl-06
-                                                                   a0a-1800
-                                                                           true
-            ocp_infra_test_lif01
-                         up/up    10.172.196.22/23   plano_aff_cl-05
-                                                                   a0a-1796
-                                                                           true
-            ocp_infra_test_lif02
-                         up/up    10.172.196.23/23   plano_aff_cl-06
-                                                                   a0a-1796
-                                                                           true    plano_aff_cl::> network interface show -vserver ocp_app_svm
-            Logical    Status     Network            Current       Current Is
-Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
------------ ---------- ---------- ------------------ ------------- ------- ----
-ocp_app_svm
-            ocp_app_dev_lif01
-                         up/up    10.172.194.22/23   plano_aff_cl-05
-                                                                   a0a-1794
-                                                                           true
-            ocp_app_dev_lif02
-                         up/up    10.172.194.23/23   plano_aff_cl-06
-                                                                   a0a-1794
-                                                                           true
-            ocp_app_prod_lif01
-                         up/up    10.172.202.22/23   plano_aff_cl-05
-                                                                   a0a-1802
-                                                                           true
-            ocp_app_prod_lif02
-                         up/up    10.172.202.23/23   plano_aff_cl-06
-                                                                   a0a-1802
-                                                                           true
-            ocp_app_test_lif01
-                         up/up    10.172.198.22/23   plano_aff_cl-05
-                                                                   a0a-1798
-                                                                           true
-            ocp_app_test_lif02
-                         up/up    10.172.198.23/23   plano_aff_cl-06
-                                                                   a0a-1798
-                                                                           true
+Aggregate     Size Available Used% State   #Vols  Nodes            RAID Status
+--------- -------- --------- ----- ------- ------ ---------------- ------------
+aggr0_plano_aff_cl_01
+           159.9GB    7.66GB   95% online       1 plano_aff_cl-01  raid_dp,
+                                                                   normal
+aggr0_plano_aff_cl_02
+           159.9GB    7.66GB   95% online       1 plano_aff_cl-02  raid_dp,
+                                                                   normal
+aggr0_plano_aff_cl_03
+           159.9GB    7.75GB   95% online       1 plano_aff_cl-03  raid_dp,
+                                                                   normal
+aggr0_plano_aff_cl_04
+           159.9GB    7.75GB   95% online       1 plano_aff_cl-04  raid_dp,
+                                                                   normal
+aggr0_plano_aff_cl_05
+           159.9GB    7.75GB   95% online       1 plano_aff_cl-05  raid_dp,
+                                                                   normal
+aggr0_plano_aff_cl_06
+           159.9GB    7.75GB   95% online       1 plano_aff_cl-06  raid_dp,
+                                                                   normal
+aggr1_n1   159.0TB   23.38TB   85% online      39 plano_aff_cl-01  raid_dp,
+                                                                   normal
+aggr1_n2   172.3TB   37.89TB   78% online      27 plano_aff_cl-02  raid_dp,
+                                                                   normal
+aggr1_n3   86.05TB   70.60TB   18% online       9 plano_aff_cl-03  raid_dp,
+                                                                   normal
+Press <space> to page down, <return> for next line, or 'q' to quit...   Vserver: ocp_app_svm
+
+        General Access:  true
+                    v3:  enabled
+                  v4.0:  enabled
+                   4.1:  enabled
+                   UDP:  enabled
+                   TCP:  enabled
+                  RDMA:  enabled
+  Default Windows User:  -
+ Default Windows Group:  -
+
+Vserver: ocp_infra_svm
+
+        General Access:  true
+                    v3:  enabled
+                  v4.0:  enabled
+                   4.1:  enabled
+                   UDP:  enabled
+                   TCP:  enabled
+                  RDMA:  enabled
+  Default Windows User:  -
+ Default Windows Group:  -
+
+Vserver: svm0
+
+        General Access:  true
+Press <space> to page down, <return> for next line, or 'q' to quit...
