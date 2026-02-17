@@ -1,14 +1,111 @@
-cat <<EOF | oc apply -f -
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: test-pvc
-  namespace: default
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: netapp-app
-EOF
+ 
+TASK 1: OpenShift Installation (required) 
+1.1 Generate discovery ISO via Red Hat Assisted Installer 
+1.2 Configure Intersight Virtual Media policy with ISO URL 
+1.3 Boot blades and assign roles (3 master/worker, 2 GPU worker) 
+1.4 Complete OpenShift installation and cluster bootstrap 
+1.5 Validate all nodes Ready and cluster operators healthy 
+1.6 Configure kubeadmin credentials and oc CLI access 
+1.7 Configure NTP sync across all nodes 
+ 
+---
+ 
+TASK 2: Dell GPU Server Setup (required) 
+2.1 Install RHEL OS on Dell GPU server 
+2.2 Install NVIDIA GPU drivers 
+2.3 Install CUDA toolkit 
+2.4 Validate GPU detection (nvidia-smi) 
+2.5 Join Dell server to OpenShift as worker node (if applicable) 
+ 
+---
+ 
+TASK 3: Storage Networking – MachineConfig (required) 
+3.1 Create MachineConfigs for VLAN subinterfaces on storage interfaces 
+3.2 Configure infra/app VLANs for dev/test/prod 
+3.3 Assign IPs and set MTU 9000 
+3.4 Validate connectivity and jumbo frames to NetApp LIFs 
+ 
+---
+ 
+TASK 4: NetApp Trident CSI (required) 
+4.1 Install Trident operator 
+4.2 Create Trident backends for infra and app SVMs (dev/test/prod) 
+4.3 Create StorageClasses per environment 
+4.4 Validate PVC creation and pod mounts 
+4.5 Validate read/write access to NetApp 
+ 
+---
+ 
+TASK 5: Internal Image Registry (required) 
+5.1 Enable OpenShift internal registry 
+5.2 Back registry storage with NetApp via Trident 
+5.3 Validate image push/pull 
+5.4 Configure image pull secrets 
+ 
+---
+ 
+TASK 6: Ingress and Load Balancing (required) 
+6.1 Deploy MetalLB or configure F5 integration 
+6.2 Define IP pools and ingress configuration 
+6.3 Configure DNS wildcard records 
+6.4 Configure TLS certificates 
+6.5 Validate external access 
+ 
+---
+ 
+TASK 7: Authentication and RBAC (required) 
+7.1 Configure identity provider 
+7.2 Define RBAC for admin, dev, and ops roles 
+7.3 Create dev/test/prod namespaces 
+7.4 Apply quotas, limits, and network policies 
+ 
+---
+ 
+TASK 8: GPU Operator and Scheduling (required) 
+8.1 Install Node Feature Discovery 
+8.2 Install NVIDIA GPU Operator 
+8.3 Configure GPU scheduling (basic time-slicing or default mode) 
+8.4 Apply taints/tolerations for GPU nodes 
+8.5 Validate GPU access from pods 
+ 
+---
+ 
+TASK 9: GitOps (required) 
+9.1 Install OpenShift GitOps (ArgoCD) 
+9.2 Configure ArgoCD and RBAC 
+9.3 Define repository structure (platform vs application) 
+9.4 Bootstrap cluster configuration via GitOps 
+9.5 Validate sync and rollback 
+ 
+---
+ 
+TASK 10: Backup and Disaster Recovery (required) 
+10.1 Install Velero or OADP 
+10.2 Configure backup storage location 
+10.3 Define backup schedules for namespaces and PVs 
+10.4 Configure etcd backup automation 
+10.5 Test restore of a sample namespace 
+ 
+---
+ 
+TASK 11: End-to-End Validation (required) 
+11.1 Deploy sample AI workload using GPU + NetApp storage 
+11.2 Validate deployment via GitOps 
+11.3 Validate basic isolation between dev/test/prod 
+11.4 Validate backup and restore of workload 
+ 
+---
+ 
+TASK 12: Monitoring and Alerting (future / add-on) 
+12.1 Configure persistent storage for monitoring 
+12.2 Define retention policies 
+12.3 Create custom alert rules 
+12.4 Create dashboards 
+ 
+---
+ 
+TASK 13: Logging (future / add-on) 
+13.1 Deploy logging stack 
+13.2 Configure persistent storage 
+13.3 Define retention policies 
+13.4 Configure log forwarding if needed 
