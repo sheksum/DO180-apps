@@ -1,0 +1,92 @@
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: storage-vlans-master03
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: ocp-ai-master03.calix.local
+  desiredState:
+    interfaces:
+      - name: bond-storage
+        type: bond
+        state: up
+        ipv4:
+          enabled: false
+        link-aggregation:
+          mode: active-backup
+          port:
+            - eno7
+            - eno8
+        mtu: 9000
+      - name: bond-storage.1792
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.192.152
+              prefix-length: 23
+        vlan:
+          base-iface: bond-storage
+          id: 1792
+      - name: bond-storage.1794
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.194.152
+              prefix-length: 23
+        vlan:
+          base-iface: bond-storage
+          id: 1794
+      - name: bond-storage.1796
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.196.152
+              prefix-length: 23
+        vlan:
+          base-iface: bond-storage
+          id: 1796
+      - name: bond-storage.1798
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.198.152
+              prefix-length: 23
+        vlan:
+          base-iface: bond-storage
+          id: 1798
+      - name: bond-storage.1793
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.200.152
+              prefix-length: 23
+        vlan:
+          base-iface: bond-storage
+          id: 1793
+      - name: bond-storage.1797
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: 10.172.202.152
+              prefix-length: 23
+        vlan:
+          base-iface: bond-storage
+          id: 1797
