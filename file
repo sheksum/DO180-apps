@@ -1,0 +1,11 @@
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get tbc -n trident
+NAME                BACKEND NAME        BACKEND UUID                           PHASE   STATUS
+backend-app-nfs     backend-app-nfs     27f061fd-e6e4-448c-a4e4-c4302ac4a01a   Bound   Success
+backend-infra-nfs   backend-infra-nfs   88ba74b5-6d56-47cf-a16d-9066ae716681   Bound   Success
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get sc
+NAME                   PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+netapp-app (default)   csi.trident.netapp.io   Retain          Immediate           true                   19s
+netapp-infra           csi.trident.netapp.io   Retain          Immediate           true                   19s
+hsuma@plnx-admin:~/ocp-ai-config$
