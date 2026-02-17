@@ -1,92 +1,55 @@
-apiVersion: nmstate.io/v1
-kind: NodeNetworkConfigurationPolicy
-metadata:
-  name: storage-vlans-master03
-spec:
-  nodeSelector:
-    kubernetes.io/hostname: ocp-ai-master03.calix.local
-  desiredState:
-    interfaces:
-      - name: bnd0
-        type: bond
-        state: up
-        ipv4:
-          enabled: false
-        link-aggregation:
-          mode: active-backup
-          port:
-            - eno7
-            - eno8
-        mtu: 9000
-      - name: bnd0.1792
-        type: vlan
-        state: up
-        ipv4:
-          enabled: true
-          dhcp: false
-          address:
-            - ip: 10.172.192.152
-              prefix-length: 23
-        vlan:
-          base-iface: bnd0
-          id: 1792
-      - name: bnd0.1794
-        type: vlan
-        state: up
-        ipv4:
-          enabled: true
-          dhcp: false
-          address:
-            - ip: 10.172.194.152
-              prefix-length: 23
-        vlan:
-          base-iface: bnd0
-          id: 1794
-      - name: bnd0.1796
-        type: vlan
-        state: up
-        ipv4:
-          enabled: true
-          dhcp: false
-          address:
-            - ip: 10.172.196.152
-              prefix-length: 23
-        vlan:
-          base-iface: bnd0
-          id: 1796
-      - name: bnd0.1798
-        type: vlan
-        state: up
-        ipv4:
-          enabled: true
-          dhcp: false
-          address:
-            - ip: 10.172.198.152
-              prefix-length: 23
-        vlan:
-          base-iface: bnd0
-          id: 1798
-      - name: bnd0.1793
-        type: vlan
-        state: up
-        ipv4:
-          enabled: true
-          dhcp: false
-          address:
-            - ip: 10.172.200.152
-              prefix-length: 23
-        vlan:
-          base-iface: bnd0
-          id: 1793
-      - name: bnd0.1797
-        type: vlan
-        state: up
-        ipv4:
-          enabled: true
-          dhcp: false
-          address:
-            - ip: 10.172.202.152
-              prefix-length: 23
-        vlan:
-          base-iface: bnd0
-          id: 1797
+Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
+----------- ---------- ---------- ------------------ ------------- ------- ----
+ocp_infra_svm
+            ocp_infra_dev_lif01
+                         up/up    10.172.192.22/23   plano_aff_cl-05
+                                                                   a0a-1792
+                                                                           true
+            ocp_infra_dev_lif02
+                         up/up    10.172.192.23/23   plano_aff_cl-06
+                                                                   a0a-1792
+                                                                           true
+            ocp_infra_prod_lif01
+                         up/up    10.172.200.22/23   plano_aff_cl-05
+                                                                   a0a-1800
+                                                                           true
+            ocp_infra_prod_lif02
+                         up/up    10.172.200.23/23   plano_aff_cl-06
+                                                                   a0a-1800
+                                                                           true
+            ocp_infra_test_lif01
+                         up/up    10.172.196.22/23   plano_aff_cl-05
+                                                                   a0a-1796
+                                                                           true
+            ocp_infra_test_lif02
+                         up/up    10.172.196.23/23   plano_aff_cl-06
+                                                                   a0a-1796
+                                                                           true    plano_aff_cl::> network interface show -vserver ocp_app_svm
+            Logical    Status     Network            Current       Current Is
+Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
+----------- ---------- ---------- ------------------ ------------- ------- ----
+ocp_app_svm
+            ocp_app_dev_lif01
+                         up/up    10.172.194.22/23   plano_aff_cl-05
+                                                                   a0a-1794
+                                                                           true
+            ocp_app_dev_lif02
+                         up/up    10.172.194.23/23   plano_aff_cl-06
+                                                                   a0a-1794
+                                                                           true
+            ocp_app_prod_lif01
+                         up/up    10.172.202.22/23   plano_aff_cl-05
+                                                                   a0a-1802
+                                                                           true
+            ocp_app_prod_lif02
+                         up/up    10.172.202.23/23   plano_aff_cl-06
+                                                                   a0a-1802
+                                                                           true
+            ocp_app_test_lif01
+                         up/up    10.172.198.22/23   plano_aff_cl-05
+                                                                   a0a-1798
+                                                                           true
+            ocp_app_test_lif02
+                         up/up    10.172.198.23/23   plano_aff_cl-06
+                                                                   a0a-1798
+                                                                           true
