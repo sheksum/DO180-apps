@@ -376,3 +376,20 @@ Events:
   Warning  Failed  40s                trident-crd-controller  Failed to apply the backend update; problem initializing storage driver 'ontap-nas': error initializing ontap-nas driver; could not create Data ONTAP API client: error creating ONTAP API client: error reading SVM details: response code 401 (Unauthorized): incorrect or missing credentials
   Warning  Failed  4s (x24 over 36s)  trident-crd-controller  Failed to apply the backend update; problem initializing storage driver 'ontap-nas': could not configure storage pools: could not get storage pools from array: SVM ocp_app_svm has no assigned aggregates
 hsuma@plnx-admin:~$
+
+
+
+cat <<EOF | oc apply -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-pvc-new
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: netapp-app
+EOF
