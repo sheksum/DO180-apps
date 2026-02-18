@@ -28,3 +28,11 @@ podman login -u kubeadmin -p $(oc whoami -t) $HOST
 podman pull busybox
 podman tag busybox $HOST/default/busybox:test
 podman push $HOST/default/busybox:test
+
+
+hsuma@plnx-admin:~$ podman login -u kubeadmin -p $(oc whoami -t) $HOST --tls-verify=false
+error: no token is currently in use for this session
+ERRO[0000] cannot find UID/GID for user hsuma: No subuid ranges found for user "hsuma" in /etc/subuid - check rootless mode in man pages.
+WARN[0000] using rootless single mapping into the namespace. This might break some images. Check /etc/subuid and /etc/subgid for adding sub*ids
+Error: no registries found in registries.conf, a registry must be provided
+hsuma@plnx-admin:~$
