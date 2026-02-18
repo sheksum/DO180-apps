@@ -451,3 +451,13 @@ It’s interesting, Frank Ye had a similar request just last week.  This would r
 I have a questions though.  So please grab some time, maybe Friday morning?  I’d like to understand if / why we want to use calix.local or if it would make more sense to use a self-signed CA.
  
 One main question I will have; will any of these certs be used by “Customer” facing applications or is this purely for internal cluster communications?
+
+
+
+Hey Brian,
+
+To answer your main question upfront: these certs are purely for internal cluster communications. No customer-facing applications. Specifically, they'd cover the OpenShift API endpoint (api.ocp-ai.calix.local), the web console, and internal application routes (*.apps.ocp-ai.calix.local).
+
+The reason we'd prefer to chain under the Calix CA rather than self-signed is that all internal machines already trust it — so anyone accessing the cluster won't get certificate warnings or need to manually import a new root cert.
+
+We're not looking to become a general issuer for the enterprise PKI. The ask is a single intermediate CA with pathlen:0 (can't create sub-CAs), scoped to our OCP-AI cluster and managed through HashiCorp Vault with automated issuance and rotation.
