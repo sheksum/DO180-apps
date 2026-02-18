@@ -291,3 +291,16 @@ vsadmin        ssh         password      vsadmin          yes    none
 3 entries were displayed.
 
 plano_aff_cl::>
+
+
+
+
+oc -n trident create secret generic backend-infra-secret --from-literal=username=vsadmin --from-literal=password='<infra-password>' --dry-run=client -o yaml | oc apply -f -
+
+oc -n trident create secret generic backend-app-secret --from-literal=username=vsadmin --from-literal=password='<app-password>' --dry-run=client -o yaml | oc apply -f -
+
+oc -n trident patch tbc backend-infra-nfs --type merge --patch '{"spec":{"managementLIF":"10.172.254.46"}}'
+
+oc -n trident patch tbc backend-app-nfs --type merge --patch '{"spec":{"managementLIF":"10.172.254.47"}}'
+
+oc get tbc -n trident
