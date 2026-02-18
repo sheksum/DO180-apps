@@ -497,3 +497,24 @@ We're building out the full AI platform on-prem now and I want to make sure we m
 That way I can set up the same or similar services on OpenShift.
 
 Thanks!
+
+
+Ok.  Glad to hear that.  I don’t know if IT will have the right certificate template for an intermediate/issuer CA.
+ 
+Can you share the details of the CSR you sent over?  I’m just curious.
+ 
+Also, just want to keep in mind we’ll need to renew that well ahead of time and know that IT are not PKI experts today.
+ 
+From: Haj Suma <haj.suma@calix.com>
+Sent: Wednesday, February 18, 2026 2:48 PM
+To: Brian Wing <Brian.Wing@calix.com>; Deonna Thornton <deonna.thornton@calix.com>
+Subject: Re: CSR Signing Request - OCP-AI Vault Intermediate CA
+ 
+No I am not – I can generate self-signed cert while I wait on that
+ 
+From: Brian Wing <Brian.Wing@calix.com>
+Date: Wednesday, February 18, 2026 at 5:45 PM
+To: Haj Suma <haj.suma@calix.com>, Deonna Thornton <deonna.thornton@calix.com>
+Subject: RE: CSR Signing Request - OCP-AI Vault Intermediate CA
+
+oK, I do understand.  Let’s still connect, IT will need a good “explaining to” to understand the request.  Are you blocked at this point?
