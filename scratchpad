@@ -263,3 +263,31 @@ ocp_app_svm
 7 entries were displayed.
 
 plano_aff_cl::>
+
+
+lano_aff_cl::> security login show -vserver ocp_infra_svm
+
+Vserver: ocp_infra_svm
+                                                                 Second
+User/Group                 Authentication                 Acct   Authentication
+Name           Application Method        Role Name        Locked Method
+-------------- ----------- ------------- ---------------- ------ --------------
+vsadmin        http        password      vsadmin          yes    none
+vsadmin        ontapi      password      vsadmin          yes    none
+vsadmin        ssh         password      vsadmin          yes    none
+3 entries were displayed.
+
+plano_aff_cl::>
+plano_aff_cl::> security login show -vserver ocp_app_svm
+
+Vserver: ocp_app_svm
+                                                                 Second
+User/Group                 Authentication                 Acct   Authentication
+Name           Application Method        Role Name        Locked Method
+-------------- ----------- ------------- ---------------- ------ --------------
+vsadmin        http        password      vsadmin          yes    none
+vsadmin        ontapi      password      vsadmin          yes    none
+vsadmin        ssh         password      vsadmin          yes    none
+3 entries were displayed.
+
+plano_aff_cl::>
