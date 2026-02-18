@@ -304,3 +304,75 @@ oc -n trident patch tbc backend-infra-nfs --type merge --patch '{"spec":{"manage
 oc -n trident patch tbc backend-app-nfs --type merge --patch '{"spec":{"managementLIF":"10.172.254.47"}}'
 
 oc get tbc -n trident
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc -n trident create secret generic backend-infra-secret --from-literal=username=vsadmin --from-literal=password='Infra$vm2026!Tr1dent' --dry-run=client -o yaml | oc apply -f -
+secret/backend-infra-secret configured
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc -n trident create secret generic backend-app-secret --from-literal=username=vsadmin --from-literal=password='App$vm2026!Tr1dent' --dry-run=client -o yaml | oc apply -f -
+secret/backend-app-secret configured
+hsuma@plnx-admin:~$ oc -n trident patch tbc backend-infra-nfs --type merge --patch '{"spec":{"managementLIF":"10.172.254.46"}}'
+tridentbackendconfig.trident.netapp.io/backend-infra-nfs patched
+hsuma@plnx-admin:~$ oc -n trident patch tbc backend-app-nfs --type merge --patch '{"spec":{"managementLIF":"10.172.254.47"}}'
+tridentbackendconfig.trident.netapp.io/backend-app-nfs patched
+hsuma@plnx-admin:~$ oc get tbc -n trident
+NAME                BACKEND NAME        BACKEND UUID                           PHASE   STATUS
+backend-app-nfs     backend-app-nfs     27f061fd-e6e4-448c-a4e4-c4302ac4a01a   Bound   Failed
+backend-infra-nfs   backend-infra-nfs   88ba74b5-6d56-47cf-a16d-9066ae716681   Bound   Failed
+hsuma@plnx-admin:~$ oc describe tbc -n trident backend-app-nfs
+Name:         backend-app-nfs
+Namespace:    trident
+Labels:       <none>
+Annotations:  <none>
+API Version:  trident.netapp.io/v1
+Kind:         TridentBackendConfig
+Metadata:
+  Creation Timestamp:  2026-02-17T21:31:39Z
+  Finalizers:
+    trident.netapp.io
+  Generation:        2
+  Resource Version:  917491
+  UID:               df168257-e589-4246-903d-9d8a493252cc
+Spec:
+  Credentials:
+    Name:    backend-app-secret
+  Data LIF:  10.172.194.22
+  Defaults:
+    Export Policy:    default
+    Snapshot Policy:  default
+    Space Reserve:    none
+  Management LIF:     10.172.254.47
+  Storage:
+    Defaults:
+      Snapshot Policy:  default
+      Space Reserve:    none
+    Labels:
+      Environment:  dev
+    Defaults:
+      Snapshot Policy:  default
+      Space Reserve:    none
+    Labels:
+      Environment:  test
+    Defaults:
+      Snapshot Policy:  default
+      Space Reserve:    volume
+    Labels:
+      Environment:      prod
+  Storage Driver Name:  ontap-nas
+  Svm:                  ocp_app_svm
+  Version:              1
+Status:
+  Backend Info:
+    Backend Name:         backend-app-nfs
+    Backend UUID:         27f061fd-e6e4-448c-a4e4-c4302ac4a01a
+  Deletion Policy:        delete
+  Last Operation Status:  Failed
+  Message:                Failed to apply the backend update; problem initializing storage driver 'ontap-nas': could not configure storage pools: could not get storage pools from array: SVM ocp_app_svm has no assigned aggregates
+  Phase:                  Bound
+Events:
+  Type     Reason  Age                From                    Message
+  ----     ------  ----               ----                    -------
+  Warning  Failed  40s                trident-crd-controller  Failed to apply the backend update; problem initializing storage driver 'ontap-nas': error initializing ontap-nas driver; could not create Data ONTAP API client: error creating ONTAP API client: error reading SVM details: response code 401 (Unauthorized): incorrect or missing credentials
+  Warning  Failed  4s (x24 over 36s)  trident-crd-controller  Failed to apply the backend update; problem initializing storage driver 'ontap-nas': could not configure storage pools: could not get storage pools from array: SVM ocp_app_svm has no assigned aggregates
+hsuma@plnx-admin:~$
