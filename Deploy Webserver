@@ -1,14 +1,130 @@
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nvidia-test
-  namespace: gpu-operator
-spec:
-  restartPolicy: Never
-  containers:
-    - name: nvidia-test
-      image: nvcr.io/nvidia/cuda:12.2.0-base-ubuntu22.04
-      command: ["nvidia-smi"]
-      resources:
-        limits:
-          nvidia.com/gpu: 1
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get nodes -A
+NAME                          STATUS     ROLES                         AGE     VERSION
+ocp-ai-gpu01.calix.local      NotReady   worker                        64m     v1.33.6
+ocp-ai-gpu02.calix.local      NotReady   worker                        64m     v1.33.6
+ocp-ai-master01.calix.local   Ready      control-plane,master,worker   2d18h   v1.33.6
+ocp-ai-master02.calix.local   Ready      control-plane,master,worker   2d18h   v1.33.6
+ocp-ai-master03.calix.local   Ready      control-plane,master,worker   2d17h   v1.33.6
+hsuma@plnx-admin:~$ oc get csr
+NAME        AGE   SIGNERNAME                                    REQUESTOR                                                                   REQUESTEDDURATION   CONDITION
+csr-4l8dx   67m   kubernetes.io/kube-apiserver-client-kubelet   system:serviceaccount:openshift-machine-config-operator:node-bootstrapper   <none>              Approved,Issued
+csr-8zrjn   82m   kubernetes.io/kube-apiserver-client-kubelet   system:serviceaccount:openshift-machine-config-operator:node-bootstrapper   <none>              Approved,Issued
+csr-d2hv2   64m   kubernetes.io/kubelet-serving                 system:node:ocp-ai-gpu02.calix.local                                        <none>              Approved,Issued
+csr-gsdgs   64m   kubernetes.io/kubelet-serving                 system:node:ocp-ai-gpu01.calix.local                                        <none>              Approved,Issued
+csr-h9dpd   89m   kubernetes.io/kube-apiserver-client-kubelet   system:serviceaccount:openshift-machine-config-operator:node-bootstrapper   <none>              Approved,Issued
+csr-hcxsr   68m   kubernetes.io/kube-apiserver-client-kubelet   system:serviceaccount:openshift-machine-config-operator:node-bootstrapper   <none>              Approved,Issued
+csr-m6lls   89m   kubernetes.io/kube-apiserver-client-kubelet   system:serviceaccount:openshift-machine-config-operator:node-bootstrapper   <none>              Approved,Issued
+csr-n8r2p   63m   kubernetes.io/kube-apiserver-client           system:node:ocp-ai-gpu02.calix.local                                        24h                 Approved,Issued
+csr-r6pgw   63m   kubernetes.io/kube-apiserver-client           system:node:ocp-ai-gpu01.calix.local                                        24h                 Approved,Issued
+csr-w2gk2   83m   kubernetes.io/kube-apiserver-client-kubelet   system:serviceaccount:openshift-machine-config-operator:node-bootstrapper   <none>              Approved,Issued
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get csr | grep -i pending
+hsuma@plnx-admin:~$ oc describe node ocp-ai-gpu01.calix.local
+Name:               ocp-ai-gpu01.calix.local
+Roles:              worker
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=ocp-ai-gpu01.calix.local
+                    kubernetes.io/os=linux
+                    node-role.kubernetes.io/worker=
+                    node.openshift.io/os_id=rhel
+Annotations:        k8s.ovn.org/host-cidrs: ["10.172.248.153/24"]
+                    k8s.ovn.org/l3-gateway-config:
+                      {"default":{"mode":"shared","bridge-id":"br-ex","interface-id":"br-ex_ocp-ai-gpu01.calix.local","mac-address":"c8:4b:d6:f3:d8:40","ip-addr...
+                    k8s.ovn.org/node-chassis-id: fe29b357-a728-45f4-8fa6-91846d4e05a2
+                    k8s.ovn.org/node-encap-ips: ["10.172.248.153"]
+                    k8s.ovn.org/node-id: 5
+                    k8s.ovn.org/node-masquerade-subnet: {"ipv4":"169.254.0.0/17","ipv6":"fd69::/112"}
+                    k8s.ovn.org/node-primary-ifaddr: {"ipv4":"10.172.248.153/24"}
+                    k8s.ovn.org/node-subnets: {"default":["10.131.0.0/23"]}
+                    k8s.ovn.org/node-transit-switch-port-ifaddr: {"ipv4":"100.88.0.5/16"}
+                    k8s.ovn.org/zone-name: ocp-ai-gpu01.calix.local
+                    machineconfiguration.openshift.io/controlPlaneTopology: HighlyAvailable
+                    machineconfiguration.openshift.io/currentConfig: rendered-worker-d98bd75b78ad2605cb64e1bbd15eaf0c
+                    machineconfiguration.openshift.io/desiredConfig: rendered-worker-d98bd75b78ad2605cb64e1bbd15eaf0c
+                    machineconfiguration.openshift.io/desiredDrain: uncordon-rendered-worker-d98bd75b78ad2605cb64e1bbd15eaf0c
+                    machineconfiguration.openshift.io/lastAppliedDrain: uncordon-rendered-worker-d98bd75b78ad2605cb64e1bbd15eaf0c
+                    machineconfiguration.openshift.io/lastObservedServerCAAnnotation: false
+                    machineconfiguration.openshift.io/lastSyncedControllerConfigResourceVersion: 344897
+                    machineconfiguration.openshift.io/reason:
+                    machineconfiguration.openshift.io/state: Done
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Wed, 18 Feb 2026 09:50:08 -0600
+Taints:             node.kubernetes.io/not-ready:NoExecute
+                    node.kubernetes.io/not-ready:NoSchedule
+Unschedulable:      false
+Lease:
+  HolderIdentity:  ocp-ai-gpu01.calix.local
+  AcquireTime:     <unset>
+  RenewTime:       Wed, 18 Feb 2026 10:54:46 -0600
+Conditions:
+  Type             Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
+  ----             ------  -----------------                 ------------------                ------                       -------
+  MemoryPressure   False   Wed, 18 Feb 2026 10:53:51 -0600   Wed, 18 Feb 2026 09:50:08 -0600   KubeletHasSufficientMemory   kubelet has sufficient memory available
+  DiskPressure     False   Wed, 18 Feb 2026 10:53:51 -0600   Wed, 18 Feb 2026 09:50:08 -0600   KubeletHasNoDiskPressure     kubelet has no disk pressure
+  PIDPressure      False   Wed, 18 Feb 2026 10:53:51 -0600   Wed, 18 Feb 2026 09:50:08 -0600   KubeletHasSufficientPID      kubelet has sufficient PID available
+  Ready            False   Wed, 18 Feb 2026 10:53:51 -0600   Wed, 18 Feb 2026 09:50:08 -0600   KubeletNotReady              container runtime network not ready: NetworkReady=false reason:NetworkPluginNotReady message:Network plugin returns error: no CNI configuration file in /etc/kubernetes/cni/net.d/. Has your network provider started?
+Addresses:
+  InternalIP:  10.172.248.153
+  Hostname:    ocp-ai-gpu01.calix.local
+Capacity:
+  cpu:                128
+  ephemeral-storage:  468194796Ki
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             2113278760Ki
+  pods:               250
+Allocatable:
+  cpu:                127500m
+  ephemeral-storage:  430414581456
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             2112127784Ki
+  pods:               250
+System Info:
+  Machine ID:                             fc4e904f816644638d46c29359499cc7
+  System UUID:                            4c4c4544-0052-4a10-8057-b6c04f4d4434
+  Boot ID:                                257bd59b-fc19-4180-8a43-9ca92598ed31
+  Kernel Version:                         5.14.0-570.83.1.el9_6.x86_64
+  OS Image:                               Red Hat Enterprise Linux CoreOS 9.6.20260128-1 (Plow)
+  Operating System:                       linux
+  Architecture:                           amd64
+  Container Runtime Version:              cri-o://1.33.8-3.rhaos4.20.git9658698.el9
+  Kubelet Version:                        v1.33.6
+  Kube-Proxy Version:
+Non-terminated Pods:                      (16 in total)
+  Namespace                               Name                                             CPU Requests  CPU Limits  Memory Requests  Memory Limits  Age
+  ---------                               ----                                             ------------  ----------  ---------------  -------------  ---
+  openshift-cluster-node-tuning-operator  tuned-hrbsm                                      10m (0%)      0 (0%)      50Mi (0%)        0 (0%)         64m
+  openshift-dns                           node-resolver-fpkdb                              5m (0%)       0 (0%)      21Mi (0%)        0 (0%)         64m
+  openshift-image-registry                node-ca-krw59                                    10m (0%)      0 (0%)      10Mi (0%)        0 (0%)         64m
+  openshift-kni-infra                     coredns-ocp-ai-gpu01.calix.local                 200m (0%)     0 (0%)      400Mi (0%)       0 (0%)         64m
+  openshift-kni-infra                     keepalived-ocp-ai-gpu01.calix.local              200m (0%)     0 (0%)      400Mi (0%)       0 (0%)         64m
+  openshift-machine-config-operator       kube-rbac-proxy-crio-ocp-ai-gpu01.calix.local    20m (0%)      0 (0%)      50Mi (0%)        0 (0%)         64m
+  openshift-machine-config-operator       machine-config-daemon-s27sp                      40m (0%)      0 (0%)      100Mi (0%)       0 (0%)         64m
+  openshift-monitoring                    node-exporter-ff82w                              9m (0%)       0 (0%)      47Mi (0%)        0 (0%)         64m
+  openshift-multus                        multus-additional-cni-plugins-v5cp2              10m (0%)      0 (0%)      10Mi (0%)        0 (0%)         64m
+  openshift-multus                        multus-vjx26                                     10m (0%)      0 (0%)      65Mi (0%)        0 (0%)         64m
+  openshift-multus                        network-metrics-daemon-hzxn5                     20m (0%)      0 (0%)      120Mi (0%)       0 (0%)         64m
+  openshift-network-diagnostics           network-check-target-5btsj                       10m (0%)      0 (0%)      15Mi (0%)        0 (0%)         64m
+  openshift-network-operator              iptables-alerter-2ntjk                           10m (0%)      10m (0%)    65Mi (0%)        0 (0%)         64m
+  openshift-nmstate                       nmstate-handler-lfww4                            100m (0%)     500m (0%)   100Mi (0%)       1Gi (0%)       64m
+  openshift-ovn-kubernetes                ovnkube-node-m272s                               80m (0%)      0 (0%)      1630Mi (0%)      0 (0%)         64m
+  trident                                 trident-node-linux-8nxg6                         11m (0%)      0 (0%)      70Mi (0%)        0 (0%)         64m
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests     Limits
+  --------           --------     ------
+  cpu                745m (0%)    510m (0%)
+  memory             3153Mi (0%)  1Gi (0%)
+  ephemeral-storage  0 (0%)       0 (0%)
+  hugepages-1Gi      0 (0%)       0 (0%)
+  hugepages-2Mi      0 (0%)       0 (0%)
+Events:
+  Type    Reason          Age   From             Message
+  ----    ------          ----  ----             -------
+  Normal  RegisteredNode  64m   node-controller  Node ocp-ai-gpu01.calix.local event: Registered Node ocp-ai-gpu01.calix.local in Controller
+hsuma@plnx-admin:~$
