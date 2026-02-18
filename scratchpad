@@ -436,3 +436,8 @@ time="2026-02-18T21:10:32Z" level=info msg="resolving subscriptions in namespace
 time="2026-02-18T21:10:32Z" level=info msg="unpacking bundles" id=YkE7T namespace=openshift-gitops-operator
 time="2026-02-18T21:10:32Z" level=info msg="bundle unpacking failed. Reason: DeadlineExceeded, and Message: Job was active longer than specified deadline" id=YkE7T namespace=openshift-gitops-operator
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
+
+oc patch catalogsource redhat-operators -n openshift-marketplace --type merge --patch '{"spec":{"grpcPodConfig":{"memoryTarget":"512Mi"}}}'
