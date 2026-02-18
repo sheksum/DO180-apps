@@ -403,3 +403,36 @@ vault secrets tune -max-lease-ttl=43800h pki_int
 vault write -format=json pki_int/intermediate/generate/internal \
   common_name="Calix OCP-AI Intermediate CA" \
   | jq -r '.data.csr' > /tmp/ocp-ai-intermediate.csr
+
+
+time="2026-02-18T21:10:22Z" level=info msg="resolving subscriptions in namespace" id=Gs+ao namespace=openshift-gitops-operator
+time="2026-02-18T21:10:22Z" level=info msg="unpacking bundles" id=Gs+ao namespace=openshift-gitops-operator
+time="2026-02-18T21:10:22Z" level=info msg="unpacking is not complete yet, requeueing" id=Gs+ao namespace=openshift-gitops-operator
+time="2026-02-18T21:10:27Z" level=info msg="resolving sources" id=9S1kY namespace=openshift-gitops-operator
+time="2026-02-18T21:10:27Z" level=info msg="checking if subscriptions need update" id=9S1kY namespace=openshift-gitops-operator
+time="2026-02-18T21:10:27Z" level=info msg="checking for existing installplan" channel=latest id=9S1kY namespace=openshift-gitops-operator pkg=openshift-gitops-operator source=redhat-operators sub=openshift-gitops-operator
+time="2026-02-18T21:10:27Z" level=info msg="resolving subscriptions in namespace" id=9S1kY namespace=openshift-gitops-operator
+time="2026-02-18T21:10:27Z" level=info msg="unpacking bundles" id=9S1kY namespace=openshift-gitops-operator
+time="2026-02-18T21:10:27Z" level=info msg="unpacking is not complete yet, requeueing" id=9S1kY namespace=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg="resolving sources" id=B+keL namespace=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg="checking if subscriptions need update" id=B+keL namespace=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg="checking for existing installplan" channel=latest id=B+keL namespace=openshift-gitops-operator pkg=openshift-gitops-operator source=redhat-operators sub=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg="resolving subscriptions in namespace" id=B+keL namespace=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg="unpacking bundles" id=B+keL namespace=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg="bundle unpacking failed. Reason: DeadlineExceeded, and Message: Job was active longer than specified deadline" id=B+keL namespace=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg=syncing reconciling="*v1alpha1.Subscription" selflink=
+time="2026-02-18T21:10:32Z" level=info msg="evaluating current pod" correctHash=true correctImages=true current-pod.name=certified-operators-qf99z current-pod.namespace=openshift-marketplace
+time="2026-02-18T21:10:32Z" level=info msg="of 1 pods matching label selector, 1 have the correct images and matching hash" correctHash=true correctImages=true current-pod.name=certified-operators-qf99z current-pod.namespace=openshift-marketplace
+time="2026-02-18T21:10:32Z" level=info msg="evaluating current pod" correctHash=true correctImages=true current-pod.name=community-operators-2ccwz current-pod.namespace=openshift-marketplace
+time="2026-02-18T21:10:32Z" level=info msg="of 1 pods matching label selector, 1 have the correct images and matching hash" correctHash=true correctImages=true current-pod.name=community-operators-2ccwz current-pod.namespace=openshift-marketplace
+time="2026-02-18T21:10:32Z" level=info msg="evaluating current pod" correctHash=true correctImages=true current-pod.name=redhat-marketplace-xl6qt current-pod.namespace=openshift-marketplace
+time="2026-02-18T21:10:32Z" level=info msg="of 1 pods matching label selector, 1 have the correct images and matching hash" correctHash=true correctImages=true current-pod.name=redhat-marketplace-xl6qt current-pod.namespace=openshift-marketplace
+time="2026-02-18T21:10:32Z" level=info msg="evaluating current pod" correctHash=true correctImages=true current-pod.name=redhat-operators-qvxvw current-pod.namespace=openshift-marketplace
+time="2026-02-18T21:10:32Z" level=info msg="of 1 pods matching label selector, 1 have the correct images and matching hash" correctHash=true correctImages=true current-pod.name=redhat-operators-qvxvw current-pod.namespace=openshift-marketplace
+time="2026-02-18T21:10:32Z" level=info msg="resolving sources" id=YkE7T namespace=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg="checking if subscriptions need update" id=YkE7T namespace=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg="checking for existing installplan" channel=latest id=YkE7T namespace=openshift-gitops-operator pkg=openshift-gitops-operator source=redhat-operators sub=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg="resolving subscriptions in namespace" id=YkE7T namespace=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg="unpacking bundles" id=YkE7T namespace=openshift-gitops-operator
+time="2026-02-18T21:10:32Z" level=info msg="bundle unpacking failed. Reason: DeadlineExceeded, and Message: Job was active longer than specified deadline" id=YkE7T namespace=openshift-gitops-operator
+hsuma@plnx-admin:~/ocp-ai-config$
