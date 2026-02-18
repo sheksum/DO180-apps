@@ -461,3 +461,17 @@ To answer your main question upfront: these certs are purely for internal cluste
 The reason we'd prefer to chain under the Calix CA rather than self-signed is that all internal machines already trust it — so anyone accessing the cluster won't get certificate warnings or need to manually import a new root cert.
 
 We're not looking to become a general issuer for the enterprise PKI. The ask is a single intermediate CA with pathlen:0 (can't create sub-CAs), scoped to our OCP-AI cluster and managed through HashiCorp Vault with automated issuance and rotation.
+
+
+
+Hey Sulabh, to follow up on your question about CNPG and vector databases — yes, CNPG supports vector databases through the pgvector extension on PostgreSQL. We can set that up on the new OCP-AI cluster.
+
+We're building out the AI platform on-prem now and I want to make sure we match what your team needs. Can you share what your current stack looks like on GCP? Specifically:
+
+- ML platform (Vertex AI, Kubeflow, etc.)
+- Notebook environment
+- Model serving framework
+- Object storage
+- Databases (relational + vector)
+
+That way I can set up the same or similar services on OpenShift. Thanks!
