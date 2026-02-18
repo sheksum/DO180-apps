@@ -1,52 +1,15 @@
-hsuma@plnx-admin:~$ oc logs -n openshift-ovn-kubernetes ovnkube-node-m272s -c ovnkube-controller --tail=50
-I0218 16:58:04.793383   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-multus/multus-additional-cni-plugins-v5cp2
-I0218 16:58:04.793390   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-machine-config-operator/kube-rbac-proxy-crio-ocp-ai-gpu01.calix.local
-I0218 16:58:04.793390   66505 loadbalancer.go:305] Deleted 0 stale LBs for map[string]string{"k8s.ovn.org/kind":"Service", "k8s.ovn.org/owner":"openshift-machine-api/metal3-state"}
-I0218 16:58:04.793393   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-network-operator/iptables-alerter-2ntjk
-I0218 16:58:04.793399   66505 services_controller.go:385] Finished syncing service metal3-state on namespace openshift-machine-api for network=default : 707.344µs
-I0218 16:58:04.793401   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-nmstate/nmstate-handler-lfww4
-I0218 16:58:04.793401   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-dns/node-resolver-fpkdb
-I0218 16:58:04.793406   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-nmstate/nmstate-handler-lfww4
-I0218 16:58:04.793408   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-machine-config-operator/machine-config-daemon-s27sp
-I0218 16:58:04.793414   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-machine-config-operator/machine-config-daemon-s27sp
-I0218 16:58:04.793414   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-monitoring/node-exporter-ff82w
-F0218 16:58:04.793415   66505 ovnkube.go:140] failed to run ovnkube: [failed to start network controller: failed to start default network controller: unable to create admin network policy controller, err: could not add Event Handler for anpInformer during admin network policy controller initialization, handler {0x22a2e00 0x22a2ae0 0x22a2a80} was not added to shared informer because it has stopped already, failed to start node network controller: failed to start default node network controller: MTU (1500) of network interface br-ex is too small for specified overlay MTU (8958)]
-I0218 16:58:04.793417   66505 ovn.go:146] Ensuring zone local for Pod openshift-nmstate/nmstate-handler-lfww4 in node ocp-ai-gpu01.calix.local
-I0218 16:58:04.793415   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-kni-infra/coredns-ocp-ai-gpu01.calix.local
-I0218 16:58:04.793419   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-monitoring/node-exporter-ff82w
-I0218 16:58:04.793421   66505 obj_retry.go:383] Retry successful for *v1.Pod openshift-nmstate/nmstate-handler-lfww4 after 0 failed attempt(s)
-I0218 16:58:04.793414   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-kni-infra/keepalived-ocp-ai-gpu01.calix.local
-I0218 16:58:04.793423   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-multus/multus-vjx26
-I0218 16:58:04.793425   66505 ovn.go:146] Ensuring zone local for Pod openshift-machine-config-operator/machine-config-daemon-s27sp in node ocp-ai-gpu01.calix.local
-I0218 16:58:04.793402   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-network-operator/iptables-alerter-2ntjk
-I0218 16:58:04.793430   66505 ovn.go:146] Ensuring zone local for Pod openshift-monitoring/node-exporter-ff82w in node ocp-ai-gpu01.calix.local
-I0218 16:58:04.793430   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-multus/multus-vjx26
-I0218 16:58:04.793431   66505 obj_retry.go:383] Retry successful for *v1.Pod openshift-machine-config-operator/machine-config-daemon-s27sp after 0 failed attempt(s)
-I0218 16:58:04.793434   66505 obj_retry.go:383] Retry successful for *v1.Pod openshift-monitoring/node-exporter-ff82w after 0 failed attempt(s)
-I0218 16:58:04.793390   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-multus/multus-additional-cni-plugins-v5cp2
-I0218 16:58:04.793439   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-cluster-node-tuning-operator/tuned-hrbsm
-I0218 16:58:04.793422   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-kni-infra/coredns-ocp-ai-gpu01.calix.local
-I0218 16:58:04.793442   66505 ovn.go:146] Ensuring zone local for Pod openshift-multus/multus-vjx26 in node ocp-ai-gpu01.calix.local
-I0218 16:58:04.793445   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-cluster-node-tuning-operator/tuned-hrbsm
-I0218 16:58:04.793448   66505 obj_retry.go:383] Retry successful for *v1.Pod openshift-multus/multus-vjx26 after 0 failed attempt(s)
-I0218 16:58:04.793395   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-image-registry/node-ca-krw59
-I0218 16:58:04.793452   66505 default_network_controller.go:711] Recording success event on pod openshift-multus/multus-vjx26
-I0218 16:58:04.793451   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-network-diagnostics/network-check-target-5btsj
-I0218 16:58:04.793426   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-kni-infra/keepalived-ocp-ai-gpu01.calix.local
-I0218 16:58:04.793450   66505 ovn.go:146] Ensuring zone local for Pod openshift-kni-infra/coredns-ocp-ai-gpu01.calix.local in node ocp-ai-gpu01.calix.local
-I0218 16:58:04.793460   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-network-diagnostics/network-check-target-5btsj
-I0218 16:58:04.793463   66505 obj_retry.go:383] Retry successful for *v1.Pod openshift-kni-infra/coredns-ocp-ai-gpu01.calix.local after 0 failed attempt(s)
-I0218 16:58:04.793464   66505 ovn.go:146] Ensuring zone local for Pod openshift-kni-infra/keepalived-ocp-ai-gpu01.calix.local in node ocp-ai-gpu01.calix.local
-I0218 16:58:04.793466   66505 default_network_controller.go:711] Recording success event on pod openshift-kni-infra/coredns-ocp-ai-gpu01.calix.local
-I0218 16:58:04.793467   66505 obj_retry.go:383] Retry successful for *v1.Pod openshift-kni-infra/keepalived-ocp-ai-gpu01.calix.local after 0 failed attempt(s)
-I0218 16:58:04.793409   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-dns/node-resolver-fpkdb
-I0218 16:58:04.793470   66505 default_network_controller.go:711] Recording success event on pod openshift-kni-infra/keepalived-ocp-ai-gpu01.calix.local
-I0218 16:58:04.793408   66505 obj_retry.go:299] Retry object setup: *v1.Pod openshift-multus/network-metrics-daemon-hzxn5
-I0218 16:58:04.793477   66505 ovn.go:146] Ensuring zone local for Pod openshift-dns/node-resolver-fpkdb in node ocp-ai-gpu01.calix.local
-I0218 16:58:04.793478   66505 obj_retry.go:363] Adding new object: *v1.Pod openshift-multus/network-metrics-daemon-hzxn5
-I0218 16:58:04.793480   66505 obj_retry.go:383] Retry successful for *v1.Pod openshift-dns/node-resolver-fpkdb after 0 failed attempt(s)
-I0218 16:58:04.793484   66505 default_network_controller.go:711] Recording success event on pod openshift-dns/node-resolver-fpkdb
-I0218 16:58:04.793407   66505 services_controller.go:381] Processing sync for service openshift-nmstate/nmstate-console-plugin for network=default
-I0218 16:58:04.793479   66505 loadbalancer.go:305] Deleted 0 stale LBs for map[string]string{"k8s.ovn.org/kind":"Service", "k8s.ovn.org/owner":"openshift-etcd-operator/metrics"}
-I0218 16:58:04.793495   66505 services_controller.go:459] Service openshift-nmstate/nmstate-console-plugin retrieved from lister for network=default: &Service{ObjectMeta:{nmstate-console-plugin  openshift-nmstate  3ebaecbe-c1b9-47b1-b66c-33bc6e41cee8 836849 0 2026-02-17 20:24:56 +0000 UTC <nil> <nil> map[app:nmstate-console-plugin app.kubernetes.io/component:nmstate-console-plugin app.kubernetes.io/instance:nmstate-console-plugin app.kubernetes.io/part-of:nmstate-console-plugin] map[service.alpha.openshift.io/serving-cert-secret-name:plugin-serving-cert] [{nmstate.io/v1 NMState nmstate b827a1af-565e-4238-bf41-0ebedcaf4b9d 0xc008925d57 0xc008925d58}] [] []},Spec:ServiceSpec{Ports:[]ServicePort{ServicePort{Name:9443-tcp,Protocol:TCP,Port:9443,TargetPort:{0 9443 },NodePort:0,AppProtocol:nil,},},Selector:map[string]string{app: nmstate-console-plugin,},ClusterIP:172.30.1.147,Type:ClusterIP,ExternalIPs:[],SessionAffinity:None,LoadBalancerIP:,LoadBalancerSourceRanges:[],ExternalName:,ExternalTrafficPolicy:,HealthCheckNodePort:0,PublishNotReadyAddresses:false,SessionAffinityConfig:nil,IPFamilyPolicy:*SingleStack,ClusterIPs:[172.30.1.147],IPFamilies:[IPv4],AllocateLoadBalancerNodePorts:nil,LoadBalancerClass:nil,InternalTrafficPolicy:*Cluster,TrafficDistribution:nil,},Status:ServiceStatus{LoadBalancer:LoadBalancerStatus{Ingress:[]LoadBalancerIngress{},},Conditions:[]Condition{},},}
-hsuma@plnx-admin:~$
+[core@ocp-ai-gpu01 ~]$ nmcli connection show
+NAME                UUID                                  TYPE           DEVICE
+ovs-if-br-ex        aaaa0d04-49ff-48c8-98f4-e2d6b0945ae2  ovs-interface  br-ex
+br-ex               760753b8-1bdc-4ad6-8885-3b81721f99e5  ovs-bridge     br-ex
+ovs-if-phys0        298548bd-2f3f-48bf-9386-b0ecea710284  ethernet       eno8303
+ovs-port-br-ex      023eee76-b18b-466b-991f-a76a59a21f22  ovs-port       br-ex
+ovs-port-phys0      deffa5ea-51df-42d8-a115-ceb1428e315c  ovs-port       eno8303
+Wired connection 5  985ae3c5-acf2-33d7-a18c-547a7cca6b03  ethernet       ens8f0np0
+Wired connection 6  24ceb865-f4fe-3a70-9f57-40c3e42364a1  ethernet       ens8f1np1
+lo                  d25f7e9f-80e6-4611-a834-5a102d511279  loopback       lo
+Wired connection 1  6b627253-d146-3719-a866-f50a828a750a  ethernet       --
+Wired connection 2  3af03485-dd3a-3105-a0bb-68eea7c72dc7  ethernet       --
+Wired connection 3  5c373b49-296b-3593-a11b-fef4c0db27fd  ethernet       --
+Wired connection 4  8b44043a-f5c9-3591-ae68-23e2cfba5fa3  ethernet       --
+[core@ocp-ai-gpu01 ~]$
