@@ -1,177 +1,45 @@
-Job Description
-This Staff Kubernetes Administrator role is critical to our team’s success. If you are passionate about Kubernetes, cloud technologies, and mentoring others
-in a fast-paced environment, we encourage you to apply and help us drive our infrastructure to the next level.
-In this role, you will establish Kubernetes best practices and processes as we build out this capability. You will work closely with software development
-and product teams to deploy and support Kubernetes clusters on-premises and in the cloud (GCP). You will ensure our Kubernetes environments are
-secure, performant, and aligned with business needs. Additionally, you will mentor junior administrators and help develop the team’s Kubernetes skill set
-and operational practices.
-Responsibilities
-Design, deploy, and maintain Kubernetes clusters in on-premises environments and in Google Cloud (GKE), ensuring scalable and reliable
-infrastructure.
-Lead the migration of containerized workloads from on-premises Kubernetes to GKE, with minimal downtime and optimal performance.
-Implement and enforce Kubernetes security best practices, including RBAC access controls, network policies, secrets management, and vulnerability
-scanning.
-Architect and support microservices and serverless applications on Kubernetes using cloud-native patterns and tooling.
-Develop and maintain Infrastructure as Code (IaC) using tools like Terraform and Helm, and employ GitOps workflows for automated deployments.
-Monitor and optimize cluster performance and availability, using observability tools (Prometheus, Grafana, ELK/EFK, etc.), and ensure high uptime
-through auto-scaling and resiliency best practices.
-Participate in incident response and troubleshooting to quickly resolve issues across the Kubernetes stack (applications, containers, nodes) and
-perform root cause analysis.
-Mentor and coach junior administrators and engineers, sharing Kubernetes best practices and fostering a culture of continuous learning.
-Collaborate cross-functionally with development, security, and other infrastructure teams to ensure Kubernetes platform alignment with application
-needs and security standards.
-Document configurations, procedures, and processes for Kubernetes environments to support knowledge transfer and consistency.
-Required Qualifications & Skills
-8-10 years of IT infrastructure experience, including 4+ years managing production Kubernetes clusters.
-Expertise in Linux systems administration, especially Ubuntu and Red Hat (or CentOS) systems, including strong shell scripting and system
-troubleshooting skills.
-Strong knowledge of container networking and services – e.g., CNI plugins, ingress controllers, DNS, load balancing, and service mesh (Istio or
-similar).
-Deep understanding of Kubernetes security models and best practices (RBAC, network policies, CIS benchmarks, etc.).
-Proficiency with Infrastructure as Code tools (Terraform, Helm) and experience with CI/CD pipelines and GitOps workflows for Kubernetes
-deployments.
-Experience with monitoring and logging tools for Kubernetes (Prometheus, Grafana, Fluentd/ELK or similar) and the ability to interpret metrics/logs
-to maintain system health.
-Excellent communication and interpersonal skills, with the ability to work collaboratively and explain complex concepts to various stakeholders.
-Strong problem-solving abilities and capability to work independently, managing priorities in a dynamic environment.
-Bachelor’s degree in Computer Science or related field (or equivalent experience).
-Willingness to support off-hours needs (occasional meetings with offshore teams) and travel if required.
-Desired Skills
-Certifications: Relevant industry certifications such as Certified Kubernetes Administrator (CKA) or CKS, and cloud certifications (Google Cloud
-Professional Architect, GKE specialization) or Linux certifications (RHCSA/RHCE).
-Hybrid/Cloud Experience: Experience with hybrid cloud or multi-cluster Kubernetes environments and cloud networking.
-Security & Automation Tools: Familiarity with container security platforms (e.g., Aqua, Prisma, Sysdig) and configuration management/automation
-tools (Ansible, Puppet, Chef, Python/Bash scripting).
-Methodologies: Exposure to IT service management (ITIL practices) and Agile/Scrum development methodologies.
-Innovative Mindset: A security-first and automation-first mindset; enthusiasm for
-
-
-
-
-
-
-Gene R. Siepka
-grsiepka@gmail.com | 708-269-4141
-Experienced Engineer with a proven track record of delivering and supporting 24x7 Mission-Critical environments in both
-OnPrem Data Centers and Cloud Providers. Have a solid understanding of DevOps practices and technologies. Strong
-Kubernetes, Automation, Linux, Networking, Containers, Virtualization, and troubleshooting knowledge.
-Recent Google Cloud Engineer Certifications.
-Professional Experience
-Humana
-Lead Software Engineer - Enterprise API and Integration Team 05/2023 - current
-Key Contributions:
-●
-●
-Primary Platform Engineer for Kubernetes Clusters (GKE and AKS) running Google’s ApigeeHybrid Product.
-Developed Ansible automation that provides a complete framework for managing all of Humana’s OnPrem GKE
-platforms running Apigee Hybrid. Automates all facets of the infrastructure from initial Kubernetes cluster creation,
-to configuration updates and platform upgrades, with sensitive data for credentials and GCP ServiceAccount keys
-being retrieved at runtime from HashiCorp Vault.
-●
-●
-●
-Multiple GKE Cluster upgrades and updates using above automation.
-Creation of new GKE environments for Apigee Hybrid OnPrem solution.
-Created multiple one-off Ansible automation jobs for routine tasks that our L2/SRE partner teams would own for
-things like certificate renewals, credential rotation, service account renewals.
-●
-Created Terraform modules to deploy a complicated and ordered ApigeeHybrid Helm chart installation of 70+
-unique CRDs.
-●
-Google Cloud Associate Cloud Engineer Certification 11/2023
-https://www.credly.com/badges/8f5409e5-b465-4115-8b2d-69a803dc1923/public
-_
-●
-Google Cloud Professional Cloud Engineer Certification 10/2024
-https://www.credly.com/badges/e06b02e0-ac5c-4668-bc71-bda2da99c5f6/public
-url
-_
-url
-KeyBank
-Master Engineer - Container Management Team Lead 02/2018 - 04/2023
-Key Contributions:
-●
-Member of a specialized team to help guide KeyBank’s migration to Google Cloud Platform as an SME on
-Kubernetes/Container platforms.
-●
-Developed a company-wide standardized Terraform module for creating both Standard and AutoPilot GKE
-clusters in GCP that implemented best practices for resiliency and supportability.
-●
-Worked with our Enterprise Release Management team to develop Gitlab Pipelines to automate GKE cluster
-deployments.
-●
-Lead resource from initial project to production release for standing up 4 Anthos Baremetal GKE Cluster
-environments to host our Enterprise Kafka Platform. Installation of Anthos Baremetal was fully automated via
-Ansible and Terraform and included playbooks to handle regular OS patching and GKE upgrades.
-●
-Lead contributor to migrate 500+ applications from OpenShift 3.11 to Anthos GKEOnPrem. This was a 2 year long
-effort of working with application teams to update CI/CD build processes, migration to Artifactory from internal
-OpenShift Docker registry, and conversion of OpenShift specific manifest yaml to standard Kubernetes objects.
-●
-Implemented Anthos Config Manager (GitOps tool) for managing GKE Clusters at scale. Rolled out to 100+ GKE
-clusters in GCP.
-…
-●
-●
-●
-●
-●
-●
-●
-Planned and Executed multiple OpenShift version upgrades 3.6 > 3.11 across our Dev, Test/DR, and Prod
-OpenShift Clusters. Each upgrade presented significant challenges and co-ordination with 50+ application teams.
-Worked closely with App/Dev teams to onboard new applications to our Kubernetes platforms providing guidance
-on best practices and production readiness items like Readiness/Liveness Probes, Deployment Strategies and
-CPU/Memory resource sizing.
-Production support duties of Kubernetes platforms. This includes regular troubleshooting of general Networking
-issues, DNS, Firewalls, SSL certificates, application and database connectivity issues.
-Implemented HashiCorp Vault Secrets Injection for Kubernetes Secrets into application deployments.
-Regular use of Elastic Stack (Beats and Kibana) and Dynatrace for visualizing problems in the environment.
-Mentor to junior team members. Conducted numerous learning and troubleshooting exercises to help strengthen
-knowledge across the team.
-Extensive use of common tools like Confluence for knowledge sharing and issue logging. Jira for work initiatives.
-ServiceNow for Change Management and Incident tracking.
-HelloWallet / KeyBank
-Senior Systems Engineer 04/2017 - 01/2018
-Key Contributions:
-●
-Primary Ops support of HelloWallet systems. Environment was 60 CentOS Hosts on VMware in a hosted
-datacenter. Responsibilities included VMware Management, Linux OS Support, MySQL/MongoDB Support, F5
-LoadBalancer config, Splunk Administration. Application deployment and Application support.
-●
-Hellowallet Acquired by KeyBank 07/2017. Performed migration of Hellowallet apps from a hosted facility to Key’s
-Datacenters. Worked with the individual Key technology teams to take over their respective support roles.
-United Airlines
-Contractor Linux Operations Support 07/2016 - 03/2017
-Key Contributions:
-●
-access and naming.
-●
-patching.
-Migration of local Linux accounts to use AD/LDAP Authentication. Helped develop standards around group level
-Converted existing RHEL 6/7 systems to Oracle Linux to support rollout of Ksplice/Uptrack for live kernel
-●
-Worked with Development staff on automated application deployments using Ansible Playbooks.
-Chicago Tribune
-Sr. Unix Systems Engineer 04/2012 - 06/2016
-Key Contributions:
-●
-●
-Primary Server team resource focused on Applications for Editorial, Circulation and Digital Presence Systems.
-Deployed and configured over 500 new CentOS VMs and dozens of RHEL physical systems running Veritas
-Storage Foundation HA.
-●
-Primary project resource to migrate hosts from aging EMC arrays onto new EMC VNX Series Arrays. Migrations
-were performed using a mix of Veritas Volume Manager volume mirroring, EMC PowerPath Migration Enabler
-(PPME) disk migrations, and simple disk to disk / cpio data copies. Successfully migrated over 100 Solaris and
-RHEL systems during a 9 month period.
-●
-Used Puppet to automate and standardize server builds and configurations. Created new Puppet modules for new
-software and used Foreman as the frontend configuration management tool. Also wrote numerous shell scripts for
-smaller tasks that didn’t warrant full Puppet Module fixes.
-●
-Managed Spacewalk Patch repository. Updated channels with multiple repositories and used Puppet to
-automatically register systems with Spacewalk.
-●
-Performed numerous server virtualizations of Solaris systems migrating to Solaris Zones and RHEL/CentOS
-systems using VMware Standalone Converter onto VMware Virtual Machines.
+[core@ocp-ai-gpu01 ovn-kubernetes]$ ls
+[core@ocp-ai-gpu01 ovn-kubernetes]$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eno8303: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq master ovs-system state UP group default qlen 1000
+    link/ether c8:4b:d6:f3:d8:40 brd ff:ff:ff:ff:ff:ff
+    altname enp2s0f0
+3: eno8403: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000
+    link/ether c8:4b:d6:f3:d8:41 brd ff:ff:ff:ff:ff:ff
+    altname enp2s0f1
+4: eno12399np0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000
+    link/ether 8c:84:74:c9:61:e0 brd ff:ff:ff:ff:ff:ff
+    altname enp34s0f0np0
+5: eno12409np1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000
+    link/ether 8c:84:74:c9:61:e1 brd ff:ff:ff:ff:ff:ff
+    altname enp34s0f1np1
+6: ens8f0np0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 7c:8c:09:c3:74:1e brd ff:ff:ff:ff:ff:ff
+    altname enp160s0f0np0
+7: ens8f1np1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 7c:8c:09:c3:74:1f brd ff:ff:ff:ff:ff:ff
+    altname enp160s0f1np1
+11: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 22:2f:29:14:93:61 brd ff:ff:ff:ff:ff:ff
+12: br-ex: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether c8:4b:d6:f3:d8:40 brd ff:ff:ff:ff:ff:ff
+    inet 10.172.248.153/24 brd 10.172.248.255 scope global noprefixroute br-ex
+       valid_lft forever preferred_lft forever
+    inet 169.254.0.2/17 brd 169.254.127.255 scope global br-ex
+       valid_lft forever preferred_lft forever
+    inet6 fe80::748:70e:8a92:663a/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::25f5:db9e:c96c:c207/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+13: br-int: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 72:e9:59:6f:48:a9 brd ff:ff:ff:ff:ff:ff
+14: genev_sys_6081: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 65000 qdisc noqueue master ovs-system state UNKNOWN group default qlen 1000
+    link/ether 2a:68:19:0d:af:57 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::2868:19ff:fe0d:af57/64 scope link
+       valid_lft forever preferred_lft forever
+[core@ocp-ai-gpu01 ovn-kubernetes]$
