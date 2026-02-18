@@ -393,3 +393,13 @@ spec:
       storage: 1Gi
   storageClassName: netapp-app
 EOF
+
+
+
+vault secrets enable -path=pki_int pki
+vault secrets tune -max-lease-ttl=43800h pki_int
+
+
+vault write -format=json pki_int/intermediate/generate/internal \
+  common_name="Calix OCP-AI Intermediate CA" \
+  | jq -r '.data.csr' > /tmp/ocp-ai-intermediate.csr
