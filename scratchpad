@@ -97,3 +97,61 @@ ocp_app_svm
 3 entries were displayed.
 
 plano_aff_cl::>
+
+
+plano_aff_cl::> export-policy rule show -vserver ocp_infra_svm
+             Policy          Rule    Access   Client                RO
+Vserver      Name            Index   Protocol Match                 Rule
+------------ --------------- ------  -------- --------------------- ---------
+ocp_infra_svm
+             backend_infra_access
+                             1       nfs3,    10.172.192.0/24       any
+                                     nfs4,
+                                     nfs
+ocp_infra_svm
+             backend_infra_access
+                             2       nfs3,    10.172.196.0/24       any
+                                     nfs4,
+                                     nfs
+ocp_infra_svm
+             backend_infra_access
+                             3       nfs3,    10.172.200.0/24       any
+                                     nfs4,
+                                     nfs
+ocp_infra_svm
+             backend_infra_access
+                             4       nfs3,    10.172.248.0/24       any
+                                     nfs4,
+                                     nfs
+ocp_infra_svm
+             default         2       nfs3,    0.0.0.0/0             any
+                                     nfs4,
+                                     nfs
+5 entries were displayed.
+
+plano_aff_cl::> export-policy rule show -vserver ocp_app_svm
+             Policy          Rule    Access   Client                RO
+Vserver      Name            Index   Protocol Match                 Rule
+------------ --------------- ------  -------- --------------------- ---------
+ocp_app_svm  backend_app_access
+                             1       nfs3,    10.172.194.0/24       any
+                                     nfs4,
+                                     nfs
+ocp_app_svm  backend_app_access
+                             2       nfs3,    10.172.198.0/24       any
+                                     nfs4,
+                                     nfs
+ocp_app_svm  backend_app_access
+                             3       nfs3,    10.172.202.0/24       any
+                                     nfs4,
+                                     nfs
+ocp_app_svm  backend_app_access
+                             4       nfs3,    10.172.248.0/24       any
+                                     nfs4,
+                                     nfs
+ocp_app_svm  default         1       nfs3,    0.0.0.0/0             any
+                                     nfs4,
+                                     nfs
+5 entries were displayed.
+
+plano_aff_cl::>
