@@ -190,3 +190,76 @@ plano_aff_cl::>
 
 
 oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"nodeSelector":{"node-role.kubernetes.io/master":""}}}'
+
+
+
+plano_aff_cl::> network interface show -vserver ocp_infra_svm
+            Logical    Status     Network            Current       Current Is
+Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
+----------- ---------- ---------- ------------------ ------------- ------- ----
+ocp_infra_svm
+            ocp_infra_dev_lif01
+                         up/up    10.172.192.22/23   plano_aff_cl-05
+                                                                   a0a-1792
+                                                                           true
+            ocp_infra_dev_lif02
+                         up/up    10.172.192.23/23   plano_aff_cl-06
+                                                                   a0a-1792
+                                                                           true
+            ocp_infra_mgmt
+                         up/up    10.172.254.46/24   plano_aff_cl-05
+                                                                   a0a-1570
+                                                                           true
+            ocp_infra_prod_lif01
+                         up/up    10.172.200.22/23   plano_aff_cl-05
+                                                                   a0a-1793
+                                                                           true
+            ocp_infra_prod_lif02
+                         up/up    10.172.200.23/23   plano_aff_cl-06
+                                                                   a0a-1793
+                                                                           true
+            ocp_infra_test_lif01
+                         up/up    10.172.196.22/23   plano_aff_cl-05
+                                                                   a0a-1796
+                                                                           true
+            ocp_infra_test_lif02
+                         up/up    10.172.196.23/23   plano_aff_cl-06
+                                                                   a0a-1796
+                                                                           true
+7 entries were displayed.
+
+plano_aff_cl::> network interface show -vserver ocp_app_svm
+            Logical    Status     Network            Current       Current Is
+Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
+----------- ---------- ---------- ------------------ ------------- ------- ----
+ocp_app_svm
+            ocp_app_dev_lif01
+                         up/up    10.172.194.22/23   plano_aff_cl-05
+                                                                   a0a-1794
+                                                                           true
+            ocp_app_dev_lif02
+                         up/up    10.172.194.23/23   plano_aff_cl-06
+                                                                   a0a-1794
+                                                                           true
+            ocp_app_mgmt up/up    10.172.254.47/24   plano_aff_cl-06
+                                                                   a0a-1570
+                                                                           true
+            ocp_app_prod_lif01
+                         up/up    10.172.202.22/23   plano_aff_cl-05
+                                                                   a0a-1797
+                                                                           true
+            ocp_app_prod_lif02
+                         up/up    10.172.202.23/23   plano_aff_cl-06
+                                                                   a0a-1797
+                                                                           true
+            ocp_app_test_lif01
+                         up/up    10.172.198.22/23   plano_aff_cl-05
+                                                                   a0a-1798
+                                                                           true
+            ocp_app_test_lif02
+                         up/up    10.172.198.23/23   plano_aff_cl-06
+                                                                   a0a-1798
+                                                                           true
+7 entries were displayed.
+
+plano_aff_cl::>
