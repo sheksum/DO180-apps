@@ -1,16 +1,14 @@
 cat <<EOF | oc apply -f -
 apiVersion: v1
-kind: Pod
+kind: PersistentVolumeClaim
 metadata:
-  name: gpu-test
-  namespace: default
+  name: image-registry-storage
+  namespace: openshift-image-registry
 spec:
-  restartPolicy: OnFailure
-  containers:
-  - name: cuda-test
-    image: nvidia/cuda:12.3.1-base-ubuntu22.04
-    command: ["nvidia-smi"]
-    resources:
-      limits:
-        nvidia.com/gpu: 1
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: netapp-infra
 EOF
