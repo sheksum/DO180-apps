@@ -475,3 +475,25 @@ We're building out the AI platform on-prem now and I want to make sure we match 
 - Databases (relational + vector)
 
 That way I can set up the same or similar services on OpenShift. Thanks!
+
+
+
+
+
+Hey Sulabh,
+
+To follow up on your question about CNPG and vector databases — yes, CNPG supports vector databases through the pgvector extension on PostgreSQL. We can set that up on the new OCP-AI cluster.
+
+I also know you mentioned your team is using MinIO. We're planning to deploy MinIO on the cluster as well for S3-compatible object storage backed by NetApp.
+
+We're building out the full AI platform on-prem now and I want to make sure we match what your team needs. Can you share what your current stack looks like on GCP? Specifically:
+
+- ML platform (Vertex AI, Kubeflow, etc.)
+- Notebook environment
+- Model serving framework
+- Databases (relational + vector)
+- Any other services your workflows depend on
+
+That way I can set up the same or similar services on OpenShift.
+
+Thanks!
