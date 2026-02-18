@@ -99,6 +99,19 @@ ocp_app_svm
 plano_aff_cl::>
 
 
+plano_aff_cl::> export-policy rule show -vserver ocp_app_svm -fields rorule,rwrule,superuser
+vserver     policyname         ruleindex rorule rwrule superuser
+----------- ------------------ --------- ------ ------ ---------
+ocp_app_svm backend_app_access 1         any    any    any
+ocp_app_svm backend_app_access 2         any    any    any
+ocp_app_svm backend_app_access 3         any    any    any
+ocp_app_svm backend_app_access 4         any    any    any
+ocp_app_svm default            1         any    any    any
+5 entries were displayed.
+
+plano_aff_cl::>
+
+
 plano_aff_cl::> export-policy rule show -vserver ocp_infra_svm
              Policy          Rule    Access   Client                RO
 Vserver      Name            Index   Protocol Match                 Rule
