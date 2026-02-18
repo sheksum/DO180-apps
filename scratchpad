@@ -12,3 +12,5 @@ spec:
       storage: 100Gi
   storageClassName: netapp-infra
 EOF
+
+oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Managed","storage":{"pvc":{"claim":"image-registry-storage"}},"replicas":2}}'
