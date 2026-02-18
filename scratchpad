@@ -14,3 +14,17 @@ spec:
 EOF
 
 oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Managed","storage":{"pvc":{"claim":"image-registry-storage"}},"replicas":2}}'
+
+
+
+oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"defaultRoute":true}}'
+
+
+oc get route -n openshift-image-registry
+
+
+HOST=$(oc get route default-route -n openshift-image-registry -o jsonpath='{.spec.host}')
+podman login -u kubeadmin -p $(oc whoami -t) $HOST
+podman pull busybox
+podman tag busybox $HOST/default/busybox:test
+podman push $HOST/default/busybox:test
