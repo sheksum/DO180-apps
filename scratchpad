@@ -187,3 +187,6 @@ plano_aff_cl::>
 [core@ocp-ai-master02 ~]$ mount | grep trident
 10.172.194.22:/trident_pvc_766e03dc_d5e4_496f_9bd0_8b38905999dd on /var/lib/kubelet/pods/b1e78fdd-8266-4bd0-af4a-ae362b44a2e0/volumes/kubernetes.io~csi/pvc-766e03dc-d5e4-496f-9bd0-8b38905999dd/mount type nfs4 (rw,relatime,vers=4.1,rsize=65536,wsize=65536,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=10.172.194.151,local_lock=none,addr=10.172.194.22)
 [core@ocp-ai-master02 ~]$
+
+
+oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"nodeSelector":{"node-role.kubernetes.io/master":""}}}'
