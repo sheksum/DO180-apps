@@ -36,3 +36,6 @@ ERRO[0000] cannot find UID/GID for user hsuma: No subuid ranges found for user "
 WARN[0000] using rootless single mapping into the namespace. This might break some images. Check /etc/subuid and /etc/subgid for adding sub*ids
 Error: no registries found in registries.conf, a registry must be provided
 hsuma@plnx-admin:~$
+
+
+oc rsh -n openshift-image-registry $(oc get pods -n openshift-image-registry -l docker-registry=default -o jsonpath='{.items[0].metadata.name}') touch /registry/test-write && echo "Write OK"
