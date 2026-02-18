@@ -71,3 +71,29 @@ Events:
   Normal  ProvisioningSuccess    21m                csi.trident.netapp.io                                                                           provisioned a volume
   Normal  ProvisioningSucceeded  21m                csi.trident.netapp.io_trident-controller-7cb57b6f6d-vgf24_3b4a98db-5441-47a5-abfc-6e7ade299819  Successfully provisioned volume pvc-766e03dc-d5e4-496f-9bd0-8b38905999dd
 hsuma@plnx-admin:~$
+
+
+plano_aff_cl::> volume show -vserver ocp_infra_svm
+Vserver   Volume       Aggregate    State      Type       Size  Available Used%
+--------- ------------ ------------ ---------- ---- ---------- ---------- -----
+ocp_infra_svm
+          ocp_infra_svm_root
+                       aggr1_n5     online     RW          1GB    970.9MB    0%
+
+plano_aff_cl::>
+plano_aff_cl::>
+plano_aff_cl::> volume show -vserver ocp_app_svm
+Vserver   Volume       Aggregate    State      Type       Size  Available Used%
+--------- ------------ ------------ ---------- ---- ---------- ---------- -----
+ocp_app_svm
+          ocp_app_svm_root
+                       aggr1_n6     online     RW          1GB    970.8MB    0%
+ocp_app_svm
+          trident_pvc_131edc3f_480b_47dd_bc98_b077bd05b17b
+                       aggr1_n4     online     RW       1.05GB     1023MB    0%
+ocp_app_svm
+          trident_pvc_766e03dc_d5e4_496f_9bd0_8b38905999dd
+                       aggr1_n5     online     RW      105.3GB   100.00GB    0%
+3 entries were displayed.
+
+plano_aff_cl::>
