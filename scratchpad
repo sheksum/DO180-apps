@@ -39,3 +39,35 @@ hsuma@plnx-admin:~$
 
 
 oc rsh -n openshift-image-registry $(oc get pods -n openshift-image-registry -l docker-registry=default -o jsonpath='{.items[0].metadata.name}') touch /registry/test-write && echo "Write OK"
+
+
+
+hsuma@plnx-admin:~$ oc rsh -n openshift-image-registry $(oc get pods -n openshift-image-registry -l docker-registry=default -o jsonpath='{.items[0].metadata.name}') touch /registry/test-write && echo "Write OK"
+^Ccommand terminated with exit code 130
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc describe pvc image-registry-storage -n openshift-image-registry
+Name:          image-registry-storage
+Namespace:     openshift-image-registry
+StorageClass:  netapp-infra
+Status:        Bound
+Volume:        pvc-766e03dc-d5e4-496f-9bd0-8b38905999dd
+Labels:        <none>
+Annotations:   pv.kubernetes.io/bind-completed: yes
+               pv.kubernetes.io/bound-by-controller: yes
+               volume.beta.kubernetes.io/storage-provisioner: csi.trident.netapp.io
+               volume.kubernetes.io/storage-provisioner: csi.trident.netapp.io
+Finalizers:    [kubernetes.io/pvc-protection]
+Capacity:      100Gi
+Access Modes:  RWX
+VolumeMode:    Filesystem
+Used By:       image-registry-5b49fc8797-7m7d4
+               image-registry-5b49fc8797-mqmsp
+Events:
+  Type    Reason                 Age                From                                                                                            Message
+  ----    ------                 ----               ----                                                                                            -------
+  Normal  Provisioning           21m                csi.trident.netapp.io_trident-controller-7cb57b6f6d-vgf24_3b4a98db-5441-47a5-abfc-6e7ade299819  External provisioner is provisioning volume for claim "openshift-image-registry/image-registry-storage"
+  Normal  ExternalProvisioning   21m (x2 over 21m)  persistentvolume-controller                                                                     Waiting for a volume to be created either by the external provisioner 'csi.trident.netapp.io' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
+  Normal  ProvisioningSuccess    21m                csi.trident.netapp.io                                                                           provisioned a volume
+  Normal  ProvisioningSucceeded  21m                csi.trident.netapp.io_trident-controller-7cb57b6f6d-vgf24_3b4a98db-5441-47a5-abfc-6e7ade299819  Successfully provisioned volume pvc-766e03dc-d5e4-496f-9bd0-8b38905999dd
+hsuma@plnx-admin:~$
