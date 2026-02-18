@@ -1,0 +1,29 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 99-worker-mtu-9000
+  labels:
+    machineconfiguration.openshift.io/role: worker
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    systemd:
+      units:
+        - name: set-mtu-9000.service
+          enabled: true
+          contents: |
+            [Unit]
+            Description=Set MTU 9000 on network interfaces
+            After=NetworkManager.service openvswitch.service
+            Wants=NetworkManager.service openvswitch.service
+
+            [Service]
+            Type=oneshot
+            RemainAfterExit=yes
+            ExecStart=/usr/bin/bash -c '/usr/sbin/ip link set eno8303 mtu 9000 && /usr/bin/ovs-vsctl set int br-ex mtu_request=9000'
+            Restart=on-failure
+            RestartSec=10
+
+            [Install]
+            WantedBy=multi-user.target
