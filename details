@@ -1,0 +1,53 @@
+Host details
+UUID
+156a540b-d8d4-b1f7-ca59-e9982bd4f6d9
+Manufacturer
+Dell Inc.
+Product
+PowerEdge R760xa
+Serial number
+6RJWMD4
+Memory capacity
+2.00 TiB
+CPU model name
+INTEL(R) XEON(R) PLATINUM 8562Y+
+CPU cores and clock speed
+128 cores (hyper-threaded) at 4,100 MHz
+CPU architecture
+x86_64
+Hardware type
+Bare metal
+BMC address
+10.152.0.43
+Boot mode
+uefi
+4 Disks
+Name	Role	Limitations	Format?	Drive type	Size	Serial	Model	WWN 
+nvme0n1 (bootable)	Installation disk			SSD	480.04 GB	VN0WW56VFCV0059K01O1	Dell BOSS-N1	eui.0050436d05000001
+sda	
+None
+
+	SSD	0.00 B	1028_123456	Virtual_Floppy	
+sdb	
+None
+
+	SSD	26.88 TB	00794b860823400369004c7d8180e04e	RAID	0x6f4ee080817d4c006903402308864b79
+sr0 (bootable)	
+None
+
+	ODD	1.37 GB	1028_123456	Virtual_CD_DVD	
+NICs
+Name	MAC address	IPv4 address	IPv6 address	Speed
+eno12399np0	8c:84:74:c9:61:e0			N/A
+eno12409np1	8c:84:74:c9:61:e1			N/A
+eno8303	c8:4b:d6:f3:d8:40	10.172.248.153/24		1000 Mbps
+eno8403	c8:4b:d6:f3:d8:41			N/A
+ens8f0np0	7c:8c:09:c3:74:1e			40000 Mbps
+ens8f1np1	7c:8c:09:c3:74:1f			100000 Mbps
+GPUs
+Vendor	Vendor ID	Model	Device ID	Address
+NVIDIA Corporation	10de	GH100 [H100L 94GB]	2321	0000:4a:00.0
+NVIDIA Corporation	10de	GH100 [H100L 94GB]	2321	0000:61:00.0
+NVIDIA Corporation	10de	GH100 [H100L 94GB]	2321	0000:ca:00.0
+NVIDIA Corporation	10de	GH100 [H100L 94GB]	2321	0000:e1:00.0
+Matrox Electronics Systems Ltd.	102b	Integrated Matrox G200eW3 Graphics Controller	0536	0000:04:00.0
