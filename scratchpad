@@ -1897,3 +1897,20 @@ Port 2
 Port	Link Status	Link Speed	Protocol	Switch Connection ID	Switch Port Connection ID	CPU Affinity
 1	Up	100 Gbps	NIC,RDMA	48:80:02:e3:bd:98	Ethernet1/13	2
 2	Up	100 Gbps	NIC,RDMA	a0:bc:6f:d9:73:00	Ethernet1/13	2
+
+
+
+ NIC Slot 8: Mellanox ConnectX-6 Dx Dual Port 100 GbE QSFP56 Adapter - 7C:8C:09:C3:74:1E   
+Product Name	Mellanox ConnectX-6 Dx Dual Port 100 GbE QSFP56 Adapter - 7C:8C:09:C3:74:1E
+Vendor Name	Mellanox Technologies, Inc.
+Number of Ports	2
+SNAPI State	Disabled
+SNAPI Support	Available
+VPI Support	Not Available
+Summary
+Port 1
+Port 2
+ Refresh Connection View
+Port	Link Status	Link Speed	Protocol	Switch Connection ID	Switch Port Connection ID	CPU Affinity
+1	Up	40 Gbps	NIC,RDMA	a0:bc:6f:d9:72:fc	Ethernet1/12	2
+2	Up	100 Gbps	NIC,RDMA	48:80:02:e3:bd:94	Ethernet1/12	2
