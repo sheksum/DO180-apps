@@ -1946,3 +1946,13 @@ Hey Brian,
 FYI — NTP is configured and syncing on all OCP-AI nodes using time1.calix.local (10.168.21.1) and time2.calix.local (10.168.21.2).
 
 Not a blocker, but noticed those IPs also have a DNS entry under caal.dev (time1.caal.dev resolves to the same IP). Just a cosmetic thing if anyone ever wants to clean that up in AD DNS.
+
+
+
+Hi Haj,
+
+Thanks for the MAC details. As verified, these are connected to the switch but no configuration has been pushed from it. Could you please confirm if VLANs 1792-1794, 1796-1798, and 1510 should be allowed on these ports? Also, should all 4 ports be on a single LAG or do you want 2 LAGs?
+
+Best regards,
+
+Chetan
