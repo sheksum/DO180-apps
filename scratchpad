@@ -1956,3 +1956,24 @@ Thanks for the MAC details. As verified, these are connected to the switch but n
 Best regards,
 
 Chetan
+
+
+
+
+Subject: Re: GPU Worker NIC Migration — 1G to 100GbE
+
+Hey Chetan,
+
+Yes — go ahead and allow VLANs 1510, 1792, 1793, 1794, 1796, 1797, and 1798 on all four ports. VLAN 1510 as native/untagged, the rest tagged.
+
+For LAG — 2 separate LAGs, one per server:
+- LAG 1: gpu01 Port 1 + Port 2
+- LAG 2: gpu02 Port 1 + Port 2
+
+LACP (802.3ad) on both. MTU 9216 on all ports.
+
+For the gpu01 Port 1 40Gbps issue — it needs to be connected to a 100G transceiver.
+
+Let me know once everything is configured and I'll start on the OS side.
+
+Thanks!
