@@ -2033,3 +2033,13 @@ hint: to the same ref. You may want to first integrate the remote changes
 hint: (e.g., 'git pull ...') before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
+oc -n openshift-gitops create secret generic repo-ocp-ai-platform \
+  --from-literal=url=git@bitbucket.org:calixprod/ocp-ai-platform.git \
+  --from-file=sshPrivateKey=$HOME/.ssh/argocd-deploy-key \
+  --from-literal=type=git \
+  --from-literal=insecure=false
+
+oc -n openshift-gitops label secret repo-ocp-ai-platform argocd.argoproj.io/secret-type=repository
