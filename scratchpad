@@ -1856,3 +1856,27 @@ Sure @Chetan Kudari, I would suggest you check, those MAC addresses may already 
 @Haj Suma I thought the Dell systems may have a dual port NIC (100Gbps).  Can we set up a redundant connection for these?
  
 Ideally we would have a meshed connectivity for 100G from the Dell servers to both Leaf 5 and Leaf 6 so we could have redundancy and auto failover, or something like that.  We should try and make that work if we have the ports and interfaces.
+
+
+
+
+Hey Brian,
+
+Yes — each Dell server has a dual-port Mellanox ConnectX-6 Dx in Slot 8. Both ports are cabled and showing UP:
+
+- Port 1 (ens8f0np0): 40GbE
+- Port 2 (ens8f1np1): 100GbE
+
+I can set up redundancy with an active-backup bond on the OS side across both ports. If Chetan can get each port connected to a different leaf (one on Leaf-5, one on Leaf-6), we'll have automatic failover if either link or switch goes down.
+
+MACs for both servers:
+
+gpu01:
+- Port 1: 7C:8C:09:C3:74:1E
+- Port 2: 7C:8C:09:C3:74:1F
+
+gpu02:
+- Port 1: need to confirm from iDRAC
+- Port 2: 7C:8C:09:C3:79:87
+
+@Chetan can you check what each port is connected to and whether we can get one port on Leaf-5 and the other on Leaf-6? Both ports need VLAN 1510 (native/untagged) and MTU 9216.
