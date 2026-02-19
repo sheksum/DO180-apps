@@ -1847,3 +1847,12 @@ EOF
 
 
 ssh -i ~/.ssh/ocp-ai core@10.172.248.150 chronyc sources
+
+
+
+
+Sure @Chetan Kudari, I would suggest you check, those MAC addresses may already be connected.  But we should ensure they are.
+ 
+@Haj Suma I thought the Dell systems may have a dual port NIC (100Gbps).  Can we set up a redundant connection for these?
+ 
+Ideally we would have a meshed connectivity for 100G from the Dell servers to both Leaf 5 and Leaf 6 so we could have redundancy and auto failover, or something like that.  We should try and make that work if we have the ports and interfaces.
