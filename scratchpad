@@ -200,3 +200,13 @@ Events:
   ----     ------         ----               ----                         -------
   Warning  ErrInitIssuer  39s (x4 over 64s)  cert-manager-clusterissuers  Error initializing issuer: while requesting a Vault token using the Kubernetes auth: error calling Vault server: Post "https://plnx-vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login": tls: failed to verify certificate: x509: certificate signed by unknown authority (possibly because of "x509: invalid signature: parent certificate cannot sign this kind of certificate" while trying to verify candidate authority certificate "plnx-vault.calix.local")
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
+
+openssl req -x509 -newkey rsa:4096 -sha256 -days 365 \
+  -nodes -keyout /opt/vault/tls/tls.key \
+  -out /opt/vault/tls/tls.crt \
+  -subj "/CN=plnx-vault.calix.local" \
+  -addext "subjectAltName=DNS:plnx-vault.calix.local" \
+  -addext "basicConstraints=critical,CA:TRUE"
