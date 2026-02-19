@@ -134,6 +134,16 @@ spec:
           name: vault-auth
 EOF
 
-
+  Conditions:
+    Last Transition Time:  2026-02-19T21:06:58Z
+    Message:               Failed to initialize Vault client: while requesting a Vault token using the Kubernetes auth: while requesting a token for the service account /vault-auth: serviceaccounts "vault-auth" is forbidden: User "system:serviceaccount:cert-manager:cert-manager" cannot create resource "serviceaccounts/token" in API group "" in the namespace "cert-manager"
+    Observed Generation:   1
+    Reason:                VaultError
+    Status:                False
+    Type:                  Ready
+Events:
+  Type     Reason         Age               From                         Message
+  ----     ------         ----              ----                         -------
+  Warning  ErrInitIssuer  9s (x5 over 74s)  cert-manager-clusterissuers  Error initializing issuer: while requesting a Vault token using the Kubernetes auth: while requesting a token for the service account /vault-auth: serviceaccounts "vault-auth" is forbidden: User "system:serviceaccount:cert-manager:cert-manager" cannot create resource "serviceaccounts/token" in API group "" in the namespace "cert-manager"
 
 
