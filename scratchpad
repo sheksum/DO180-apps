@@ -2043,3 +2043,25 @@ oc -n openshift-gitops create secret generic repo-ocp-ai-platform \
   --from-literal=insecure=false
 
 oc -n openshift-gitops label secret repo-ocp-ai-platform argocd.argoproj.io/secret-type=repository
+
+
+
+cat > apps/root-app.yaml << 'EOF'
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ocp-ai-platform
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: apps
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+EOF
