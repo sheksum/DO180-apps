@@ -1797,3 +1797,53 @@ Here are the Mellanox Port 2 MACs:
 - gpu02 (ens8f1np1): 7C:8C:09:C3:79:87
 
 Let me know when you can get to this and I'll coordinate the cutover on our side.
+
+
+
+
+
+cat <<'EOF' | oc apply -f -
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 99-master-chrony
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+      - contents:
+          source: data:text/plain;charset=utf-8;base64,c2VydmVyIHRpbWUxLmNhbGl4LmxvY2FsIGlidXJzdApzZXJ2ZXIgdGltZTIuY2FsaXgubG9jYWwgaWJ1cnN0CmRyaWZ0ZmlsZSAvdmFyL2xpYi9jaHJvbnkvZHJpZnQKbWFrZXN0ZXAgMS4wIDMKcnRjc3luYwpsb2dkaXIgL3Zhci9sb2cvY2hyb255Cg==
+        mode: 0644
+        overwrite: true
+        path: /etc/chrony.conf
+EOF
+
+
+
+
+cat <<'EOF' | oc apply -f -
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-chrony
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+      - contents:
+          source: data:text/plain;charset=utf-8;base64,c2VydmVyIHRpbWUxLmNhbGl4LmxvY2FsIGlidXJzdApzZXJ2ZXIgdGltZTIuY2FsaXgubG9jYWwgaWJ1cnN0CmRyaWZ0ZmlsZSAvdmFyL2xpYi9jaHJvbnkvZHJpZnQKbWFrZXN0ZXAgMS4wIDMKcnRjc3luYwpsb2dkaXIgL3Zhci9sb2cvY2hyb255Cg==
+        mode: 0644
+        overwrite: true
+        path: /etc/chrony.conf
+EOF
+
+
+ssh -i ~/.ssh/ocp-ai core@10.172.248.150 chronyc sources
