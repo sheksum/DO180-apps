@@ -552,3 +552,17 @@ Thanks.
  
 Best,
 Kishore Kumar AJ
+
+
+
+Hi Kishore,
+
+Thanks for checking in. At this point, no tasks have been assigned to Vinoth. The core infrastructure build (cluster deployment, storage networking, GPU integration, Trident CSI, image registry) has been completed and is well underway.
+
+The remaining work involves tightly integrated configuration tasks that require deep context of the environment and decisions made during the build. I want to make sure we maintain consistency and avoid any rework.
+
+That said, I'd welcome support in areas where clear, well-scoped tasks can be carved out. Once we get past the current phase, there will be opportunities around monitoring dashboards, logging configuration, and documentation that would be good candidates.
+
+I'll keep you posted as those open up.
+
+Thanks!
