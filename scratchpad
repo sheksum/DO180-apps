@@ -52,3 +52,22 @@ vault write auth/kubernetes-ocp-ai/config \
   kubernetes_host="https://api.ocp-ai.calix.local:6443" \
   kubernetes_ca_cert=@/tmp/ocp-ai-k8s-ca.crt \
   token_reviewer_jwt="PASTE_TOKEN_HERE"
+
+
+
+vault policy write ocp-ai-cert-manager - <<EOF
+path "pki_int/issue/ocp-ai" {
+  capabilities = ["create", "update"]
+}
+path "pki_int/sign/ocp-ai" {
+  capabilities = ["create", "update"]
+}
+EOF
+
+
+
+vault write auth/kubernetes-ocp-ai/role/cert-manager \
+  bound_service_account_names=vault-auth \
+  bound_service_account_namespaces=cert-manager \
+  policies=ocp-ai-cert-manager \
+  ttl=1h
