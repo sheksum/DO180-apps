@@ -1914,3 +1914,24 @@ Port 2
 Port	Link Status	Link Speed	Protocol	Switch Connection ID	Switch Port Connection ID	CPU Affinity
 1	Up	40 Gbps	NIC,RDMA	a0:bc:6f:d9:72:fc	Ethernet1/12	2
 2	Up	100 Gbps	NIC,RDMA	48:80:02:e3:bd:94	Ethernet1/12	2
+
+
+
+
+Hey Brian,
+
+Confirmed from iDRAC — each Dell server has a dual-port Mellanox ConnectX-6 Dx 100GbE in Slot 8. Both ports are UP and already connected to two different switches, so we have the physical redundancy in place. I can set up an active-backup bond on the OS side for automatic failover.
+
+gpu01:
+- Port 1: 7C:8C:09:C3:74:1E — 40Gbps — switch a0:bc:6f:d9:72:fc Eth1/12
+- Port 2: 7C:8C:09:C3:74:1F — 100Gbps — switch 48:80:02:e3:bd:94 Eth1/12
+
+gpu02:
+- Port 1: 7C:8C:09:C3:79:86 — 100Gbps — switch 48:80:02:e3:bd:98 Eth1/13
+- Port 2: 7C:8C:09:C3:79:87 — 100Gbps — switch a0:bc:6f:d9:73:00 Eth1/13
+
+Note: gpu01 Port 1 is negotiating at 40Gbps instead of 100Gbps — may be a cable or switch port config issue.
+
+@Chetan can you configure VLAN 1510 (native/untagged) and MTU 9216 on all four ports above? Also can you check why gpu01 Port 1 is at 40Gbps instead of 100Gbps?
+
+Thanks!
