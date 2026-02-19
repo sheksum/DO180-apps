@@ -31,3 +31,17 @@ vault write pki_int/roles/ocp-ai \
 vault write pki_int/issue/ocp-ai \
   common_name="test.ocp-ai.calix.local" \
   ttl=24h
+
+
+# Get the API server URL
+oc cluster-info | grep "Kubernetes control plane"
+
+# Get the CA cert
+oc get configmap kube-root-ca.crt -n openshift-gitops -o jsonpath='{.data.ca\.crt}' > /tmp/k8s-ca.crt
+
+# Create a service account for Vault auth
+oc create sa vault-auth -n cert-manager
+oc adm policy add-cluster-role-to-user system:auth-delegator -z vault-auth -n cert-manager
+
+# Get the SA token
+oc create token vault-auth -n cert-manager --duration=87600h
