@@ -45,3 +45,21 @@ oc adm policy add-cluster-role-to-user system:auth-delegator -z vault-auth -n ce
 
 # Get the SA token
 oc create token vault-auth -n cert-manager --duration=87600h
+
+
+
+[root@plnx-vault ~]# vault read auth/kubernetes/config
+Key                                  Value
+---                                  -----
+disable_iss_validation               true
+disable_local_ca_jwt                 false
+issuer                               n/a
+kubernetes_ca_cert                   -----BEGIN CERTIFICATE-----
+MIIBejCCAR+gAwIBAgIBADAKBggqhkjOPQQDAjAkMSIwIAYDVQQDDBlya2UyLXNl cnZlci1jYUAxNzUzNzU2NDI5MB4XDTI1MDcyOTAyMzM0OVoXDTM1MDcyNzAyMzM0 OVowJDEiMCAGA1UEAwwZcmtlMi1zZXJ2ZXItY2FAMTc1Mzc1NjQyOTBZMBMGByqG SM49AgEGCCqGSM49AwEHA0IABCRXBINMz0JPfpLCqfw2XtFRElyRO1PUhy2BloOa 3dLszJ4WVmeXcYEqN0Uneq84jM9gXkuIdydDK6fHI79Xu5ajQjBAMA4GA1UdDwEB /wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTezOHXA4jcuWRNWerD D9cO6oGXYTAKBggqhkjOPQQDAgNJADBGAiEAjqxsXaDEvh6KePHJmjv9tFHim5bN eSLpwuhuujtZ3SACIQDCLPFF5bus14ncvWWNMX34we9C/XQhy7xtDV5sjwnmbQ==
+-----END CERTIFICATE-----
+kubernetes_host                      10.172.249.105:6443
+pem_keys                             []
+token_reviewer_jwt_set               true
+use_annotations_as_alias_metadata    false
+[root@plnx-vault ~]#
+
