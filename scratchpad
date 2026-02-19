@@ -186,3 +186,17 @@ Events:
   ----     ------         ----               ----                         -------
   Warning  ErrInitIssuer  39s (x4 over 64s)  cert-manager-clusterissuers  Error initializing issuer: while requesting a Vault token using the Kubernetes auth: error calling Vault server: Post "https://plnx-vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login": tls: failed to verify certificate: x509: certificate signed by unknown authority (possibly because of "x509: invalid signature: parent certificate cannot sign this kind of certificate" while trying to verify candidate authority certificate "plnx-vault.calix.local")
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
+    Last Transition Time:  2026-02-19T21:11:27Z
+    Message:               Failed to initialize Vault client: while requesting a Vault token using the Kubernetes auth: error calling Vault server: Post "https://plnx-vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login": tls: failed to verify certificate: x509: certificate signed by unknown authority (possibly because of "x509: invalid signature: parent certificate cannot sign this kind of certificate" while trying to verify candidate authority certificate "plnx-vault.calix.local")
+    Observed Generation:   1
+    Reason:                VaultError
+    Status:                False
+    Type:                  Ready
+Events:
+  Type     Reason         Age                From                         Message
+  ----     ------         ----               ----                         -------
+  Warning  ErrInitIssuer  39s (x4 over 64s)  cert-manager-clusterissuers  Error initializing issuer: while requesting a Vault token using the Kubernetes auth: error calling Vault server: Post "https://plnx-vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login": tls: failed to verify certificate: x509: certificate signed by unknown authority (possibly because of "x509: invalid signature: parent certificate cannot sign this kind of certificate" while trying to verify candidate authority certificate "plnx-vault.calix.local")
+hsuma@plnx-admin:~/ocp-ai-config$
