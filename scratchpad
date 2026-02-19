@@ -230,3 +230,23 @@ spec:
         serviceAccountRef:
           name: vault-auth
 EOF
+
+
+
+
+
+cat <<'EOF' | oc apply -f -
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: test-cert
+  namespace: default
+spec:
+  secretName: test-cert-tls
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+  commonName: test.ocp-ai.calix.local
+  dnsNames:
+    - test.ocp-ai.calix.local
+EOF
