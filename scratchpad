@@ -2018,3 +2018,18 @@ hsuma@plnx-admin:~/ocp-ai-config$ git push -u origin main
 error: src refspec main does not match any
 error: failed to push some refs to 'bitbucket.org:calixprod/ocp-ai-platform.git'
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
+hsuma@plnx-admin:~/ocp-ai-config$ git push -u origin main
+Enter passphrase for key '/home/hsuma/.ssh/id_ed25519':
+Enter passphrase for key '/home/hsuma/.ssh/id_ed25519':
+To bitbucket.org:calixprod/ocp-ai-platform.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'bitbucket.org:calixprod/ocp-ai-platform.git'
+hint: Updates were rejected because the remote contains work that you do
+hint: not have locally. This is usually caused by another repository pushing
+hint: to the same ref. You may want to first integrate the remote changes
+hint: (e.g., 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+hsuma@plnx-admin:~/ocp-ai-config$
