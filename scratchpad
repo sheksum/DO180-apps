@@ -566,3 +566,44 @@ That said, I'd welcome support in areas where clear, well-scoped tasks can be ca
 I'll keep you posted as those open up.
 
 Thanks!
+
+
+ [core@ocp-ai-master02 ~]$
+[core@ocp-ai-master02 ~]$ ip link show eno7
+4: eno7: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 9000 qdisc mq master bnd0 state UP mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:50:0a:67 brd ff:ff:ff:ff:ff:ff
+    altname enp27s0f2
+    altname ens7f2
+---
+[systemd]
+Failed Units: 1
+  NetworkManager-wait-online.service
+[core@ocp-ai-master03 ~]$ ip link show eno7
+4: eno7: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 9000 qdisc mq master bnd0 state UP mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:50:0a:69 brd ff:ff:ff:ff:ff:ff
+    altname enp27s0f2
+    altname ens7f2
+
+
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.154
+Red Hat Enterprise Linux CoreOS 9.6.20260128-1
+  Part of OpenShift 4.20, RHCOS is a Kubernetes-native operating system
+  managed by the Machine Config Operator (`clusteroperator/machine-config`).
+
+
+
+---
+
+[core@ocp-ai-gpu02 ~]$ ip link show eno8303
+2: eno8303: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc mq master ovs-system state UP mode DEFAULT group default qlen 1000
+    link/ether c8:4b:d6:f3:d8:22 brd ff:ff:ff:ff:ff:ff
+    altname enp2s0f0
+[core@ocp-ai-gpu02 ~]$
+[core@ocp-ai-gpu02 ~]$ ip link show ens8f1np1
+7: ens8f1np1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 7c:8c:09:c3:79:87 brd ff:ff:ff:ff:ff:ff
+    altname enp160s0f1np1
+
+[core@ocp-ai-gpu02 ~]$ sudo cat /sys/class/dmi/id/product_serial
+7RJWMD4
+[core@ocp-ai-gpu02 ~]$
