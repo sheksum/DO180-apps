@@ -147,3 +147,29 @@ Events:
   Warning  ErrInitIssuer  9s (x5 over 74s)  cert-manager-clusterissuers  Error initializing issuer: while requesting a Vault token using the Kubernetes auth: while requesting a token for the service account /vault-auth: serviceaccounts "vault-auth" is forbidden: User "system:serviceaccount:cert-manager:cert-manager" cannot create resource "serviceaccounts/token" in API group "" in the namespace "cert-manager"
 
 
+
+
+
+cat <<'EOF' | oc apply -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cert-manager-vault-tokenrequest
+rules:
+- apiGroups: [""]
+  resources: ["serviceaccounts/token"]
+  verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-vault-tokenrequest
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-vault-tokenrequest
+subjects:
+- kind: ServiceAccount
+  name: cert-manager
+  namespace: cert-manager
+EOF
