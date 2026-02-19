@@ -1938,3 +1938,11 @@ Thanks!
 
 
 I thought that might be the case.  Work with @Chetan Kudari to define what kind of redundancy you can establish, like an LACP or some other protocol of LAG.  The nexus should probably be able to support anything the Linux OS can do.
+
+
+
+Hey Brian,
+
+FYI — NTP is configured and syncing on all OCP-AI nodes using time1.calix.local (10.168.21.1) and time2.calix.local (10.168.21.2).
+
+Not a blocker, but noticed those IPs also have a DNS entry under caal.dev (time1.caal.dev resolves to the same IP). Just a cosmetic thing if anyone ever wants to clean that up in AD DNS.
