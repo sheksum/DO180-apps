@@ -1977,3 +1977,38 @@ For the gpu01 Port 1 40Gbps issue — it needs to be connected to a 100G transce
 Let me know once everything is configured and I'll start on the OS side.
 
 Thanks!
+
+
+cat <<'EOF' | oc apply -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-rw
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: netapp-app
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-rw-pod
+  namespace: default
+spec:
+  containers:
+  - name: test
+    image: busybox
+    command: ["sh", "-c", "echo 'write test ok' > /mnt/testfile && cat /mnt/testfile && sleep 10"]
+    volumeMounts:
+    - name: testvol
+      mountPath: /mnt
+  restartPolicy: Never
+  volumes:
+  - name: testvol
+    persistentVolumeClaim:
+      claimName: test-rw
+EOF
