@@ -16,24 +16,18 @@ vault write -format=json pki_root/root/sign-intermediate \
 vault write pki_int/intermediate/set-signed certificate=@/tmp/signed-intermediate.pem
 
 
-root@plnx-vault ~]#
-[root@plnx-vault ~]# vault write -format=json pki_root/root/sign-intermediate \
-  csr=@/tmp/ocp-ai-intermediate.csr \
-  format=pem_bundle \
-  ttl=43800h | jq -r '.data.certificate' > /tmp/signed-intermediate.pem
-[root@plnx-vault ~]# vault write pki_int/intermediate/set-signed certificate=@/tmp/signed-intermediate.pem
-WARNING! The following warnings were returned from Vault:
+vault write pki_int/config/urls \
+  issuing_certificates="https://plnx-vault.calix.local:8200/v1/pki_int/ca" \
+  crl_distribution_points="https://plnx-vault.calix.local:8200/v1/pki_int/crl"
 
-  * This mount hasn't configured any authority information access (AIA)
-  fields; this may make it harder for systems to find missing certificates
-  in the chain or to validate revocation status of certificates. Consider
-  updating /config/urls or the newly generated issuer with this information.
 
-Key                 Value
----                 -----
-existing_issuers    <nil>
-existing_keys       <nil>
-imported_issuers    [a4799ae0-b0ed-c853-e1fa-a3135340090a b402d59f-cf38-651b-81ec-3fd840b36a12]
-imported_keys       <nil>
-mapping             map[a4799ae0-b0ed-c853-e1fa-a3135340090a:05f1a2e0-20b9-89bb-8d06-ee0bb9769ea1 b402d59f-cf38-651b-81ec-3fd840b36a12:]
-[root@plnx-vault ~]#
+vault write pki_int/roles/ocp-ai \
+  allowed_domains="calix.local" \
+  allow_subdomains=true \
+  allow_wildcard_certificates=true \
+  max_ttl=8760h
+
+
+vault write pki_int/issue/ocp-ai \
+  common_name="test.ocp-ai.calix.local" \
+  ttl=24h
