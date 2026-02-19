@@ -2012,3 +2012,9 @@ spec:
     persistentVolumeClaim:
       claimName: test-rw
 EOF
+
+
+hsuma@plnx-admin:~/ocp-ai-config$ git push -u origin main
+error: src refspec main does not match any
+error: failed to push some refs to 'bitbucket.org:calixprod/ocp-ai-platform.git'
+hsuma@plnx-admin:~/ocp-ai-config$
