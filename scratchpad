@@ -1880,3 +1880,20 @@ gpu02:
 - Port 2: 7C:8C:09:C3:79:87
 
 @Chetan can you check what each port is connected to and whether we can get one port on Leaf-5 and the other on Leaf-6? Both ports need VLAN 1510 (native/untagged) and MTU 9216.
+
+
+
+NIC Slot 8: Mellanox ConnectX-6 Dx Dual Port 100 GbE QSFP56 Adapter - 7C:8C:09:C3:79:86   
+Product Name	Mellanox ConnectX-6 Dx Dual Port 100 GbE QSFP56 Adapter - 7C:8C:09:C3:79:86
+Vendor Name	Mellanox Technologies, Inc.
+Number of Ports	2
+SNAPI State	Disabled
+SNAPI Support	Available
+VPI Support	Not Available
+Summary
+Port 1
+Port 2
+ Refresh Connection View
+Port	Link Status	Link Speed	Protocol	Switch Connection ID	Switch Port Connection ID	CPU Affinity
+1	Up	100 Gbps	NIC,RDMA	48:80:02:e3:bd:98	Ethernet1/13	2
+2	Up	100 Gbps	NIC,RDMA	a0:bc:6f:d9:73:00	Ethernet1/13	2
