@@ -1779,3 +1779,21 @@ I've already gathered and documented all the network, IP, and NetApp details (su
 - Validate all entries with me
 
 Estimated duration: 1 week
+
+
+
+
+Hey Chetan,
+
+The GPU workers (ocp-ai-gpu01/gpu02) are currently running on the 1Gbps Broadcom NIC (eno8303). We need to migrate them to the Mellanox ConnectX-6 100GbE NIC for better throughput.
+
+Can you configure the following on the Mellanox switch ports for both Dell servers?
+
+- VLAN 1510 (native/untagged)
+- MTU 9216
+
+Here are the Mellanox Port 2 MACs:
+- gpu01 (ens8f1np1): 7C:8C:09:C3:74:1F
+- gpu02 (ens8f1np1): 7C:8C:09:C3:79:87
+
+Let me know when you can get to this and I'll coordinate the cutover on our side.
