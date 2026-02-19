@@ -518,3 +518,13 @@ To: Haj Suma <haj.suma@calix.com>, Deonna Thornton <deonna.thornton@calix.com>
 Subject: RE: CSR Signing Request - OCP-AI Vault Intermediate CA
 
 oK, I do understand.  Let’s still connect, IT will need a good “explaining to” to understand the request.  Are you blocked at this point?
+
+
+Hi Haj - I will respond to you with other details by Friday but like to call out that please do not setup pgVector. 
+We don’t use pgVector instead we use milvus as our vector store. 
+
+Thank you for support in setting the infrastructure.
+
+Best Regards,
+Sulabh Sinha
+M: 669-660-1974
