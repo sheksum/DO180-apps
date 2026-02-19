@@ -1935,3 +1935,6 @@ Note: gpu01 Port 1 is negotiating at 40Gbps instead of 100Gbps — may be a cabl
 @Chetan can you configure VLAN 1510 (native/untagged) and MTU 9216 on all four ports above? Also can you check why gpu01 Port 1 is at 40Gbps instead of 100Gbps?
 
 Thanks!
+
+
+I thought that might be the case.  Work with @Chetan Kudari to define what kind of redundancy you can establish, like an LACP or some other protocol of LAG.  The nexus should probably be able to support anything the Linux OS can do.
