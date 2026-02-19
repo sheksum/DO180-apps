@@ -111,3 +111,6 @@ EOF
 
 The ClusterIssuer "vault-issuer" is invalid: spec.vault.caBundle: Invalid value: "": spec.vault.caBundle in body must be of type byte: ""
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+echo | openssl s_client -connect plnx-vault.calix.local:8200 2>/dev/null | openssl x509 -outform PEM | base64 -w0
