@@ -107,3 +107,7 @@ spec:
         serviceAccountRef:
           name: vault-auth
 EOF
+
+
+The ClusterIssuer "vault-issuer" is invalid: spec.vault.caBundle: Invalid value: "": spec.vault.caBundle in body must be of type byte: ""
+hsuma@plnx-admin:~/ocp-ai-config$
