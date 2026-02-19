@@ -1760,3 +1760,22 @@ Haj
  Pending 
 
 Trial expires ~April 12 
+
+
+
+
+
+Hi Kishore,
+
+Thanks for checking in. The core infrastructure build (cluster deployment, storage networking, GPU integration, Trident CSI, image registry) has been completed and is well underway. The remaining work involves tightly integrated configuration tasks that require deep context of the environment and decisions made during the build. I want to make sure we maintain consistency and avoid any rework. That said, I'd welcome support in areas where clear, well-scoped tasks can be carved out.
+
+I've assigned Vinoth to Task 15: NetBox IPAM — OCP-AI Infrastructure Documentation.
+
+I've already gathered and documented all the network, IP, and NetApp details (subtasks 15.1–15.3). His scope is:
+
+- Enter all data into the existing NetBox instance
+- Document rack layouts and hardware inventory
+- Document switch port mappings and cable connections (coordinate with Chetan/Gowtham)
+- Validate all entries with me
+
+Estimated duration: 1 week
