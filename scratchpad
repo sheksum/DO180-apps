@@ -1,3 +1,7 @@
+This diagram represents the production architecture for the OCP-AI platform running on bare-metal OpenShift 4.20.13 with NetApp AFF storage. It shows how compute (3 UCS-X control plane + 2 Dell GPU workers), networking, storage, and platform services are structured. The overview diagram maps directly to the task tracker. Detailed reference with all IPs, MACs, and credentials follows below.
+
+
+
 ```
 ══════════════════════════════════════════════════════════════
  OCP-AI PLATFORM — ARCHITECTURE OVERVIEW
