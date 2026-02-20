@@ -1,0 +1,24 @@
+Task 6 — Ingress/LB → March 7
+Going with MetalLB L2 mode. Native OCP operator, no external dependencies. IP pools from VLAN 1510. Depends on Task 14 (TLS) completing first.
+Task 7 — Auth/RBAC → March 7
+Configure IPA as LDAP identity provider. Define RBAC for admin/dev/ops roles. Create dev/test/prod namespaces. Apply quotas, limits, network policies. Okta as secondary IdP is pending manager decision but does not block phase 1.
+Task 8 — GPU Operator → Feb 23
+90% done. Only remaining item is applying taints/tolerations (nvidia.com/gpu=true:NoSchedule) to gpu01/gpu02. NFD, GPU Operator, ClusterPolicy, and nvidia-smi validation are all complete.
+Task 9 — GitOps → Feb 28
+50% done. ArgoCD installed and connected to Bitbucket via SSH deploy key. App-of-Apps root application deployed. Remaining: configure ArgoCD RBAC, create Application manifests per folder (nmstate, trident, machineconfigs) to enable drift protection, validate sync and rollback.
+Task 10 — Backup/DR → March 12
+Install OADP (Velero). Configure backup storage location. Define backup schedules. Configure etcd backup automation. Test restore of sample namespace.
+Task 11 — E2E Validation → March 17
+Deploy sample AI workload using GPU + NetApp storage. Validate deployment via GitOps. Validate dev/test/prod namespace isolation. Validate backup and restore. Final gate before shakeout — needs Tasks 6, 7, 8, 9, 10, 16 complete.
+Task 12 — Monitoring → March 20
+Hardening phase. Configure persistent storage for monitoring stack. Define retention policies. Create custom alert rules. Build dashboards for GPU utilization, storage, and cluster health.
+Task 13 — Logging → March 20
+Hardening phase. Deploy logging stack. Configure persistent storage. Define retention policies. Configure log forwarding.
+Task 14 — TLS / Vault PKI → Feb 25
+90% done. Full PKI chain working with self-signed root CA. Remaining: replace default certs on API, console, and ingress routes using vault-issuer. Calix CA swap pending Brian/IT signing the intermediate CSR — not blocking, self-signed is functional.
+Task 15 — NetBox IPAM → March 14 (Vinoth)
+Assigned to Vinoth. Data gathered for VLANs, subnets, node IPs, NetApp details. Needs to be entered into NetBox. Rack layouts and switch port mappings still open — requires coordination with Chetan/Gowtham.
+Task 16 — AI Platform Services → March 14
+Deploy MinIO (S3 object storage, NetApp backed), Milvus (vector database), CNPG (PostgreSQL). ML platform, notebooks, and model serving TBD — waiting on Sulabh for GCP stack details.
+GPU NIC Migration → March 4
+Blocked on Chetan completing LACP LAG + VLAN config on Leaf-5/6 for Mellanox ports. Once switch side is done: create NMState NNCPs for GPU workers with LACP bond + VLAN subinterfaces, migrate management from Broadcom 1G to Mellanox 100G bond. Unblocks direct storage VLAN access for GPU workers.​​​​​​​​​​​​​​​​
