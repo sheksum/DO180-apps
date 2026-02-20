@@ -1,0 +1,6 @@
+Task 8 — GPU Operator → Feb 23
+NFD, NVIDIA GPU Operator, and ClusterPolicy deployed. 8x H100L detected and validated with nvidia-smi. Pending: apply taints/tolerations (nvidia.com/gpu=true:NoSchedule) to gpu01/gpu02 so non-GPU workloads don’t schedule on GPU nodes.
+Task 9 — GitOps → Feb 28
+ArgoCD installed, connected to Bitbucket via SSH deploy key (argocd-ocp-ai). App-of-Apps root application deployed with selfHeal enabled. Pending: configure ArgoCD RBAC, create Application manifests per folder (nmstate, trident, machineconfigs) to enable drift protection, validate sync and rollback.
+Task 14 — TLS / Vault PKI → Feb 25
+cert-manager installed. Vault PKI chain operational — self-signed root CA (pki_root) signed intermediate (pki_int), PKI role ocp-ai configured, kubernetes-ocp-ai auth path created, ClusterIssuer vault-issuer is Ready, test cert issued successfully. Pending: replace default certs on API, console, and ingress routes using vault-issuer. Calix CA swap pending Brian/IT signing the intermediate CSR — not blocking, self-signed is functional.​​​​​​​​​​​​​​​​
