@@ -250,3 +250,276 @@ spec:
   dnsNames:
     - test.ocp-ai.calix.local
 EOF
+
+
+
+
+
+# OCP-AI Platform Build — Task Tracker
+
+**Last updated:** Feb 19, 2026
+
+---
+
+## TASK 1: OpenShift Installation — COMPLETE
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 1.1 | Generate discovery ISO (OCP 4.20.13, full image) | Done |
+| 1.2 | Configure vMedia (KVM for UCS-X, iDRAC for Dell) | Done |
+| 1.3 | Boot nodes and assign roles | Done |
+| 1.4 | Complete installation and bootstrap | Done |
+| 1.5 | Validate all nodes Ready and operators healthy | Done |
+| 1.6 | Configure kubeadmin and oc CLI on plnx-admin | Done |
+| 1.7 | Configure NTP (time1/time2.calix.local via MachineConfig chrony) | Done |
+
+---
+
+## TASK 2: Dell GPU Server Setup — COMPLETE
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 2.1 | VLAN 1510 on Leaf-3 switch | Done |
+| 2.2 | Boot discovery ISO, register hosts | Done |
+| 2.3 | Set hostnames and roles (gpu01/gpu02 as Worker) | Done |
+| 2.4 | Install CoreOS and join cluster | Done |
+| 2.5 | Approve worker CSRs | Done |
+| 2.6 | Resolve MTU mismatch (1500 vs 8958 overlay) | Done |
+
+Per server: 4x H100L 94GB, 128 cores Xeon 8562Y+, 2 TiB RAM, 480 GB NVMe boot, 26.88 TB RAID, Mellanox ConnectX-6 Dx 100GbE
+
+---
+
+## TASK 3: Storage Networking — COMPLETE
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 3.1 | NMState NNCPs with bond (bnd0 = eno7 + eno8 active-backup) | Done |
+| 3.2 | Configure 6 storage VLANs (1792-1798) | Done |
+| 3.3 | Assign IPs and set MTU 9000 | Done |
+| 3.4 | Validate jumbo frames to NetApp LIFs | Done |
+
+---
+
+## TASK 4: NetApp Trident CSI — COMPLETE
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 4.1 | Install Trident operator | Done |
+| 4.2 | Create backends (infra + app SVMs) | Done |
+| 4.3 | Create StorageClasses (netapp-infra, netapp-app) | Done |
+| 4.4 | Validate PVC creation | Done |
+| 4.5 | Validate read/write from pod mount | Done |
+| 4.6 | Migrate to SVM mgmt LIFs and vsadmin creds | Done |
+| 4.7 | Assign aggregates to SVMs | Done |
+
+---
+
+## TASK 5: Internal Image Registry — COMPLETE
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 5.1 | Enable registry (Managed, 2 replicas) | Done |
+| 5.2 | Back with NetApp (100Gi PVC, netapp-infra) | Done |
+| 5.3 | Validate image push/pull | Done |
+| 5.4 | Pin to master nodes (nodeSelector) | Done |
+| 5.5 | Enable default route + 600s timeout | Done |
+
+Registry on masters only.
+
+---
+
+## TASK 6: Ingress and Load Balancing — NOT STARTED
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 6.1 | Deploy MetalLB or configure F5 | Open |
+| 6.2 | Define IP pools and ingress config | Open |
+| 6.3 | Configure DNS wildcard records | Open |
+| 6.4 | Configure TLS certificates | Open |
+| 6.5 | Validate external access | Open |
+
+---
+
+## TASK 7: Authentication and RBAC — NOT STARTED
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 7.1 | Configure IPA/LDAP identity provider | Open |
+| 7.2 | Define RBAC for admin, dev, ops roles | Open |
+| 7.3 | Create dev/test/prod namespaces | Open |
+| 7.4 | Apply quotas, limits, network policies | Open |
+| 7.5 | Add Okta as secondary IdP (if approved) | Pending |
+
+---
+
+## TASK 8: GPU Operator and Scheduling — IN PROGRESS
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 8.1 | Install Node Feature Discovery (Red Hat) | Done |
+| 8.2 | Install NVIDIA GPU Operator | Done |
+| 8.3 | Create ClusterPolicy | Done |
+| 8.4 | Apply taints/tolerations for GPU nodes | Open |
+| 8.5 | Validate GPU access from pods (nvidia-smi) | Done |
+
+8x H100L 94GB detected (4 per worker). ClusterPolicy: Ready.
+
+---
+
+## TASK 9: GitOps — IN PROGRESS
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 9.1 | Install OpenShift GitOps (ArgoCD) | Done |
+| 9.2 | Configure ArgoCD RBAC | Open |
+| 9.3 | Create Stash repo (ocp-ai-platform) and connect ArgoCD | Done |
+| 9.4 | Bootstrap cluster config via GitOps | Open |
+| 9.5 | Validate sync and rollback | Open |
+
+ArgoCD connected to git@bitbucket.org:calixprod/ocp-ai-platform.git via SSH deploy key. App-of-Apps root application deployed.
+
+---
+
+## TASK 10: Backup and Disaster Recovery — NOT STARTED
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 10.1 | Install OADP (Velero) | Open |
+| 10.2 | Configure backup storage location | Open |
+| 10.3 | Define backup schedules | Open |
+| 10.4 | Configure etcd backup automation | Open |
+| 10.5 | Test restore of sample namespace | Open |
+
+---
+
+## TASK 11: End-to-End Validation — NOT STARTED
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 11.1 | Deploy sample AI workload (GPU + NetApp) | Open |
+| 11.2 | Validate deployment via GitOps | Open |
+| 11.3 | Validate dev/test/prod isolation | Open |
+| 11.4 | Validate backup and restore | Open |
+
+---
+
+## TASK 12: Monitoring — FUTURE
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 12.1 | Configure persistent storage for monitoring | Open |
+| 12.2 | Define retention policies | Open |
+| 12.3 | Create custom alert rules | Open |
+| 12.4 | Create dashboards (GPU utilization, storage, cluster health) | Open |
+
+---
+
+## TASK 13: Logging — FUTURE
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 13.1 | Deploy logging stack | Open |
+| 13.2 | Configure persistent storage | Open |
+| 13.3 | Define retention policies | Open |
+| 13.4 | Configure log forwarding | Open |
+
+---
+
+## TASK 14: TLS Certificates / Vault PKI — IN PROGRESS
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 14.1 | Install cert-manager operator | Done |
+| 14.2 | Enable Vault PKI engines (pki_root, pki_int) | Done |
+| 14.3 | Generate self-signed root CA and sign intermediate | Done |
+| 14.4 | Create PKI role (ocp-ai) | Done |
+| 14.5 | Configure Vault kubernetes-ocp-ai auth | Done |
+| 14.6 | Create ClusterIssuer (vault-issuer) — Ready=True | Done |
+| 14.7 | Test certificate issuance — Ready=True | Done |
+| 14.8 | Replace default certs on API/console/routes | Open |
+| 14.9 | Get CSR signed by Calix CA (swap self-signed later) | Pending — Brian/IT |
+
+Vault: plnx-vault.calix.local:8200. Auth path: kubernetes-ocp-ai. SA: vault-auth (cert-manager ns). Self-signed root CA (temporary) → intermediate → leaf certs.
+
+---
+
+## TASK 15: NetBox IPAM Documentation — ASSIGNED TO VINOTH
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 15.1 | Document VLANs and subnets | Done — data gathered, enter into NetBox |
+| 15.2 | Document node IPs, VIPs, iDRAC IPs | Done — data gathered, enter into NetBox |
+| 15.3 | Document NetApp cluster, SVMs, LIFs | Done — data gathered, enter into NetBox |
+| 15.4 | Document rack layouts and hardware inventory | Open |
+| 15.5 | Document switch port mappings and cables | Open — coordinate with Chetan/Gowtham |
+| 15.6 | Validate entries and review | Open |
+
+Est: 1 week | Target: March 14, 2026
+
+---
+
+## TASK 16: AI Platform Services — PLANNED
+
+| Subtask | Description | Status |
+|---------|-------------|--------|
+| 16.1 | Deploy MinIO (S3 object storage, NetApp backed) | Open |
+| 16.2 | Deploy Milvus (vector database) | Open |
+| 16.3 | Deploy CNPG (PostgreSQL) | Open |
+| 16.4 | ML platform (TBD — waiting on Sulabh) | Pending |
+| 16.5 | Notebook environment (TBD) | Pending |
+| 16.6 | Model serving (TBD) | Pending |
+
+Waiting on Sulabh for full GCP stack details (expected Friday).
+
+---
+
+## Summary
+
+| Task | Description | Status | % |
+|------|-------------|--------|---|
+| 1 | OpenShift Installation | Complete | 100% |
+| 2 | Dell GPU Server Setup | Complete | 100% |
+| 3 | Storage Networking | Complete | 100% |
+| 4 | NetApp Trident CSI | Complete | 100% |
+| 5 | Internal Image Registry | Complete | 100% |
+| 6 | Ingress and Load Balancing | Not Started | 0% |
+| 7 | Authentication and RBAC | Not Started | 0% |
+| 8 | GPU Operator | Complete | 90% |
+| 9 | GitOps | In Progress | 50% |
+| 10 | Backup and DR | Not Started | 0% |
+| 11 | End-to-End Validation | Not Started | 0% |
+| 12 | Monitoring | Future | 0% |
+| 13 | Logging | Future | 0% |
+| 14 | TLS / Vault PKI | Complete | 90% |
+| 15 | NetBox IPAM | Assigned (Vinoth) | 50% |
+| 16 | AI Platform Services | Planned | 0% |
+
+---
+
+## Milestones
+
+| Target | Date |
+|--------|------|
+| Engineering complete | March 18 |
+| Shakeout | March 19-20 |
+| Hardening | March 21-22 |
+| Release | March 23 |
+
+---
+
+## Dependencies
+
+| Dependency | Owner | Status | Impact |
+|------------|-------|--------|--------|
+| VLAN 1510 on Leaf-3 | Chetan | Resolved | GPU workers joined |
+| NetApp prod VLAN fix | Deonna | Resolved | LIFs on 1793/1797 |
+| SVM mgmt LIFs | Deonna | Resolved | Trident updated |
+| SVM service accounts | Deonna | Resolved | vsadmin active |
+| NFS export policies | Deonna | Resolved | Configured |
+| Vault CSR signing | Brian/IT | Pending | Not blocking — using self-signed interim |
+| Stash project (OCPAI) | Haj | Resolved | Repo created, ArgoCD connected |
+| Red Hat subscription | Haj | Pending | Trial expires ~April 12 |
+| GPU NIC migration | Chetan/Haj | In Progress | LACP LAG + VLANs 1510/1792-1798 on Mellanox ports, 40G transceiver fix done |
+| AI stack details | Sulabh | Pending | Expected Friday |
+| Okta IdP decision | Manager | Pending | Does not block Task 7 |
