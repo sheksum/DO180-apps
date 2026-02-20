@@ -1,454 +1,470 @@
-vault secrets enable -path=pki_root pki
-vault secrets tune -max-lease-ttl=87600h pki_root
-
-
-vault write -format=json pki_root/root/generate/internal \
-  common_name="OCP-AI Temporary Root CA" \
-  ttl=87600h | jq -r '.data.certificate' > /tmp/root-ca.pem
-
-
-vault write -format=json pki_root/root/sign-intermediate \
-  csr=@/tmp/ocp-ai-intermediate.csr \
-  format=pem_bundle \
-  ttl=43800h | jq -r '.data.certificate' > /tmp/signed-intermediate.pem
-
-
-vault write pki_int/intermediate/set-signed certificate=@/tmp/signed-intermediate.pem
-
-
-vault write pki_int/config/urls \
-  issuing_certificates="https://plnx-vault.calix.local:8200/v1/pki_int/ca" \
-  crl_distribution_points="https://plnx-vault.calix.local:8200/v1/pki_int/crl"
-
-
-vault write pki_int/roles/ocp-ai \
-  allowed_domains="calix.local" \
-  allow_subdomains=true \
-  allow_wildcard_certificates=true \
-  max_ttl=8760h
-
-
-vault write pki_int/issue/ocp-ai \
-  common_name="test.ocp-ai.calix.local" \
-  ttl=24h
-
-
-# Get the API server URL
-oc cluster-info | grep "Kubernetes control plane"
-
-# Get the CA cert
-oc get configmap kube-root-ca.crt -n openshift-gitops -o jsonpath='{.data.ca\.crt}' > /tmp/k8s-ca.crt
-
-# Create a service account for Vault auth
-oc create sa vault-auth -n cert-manager
-oc adm policy add-cluster-role-to-user system:auth-delegator -z vault-auth -n cert-manager
-
-# Get the SA token
-oc create token vault-auth -n cert-manager --duration=87600h
-
-
-
-vault write auth/kubernetes-ocp-ai/config \
-  kubernetes_host="https://api.ocp-ai.calix.local:6443" \
-  kubernetes_ca_cert=@/tmp/ocp-ai-k8s-ca.crt \
-  token_reviewer_jwt="PASTE_TOKEN_HERE"
-
-
-
-vault policy write ocp-ai-cert-manager - <<EOF
-path "pki_int/issue/ocp-ai" {
-  capabilities = ["create", "update"]
-}
-path "pki_int/sign/ocp-ai" {
-  capabilities = ["create", "update"]
-}
-EOF
-
-
-
-vault write auth/kubernetes-ocp-ai/role/cert-manager \
-  bound_service_account_names=vault-auth \
-  bound_service_account_namespaces=cert-manager \
-  policies=ocp-ai-cert-manager \
-  ttl=1h
-
-
-[root@plnx-vault ~]#
-[root@plnx-vault ~]# vault write auth/kubernetes-ocp-ai/role/cert-manager \
-  bound_service_account_names=vault-auth \
-  bound_service_account_namespaces=cert-manager \
-  policies=ocp-ai-cert-manager \
-  ttl=1h
-WARNING! The following warnings were returned from Vault:
-
-  * Role cert-manager does not have an audience configured. While audiences
-  are not required, consider specifying one if your use case would benefit
-  from additional JWT claim verification.
-
-[root@plnx-vault ~]#
-
-
-
-
-cat <<'EOF' | oc apply -f -
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: vault-issuer
-spec:
-  vault:
-    path: pki_int/sign/ocp-ai
-    server: https://plnx-vault.calix.local:8200
-    caBundle: ""
-    auth:
-      kubernetes:
-        role: cert-manager
-        mountPath: /v1/auth/kubernetes-ocp-ai
-        serviceAccountRef:
-          name: vault-auth
-EOF
-
-
-The ClusterIssuer "vault-issuer" is invalid: spec.vault.caBundle: Invalid value: "": spec.vault.caBundle in body must be of type byte: ""
-hsuma@plnx-admin:~/ocp-ai-config$
-
-
-echo | openssl s_client -connect plnx-vault.calix.local:8200 2>/dev/null | openssl x509 -outform PEM | base64 -w0
-
-
-cat <<'EOF' | oc apply -f -
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: vault-issuer
-spec:
-  vault:
-    path: pki_int/sign/ocp-ai
-    server: https://plnx-vault.calix.local:8200
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZGRENDQXZ5Z0F3SUJBZ0lVVFdVYktqa3BYdE1QS0VKNkxnRHkrMGlxN3FVd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0lURWZNQjBHQTFVRUF3d1djR3h1ZUMxMllYVnNkQzVqWVd4cGVDNXNiMk5oYkRBZUZ3MHlOVEV5TURZeApPVEE0TVRGYUZ3MHlOakV5TURZeE9UQTRNVEZhTUNFeEh6QWRCZ05WQkFNTUZuQnNibmd0ZG1GMWJIUXVZMkZzCmFYZ3ViRzlqWVd3d2dnSWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUNEd0F3Z2dJS0FvSUNBUURNNU10SzI2aE4Ka3pQcTJxbXRRK24zSGVJZ1dCbHRlUm1XKzEvbEdsQnNzUDhCN3JjYzk0SDF3SHZBNytrYXlXdEVYODR5RWNLdApJeVBGS1QzSzVxbCtCNHlQOEhoSXBYL0tidjFTMC93blpNMDRyd05EZ1VlL3lHWnVDbEJDdEw5U2E5UGZxaHR1ClF1SXRsUEdLTHpkQnB5Y042dXo0VEE1WWViSm5ENTRFeklxYXJDaDY0Yy9FWVJUZzR3NWlDK3NSRnpVc1k0bFcKdWFvZmJheW9OOUF2Nm5rUWJHLytJZEtuVVR1VVc2c01tMUFTSGxObGhlWDJMOHRlYm5jNm0wUVcxd1o5cHhuVwpRT2l3YTgweHhiWHZHVSs4U0JtQlpwTkR6ZURHeVgxdE8ySnlZcUNpWWdrZmpxdU8rdzd0bWQyOE05NFQ3ZjlRCitxbmlmaW9TNWVRR1l1MDIvT0o2cFZyWEluRjhHT21WeFp1SHRQZGlnKzBLOTNyeUxkU0xLTmNuQmVJcEtmaWkKemJERVEwRU8xN0ZmOExrb2I1YUUzTHNlaW5YTFlIbVZCT1BtZm9UNnpMa2J6aTBWMnJUcEhWRUVuQzErd09jRApVdzlrNEZ2S1hoQUFpUGE5SFVsak1WdnM2bEI0UVlaZlVzbFRnUTVRT3lXQjNsZ25PbDdMcWdBTytKMDduYnZnCm9iYnhtTHcyaktTbGxEU0JCdE91c3Y5NEFCRExoTktQNWlmYkJTZ3d3eWw1Zk5LWDZ4V1JmbWxsZFF5TFBMQm0KVmI1THh0ejh4VXhUWU5QbEdTZW5EVFZadlR6akQ0T0xad2xJRllzSG9qSE42M1hERlNKQU53eWw5ejZibEl6bAowbC9KTnJTT1hvaWJPM0dDWXZmSkpoTlB5UWV1clRZcC9RSURBUUFCbzBRd1FqQWhCZ05WSFJFRUdqQVlnaFp3CmJHNTRMWFpoZFd4MExtTmhiR2w0TG14dlkyRnNNQjBHQTFVZERnUVdCQlJ5d3VnOVA5SjBjU2hsaGlUckxWbzAKbm95N2FEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FnRUFKaE1IckZnT1N5aGxoTUxyNWF5WURKb0laRU5rcjdyUQpoOHgrQmJ0U1VMQzlXcEFXMXc3TEprU0dHQTZTdko0ZVFIL3FuT3ZqLytpencwSWVEVis2K0JxYUFwb1IzQlYwCjAzOTQwVjViWDZMQ0s3OXpCMUpqM1RXamNpZktQOHR2NWFFOEZENmV1MlhFcm5KcHJjSFFBdWNwbmtXSXVmajUKNzYvK1FIdUVUWTc5WVRSNi9SbDBDSFJubTI4bU9vN1VBY2F4TnBvbVFxYkNYaXZwWksybnVHMmdxWU9UY01KRAp4R0p5a0ZMMzBTUEp4cWJrVUJXcVEzK28zYzVnekNITVRUTmtkdGZhcVdiZHRMV1VHaGR2dVpaM0xIWERoNm9QCktZNEphdjBNRXlEUlExSkM5OWxCSjdBRnd3NmZZWEdldVN4Q25zSzROcmVIVDkxUnpGOUtZSFAxejhlQUd2dW4KeE5QMk1zWlpybmdHc2VWNWN1WmpKallDckgyZllWK0VWOWpVcFhEUXI0ZVA3czVHZmNPN0NiSk5WZE02aDJsawpXN0Naald5YmZySC9HYmRTTjV2MWRPSW5RbjZ4cFBmdW0zLzFEeEIzSnJuRXFIOXE0WktRUVRtNDhBb2tYTjhsCk4rMWlUeGFZU094N2RZamZJWllPL0p4b3R3am1PZm0rS3RsWVlZdlBQRzRaaTJhb0dDMzFuOXhReGt5eHlPTUoKQ1RaTFptbzlGSU1JUyszKzB1QmlvakNUa25IMW5zNFJ2UWhWTkh1c3RrR2FlZUlQemx4SmI1K3pPNWdaa2dYbgpFWUpJUHZPUXBYSDdiVXh0dkJuS1lCQmJTMkhWaElCKzV5eW50WXNRb0R4Tk9wUlR4SVF1ektWUm5lUHBVWk1CCmJ1TkZoeUFiTEw4PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
-    auth:
-      kubernetes:
-        role: cert-manager
-        mountPath: /v1/auth/kubernetes-ocp-ai
-        serviceAccountRef:
-          name: vault-auth
-EOF
-
-  Conditions:
-    Last Transition Time:  2026-02-19T21:06:58Z
-    Message:               Failed to initialize Vault client: while requesting a Vault token using the Kubernetes auth: while requesting a token for the service account /vault-auth: serviceaccounts "vault-auth" is forbidden: User "system:serviceaccount:cert-manager:cert-manager" cannot create resource "serviceaccounts/token" in API group "" in the namespace "cert-manager"
-    Observed Generation:   1
-    Reason:                VaultError
-    Status:                False
-    Type:                  Ready
-Events:
-  Type     Reason         Age               From                         Message
-  ----     ------         ----              ----                         -------
-  Warning  ErrInitIssuer  9s (x5 over 74s)  cert-manager-clusterissuers  Error initializing issuer: while requesting a Vault token using the Kubernetes auth: while requesting a token for the service account /vault-auth: serviceaccounts "vault-auth" is forbidden: User "system:serviceaccount:cert-manager:cert-manager" cannot create resource "serviceaccounts/token" in API group "" in the namespace "cert-manager"
-
-
-
-
-
-cat <<'EOF' | oc apply -f -
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: cert-manager-vault-tokenrequest
-rules:
-- apiGroups: [""]
-  resources: ["serviceaccounts/token"]
-  verbs: ["create"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: cert-manager-vault-tokenrequest
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cert-manager-vault-tokenrequest
-subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: cert-manager
-EOF
-
-
-    Last Transition Time:  2026-02-19T21:11:27Z
-    Message:               Failed to initialize Vault client: while requesting a Vault token using the Kubernetes auth: error calling Vault server: Post "https://plnx-vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login": tls: failed to verify certificate: x509: certificate signed by unknown authority (possibly because of "x509: invalid signature: parent certificate cannot sign this kind of certificate" while trying to verify candidate authority certificate "plnx-vault.calix.local")
-    Observed Generation:   1
-    Reason:                VaultError
-    Status:                False
-    Type:                  Ready
-Events:
-  Type     Reason         Age                From                         Message
-  ----     ------         ----               ----                         -------
-  Warning  ErrInitIssuer  39s (x4 over 64s)  cert-manager-clusterissuers  Error initializing issuer: while requesting a Vault token using the Kubernetes auth: error calling Vault server: Post "https://plnx-vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login": tls: failed to verify certificate: x509: certificate signed by unknown authority (possibly because of "x509: invalid signature: parent certificate cannot sign this kind of certificate" while trying to verify candidate authority certificate "plnx-vault.calix.local")
-hsuma@plnx-admin:~/ocp-ai-config$
-
-
-
-    Last Transition Time:  2026-02-19T21:11:27Z
-    Message:               Failed to initialize Vault client: while requesting a Vault token using the Kubernetes auth: error calling Vault server: Post "https://plnx-vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login": tls: failed to verify certificate: x509: certificate signed by unknown authority (possibly because of "x509: invalid signature: parent certificate cannot sign this kind of certificate" while trying to verify candidate authority certificate "plnx-vault.calix.local")
-    Observed Generation:   1
-    Reason:                VaultError
-    Status:                False
-    Type:                  Ready
-Events:
-  Type     Reason         Age                From                         Message
-  ----     ------         ----               ----                         -------
-  Warning  ErrInitIssuer  39s (x4 over 64s)  cert-manager-clusterissuers  Error initializing issuer: while requesting a Vault token using the Kubernetes auth: error calling Vault server: Post "https://plnx-vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login": tls: failed to verify certificate: x509: certificate signed by unknown authority (possibly because of "x509: invalid signature: parent certificate cannot sign this kind of certificate" while trying to verify candidate authority certificate "plnx-vault.calix.local")
-hsuma@plnx-admin:~/ocp-ai-config$
-
-
-
-
-openssl req -x509 -newkey rsa:4096 -sha256 -days 365 \
-  -nodes -keyout /opt/vault/tls/tls.key \
-  -out /opt/vault/tls/tls.crt \
-  -subj "/CN=plnx-vault.calix.local" \
-  -addext "subjectAltName=DNS:plnx-vault.calix.local" \
-  -addext "basicConstraints=critical,CA:TRUE"
-
-
-
-cat <<EOF | oc apply -f -
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: vault-issuer
-spec:
-  vault:
-    path: pki_int/sign/ocp-ai
-    server: https://plnx-vault.calix.local:8200
-    caBundle: PASTE_BASE64_HERE
-    auth:
-      kubernetes:
-        role: cert-manager
-        mountPath: /v1/auth/kubernetes-ocp-ai
-        serviceAccountRef:
-          name: vault-auth
-EOF
-
-
-
-
-
-cat <<'EOF' | oc apply -f -
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: test-cert
-  namespace: default
-spec:
-  secretName: test-cert-tls
-  issuerRef:
-    name: vault-issuer
-    kind: ClusterIssuer
-  commonName: test.ocp-ai.calix.local
-  dnsNames:
-    - test.ocp-ai.calix.local
-EOF
-
-
-
-
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                         │
-│                    OPENSHIFT ON UCS-X WITH NETAPP TRIDENT                              │
-│                                                                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────┘
-
-
-                                   UCS-X CHASSIS
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                         │
-│   ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐               │
-│   │  BLADE 1  │ │  BLADE 2  │ │  BLADE 3  │ │  BLADE 4  │ │  BLADE 5  │               │
-│   │ Master/Wkr│ │ Master/Wkr│ │ Master/Wkr│ │ GPU Worker│ │ GPU Worker│               │
-│   │           │ │           │ │           │ │           │ │           │               │
-│   │Trunk vNIC │ │Trunk vNIC │ │Trunk vNIC │ │Trunk vNIC │ │Trunk vNIC │               │
-│   └─────┬─────┘ └─────┬─────┘ └─────┬─────┘ └─────┬─────┘ └─────┬─────┘               │
-│         │             │             │             │             │                      │
-│         └─────────────┴──────┬──────┴─────────────┴─────────────┘                      │
-│                              │                                                         │
-│                  ┌───────────┴───────────┐                                             │
-│                  │  FABRIC INTERCONNECTS │                                             │
-│                  │                       │                                             │
-│                  │  Trunk VLANs:         │                                             │
-│                  │  1792, 1794 (Dev)     │                                             │
-│                  │  1796, 1798 (Test)    │                                             │
-│                  │  1800, 1802 (Prod)    │                                             │
-│                  └───────────┬───────────┘                                             │
-│                              │                                                         │
-└──────────────────────────────┼──────────────────────────────────────────────────────────┘
-                               │
-                               │
-                    ┌──────────┴──────────┐
-                    │                     │
-                    │    LEAF 1 / LEAF 2  │
-                    │    (Spine/Leaf)     │
-                    │                     │
-                    └──────────┬──────────┘
-                               │
-              ┌────────────────┴────────────────┐
-              │                                  │
-      INFRA VLANs                             APP VLANs
-      1792, 1796, 1800                    1794, 1798, 1802
-              │                                 │
-              ▼                                 ▼
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                         │
-│                                    NETAPP ONTAP                                         │
-│                                   (Storage Cluster)                                     │
-│                                                                                         │
-│     ┌─────────────────────────────┐         ┌─────────────────────────────┐            │
-│     │      ocp-infra-svm          │         │       ocp-app-svm           │            │
-│     │   (Registry, Logging,       │         │    (Apps, Databases,        │            │
-│     │    Monitoring)              │         │     AI/ML Workloads)        │            │
-│     │                             │         │                             │            │
-│     │  LIFs:                      │         │  LIFs:                      │            │
-│     │  ┌────────────────────────┐ │        │  ┌────────────────────────┐ │            │
-│     │  │VLAN 1792 (Dev)         │ │         │  │VLAN 1794 (Dev)         │ │            │
-│     │  │10.172.192.x            │ │         │  │10.172.194.x            │ │            │
-│     │  │                        │ │         │  │                        │ │            │
-│     │  │VLAN 1796 (Test)        │ │         │  │VLAN 1798 (Test)        │ │            │
-│     │  │10.172.196.x            │ │         │  │10.172.198.x            │ │            │
-│     │  │                        │ │         │  │                        │ │            │
-│     │  │VLAN 1800 (Prod)        │ │         │  │VLAN 1802 (Prod)        │ │            │
-│     │  │10.172.200.x            │ │         │  │10.172.202.x            │ │            │
-│     │  └────────────────────────┘ │        │  └────────────────────────┘ │            │
-│     │                             │         │                             │            │
-│     │  Policies:                  │         │  Policies:                  │            │
-│     │  • Guaranteed IOPS          │         │  • Burstable QoS            │            │
-│     │  • Hourly snapshots         │         │  • Daily snapshots          │            │
-│     │  • Thick provisioned        │         │  • Thin provisioned         │            │
-│     └─────────────────────────────┘         └─────────────────────────────┘            │
-│                                                                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────┘
-
-
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                         │
-│                              TRIDENT CSI LAYER                                          │
-│                         (Connects OpenShift to NetApp)                                  │
-│                                                                                         │
-├─────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                         │
-│     BACKENDS                                    STORAGECLASSES                          │
-│     (Talk to NetApp SVMs)                       (What developers request)               │
-│                                                                                         │
-│     ┌─────────────────────────────┐            ┌─────────────────────────────┐         │
-│     │ backend-infra-dev           │            │ infra-dev-nfs               │         │
-│     │   → SVM: ocp-infra-svm      │            │   → backend-infra-dev       │         │
-│     │   → LIF: 10.172.192.x       │            │                             │         │
-│     │   → VLAN: 1792              │            │ infra-test-nfs              │         │
-│     │                             │            │   → backend-infra-test      │         │
-│     │ backend-infra-test          │            │                             │         │
-│     │   → SVM: ocp-infra-svm      │            │ infra-prod-nfs              │         │
-│     │   → LIF: 10.172.196.x       │            │   → backend-infra-prod      │         │
-│     │   → VLAN: 1796              │            │                             │         │
-│     │                             │            │ app-dev-nfs                 │         │
-│     │ backend-infra-prod          │            │   → backend-app-dev         │         │
-│     │   → SVM: ocp-infra-svm      │            │                             │         │
-│     │   → LIF: 10.172.200.x       │            │ app-test-nfs                │         │
-│     │   → VLAN: 1800              │            │   → backend-app-test        │         │
-│     │                             │            │                             │         │
-│     │ backend-app-dev             │            │ app-prod-nfs                │         │
-│     │   → SVM: ocp-app-svm        │            │   → backend-app-prod        │         │
-│     │   → LIF: 10.172.194.x       │            │                             │         │
-│     │   → VLAN: 1794              │            └─────────────────────────────┘         │
-│     │                             │                                                     │
-│     │ backend-app-test            │                                                     │
-│     │   → SVM: ocp-app-svm        │                                                     │
-│     │   → LIF: 10.172.198.x       │                                                     │
-│     │   → VLAN: 1798              │                                                     │
-│     │                             │                                                     │
-│     │ backend-app-prod            │                                                     │
-│     │   → SVM: ocp-app-svm        │                                                     │
-│     │   → LIF: 10.172.202.x       │                                                     │
-│     │   → VLAN: 1802              │                                                     │
-│     └─────────────────────────────┘                                                     │
-│                                                                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────┘
-
-
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                         │
-│                              OPENSHIFT LOGICAL ENVIRONMENTS                             │
-│                                                                                         │
-├─────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                         │
-│   ┌─────────────────────┐ ┌─────────────────────┐ ┌─────────────────────┐              │
-│   │         DEV         │ │        TEST         │ │        PROD         │              │
-│   │                     │ │                     │ │                     │              │
-│   │  Namespaces:        │ │  Namespaces:        │ │  Namespaces:        │              │
-│   │  • myapp-dev        │ │  • myapp-test       │ │  • myapp-prod       │              │
-│   │  • logging-dev      │ │  • logging-test     │ │  • logging-prod     │              │
-│   │                     │ │                     │ │                     │              │
-│   │  Storage:           │ │  Storage:           │ │  Storage:           │              │
-│   │  • infra-dev-nfs    │ │  • infra-test-nfs   │ │  • infra-prod-nfs   │              │
-│   │  • app-dev-nfs      │ │  • app-test-nfs     │ │  • app-prod-nfs     │              │
-│   │                     │ │                     │ │                     │              │
-│   │  Networks:          │ │  Networks:          │ │  Networks:          │              │
-│   │  • VLAN 1792 (Infra)│ │  • VLAN 1796 (Infra)│ │  • VLAN 1800 (Infra)│              │
-│   │  • VLAN 1794 (App)  │ │  • VLAN 1798 (App)  │ │  • VLAN 1802 (App)  │              │
-│   └─────────────────────┘ └─────────────────────┘ └─────────────────────┘              │
-│                                                                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────┘
-
-
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                                      VLAN MAP                                           │
-├────────┬───────────────────┬─────────────┬──────────┬─────────────────────────────────────┤
-│  VLAN  │      NETWORK      │     SVM     │   ENV    │             PURPOSE                │
-├────────┼───────────────────┼─────────────┼──────────┼─────────────────────────────────────┤
-│  1792  │  10.172.192.0/23  │  ocp-infra  │   Dev    │  Infra (registry, logging, metrics) │
-│  1794  │  10.172.194.0/23  │  ocp-app    │   Dev    │  Apps (databases, AI/ML)            │
-│  1796  │  10.172.196.0/23  │  ocp-infra  │   Test   │  Infra (registry, logging, metrics) │
-│  1798  │  10.172.198.0/23  │  ocp-app    │   Test   │  Apps (databases, AI/ML)            │
-│  1800  │  10.172.200.0/23  │  ocp-infra  │   Prod   │  Infra (registry, logging, metrics) │
-│  1802  │  10.172.202.0/23  │  ocp-app    │   Prod   │  Apps (databases, AI/ML)            │
-└────────┴───────────────────┴─────────────┴──────────┴─────────────────────────────────────┘
-
-
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   QUICK REFERENCE                                       │
-├─────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                         │
-│   5 Blades: 3 Master/Worker + 2 GPU Worker (all share same VLANs)                      │
-│   2 SVMs: ocp-infra-svm + ocp-app-svm                                                  │
-│   6 VLANs: 1792, 1796, 1800 (Infra) + 1794, 1798, 1802 (Apps)                         │
-│                                                                                         │
-│   VLAN Pattern:                                                                        │
-│   • Even VLANs ending in 2/6/0 = Infrastructure (Mgmt)                                 │
-│   • Even VLANs ending in 4/8/2 = Application                                           │
-│   • Increment by 4 per environment (Dev → Test → Prod)                                 │
-│                                                                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────┘
-
-
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                              TRAFFIC FLOW EXAMPLE                                       │
-├─────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                         │
-│   Developer creates PVC in prod namespace:                                             │
-│                                                                                         │
-│   storageClassName: app-prod-nfs                                                       │
-│            │                                                                            │
-│            ▼                                                                            │
-│   Trident → backend-app-prod                                                           │
-│            │                                                                            │
-│            ▼                                                                            │
-│   SVM: ocp-app-svm                                                                     │
-│   LIF: 10.172.202.x (VLAN 1802)                                                        │
-│            │                                                                            │
-│            ▼                                                                            │
-│   Worker mounts NFS via VLAN 1802                                                      │
-│   10.172.202.x (blade) → 10.172.202.x (NetApp LIF)                                    │
-│            │                                                                            │
-│            ▼                                                                            │
-│   Pod gets storage ✓                                                                   │
-│                                                                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────┘
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                 │
+│                         OCP-AI PLATFORM — FULL ARCHITECTURE REFERENCE                           │
+│                                                                                                 │
+│              OpenShift 4.20.13 / Kubernetes v1.33.6 / OVNKubernetes / MTU 9000                  │
+│              Cluster: ocp-ai.calix.local | ID: a755e1fd-ea30-48c8-ae58-28e16e760bae             │
+│              Install: Red Hat Assisted Installer | License: 60-day trial (~Apr 12)              │
+│                                                                                                 │
+│              640 CPU cores | ~9.9 TiB RAM | 8x NVIDIA H100L 94GB (752 GB GPU)                  │
+│                                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 1. COMPUTE — CONTROL PLANE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Cisco UCS-X Chassis — PLN-UCSX-F1-01, Slot 4
+  Intersight Managed | Profile: pln_srv_EO_UCS_M7
+  LAN Connectivity: pln_svr_OCP_LAN_EO | IMC: pln_imc_EO (OOB)
+  Eth Groups: pln_eth_MGT_OCP_ng_EO (mgmt) | pln_eth_DATA_OCP_ng_EO (storage)
+  Fabric failover OFF — OS-level bonding for storage redundancy
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                 │
+│   ┌─────────────────────────────┐ ┌─────────────────────────────┐ ┌───────────────────────────┐ │
+│   │  SLOT 4-1 — master01        │ │  SLOT 4-2 — master02        │ │  SLOT 4-3 — master03      │ │
+│   │  ocp-ai-master01.calix.local│ │  ocp-ai-master02.calix.local│ │  ocp-ai-master03.calix.lo…│ │
+│   │  10.172.248.150             │ │  10.172.248.151             │ │  10.172.248.152            │ │
+│   │  UCS-X 210C-M7             │ │  UCS-X 210C-M7             │ │  UCS-X 210C-M7            │ │
+│   │  128 cores | 2 TiB | 480GB │ │  128 cores | 2 TiB | 480GB │ │  128 cores | 2 TiB | 480GB│ │
+│   │                             │ │                             │ │                           │ │
+│   │  vNIC Layout:               │ │  vNIC Layout:               │ │  vNIC Layout:             │ │
+│   │  ┌───────────┬────────────┐ │ │  ┌───────────┬────────────┐ │ │  ┌───────────┬──────────┐ │ │
+│   │  │OCP-MGT-A  │OCP-DATA-A  │ │ │  │OCP-MGT-A  │OCP-DATA-A  │ │ │  │OCP-MGT-A  │OCP-DATA-A│ │ │
+│   │  │eno5 Fab-A │eno7 Fab-A  │ │ │  │eno5 Fab-A │eno7 Fab-A  │ │ │  │eno5 Fab-A │eno7 Fab-A│ │ │
+│   │  │(br-ex/mgmt│(bnd0 pri)  │ │ │  │(br-ex/mgmt│(bnd0 pri)  │ │ │  │(br-ex/mgmt│(bnd0 pri)│ │ │
+│   │  ├───────────┼────────────┤ │ │  ├───────────┼────────────┤ │ │  ├───────────┼──────────┤ │ │
+│   │  │OCP-MGT-B  │OCP-DATA-B  │ │ │  │OCP-MGT-B  │OCP-DATA-B  │ │ │  │OCP-MGT-B  │OCP-DATA-B│ │ │
+│   │  │eno6 Fab-B │eno8 Fab-B  │ │ │  │eno6 Fab-B │eno8 Fab-B  │ │ │  │eno6 Fab-B │eno8 Fab-B│ │ │
+│   │  │(mgmt stby)│(bnd0 stby) │ │ │  │(mgmt stby)│(bnd0 stby) │ │ │  │(mgmt stby)│(bnd0 stby│ │ │
+│   │  └───────────┴────────────┘ │ │  └───────────┴────────────┘ │ │  └───────────┴──────────┘ │ │
+│   │                             │ │                             │ │                           │ │
+│   │  MACs:                      │ │  MACs:                      │ │  MACs:                    │ │
+│   │  eno5: 00:25:B5:50:0A:64   │ │  eno5: 00:25:B5:50:0A:66   │ │  eno5: 00:25:B5:50:0A:68  │ │
+│   │  eno7: 00:25:B5:50:0A:65   │ │  eno7: 00:25:B5:50:0A:67   │ │  eno7: 00:25:B5:50:0A:69  │ │
+│   └─────────────────────────────┘ └─────────────────────────────┘ └───────────────────────────┘ │
+│                                                                                                 │
+│   Master Networking:                                                                            │
+│   • Mgmt: OVN br-ex on eno5 → VLAN 1510, MTU 9000                                              │
+│   • Storage: bnd0 (active-backup, eno7 + eno8, MTU 9000) → 6 VLAN subinterfaces                │
+│   • NMState NNCPs per node — all SuccessfullyConfigured                                         │
+│   • Bond named "bnd0" not "bond-storage" — Linux interface name max 15 chars                    │
+│                                                                                                 │
+│   Infrastructure Services (pinned to masters):                                                  │
+│   • Image Registry (2 replicas, 100Gi PVC on netapp-infra, route timeout 600s)                  │
+│   • ArgoCD (openshift-gitops)                                                                   │
+│   • cert-manager                                                                                │
+│   • Trident Controller                                                                          │
+│                                                                                                 │
+│         │              │              │                                                         │
+│         │ eno5/6       │ eno5/6       │ eno5/6        eno7/8         eno7/8         eno7/8      │
+│         ▼              ▼              ▼                ▼              ▼              ▼           │
+│   ┌─────────────────────────────┐  ┌──────────────────────────────────────────────────────┐     │
+│   │  Fabric Interconnect A      │  │  Fabric Interconnect B                               │     │
+│   │  eno5 (MGT) + eno7 (DATA)  │  │  eno6 (MGT standby) + eno8 (DATA standby)           │     │
+│   └──────────────┬──────────────┘  └──────────────────────┬───────────────────────────────┘     │
+│                  │                                         │                                    │
+└──────────────────┼─────────────────────────────────────────┼────────────────────────────────────┘
+                   │                                         │
+                   ▼                                         ▼
+          Storage Leaf Switches                     Storage Leaf Switches
+          VLANs 1792-1798 | 1570                    (redundant path)
+          MTU 9000
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 2. COMPUTE — GPU WORKERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  2x Dell PowerEdge R760xa (separate rack servers, NOT in UCS-X chassis)
+  Each: 2x Xeon Platinum 8562Y+ (128 HT cores) | 2 TiB RAM | 480 GB NVMe (BOSS-N1) | 26.88 TB RAID
+
+┌───────────────────────────────────────────┐  ┌───────────────────────────────────────────┐
+│  gpu01 — ocp-ai-gpu01.calix.local         │  │  gpu02 — ocp-ai-gpu02.calix.local         │
+│  10.172.248.153 | Serial: 6RJWMD4         │  │  10.172.248.154 | Serial: 7RJWMD4         │
+│  iDRAC: 10.152.0.43 (root/calvin)         │  │  iDRAC: 10.152.0.44 (root/calvin)         │
+│                                            │  │                                            │
+│  GPUs:                                     │  │  GPUs:                                     │
+│  ┌────────┐ ┌────────┐ ┌────────┐ ┌──────┐│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌──────┐│
+│  │ H100L  │ │ H100L  │ │ H100L  │ │H100L ││  │  │ H100L  │ │ H100L  │ │ H100L  │ │H100L ││
+│  │ 94GB   │ │ 94GB   │ │ 94GB   │ │94GB  ││  │  │ 94GB   │ │ 94GB   │ │ 94GB   │ │94GB  ││
+│  │4a:00.0 │ │61:00.0 │ │ca:00.0 │ │e1:00 ││  │  │4a:00.0 │ │61:00.0 │ │ca:00.0 │ │e1:00 ││
+│  └────────┘ └────────┘ └────────┘ └──────┘│  │  └────────┘ └────────┘ └────────┘ └──────┘│
+│  = 376 GB GPU memory                      │  │  = 376 GB GPU memory                      │
+│                                            │  │                                            │
+│  NICs:                                     │  │  NICs:                                     │
+│  ┌──────────────────────────────────────┐  │  │  ┌──────────────────────────────────────┐  │
+│  │ eno8303 (Broadcom 1GbE) ← current   │  │  │  │ eno8303 (Broadcom 1GbE) ← current   │  │
+│  │ MAC: C8:4B:D6:F3:D8:40              │  │  │  │ MAC: C8:4B:D6:F3:D8:22              │  │
+│  │ → Leaf-3 (VLAN 1510 mgmt)           │  │  │  │ → Leaf-3 (VLAN 1510 mgmt)           │  │
+│  ├──────────────────────────────────────┤  │  │  ├──────────────────────────────────────┤  │
+│  │ ens8f0np0 (Mellanox CX-6 Dx 100GbE) │  │  │  │ ens8f0np0 (Mellanox CX-6 Dx 100GbE) │  │
+│  │ MAC: 7C:8C:09:C3:74:1E              │  │  │  │ MAC: 7C:8C:09:C3:79:86              │  │
+│  │ → Sw a0:bc:6f:d9:72:fc Eth1/12      │  │  │  │ → Sw 48:80:02:e3:bd:98 Eth1/13      │  │
+│  │   (Leaf-5)                           │  │  │  │   (Leaf-5)                           │  │
+│  ├──────────────────────────────────────┤  │  │  ├──────────────────────────────────────┤  │
+│  │ ens8f1np1 (Mellanox CX-6 Dx 100GbE) │  │  │  │ ens8f1np1 (Mellanox CX-6 Dx 100GbE) │  │
+│  │ MAC: 7C:8C:09:C3:74:1F              │  │  │  │ MAC: 7C:8C:09:C3:79:87              │  │
+│  │ → Sw 48:80:02:e3:bd:94 Eth1/12      │  │  │  │ → Sw a0:bc:6f:d9:73:00 Eth1/13      │  │
+│  │   (Leaf-6)                           │  │  │  │   (Leaf-6)                           │  │
+│  └──────────────────────────────────────┘  │  │  └──────────────────────────────────────┘  │
+│                                            │  │                                            │
+└────────────────┬──────────┬────────────────┘  └────────────────┬──────────┬────────────────┘
+     eno8303(1G) │          │ Mellanox(100G)         eno8303(1G) │          │ Mellanox(100G)
+                 │          │ LACP pending                       │          │ LACP pending
+                 ▼          ▼                                    ▼          ▼
+            ┌─────────┐ ┌─────────┬─────────┐              ┌─────────┐ ┌─────────┬─────────┐
+            │ Leaf-3  │ │ Leaf-5  │ Leaf-6  │              │ Leaf-3  │ │ Leaf-5  │ Leaf-6  │
+            │ 1G mgmt │ │ Eth1/12 │ Eth1/12 │              │ 1G mgmt │ │ Eth1/13 │ Eth1/13 │
+            └─────────┘ └─────────┴─────────┘              └─────────┘ └─────────┴─────────┘
+
+  GPU Worker Networking (current state):
+  • Mgmt: OVN br-ex on eno8303 (Broadcom 1GbE, VLAN 1510, MTU 9000)
+  • MTU via MachineConfig 99-worker-mtu-9000:
+    ip link set eno8303 mtu 9000 && ovs-vsctl set int br-ex mtu_request=9000
+  • No storage VLANs — NFS mounts via mgmt subnet (export policies include 10.172.248.0/24)
+
+  NIC Migration (pending — Chetan configuring switch side):
+  • 2 LACP LAGs (1 per server, 2 Mellanox ports each)
+  • VLAN 1510 native/untagged + VLANs 1792-1798 tagged
+  • MTU 9216 on all Mellanox ports
+  • Each server has ports on two different leaf switches (physical redundancy)
+  • Once complete: NMState NNCPs with LACP bond + VLAN subinterfaces
+  • Then migrate management from Broadcom 1G → Mellanox LACP bond
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 3. NETWORK FABRIC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
+│  Fabric Interconnect │  │  Fabric Interconnect │  │      Leaf-3          │
+│        A             │  │        B             │  │  (Broadcom)          │
+│                      │  │                      │  │                      │
+│  Masters: eno5 + eno7│  │  Masters: eno6 + eno8│  │  GPU 1G mgmt (temp)  │
+│  → Storage switches  │  │  → Storage switches  │  │  VLAN 1510           │
+└──────────┬───────────┘  └──────────┬───────────┘  └──────────────────────┘
+           │                         │
+           ▼                         ▼
+┌──────────────────────────────────────────────┐
+│            Storage Leaf Switches              │
+│                                              │
+│  VLANs 1792-1798 (storage) | 1570 (SVM mgmt)│
+│  MTU 9000                                    │
+│  Masters connect via FI-A / FI-B             │
+└──────────────────────────────────────────────┘
+
+┌──────────────────────┐  ┌──────────────────────┐
+│      Leaf-5          │  │      Leaf-6          │
+│  (Mellanox 100G)     │  │  (Mellanox 100G)     │
+│                      │  │                      │
+│  gpu01 P1 Eth1/12    │  │  gpu01 P2 Eth1/12    │
+│  gpu02 P1 Eth1/13    │  │  gpu02 P2 Eth1/13    │
+│                      │  │                      │
+│  LACP LAG pending:   │  │  LACP LAG pending:   │
+│  VLAN 1510 native    │  │  VLAN 1510 native    │
+│  VLANs 1792-1798 tag │  │  VLANs 1792-1798 tag │
+│  MTU 9216            │  │  MTU 9216            │
+└──────────────────────┘  └──────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 4. VLAN MAP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌────────┬───────────────────┬────────────────┬──────────┬────────────────────────────────────────┐
+│  VLAN  │      SUBNET       │      SVM       │   ENV    │               PURPOSE                  │
+├────────┼───────────────────┼────────────────┼──────────┼────────────────────────────────────────┤
+│  1510  │  10.172.248.0/24  │       —        │   All    │  Management (OVN br-ex, API/Ingress)   │
+├────────┼───────────────────┼────────────────┼──────────┼────────────────────────────────────────┤
+│  1792  │  10.172.192.0/23  │ ocp_infra_svm  │   Dev    │  Infra (registry, logging, metrics)    │
+│  1794  │  10.172.194.0/23  │ ocp_app_svm    │   Dev    │  Apps (databases, AI/ML)               │
+│  1796  │  10.172.196.0/23  │ ocp_infra_svm  │   Test   │  Infra (registry, logging, metrics)    │
+│  1798  │  10.172.198.0/23  │ ocp_app_svm    │   Test   │  Apps (databases, AI/ML)               │
+│  1793  │  10.172.200.0/23  │ ocp_infra_svm  │   Prod   │  Infra (registry, logging, metrics)    │
+│  1797  │  10.172.202.0/23  │ ocp_app_svm    │   Prod   │  Apps (databases, AI/ML)               │
+├────────┼───────────────────┼────────────────┼──────────┼────────────────────────────────────────┤
+│  1570  │  10.172.254.0/24  │       —        │   All    │  SVM management LIFs (Trident mgmt)    │
+└────────┴───────────────────┴────────────────┴──────────┴────────────────────────────────────────┘
+
+  VIPs (VLAN 1510):
+  • API VIP:     10.172.248.155  (api.ocp-ai.calix.local)
+  • Ingress VIP: 10.172.248.156  (*.apps.ocp-ai.calix.local)
+
+  DNS: 10.172.248.31, .32 (AD integrated)
+  NTP: time1.calix.local (10.168.21.1), time2.calix.local (10.168.21.2)
+  Gateway: 10.172.248.1
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 5. MASTER NODE STORAGE IPs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Third octet matches VLAN subnet. Host octet matches management IP.
+  All on bnd0 (eno7 + eno8, active-backup, MTU 9000) VLAN subinterfaces.
+
+┌────────┬──────────────────┬──────────────────┬──────────────────┐
+│  VLAN  │    master01      │    master02      │    master03      │
+├────────┼──────────────────┼──────────────────┼──────────────────┤
+│  1792  │  10.172.192.150  │  10.172.192.151  │  10.172.192.152  │
+│  1794  │  10.172.194.150  │  10.172.194.151  │  10.172.194.152  │
+│  1796  │  10.172.196.150  │  10.172.196.151  │  10.172.196.152  │
+│  1798  │  10.172.198.150  │  10.172.198.151  │  10.172.198.152  │
+│  1793  │  10.172.200.150  │  10.172.200.151  │  10.172.200.152  │
+│  1797  │  10.172.202.150  │  10.172.202.151  │  10.172.202.152  │
+└────────┴──────────────────┴──────────────────┴──────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 6. NETAPP STORAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  NetApp AFF — plano_aff_cl — Cluster Mgmt: 10.152.0.110 — 6 Nodes
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                 │
+│   ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────────┐ ┌─────────────┐            │
+│   │  cl-01  │ │  cl-02  │ │  cl-03  │ │  cl-04  │ │  cl-05 ★    │ │  cl-06 ★    │            │
+│   │aggr1_n1 │ │aggr1_n2 │ │aggr1_n3 │ │aggr1_n4 │ │aggr1_n5     │ │aggr1_n6     │            │
+│   └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────────┘ └─────────────┘            │
+│                                                     ★ LIFs home on cl-05 and cl-06             │
+│                                                                                                 │
+│   ┌──────────────────────────────────────────┐  ┌──────────────────────────────────────────┐   │
+│   │         ocp_infra_svm (vsadmin)          │  │          ocp_app_svm (vsadmin)           │   │
+│   │         Aggregates: aggr1_n1-n6          │  │          Aggregates: aggr1_n1-n6         │   │
+│   │                                          │  │                                          │   │
+│   │  Mgmt LIF:                               │  │  Mgmt LIF:                               │   │
+│   │  ocp_infra_mgmt — 10.172.254.46          │  │  ocp_app_mgmt — 10.172.254.47            │   │
+│   │  VLAN a0a-1570 | Home: cl-05             │  │  VLAN a0a-1570 | Home: cl-06             │   │
+│   │                                          │  │                                          │   │
+│   │  Data LIFs:                              │  │  Data LIFs:                              │   │
+│   │  ┌────────────────────────────────────┐  │  │  ┌────────────────────────────────────┐  │   │
+│   │  │ Dev (VLAN a0a-1792):               │  │  │  │ Dev (VLAN a0a-1794):               │  │   │
+│   │  │   lif01: 10.172.192.22 (cl-05)     │  │  │  │   lif01: 10.172.194.22 (cl-05)     │  │   │
+│   │  │   lif02: 10.172.192.23 (cl-06)     │  │  │  │   lif02: 10.172.194.23 (cl-06)     │  │   │
+│   │  ├────────────────────────────────────┤  │  │  ├────────────────────────────────────┤  │   │
+│   │  │ Test (VLAN a0a-1796):              │  │  │  │ Test (VLAN a0a-1798):              │  │   │
+│   │  │   lif01: 10.172.196.22 (cl-05)     │  │  │  │   lif01: 10.172.198.22 (cl-05)     │  │   │
+│   │  │   lif02: 10.172.196.23 (cl-06)     │  │  │  │   lif02: 10.172.198.23 (cl-06)     │  │   │
+│   │  ├────────────────────────────────────┤  │  │  ├────────────────────────────────────┤  │   │
+│   │  │ Prod (VLAN a0a-1793):              │  │  │  │ Prod (VLAN a0a-1797):              │  │   │
+│   │  │   lif01: 10.172.200.22 (cl-05)     │  │  │  │   lif01: 10.172.202.22 (cl-05)     │  │   │
+│   │  │   lif02: 10.172.200.23 (cl-06)     │  │  │  │   lif02: 10.172.202.23 (cl-06)     │  │   │
+│   │  └────────────────────────────────────┘  │  │  └────────────────────────────────────┘  │   │
+│   │                                          │  │                                          │   │
+│   │  Export Policy: backend_infra_access      │  │  Export Policy: backend_app_access        │   │
+│   │  10.172.192.0/24 (Dev)                   │  │  10.172.194.0/24 (Dev)                   │   │
+│   │  10.172.196.0/24 (Test)                  │  │  10.172.198.0/24 (Test)                  │   │
+│   │  10.172.200.0/24 (Prod)                  │  │  10.172.202.0/24 (Prod)                  │   │
+│   │  10.172.248.0/24 (Mgmt — GPU fallback)   │  │  10.172.248.0/24 (Mgmt — GPU fallback)   │   │
+│   │  RO/RW/Superuser: any                    │  │  RO/RW/Superuser: any                    │   │
+│   └──────────────────────────────────────────┘  └──────────────────────────────────────────┘   │
+│                                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 7. TRIDENT CSI LAYER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Operator: NetApp Trident Certified (OperatorHub) | Namespace: trident
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                 │
+│   BACKENDS (2)                                     STORAGECLASSES (2)                           │
+│   Use SVM mgmt LIFs, NOT cluster mgmt LIF          ontap-nas | NFS v4.1 | Retain              │
+│                                                                                                 │
+│   ┌───────────────────────────────────┐           ┌───────────────────────────────────┐        │
+│   │  backend-infra-nfs                │           │  netapp-infra                     │        │
+│   │  SVM: ocp_infra_svm              │     ───►  │  Driver: ontap-nas                │        │
+│   │  Data LIF: 10.172.192.22         │           │  Default: No                      │        │
+│   │  Mgmt LIF: 10.172.254.46        │           │  Reclaim: Retain                  │        │
+│   │  Creds: vsadmin (backend-infra-  │           │                                   │        │
+│   │         secret in trident ns)    │           │  Use: Registry, logging, metrics,  │        │
+│   │  Status: Bound/Success           │           │       platform infrastructure      │        │
+│   └───────────────────────────────────┘           └───────────────────────────────────┘        │
+│                                                                                                 │
+│   ┌───────────────────────────────────┐           ┌───────────────────────────────────┐        │
+│   │  backend-app-nfs                  │           │  netapp-app  ★ DEFAULT            │        │
+│   │  SVM: ocp_app_svm                │     ───►  │  Driver: ontap-nas                │        │
+│   │  Data LIF: 10.172.194.22         │           │  Default: Yes                     │        │
+│   │  Mgmt LIF: 10.172.254.47        │           │  Reclaim: Retain                  │        │
+│   │  Creds: vsadmin (backend-app-    │           │                                   │        │
+│   │         secret in trident ns)    │           │  Use: Apps, databases, AI/ML       │        │
+│   │  Status: Bound/Success           │           │       workloads                    │        │
+│   └───────────────────────────────────┘           └───────────────────────────────────┘        │
+│                                                                                                 │
+│   Notes:                                                                                        │
+│   • Secrets need single quotes for special chars in password                                    │
+│   • If backend goes Failed after patching managementLIF, bump spec.version or recreate tbc      │
+│   • Make sure aggregates are assigned to SVMs first:                                            │
+│     vserver modify -vserver <svm> -aggr-list aggr1_n1,...,aggr1_n6                              │
+│   • Originally on cluster admin creds — migrated to vsadmin per SVM (Feb 18)                   │
+│                                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 8. PLATFORM SERVICES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────────────────────────┐
+  │    Bitbucket     │────►│     ArgoCD      │────►│          OCP-AI Cluster             │
+  │    (Git repo)    │sync │  App-of-Apps    │     │  NMState | Trident | MachineConfigs │
+  │                  │     │  selfHeal: true │     │                                     │
+  │  calixprod/      │     │  openshift-     │     │  Drift detection via GitOps         │
+  │  ocp-ai-platform │     │  gitops ns      │     │  (Application manifests pending)    │
+  └─────────────────┘     └─────────────────┘     └─────────────────────────────────────┘
+        │
+        │ SSH deploy key: argocd-ocp-ai (~/.ssh/argocd-deploy-key — NOT personal key)
+
+  ┌─────────────────┐     ┌─────────────────┐
+  │  HashiCorp Vault │◄───│   cert-manager  │
+  │  plnx-vault.     │TLS │                 │
+  │  calix.local:8200│    │  ClusterIssuer: │
+  │                  │    │  vault-issuer   │
+  │  pki_root →      │    │  Ready=True     │
+  │  pki_int →       │    │                 │
+  │  leaf certs      │    │  Auth SA:       │
+  │                  │    │  vault-auth     │
+  │  Auth path:      │    │  (cert-manager  │
+  │  kubernetes-     │    │   namespace)    │
+  │  ocp-ai          │    │                 │
+  │  ⚠ DO NOT touch  │    └─────────────────┘
+  │  kubernetes/     │
+  │  (kindo-ai ESO)  │
+  └─────────────────┘
+
+  Installed Operators:
+  ┌───────────────────────────┬──────────────────────┬────────────┐
+  │  Operator                 │  Namespace           │  Status    │
+  ├───────────────────────────┼──────────────────────┼────────────┤
+  │  Kubernetes NMState       │  openshift-nmstate   │  Succeeded │
+  │  NetApp Trident Certified │  trident             │  Installed │
+  │  Node Feature Discovery   │  openshift-nfd       │  Installed │
+  │  NVIDIA GPU Operator      │  nvidia-gpu-operator │  Installed │
+  │  cert-manager             │  cert-manager        │  Installed │
+  │  OpenShift GitOps         │  openshift-gitops    │  Installed │
+  └───────────────────────────┴──────────────────────┴────────────┘
+
+  MachineConfigs:
+  ┌──────────────────────┬─────────┬──────────────────────────────────────────┐
+  │  Name                │  Role   │  Purpose                                 │
+  ├──────────────────────┼─────────┼──────────────────────────────────────────┤
+  │  99-worker-mtu-9000  │  worker │  MTU 9000 on eno8303 + br-ex at boot    │
+  │  99-master-chrony    │  master │  NTP → time1/time2.calix.local           │
+  │  99-worker-chrony    │  worker │  NTP → time1/time2.calix.local           │
+  └──────────────────────┴─────────┴──────────────────────────────────────────┘
+
+  GPU Compute:
+  ┌────────────────────────────────────────────────────────────────┐
+  │  NFD (Red Hat) + NVIDIA GPU Operator | ClusterPolicy: Ready   │
+  │  8x H100L 94GB = 752 GB GPU memory                           │
+  │  DCGM Exporter (may restart initially waiting on drivers)     │
+  │  ⚠ Taints/tolerations NOT yet applied (Task 8.4)             │
+  └────────────────────────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 9. AI/ML WORKLOAD LAYER (Planned — Task 16)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────────┐ ┌────────────────────┐
+│    MinIO    │ │   Milvus    │ │    CNPG     │ │  ML Platform    │ │   GPU Workloads    │
+│   S3 Object │ │   Vector DB │ │  PostgreSQL │ │  TBD — Sulabh   │ │  8x H100L          │
+│   Storage   │ │  Embeddings │ │  App DB     │ │  Notebooks      │ │  752 GB GPU mem    │
+│  NetApp bkd │ │  RAG        │ │             │ │  Model serving  │ │  Training/Inference│
+└─────────────┘ └─────────────┘ └─────────────┘ └─────────────────┘ └────────────────────┘
+       │               │               │               │                      │
+       └───────────────┴───────────────┴───────────────┴──────────────────────┘
+                                       │
+                                       ▼
+                              NetApp AFF (NFS v4.1)
+                         ocp_infra_svm + ocp_app_svm
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 10. TRAFFIC FLOW EXAMPLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Developer creates PVC in prod namespace:
+
+  storageClassName: netapp-app
+           │
+           ▼
+  Trident → backend-app-nfs
+           │
+           ▼
+  SVM: ocp_app_svm
+  Mgmt LIF: 10.172.254.47 (volume provisioning via VLAN 1570)
+  Data LIF: 10.172.194.22 (NFS mount)
+           │
+           ▼
+  Master mounts NFS via VLAN 1797 (Prod App) on bnd0 subinterface
+  10.172.202.150 (master01) → 10.172.202.22 (NetApp LIF)
+           │
+           ▼
+  Pod gets storage ✓
+
+  GPU worker (current — no storage VLANs):
+  10.172.248.153 (gpu01 mgmt) → 10.172.194.22 (NetApp LIF via mgmt subnet in export policy)
+  Works but slower — routed through management network, not dedicated storage VLAN
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 11. EXTERNAL / MANAGEMENT SERVICES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────┬──────────────────────────────────┬────────────────────┐
+│  System             │  Address                         │  Creds             │
+├─────────────────────┼──────────────────────────────────┼────────────────────┤
+│  plnx-admin (wkst)  │  10.172.248.50                   │  hsuma             │
+│  Intersight         │  us-east-1.intersight.com        │  haj.suma@calix.com│
+│  NetApp Cluster Mgmt│  10.152.0.110                    │  admin             │
+│  NetApp Infra SVM   │  10.172.254.46                   │  vsadmin           │
+│  NetApp App SVM     │  10.172.254.47                   │  vsadmin           │
+│  gpu01 iDRAC        │  10.152.0.43                     │  root/calvin       │
+│  gpu02 iDRAC        │  10.152.0.44                     │  root/calvin       │
+│  Vault              │  plnx-vault.calix.local:8200     │  root token        │
+│  AD DNS             │  10.172.248.31, .32              │  —                 │
+│  NTP                │  10.168.21.1, .2                 │  —                 │
+└─────────────────────┴──────────────────────────────────┴────────────────────┘
+
+  Cluster Access:
+  • Console: https://console-openshift-console.apps.ocp-ai.calix.local
+  • API:     https://api.ocp-ai.calix.local:6443
+  • CLI:     oc login -u kubeadmin https://api.ocp-ai.calix.local:6443 --insecure-skip-tls-verify
+  • SSH:     ssh -i ~/.ssh/ocp-ai core@<node-ip>
+  • Registry: default-route-openshift-image-registry.apps.ocp-ai.calix.local
+  • ArgoCD:  openshift-gitops-server-openshift-gitops.apps.ocp-ai.calix.local
+  • kubeconfig: ~/kubeconfig on plnx-admin (tokens expire)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 12. GIT REPO STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Local: ~/ocp-ai-config on plnx-admin
+  Remote: git@bitbucket.org:calixprod/ocp-ai-platform.git
+  Branch: main | Secrets: gitignored (secret-*.yaml)
+
+  ocp-ai-config/
+  ├── .gitignore
+  ├── apps/
+  │   └── root-app.yaml              # ArgoCD App-of-Apps
+  ├── nmstate/
+  │   ├── nncp-master01.yaml
+  │   ├── nncp-master02.yaml
+  │   └── nncp-master03.yaml
+  ├── trident/
+  │   ├── backend-infra.yaml
+  │   ├── backend-app.yaml
+  │   ├── storageclasses.yaml
+  │   ├── secret-infra.yaml           # gitignored
+  │   └── secret-app.yaml             # gitignored
+  └── machineconfigs/
+      └── mc-worker-mtu.yaml
+```
