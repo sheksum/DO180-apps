@@ -1,0 +1,73 @@
+cat << 'EOF' > ~/ocp-ai-config/apps/nmstate-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nmstate
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: nmstate
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openshift-nmstate
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+EOF
+
+
+cat << 'EOF' > ~/ocp-ai-config/apps/trident-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: trident
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: trident
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: trident
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+EOF
+
+
+
+cat << 'EOF' > ~/ocp-ai-config/apps/machineconfigs-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: machineconfigs
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: machineconfigs
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+EOF
+
+cd ~/ocp-ai-config
+git add apps/nmstate-app.yaml apps/trident-app.yaml apps/machineconfigs-app.yaml
+git commit -m "Add ArgoCD Application manifests for nmstate, trident, machineconfigs"
+git push origin main
