@@ -1,0 +1,1 @@
+ldapsearch -x -H ldap://cpeg-ipareplica.ipa.calix.local -D "cn=directory manager" -W -b "cn=config" "(objectclass=nsds5replicationagreement)" nsds5replicahost nsds5replicaLastUpdateStatus
