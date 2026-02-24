@@ -1,4 +1,22 @@
 
+ldapdelete -x -H ldap://localhost -D "cn=directory manager" -W "cn=KDC,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+ldapdelete -x -H ldap://localhost -D "cn=directory manager" -W "cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+
+
+ipa server-del pln-petipareplica.ipa.calix.local --force
+
+
+# Verify these still exist
+ipa host-show pln-petipareplica.ipa.calix.local
+ipa service-show HTTP/pln-petipareplica.ipa.calix.local
+
+
+ipa-server-install --uninstall --ignore-topology-disconnect
+ipa-replica-install --principal admin --admin-password '<password>' --setup-ca --domain ipa.calix.local --server cpeg-ipareplica.ipa.calix.local --realm IPA.CALIX.LOCAL --force-join
+
+
+
+
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=KDC,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=*)"
 
 
