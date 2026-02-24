@@ -1,0 +1,133 @@
+kubectl label node master01 patch-group=control-plane
+kubectl label node master02 patch-group=control-plane
+kubectl label node master03 patch-group=control-plane
+
+
+kubectl label node worker01 patch-group=worker
+kubectl label node worker02 patch-group=worker
+
+
+kubectl label node gpu01 patch-group=gpu
+kubectl label node gpu02 patch-group=gpu
+
+
+kubectl get nodes --show-labels | grep patch-group
+
+
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: os-patch-control-plane
+  namespace: cattle-system
+spec:
+  concurrency: 1
+
+  nodeSelector:
+    matchExpressions:
+      - key: patch-group
+        operator: In
+        values:
+          - control-plane
+
+  serviceAccountName: system-upgrade
+  cordon: true
+
+  drain:
+    timeout: 1200s
+    ignoreDaemonSets: true
+    deleteEmptyDirData: true
+
+  upgrade:
+    image: registry.access.redhat.com/ubi9/ubi
+    command:
+      - sh
+      - -c
+      - |
+        chroot /host dnf clean all
+        chroot /host dnf -y update
+        if chroot /host needs-restarting -r; then
+          chroot /host reboot
+        fi
+    hostPID: true
+    hostNetwork: true
+    securityContext:
+      privileged: true
+
+
+
+
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: os-patch-workers
+  namespace: cattle-system
+spec:
+  concurrency: 1
+
+  nodeSelector:
+    matchExpressions:
+      - key: patch-group
+        operator: In
+        values:
+          - worker
+
+  serviceAccountName: system-upgrade
+  cordon: true
+
+  drain:
+    timeout: 1200s
+    ignoreDaemonSets: true
+    deleteEmptyDirData: true
+
+  upgrade:
+    image: registry.access.redhat.com/ubi9/ubi
+    command:
+      - sh
+      - -c
+      - |
+        chroot /host dnf clean all
+        chroot /host dnf -y update
+        if chroot /host needs-restarting -r; then
+          chroot /host reboot
+        fi
+    hostPID: true
+    hostNetwork: true
+    securityContext:
+      privileged: true    apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: os-patch-gpu
+  namespace: cattle-system
+spec:
+  concurrency: 1
+
+  nodeSelector:
+    matchExpressions:
+      - key: patch-group
+        operator: In
+        values:
+          - gpu
+
+  serviceAccountName: system-upgrade
+  cordon: true
+
+  drain:
+    timeout: 1800s
+    ignoreDaemonSets: true
+    deleteEmptyDirData: true
+
+  upgrade:
+    image: registry.access.redhat.com/ubi9/ubi
+    command:
+      - sh
+      - -c
+      - |
+        chroot /host dnf clean all
+        chroot /host dnf -y update
+        if chroot /host needs-restarting -r; then
+          chroot /host reboot
+        fi
+    hostPID: true
+    hostNetwork: true
+    securityContext:
+      privileged: true
