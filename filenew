@@ -1,4 +1,5 @@
 
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=KDC,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=*)"
 
 
 cat > /tmp/pln-kdc.ldif << 'EOF'
