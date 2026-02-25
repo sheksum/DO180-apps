@@ -1,3 +1,8 @@
+
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config" nsds5replicaLastUpdateStatus nsds5replicaLastUpdateStatusJSON
+
+
+
 cat > /tmp/cpeg-agreement.ldif << 'EOF'
 dn: cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
 objectClass: nsds5replicationagreement
