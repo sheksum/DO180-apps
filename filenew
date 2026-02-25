@@ -1,3 +1,9 @@
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=cpeg-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" -s base "(objectclass=*)" ipaReplTopoManagedSuffix
+
+
+
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" -s base "(objectclass=*)" ipaReplTopoManagedSuffix
+
 
 ldapsearch -Y GSSAPI -H ldap://pln-petipareplica.ipa.calix.local -b "" -s base
 
