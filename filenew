@@ -1,3 +1,318 @@
+Master:
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(objectclass=nsds5replicationagreement)" dn nsds5replicahost nsds5replicaLastUpdateStatus
+Enter LDAP Password:
+# extended LDIF
+#
+# LDAPv3
+# base <cn=config> with scope subtree
+# filter: (objectclass=nsds5replicationagreement)
+# requesting: dn nsds5replicahost nsds5replicaLastUpdateStatus
+#
+
+# cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local, replica,
+  dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal, mapping tree, config
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=
+ replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+nsds5replicahost: ric-ipareplica01.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (18) Can't acquire replica (Incremental up
+ date transient warning.  Backing off, will retry update later.)
+
+# cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local, replica,
+  dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal, mapping tree, config
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=
+ replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+nsds5replicahost: sjc-ipareplica01.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (6) Replication error acquiring replica: U
+ nable to acquire replica: there is no replicated area on the consumer server.
+  Replication is aborting. (no such replica)
+
+# meTopln-petipareplica.ipa.calix.local, replica, dc\3Dipa\2Cdc\3Dcalix\2Cdc\3D
+ local, mapping tree, config
+dn: cn=meTopln-petipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcal
+ ix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+nsds5replicahost: pln-petipareplica.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
+ ntal update succeeded
+
+# caTopln-petipareplica.ipa.calix.local, replica, o\3Dipaca, mapping tree, conf
+ ig
+dn: cn=caTopln-petipareplica.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mappin
+ g tree,cn=config
+nsds5replicahost: pln-petipareplica.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (6) Replication error acquiring replica: U
+ nable to acquire replica: there is no replicated area on the consumer server.
+  Replication is aborting. (no such replica)
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 5
+# numEntries: 4
+[root@cpeg-ipareplica ~]#
+  [root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=*)"
+Enter LDAP Password:
+# extended LDIF
+#
+# LDAPv3
+# base <cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+
+# pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=ca
+ lix,dc=local
+ipaMaxDomainLevel: 1
+ipaMinDomainLevel: 1
+ipaReplTopoManagedSuffix: dc=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+objectClass: ipaReplTopoManagedServer
+objectClass: ipaSupportedDomainLevelConfig
+cn: pln-petipareplica.ipa.calix.local
+
+# KDC, pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KDC,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+ipaConfigString: startOrder 10
+ipaConfigString: configuredService
+ipaConfigString: kdcProxyEnabled
+ipaConfigString: pkinitEnabled
+ipaConfigString: enabledService
+cn: KDC
+
+# HTTP, pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=HTTP,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=i
+ pa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: HTTP
+ipaConfigString: startOrder 40
+ipaConfigString: enabledService
+
+# OTPD, pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=OTPD,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=i
+ pa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: OTPD
+ipaConfigString: startOrder 80
+ipaConfigString: enabledService
+
+# KEYS, pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KEYS,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=i
+ pa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: KEYS
+ipaConfigString: startOrder 41
+ipaConfigString: enabledService
+
+# KPASSWD, pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.loca
+ l
+dn: cn=KPASSWD,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,d
+ c=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: KPASSWD
+ipaConfigString: startOrder 20
+ipaConfigString: enabledService
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 7
+# numEntries: 6
+[root@cpeg-ipareplica ~]#
+    [root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=ipaReplTopoSegment)" dn
+Enter LDAP Password:
+# extended LDIF
+#
+# LDAPv3
+# base <cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
+# filter: (objectclass=ipaReplTopoSegment)
+# requesting: dn
+#
+
+# ric-ipareplica01.ipa.calix.local-to-ric-ipareplica.ipa.calix.local, domain, t
+ opology, ipa, etc, ipa.calix.local
+dn: cn=ric-ipareplica01.ipa.calix.local-to-ric-ipareplica.ipa.calix.local,cn=d
+ omain,cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+
+# sjc-ipareplica01.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local, domain,
+  topology, ipa, etc, ipa.calix.local
+dn: cn=sjc-ipareplica01.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn
+ =domain,cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+
+# ric-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local, domain,
+ topology, ipa, etc, ipa.calix.local
+dn: cn=ric-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local,cn=
+ domain,cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+
+# pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local, domain
+ , topology, ipa, etc, ipa.calix.local
+dn: cn=pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,c
+ n=domain,cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+
+# min-ipareplica.ipa.calix.local-to-nan-ipareplica.ipa.calix.local, ca, topolog
+ y, ipa, etc, ipa.calix.local
+dn: cn=min-ipareplica.ipa.calix.local-to-nan-ipareplica.ipa.calix.local,cn=ca,
+ cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+
+# sjc-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local, domain,
+ topology, ipa, etc, ipa.calix.local
+dn: cn=sjc-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local,cn=
+ domain,cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+
+# cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local, domain,
+  topology, ipa, etc, ipa.calix.local
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local,cn
+ =domain,cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+
+# cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local, ca, top
+ ology, ipa, etc, ipa.calix.local
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local,cn
+ =ca,cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 9
+# numEntries: 8
+[root@cpeg-ipareplica ~]#  ===========  [root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]# ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(objectclass=nsds5replicationagreement)" dn nsds5replicahost nsds5replicaLastUpdateStatus
+Enter LDAP Password:
+# extended LDIF
+#
+# LDAPv3
+# base <cn=config> with scope subtree
+# filter: (objectclass=nsds5replicationagreement)
+# requesting: dn nsds5replicahost nsds5replicaLastUpdateStatus
+#
+
+# pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local, replic
+ a, dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal, mapping tree, config
+dn: cn=pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,c
+ n=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+nsds5replicahost: nan-ipareplica01.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (0) No replication sessions started since
+ server startup
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]# ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=*)"
+Enter LDAP Password:
+# extended LDIF
+#
+# LDAPv3
+# base <cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+
+# pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=ca
+ lix,dc=local
+cn: pln-petipareplica.ipa.calix.local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+objectClass: ipaReplTopoManagedServer
+objectClass: ipaSupportedDomainLevelConfig
+ipaReplTopoManagedSuffix: dc=ipa,dc=calix,dc=local
+ipaMinDomainLevel: 1
+ipaMaxDomainLevel: 1
+
+# KDC, pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KDC,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+cn: KDC
+ipaConfigString: startOrder 10
+ipaConfigString: configuredService
+ipaConfigString: kdcProxyEnabled
+ipaConfigString: pkinitEnabled
+ipaConfigString: enabledService
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+
+# HTTP, pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=HTTP,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=i
+ pa,dc=calix,dc=local
+ipaConfigString: startOrder 40
+ipaConfigString: enabledService
+cn: HTTP
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+
+# OTPD, pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=OTPD,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=i
+ pa,dc=calix,dc=local
+ipaConfigString: startOrder 80
+ipaConfigString: enabledService
+cn: OTPD
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+
+# KEYS, pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KEYS,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=i
+ pa,dc=calix,dc=local
+ipaConfigString: startOrder 41
+ipaConfigString: enabledService
+cn: KEYS
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+
+# KPASSWD, pln-petipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.loca
+ l
+dn: cn=KPASSWD,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,d
+ c=ipa,dc=calix,dc=local
+ipaConfigString: startOrder 20
+ipaConfigString: enabledService
+cn: KPASSWD
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 7
+# numEntries: 6
+[root@pln-petipareplica ~]#
+
+
+
+
 # All replication agreements
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(objectclass=nsds5replicationagreement)" dn nsds5replicahost nsds5replicaLastUpdateStatus
 
