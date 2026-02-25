@@ -1,6 +1,27 @@
 
 
 
+Feb 25 03:45:29 pln-petipareplica audit type=AVC msg=audit(1771991129.718:524): avc:  denied  { open } for  pid=7630 comm="gssproxy" path="/var/lib/ipa/gssproxy/http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=1#
+Feb 25 03:45:29 pln-petipareplica audit type=AVC msg=audit(1771991129.718:525): avc:  denied  { lock } for  pid=7630 comm="gssproxy" path="/var/lib/ipa/gssproxy/http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=1#
+Feb 25 03:46:06 pln-petipareplica /usr/libexec/gdm-wayland-session[2425]: dbus-daemon[2425]: Unable to set up transient service directory: XDG_RUNTIME_DIR subdirectory "/run/user/42/dbus-1" not available: Permission denied
+Feb 25 03:46:07 pln-petipareplica audit type=AVC msg=audit(1771991167.471:530): avc:  denied  { read } for  pid=7630 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=0#
+Feb 25 03:46:07 pln-petipareplica audit type=AVC msg=audit(1771991167.473:531): avc:  denied  { read } for  pid=7630 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=0#
+Feb 25 03:46:07 pln-petipareplica audit type=AVC msg=audit(1771991167.481:532): avc:  denied  { read } for  pid=7630 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=0#
+Feb 25 03:46:34 pln-petipareplica /usr/libexec/gdm-wayland-session[2425]: dbus-daemon[2425]: Unable to set up transient service directory: XDG_RUNTIME_DIR subdirectory "/run/user/42/dbus-1" not available: Permission denied
+Feb 25 03:46:47 pln-petipareplica /usr/libexec/gdm-wayland-session[2425]: dbus-daemon[2425]: Unable to set up transient service directory: XDG_RUNTIME_DIR subdirectory "/run/user/42/dbus-1" not available: Permission denied
+Feb 25 03:47:43 pln-petipareplica audit type=AVC msg=audit(1771991263.055:553): avc:  denied  { read } for  pid=7630 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:httpd_keytab_t:s0 tclass=file permissive=0#
+Feb 25 03:47:43 pln-petipareplica audit type=AVC msg=audit(1771991263.056:554): avc:  denied  { read } for  pid=7630 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:httpd_keytab_t:s0 tclass=file permissive=0#
+Feb 25 03:51:05 pln-petipareplica audit type=AVC msg=audit(1771991465.634:557): avc:  denied  { read } for  pid=7630 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:httpd_keytab_t:s0 tclass=file permissive=0#
+Feb 25 03:51:05 pln-petipareplica audit type=AVC msg=audit(1771991465.634:558): avc:  denied  { read } for  pid=7630 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:httpd_keytab_t:s0 tclass=file permissive=0#
+Feb 25 03:51:12 pln-petipareplica audit type=AVC msg=audit(1771991472.489:561): avc:  denied  { read } for  pid=8999 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:httpd_keytab_t:s0 tclass=file permissive=0#
+Feb 25 03:51:12 pln-petipareplica audit type=AVC msg=audit(1771991472.489:562): avc:  denied  { read } for  pid=8999 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:httpd_keytab_t:s0 tclass=file permissive=0#
+Feb 25 03:51:12 pln-petipareplica audit type=AVC msg=audit(1771991472.489:563): avc:  denied  { read } for  pid=8999 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=unconfined_u:object_r:httpd_keytab_t:s0 tclass=file permissive=0#
+Feb 25 03:52:10 pln-petipareplica audit type=AVC msg=audit(1771991530.024:569): avc:  denied  { read } for  pid=9408 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=system_u:object_r:httpd_keytab_t:s0 tclass=file permissive=0#
+Feb 25 03:52:10 pln-petipareplica audit type=AVC msg=audit(1771991530.024:570): avc:  denied  { read } for  pid=9408 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=system_u:object_r:httpd_keytab_t:s0 tclass=file permissive=0#
+Feb 25 03:52:10 pln-petipareplica audit type=AVC msg=audit(1771991530.024:571): avc:  denied  { read } for  pid=9408 comm="gssproxy" name="http.keytab" dev="dm-0" ino=202612637 scontext=system_u:system_r:gssproxy_t:s0 tcontext=system_u:object_r:httpd_keytab_t:s0 tclass=file permissive=0#
+[root@pln-petipareplica ~]#
+
+
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "dc=ipa,dc=calix,dc=local" "(krbPrincipalName=HTTP/pln-petipareplica.ipa.calix.local@IPA.CALIX.LOCAL)" krbPrincipalKey krbLastPwdChange
 
 # On pln
