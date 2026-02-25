@@ -1,3 +1,4 @@
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=meTOpln-petipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config" "(objectclass=*)" '*'
 
 # On cpeg-ipareplica
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=meTOpln-petipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config" "(objectclass=*)" nsDS5ReplicaBindMethod nsDS5ReplicaTransportInfo nsDS5ReplicaBindDN nsDS5ReplicaPort
