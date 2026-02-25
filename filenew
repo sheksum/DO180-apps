@@ -1,5 +1,18 @@
 
 
+kinit -k -t /etc/dirsrv/ds.keytab ldap/cpeg-ipareplica.ipa.calix.local
+klist
+
+
+
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(nsds5replicahost=pln-petipareplica.ipa.calix.local)" nsds5ReplicaBindMethod nsds5ReplicaTransportInfo nsds5replicaport
+
+
+klist -kt /etc/dirsrv/ds.keytab
+
+
+kinit -k -t /etc/dirsrv/ds.keytab ldap/pln-petipareplica.ipa.calix.local
+
 
 cat > /tmp/pln-services.ldif << 'EOF'
 dn: cn=HTTP,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
