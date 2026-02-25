@@ -1,4 +1,78 @@
 
+
+
+cat > /tmp/pln-services.ldif << 'EOF'
+dn: cn=HTTP,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: HTTP
+ipaConfigString: startOrder 40
+ipaConfigString: enabledService
+
+dn: cn=OTPD,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: OTPD
+ipaConfigString: startOrder 80
+ipaConfigString: enabledService
+
+dn: cn=KEYS,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: KEYS
+ipaConfigString: startOrder 41
+ipaConfigString: enabledService
+EOF
+
+ldapadd -x -H ldap://localhost -D "cn=directory manager" -W -f /tmp/pln-services.ldif
+
+
+cat > /tmp/pln-kpasswd.ldif << 'EOF'
+dn: cn=KPASSWD,cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: KPASSWD
+ipaConfigString: startOrder 20
+ipaConfigString: enabledService
+EOF
+
+ldapadd -x -H ldap://localhost -D "cn=directory manager" -W -f /tmp/pln-kpasswd.ldif
+
+
+cat > /tmp/pln-update.ldif << 'EOF'
+dn: cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+changetype: modify
+add: objectClass
+objectClass: ipaReplTopoManagedServer
+objectClass: ipaSupportedDomainLevelConfig
+-
+add: ipaReplTopoManagedSuffix
+ipaReplTopoManagedSuffix: dc=ipa,dc=calix,dc=local
+-
+add: ipaMinDomainLevel
+ipaMinDomainLevel: 1
+-
+add: ipaMaxDomainLevel
+ipaMaxDomainLevel: 1
+EOF
+
+ldapmodify -x -H ldap://localhost -D "cn=directory manager" -W -f /tmp/pln-update.ldif
+
+ipa server-role-find --server=pln-petipareplica.ipa.calix.local
+
+ipa topologysegment-add domain --left=cpeg-ipareplica.ipa.calix.local --right=pln-petipareplica.ipa.calix.local
+
+
+
+
+
+
+
+
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=*)"
 
 
