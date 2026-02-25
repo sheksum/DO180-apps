@@ -1,3 +1,15 @@
+
+
+
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "dc=ipa,dc=calix,dc=local" "(krbPrincipalName=HTTP/pln-petipareplica.ipa.calix.local@IPA.CALIX.LOCAL)" krbPrincipalKey krbLastPwdChange
+
+# On pln
+systemctl restart krb5kdc
+kdestroy -A
+kinit admin
+kvno HTTP/pln-petipareplica.ipa.calix.local@IPA.CALIX.LOCAL
+
+
 # On cpeg-ipareplica
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "dc=ipa,dc=calix,dc=local" "(krbPrincipalName=HTTP/pln-petipareplica.ipa.calix.local@IPA.CALIX.LOCAL)" krbPrincipalKey krbLastPwdChange krbExtraData
 
