@@ -1,4 +1,8 @@
 
+ipa topologysegment-add domain --left=cpeg-ipareplica.ipa.calix.local --right=pln-petipareplica.ipa.calix.local --name=cpeg-to-pln
+
+
+
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(nsds5replicahost=pln-petipareplica.ipa.calix.local)" nsds5ReplicaTransportInfo nsds5replicaport
 
 
