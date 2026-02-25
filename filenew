@@ -1,3 +1,18 @@
+
+cat > /tmp/topo-segment.ldif << 'EOF'
+dn: cn=cpeg-to-pln,cn=domain,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: ipaReplTopoSegment
+objectClass: top
+cn: cpeg-to-pln
+ipaReplTopoSegmentDirection: both
+ipaReplTopoSegmentLeftNode: cpeg-ipareplica.ipa.calix.local
+ipaReplTopoSegmentRightNode: pln-petipareplica.ipa.calix.local
+EOF
+
+ldapadd -x -H ldap://localhost -D "cn=directory manager" -W -f /tmp/topo-segment.ldif
+
+
+
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=cpeg-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" -s base "(objectclass=*)" ipaReplTopoManagedSuffix
 
 
