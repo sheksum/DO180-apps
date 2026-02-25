@@ -1,3 +1,4 @@
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(cn=meTopln-petipareplica.ipa.calix.local)" "*"
 
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(objectclass=nsds5replicationagreement)" dn nsds5replicahost
 
