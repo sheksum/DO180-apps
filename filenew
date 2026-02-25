@@ -1,3 +1,16 @@
+sed -i '1087s/nsslapd-pluginEnabled: on/nsslapd-pluginEnabled: off/' /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
+
+
+sed -n '1086,1092p' /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
+
+ldapadd -x -H ldap://localhost -D "cn=directory manager" -W -f /tmp/cpeg-agreement.ldif
+
+
+systemctl stop dirsrv@IPA-CALIX-LOCAL
+sed -i '1087s/nsslapd-pluginEnabled: off/nsslapd-pluginEnabled: on/' /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
+systemctl start dirsrv@IPA-CALIX-LOCAL
+
+
 
 sed -i 's/nsslapd-pluginEnabled: off/nsslapd-pluginEnabled: on/' /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
 
