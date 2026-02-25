@@ -1,4 +1,14 @@
 
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=*)"
+
+
+
+
+
+
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=*)"
+
+
 ipa topologysegment-add domain --left=cpeg-ipareplica.ipa.calix.local --right=pln-petipareplica.ipa.calix.local --name=cpeg-to-pln
 
 
