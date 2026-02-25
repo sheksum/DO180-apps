@@ -1,4 +1,7 @@
 
+ldapsearch -Y GSSAPI -H ldap://pln-petipareplica.ipa.calix.local -b "" -s base
+
+
 
 kinit -k -t /etc/dirsrv/ds.keytab ldap/cpeg-ipareplica.ipa.calix.local
 klist
