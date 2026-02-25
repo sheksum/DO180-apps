@@ -1,3 +1,25 @@
+cat > /tmp/cpeg-agreement.ldif << 'EOF'
+dn: cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+objectClass: nsds5replicationagreement
+objectClass: top
+cn: meTocpeg-ipareplica.ipa.calix.local
+nsDS5ReplicaHost: cpeg-ipareplica.ipa.calix.local
+nsDS5ReplicaPort: 389
+nsds5replicaTimeout: 120
+nsDS5ReplicaRoot: dc=ipa,dc=calix,dc=local
+description: me to cpeg-ipareplica.ipa.calix.local
+nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserial entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount passwordgraceusertime
+nsDS5ReplicaTransportInfo: LDAP
+nsDS5ReplicaBindMethod: SASL/GSSAPI
+nsds5ReplicaStripAttrs: modifiersName modifyTimestamp internalModifiersName internalModifyTimestamp
+nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount passwordgraceusertime
+nsds5ReplicaEnabled: on
+EOF
+ldapadd -x -H ldap://localhost -D "cn=directory manager" -W -f /tmp/cpeg-agreement.ldif
+
+
+
+
 # numEntries: 1
 [root@cpeg-ipareplica ~]# ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=meTOpln-petipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config" "(objectclass=*)" '*'
 Enter LDAP Password:
