@@ -1,0 +1,5 @@
+# On cpeg-ipareplica
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "dc=ipa,dc=calix,dc=local" "(krbPrincipalName=HTTP/pln-petipareplica.ipa.calix.local@IPA.CALIX.LOCAL)" krbPrincipalKey krbLastPwdChange krbExtraData
+
+
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "dc=ipa,dc=calix,dc=local" "(krbPrincipalName=HTTP/cpeg-ipareplica.ipa.calix.local@IPA.CALIX.LOCAL)" krbPrincipalKey krbLastPwdChange krbExtraData
