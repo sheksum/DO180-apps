@@ -1,3 +1,8 @@
+
+sed -i 's/nsslapd-pluginEnabled: off/nsslapd-pluginEnabled: on/' /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
+
+
+
 # Stop dirsrv
 systemctl stop dirsrv@IPA-CALIX-LOCAL
 
