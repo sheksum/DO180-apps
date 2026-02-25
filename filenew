@@ -18,6 +18,7 @@ EOF
 
 ldapadd -x -H ldap://localhost -D "cn=directory manager" -W -f /tmp/cpeg-agreement.ldif
 
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(objectclass=nsds5replicationagreement)" dn nsds5replicahost nsds5replicaLastUpdateStatus
 
 
 
