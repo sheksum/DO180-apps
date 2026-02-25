@@ -1,3 +1,59 @@
+[root@pln-petipareplica ~]# sed -n '1540,1590p' /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
+objectClass: nsSlapdPlugin
+objectClass: extensibleObject
+
+dn: cn=PAM Pass Through Auth,cn=plugins,cn=config
+cn: PAM Pass Through Auth
+nsslapd-plugin-depends-on-type: database
+nsslapd-pluginDescription: PAM pass through authentication plugin
+nsslapd-pluginEnabled: on
+nsslapd-pluginId: pam_passthruauth
+nsslapd-pluginInitfunc: pam_passthruauth_init
+nsslapd-pluginPath: libpam-passthru-plugin
+nsslapd-pluginType: betxnpreoperation
+nsslapd-pluginVendor: 389 Project
+nsslapd-pluginVersion: 1.4.3.39
+nsslapd-pluginloadglobal: true
+objectClass: top
+objectClass: nsSlapdPlugin
+objectClass: extensibleObject
+objectClass: pamConfig
+pamExcludeSuffix: cn=config
+pamFallback: FALSE
+pamIDAttr: notUsedWithRDNMethod
+pamIDMapMethod: RDN
+pamMissingSuffix: ALLOW
+pamSecure: TRUE
+pamService: ldapserver
+
+dn: cn=Pass Through Authentication,cn=plugins,cn=config
+cn: Pass Through Authentication
+nsslapd-plugin-depends-on-type: database
+nsslapd-pluginDescription: pass through authentication plugin
+nsslapd-pluginEnabled: on
+nsslapd-pluginId: passthruauth
+nsslapd-pluginInitfunc: passthruauth_init
+nsslapd-pluginPath: libpassthru-plugin
+nsslapd-pluginType: preoperation
+nsslapd-pluginVendor: 389 Project
+nsslapd-pluginVersion: 1.4.3.39
+objectClass: top
+objectClass: nsSlapdPlugin
+objectClass: extensibleObject
+
+dn: cn=Password Storage Schemes,cn=plugins,cn=config
+cn: Password Storage Schemes
+objectClass: top
+objectClass: nsContainer
+numSubordinates: 23
+
+dn: cn=Posix Winsync API,cn=plugins,cn=config
+cn: Posix Winsync API
+nsslapd-plugin-depends-on-type: database
+[root@pln-petipareplica ~]#
+
+
+
 sed -i '1087s/nsslapd-pluginEnabled: on/nsslapd-pluginEnabled: off/' /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
 
 
