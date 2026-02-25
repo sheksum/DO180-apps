@@ -1,3 +1,12 @@
+# Stop dirsrv
+systemctl stop dirsrv@IPA-CALIX-LOCAL
+
+# Disable the topology plugin in dse.ldif
+sed -i 's/nsslapd-pluginEnabled: on/nsslapd-pluginEnabled: off/' /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
+
+
+
+
 cat > /tmp/cpeg-agreement.ldif << 'EOF'
 dn: cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
 objectClass: nsds5replicationagreement
