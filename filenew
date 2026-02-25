@@ -1,4 +1,9 @@
 
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=ipaReplTopoSegment)" dn
+
+
+
+
 cat > /tmp/topo-segment.ldif << 'EOF'
 dn: cn=cpeg-to-pln,cn=domain,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
 objectClass: ipaReplTopoSegment
