@@ -1,3 +1,86 @@
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(cn=meTopln-petipareplica.ipa.calix.local)" "*"
+Enter LDAP Password:
+# extended LDIF
+#
+# LDAPv3
+# base <cn=config> with scope subtree
+# filter: (cn=meTopln-petipareplica.ipa.calix.local)
+# requesting: *
+#
+
+# meTopln-petipareplica.ipa.calix.local, replica, dc\3Dipa\2Cdc\3Dcalix\2Cdc\3D
+ local, mapping tree, config
+dn: cn=meTopln-petipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcal
+ ix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+objectClass: nsds5replicationagreement
+objectClass: top
+objectClass: ipaReplTopoManagedAgreement
+cn: meTopln-petipareplica.ipa.calix.local
+nsDS5ReplicaHost: pln-petipareplica.ipa.calix.local
+nsDS5ReplicaPort: 389
+nsds5replicaTimeout: 120
+nsDS5ReplicaRoot: dc=ipa,dc=calix,dc=local
+description: me to pln-petipareplica.ipa.calix.local
+nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserial
+  entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount passwor
+ dgraceusertime
+nsDS5ReplicaTransportInfo: LDAP
+nsDS5ReplicaBindMethod: SASL/GSSAPI
+nsds5ReplicaStripAttrs: modifiersName modifyTimestamp internalModifiersName in
+ ternalModifyTimestamp
+nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblasts
+ uccessfulauth krblastfailedauth krbloginfailedcount passwordgraceusertime
+ipaReplTopoManagedAgreementState: managed agreement - controlled by topology p
+ lugin
+nsds50ruv: {replicageneration} 66ade489000000140000
+nsds50ruv: {replica 33 ldap://pln-petipareplica.ipa.calix.local:389} 699f46f40
+ 00100210000 699f4c02000100210000
+nsds50ruv: {replica 20 ldap://cpeg-ipareplica.ipa.calix.local:389} 66ade48b000
+ 000140000 ffffffff6f0a00140000
+nsds50ruv: {replica 25 ldap://pln-petipareplica.ipa.calix.local:389}
+nsds50ruv: {replica 31 ldap://pln-petipareplica.ipa.calix.local:389} 699e3f370
+ 001001f0000 699f2b7e0006001f0000
+nsruvReplicaLastModified: {replica 33 ldap://pln-petipareplica.ipa.calix.local
+ :389} 00000000
+nsruvReplicaLastModified: {replica 20 ldap://cpeg-ipareplica.ipa.calix.local:3
+ 89} 00000000
+nsruvReplicaLastModified: {replica 25 ldap://pln-petipareplica.ipa.calix.local
+ :389} 00000000
+nsruvReplicaLastModified: {replica 31 ldap://pln-petipareplica.ipa.calix.local
+ :389} 00000000
+nsds5ReplicaEnabled: on
+nsds5replicareapactive: 0
+nsds5replicaLastUpdateStart: 20260225014736Z
+nsds5replicaLastUpdateEnd: 20260225014736Z
+nsds5replicaChangesSentSinceStartup:: MjA6NDI1LzAg
+nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
+ ntal update succeeded
+nsds5replicaLastUpdateStatusJSON: {"state": "green", "ldap_rc": "0", "ldap_rc_
+ text": "Success", "repl_rc": "0", "repl_rc_text": "replica acquired", "date":
+  "2026-02-25T01:47:36Z", "message": "Error (0) Replica acquired successfully:
+  Incremental update succeeded"}
+nsds5replicaUpdateInProgress: FALSE
+nsds5replicaLastInitStart: 19700101000000Z
+nsds5replicaLastInitEnd: 19700101000000Z
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+[root@cpeg-ipareplica ~]#
+
+
+
+
+
+
+
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(cn=meTopln-petipareplica.ipa.calix.local)" "*"
 
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(objectclass=nsds5replicationagreement)" dn nsds5replicahost
