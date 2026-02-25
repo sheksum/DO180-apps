@@ -1,3 +1,22 @@
+# All replication agreements
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(objectclass=nsds5replicationagreement)" dn nsds5replicahost nsds5replicaLastUpdateStatus
+
+# Server entry for pln
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=*)"
+
+# Topology segments
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=ipaReplTopoSegment)" dn
+
+
+
+# All replication agreements
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=config" "(objectclass=nsds5replicationagreement)" dn nsds5replicahost nsds5replicaLastUpdateStatus
+
+# Server entry for pln
+ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=pln-petipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=*)"
+
+
+
 
 ldapsearch -x -H ldap://localhost -D "cn=directory manager" -W -b "cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" "(objectclass=ipaReplTopoSegment)" dn
 
