@@ -1,3 +1,9 @@
+# On cpeg-ipareplica
+grep -A15 "cn=Pass Through Authentication,cn=plugins,cn=config" /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
+
+
+
+
 [root@pln-petipareplica ~]# sed -n '1540,1590p' /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
 objectClass: nsSlapdPlugin
 objectClass: extensibleObject
