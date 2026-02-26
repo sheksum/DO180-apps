@@ -1221,3 +1221,15 @@ ARPING 10.172.248.175
 3 packets transmitted, 6 packets received,   0% unanswered (3 extra)
 rtt min/avg/max/std-dev = 0.375/0.445/0.546/0.071 ms
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstores,clustersecretstores -A
+NAMESPACE   NAME                                          AGE    STATUS   CAPABILITIES   READY
+trident     secretstore.external-secrets.io/vault-store   2d5h
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get serviceaccount -n external-secrets
+No resources found in external-secrets namespace.
+hsuma@plnx-admin:~/ocp-ai-config$
