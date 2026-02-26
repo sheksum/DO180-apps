@@ -239,3 +239,16 @@ nameserver 10.172.248.153
 nameserver 10.172.248.31
 nameserver 10.172.248.32
 [core@ocp-ai-gpu01 ~]$
+
+
+sudo bash -c 'cat > /var/run/NetworkManager/resolv.conf << EOF
+search ocp-ai.calix.local calix.local
+nameserver 10.172.248.153
+nameserver 10.172.248.31
+nameserver 10.172.248.32
+EOF'
+```
+
+Then watch the pod:
+```
+oc get pods -n openshift-kni-infra | grep gpu01
