@@ -854,3 +854,34 @@ FIELDS:
 
 
 hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc explain metallb.spec.controllerConfig --api-version=metallb.io/v1beta1
+GROUP:      metallb.io
+KIND:       MetalLB
+VERSION:    v1beta1
+
+FIELD: controllerConfig <Object>
+
+
+DESCRIPTION:
+    additional configs to be applied on MetalLB Controller deployment.
+
+FIELDS:
+  affinity	<Object>
+    If specified, the pod's scheduling constraints
+
+  annotations	<map[string]string>
+    Annotations to be applied for MetalLB Operator
+
+  priorityClassName	<string>
+    Define priority class name
+
+  resources	<Object>
+    Resource Requirements to be applied for containers which gets deployed
+    via MetalLB Operator
+
+  runtimeClassName	<string>
+    Define container runtime configuration class
+
+
+hsuma@plnx-admin:~/ocp-ai-config/apps$
