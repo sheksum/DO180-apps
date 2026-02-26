@@ -1,3 +1,84 @@
+oc apply -f - <<EOF
+# Service accounts
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-secrets
+  namespace: pai-dev
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-secrets
+  namespace: pai-test
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-secrets
+  namespace: pai-prod
+# SecretStores
+---
+apiVersion: external-secrets.io/v1
+kind: SecretStore
+metadata:
+  name: vault-store
+  namespace: pai-dev
+spec:
+  provider:
+    vault:
+      server: https://plnx-vault.calix.local:8200
+      path: kv
+      version: v2
+      auth:
+        kubernetes:
+          mountPath: kubernetes-ocp-ai
+          role: eso-pai-dev
+          serviceAccountRef:
+            name: external-secrets
+---
+apiVersion: external-secrets.io/v1
+kind: SecretStore
+metadata:
+  name: vault-store
+  namespace: pai-test
+spec:
+  provider:
+    vault:
+      server: https://plnx-vault.calix.local:8200
+      path: kv
+      version: v2
+      auth:
+        kubernetes:
+          mountPath: kubernetes-ocp-ai
+          role: eso-pai-test
+          serviceAccountRef:
+            name: external-secrets
+---
+apiVersion: external-secrets.io/v1
+kind: SecretStore
+metadata:
+  name: vault-store
+  namespace: pai-prod
+spec:
+  provider:
+    vault:
+      server: https://plnx-vault.calix.local:8200
+      path: kv
+      version: v2
+      auth:
+        kubernetes:
+          mountPath: kubernetes-ocp-ai
+          role: eso-pai-prod
+          serviceAccountRef:
+            name: external-secrets
+EOF
+
+
+
+
+
 hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstore vault-store -n trident -o yaml
 apiVersion: external-secrets.io/v1
 kind: SecretStore
