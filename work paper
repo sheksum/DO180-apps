@@ -1138,3 +1138,22 @@ status:
       namespace: openshift-ingress
 hsuma@plnx-admin:~/ocp-ai-config/apps$
 
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get l2advertisement l2-vlan1510 -n metallb-system -o jsonpath='{.spec.ipAddressPools}'
+["pai-services-dev","pai-services-test","pai-services-prod","reserved-future"]hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ sudo arping -c 3 -I ens33 10.172.248.175
+ARPING 10.172.248.175
+60 bytes from 00:25:b5:51:0b:68 (10.172.248.175): index=0 time=383.687 usec
+60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=1 time=546.440 usec
+60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=2 time=375.323 usec
+60 bytes from 00:25:b5:51:0b:68 (10.172.248.175): index=3 time=525.837 usec
+60 bytes from 00:25:b5:51:0b:68 (10.172.248.175): index=4 time=378.798 usec
+60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=5 time=462.142 usec
+^C
+--- 10.172.248.175 statistics ---
+3 packets transmitted, 6 packets received,   0% unanswered (3 extra)
+rtt min/avg/max/std-dev = 0.375/0.445/0.546/0.071 ms
+hsuma@plnx-admin:~/ocp-ai-config$
