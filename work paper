@@ -929,3 +929,35 @@ spec:
             matchLabels:
               app.kubernetes.io/part-of: pai
 EOF
+
+
+gateway.gateway.networking.k8s.io/pai-gateway created
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get gateway -n openshift-ingress
+NAME          CLASS               ADDRESS   PROGRAMMED   AGE
+pai-gateway   openshift-default             False        20s
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get gateway -n openshift-ingress
+NAME          CLASS               ADDRESS   PROGRAMMED   AGE
+pai-gateway   openshift-default             False        22s
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get pods -n openshift-ingress
+NAME                                             READY   STATUS    RESTARTS   AGE
+istiod-openshift-gateway-7cd77c7ffd-7wxpq        1/1     Running   0          2m58s
+pai-gateway-openshift-default-59c9d58c94-cnmk9   1/1     Running   0          32s
+router-default-56fb65447b-87hkv                  1/1     Running   0          2d3h
+router-default-56fb65447b-g8jhd                  1/1     Running   0          2d3h
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get svc -n openshift-ingress
+NAME                            TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                                 AGE
+istiod-openshift-gateway        ClusterIP      172.30.66.226   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   3m6s
+pai-gateway-openshift-default   LoadBalancer   172.30.31.98    <pending>     15021:30643/TCP,80:31594/TCP            40s
+router-internal-default         ClusterIP      172.30.16.162   <none>        80/TCP,443/TCP,1936/TCP                 10d
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get svc -n openshift-ingress
+NAME                            TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                                 AGE
+istiod-openshift-gateway        ClusterIP      172.30.66.226   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   3m11s
+pai-gateway-openshift-default   LoadBalancer   172.30.31.98    <pending>     15021:30643/TCP,80:31594/TCP            45s
+router-internal-default         ClusterIP      172.30.16.162   <none>        80/TCP,443/TCP,1936/TCP                 10d
+hsuma@plnx-admin:~/ocp-ai-config/apps$
