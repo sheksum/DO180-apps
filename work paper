@@ -89,3 +89,32 @@ spec:
     - ai-services-test
     - ai-services-prod
 EOF
+
+
+
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ocp-ai-dev
+  labels:
+    env: dev
+    app.kubernetes.io/part-of: ocp-ai
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ocp-ai-test
+  labels:
+    env: test
+    app.kubernetes.io/part-of: ocp-ai
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ocp-ai-prod
+  labels:
+    env: prod
+    app.kubernetes.io/part-of: ocp-ai
+EOF
