@@ -1,3 +1,14 @@
+oc apply -f - <<EOF
+apiVersion: operator.openshift.io/v1alpha1
+kind: ExternalSecretsConfig
+metadata:
+  name: cluster
+spec:
+  managementState: Managed
+EOF
+
+
+
 hsuma@plnx-admin:~/ocp-ai-config$
 hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecret -n trident
 NAME                   STORETYPE     STORE         REFRESH INTERVAL   STATUS   READY
