@@ -31,6 +31,53 @@ oc get secret test-secret -n pai-dev -o jsonpath='{.data.username}' | base64 -d
 
 
 
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstores -A
+NAMESPACE   NAME          AGE    STATUS   CAPABILITIES   READY
+pai-dev     vault-store   18s
+pai-prod    vault-store   18s
+pai-test    vault-store   18s
+trident     vault-store   2d5h
+hsuma@plnx-admin:~/ocp-ai-config$ oc apply -f - <<EOF
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: test-secret
+  namespace: pai-dev
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: vault-store
+    kind: SecretStore
+  target:
+    name: test-secret
+  data:
+    - secretKey: username
+      remoteRef:
+        key: pai/dev/test-secret
+        property: username
+    - secretKey: password
+      remoteRef:
+        key: pai/dev/test-secret
+        property: password
+EOF
+externalsecret.external-secrets.io/test-secret created
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecret test-secret -n pai-dev
+NAME          STORETYPE     STORE         REFRESH INTERVAL   STATUS   READY
+test-secret   SecretStore   vault-store   1m
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secret test-secret -n pai-dev -o jsonpath='{.data.username}' | base64 -d
+Error from server (NotFound): secrets "test-secret" not found
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secret test-secret -n pai-dev -o jsonpath='{.data.username}' | base64 -d
+Error from server (NotFound): secrets "test-secret" not found
+hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecret test-secret -n pai-dev
+NAME          STORETYPE     STORE         REFRESH INTERVAL   STATUS   READY
+test-secret   SecretStore   vault-store   1m
+
+
 oc apply -f - <<EOF
 # Service accounts
 ---
