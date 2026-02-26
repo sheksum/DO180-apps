@@ -1,3 +1,55 @@
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc describe secretstore vault-store -n pai-dev | tail -20
+      Auth:
+        Kubernetes:
+          Mount Path:  kubernetes-ocp-ai
+          Role:        eso-pai-dev
+          Service Account Ref:
+            Name:  external-secrets
+      Path:        kv
+      Server:      https://plnx-vault.calix.local:8200
+      Version:     v2
+Status:
+  Conditions:
+    Last Transition Time:  2026-02-26T06:37:45Z
+    Message:               unable to create client
+    Reason:                InvalidProviderConfig
+    Status:                False
+    Type:                  Ready
+Events:
+  Type     Reason                 Age   From          Message
+  ----     ------                 ----  ----          -------
+  Warning  InvalidProviderConfig  109s  secret-store  unable to log in to auth method: unable to log in with Kubernetes auth: context deadline exceeded
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc describe secretstore vault-store -n trident | tail -10
+  Conditions:
+    Last Transition Time:  2026-02-26T06:36:45Z
+    Message:               unable to create client
+    Reason:                InvalidProviderConfig
+    Status:                False
+    Type:                  Ready
+Events:
+  Type     Reason                 Age                  From          Message
+  ----     ------                 ----                 ----          -------
+  Warning  InvalidProviderConfig  96s (x2 over 4m36s)  secret-store  cannot request Kubernetes service account token for service account "external-secrets": cannot get Kubernetes service account "external-secrets": ServiceAccount "external-secrets" not found
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n external-secrets -o wide
+NAME                                                READY   STATUS    RESTARTS   AGE     IP             NODE                          NOMINATED NODE   READINESS GATES
+external-secrets-56f4bc8b5-z28x2                    1/1     Running   0          5m49s   10.129.0.158   ocp-ai-master01.calix.local   <none>           <none>
+external-secrets-cert-controller-6db84767c6-wn7fc   1/1     Running   0          5m49s   10.128.0.200   ocp-ai-master02.calix.local   <none>           <none>
+external-secrets-webhook-946c4fdd4-zjw59            1/1     Running   0          5m49s   10.129.0.157   ocp-ai-master01.calix.local   <none>           <none>
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstore vault-store -n trident -o yaml | grep -A5 caBundle
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstore vault-store -n trident -o yaml | grep -A5 caProvider
+hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
 oc describe secretstore vault-store -n trident | tail -10
 
 oc get pods -n external-secrets -o wide
