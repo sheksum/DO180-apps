@@ -559,3 +559,25 @@ spec:
         factor: 2
         maxDuration: 3m
 EOF
+
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ cat apps/root-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ocp-ai-platform
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: apps
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+hsuma@plnx-admin:~/ocp-ai-config$
