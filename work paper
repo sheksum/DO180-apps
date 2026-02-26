@@ -168,3 +168,25 @@ Events:
   ----     ------            ----  ----                -------
   Warning  AllocationFailed  72s   metallb-controller  Failed to allocate IP for "pai-dev/nginx-test-lb": service can not have both metallb.io/loadBalancerIPs and svc.Spec.LoadBalancerIP
 hsuma@plnx-admin:~$
+
+
+
+oc delete svc nginx-test-lb -n pai-dev
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-test-lb
+  namespace: pai-dev
+  annotations:
+    metallb.universe.tf/address-pool: ai-services-dev
+    metallb.universe.tf/loadBalancerIPs: "10.172.248.160"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: nginx-test
+EOF
