@@ -1,4 +1,4 @@
-
+oc debug node/ocp-ai-master01.calix.local -- chroot /host curl -s -o /dev/null -w "%{http_code}" -H "Host: httpbin-dev.apps.ocp-ai.calix.local" http://10.172.248.175
 
 oc apply -f - <<EOF
 apiVersion: metallb.io/v1beta1
