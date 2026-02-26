@@ -692,3 +692,10 @@ hsuma@plnx-admin:~/ocp-ai-config/apps$
 hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get application ocp-ai-platform -n openshift-gitops -o jsonpath='{.spec.source.path}'
 appshsuma@plnx-admin:~/ocp-ai-config/apps$
 
+
+hsuma@plnx-admin:~/ocp-ai-config/apps$ git ls-tree --name-only HEAD
+machineconfigs-app.yaml
+nmstate-app.yaml
+root-app.yaml
+trident-apps.yaml
+hsuma@plnx-admin:~/ocp-ai-config/apps$
