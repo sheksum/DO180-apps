@@ -233,3 +233,21 @@ hsuma@plnx-admin:~$ ip route get 10.172.248.150
 10.172.248.150 dev ens33 src 10.172.248.105 uid 13232
     cache
 hsuma@plnx-admin:~$
+
+
+hsuma@plnx-admin:~$ arping -c 3 -I ens33 10.172.248.160
+arping: libnet_init(LIBNET_LINK, ens33): libnet_open_link(): UID/EUID 0 or capability CAP_NET_RAW required
+arping: you may need to run as root
+hsuma@plnx-admin:~$ sudo arping -c 3 -I ens33 10.172.248.160
+ARPING 10.172.248.160
+60 bytes from 00:25:b5:51:0b:68 (10.172.248.160): index=0 time=526.104 usec
+60 bytes from 00:25:b5:50:0a:68 (10.172.248.160): index=1 time=619.438 usec
+60 bytes from 00:25:b5:51:0b:68 (10.172.248.160): index=2 time=388.058 usec
+60 bytes from 00:25:b5:50:0a:68 (10.172.248.160): index=3 time=461.321 usec
+60 bytes from 00:25:b5:50:0a:68 (10.172.248.160): index=4 time=326.507 usec
+60 bytes from 00:25:b5:51:0b:68 (10.172.248.160): index=5 time=404.006 usec
+
+--- 10.172.248.160 statistics ---
+3 packets transmitted, 6 packets received,   0% unanswered (3 extra)
+rtt min/avg/max/std-dev = 0.327/0.454/0.619/0.096 ms
+hsuma@plnx-admin:~$
