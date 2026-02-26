@@ -28,6 +28,60 @@ hsuma@plnx-admin:~/ocp-ai-config$
 
 
 
+
+# pai-dev policy
+vault policy write eso-pai-dev - <<EOF
+path "kv/data/pai/dev/*" {
+  capabilities = ["read"]
+}
+path "kv/metadata/pai/dev/*" {
+  capabilities = ["read", "list"]
+}
+EOF
+
+# pai-test policy
+vault policy write eso-pai-test - <<EOF
+path "kv/data/pai/test/*" {
+  capabilities = ["read"]
+}
+path "kv/metadata/pai/test/*" {
+  capabilities = ["read", "list"]
+}
+EOF
+
+# pai-prod policy
+vault policy write eso-pai-prod - <<EOF
+path "kv/data/pai/prod/*" {
+  capabilities = ["read"]
+}
+path "kv/metadata/pai/prod/*" {
+  capabilities = ["read", "list"]
+}
+EOF
+
+
+
+
+vault write auth/kubernetes-ocp-ai/role/eso-pai-dev \
+  bound_service_account_names=external-secrets \
+  bound_service_account_namespaces=pai-dev \
+  policies=eso-pai-dev \
+  ttl=1h
+
+vault write auth/kubernetes-ocp-ai/role/eso-pai-test \
+  bound_service_account_names=external-secrets \
+  bound_service_account_namespaces=pai-test \
+  policies=eso-pai-test \
+  ttl=1h
+
+vault write auth/kubernetes-ocp-ai/role/eso-pai-prod \
+  bound_service_account_names=external-secrets \
+  bound_service_account_namespaces=pai-prod \
+  policies=eso-pai-prod \
+  ttl=1h
+
+
+
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
 metadata:
