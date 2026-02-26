@@ -1,0 +1,7 @@
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc describe nodes ocp-ai-gpu01.calix.local | grep -A3 Taints
+Taints:             node.kubernetes.io/unreachable:NoExecute
+                    node.kubernetes.io/unreachable:NoSchedule
+                    nvidia.com/gpu=true:NoSchedule
+Unschedulable:      false
+hsuma@plnx-admin:~$
