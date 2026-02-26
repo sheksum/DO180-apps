@@ -97,24 +97,24 @@ oc apply -f - <<EOF
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ocp-ai-dev
+  name: pai-dev
   labels:
     env: dev
-    app.kubernetes.io/part-of: ocp-ai
+    app.kubernetes.io/part-of: pai
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ocp-ai-test
+  name: pai-test
   labels:
     env: test
-    app.kubernetes.io/part-of: ocp-ai
+    app.kubernetes.io/part-of: pai
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ocp-ai-prod
+  name: pai-prod
   labels:
     env: prod
-    app.kubernetes.io/part-of: ocp-ai
+    app.kubernetes.io/part-of: pai
 EOF
