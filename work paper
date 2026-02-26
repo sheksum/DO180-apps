@@ -1,3 +1,33 @@
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstore vault-store -n trident -o yaml
+apiVersion: external-secrets.io/v1
+kind: SecretStore
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"external-secrets.io/v1","kind":"SecretStore","metadata":{"annotations":{},"name":"vault-store","namespace":"trident"},"spec":{"provider":{"vault":{"auth":{"kubernetes":{"mountPath":"kubernetes-ocp-ai","role":"eso-trident","serviceAccountRef":{"name":"external-secrets"}}},"path":"kv","server":"https://plnx-vault.calix.local:8200","version":"v2"}}}}
+  creationTimestamp: "2026-02-24T00:38:44Z"
+  generation: 1
+  name: vault-store
+  namespace: trident
+  resourceVersion: "3424705"
+  uid: 0d7fff1f-b64d-49da-9899-c9f727d20441
+spec:
+  provider:
+    vault:
+      auth:
+        kubernetes:
+          mountPath: kubernetes-ocp-ai
+          role: eso-trident
+          serviceAccountRef:
+            name: external-secrets
+      path: kv
+      server: https://plnx-vault.calix.local:8200
+      version: v2
+hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
+
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
 metadata:
