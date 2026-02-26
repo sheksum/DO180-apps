@@ -618,3 +618,13 @@ Wired connection 5.nmconnection  bond0.1792.nmconnection          bond0.1794.nmc
 [core@ocp-ai-gpu02 ~]$ cat /etc/NetworkManager/system-connections/ovs-if-br-ex.nmconnectio
 cat: /etc/NetworkManager/system-connections/ovs-if-br-ex.nmconnectio: No such file or directory
 [core@ocp-ai-gpu02 ~]$
+
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs nfd-worker-2d76r -n openshift-nfd
+I0226 19:46:48.121628       1 main.go:59] "version not set! Set -ldflags \"-X github.com/openshift/node-feature-discovery/pkg/version.version=`git describe --tags --dirty --always --match 'v*'`\" during build or run."
+I0226 19:46:48.122085       1 nfd-worker.go:294] "Node Feature Discovery Worker" version="undefined" nodeName="ocp-ai-gpu01.calix.local" namespace="openshift-nfd"
+I0226 19:46:48.122326       1 nfd-worker.go:493] "configuration file parsed" path="/etc/kubernetes/node-feature-discovery/nfd-worker.conf"
+E0226 19:47:18.123896       1 nfd-worker.go:261] "failed to get self pod, cannot inherit ownerReference for NodeFeature" err="Get \"https://172.30.0.1:443/api/v1/namespaces/openshift-nfd/pods/nfd-worker-2d76r\": dial tcp 172.30.0.1:443: i/o timeout"
+E0226 19:47:18.123920       1 main.go:70] "error while running" err="Get \"https://172.30.0.1:443/api/v1/namespaces/openshift-nfd/pods/nfd-worker-2d76r\": dial tcp 172.30.0.1:443: i/o timeout"
+hsuma@plnx-admin:~$
