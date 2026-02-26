@@ -1,17 +1,7 @@
-cd ~/ocp-ai-config
-cp /path/to/99-worker-nm-dns-fix.yaml machineconfigs/99-worker-nm-dns-fix.yaml
-git add machineconfigs/99-worker-nm-dns-fix.yaml
-git commit -m "Add MachineConfig: permanent fix for worker NM DNS bug (OVN-K bare-metal)
+oc get mcp worker -o jsonpath='{.status.conditions[?(@.type=="Degraded")].message}{"\n"}'
 
-OVN-K creates ovs-if-br-ex at runtime without DNS servers. On reboot,
-resolv-prepender.sh hangs, kubelet fails to start. This adds a systemd
-oneshot (ensure-nm-dns.service) that injects DNS into resolv.conf before
-kubelet starts. Fixes gpu01/gpu02 and any future worker nodes.
-
-Ref: OCP-AI-Session-Handoff-Feb26-PM, Known Issues section"
-git push origin main
-
-
+oc get nodes
+oc get mcp worker -o jsonpath='{.status.degradedMachineCount}{"\n"}'
 
 [core@ocp-ai-gpu01 ~]$
 [core@ocp-ai-gpu01 ~]$ sudo cat /etc/NetworkManager/NetworkManager.conf
