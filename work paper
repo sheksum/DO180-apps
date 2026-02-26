@@ -1,5 +1,22 @@
 oc debug node/ocp-ai-master01.calix.local -- chroot /host curl -s -o /dev/null -w "%{http_code}" -H "Host: httpbin-dev.apps.ocp-ai.calix.local" http://10.172.248.175
 
+
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc debug node/ocp-ai-master01.calix.local -- chroot /host curl -s -o /dev/null -w "%{http_code}" -H "Host: httpbin-dev.apps.ocp-ai.calix.local" http://10.172.248.175
+Starting pod/ocp-ai-master01calixlocal-debug-79bm7 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+403
+Removing debug pod ...
+hsuma@plnx-admin:~/ocp-ai-config/apps$ sudo arping -c 3 -I ens33 10.172.248.175
+ARPING 10.172.248.175
+Timeout
+Timeout
+Timeout
+
+--- 10.172.248.175 statistics ---
+3 packets transmitted, 0 packets received, 100% unanswered (0 extra)
+
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+
 oc apply -f - <<EOF
 apiVersion: metallb.io/v1beta1
 kind: MetalLB
