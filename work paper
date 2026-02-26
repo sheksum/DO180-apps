@@ -383,3 +383,37 @@ hsuma@plnx-admin:~/ocp-ai-config$
 hsuma@plnx-admin:~/ocp-ai-config$
 
 
+hsuma@plnx-admin:~/ocp-ai-config$ oc describe application metallb -n openshift-gitops | tail -30
+hsuma@plnx-admin:~/ocp-ai-config$ oc describe application metallb -n openshift-gitops | tail -30
+        Duration:      5s
+        Factor:        2
+        Max Duration:  3m
+      Limit:           5
+    Sync Options:
+      ServerSideApply=true
+Status:
+  Conditions:
+    Last Transition Time:  2026-02-26T03:38:19Z
+    Message:               Failed to load target state: failed to generate manifest for source 1 of 1: rpc error: code = Unknown desc = ocp-ai-config/metallb: app path does not exist
+    Type:                  ComparisonError
+  Controller Namespace:    openshift-gitops
+  Health:
+    Last Transition Time:  2026-02-26T03:38:20Z
+    Status:                Healthy
+  Reconciled At:           2026-02-26T03:38:19Z
+  Sync:
+    Compared To:
+      Destination:
+        Server:  https://kubernetes.default.svc
+      Source:
+        Path:             ocp-ai-config/metallb
+        Repo URL:         git@bitbucket.org:calixprod/ocp-ai-platform.git
+        Target Revision:  main
+    Status:               Unknown
+Events:
+  Type    Reason           Age    From                           Message
+  ----    ------           ----   ----                           -------
+  Normal  ResourceUpdated  2m12s  argocd-application-controller  Updated sync status:  -> Unknown
+  Normal  ResourceUpdated  2m12s  argocd-application-controller  Updated health status:  -> Healthy
+
+
