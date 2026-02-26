@@ -1,3 +1,30 @@
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mc 99-worker-nm-dns-fix -o yaml | head -20
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: machineconfigs:machineconfiguration.openshift.io/MachineConfig:/99-worker-nm-dns-fix
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"machineconfiguration.openshift.io/v1","kind":"MachineConfig","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"machineconfigs:machineconfiguration.openshift.io/MachineConfig:/99-worker-nm-dns-fix"},"labels":{"machineconfiguration.openshift.io/role":"worker"},"name":"99-worker-nm-dns-fix"},"spec":{"config":{"ignition":{"version":"3.2.0"},"storage":{"files":[{"contents":{"inline":"#!/bin/bash\n# ensure-nm-dns.sh\n# Ensures /var/run/NetworkManager/resolv.conf has DNS servers\n# before kubelet starts. Fixes OVN-K bare-metal bug where\n# ovs-if-br-ex is created at runtime without DNS, causing\n# resolv-prepender.sh to hang indefinitely and kubelet to\n# fail with \"NM resolv-prepender failed\".\n#\n# Root cause: OVN-K creates ovs-if-br-ex in /run/NetworkManager/\n# system-connections/ (tmpfs, wiped on reboot) without ipv4.dns.\n# NM then generates resolv.conf with no nameservers.\n#\n# This runs as a oneshot before kubelet — no race condition.\n#\n# Cluster: ocp-ai.calix.local (OCP 4.20.13)\n# DNS: 10.172.248.31, 10.172.248.32\n# Author: Haj Suma\n# Date: February 26, 2026\n\nRESOLV=\"/var/run/NetworkManager/resolv.conf\"\nDNS1=\"10.172.248.31\"\nDNS2=\"10.172.248.32\"\nSEARCH=\"calix.local\"\nMAX_WAIT=120\nINTERVAL=2\n\necho \"[ensure-nm-dns] Waiting for ${RESOLV} to exist (max ${MAX_WAIT}s)...\"\n\nelapsed=0\nwhile [ ! -f \"$RESOLV\" ]; do\n  if [ $elapsed -ge $MAX_WAIT ]; then\n    echo \"[ensure-nm-dns] WARN: ${RESOLV} not found after ${MAX_WAIT}s, creating it\"\n    mkdir -p /var/run/NetworkManager\n    touch \"$RESOLV\"\n    break\n  fi\n  sleep $INTERVAL\n  elapsed=$((elapsed + INTERVAL))\ndone\n\necho \"[ensure-nm-dns] ${RESOLV} exists after ${elapsed}s\"\n\nif grep -q \"nameserver\" \"$RESOLV\" 2\u003e/dev/null; then\n  echo \"[ensure-nm-dns] DNS already present in ${RESOLV}, nothing to do\"\n  cat \"$RESOLV\"\n  exit 0\nfi\n\necho \"[ensure-nm-dns] No nameservers found, injecting DNS...\"\nprintf \"# Injected by ensure-nm-dns.sh (MachineConfig 99-worker-nm-dns-fix)\\n# OVN-K does not inject DNS into ovs-if-br-ex on bare metal\\nsearch %s\\nnameserver %s\\nnameserver %s\\n\" \"$SEARCH\" \"$DNS1\" \"$DNS2\" \u003e \"$RESOLV\"\n\nif nmcli connection show ovs-if-br-ex \u0026\u003e/dev/null; then\n  echo \"[ensure-nm-dns] Injecting DNS into ovs-if-br-ex NM connection...\"\n  nmcli connection modify ovs-if-br-ex ipv4.dns \"${DNS1} ${DNS2}\" ipv4.dns-priority 40\n  nmcli connection up ovs-if-br-ex 2\u003e/dev/null || true\nfi\n\necho \"[ensure-nm-dns] DNS fix applied:\"\ncat \"$RESOLV\"\nexit 0\n"},"mode":493,"path":"/usr/local/bin/ensure-nm-dns.sh"}]},"systemd":{"units":[{"contents":"[Unit]\nDescription=Ensure NM resolv.conf has DNS servers (OVN-K bare-metal fix)\nAfter=NetworkManager.service\nBefore=kubelet.service\nBefore=nodeip-configuration.service\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/local/bin/ensure-nm-dns.sh\nTimeoutStartSec=180\n\n[Install]\nWantedBy=multi-user.target\n","enabled":true,"name":"ensure-nm-dns.service"}]}}}}
+  creationTimestamp: "2026-02-26T20:09:51Z"
+  generation: 3
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-nm-dns-fix
+  resourceVersion: "5060272"
+  uid: 88531a14-b088-466c-90e0-ae6423851d18
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
+
+
 oc get mc -l machineconfiguration.openshift.io/role=worker --no-headers -o custom-columns=NAME:.metadata.name | while read mc; do
   count=$(oc get mc "$mc" -o json | python3 -c "import sys,json; d=json.load(sys.stdin); files=d.get('spec',{}).get('config',{}).get('storage',{}).get('files',[]); print(len(files))")
   has_overwrite=$(oc get mc "$mc" -o json | python3 -c "import sys,json; d=json.load(sys.stdin); files=d.get('spec',{}).get('config',{}).get('storage',{}).get('files',[]); print([i for i,f in enumerate(files) if f.get('overwrite')])")
