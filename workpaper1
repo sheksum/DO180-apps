@@ -16,3 +16,12 @@ Conditions:
   PIDPressure      Unknown   Thu, 26 Feb 2026 11:32:17 -0600   Thu, 26 Feb 2026 11:33:18 -0600   NodeStatusUnknown   Kubelet stopped posting node status.
 hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$
+
+
+
+ssh core@ocp-ai-gpu01.calix.local
+sudo systemctl status kubelet
+sudo journalctl -u kubelet --since "11:30" --no-pager | tail -50
+
+
+sudo systemctl restart kubelet
