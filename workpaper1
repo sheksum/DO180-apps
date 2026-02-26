@@ -4,6 +4,11 @@ oc get mc -l machineconfiguration.openshift.io/role=worker -o jsonpath='{range .
 
 
 
+oc get mc 99-worker-nm-dns-fix -o jsonpath='{.spec.config.storage.files[0].contents.inline}' | head -20
+
+
+oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=50 | grep -i "render\|error\|degrad"
+
   Ready Machine Count:          2
 hsuma@plnx-admin:~/ocp-ai-config$
 hsuma@plnx-admin:~/ocp-ai-config$ oc get mc 99-worker-nm-dns-fix -o jsonpath='{.spec.config.ignition.version}{"\n"}'
