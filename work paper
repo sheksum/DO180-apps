@@ -755,13 +755,46 @@ EOF
 
 
 
-hsuma@plnx-admin:~/ocp-ai-config$ git ls-tree --name-only HEAD .
-.gitignore
-README.md
-apps
-machineconfigs
-metallb
-nmstate
-trident
-hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get application -n openshift-gitops -w
+NAME              SYNC STATUS   HEALTH STATUS
+machineconfigs    Synced        Healthy
+metallb           Synced        Healthy
+nmstate           Synced        Healthy
+ocp-ai-platform   Synced        Healthy
+trident           Synced        Healthy
+^Chsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get metallb -n metallb-system
+NAME      AGE
+metallb   83s
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get ipaddresspools -n metallb-system
+NAME                AUTO ASSIGN   AVOID BUGGY IPS   ADDRESSES
+pai-services-dev    false         false             ["10.172.248.160-10.172.248.163"]
+pai-services-prod   false         false             ["10.172.248.170-10.172.248.173"]
+pai-services-test   false         false             ["10.172.248.165-10.172.248.168"]
+reserved-future     false         false             ["10.172.248.175-10.172.248.180"]
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get l2advertisements -n metallb-system
+NAME          IPADDRESSPOOLS                                                 IPADDRESSPOOL SELECTORS   INTERFACES
+l2-vlan1510   ["pai-services-dev","pai-services-test","pai-services-prod"]
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get pods -n metallb-system
+NAME                                                   READY   STATUS    RESTARTS   AGE
+controller-fb7fcb695-hhhnq                             2/2     Running   0          2m9s
+metallb-operator-controller-manager-68b4948857-hn29n   1/1     Running   0          123m
+metallb-operator-webhook-server-6c48f9b746-ln7vr       1/1     Running   0          123m
+speaker-h9xxx                                          2/2     Running   0          2m9s
+speaker-k5k8b                                          2/2     Running   0          2m9s
+speaker-nn6pq                                          2/2     Running   0          2m9s
+hsuma@plnx-admin:~/ocp-ai-config/apps$
 
