@@ -961,3 +961,9 @@ istiod-openshift-gateway        ClusterIP      172.30.66.226   <none>        150
 pai-gateway-openshift-default   LoadBalancer   172.30.31.98    <pending>     15021:30643/TCP,80:31594/TCP            45s
 router-internal-default         ClusterIP      172.30.16.162   <none>        80/TCP,443/TCP,1936/TCP                 10d
 hsuma@plnx-admin:~/ocp-ai-config/apps$
+
+
+
+oc annotate svc pai-gateway-openshift-default -n openshift-ingress \
+  metallb.universe.tf/address-pool=reserved-future \
+  metallb.universe.tf/loadBalancerIPs=10.172.248.175
