@@ -12,6 +12,7 @@ spec:
       files:
         - path: /usr/local/bin/ensure-nm-dns.sh
           mode: 0755
+          overwrite: true
           contents:
             inline: |
               #!/bin/bash
@@ -56,7 +57,6 @@ spec:
 
               echo "[ensure-nm-dns] ${RESOLV} exists after ${elapsed}s"
 
-              # Check if nameservers are already present
               if grep -q "nameserver" "$RESOLV" 2>/dev/null; then
                 echo "[ensure-nm-dns] DNS already present in ${RESOLV}, nothing to do"
                 cat "$RESOLV"
@@ -64,15 +64,8 @@ spec:
               fi
 
               echo "[ensure-nm-dns] No nameservers found, injecting DNS..."
-              cat > "$RESOLV" <<-EOF
-              # Injected by ensure-nm-dns.sh (MachineConfig 99-worker-nm-dns-fix)
-              # OVN-K does not inject DNS into ovs-if-br-ex on bare metal
-              search ${SEARCH}
-              nameserver ${DNS1}
-              nameserver ${DNS2}
-              EOF
+              printf "# Injected by ensure-nm-dns.sh (MachineConfig 99-worker-nm-dns-fix)\n# OVN-K does not inject DNS into ovs-if-br-ex on bare metal\nsearch %s\nnameserver %s\nnameserver %s\n" "$SEARCH" "$DNS1" "$DNS2" > "$RESOLV"
 
-              # Also fix the ovs-if-br-ex connection if it exists
               if nmcli connection show ovs-if-br-ex &>/dev/null; then
                 echo "[ensure-nm-dns] Injecting DNS into ovs-if-br-ex NM connection..."
                 nmcli connection modify ovs-if-br-ex ipv4.dns "${DNS1} ${DNS2}" ipv4.dns-priority 40
@@ -89,10 +82,8 @@ spec:
           contents: |
             [Unit]
             Description=Ensure NM resolv.conf has DNS servers (OVN-K bare-metal fix)
-            # Run after NetworkManager is up but before kubelet
             After=NetworkManager.service
             Before=kubelet.service
-            # Also before the resolv-prepender that kubelet depends on
             Before=nodeip-configuration.service
 
             [Service]
