@@ -1,3 +1,11 @@
+oc get mc -l machineconfiguration.openshift.io/role=worker --no-headers -o custom-columns=NAME:.metadata.name | while read mc; do
+  count=$(oc get mc "$mc" -o json | python3 -c "import sys,json; d=json.load(sys.stdin); files=d.get('spec',{}).get('config',{}).get('storage',{}).get('files',[]); print(len(files))")
+  has_overwrite=$(oc get mc "$mc" -o json | python3 -c "import sys,json; d=json.load(sys.stdin); files=d.get('spec',{}).get('config',{}).get('storage',{}).get('files',[]); print([i for i,f in enumerate(files) if f.get('overwrite')])")
+  echo "$mc: $count files, overwrite at: $has_overwrite"
+done
+
+
+
 E0226 20:39:46.897196       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-20b4c0c1ca36e818ba5768405bb58263" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
 Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
 ; component errors: <nil>
