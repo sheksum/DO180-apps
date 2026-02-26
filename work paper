@@ -699,3 +699,29 @@ nmstate-app.yaml
 root-app.yaml
 trident-apps.yaml
 hsuma@plnx-admin:~/ocp-ai-config/apps$
+
+
+
+
+cat > ~/ocp-ai-config/apps/metallb-app.yaml <<EOF
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: metallb
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: metallb-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+EOF
