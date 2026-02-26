@@ -190,3 +190,13 @@ spec:
   selector:
     app: nginx-test
 EOF
+
+
+# Check which speaker owns the VIP
+oc logs -l component=speaker -n metallb-system --tail=10
+
+# Check if the endpoint is healthy
+oc get endpoints nginx-test-lb -n pai-dev
+
+# Try from a node directly
+oc debug node/ocp-ai-master01.calix.local -- curl -s -o /dev/null -w "%{http_code}" http://10.172.248.160
