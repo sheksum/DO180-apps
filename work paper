@@ -752,3 +752,16 @@ spec:
     syncOptions:
       - CreateNamespace=false
 EOF
+
+
+
+hsuma@plnx-admin:~/ocp-ai-config$ git ls-tree --name-only HEAD .
+.gitignore
+README.md
+apps
+machineconfigs
+metallb
+nmstate
+trident
+hsuma@plnx-admin:~/ocp-ai-config$
+
