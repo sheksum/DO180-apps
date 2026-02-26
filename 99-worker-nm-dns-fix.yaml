@@ -1,4 +1,4 @@
-oc get mc rendered-worker-3c8750c881df6f82403924904fac6469 -o json | python3 -c "
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mc rendered-worker-3c8750c881df6f82403924904fac6469 -o json | python3 -c "
 import sys,json
 d=json.load(sys.stdin)
 files=d['spec']['config']['storage']['files']
@@ -8,6 +8,10 @@ for i,f in enumerate(files):
         src = 'inline' if f.get('contents',{}).get('inline') else ('source' if f.get('contents',{}).get('source') else 'none')
         print(f'{i}: {f[\"path\"]} overwrite={ow} content={src}')
 "
+55: /etc/kubernetes/kubelet.conf overwrite=True content=source
+56: /usr/local/bin/kubenswrapper overwrite=True content=source
+57: /etc/chrony.conf overwrite=True content=source
+hsuma@plnx-admin:~/ocp-ai-config$
 
 oc get mcp worker
 oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=3
