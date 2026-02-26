@@ -1,3 +1,42 @@
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=50 | grep -i "render\|error\|degrad"
+Defaulted container "machine-config-controller" out of: machine-config-controller, kube-rbac-proxy
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+E0226 20:29:46.916811       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+I0226 20:29:46.921240       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+E0226 20:29:47.254518       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+I0226 20:29:47.258709       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+E0226 20:29:47.912941       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+I0226 20:29:47.918399       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+E0226 20:29:49.215884       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+I0226 20:29:49.220211       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+E0226 20:29:51.793946       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+I0226 20:29:51.798457       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+E0226 20:29:56.931774       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+I0226 20:29:56.936236       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+E0226 20:30:07.193275       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+I0226 20:30:07.197847       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+E0226 20:30:27.692944       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+I0226 20:30:27.697679       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
+hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
 hsuma@plnx-admin:~/ocp-ai-config$ oc get mc 99-worker-nm-dns-fix -o jsonpath='{.spec.config.storage.files[0].contents.inline}' | head -20
 #!/bin/bash
 # ensure-nm-dns.sh
