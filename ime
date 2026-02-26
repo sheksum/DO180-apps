@@ -37,5 +37,5 @@ spec:
             WantedBy=multi-user.target
 EOF
 git add machineconfigs/99-worker-nm-dns-fix.yaml
-git commit -m "Add permanent NM DNS fix - correct source+base64 format"
-git push origin main
+git commit -m "Add permanent NM DNS fix - source+base64 format for MCO compatibility"
+git push --force origin main
