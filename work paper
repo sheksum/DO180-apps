@@ -630,3 +630,25 @@ syncPolicy:
     selfHeal: true
   syncOptions:
     - CreateNamepace=false
+
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: trident
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: trident
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: trident
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamepace=false
