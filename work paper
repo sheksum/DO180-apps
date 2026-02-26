@@ -1018,3 +1018,13 @@ spec:
         - name: httpbin
           port: 8080
 EOF
+
+
+httproute.gateway.networking.k8s.io/httpbin-route created
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ curl -s -o /dev/null -w  "%{http_code}"  -H "Host: httpbin-dev.apps.ocp-ai.calix.local" http://10.172.248.175
+000hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ curl -s -o /dev/null -w  "%{http_code}"  -H "Host: httpbin-dev.apps.ocp-ai.calix.local" http://10.172.248.175
+000hsuma@plnx-admin:~/ocp-ai-config/apps$
