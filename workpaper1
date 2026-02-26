@@ -336,3 +336,16 @@ ipv4.dns-options:                       --
 ipv4.dns-priority:                      0
 ipv4.addresses:                         10.172.248.153/24
 [core@ocp-ai-gpu01 ~]$
+
+
+sudo nmcli connection modify ovs-if-br-ex ipv4.dns "10.172.248.31 10.172.248.32" ipv4.dns-priority 40
+sudo nmcli connection up ovs-if-br-ex
+
+
+# From plnx-admin - check what MachineConfigPool the GPU nodes are in
+oc get mcp
+oc get nodes --show-labels | grep gpu
+
+# Check if both GPU nodes have the same rendered MachineConfig
+oc get node ocp-ai-gpu01.calix.local -o jsonpath='{.metadata.annotations.machineconfiguration\.openshift\.io/currentConfig}'
+oc get node ocp-ai-gpu02.calix.local -o jsonpath='{.metadata.annotations.machineconfiguration\.openshift\.io/currentConfig}'
