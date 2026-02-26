@@ -1,3 +1,31 @@
+vault kv put kv/pai/dev/test-secret username=testuser password=testpass123
+
+
+oc apply -f - <<EOF
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: test-secret
+  namespace: pai-dev
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: vault-store
+    kind: SecretStore
+  target:
+    name: test-secret
+  data:
+    - secretKey: username
+      remoteRef:
+        key: pai/dev/test-secret
+        property: username
+    - secretKey: password
+      remoteRef:
+        key: pai/dev/test-secret
+        property: password
+EOF
+
+
 oc apply -f - <<EOF
 # Service accounts
 ---
