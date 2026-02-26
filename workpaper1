@@ -349,3 +349,13 @@ oc get nodes --show-labels | grep gpu
 # Check if both GPU nodes have the same rendered MachineConfig
 oc get node ocp-ai-gpu01.calix.local -o jsonpath='{.metadata.annotations.machineconfiguration\.openshift\.io/currentConfig}'
 oc get node ocp-ai-gpu02.calix.local -o jsonpath='{.metadata.annotations.machineconfiguration\.openshift\.io/currentConfig}'
+
+
+
+hsuma@plnx-admin:~$ oc get node ocp-ai-gpu01.calix.local -o jsonpath='{.metadata.annotations.machineconfiguration\.openshift\.io/currentConfig}'
+rendered-worker-3c8750c881df6f82403924904fac6469hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get node ocp-ai-gpu02.calix.local -o jsonpath='{.metadata.annotations.machineconfiguration\.openshift\.io/currentConfig}'
+rendered-worker-3c8750c881df6f82403924904fac6469hsuma@plnx-admin:~$
+
