@@ -1,19 +1,11 @@
-hsuma@plnx-admin:~/ocp-ai-config$ git pull --rebase origin main
 Enter passphrase for key '/home/hsuma/.ssh/id_ed25519':
-
-ssh_dispatch_run_fatal: Connection to UNKNOWN port 65535: Broken pipe
-fatal: Could not read from remote repository.
-
-Please make sure you have the correct access rights
-and the repository exists.
+From bitbucket.org:calixprod/ocp-ai-platform
+ * branch            main       -> FETCH_HEAD
+CONFLICT (modify/delete): machineconfigs/99-worker-nm-dns-fix.yaml deleted in HEAD and modified in 81e9a65 (Updates).  Version 81e9a65 (Updates) of machineconfigs/99-worker-nm-dns-fix.yaml left in tree.
+error: could not apply 81e9a65... Updates
+hint: Resolve all conflicts manually, mark them as resolved with
+hint: "git add/rm <conflicted_files>", then run "git rebase --continue".
+hint: You can instead skip this commit: run "git rebase --skip".
+hint: To abort and get back to the state before "git rebase", run "git rebase --abort".
+Could not apply 81e9a65... Updates
 hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ git pull
-Enter passphrase for key '/home/hsuma/.ssh/id_ed25519':
-fatal: Not possible to fast-forward, aborting.
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ git config pull.rebase true
-hsuma@plnx-admin:~/ocp-ai-config$ git pull
-Enter passphrase for key '/home/hsuma/.ssh/id_ed25519':
-fatal: Not possible to fast-forward, aborting.
-hsuma@plnx-admin:~/ocp-ai-config$ git pull
