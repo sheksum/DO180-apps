@@ -302,3 +302,37 @@ nmcli connection show ovs-if-br-ex | grep -i "ipv4.dns\|ipv4.addresses\|ipv4.met
 
 ssh core@ocp-ai-gpu01.calix.local
 nmcli connection show ovs-if-br-ex | grep -i "ipv4.dns\|ipv4.addresses\|ipv4.method"
+
+
+[core@ocp-ai-gpu02 ~]$
+[core@ocp-ai-gpu02 ~]$
+[core@ocp-ai-gpu02 ~]$ nmcli connection show ovs-if-br-ex | grep -i "ipv4.dns\|ipv4.addresses\|ipv4.method"
+ipv4.method:                            manual
+ipv4.dns:                               10.172.248.31,10.172.248.32
+ipv4.dns-search:                        --
+ipv4.dns-options:                       ""
+ipv4.dns-priority:                      40
+ipv4.addresses:                         10.172.248.154/24
+[core@ocp-ai-gpu02 ~]$ exit
+logout
+Connection to ocp-ai-gpu02.calix.local closed.
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-gpu01.calix.local
+Red Hat Enterprise Linux CoreOS 9.6.20260128-1
+  Part of OpenShift 4.20, RHCOS is a Kubernetes-native operating system
+  managed by the Machine Config Operator (`clusteroperator/machine-config`).
+
+WARNING: Direct SSH access to machines is not recommended; instead,
+make configuration changes via `machineconfig` objects:
+  https://docs.openshift.com/container-platform/4.20/architecture/architecture-rhcos.html
+
+---
+Last login: Thu Feb 26 18:34:54 2026 from 10.172.248.105
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ nmcli connection show ovs-if-br-ex | grep -i "ipv4.dns\|ipv4.addresses\|ipv4.method"
+ipv4.method:                            manual
+ipv4.dns:                               --
+ipv4.dns-search:                        --
+ipv4.dns-options:                       --
+ipv4.dns-priority:                      0
+ipv4.addresses:                         10.172.248.153/24
+[core@ocp-ai-gpu01 ~]$
