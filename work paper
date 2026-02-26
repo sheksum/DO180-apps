@@ -1028,3 +1028,31 @@ hsuma@plnx-admin:~/ocp-ai-config/apps$ curl -s -o /dev/null -w  "%{http_code}"  
 hsuma@plnx-admin:~/ocp-ai-config/apps$
 hsuma@plnx-admin:~/ocp-ai-config/apps$ curl -s -o /dev/null -w  "%{http_code}"  -H "Host: httpbin-dev.apps.ocp-ai.calix.local" http://10.172.248.175
 000hsuma@plnx-admin:~/ocp-ai-config/apps$
+
+
+
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get httproute httpbin-route -n pai-dev -o yaml | grep -A10 status
+status:
+  parents:
+  - conditions:
+    - lastTransitionTime: "2026-02-26T04:57:50Z"
+      message: Route was valid
+      observedGeneration: 1
+      reason: Accepted
+      status: "True"
+      type: Accepted
+    - lastTransitionTime: "2026-02-26T04:57:50Z"
+      message: All references resolved
+      observedGeneration: 1
+      reason: ResolvedRefs
+      status: "True"
+      type: ResolvedRefs
+    controllerName: openshift.io/gateway-controller/v1
+    parentRef:
+      group: gateway.networking.k8s.io
+      kind: Gateway
+      name: pai-gateway
+      namespace: openshift-ingress
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+
