@@ -12,6 +12,22 @@ Timeout
 Timeout
 Timeout
 
+
+
+oc apply -f - <<EOF
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1510
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - pai-services-dev
+    - pai-services-test
+    - pai-services-prod
+    - reserved-future
+EOF
+
 --- 10.172.248.175 statistics ---
 3 packets transmitted, 0 packets received, 100% unanswered (0 extra)
 
