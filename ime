@@ -1,12 +1,28 @@
-# Node status
-oc get nodes
-oc get mcp worker
-
-# MC status
-oc get mc 99-worker-nm-dns-fix -o jsonpath='{.spec.config.ignition.version}{"\n"}'
-
-# On gpu01
-ssh -i ~/.ssh/ocp-ai core@10.172.248.153 << 'DIAG'
+[core@ocp-ai-gpu01 ~]$ exit
+logout
+Connection to ocp-ai-gpu01.calix.local closed.
+hsuma@plnx-admin:~/ocp-ai-config$ oc get nodes
+NAME                          STATUS   ROLES                         AGE   VERSION
+ocp-ai-gpu01.calix.local      Ready    worker                        8d    v1.33.6
+ocp-ai-gpu02.calix.local      Ready    worker                        8d    v1.33.6
+ocp-ai-master01.calix.local   Ready    control-plane,master,worker   11d   v1.33.6
+ocp-ai-master02.calix.local   Ready    control-plane,master,worker   11d   v1.33.6
+ocp-ai-master03.calix.local   Ready    control-plane,master,worker   10d   v1.33.6
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mcp worker
+NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
+worker   rendered-worker-a341960038959005223032f580cfcf7d   True      False      False      2              2                   2                     0                      11d
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mc 99-worker-nm-dns-fix -o jsonpath='{.spec.config.ignition.version}{"\n"}'
+3.5.0
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ ssh -i ~/.ssh/ocp-ai core@10.172.248.153 << 'DIAG'
 echo "=== systemctl status ==="
 sudo systemctl status ensure-nm-dns.service
 echo "=== journalctl ==="
@@ -28,3 +44,89 @@ sudo systemctl status kubelet | head -5
 echo "=== kni coredns ==="
 sudo crictl ps 2>/dev/null | grep coredns || echo "crictl not available"
 DIAG
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Red Hat Enterprise Linux CoreOS 9.6.20260128-1
+  Part of OpenShift 4.20, RHCOS is a Kubernetes-native operating system
+  managed by the Machine Config Operator (`clusteroperator/machine-config`).
+
+WARNING: Direct SSH access to machines is not recommended; instead,
+make configuration changes via `machineconfig` objects:
+  https://docs.openshift.com/container-platform/4.20/architecture/architecture-rhcos.html
+
+---
+=== systemctl status ===
+● ensure-nm-dns.service - Ensure NM resolv.conf has DNS servers (OVN-K bare-metal fix)
+     Loaded: loaded (/etc/systemd/system/ensure-nm-dns.service; enabled; preset: disabled)
+     Active: active (exited) since Thu 2026-02-26 21:59:48 UTC; 53min ago
+   Main PID: 3782 (code=exited, status=0/SUCCESS)
+        CPU: 94ms
+
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[3782]: [ensure-nm-dns] /var/run/NetworkManager/resolv.conf exists after 120s
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[3782]: [ensure-nm-dns] No nameservers found, injecting DNS...
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[3782]: [ensure-nm-dns] Injecting DNS into ovs-if-br-ex NM connection...
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[3782]: [ensure-nm-dns] DNS fix applied:
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[5194]: # Injected by ensure-nm-dns.sh (MachineConfig 99-worker-nm-dns-fix)
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[5194]: # OVN-K does not inject DNS into ovs-if-br-ex on bare metal
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[5194]: search calix.local
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[5194]: nameserver 10.172.248.31
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[5194]: nameserver 10.172.248.32
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local systemd[1]: Finished Ensure NM resolv.conf has DNS servers (OVN-K bare-metal fix).
+=== journalctl ===
+Feb 26 21:57:48 ocp-ai-gpu01.calix.local systemd[1]: Starting Ensure NM resolv.conf has DNS servers (OVN-K bare-metal fix)...
+Feb 26 21:57:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[3782]: [ensure-nm-dns] Waiting for /var/run/NetworkManager/resolv.conf to exist (max 120s)...
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[3782]: [ensure-nm-dns] WARN: /var/run/NetworkManager/resolv.conf not found after 120s, creating it
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[3782]: [ensure-nm-dns] /var/run/NetworkManager/resolv.conf exists after 120s
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[3782]: [ensure-nm-dns] No nameservers found, injecting DNS...
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[3782]: [ensure-nm-dns] Injecting DNS into ovs-if-br-ex NM connection...
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[3782]: [ensure-nm-dns] DNS fix applied:
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[5194]: # Injected by ensure-nm-dns.sh (MachineConfig 99-worker-nm-dns-fix)
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[5194]: # OVN-K does not inject DNS into ovs-if-br-ex on bare metal
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[5194]: search calix.local
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[5194]: nameserver 10.172.248.31
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local ensure-nm-dns.sh[5194]: nameserver 10.172.248.32
+Feb 26 21:59:48 ocp-ai-gpu01.calix.local systemd[1]: Finished Ensure NM resolv.conf has DNS servers (OVN-K bare-metal fix).
+=== /var/run/NetworkManager/resolv.conf ===
+# Generated by NetworkManager
+search calix.local
+=== /etc/resolv.conf ===
+# Injected by ensure-nm-dns.sh (MachineConfig 99-worker-nm-dns-fix)
+# OVN-K does not inject DNS into ovs-if-br-ex on bare metal
+search ocp-ai.calix.local calix.local
+nameserver 10.172.248.153
+nameserver 10.172.248.153
+nameserver 10.172.248.31
+# nameserver 10.172.248.32
+=== nmcli ovs-if-br-ex ===
+ipv4.dns:                               --
+ipv4.dns-search:                        --
+ipv4.dns-options:                       --
+ipv4.dns-priority:                      0
+GENERAL.STATE:                          activated
+=== script on disk ===
+-rwxr-xr-x. 1 root root 1346 Feb 26 21:54 /usr/local/bin/ensure-nm-dns.sh
+=== systemd unit ===
+[Unit]
+Description=Ensure NM resolv.conf has DNS servers (OVN-K bare-metal fix)
+After=NetworkManager.service
+Before=kubelet.service
+Before=nodeip-configuration.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/ensure-nm-dns.sh
+TimeoutStartSec=180
+
+[Install]
+WantedBy=multi-user.target
+=== resolv-prepender flag ===
+-rw-r--r--. 1 root root 0 Feb 26 22:50 /run/resolv-prepender-kni-conf-done
+=== kubelet status ===
+● kubelet.service - Kubernetes Kubelet
+     Loaded: loaded (/etc/systemd/system/kubelet.service; enabled; preset: disabled)
+    Drop-In: /etc/systemd/system/kubelet.service.d
+             └─01-kubens.conf, 10-mco-default-madv.conf, 10-mco-on-prem-wait-resolv.conf, 20-logging.conf, 20-nodenet.conf
+     Active: active (running) since Thu 2026-02-26 22:02:14 UTC; 50min ago
+=== kni coredns ===
+crictl not available
+hsuma@plnx-admin:~/ocp-ai-config$
