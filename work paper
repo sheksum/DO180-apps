@@ -1,4 +1,111 @@
-
+hsuma@plnx-admin:~/ocp-ai-config$ oc get operatorconfig -A -o yaml 2>/dev/null || oc get deployment external-secrets-operator-controller-manager -n external-secrets-operator -o yaml | grep -A5 -i namespace
+    olm.owner.namespace: external-secrets-operator
+    operators.coreos.com/openshift-external-secrets-operator.external-secrets-operator: ""
+  name: external-secrets-operator-controller-manager
+  namespace: external-secrets-operator
+  ownerReferences:
+  - apiVersion: operators.coreos.com/v1alpha1
+    blockOwnerDeletion: false
+    controller: false
+    kind: ClusterServiceVersion
+--
+                "namespaceSelector": {
+                  "matchLabels": {
+                    "app.kubernetes.io/managed-by": "external-secrets-operator"
+                  }
+                }
+              }
+--
+                          "namespace": "external-secrets"
+                        }
+                      }
+                    },
+                    "projectID": "openshift-sample-project"
+                  }
+--
+                "namespace": "external-secrets"
+              },
+              "spec": {
+                "data": [
+                  {
+                    "remoteRef": {
+--
+                "namespace": "external-secrets"
+              },
+              "spec": {
+                "provider": {
+                  "gcpsm": {
+                    "auth": {
+--
+                "namespace": "external-secrets"
+              },
+              "spec": {
+                "config": {
+                  "gcp": {
+                    "projectID": "openshift-sample-project",
+--
+                "namespace": "external-secrets"
+              },
+              "spec": {
+                "excludeLowercase": false,
+                "excludeNumbers": false,
+                "excludeUppercase": false,
+--
+        olm.operatorNamespace: external-secrets-operator
+        olm.skipRange: <1.0.0
+        olm.targetNamespaces: ""
+        operator.openshift.io/uninstall-message: The External Secrets Operator for
+          Red Hat OpenShift will be removed from external-secrets-operator namespace.
+          If your Operator configured any off-cluster resources, these will continue
+          to run and require manual cleanup. All operands created by the operator
+          will need to be manually cleaned up. Please refer to https://docs.openshift.com/container-platform/latest/security/external_secrets_operator/external-secrets-operator-uninstall.html
+          for additional steps.
+        operatorframework.io/cluster-monitoring: "true"
+--
+        operatorframework.io/suggested-namespace: external-secrets-operator
+        operators.openshift.io/valid-subscription: '["OpenShift Kubernetes Engine",
+          "OpenShift Container Platform", "OpenShift Platform Plus"]'
+        operators.operatorframework.io/builder: operator-sdk-v1.39.0
+        operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
+        repository: https://github.com/openshift/external-secrets-operator
+--
+        - name: WATCH_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.annotations['olm.targetNamespaces']
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get csv -n external-secrets-operator | grep external
+external-secrets-operator.v1.0.0        External Secrets Operator for Red Hat OpenShift   1.0.0                                                     Succeeded
+hsuma@plnx-admin:~/ocp-ai-config$ oc get deployment external-secrets-operator-controller-manager -n external-secrets-operator -o yaml | grep -A20 env
+        env:
+        - name: WATCH_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.annotations['olm.targetNamespaces']
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: OPERATOR_LOG_LEVEL
+          value: "2"
+        - name: OPERATOR_NAME
+          value: external-secrets-operator
+        - name: OPERATOR_IMAGE_VERSION
+          value: 1.0.0
+        - name: RELATED_IMAGE_EXTERNAL_SECRETS
+          value: registry.redhat.io/external-secrets-operator/external-secrets-rhel9@sha256:a594323b4d3ad6a739246f3767231ad2d57ca94bb1d035610d52a525b420b452
+        - name: OPERAND_EXTERNAL_SECRETS_IMAGE_VERSION
+          value: 0.19.0
+hsuma@plnx-admin:~/ocp-ai-config$
 oc get operatorconfig -A -o yaml 2>/dev/null || oc get deployment external-secrets-operator-controller-manager -n external-secrets-operator -o yaml | grep -A5 -i namespace
 
 
