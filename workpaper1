@@ -156,3 +156,15 @@ search calix.local
 nameserver 10.172.248.31
 nameserver 10.172.248.32
 [core@ocp-ai-gpu02 ~]$
+
+
+# First find which connection carries the 10.172.248.x IP
+nmcli connection show bond0.1510 | grep -i "ipv4.dns\|ipv4.addresses\|ipv4.method"
+
+
+sudo nmcli connection modify bond0.1510 ipv4.dns "10.172.248.31 10.172.248.32" ipv4.dns-search "calix.local"
+sudo nmcli connection up bond0.1510
+
+
+nmcli dev show | grep -i dns
+cat /var/run/NetworkManager/resolv.conf
