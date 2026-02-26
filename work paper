@@ -1,0 +1,4 @@
+hsuma@plnx-admin:~$ oc get pods -n metallb-system
+NAME                                                   READY   STATUS    RESTARTS   AGE
+metallb-operator-controller-manager-68b4948857-hn29n   1/1     Running   0          2m45s
+metallb-operator-webhook-server-6c48f9b746-ln7vr       1/1     Running   0          2m45s
