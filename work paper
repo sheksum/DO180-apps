@@ -1,4 +1,27 @@
-
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc describe secretstore vault-store -n pai-dev | tail -20
+      Auth:
+        Kubernetes:
+          Mount Path:  kubernetes-ocp-ai
+          Role:        eso-pai-dev
+          Service Account Ref:
+            Name:  external-secrets
+      Path:        kv
+      Server:      https://plnx-vault.calix.local:8200
+      Version:     v2
+Status:
+  Conditions:
+    Last Transition Time:  2026-02-26T06:37:45Z
+    Message:               unable to create client
+    Reason:                InvalidProviderConfig
+    Status:                False
+    Type:                  Ready
+Events:
+  Type     Reason                 Age   From          Message
+  ----     ------                 ----  ----          -------
+  Warning  InvalidProviderConfig  109s  secret-store  unable to log in to auth method: unable to log in with Kubernetes auth: context deadline exceeded
+hsuma@plnx-admin:~/ocp-ai-config$
 hsuma@plnx-admin:~/ocp-ai-config$
 hsuma@plnx-admin:~/ocp-ai-config$ oc describe externalsecret test-secret -n pai-dev | tail -20
     Kind:  SecretStore
