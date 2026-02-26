@@ -25,3 +25,79 @@ sudo journalctl -u kubelet --since "11:30" --no-pager | tail -50
 
 
 sudo systemctl restart kubelet
+
+
+Last login: Tue Feb 24 03:39:06 2026
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ uptime
+ 18:00:50 up 26 min,  1 user,  load average: 0.00, 0.00, 0.00
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ w
+ 18:00:53 up 26 min,  1 user,  load average: 0.00, 0.00, 0.00
+USER     TTY        LOGIN@   IDLE   JCPU   PCPU WHAT
+core     pts/0     18:00    4.00s  0.01s  0.01s w
+[core@ocp-ai-gpu01 ~]$ sudo systemctl status kubelet
+● kubelet.service - Kubernetes Kubelet
+     Loaded: loaded (/etc/systemd/system/kubelet.service; enabled; preset: disabled)
+    Drop-In: /etc/systemd/system/kubelet.service.d
+             └─01-kubens.conf, 10-mco-default-madv.conf, 10-mco-on-prem-wait-resolv.conf, 20-logging.conf, 20-nodenet.conf
+     Active: activating (auto-restart) (Result: exit-code) since Thu 2026-02-26 18:00:56 UTC; 7s ago
+    Process: 12836 ExecCondition=/bin/bash -c [ -f /run/resolv-prepender-kni-conf-done ] || { echo "NM resolv-prepender failed"; exit 255; } (code=exited, status=255/EXCEPTION)
+        CPU: 1ms
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ sudo journalctl -u kubelet --since "11:30" --no-pager | tail -50
+Feb 26 18:00:15 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
+Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 149.
+Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
+Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
+Feb 26 18:00:25 ocp-ai-gpu01.calix.local bash[12647]: NM resolv-prepender failed
+Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
+Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
+Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
+Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 150.
+Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
+Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
+Feb 26 18:00:36 ocp-ai-gpu01.calix.local bash[12691]: NM resolv-prepender failed
+Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
+Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
+Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
+Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 151.
+Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
+Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
+Feb 26 18:00:46 ocp-ai-gpu01.calix.local bash[12740]: NM resolv-prepender failed
+Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
+Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
+Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
+Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 152.
+Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
+Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
+Feb 26 18:00:56 ocp-ai-gpu01.calix.local bash[12836]: NM resolv-prepender failed
+Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
+Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
+Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
+Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 153.
+Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
+Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
+Feb 26 18:01:06 ocp-ai-gpu01.calix.local bash[12883]: NM resolv-prepender failed
+Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
+Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
+Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
+Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 154.
+Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
+Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
+Feb 26 18:01:16 ocp-ai-gpu01.calix.local bash[12928]: NM resolv-prepender failed
+Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
+Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
+Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
+Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 155.
+Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
+Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
+Feb 26 18:01:27 ocp-ai-gpu01.calix.local bash[12972]: NM resolv-prepender failed
+Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
+Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
+Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
+[core@ocp-ai-gpu01 ~]$
