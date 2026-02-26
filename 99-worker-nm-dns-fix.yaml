@@ -9,53 +9,9 @@ for i,f in enumerate(files):
 "
 
 "
-0: /var/lib/mco/nm-clean-initrd-state overwrite=True content=source
-1: /usr/local/bin/nm-clean-initrd-state.sh overwrite=True content=source
-2: /etc/NetworkManager/conf.d/01-ipv6.conf overwrite=True content=source
-3: /etc/NetworkManager/conf.d/20-keyfiles.conf overwrite=True content=source
-4: /etc/NetworkManager/conf.d/99-kni.conf overwrite=True content=source
-5: /etc/NetworkManager/dispatcher.d/30-resolv-prepender overwrite=True content=source
-6: /etc/pki/ca-trust/source/anchors/openshift-config-user-ca-bundle.crt overwrite=True content=source
-7: /etc/kubernetes/apiserver-url.env overwrite=True content=source
-8: /etc/audit/rules.d/mco-audit-quiet-containers.rules overwrite=True content=source
-9: /etc/keepalived/monitor.conf overwrite=True content=source
-10: /etc/NetworkManager/dispatcher.d/99-esp-offload overwrite=True content=source
-11: /etc/tmpfiles.d/cleanup-cni.conf overwrite=True content=source
-12: /usr/local/bin/configure-ip-forwarding.sh overwrite=True content=source
-13: /usr/local/bin/configure-ovs.sh overwrite=True content=source
-14: /etc/containers/storage.conf overwrite=True content=source
-15: /etc/kubernetes/static-pod-resources/coredns/Corefile.tmpl overwrite=True content=source
-16: /etc/kubernetes/manifests/coredns.yaml overwrite=True content=source
-17: /etc/docker/certs.d/.create overwrite=True content=source
-18: /etc/mco/proxy.env overwrite=True content=source
-19: /etc/systemd/system.conf.d/10-default-env-godebug.conf overwrite=True content=source
-20: /etc/NetworkManager/dispatcher.d/99-gcp-disable-idpf-tx-checksum-off overwrite=True content=source
-21: /etc/modules-load.d/iptables.conf overwrite=True content=source
-22: /etc/kubernetes/static-pod-resources/keepalived/keepalived.conf.tmpl overwrite=True content=source
-23: /etc/kubernetes/static-pod-resources/keepalived/scripts/chk_default_ingress.sh.tmpl overwrite=True content=source
-24: /etc/kubernetes/manifests/keepalived.yaml overwrite=True content=source
-25: /etc/node-sizing-enabled.env overwrite=True content=source
-26: /usr/local/sbin/dynamic-system-reserved-calc.sh overwrite=True content=source
-27: /etc/systemd/system.conf.d/kubelet-cgroups.conf overwrite=True content=source
-28: /etc/systemd/system/kubelet.service.d/20-logging.conf overwrite=True content=source
-29: /etc/NetworkManager/conf.d/sdn.conf overwrite=True content=source
-30: /usr/local/bin/nmstate-configuration.sh overwrite=True content=source
-31: /etc/nmstate/nmstate.conf overwrite=True content=source
-32: /etc/NetworkManager/dispatcher.d/pre-up.d/10-ofport-request.sh overwrite=True content=source
-33: /etc/machine-config-daemon/generate_podman_policy_args.sh overwrite=True content=source
-34: /var/lib/kubelet/config.json overwrite=True content=source
-35: /usr/local/bin/resolv-prepender.sh overwrite=True content=source
-36: /etc/sysctl.d/arp.conf overwrite=True content=source
-37: /etc/sysctl.d/gc-thresh.conf overwrite=True content=source
-38: /etc/sysctl.d/inotify.conf overwrite=True content=source
-39: /etc/sysctl.d/enable-userfaultfd.conf overwrite=True content=source
-40: /etc/sysctl.d/vm-max-map.conf overwrite=True content=source
-41: /usr/local/bin/mco-hostname overwrite=True content=source
-42: /etc/kubernetes/kubelet-plugins/volume/exec/.dummy overwrite=True content=source
-43: /etc/NetworkManager/dispatcher.d/99-vsphere-disable-tx-udp-tnl overwrite=True content=source
-44: /usr/local/bin/wait-for-br-ex-up.sh overwrite=True content=source
-45: /usr/local/bin/ipsec-connect-wait.sh overwrite=True content=source
-46: /usr/local/bin/wait-for-primary-ip.sh overwrite=True content=source
+oc get mc -l machineconfiguration.openshift.io/role=worker -o name | grep rendered
+\
+oc get mc -l machineconfiguration.openshift.io/role=worker --sort-by=.metadata.creationTimestamp -o custom-columns=NAME:.metadata.name,AGE:.metadata.creationTimestamp,IGNITION:.spec.config.ignition.version
 hsuma@plnx-admin:~/ocp-ai-config$
         - path: /usr/local/bin/ensure-nm-dns.sh
           mode: 0755
