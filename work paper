@@ -251,3 +251,41 @@ ARPING 10.172.248.160
 3 packets transmitted, 6 packets received,   0% unanswered (3 extra)
 rtt min/avg/max/std-dev = 0.327/0.454/0.619/0.096 ms
 hsuma@plnx-admin:~$
+
+
+
+
+					<p>For systems using the Apache HTTP Server:
+					You may now add content to the directory <tt>/var/www/html/</tt>. Note that until you do so, people visiting your website will see this page, and not your content. To prevent this page from ever being used, follow the instructions in the file <tt>/etc/httpd/conf.d/welcome.conf</tt>.</p>
+
+					<p>For systems using NGINX:
+					You should now put your content in a location of your
+					choice and edit the <code>root</code> configuration directive
+					in the <strong>nginx</strong> configuration file
+					<code>/etc/nginx/nginx.conf</code>.</p>
+
+					<div class="logos">
+						<a href="https://access.redhat.com/products/red-hat-enterprise-linux"><img src= "/icons/poweredby.png" alt="[ Powered by Red Hat Enterprise Linux ]" /></a>
+						<img src= "poweredby.png" alt="[ Powered by Red Hat Enterprise Linux ]" />
+					</div>
+				</div>
+			</div>
+		</div>
+	<div class="footer">
+		<a href="https://apache.org">Apache&trade;</a> is a registered trademark of <a href="https://apache.org">the Apache Software Foundation</a> in the United States and/or other countries.
+        <br />
+		<a href="https://nginx.com">NGINX&trade;</a> is a registered trademark of <a href="https://www.f5.com">F5 Networks, Inc.</a>.
+	</div>
+	</body>
+* Connection #0 to host 10.172.248.160 left intact
+</html>hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs -l component=speaker -n metallb-system --tail=10
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+{"caller":"announcer.go:131","error":"creating NDP responder for \"d4e9f9ac00cf7bb\": listen ip6:ipv6-icmp fe80::f484:9ff:fe96:49e2%d4e9f9ac00cf7bb: bind: cannot assign requested address","interface":"d4e9f9ac00cf7bb","level":"error","msg":"failed to create NDP responder","op":"createNDPResponder","ts":"2026-02-26T03:00:00Z"}
+{"caller":"speakerlist.go:269","error":null,"expected":2,"joined":1,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-26T02:43:07Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: connect: connection refused\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-26T02:43:07Z"}
+hsuma@plnx-admin:~$
