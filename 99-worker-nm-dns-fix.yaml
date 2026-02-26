@@ -1,0 +1,105 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 99-worker-nm-dns-fix
+  labels:
+    machineconfiguration.openshift.io/role: worker
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+        - path: /usr/local/bin/ensure-nm-dns.sh
+          mode: 0755
+          contents:
+            inline: |
+              #!/bin/bash
+              # ensure-nm-dns.sh
+              # Ensures /var/run/NetworkManager/resolv.conf has DNS servers
+              # before kubelet starts. Fixes OVN-K bare-metal bug where
+              # ovs-if-br-ex is created at runtime without DNS, causing
+              # resolv-prepender.sh to hang indefinitely and kubelet to
+              # fail with "NM resolv-prepender failed".
+              #
+              # Root cause: OVN-K creates ovs-if-br-ex in /run/NetworkManager/
+              # system-connections/ (tmpfs, wiped on reboot) without ipv4.dns.
+              # NM then generates resolv.conf with no nameservers.
+              #
+              # This runs as a oneshot before kubelet — no race condition.
+              #
+              # Cluster: ocp-ai.calix.local (OCP 4.20.13)
+              # DNS: 10.172.248.31, 10.172.248.32
+              # Author: Haj Suma
+              # Date: February 26, 2026
+
+              RESOLV="/var/run/NetworkManager/resolv.conf"
+              DNS1="10.172.248.31"
+              DNS2="10.172.248.32"
+              SEARCH="calix.local"
+              MAX_WAIT=120
+              INTERVAL=2
+
+              echo "[ensure-nm-dns] Waiting for ${RESOLV} to exist (max ${MAX_WAIT}s)..."
+
+              elapsed=0
+              while [ ! -f "$RESOLV" ]; do
+                if [ $elapsed -ge $MAX_WAIT ]; then
+                  echo "[ensure-nm-dns] WARN: ${RESOLV} not found after ${MAX_WAIT}s, creating it"
+                  mkdir -p /var/run/NetworkManager
+                  touch "$RESOLV"
+                  break
+                fi
+                sleep $INTERVAL
+                elapsed=$((elapsed + INTERVAL))
+              done
+
+              echo "[ensure-nm-dns] ${RESOLV} exists after ${elapsed}s"
+
+              # Check if nameservers are already present
+              if grep -q "nameserver" "$RESOLV" 2>/dev/null; then
+                echo "[ensure-nm-dns] DNS already present in ${RESOLV}, nothing to do"
+                cat "$RESOLV"
+                exit 0
+              fi
+
+              echo "[ensure-nm-dns] No nameservers found, injecting DNS..."
+              cat > "$RESOLV" <<-EOF
+              # Injected by ensure-nm-dns.sh (MachineConfig 99-worker-nm-dns-fix)
+              # OVN-K does not inject DNS into ovs-if-br-ex on bare metal
+              search ${SEARCH}
+              nameserver ${DNS1}
+              nameserver ${DNS2}
+              EOF
+
+              # Also fix the ovs-if-br-ex connection if it exists
+              if nmcli connection show ovs-if-br-ex &>/dev/null; then
+                echo "[ensure-nm-dns] Injecting DNS into ovs-if-br-ex NM connection..."
+                nmcli connection modify ovs-if-br-ex ipv4.dns "${DNS1} ${DNS2}" ipv4.dns-priority 40
+                nmcli connection up ovs-if-br-ex 2>/dev/null || true
+              fi
+
+              echo "[ensure-nm-dns] DNS fix applied:"
+              cat "$RESOLV"
+              exit 0
+    systemd:
+      units:
+        - name: ensure-nm-dns.service
+          enabled: true
+          contents: |
+            [Unit]
+            Description=Ensure NM resolv.conf has DNS servers (OVN-K bare-metal fix)
+            # Run after NetworkManager is up but before kubelet
+            After=NetworkManager.service
+            Before=kubelet.service
+            # Also before the resolv-prepender that kubelet depends on
+            Before=nodeip-configuration.service
+
+            [Service]
+            Type=oneshot
+            RemainAfterExit=yes
+            ExecStart=/usr/local/bin/ensure-nm-dns.sh
+            TimeoutStartSec=180
+
+            [Install]
+            WantedBy=multi-user.target
