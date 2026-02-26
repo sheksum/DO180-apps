@@ -374,3 +374,12 @@ spec:
 EOF
 
 
+hsuma@plnx-admin:~/ocp-ai-config$
+oc apply -f metallb/argocd-app-metallb.yaml
+Warning: metadata.finalizers: "resources-finalizer.argocd.argoproj.io": prefer a domain-qualified finalizer name including a path (/) to avoid accidental conflicts with other finalizer writers
+application.argoproj.io/metallb created
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+
+
