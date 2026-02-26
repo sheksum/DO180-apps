@@ -67,3 +67,10 @@ spec:
     - 10.172.248.175-10.172.248.180
   autoAssign: false
 EOF
+
+
+
+ipaddresspool.metallb.io/ai-services-dev created
+ipaddresspool.metallb.io/ai-services-test created
+ipaddresspool.metallb.io/ai-services-prod created
+ipaddresspool.metallb.io/reserved-future created
