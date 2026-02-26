@@ -1,3 +1,9 @@
+oc get secret -n cert-manager -o yaml | grep -l vault 2>/dev/null
+
+oc get clusterissuer vault-issuer -o yaml | grep -A10 caBundle
+
+
+
 hsuma@plnx-admin:~/ocp-ai-config$
 hsuma@plnx-admin:~/ocp-ai-config$ oc describe secretstore vault-store -n pai-dev | tail -20
       Auth:
