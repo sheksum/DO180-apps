@@ -584,3 +584,8 @@ hsuma@plnx-admin:~/ocp-ai-config$
 
 
 oc patch application metallb -n openshift-gitops --type merge -p '{"metadata":{"finalizers":null}}'
+
+
+Application conditions
+ComparisonError
+Failed to load target state: failed to generate manifest for source 1 of 1: rpc error: code = Unknown desc = ocp-ai-config/metallb: app path does not exist
