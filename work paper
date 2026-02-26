@@ -24,3 +24,46 @@ metallb-operator-webhook-server-6c48f9b746-ln7vr       1/1     Running   0      
 speaker-52dbz                                          2/2     Running   0          44s     10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
 speaker-6wx7x                                          2/2     Running   0          44s     10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
 speaker-k2cnq                                          2/2     Running   0          44s     10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
+
+
+oc apply -f - <<EOF
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: ai-services-dev
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.160-10.172.248.163
+  autoAssign: false
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: ai-services-test
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.165-10.172.248.168
+  autoAssign: false
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: ai-services-prod
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.170-10.172.248.173
+  autoAssign: false
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: reserved-future
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.175-10.172.248.180
+  autoAssign: false
+EOF
