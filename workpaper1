@@ -1,3 +1,82 @@
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mc 99-worker-nm-dns-fix -o jsonpath='{.spec.config.storage.files[0].contents.inline}' | head -20
+#!/bin/bash
+# ensure-nm-dns.sh
+# Ensures /var/run/NetworkManager/resolv.conf has DNS servers
+# before kubelet starts. Fixes OVN-K bare-metal bug where
+# ovs-if-br-ex is created at runtime without DNS, causing
+# resolv-prepender.sh to hang indefinitely and kubelet to
+# fail with "NM resolv-prepender failed".
+#
+# Root cause: OVN-K creates ovs-if-br-ex in /run/NetworkManager/
+# system-connections/ (tmpfs, wiped on reboot) without ipv4.dns.
+# NM then generates resolv.conf with no nameservers.
+#
+# This runs as a oneshot before kubelet — no race condition.
+#
+# Cluster: ocp-ai.calix.local (OCP 4.20.13)
+# DNS: 10.172.248.31, 10.172.248.32
+# Author: Haj Suma
+# Date: February 26, 2026
+
+RESOLV="/var/run/NetworkManager/resolv.conf"
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=50 | grep -i "render\|error\|degrad"
+Defaulted container "machine-config-controller" out of: machine-config-controller, kube-rbac-proxy
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+E0226 20:17:32.345888       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+I0226 20:17:32.350798       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+E0226 20:17:32.868486       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+I0226 20:17:32.872717       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+E0226 20:17:33.710845       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+I0226 20:17:33.714849       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+E0226 20:17:35.217597       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+I0226 20:17:35.221592       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+E0226 20:17:37.970578       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+I0226 20:17:37.975322       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+E0226 20:17:43.285426       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+I0226 20:17:43.289861       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+E0226 20:17:53.715753       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+I0226 20:17:53.720497       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+E0226 20:18:14.384760       1 render_controller.go:475] Error syncing Generated MCFG: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+I0226 20:18:14.389668       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-3a7122e0c8da855603c71ae2284820dc" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
+
+
 oc get mc 99-worker-nm-dns-fix -o jsonpath='{.spec.config.storage.files[0].contents.inline}' | head -20
 
 oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=50 | grep -i "render\|error\|degrad"
