@@ -585,3 +585,36 @@ function resolv_prepender {
 
 resolv_prepender
 [core@ocp-ai-gpu01 ~]$
+
+
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ cat /etc/NetworkManager/system-connections/
+Wired connection 6.nmconnection  bond0.1792.nmconnection          bond0.1794.nmconnection          bond0.1797.nmconnection          bond0.nmconnection               ethernet.nmconnection
+bond0.1510.nmconnection          bond0.1793.nmconnection          bond0.1796.nmconnection          bond0.1798.nmconnection          eno8303.nmconnection
+[core@ocp-ai-gpu01 ~]$ cat /etc/NetworkManager/system-connections/ovs-if-br-ex.nmconnection
+cat: /etc/NetworkManager/system-connections/ovs-if-br-ex.nmconnection: No such file or directory
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ exit
+logout
+Connection to ocp-ai-gpu01.calix.local closed.
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-gpu02.calix.local
+Red Hat Enterprise Linux CoreOS 9.6.20260128-1
+  Part of OpenShift 4.20, RHCOS is a Kubernetes-native operating system
+  managed by the Machine Config Operator (`clusteroperator/machine-config`).
+
+WARNING: Direct SSH access to machines is not recommended; instead,
+make configuration changes via `machineconfig` objects:
+  https://docs.openshift.com/container-platform/4.20/architecture/architecture-rhcos.html
+
+---
+Last login: Thu Feb 26 18:46:14 2026 from 10.172.248.105
+[systemd]
+Failed Units: 1
+  NetworkManager-wait-online.service
+[core@ocp-ai-gpu02 ~]$ cat /etc/NetworkManager/system-connections/
+Wired connection 3.nmconnection  Wired connection 6.nmconnection  bond0.1793.nmconnection          bond0.1796.nmconnection          bond0.1798.nmconnection
+Wired connection 5.nmconnection  bond0.1792.nmconnection          bond0.1794.nmconnection          bond0.1797.nmconnection          bond0.nmconnection
+[core@ocp-ai-gpu02 ~]$ cat /etc/NetworkManager/system-connections/ovs-if-br-ex.nmconnectio
+cat: /etc/NetworkManager/system-connections/ovs-if-br-ex.nmconnectio: No such file or directory
+[core@ocp-ai-gpu02 ~]$
