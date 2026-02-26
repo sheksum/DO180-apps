@@ -1,3 +1,12 @@
+
+oc get operatorconfig -A -o yaml 2>/dev/null || oc get deployment external-secrets-operator-controller-manager -n external-secrets-operator -o yaml | grep -A5 -i namespace
+
+
+oc get csv -n external-secrets-operator | grep external
+
+
+oc get deployment external-secrets-operator-controller-manager -n external-secrets-operator -o yaml | grep -A20 env
+
 NAME                                                            READY   STATUS    RESTARTS       AGE
 external-secrets-operator-controller-manager-6d5f5b7474-k7flj   1/1     Running   1 (2d2h ago)   2d10h
 hsuma@plnx-admin:~/ocp-ai-config$ oc logs external-secrets-operator-controller-manager-6d5f5b7474-k7flj -n external-secrets-operator | grep -i pai
