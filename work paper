@@ -484,3 +484,45 @@ drwxr-xr-x  2 hsuma sw  4096 Feb 23 22:28 nmstate
 -rw-r--r--  1 hsuma sw  2622 Feb 19 13:55 README.md
 drwxr-xr-x  2 hsuma sw  4096 Feb 23 19:15 trident
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
+hsuma@plnx-admin:~/ocp-ai-config$ oc get application -A
+NAMESPACE          NAME              SYNC STATUS   HEALTH STATUS
+openshift-gitops   machineconfigs    Synced        Healthy
+openshift-gitops   metallb           Unknown       Healthy
+openshift-gitops   nmstate           Synced        Healthy
+openshift-gitops   ocp-ai-platform   Synced        Healthy
+openshift-gitops   trident           Synced        Healthy
+hsuma@plnx-admin:~/ocp-ai-config$ oc describe application metallb -n openshift-gitops | tail -30
+    Status:            Unknown
+    Version:           v1
+    Group:             project.openshift.io
+    Kind:              Project
+    Name:              pai-test
+    Status:            Unknown
+    Version:           v1
+  Source Hydrator:
+  Summary:
+    Images:
+      registry.redhat.io/openshift4/metallb-rhel9@sha256:668b065e49be9ff1b0ca2e13e504afe5ff4483aec6bf54c9413d9b435b97d6a8
+      registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:5f4b6b4ddff81c2b6e1bb43e0924197ef184132ccb105ef816065bfebe25d002
+  Sync:
+    Compared To:
+      Destination:
+        Server:  https://kubernetes.default.svc
+      Source:
+        Path:             ocp-ai-config/metallb
+        Repo URL:         git@bitbucket.org:calixprod/ocp-ai-platform.git
+        Target Revision:  main
+    Status:               Unknown
+Events:
+  Type    Reason              Age    From                           Message
+  ----    ------              ----   ----                           -------
+  Normal  ResourceUpdated     16m    argocd-application-controller  Updated sync status:  -> Unknown
+  Normal  ResourceUpdated     16m    argocd-application-controller  Updated health status:  -> Healthy
+  Normal  OperationStarted    2m51s  argocd-application-controller  Initiated automated sync to 'b01d9d89a138f16b727c2072bfb42b200da17e3f'
+  Normal  ResourceUpdated     2m51s  argocd-application-controller  Updated sync status: Unknown -> OutOfSync
+  Normal  OperationCompleted  2m49s  argocd-application-controller  Sync operation to b01d9d89a138f16b727c2072bfb42b200da17e3f succeeded
+  Normal  ResourceUpdated     2m48s  argocd-application-controller  Updated sync status: OutOfSync -> Unknown
+hsuma@plnx-admin:~/ocp-ai-config$
