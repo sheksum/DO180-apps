@@ -464,4 +464,23 @@ metallb/metallb-instance.yaml
 metallb/namespaces.yaml
 hsuma@plnx-admin:~/ocp-ai-config$
 
-
+hsuma@plnx-admin:~/ocp-ai-config$ git remote -v
+origin	git@bitbucket.org:calixprod/ocp-ai-platform.git (fetch)
+origin	git@bitbucket.org:calixprod/ocp-ai-platform.git (push)
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ pwd
+/home/hsuma/ocp-ai-config
+hsuma@plnx-admin:~/ocp-ai-config$ ls -la
+total 48
+drwxr-xr-x  8 hsuma sw  4096 Feb 25 21:23 .
+drwxr-xr-x 46 hsuma sw 16384 Feb 25 21:45 ..
+drwxr-xr-x  2 hsuma sw  4096 Feb 23 13:41 apps
+drwxr-xr-x  8 hsuma sw  4096 Feb 25 21:44 .git
+-rw-r--r--  1 hsuma sw    22 Feb 19 13:55 .gitignore
+drwxr-xr-x  2 hsuma sw  4096 Feb 18 14:24 machineconfigs
+drwxr-xr-x  2 hsuma sw  4096 Feb 25 21:43 metallb
+drwxr-xr-x  2 hsuma sw  4096 Feb 23 22:28 nmstate
+-rw-r--r--  1 hsuma sw  2622 Feb 19 13:55 README.md
+drwxr-xr-x  2 hsuma sw  4096 Feb 23 19:15 trident
+hsuma@plnx-admin:~/ocp-ai-config$
