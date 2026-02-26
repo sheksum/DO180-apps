@@ -907,3 +907,25 @@ router-default-56fb65447b-g8jhd             1/1     Running   0          2d3h
 hsuma@plnx-admin:~/ocp-ai-config/apps$
 hsuma@plnx-admin:~/ocp-ai-config/apps$
 hsuma@plnx-admin:~/ocp-ai-config/apps$
+
+
+
+oc apply -f - <<EOF
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: pai-gateway
+  namespace: openshift-ingress
+spec:
+  gatewayClassName: openshift-default
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              app.kubernetes.io/part-of: pai
+EOF
