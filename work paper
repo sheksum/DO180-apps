@@ -139,3 +139,32 @@ spec:
   selector:
     app: nginx-test
 EOF
+
+
+
+NAME            TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+nginx-test-lb   LoadBalancer   172.30.37.234   <pending>     80:30808/TCP   45s
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc describe svc nginx-test-lb -n pai-dev | tail -20
+Annotations:              metallb.universe.tf/address-pool: ai-services-dev
+                          metallb.universe.tf/loadBalancerIPs: 10.172.248.160
+Selector:                 app=nginx-test
+Type:                     LoadBalancer
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       172.30.37.234
+IPs:                      172.30.37.234
+Desired LoadBalancer IP:  10.172.248.160
+Port:                     <unset>  80/TCP
+TargetPort:               8080/TCP
+NodePort:                 <unset>  30808/TCP
+Endpoints:                10.129.0.154:8080
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Internal Traffic Policy:  Cluster
+Events:
+  Type     Reason            Age   From                Message
+  ----     ------            ----  ----                -------
+  Warning  AllocationFailed  72s   metallb-controller  Failed to allocate IP for "pai-dev/nginx-test-lb": service can not have both metallb.io/loadBalancerIPs and svc.Spec.LoadBalancerIP
+hsuma@plnx-admin:~$
