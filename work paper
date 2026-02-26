@@ -655,3 +655,32 @@ spec:
 EOF
 
 
+oc delete application metallb -n openshift-gitops 2>/dev/null; sleep 5
+
+oc apply -f - <<EOF
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: metallb
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: metallb-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+EOF
+
+
+oc rollout restart deployment openshift-gitops-server -n openshift-gitops
+oc rollout restart statefulset openshift-gitops-application-controller -n openshift-gitops
+
