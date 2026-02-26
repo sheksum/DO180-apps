@@ -1,269 +1,131 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc describe nodes ocp-ai-gpu01.calix.local | grep -A3 Taints
-Taints:             node.kubernetes.io/unreachable:NoExecute
-                    node.kubernetes.io/unreachable:NoSchedule
-                    nvidia.com/gpu=true:NoSchedule
-Unschedulable:      false
-hsuma@plnx-admin:~$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ sudo cat /etc/NetworkManager/NetworkManager.conf
+# Configuration file for NetworkManager.
+#
+# See "man 5 NetworkManager.conf" for details.
+#
+# The directories /usr/lib/NetworkManager/conf.d/ and /run/NetworkManager/conf.d/
+# can contain additional .conf snippets installed by packages. These files are
+# read before NetworkManager.conf and have thus lowest priority.
+# The directory /etc/NetworkManager/conf.d/ can contain additional .conf
+# snippets. Those snippets are merged last and overwrite the settings from this main
+# file.
+#
+# The files within one conf.d/ directory are read in asciibetical order.
+#
+# You can prevent loading a file /usr/lib/NetworkManager/conf.d/NAME.conf
+# by having a file NAME.conf in either /run/NetworkManager/conf.d/ or /etc/NetworkManager/conf.d/.
+# Likewise, snippets from /run can be prevented from loading by placing
+# a file with the same name in /etc/NetworkManager/conf.d/.
+#
+# If two files define the same key, the one that is read afterwards will overwrite
+# the previous one.
+
+[main]
+#plugins=keyfile,ifcfg-rh
 
 
-hsuma@plnx-admin:~$ oc describe node ocp-ai-gpu01.calix.local | grep -A5 Conditions
-Conditions:
-  Type             Status    LastHeartbeatTime                 LastTransitionTime                Reason              Message
-  ----             ------    -----------------                 ------------------                ------              -------
-  MemoryPressure   Unknown   Thu, 26 Feb 2026 11:32:17 -0600   Thu, 26 Feb 2026 11:33:18 -0600   NodeStatusUnknown   Kubelet stopped posting node status.
-  DiskPressure     Unknown   Thu, 26 Feb 2026 11:32:17 -0600   Thu, 26 Feb 2026 11:33:18 -0600   NodeStatusUnknown   Kubelet stopped posting node status.
-  PIDPressure      Unknown   Thu, 26 Feb 2026 11:32:17 -0600   Thu, 26 Feb 2026 11:33:18 -0600   NodeStatusUnknown   Kubelet stopped posting node status.
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-
-
-
-ssh core@ocp-ai-gpu01.calix.local
-sudo systemctl status kubelet
-sudo journalctl -u kubelet --since "11:30" --no-pager | tail -50
-
-
-sudo systemctl restart kubelet
-
-
-Last login: Tue Feb 24 03:39:06 2026
+[logging]
+# When debugging NetworkManager, enabling debug logging is of great help.
+#
+# Logfiles contain no passwords and little sensitive information. But please
+# check before posting the file online. You can also personally hand over the
+# logfile to a NM developer to treat it confidential. Meet us on #nm on Libera.Chat.
+#
+# You can also change the log-level at runtime via
+#   $ nmcli general logging level TRACE domains ALL
+# However, usually it's cleaner to enable debug logging
+# in the configuration and restart NetworkManager so that
+# debug logging is enabled from the start.
+#
+# You will find the logfiles in syslog, for example via
+#   $ journalctl -u NetworkManager
+#
+# Please post full logfiles for bug reports without pre-filtering or truncation.
+# Also, for debugging the entire `journalctl` output can be interesting. Don't
+# limit unnecessarily with `journalctl -u`. Exceptions are if you are worried
+# about private data. Check before posting logfiles!
+#
+# Note that debug logging of NetworkManager can be quite verbose. Some messages
+# might be rate-limited by the logging daemon (see RateLimitIntervalSec, RateLimitBurst
+# in man journald.conf). Please disable rate-limiting before collecting debug logs!
+#
+#level=TRACE
+#domains=ALL
 [core@ocp-ai-gpu01 ~]$
 [core@ocp-ai-gpu01 ~]$
-[core@ocp-ai-gpu01 ~]$ uptime
- 18:00:50 up 26 min,  1 user,  load average: 0.00, 0.00, 0.00
-[core@ocp-ai-gpu01 ~]$
-[core@ocp-ai-gpu01 ~]$
-[core@ocp-ai-gpu01 ~]$
-[core@ocp-ai-gpu01 ~]$ w
- 18:00:53 up 26 min,  1 user,  load average: 0.00, 0.00, 0.00
-USER     TTY        LOGIN@   IDLE   JCPU   PCPU WHAT
-core     pts/0     18:00    4.00s  0.01s  0.01s w
-[core@ocp-ai-gpu01 ~]$ sudo systemctl status kubelet
-● kubelet.service - Kubernetes Kubelet
-     Loaded: loaded (/etc/systemd/system/kubelet.service; enabled; preset: disabled)
-    Drop-In: /etc/systemd/system/kubelet.service.d
-             └─01-kubens.conf, 10-mco-default-madv.conf, 10-mco-on-prem-wait-resolv.conf, 20-logging.conf, 20-nodenet.conf
-     Active: activating (auto-restart) (Result: exit-code) since Thu 2026-02-26 18:00:56 UTC; 7s ago
-    Process: 12836 ExecCondition=/bin/bash -c [ -f /run/resolv-prepender-kni-conf-done ] || { echo "NM resolv-prepender failed"; exit 255; } (code=exited, status=255/EXCEPTION)
-        CPU: 1ms
-[core@ocp-ai-gpu01 ~]$
-[core@ocp-ai-gpu01 ~]$
-[core@ocp-ai-gpu01 ~]$ sudo journalctl -u kubelet --since "11:30" --no-pager | tail -50
-Feb 26 18:00:15 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
-Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 149.
-Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
-Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
-Feb 26 18:00:25 ocp-ai-gpu01.calix.local bash[12647]: NM resolv-prepender failed
-Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
-Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
-Feb 26 18:00:25 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
-Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 150.
-Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
-Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
-Feb 26 18:00:36 ocp-ai-gpu01.calix.local bash[12691]: NM resolv-prepender failed
-Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
-Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
-Feb 26 18:00:36 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
-Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 151.
-Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
-Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
-Feb 26 18:00:46 ocp-ai-gpu01.calix.local bash[12740]: NM resolv-prepender failed
-Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
-Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
-Feb 26 18:00:46 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
-Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 152.
-Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
-Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
-Feb 26 18:00:56 ocp-ai-gpu01.calix.local bash[12836]: NM resolv-prepender failed
-Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
-Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
-Feb 26 18:00:56 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
-Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 153.
-Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
-Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
-Feb 26 18:01:06 ocp-ai-gpu01.calix.local bash[12883]: NM resolv-prepender failed
-Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
-Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
-Feb 26 18:01:06 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
-Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 154.
-Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
-Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
-Feb 26 18:01:16 ocp-ai-gpu01.calix.local bash[12928]: NM resolv-prepender failed
-Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
-Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
-Feb 26 18:01:16 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
-Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Scheduled restart job, restart counter is at 155.
-Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: Stopped Kubernetes Kubelet.
-Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: Starting Kubernetes Kubelet...
-Feb 26 18:01:27 ocp-ai-gpu01.calix.local bash[12972]: NM resolv-prepender failed
-Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Condition check process exited, code=exited, status=255/EXCEPTION
-Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: kubelet.service: Failed with result 'exit-code'.
-Feb 26 18:01:27 ocp-ai-gpu01.calix.local systemd[1]: Failed to start Kubernetes Kubelet.
-[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ sudo ls /etc/NetworkManager/conf.d/
+01-ipv6.conf  20-keyfiles.conf	99-kni.conf  sdn.conf
+[core@ocp-ai-gpu01 ~]$ sudo cat /etc/NetworkManager/*.conf
+# Configuration file for NetworkManager.
+#
+# See "man 5 NetworkManager.conf" for details.
+#
+# The directories /usr/lib/NetworkManager/conf.d/ and /run/NetworkManager/conf.d/
+# can contain additional .conf snippets installed by packages. These files are
+# read before NetworkManager.conf and have thus lowest priority.
+# The directory /etc/NetworkManager/conf.d/ can contain additional .conf
+# snippets. Those snippets are merged last and overwrite the settings from this main
+# file.
+#
+# The files within one conf.d/ directory are read in asciibetical order.
+#
+# You can prevent loading a file /usr/lib/NetworkManager/conf.d/NAME.conf
+# by having a file NAME.conf in either /run/NetworkManager/conf.d/ or /etc/NetworkManager/conf.d/.
+# Likewise, snippets from /run can be prevented from loading by placing
+# a file with the same name in /etc/NetworkManager/conf.d/.
+#
+# If two files define the same key, the one that is read afterwards will overwrite
+# the previous one.
+
+[main]
+#plugins=keyfile,ifcfg-rh
 
 
-
-hsuma@plnx-admin:~$ oc get pods -A -o wide | grep ocp-ai-gpu01.calix.local
-nvidia-gpu-operator                                gpu-feature-discovery-mk4tk                                       1/1     Running                 0                8m15s   10.131.0.9       ocp-ai-gpu01.calix.local      <none>           <none>
-nvidia-gpu-operator                                nvidia-container-toolkit-daemonset-9cls6                          1/1     Running                 0                8m15s   10.131.0.13      ocp-ai-gpu01.calix.local      <none>           <none>
-nvidia-gpu-operator                                nvidia-cuda-validator-t8czj                                       0/1     Completed               0                6m47s   10.131.0.15      ocp-ai-gpu01.calix.local      <none>           <none>
-nvidia-gpu-operator                                nvidia-dcgm-85gfz                                                 1/1     Running                 0                8m15s   10.131.0.10      ocp-ai-gpu01.calix.local      <none>           <none>
-nvidia-gpu-operator                                nvidia-dcgm-exporter-nd76p                                        1/1     Running                 0                8m15s   10.131.0.8       ocp-ai-gpu01.calix.local      <none>           <none>
-nvidia-gpu-operator                                nvidia-device-plugin-daemonset-lt5jv                              1/1     Running                 0                8m15s   10.131.0.14      ocp-ai-gpu01.calix.local      <none>           <none>
-nvidia-gpu-operator                                nvidia-driver-daemonset-9.6.20260128-1-kdkft                      2/2     Running                 8                2d16h   10.131.0.43      ocp-ai-gpu01.calix.local      <none>           <none>
-nvidia-gpu-operator                                nvidia-mig-manager-llpzr                                          1/1     Running                 0                8m15s   10.131.0.12      ocp-ai-gpu01.calix.local      <none>           <none>
-nvidia-gpu-operator                                nvidia-node-status-exporter-25jpl                                 1/1     Running                 5                7d23h   10.131.0.17      ocp-ai-gpu01.calix.local      <none>           <none>
-nvidia-gpu-operator                                nvidia-operator-validator-9klj5                                   1/1     Running                 0                8m15s   10.131.0.11      ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-cluster-node-tuning-operator             tuned-hrbsm                                                       1/1     Running                 7                8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-dns                                      dns-default-kjm7x                                                 2/2     Running                 12               8d      10.131.0.5       ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-dns                                      node-resolver-fpkdb                                               1/1     Running                 7                8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-frr-k8s                                  frr-k8s-dqzmg                                                     7/7     Running                 7                15h     10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-image-registry                           node-ca-krw59                                                     1/1     Running                 7                8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-ingress-canary                           ingress-canary-fqgfr                                              1/1     Running                 6                8d      10.131.0.6       ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-insights                                 insights-runtime-extractor-m97wb                                  3/3     Running                 26 (6m27s ago)   8d      10.131.0.7       ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-kni-infra                                coredns-ocp-ai-gpu01.calix.local                                  0/2     Init:CrashLoopBackOff   770 (69s ago)    19h     10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-kni-infra                                keepalived-ocp-ai-gpu01.calix.local                               2/2     Running                 16               8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-machine-config-operator                  kube-rbac-proxy-crio-ocp-ai-gpu01.calix.local                     1/1     Running                 23               8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-machine-config-operator                  machine-config-daemon-s27sp                                       2/2     Running                 14               8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-monitoring                               node-exporter-ff82w                                               2/2     Running                 14               8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-multus                                   multus-additional-cni-plugins-v5cp2                               1/1     Running                 7                8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-multus                                   multus-vjx26                                                      1/1     Running                 36               8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-multus                                   network-metrics-daemon-hzxn5                                      2/2     Running                 12               8d      10.131.0.4       ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-network-diagnostics                      network-check-target-5btsj                                        1/1     Running                 6                8d      10.131.0.3       ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-network-operator                         iptables-alerter-2ntjk                                            1/1     Running                 7                8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-nfd                                      nfd-worker-vq7gr                                                  1/1     Running                 1                23h     10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-nmstate                                  nmstate-handler-fj6df                                             1/1     Running                 1                23h     10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-openshift-ovn-kubernetes                           ovnkube-node-m272s                                                8/8     Running                 91               8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-trident                                            trident-node-linux-8nxg6                                          2/2     Running                 91               8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
-hsuma@plnx-admin:~$
-
-
-
-Events:
-  Type     Reason   Age                      From     Message
-  ----     ------   ----                     ----     -------
-  Normal   Created  99m (x713 over 2d14h)    kubelet  Created container: render-config-coredns
-  Warning  BackOff  49m (x16927 over 2d14h)  kubelet  Back-off restarting failed container render-config-coredns in pod coredns-ocp-ai-gpu01.calix.local_openshift-kni-infra(effafdddf3b9659cb014efd2486b2214)
-  Normal   Pulled   48m (x723 over 2d14h)    kubelet  Container image "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd" already present on machine
-  Normal   Pulled   11m (x5 over 13m)        kubelet  Container image "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd" already present on machine
-  Normal   Created  11m (x5 over 13m)        kubelet  Created container: render-config-coredns
-  Normal   Started  11m (x5 over 13m)        kubelet  Started container render-config-coredns
-  Warning  BackOff  10m (x11 over 13m)       kubelet  Back-off restarting failed container render-config-coredns in pod coredns-ocp-ai-gpu01.calix.local_openshift-kni-infra(effafdddf3b9659cb014efd2486b2214)
-  Warning  BackOff  48s (x50 over 10m)       kubelet  Back-off restarting failed container render-config-coredns in pod coredns-ocp-ai-gpu01.calix.local_openshift-kni-infra(effafdddf3b9659cb014efd2486b2214)
-  Normal   Pulled   5s (x7 over 10m)         kubelet  Container image "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd" already present on machine
-  Normal   Created  5s (x7 over 10m)         kubelet  Created container: render-config-coredns
-  Normal   Started  5s (x7 over 10m)         kubelet  Started container render-config-coredns
-hsuma@plnx-admin:~$
-
-
-
-time="2026-02-26T18:17:05Z" level=fatal msg="Error executing runtimecfg: open /var/run/NetworkManager/resolv.conf: no such file or directory"
-
-
-IPs:
-  IP:           10.172.248.153
-Controlled By:  Node/ocp-ai-gpu01.calix.local
-Init Containers:
-  render-config-coredns:
-    Container ID:  cri-o://4ca0312c33c0404ddd7f5c16d308bf4a8e695bc07562939a8677933d8679d0d0
-    Image:         quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd
-    Image ID:      quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd
-    Port:          <none>
-    Host Port:     <none>
-    Command:
-      runtimecfg
-      render
-      /var/lib/kubelet/kubeconfig
-      --api-vips
-      10.172.248.155
-      --ingress-vips
-      10.172.248.156
-      /config
-      --out-dir
-      /etc/coredns
-      --resolvconf-path
-      /var/run/NetworkManager/resolv.conf
-    State:      Terminated
-      Reason:   Error
-      Message:  .conf: no such file or directory
-Usage:
-  runtimecfg render [path to kubeconfig] [paths to render]...
-            If there is one single path and it is a directory, it renders the .tmpl files in it [flags]
-
-Flags:
-      --api-port uint16                Port where the OpenShift API listens at (default 6443)
-      --api-vip ip                     DEPRECATED: Virtual IP Address to reach the OpenShift API
-      --api-vips ipSlice               Virtual IP Addresses to reach the OpenShift API (default [])
-      --cloud-ext-lb-ips ipSlice       IP Addresses of Cloud External Load Balancers for OpenShift API (default [])
-      --cloud-ingress-lb-ips ipSlice   IP Addresses of Cloud Ingress Load Balancers (default [])
-      --cloud-int-lb-ips ipSlice       IP Addresses of Cloud Internal Load Balancers for OpenShift Internal API (default [])
-  -c, --cluster-config string          Path to cluster-config ConfigMap to retrieve ControlPlane info
-      --dns-vip ip                     DEPRECATED: Virtual IP Address to reach an OpenShift node resolving DNS server
-  -h, --help                           help for render
-      --ingress-vip ip                 DEPRECATED: Virtual IP Address to reach the OpenShift Ingress Routers
-      --ingress-vips ipSlice           Virtual IP Addresses to reach the OpenShift Ingress Routers (default [])
-      --lb-port uint16                 Port where the API HAProxy LB will listen at (default 9445)
-  -o, --out-dir string                 Directory where the templates will be rendered
-  -p, --platform string                Cluster Platform
-  -r, --resolvconf-path string         Optional path to a resolv.conf file to use to get upstream DNS servers (default "/etc/resolv.conf")
-      --stat-port uint16               Port where the HAProxy stats API will listen at (default 29445)
-      --verbose                        Display extra information about the rendering
-
-time="2026-02-26T18:17:05Z" level=fatal msg="Error executing runtimecfg: open /var/run/NetworkManager/resolv.conf: no such file or directory"
-
-      Exit Code:  1
-      Started:    Thu, 26 Feb 2026 12:17:05 -0600
-      Finished:   Thu, 26 Feb 2026 12:17:05 -0600
-    Last State:   Terminated
-      Reason:     Error
-
-
-[core@ocp-ai-gpu01 ~]$
-[core@ocp-ai-gpu01 ~]$ ls -la /var/run/NetworkManager/resolv.conf
-ls: cannot access '/var/run/NetworkManager/resolv.conf': No such file or directory
-[core@ocp-ai-gpu01 ~]$
-[core@ocp-ai-gpu01 ~]$
-[core@ocp-ai-gpu01 ~]$ ls -la /var/run/NetworkManager/
-total 0
-drwxr-xr-x.  6 root root  120 Feb 26 17:34 .
-drwxr-xr-x. 65 root root 1660 Feb 26 18:04 ..
-drwxr-xr-x.  2 root root   60 Feb 26 17:34 conf.d
-drwxr-xr-x.  2 root root  300 Feb 26 17:34 devices
-drwxr-xr-x.  2 root root   40 Feb 26 17:34 initrd
-drwxr-xr-x.  2 root root  220 Feb 26 17:34 system-connections
-[core@ocp-ai-gpu01 ~]$ cat /etc/resolv.conf
-# Generated by KNI resolv prepender NM dispatcher script
-search ocp-ai.calix.local calix.local
-nameserver 10.172.248.153
-nameserver 10.172.248.31
-nameserver 10.172.248.32
-[core@ocp-ai-gpu01 ~]$
-
-
-sudo bash -c 'cat > /var/run/NetworkManager/resolv.conf << EOF
-search ocp-ai.calix.local calix.local
-nameserver 10.172.248.153
-nameserver 10.172.248.31
-nameserver 10.172.248.32
-EOF'
-```
-
-Then watch the pod:
-```
-oc get pods -n openshift-kni-infra | grep gpu01
-
-
-
-[core@ocp-ai-gpu01 ~]$ sudo bash -c 'cat > /var/run/NetworkManager/resolv.conf << EOF
-search ocp-ai.calix.local calix.local
-nameserver 10.172.248.153
-nameserver 10.172.248.31
-nameserver 10.172.248.32
-EOF'
-[core@ocp-ai-gpu01 ~]$
-[core@ocp-ai-gpu01 ~]$
-[core@ocp-ai-gpu01 ~]$ cat /var/run/NetworkManager/resolv.conf
-# Generated by NetworkManager
-search calix.local
-[core@ocp-ai-gpu01 ~]$
+[logging]
+# When debugging NetworkManager, enabling debug logging is of great help.
+#
+# Logfiles contain no passwords and little sensitive information. But please
+# check before posting the file online. You can also personally hand over the
+# logfile to a NM developer to treat it confidential. Meet us on #nm on Libera.Chat.
+#
+# You can also change the log-level at runtime via
+#   $ nmcli general logging level TRACE domains ALL
+# However, usually it's cleaner to enable debug logging
+# in the configuration and restart NetworkManager so that
+# debug logging is enabled from the start.
+#
+# You will find the logfiles in syslog, for example via
+#   $ journalctl -u NetworkManager
+#
+# Please post full logfiles for bug reports without pre-filtering or truncation.
+# Also, for debugging the entire `journalctl` output can be interesting. Don't
+# limit unnecessarily with `journalctl -u`. Exceptions are if you are worried
+# about private data. Check before posting logfiles!
+#
+# Note that debug logging of NetworkManager can be quite verbose. Some messages
+# might be rate-limited by the logging daemon (see RateLimitIntervalSec, RateLimitBurst
+# in man journald.conf). Please disable rate-limiting before collecting debug logs!
+#
+#level=TRACE
+#domains=ALL
+[core@ocp-ai-gpu01 ~]$ nmcli con show --active
+NAME                UUID                                  TYPE           DEVICE
+ovs-if-br-ex        e9b37514-d254-4193-bdf2-0d9944fad04b  ovs-interface  br-ex
+bond0.1510          7492829a-0516-4732-93ad-8427ea7fd417  vlan           bond0.1510
+bond0.1792          fb754d74-c927-4a8c-a7ac-349d8450c04a  vlan           bond0.1792
+bond0.1793          295bcfab-abe5-467a-8a01-806b4a9b079a  vlan           bond0.1793
+bond0.1794          58d4be3e-bcc2-4f39-9114-8f8ea1fb551c  vlan           bond0.1794
+bond0.1796          8bdbd875-5bdc-4aae-8d67-a53896401c84  vlan           bond0.1796
+bond0.1797          cba6ef11-4bb6-4459-81d6-0e1f63eae908  vlan           bond0.1797
+bond0.1798          797fc58b-c29e-483d-a522-09bd5ae18c7c  vlan           bond0.1798
+Wired connection 6  24ceb865-f4fe-3a70-9f57-40c3e42364a1  ethernet       ens8f1np1
+bond0               15d7874f-ff19-4ea8-bc37-5430907030c0  bond           bond0
+br-ex               291eff6f-ef7f-42fd-9970-a1459ca93533  ovs-bridge     br-ex
+ethernet            58e93027-fd74-4c3a-932e-b27f2ae6b4c8  ethernet       ens8f0np0
+ovs-if-phys0        a74704d1-5fda-4cdf-b7e3-31cadad26049  ethernet       eno8303
+ovs-port-br-ex      ce8acaa2-99c3-4060-97d6-f1c3388550eb  ovs-port       br-ex
+ovs-port-phys0      1ac2139e-220c-4f2b-bbb0-b67ae0ba3a44  ovs-port       eno8303
+lo                  3d5c806e-9dd6-4654-b15b-ab1c121ef746  loopback       lo
+[core@ocp-ai-gpu01 ~]$ nmcli dev show | grep -i dns
+[core@ocp-ai-gpu01 ~]$ nmcli dev show | grep -i dns
