@@ -398,3 +398,190 @@ hsuma@plnx-admin:~$ oc get mc rendered-worker-3c8750c881df6f82403924904fac6469 -
 /usr/local/bin/resolv-prepender.sh
 /etc/NetworkManager/dispatcher.d/99-vsphere-disable-tx-udp-tnl
 hsuma@plnx-admin:~$
+
+
+[core@ocp-ai-gpu01 ~]$ cat /etc/NetworkManager/dispatcher.d/30-resolv-prepender
+#!/bin/bash
+set -eo pipefail
+IFACE=$1
+STATUS=$2
+
+function resolv_prepender {
+  mkdir -p /run/resolv-prepender
+  echo "IP4_DOMAINS=$IP4_DOMAINS" > /run/resolv-prepender/env.new
+  echo "IP6_DOMAINS=$IP6_DOMAINS" >> /run/resolv-prepender/env.new
+
+  if ! diff -q /run/resolv-prepender/env /run/resolv-prepender/env.new; then
+    >&2 echo "NM resolv-prepender: Environment variable(s) changed. Systemd path unit will pick the change."
+    mv -f /run/resolv-prepender/env.new /run/resolv-prepender/env
+  fi
+}
+
+export IP4_DOMAINS IP6_DOMAINS
+export -f resolv_prepender
+
+# For RHEL8 with NetworkManager >= 1.36 and RHEL9 with NetworkManager >=1.42 we can use simplified logic
+# of observing only a single "dns-change" event. Older version of NetworkManager require however that we
+# react on a set of multiple events. Once dns-change event is detected we create a flag file to ignore
+# subsequent up&co. events as undesired.
+#
+# Given an overall Network Manager dispatcher timeout of 90 seconds, we are enforcing a slightly shorter
+# timeout for the observed events. It is not really required because all we do in this function is to write a file.
+# We could get rid of this timeout completely, but it also does not cost much to keep it.
+case "$STATUS" in
+  dns-change)
+    >&2 echo "NM resolv-prepender triggered by ${IFACE} ${STATUS}."
+    if [ ! -f "/run/networkmanager-dns-event-detected" ]; then
+      touch /run/networkmanager-dns-event-detected
+    fi
+    if ! timeout 60s bash -c resolv_prepender; then
+      >&2 echo "NM resolv-prepender: Timeout occurred"
+      exit 1
+    fi
+  ;;
+
+  up|dhcp4-change|dhcp6-change|reapply)
+    if [ ! -f "/run/networkmanager-dns-event-detected" ]; then
+      >&2 echo "NM resolv-prepender triggered by ${IFACE} ${STATUS}."
+      if ! timeout 30s bash -c resolv_prepender; then
+        >&2 echo "NM resolv-prepender: Timeout occurred"
+        exit 1
+      fi
+    fi
+
+    # If $DHCP6_FQDN_FQDN is not empty and is not localhost.localdomain and static hostname was not already set
+    if [[ -n "$DHCP6_FQDN_FQDN" && "$DHCP6_FQDN_FQDN" != "localhost.localdomain" && "$DHCP6_FQDN_FQDN" =~ "." ]] ; then
+       STATIC_HOSTNAME="$(test ! -e /etc/hostname && echo -n || cat /etc/hostname | xargs)"
+
+       if [[ -z "$STATIC_HOSTNAME" || "$STATIC_HOSTNAME" == "localhost.localdomain" ]] ; then
+          # run with systemd-run to avoid selinux problems
+          systemd-run --property=Type=oneshot --unit resolve-prepender-hostnamectl -Pq \
+              hostnamectl set-hostname --static --transient $DHCP6_FQDN_FQDN
+       fi
+    fi
+
+    if [[ "$STATUS" == "up" ]] && [[ $IFACE == "br-ex" ]]; then
+        /bin/mkdir -p /run/nodeip-configuration
+        touch /run/nodeip-configuration/br-ex-up
+    fi
+  ;;
+  *)
+  ;;
+esac
+[core@ocp-ai-gpu01 ~]$
+
+
+
+
+===
+
+
+[core@ocp-ai-gpu01 ~]$ cat /usr/local/bin/resolv-prepender.sh
+#!/bin/bash
+set -eo pipefail
+
+function pull_baremetal_runtime_cfg_image {
+    # By default podman retries to pull an image 3 times with 1 second back-off. It is not configurable. For this
+    # reason we are implementing our own logic of pulling image and retrying indefinitely.
+    # Ref.: https://github.com/containers/common/blob/e028741ef77fdfa3ae261b9d23cdd50253d586c4/libimage/copier.go#L27-L30
+
+    >&2 echo "NM resolv-prepender: Checking if baremetal runtime cfg image already exists"
+    if ! /usr/bin/podman image exists "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd"; then
+      >&2 echo "NM resolv-prepender: Starting download of baremetal runtime cfg image"
+      while ! /usr/bin/podman pull --authfile /var/lib/kubelet/config.json "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd"; do sleep 1; done
+      >&2 echo "NM resolv-prepender: Download of baremetal runtime cfg image completed"
+    else
+      >&2 echo "NM resolv-prepender: Image exists, no need to download"
+    fi
+}
+
+function resolv_prepender {
+        # In DHCP connections, the resolv.conf content may be late, thus we wait for nameservers
+        while ! grep nameserver /var/run/NetworkManager/resolv.conf; do
+            >&2 echo  "NM resolv-prepender: NM resolv.conf still empty of nameserver"
+            sleep 0.5
+        done
+
+        # Ensure resolv.conf exists and contains nameservers before we try to pull image or run podman
+        if [[ ! -e /etc/resolv.conf ]] || ! grep -q nameserver /etc/resolv.conf; then
+            cp /var/run/NetworkManager/resolv.conf /etc/resolv.conf
+        fi
+
+        # Ensure baremetalRuntimeCfgImage is pulled in a reliable way before trying to use it
+        # in the subsequent code
+        pull_baremetal_runtime_cfg_image
+
+        NAMESERVER_IP="$(/usr/bin/podman run --rm \
+            --authfile /var/lib/kubelet/config.json \
+            --net=host \
+            quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd \
+            node-ip \
+            show \
+            "10.172.248.155"  \
+            "10.172.248.156" )"
+        DOMAINS="${IP4_DOMAINS:-} ${IP6_DOMAINS:-} ocp-ai.calix.local"
+        if [[ -n "$NAMESERVER_IP" ]]; then
+            KNICONFDONEPATH="/run/resolv-prepender-kni-conf-done"
+            if systemctl -q is-enabled systemd-resolved; then
+                >&2 echo "NM resolv-prepender: Configure for OKD domain and local IP"
+                mkdir -p /etc/systemd/resolved.conf.d
+                KNICONFTMPPATH="$(mktemp)"
+                KNICONFPATH="/etc/systemd/resolved.conf.d/60-kni.conf"
+                echo "[Resolve]" > "${KNICONFTMPPATH}"
+                echo "DNS=$NAMESERVER_IP" >> "${KNICONFTMPPATH}"
+                echo "Domains=${DOMAINS}" >> "${KNICONFTMPPATH}"
+
+                # If KNI conf is not created or doesn't match what is generated or
+                # if we haven't completed a full update - create or update it
+                if [[ ! -f "${KNICONFPATH}" ]] || [[ ! -f "${KNICONFDONEPATH}" ]] || ! cmp --silent "${KNICONFPATH}" "${KNICONFTMPPATH}"; then
+                    >&2 echo "NM resolv-prepender: Creating/updating /etc/systemd/resolved.conf.d/60-kni.conf"
+                    # Remove the done file flag before writing the config
+                    # This would guard against interruptions and
+                    # prevent double restart of systemd-resolved
+                    rm -f "${KNICONFDONEPATH}"
+                    # Copy tmp file contents to preserve permissions and SELinux label
+                    cat "${KNICONFTMPPATH}" > "${KNICONFPATH}"
+                fi
+
+                if [[ ! -f "${KNICONFDONEPATH}" ]]; then
+                    if systemctl -q is-active systemd-resolved; then
+                        >&2 echo "NM resolv-prepender: Restarting systemd-resolved"
+                        systemctl restart systemd-resolved
+                    fi
+                    touch "${KNICONFDONEPATH}"
+                fi
+                rm -rf "${KNICONFTMPPATH}"
+            else
+                >&2 echo "NM resolv-prepender: Prepending 'nameserver $NAMESERVER_IP' to /etc/resolv.conf (other nameservers from /var/run/NetworkManager/resolv.conf)"
+                RESOLVCONFTMPPATH="$(mktemp)"
+                sed -e "/Generated by/c# Generated by KNI resolv prepender NM dispatcher script" \
+                    /var/run/NetworkManager/resolv.conf > "${RESOLVCONFTMPPATH}"
+                sed -i "0,/^nameserver.*/s//nameserver $NAMESERVER_IP\n\0/" "${RESOLVCONFTMPPATH}"
+                if ! grep -q search "${RESOLVCONFTMPPATH}"; then
+                    # Make sure we have a search entry
+                    echo "search ocp-ai.calix.local" >> "${RESOLVCONFTMPPATH}"
+                else
+                    # Make sure cluster domain is first in the search list
+                    sed -i "s/^search \(.*\)/search ocp-ai.calix.local \1/" "${RESOLVCONFTMPPATH}"
+                    # Remove duplicate cluster domain entries
+                    sed -i "s/\(search ocp-ai.calix.local.*\) ocp-ai.calix.local\( .*\|$\)/\1\2/" "${RESOLVCONFTMPPATH}"
+                fi
+                # Only leave the first 3 nameservers in /etc/resolv.conf
+                sed -i ':a $!{N; ba}; s/\(^\|\n\)nameserver/\n# nameserver/4g' "${RESOLVCONFTMPPATH}"
+                # Only touch existing resolv.conf if files actually differ
+                if ! cmp -s "${RESOLVCONFTMPPATH}" /etc/resolv.conf; then
+                  chmod 644 "${RESOLVCONFTMPPATH}"
+                  mv -Zf "${RESOLVCONFTMPPATH}" /etc/resolv.conf
+                  # Workaround for bz 1929160. Reload NetworkManager to force it to
+                  # re-run the lookup of the hostname now that we know we have DNS
+                  # servers configured correctly in resolv.conf.
+                  nmcli general reload dns-rc
+                fi
+                touch "${KNICONFDONEPATH}"
+                rm -rf "${RESOLVCONFTMPPATH}"
+            fi
+        fi
+}
+
+resolv_prepender
+[core@ocp-ai-gpu01 ~]$
