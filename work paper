@@ -1,3 +1,99 @@
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecret -n trident
+NAME                   STORETYPE     STORE         REFRESH INTERVAL   STATUS   READY
+backend-app-secret     SecretStore   vault-store   1h
+backend-infra-secret   SecretStore   vault-store   1h
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc describe  externalsecret -n trident
+Name:         backend-app-secret
+Namespace:    trident
+Labels:       <none>
+Annotations:  <none>
+API Version:  external-secrets.io/v1
+Kind:         ExternalSecret
+Metadata:
+  Creation Timestamp:  2026-02-24T00:39:17Z
+  Generation:          1
+  Resource Version:    3424900
+  UID:                 39e72b19-af86-46a8-bfdf-f3535c9b90b1
+Spec:
+  Data:
+    Remote Ref:
+      Conversion Strategy:  Default
+      Decoding Strategy:    None
+      Key:                  trident/app
+      Metadata Policy:      None
+      Property:             username
+    Secret Key:             username
+    Remote Ref:
+      Conversion Strategy:  Default
+      Decoding Strategy:    None
+      Key:                  trident/app
+      Metadata Policy:      None
+      Property:             password
+    Secret Key:             password
+  Refresh Interval:         1h
+  Secret Store Ref:
+    Kind:  SecretStore
+    Name:  vault-store
+  Target:
+    Creation Policy:  Owner
+    Deletion Policy:  Retain
+    Name:             backend-app-secret
+Events:               <none>
+
+
+Name:         backend-infra-secret
+Namespace:    trident
+Labels:       <none>
+Annotations:  <none>
+API Version:  external-secrets.io/v1
+Kind:         ExternalSecret
+Metadata:
+  Creation Timestamp:  2026-02-24T00:38:56Z
+  Generation:          1
+  Resource Version:    3424777
+  UID:                 42762893-2fcc-4f01-a32f-99ccf34060cb
+Spec:
+  Data:
+    Remote Ref:
+      Conversion Strategy:  Default
+      Decoding Strategy:    None
+      Key:                  trident/infra
+      Metadata Policy:      None
+      Property:             username
+    Secret Key:             username
+    Remote Ref:
+      Conversion Strategy:  Default
+      Decoding Strategy:    None
+      Key:                  trident/infra
+      Metadata Policy:      None
+      Property:             password
+    Secret Key:             password
+  Refresh Interval:         1h
+  Secret Store Ref:
+    Kind:  SecretStore
+    Name:  vault-store
+  Target:
+    Creation Policy:  Owner
+    Deletion Policy:  Retain
+    Name:             backend-infra-secret
+Events:               <none>
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secrets -n trident
+NAME                                 TYPE                      DATA   AGE
+backend-app-secret                   Opaque                    2      8d
+backend-infra-secret                 Opaque                    2      8d
+builder-dockercfg-9dn8h              kubernetes.io/dockercfg   1      7d11h
+default-dockercfg-bdwm2              kubernetes.io/dockercfg   1      7d11h
+deployer-dockercfg-vqr6s             kubernetes.io/dockercfg   1      7d11h
+trident-controller-dockercfg-t4s2g   kubernetes.io/dockercfg   1      7d11h
+trident-csi                          Opaque                    6      8d
+trident-encryption-keys              Opaque                    1      8d
+trident-node-linux-dockercfg-rwf8z   kubernetes.io/dockercfg   1      7d11h
+trident-operator-dockercfg-5kpmc     kubernetes.io/dockercfg   1      7d11h
+hsuma@plnx-admin:~/ocp-ai-config$
+
+
 hsuma@plnx-admin:~/ocp-ai-config$ oc get operatorconfig -A -o yaml 2>/dev/null || oc get deployment external-secrets-operator-controller-manager -n external-secrets-operator -o yaml | grep -A5 -i namespace
     olm.owner.namespace: external-secrets-operator
     operators.coreos.com/openshift-external-secrets-operator.external-secrets-operator: ""
