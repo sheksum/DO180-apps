@@ -1,22 +1,29 @@
-cat <<'EOF' | oc apply -f -
-apiVersion: machineconfiguration.openshift.io/v1
-kind: MachineConfig
-metadata:
-  name: 99-worker-dns-test
-  labels:
-    machineconfiguration.openshift.io/role: worker
-spec:
-  config:
-    ignition:
-      version: 3.2.0
-    storage:
-      files:
-        - path: /etc/dns-fix-test
-          mode: 0644
-          contents:
-            inline: |
-              test
-EOF
+machineconfig.machineconfiguration.openshift.io/99-worker-dns-test created
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mcp worker
+NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
+worker   rendered-worker-3c8750c881df6f82403924904fac6469   True      False      False      2              2                   2                     0                      10d
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=3
+Defaulted container "machine-config-controller" out of: machine-config-controller, kube-rbac-proxy
+I0226 21:36:28.090748       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-c4dd9b3462d29dae0eac1a4262848184" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=3
+Defaulted container "machine-config-controller" out of: machine-config-controller, kube-rbac-proxy
+I0226 21:36:33.409516       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-c4dd9b3462d29dae0eac1a4262848184" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=3
+Defaulted container "machine-config-controller" out of: machine-config-controller, kube-rbac-proxy
+I0226 21:36:33.409516       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-c4dd9b3462d29dae0eac1a4262848184" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mcp worker
+NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
+worker   rendered-worker-3c8750c881df6f82403924904fac6469   True      False      True       2              2                   2                     0                      10d
+hsuma@plnx-admin:~/ocp-ai-config$
 
 
 oc get mcp worker
