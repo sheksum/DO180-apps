@@ -213,3 +213,84 @@ ipv4.addresses:                         --
 [core@ocp-ai-gpu01 ~]$ sudo nmcli connection modify bond0.1510 ipv4.dns "10.172.248.31 10.172.248.32" ipv4.dns-search "calix.local"
 Error: Failed to modify connection 'bond0.1510': ipv4.dns: this property is not allowed for 'method=disabled'
 [core@ocp-ai-gpu01 ~]$
+
+
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ ip addr show | grep 10.172.248
+    inet 10.172.248.153/24 brd 10.172.248.255 scope global noprefixroute br-ex
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ nmcli connection show --active | head -20
+NAME                UUID                                  TYPE           DEVICE
+ovs-if-br-ex        e9b37514-d254-4193-bdf2-0d9944fad04b  ovs-interface  br-ex
+bond0.1510          7492829a-0516-4732-93ad-8427ea7fd417  vlan           bond0.1510
+bond0.1792          fb754d74-c927-4a8c-a7ac-349d8450c04a  vlan           bond0.1792
+bond0.1793          295bcfab-abe5-467a-8a01-806b4a9b079a  vlan           bond0.1793
+bond0.1794          58d4be3e-bcc2-4f39-9114-8f8ea1fb551c  vlan           bond0.1794
+bond0.1796          8bdbd875-5bdc-4aae-8d67-a53896401c84  vlan           bond0.1796
+bond0.1797          cba6ef11-4bb6-4459-81d6-0e1f63eae908  vlan           bond0.1797
+bond0.1798          797fc58b-c29e-483d-a522-09bd5ae18c7c  vlan           bond0.1798
+Wired connection 6  24ceb865-f4fe-3a70-9f57-40c3e42364a1  ethernet       ens8f1np1
+bond0               15d7874f-ff19-4ea8-bc37-5430907030c0  bond           bond0
+br-ex               291eff6f-ef7f-42fd-9970-a1459ca93533  ovs-bridge     br-ex
+ethernet            58e93027-fd74-4c3a-932e-b27f2ae6b4c8  ethernet       ens8f0np0
+ovs-if-phys0        a74704d1-5fda-4cdf-b7e3-31cadad26049  ethernet       eno8303
+ovs-port-br-ex      ce8acaa2-99c3-4060-97d6-f1c3388550eb  ovs-port       br-ex
+ovs-port-phys0      1ac2139e-220c-4f2b-bbb0-b67ae0ba3a44  ovs-port       eno8303
+lo                  3d5c806e-9dd6-4654-b15b-ab1c121ef746  loopback       lo
+[core@ocp-ai-gpu01 ~]$ exit
+logout
+Connection to ocp-ai-gpu01.calix.local closed.
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-gpu02.calix.local
+Red Hat Enterprise Linux CoreOS 9.6.20260128-1
+  Part of OpenShift 4.20, RHCOS is a Kubernetes-native operating system
+  managed by the Machine Config Operator (`clusteroperator/machine-config`).
+
+WARNING: Direct SSH access to machines is not recommended; instead,
+make configuration changes via `machineconfig` objects:
+  https://docs.openshift.com/container-platform/4.20/architecture/architecture-rhcos.html
+
+---
+Last login: Thu Feb 26 18:31:52 2026 from 10.172.248.105
+[systemd]
+Failed Units: 1
+  NetworkManager-wait-online.service
+[core@ocp-ai-gpu02 ~]$ ip addr show | grep 10.172.248
+    inet 10.172.248.154/24 brd 10.172.248.255 scope global noprefixroute br-ex
+[core@ocp-ai-gpu02 ~]$ nmcli connection show --active | head -20
+NAME                UUID                                  TYPE           DEVICE
+ovs-if-br-ex        ff5b2c30-73bb-4b39-8f81-182c556d02fa  ovs-interface  br-ex
+bond0.1792          2992b029-93d8-41c0-9153-8a2401ba4985  vlan           bond0.1792
+bond0.1793          eae6fa54-406d-4d11-9e91-a879b8b2bcc6  vlan           bond0.1793
+bond0.1794          ea4efb6d-8b02-4aa7-b749-189ee9d6ec00  vlan           bond0.1794
+bond0.1796          ff375638-8030-463e-8956-9e454ddbf1a5  vlan           bond0.1796
+bond0.1797          5d25ff6b-49a6-4ed5-88b5-318863f69c90  vlan           bond0.1797
+bond0.1798          60d7d5b9-b5ba-42b4-943d-56ab3c181088  vlan           bond0.1798
+Wired connection 5  90b82598-3c5e-3776-a331-6824be73d59b  ethernet       ens8f0np0
+Wired connection 6  553332f3-a032-3010-b70c-a31da9669eff  ethernet       ens8f1np1
+bond0               ce7c5fb7-4bc6-4227-931d-a8ac9a8eb96b  bond           bond0
+br-ex               271d5445-a067-4fb7-b4b1-5f5bef4f5881  ovs-bridge     br-ex
+ovs-if-phys0        58ec7ae0-8e76-4de2-984a-af17a99380cc  ethernet       eno8303
+ovs-port-br-ex      baaf44bd-b73d-44f6-a401-a15a9ba10a1b  ovs-port       br-ex
+ovs-port-phys0      3257742e-c497-4646-b19c-8c9e06a629fa  ovs-port       eno8303
+lo                  8cbb7cdd-98b8-4aa3-8972-8d5eae6edf0d  loopback       lo
+[core@ocp-ai-gpu02 ~]$ nmcli -f NAME,DEVICE,TYPE connection show --active
+NAME                DEVICE      TYPE
+ovs-if-br-ex        br-ex       ovs-interface
+bond0.1792          bond0.1792  vlan
+bond0.1793          bond0.1793  vlan
+bond0.1794          bond0.1794  vlan
+bond0.1796          bond0.1796  vlan
+bond0.1797          bond0.1797  vlan
+bond0.1798          bond0.1798  vlan
+Wired connection 5  ens8f0np0   ethernet
+Wired connection 6  ens8f1np1   ethernet
+bond0               bond0       bond
+br-ex               br-ex       ovs-bridge
+ovs-if-phys0        eno8303     ethernet
+ovs-port-br-ex      br-ex       ovs-port
+ovs-port-phys0      eno8303     ovs-port
+lo                  lo          loopback
+[core@ocp-ai-gpu02 ~]$ ip
