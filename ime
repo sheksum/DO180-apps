@@ -1,0 +1,18 @@
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ git pull
+Enter passphrase for key '/home/hsuma/.ssh/id_ed25519':
+fatal: Not possible to fast-forward, aborting.
+hsuma@plnx-admin:~/ocp-ai-config$
+
+
+fatal: Need to specify how to reconcile divergent branches.
+hsuma@plnx-admin:~/ocp-ai-config$ git config pull.ff only
+hsuma@plnx-admin:~/ocp-ai-config$ git push -u origin main
+Enter passphrase for key '/home/hsuma/.ssh/id_ed25519':
+To bitbucket.org:calixprod/ocp-ai-platform.git
+ ! [rejected]        main -> main (non-fast-forward)
+error: failed to push some refs to 'bitbucket.org:calixprod/ocp-ai-platform.git'
+hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart. Integrate the remote changes (e.g.
+hint: 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
