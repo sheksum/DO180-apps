@@ -1,3 +1,6 @@
+oc get mc 99-worker-nm-dns-fix -o jsonpath='{.spec.config.storage.files[0].overwrite}{"\n"}'
+
+
 hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=50 | grep -i "render\|error\|degrad"
 Defaulted container "machine-config-controller" out of: machine-config-controller, kube-rbac-proxy
 Report: error at $.storage.files.0.overwrite, line 1 col 2261: overwrite must be false if source is unspecified
