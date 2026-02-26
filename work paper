@@ -798,3 +798,59 @@ speaker-k5k8b                                          2/2     Running   0      
 speaker-nn6pq                                          2/2     Running   0          2m9s
 hsuma@plnx-admin:~/ocp-ai-config/apps$
 
+
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc explain metallb.spec --api-version=metallb.io/v1beta1
+GROUP:      metallb.io
+KIND:       MetalLB
+VERSION:    v1beta1
+
+FIELD: spec <Object>
+
+
+DESCRIPTION:
+    MetalLBSpec defines the desired state of MetalLB
+
+FIELDS:
+  bgpBackend	<string>
+    The type of BGP implementation deployed with MetalLB
+
+  controllerConfig	<Object>
+    additional configs to be applied on MetalLB Controller deployment.
+
+  controllerNodeSelector	<map[string]string>
+    node selector applied to MetalLB controller deployment.
+
+  controllerTolerations	<[]Object>
+    tolerations is a list of tolerations applied to MetalLB controller
+    deployment.
+
+  frrk8sConfig	<Object>
+    The specific frr-k8s configuration
+
+  image	<string>
+    Foo is an example field of MetalLB. Edit MetalLB_types.go to remove/update
+
+  loadBalancerClass	<string>
+    The loadBalancerClass spec attribute that the MetalLB controller should
+    be watching for. must be a label-style identifier, with an optional
+    prefix such as "internal-vip" or "example.com/internal-vip". Unprefixed
+    names are reserved for end-users.
+
+  logLevel	<string>
+  enum: all, debug, info, warn, ....
+    Define the verbosity of the controller and the speaker logging.
+    Allowed values are: all, debug, info, warn, error, none. (default: info)
+
+  nodeSelector	<map[string]string>
+    node selector applied to MetalLB speaker daemonset.
+
+  speakerConfig	<Object>
+    additional configs to be applied on MetalLB Speaker daemonset.
+
+  speakerTolerations	<[]Object>
+    tolerations is a list of tolerations applied to MetalLB speaker
+    daemonset.
+
+
+hsuma@plnx-admin:~/ocp-ai-config/apps$
