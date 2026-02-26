@@ -615,3 +615,18 @@ rules:
   - watch
 hsuma@plnx-admin:~/ocp-ai-config$
 
+
+project: default
+source:
+  repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+  path: trident
+  targetRevision: main
+destination:
+  server: https://kubernetes.default.svc
+  namespace: trident
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+  syncOptions:
+    - CreateNamepace=false
