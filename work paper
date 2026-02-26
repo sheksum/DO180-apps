@@ -1,4 +1,16 @@
+oc describe secretstore vault-store -n trident | tail -10
+
+oc get pods -n external-secrets -o wide
+
+
+oc get secretstore vault-store -n trident -o yaml | grep -A5 caBundle
+
+
+oc get secretstore vault-store -n trident -o yaml | grep -A5 caProvider
+
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
 hsuma@plnx-admin:~/ocp-ai-config$
 hsuma@plnx-admin:~/ocp-ai-config$ oc describe secretstore vault-store -n pai-dev | tail -20
       Auth:
