@@ -1,11 +1,41 @@
-Enter passphrase for key '/home/hsuma/.ssh/id_ed25519':
-From bitbucket.org:calixprod/ocp-ai-platform
- * branch            main       -> FETCH_HEAD
-CONFLICT (modify/delete): machineconfigs/99-worker-nm-dns-fix.yaml deleted in HEAD and modified in 81e9a65 (Updates).  Version 81e9a65 (Updates) of machineconfigs/99-worker-nm-dns-fix.yaml left in tree.
-error: could not apply 81e9a65... Updates
-hint: Resolve all conflicts manually, mark them as resolved with
-hint: "git add/rm <conflicted_files>", then run "git rebase --continue".
-hint: You can instead skip this commit: run "git rebase --skip".
-hint: To abort and get back to the state before "git rebase", run "git rebase --abort".
-Could not apply 81e9a65... Updates
-hsuma@plnx-admin:~/ocp-ai-config$
+cat > machineconfigs/99-worker-nm-dns-fix.yaml << 'EOF'
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 99-worker-nm-dns-fix
+  labels:
+    machineconfiguration.openshift.io/role: worker
+spec:
+  config:
+    ignition:
+      version: 3.5.0
+    storage:
+      files:
+        - path: /usr/local/bin/ensure-nm-dns.sh
+          mode: 0755
+          overwrite: true
+          contents:
+            source: "data:text/plain;charset=utf-8;base64,IyEvYmluL2Jhc2gKUkVTT0xWPSIvdmFyL3J1bi9OZXR3b3JrTWFuYWdlci9yZXNvbHYuY29uZiIKRE5TMT0iMTAuMTcyLjI0OC4zMSIKRE5TMj0iMTAuMTcyLjI0OC4zMiIKU0VBUkNIPSJjYWxpeC5sb2NhbCIKTUFYX1dBSVQ9MTIwCklOVEVSVkFMPTIKCmVjaG8gIltlbnN1cmUtbm0tZG5zXSBXYWl0aW5nIGZvciAke1JFU09MVn0gdG8gZXhpc3QgKG1heCAke01BWF9XQUlUfXMpLi4uIgoKZWxhcHNlZD0wCndoaWxlIFsgISAtZiAiJFJFU09MViIgXTsgZG8KICBpZiBbICRlbGFwc2VkIC1nZSAkTUFYX1dBSVQgXTsgdGhlbgogICAgZWNobyAiW2Vuc3VyZS1ubS1kbnNdIFdBUk46ICR7UkVTT0xWfSBub3QgZm91bmQgYWZ0ZXIgJHtNQVhfV0FJVH1zLCBjcmVhdGluZyBpdCIKICAgIG1rZGlyIC1wIC92YXIvcnVuL05ldHdvcmtNYW5hZ2VyCiAgICB0b3VjaCAiJFJFU09MViIKICAgIGJyZWFrCiAgZmkKICBzbGVlcCAkSU5URVJWQUwKICBlbGFwc2VkPSQoKGVsYXBzZWQgKyBJTlRFUlZBTCkpCmRvbmUKCmVjaG8gIltlbnN1cmUtbm0tZG5zXSAke1JFU09MVn0gZXhpc3RzIGFmdGVyICR7ZWxhcHNlZH1zIgoKaWYgZ3JlcCAtcSAibmFtZXNlcnZlciIgIiRSRVNPTFYiIDI+L2Rldi9udWxsOyB0aGVuCiAgZWNobyAiW2Vuc3VyZS1ubS1kbnNdIEROUyBhbHJlYWR5IHByZXNlbnQgaW4gJHtSRVNPTFZ9LCBub3RoaW5nIHRvIGRvIgogIGNhdCAiJFJFU09MViIKICBleGl0IDAKZmkKCmVjaG8gIltlbnN1cmUtbm0tZG5zXSBObyBuYW1lc2VydmVycyBmb3VuZCwgaW5qZWN0aW5nIEROUy4uLiIKcHJpbnRmICIjIEluamVjdGVkIGJ5IGVuc3VyZS1ubS1kbnMuc2ggKE1hY2hpbmVDb25maWcgOTktd29ya2VyLW5tLWRucy1maXgpXG4jIE9WTi1LIGRvZXMgbm90IGluamVjdCBETlMgaW50byBvdnMtaWYtYnItZXggb24gYmFyZSBtZXRhbFxuc2VhcmNoICVzXG5uYW1lc2VydmVyICVzXG5uYW1lc2VydmVyICVzXG4iICIkU0VBUkNIIiAiJEROUzEiICIkRE5TMiIgPiAiJFJFU09MViIKCmlmIG5tY2xpIGNvbm5lY3Rpb24gc2hvdyBvdnMtaWYtYnItZXggJj4vZGV2L251bGw7IHRoZW4KICBlY2hvICJbZW5zdXJlLW5tLWRuc10gSW5qZWN0aW5nIEROUyBpbnRvIG92cy1pZi1ici1leCBOTSBjb25uZWN0aW9uLi4uIgogIG5tY2xpIGNvbm5lY3Rpb24gbW9kaWZ5IG92cy1pZi1ici1leCBpcHY0LmRucyAiJHtETlMxfSAke0ROUzJ9IiBpcHY0LmRucy1wcmlvcml0eSA0MAogIG5tY2xpIGNvbm5lY3Rpb24gdXAgb3ZzLWlmLWJyLWV4IDI+L2Rldi9udWxsIHx8IHRydWUKZmkKCmVjaG8gIltlbnN1cmUtbm0tZG5zXSBETlMgZml4IGFwcGxpZWQ6IgpjYXQgIiRSRVNPTFYiCmV4aXQgMAo="
+    systemd:
+      units:
+        - name: ensure-nm-dns.service
+          enabled: true
+          contents: |
+            [Unit]
+            Description=Ensure NM resolv.conf has DNS servers (OVN-K bare-metal fix)
+            After=NetworkManager.service
+            Before=kubelet.service
+            Before=nodeip-configuration.service
+
+            [Service]
+            Type=oneshot
+            RemainAfterExit=yes
+            ExecStart=/usr/local/bin/ensure-nm-dns.sh
+            TimeoutStartSec=180
+
+            [Install]
+            WantedBy=multi-user.target
+EOF
+git add machineconfigs/99-worker-nm-dns-fix.yaml
+git commit -m "Add permanent NM DNS fix - correct source+base64 format"
+git push origin main
