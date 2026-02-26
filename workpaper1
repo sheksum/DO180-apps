@@ -359,3 +359,10 @@ hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$ oc get node ocp-ai-gpu02.calix.local -o jsonpath='{.metadata.annotations.machineconfiguration\.openshift\.io/currentConfig}'
 rendered-worker-3c8750c881df6f82403924904fac6469hsuma@plnx-admin:~$
 
+
+# List all worker MachineConfigs
+oc get mc | grep worker
+
+# Look at the rendered config for NM connection files
+oc get mc rendered-worker-3c8750c881df6f82403924904fac6469 -o jsonpath='{.spec.config.storage.files[*].path}' | tr ' ' '\n' | grep -i -E "network|resolv|nmconnection"
+
