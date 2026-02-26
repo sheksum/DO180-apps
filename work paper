@@ -1,3 +1,67 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: openshift-default
+spec:
+  controllerName: openshift.io/gateway-controller/v1
+
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: pai-gateway
+  namespace: openshift-ingress
+spec:
+  gatewayClassName: openshift-default
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              app.kubernetes.io/part-of: pai
+
+
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gateway-api
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: gateway-api
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openshift-ingress
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+```
+
+Commit and push:
+```
+cd ~/ocp-ai-config
+git add gateway-api/ apps/gateway-api-app.yaml
+git commit -m "Task 6: Gateway API - GatewayClass and pai-gateway for HTTPRoutes"
+git push origin main
+```
+
+Then verify ArgoCD picks it up:
+```
+oc get application -n openshift-gitops
+
+
+
 oc debug node/ocp-ai-master01.calix.local -- chroot /host curl -s -o /dev/null -w "%{http_code}" -H "Host: httpbin-dev.apps.ocp-ai.calix.local" http://10.172.248.175
 
 
