@@ -184,12 +184,134 @@ oc get endpoints nginx-test-lb -n pai-dev
 
 # Try from a node directly
 oc debug node/ocp-ai-master01.calix.local -- curl -s -o /dev/null -w "%{http_code}" http://10.172.248.160
+=======
+
+
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pai-services-dev
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.160-10.172.248.163
+  autoAssign: false
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pai-services-test
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.165-10.172.248.168
+  autoAssign: false
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pai-services-prod
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.170-10.172.248.173
+  autoAssign: false
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: reserved-future
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.175-10.172.248.180
+  autoAssign: false
 
 
 
 
 
 
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1510
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - pai-services-dev
+    - pai-services-test
+    - pai-services-prod
+
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pai-dev
+  labels:
+    env: dev
+    app.kubernetes.io/part-of: pai
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pai-test
+  labels:
+    env: test
+    app.kubernetes.io/part-of: pai
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pai-prod
+  labels:
+    env: prod
+    app.kubernetes.io/part-of: pai
+
+
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb
+  namespace: openshift-gitops
+  labels:
+    app.kubernetes.io/part-of: ocp-ai-platform
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: ocp-ai-config/metallb
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+```
+
+Create those files, then:
+```
+cd ~/ocp-ai-platform
+git add ocp-ai-config/metallb/
+git commit -m "Task 6: MetalLB instance, IP pools, L2 advertisement, PAI namespaces"
+git push origin main
+```
+
+Then apply the ArgoCD app:
+```
+oc apply -f ocp-ai-config/metallb/argocd-app-metallb.yaml
 
 
 
