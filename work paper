@@ -26,6 +26,11 @@ spec:
 EOF
 
 
+oc get externalsecret test-secret -n pai-dev
+oc get secret test-secret -n pai-dev -o jsonpath='{.data.username}' | base64 -d
+
+
+
 oc apply -f - <<EOF
 # Service accounts
 ---
