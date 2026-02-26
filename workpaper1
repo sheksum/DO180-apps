@@ -294,3 +294,11 @@ ovs-port-br-ex      br-ex       ovs-port
 ovs-port-phys0      eno8303     ovs-port
 lo                  lo          loopback
 [core@ocp-ai-gpu02 ~]$ ip
+
+
+
+# On gpu02 (still connected)
+nmcli connection show ovs-if-br-ex | grep -i "ipv4.dns\|ipv4.addresses\|ipv4.method"
+
+ssh core@ocp-ai-gpu01.calix.local
+nmcli connection show ovs-if-br-ex | grep -i "ipv4.dns\|ipv4.addresses\|ipv4.method"
