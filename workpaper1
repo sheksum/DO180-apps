@@ -5,3 +5,14 @@ Taints:             node.kubernetes.io/unreachable:NoExecute
                     nvidia.com/gpu=true:NoSchedule
 Unschedulable:      false
 hsuma@plnx-admin:~$
+
+
+hsuma@plnx-admin:~$ oc describe node ocp-ai-gpu01.calix.local | grep -A5 Conditions
+Conditions:
+  Type             Status    LastHeartbeatTime                 LastTransitionTime                Reason              Message
+  ----             ------    -----------------                 ------------------                ------              -------
+  MemoryPressure   Unknown   Thu, 26 Feb 2026 11:32:17 -0600   Thu, 26 Feb 2026 11:33:18 -0600   NodeStatusUnknown   Kubelet stopped posting node status.
+  DiskPressure     Unknown   Thu, 26 Feb 2026 11:32:17 -0600   Thu, 26 Feb 2026 11:33:18 -0600   NodeStatusUnknown   Kubelet stopped posting node status.
+  PIDPressure      Unknown   Thu, 26 Feb 2026 11:32:17 -0600   Thu, 26 Feb 2026 11:33:18 -0600   NodeStatusUnknown   Kubelet stopped posting node status.
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
