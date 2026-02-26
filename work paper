@@ -1,3 +1,33 @@
+[core@ocp-ai-master01 ~]$
+[core@ocp-ai-master01 ~]$ ip route show | grep 194
+10.172.194.0/23 dev bnd0.1794 proto kernel scope link src 10.172.194.150 metric 402
+[core@ocp-ai-master01 ~]$
+[core@ocp-ai-master01 ~]$
+[core@ocp-ai-master01 ~]$
+[core@ocp-ai-master01 ~]$ ip addr show bnd0.1794
+15: bnd0.1794@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP group default qlen 1000
+    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
+    inet 10.172.194.150/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794
+       valid_lft forever preferred_lft forever
+[core@ocp-ai-master01 ~]$
+[core@ocp-ai-master01 ~]$
+[core@ocp-ai-master01 ~]$ curl -sk https://10.172.194.22 2>&1 | head -3
+[core@ocp-ai-master01 ~]$ curl -svk https://10.172.194.22 2>&1 | head -3
+*   Trying 10.172.194.22:443...
+* connect to 10.172.194.22 port 443 failed: Connection refused
+* Failed to connect to 10.172.194.22 port 443: Connection refused
+[core@ocp-ai-master01 ~]$
+[core@ocp-ai-master01 ~]$
+[core@ocp-ai-master01 ~]$ arping -c 2 -I bnd0.1794 10.172.194.22
+ARPING 10.172.194.22 from 10.172.194.150 bnd0.1794
+Unicast reply from 10.172.194.22 [D2:39:EA:DB:8E:81]  0.552ms
+Unicast reply from 10.172.194.22 [D2:39:EA:DB:8E:81]  0.558ms
+Sent 2 probes (1 broadcast(s))
+Received 2 response(s)
+[core@ocp-ai-master01 ~]$
+
+
+
 hsuma@plnx-admin:~/ocp-ai-config$ oc logs -l app.kubernetes.io/name=external-secrets -n external-secrets
 {"level":"error","ts":1772088586.0946767,"msg":"Reconciler error","controller":"secretstore","controllerGroup":"external-secrets.io","controllerKind":"SecretStore","SecretStore":{"name":"vault-store","namespace":"pai-dev"},"namespace":"pai-dev","name":"vault-store","reconcileID":"072fdc53-e5fe-400e-a703-6049083cbf89","error":"could not get provider client: unable to log in to auth method: unable to log in with Kubernetes auth: context deadline exceeded","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/cachi2/output/deps/gomod/pkg/mod/sigs.k8s.io/controller-runtime@v0.21.0/pkg/internal/controller/controller.go:353\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/cachi2/output/deps/gomod/pkg/mod/sigs.k8s.io/controller-runtime@v0.21.0/pkg/internal/controller/controller.go:300\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.1\n\t/cachi2/output/deps/gomod/pkg/mod/sigs.k8s.io/controller-runtime@v0.21.0/pkg/internal/controller/controller.go:202"}
 {"level":"error","ts":1772088646.1045632,"logger":"controllers.SecretStore","msg":"unable to validate store","secretstore":{"name":"vault-store","namespace":"pai-prod"},"error":"could not get provider client: unable to log in to auth method: unable to log in with Kubernetes auth: context deadline exceeded","stacktrace":"github.com/external-secrets/external-secrets/pkg/controllers/secretstore.reconcile\n\t/go/src/github.com/openshift/external-secrets/pkg/controllers/secretstore/common.go:76\ngithub.com/external-secrets/external-secrets/pkg/controllers/secretstore.(*StoreReconciler).Reconcile\n\t/go/src/github.com/openshift/external-secrets/pkg/controllers/secretstore/secretstore_controller.go:66\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Reconcile\n\t/cachi2/output/deps/gomod/pkg/mod/sigs.k8s.io/controller-runtime@v0.21.0/pkg/internal/controller/controller.go:119\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/cachi2/output/deps/gomod/pkg/mod/sigs.k8s.io/controller-runtime@v0.21.0/pkg/internal/controller/controller.go:340\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/cachi2/output/deps/gomod/pkg/mod/sigs.k8s.io/controller-runtime@v0.21.0/pkg/internal/controller/controller.go:300\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.1\n\t/cachi2/output/deps/gomod/pkg/mod/sigs.k8s.io/controller-runtime@v0.21.0/pkg/internal/controller/controller.go:202"}
