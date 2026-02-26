@@ -631,24 +631,27 @@ syncPolicy:
   syncOptions:
     - CreateNamepace=false
 
-
+oc apply -f - <<EOF
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: trident
+  name: metallb
   namespace: openshift-gitops
 spec:
   project: default
   source:
     repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
     targetRevision: main
-    path: trident
+    path: metallb
   destination:
     server: https://kubernetes.default.svc
-    namespace: trident
+    namespace: metallb-system
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamepace=false
+      - CreateNamespace=false
+EOF
+
+
