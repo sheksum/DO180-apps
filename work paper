@@ -74,3 +74,18 @@ ipaddresspool.metallb.io/ai-services-dev created
 ipaddresspool.metallb.io/ai-services-test created
 ipaddresspool.metallb.io/ai-services-prod created
 ipaddresspool.metallb.io/reserved-future created
+
+
+
+oc apply -f - <<EOF
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1510
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - ai-services-dev
+    - ai-services-test
+    - ai-services-prod
+EOF
