@@ -3,34 +3,25 @@ oc debug node/ocp-ai-master01.calix.local -- chroot /host curl -s -o /dev/null -
 
 
 
-hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get l2advertisement l2-vlan1510 -n metallb-system -o yaml | grep -A10 spec
-      {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1510"},"name":"l2-vlan1510","namespace":"metallb-system"},"spec":{"ipAddressPools":["pai-services-dev","pai-services-test","pai-services-prod"]}}
-  creationTimestamp: "2026-02-26T04:36:27Z"
-  generation: 3
+cd ~/ocp-ai-config
+
+cat > metallb/l2advertisement.yaml <<EOF
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
   name: l2-vlan1510
   namespace: metallb-system
-  resourceVersion: "4598724"
-  uid: e2169b8c-eded-430a-9a67-bda4c55a4f8a
 spec:
   ipAddressPools:
-  - pai-services-dev
-  - pai-services-test
-  - pai-services-prod
-hsuma@plnx-admin:~/ocp-ai-config/apps$
-hsuma@plnx-admin:~/ocp-ai-config/apps$
-hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get svc pai-gateway-openshift-default -n openshift-ingress -o yaml | grep -A5 metallb
-    metallb.io/ip-allocated-from-pool: reserved-future
-    metallb.universe.tf/address-pool: reserved-future
-    metallb.universe.tf/loadBalancerIPs: 10.172.248.175
-  creationTimestamp: "2026-02-26T04:51:26Z"
-  labels:
-    gateway.istio.io/managed: openshift.io-gateway-controller-v1
-    gateway.networking.k8s.io/gateway-name: pai-gateway
-  name: pai-gateway-openshift-default
-hsuma@plnx-admin:~/ocp-ai-config/apps$
-hsuma@plnx-admin:~/ocp-ai-config/apps$ oc logs -l component=speaker -n metallb-system -c speaker --tail=20
-{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master02.calix.local)","ts":"2026-02-26T05:10:00Z"}
-hsuma@plnx-admin:~/ocp-ai-config/apps$
+    - pai-services-dev
+    - pai-services-test
+    - pai-services-prod
+    - reserved-future
+EOF
+
+git add metallb/l2advertisement.yaml
+git commit -m "Task 6: Add reserved-future pool to L2 advertisement for Gateway API"
+git push origin main
 
 
 hsuma@plnx-admin:~/ocp-ai-config/apps$ oc debug node/ocp-ai-master01.calix.local -- chroot /host curl -s -o /dev/null -w "%{http_code}" -H "Host: httpbin-dev.apps.ocp-ai.calix.local" http://10.172.248.175
