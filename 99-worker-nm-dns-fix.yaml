@@ -1,16 +1,12 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get mcp worker
-NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
-worker   rendered-worker-3c8750c881df6f82403924904fac6469   True      False      False      2              2                   2                     0                      10d
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=3
-Defaulted container "machine-config-controller" out of: machine-config-controller, kube-rbac-proxy
-E0226 21:30:21.033739       1 render_controller.go:475] Error syncing Generated MCFG: Operation cannot be fulfilled on machineconfigpools.machineconfiguration.openshift.io "worker": the object has been modified; please apply your changes to the latest version and try again
-E0226 21:30:21.036234       1 render_controller.go:497] Error updating MachineConfigPool worker: Operation cannot be fulfilled on machineconfigpools.machineconfiguration.openshift.io "worker": the object has been modified; please apply your changes to the latest version and try again
-I0226 21:30:21.036246       1 render_controller.go:408] Error syncing machineconfigpool worker: Operation cannot be fulfilled on machineconfigpools.machineconfiguration.openshift.io "worker": the object has been modified; please apply your changes to the latest version and try again
-hsuma@plnx-admin:~/ocp-ai-config$
-
+oc get mc 00-worker -o json | python3 -c "
+import sys,json
+d=json.load(sys.stdin)
+files=d['spec']['config']['storage']['files']
+for i,f in enumerate(files):
+    ow = f.get('overwrite','unset')
+    src = 'inline' if f.get('contents',{}).get('inline') else ('source' if f.get('contents',{}).get('source') else 'none')
+    print(f'{i}: {f[\"path\"]} overwrite={ow} content={src}')
+"
 
 
 hsuma@plnx-admin:~/ocp-ai-config$
