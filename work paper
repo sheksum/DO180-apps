@@ -200,3 +200,38 @@ oc get endpoints nginx-test-lb -n pai-dev
 
 # Try from a node directly
 oc debug node/ocp-ai-master01.calix.local -- curl -s -o /dev/null -w "%{http_code}" http://10.172.248.160
+
+
+hsuma@plnx-admin:~$ oc logs -l component=speaker -n metallb-system --tail=10
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+{"caller":"announcer.go:131","error":"creating NDP responder for \"d4e9f9ac00cf7bb\": listen ip6:ipv6-icmp fe80::f484:9ff:fe96:49e2%d4e9f9ac00cf7bb: bind: cannot assign requested address","interface":"d4e9f9ac00cf7bb","level":"error","msg":"failed to create NDP responder","op":"createNDPResponder","ts":"2026-02-26T03:00:00Z"}
+{"caller":"speakerlist.go:269","error":null,"expected":2,"joined":1,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-26T02:43:07Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: connect: connection refused\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-26T02:43:07Z"}
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get endpoints nginx-test-lb -n pai-dev
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+NAME            ENDPOINTS           AGE
+nginx-test-lb   10.129.0.154:8080   2m46s
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- curl -s -o /dev/null -w "%{http_code}" http://10.172.248.160
+Starting pod/ocp-ai-master01calixlocal-debug-qnld9 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+403
+Removing debug pod ...
+hsuma@plnx-admin:~$
+
+
+hsuma@plnx-admin:~$ arping -c 10.172.248.160
+ARPing 2.22, by Thomas Habets <thomas@habets.se>
+usage: arping [ -0aAbdDeFpPqrRuUv ] [ -w <sec> ] [ -W <sec> ] [ -S <host/ip> ]
+              [ -T <host/ip ] [ -s <MAC> ] [ -t <MAC> ] [ -c <count> ]
+              [ -C <count> ] [ -i <interface> ] [ -m <type> ] [ -g <group> ]
+              [ -V <vlan> ] [ -Q <priority> ] <host/ip/MAC | -B>
+For complete usage info, use --help or check the manpage.
+hsuma@plnx-admin:~$
