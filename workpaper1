@@ -3,6 +3,29 @@ oc get mc 99-worker-nm-dns-fix -o jsonpath='{.spec.config.ignition.version}{"\n"
 oc get mc -l machineconfiguration.openshift.io/role=worker -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.config.ignition.version}{"\n"}{end}'
 
 
+
+  Ready Machine Count:          2
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mc 99-worker-nm-dns-fix -o jsonpath='{.spec.config.ignition.version}{"\n"}'
+3.2.0
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mc -l machineconfiguration.openshift.io/role=worker -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.config.ignition.version}{"\n"}{end}'
+00-override-worker-generated-crio-default-ulimits	3.5.0
+00-worker	3.5.0
+01-worker-container-runtime	3.5.0
+01-worker-kubelet	3.5.0
+50-worker-auto-sizing-disabled	3.5.0
+50-workers-chrony-configuration	3.1.0
+97-worker-generated-kubelet	3.5.0
+98-worker-generated-kubelet	3.5.0
+99-worker-chrony	3.2.0
+99-worker-generated-registries	3.5.0
+99-worker-mtu-9000	3.2.0
+99-worker-nm-dns-fix	3.2.0
+99-worker-ssh	3.2.0
+hsuma@plnx-admin:~/ocp-ai-config$
+
+
 oc get mcp worker -o jsonpath='{.status.conditions[?(@.type=="Degraded")].message}{"\n"}'
 
 oc get nodes
