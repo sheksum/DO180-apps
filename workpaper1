@@ -1,3 +1,100 @@
+hsuma@plnx-admin:~/ocp-ai-config$ oc describe mcp worker grep worker | grep -A10 Degraded
+    Type:                  PinnedImageSetsDegraded
+    Last Transition Time:  2026-02-15T22:46:19Z
+    Message:
+    Reason:
+    Status:                False
+    Type:                  NodeDegraded
+    Last Transition Time:  2026-02-26T19:13:52Z
+    Message:               All nodes are updated with MachineConfig rendered-worker-3c8750c881df6f82403924904fac6469
+    Reason:
+    Status:                True
+    Type:                  Updated
+    Last Transition Time:  2026-02-26T19:13:52Z
+    Message:
+    Reason:
+    Status:                False
+    Type:                  Updating
+--
+    Type:                  RenderDegraded
+    Last Transition Time:  2026-02-26T20:10:01Z
+    Message:
+    Reason:
+    Status:                True
+    Type:                  Degraded
+  Configuration:
+    Name:  rendered-worker-3c8750c881df6f82403924904fac6469
+    Source:
+      API Version:         machineconfiguration.openshift.io/v1
+      Kind:                MachineConfig
+      Name:                00-override-worker-generated-crio-default-ulimits
+      API Version:         machineconfiguration.openshift.io/v1
+      Kind:                MachineConfig
+      Name:                00-worker
+      API Version:         machineconfiguration.openshift.io/v1
+--
+  Degraded Machine Count:  0
+  Machine Count:           2
+  Observed Generation:     5
+  Pool Synchronizers Status:
+    Available Machine Count:    2
+    Machine Count:              2
+    Pool Synchronizer Type:     PinnedImageSets
+    Ready Machine Count:        2
+    Unavailable Machine Count:  0
+    Updated Machine Count:      2
+  Ready Machine Count:          2
+--
+Error from server (NotFound): machineconfigpools.machineconfiguration.openshift.io "grep" not found
+    Type:                  PinnedImageSetsDegraded
+    Last Transition Time:  2026-02-15T22:46:19Z
+    Message:
+    Reason:
+    Status:                False
+    Type:                  NodeDegraded
+    Last Transition Time:  2026-02-26T19:13:52Z
+    Message:               All nodes are updated with MachineConfig rendered-worker-3c8750c881df6f82403924904fac6469
+    Reason:
+    Status:                True
+    Type:                  Updated
+    Last Transition Time:  2026-02-26T19:13:52Z
+    Message:
+    Reason:
+    Status:                False
+    Type:                  Updating
+--
+    Type:                  RenderDegraded
+    Last Transition Time:  2026-02-26T20:10:01Z
+    Message:
+    Reason:
+    Status:                True
+    Type:                  Degraded
+  Configuration:
+    Name:  rendered-worker-3c8750c881df6f82403924904fac6469
+    Source:
+      API Version:         machineconfiguration.openshift.io/v1
+      Kind:                MachineConfig
+      Name:                00-override-worker-generated-crio-default-ulimits
+      API Version:         machineconfiguration.openshift.io/v1
+      Kind:                MachineConfig
+      Name:                00-worker
+      API Version:         machineconfiguration.openshift.io/v1
+--
+  Degraded Machine Count:  0
+  Machine Count:           2
+  Observed Generation:     5
+  Pool Synchronizers Status:
+    Available Machine Count:    2
+    Machine Count:              2
+    Pool Synchronizer Type:     PinnedImageSets
+    Ready Machine Count:        2
+    Unavailable Machine Count:  0
+    Updated Machine Count:      2
+  Ready Machine Count:          2
+hsuma@plnx-admin:~/ocp-ai-config$
+
+
+
 oc get mcp worker -o jsonpath='{.status.conditions[?(@.type=="Degraded")].message}{"\n"}'
 
 oc get nodes
