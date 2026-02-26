@@ -967,3 +967,35 @@ hsuma@plnx-admin:~/ocp-ai-config/apps$
 oc annotate svc pai-gateway-openshift-default -n openshift-ingress \
   metallb.universe.tf/address-pool=reserved-future \
   metallb.universe.tf/loadBalancerIPs=10.172.248.175
+
+
+
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc annotate svc pai-gateway-openshift-default -n openshift-ingress \
+  metallb.universe.tf/address-pool=reserved-future \
+  metallb.universe.tf/loadBalancerIPs=10.172.248.175
+service/pai-gateway-openshift-default annotated
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get svc -n openshift-ingress
+NAME                            TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)                                 AGE
+istiod-openshift-gateway        ClusterIP      172.30.66.226   <none>           15010/TCP,15012/TCP,443/TCP,15014/TCP   5m4s
+pai-gateway-openshift-default   LoadBalancer   172.30.31.98    10.172.248.175   15021:30643/TCP,80:31594/TCP            2m38s
+router-internal-default         ClusterIP      172.30.16.162   <none>           80/TCP,443/TCP,1936/TCP                 10d
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get gateway -n openshift-ingress
+NAME          CLASS               ADDRESS          PROGRAMMED   AGE
+pai-gateway   openshift-default   10.172.248.175   True         3m3s
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get pods -n pai-dev -w
+^Chsuma@plnx-admin:~/ocp-ai-config/apps$ oc create deployment httpbin --image=registry.access.redhat.com/ubi9/httpd-24:latest -n pai-dev
+deployment.apps/httpbin created
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc expose deployment httpbin --port=8080 -n pai-dev
+service/httpbin exposed
+hsuma@plnx-admin:~/ocp-ai-config/apps$
+hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get pods -n pai-dev
+NAME                       READY   STATUS    RESTARTS   AGE
+httpbin-749cb56f8b-jlv6s   1/1     Running   0          27s
+hsuma@plnx-admin:~/ocp-ai-config/apps$
