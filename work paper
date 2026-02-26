@@ -1,36 +1,33 @@
-vault kv put kv/pai/dev/test-secret username=testuser password=testpass123
-
-
-hsuma@plnx-admin:~/ocp-ai-config$ oc describe externalsecret test-secret -n pai-dev | tail -20
-      Key:                  pai/dev/test-secret
-      Metadata Policy:      None
-      Property:             username
-    Secret Key:             username
-    Remote Ref:
-      Conversion Strategy:  Default
-      Decoding Strategy:    None
-      Key:                  pai/dev/test-secret
-      Metadata Policy:      None
-      Property:             password
-    Secret Key:             password
-  Refresh Interval:         1m
-  Secret Store Ref:
-    Kind:  SecretStore
-    Name:  vault-store
-  Target:
-    Creation Policy:  Owner
-    Deletion Policy:  Retain
-    Name:             test-secret
-Events:               <none>
+NAME                                                            READY   STATUS    RESTARTS       AGE
+external-secrets-operator-controller-manager-6d5f5b7474-k7flj   1/1     Running   1 (2d2h ago)   2d10h
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs external-secrets-operator-controller-manager-6d5f5b7474-k7flj -n external-secrets-operator | grep -i pai
+I0224 03:28:15.946126       1 main.go:154] "using certificate key pair found in the configured dir for metrics server" logger="setup"
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs external-secrets-operator-controller-manager-6d5f5b7474-k7flj -n external-secrets-operator | grep -i pai-dev
 hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get secret -n pai-dev
-NAME                               TYPE                      DATA   AGE
-builder-dockercfg-k8rn9            kubernetes.io/dockercfg   1      99m
-default-dockercfg-fm6zc            kubernetes.io/dockercfg   1      99m
-deployer-dockercfg-w74k9           kubernetes.io/dockercfg   1      99m
-external-secrets-dockercfg-6c5j8   kubernetes.io/dockercfg   1      5m26s
-hsuma@plnx-admin:~/ocp-ai-config$ oc get secret test-secret -n pai-dev -o jsonpath='{.data.username}' | base64 -d
-Error from server (NotFound): secrets "test-secret" not found
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc describe secretstore vault-store -n pai-dev | tail -20
+API Version:  external-secrets.io/v1
+Kind:         SecretStore
+Metadata:
+  Creation Timestamp:  2026-02-26T06:10:23Z
+  Generation:          1
+  Resource Version:    4629680
+  UID:                 feb65599-ef85-46ed-9989-371f8d1e7409
+Spec:
+  Provider:
+    Vault:
+      Auth:
+        Kubernetes:
+          Mount Path:  kubernetes-ocp-ai
+          Role:        eso-pai-dev
+          Service Account Ref:
+            Name:  external-secrets
+      Path:        kv
+      Server:      https://plnx-vault.calix.local:8200
+      Version:     v2
+Events:            <none>
 hsuma@plnx-admin:~/ocp-ai-config$
 
 
