@@ -1,3 +1,65 @@
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=5
+Defaulted container "machine-config-controller" out of: machine-config-controller, kube-rbac-proxy
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+I0226 21:02:17.514614       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-20b4c0c1ca36e818ba5768405bb58263" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n openshift-machine-config-operator deployment/machine-config-controller --tail=5
+Defaulted container "machine-config-controller" out of: machine-config-controller, kube-rbac-proxy
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+I0226 21:02:22.827173       1 render_controller.go:408] Error syncing machineconfigpool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig "rendered-worker-20b4c0c1ca36e818ba5768405bb58263" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid
+Report: error at $.storage.files.58.overwrite, line 1 col 190155: overwrite must be false if source is unspecified
+; component errors: <nil>
+
+
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mc -A
+NAME                                                GENERATEDBYCONTROLLER                      IGNITIONVERSION   AGE
+00-master                                           035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+00-override-master-generated-crio-default-ulimits                                              3.5.0             10d
+00-override-worker-generated-crio-default-ulimits                                              3.5.0             10d
+00-worker                                           035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+01-master-container-runtime                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+01-master-kubelet                                   035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+01-worker-container-runtime                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+01-worker-kubelet                                   035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+50-master-auto-sizing-disabled                                                                 3.5.0             10d
+50-masters-chrony-configuration                                                                3.1.0             10d
+50-worker-auto-sizing-disabled                                                                 3.5.0             10d
+50-workers-chrony-configuration                                                                3.1.0             10d
+97-master-generated-kubelet                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+97-worker-generated-kubelet                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+98-master-generated-kubelet                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+98-worker-generated-kubelet                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+99-assisted-installer-master-ssh                                                               3.1.0             10d
+99-master-chrony                                                                               3.2.0             7d3h
+99-master-generated-registries                      035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+99-master-ssh                                                                                  3.2.0             10d
+99-worker-chrony                                                                               3.2.0             7d3h
+99-worker-generated-registries                      035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+99-worker-mtu-9000                                                                             3.2.0             8d
+99-worker-nm-dns-fix                                                                           3.5.0             52m
+99-worker-ssh                                                                                  3.2.0             10d
+rendered-master-327f71483a87324f006c932d7f3a74a8    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             2d19h
+rendered-master-3b5d027f3a6e19c6c6321382a6f0ff73    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+rendered-master-531d972ec9c5be2cb0df6e29ea74b761    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             7d3h
+rendered-worker-3c8750c881df6f82403924904fac6469    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             2d19h
+rendered-worker-d634f7e297ea4aeb892ca8279b049985    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             8d
+rendered-worker-d93ebcbc2d78faaf1b91419d22f75387    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             7d3h
+rendered-worker-d98bd75b78ad2605cb64e1bbd15eaf0c    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             10d
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mcp worker -w
+NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
+worker   rendered-worker-3c8750c881df6f82403924904fac6469   True      False      True       2              2                   2                     0                      10d
+
+
+
+
 apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
 metadata:
