@@ -118,3 +118,24 @@ metadata:
     env: prod
     app.kubernetes.io/part-of: pai
 EOF
+
+
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-test-lb
+  namespace: pai-dev
+  annotations:
+    metallb.universe.tf/address-pool: ai-services-dev
+    metallb.universe.tf/loadBalancerIPs: "10.172.248.160"
+spec:
+  type: LoadBalancer
+  loadBalancerIP: "10.172.248.160"
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: nginx-test
+EOF
