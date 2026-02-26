@@ -593,3 +593,44 @@ Failed to load target state: failed to generate manifest for source 1 of 1: rpc 
 
 hsuma@plnx-admin:~/ocp-ai-config$ oc get application metallb -n openshift-gitops -o jsonpath='{.spec.source.path}'
 ocp-ai-config/metallbhsuma@plnx-admin:~/ocp-ai-config$
+
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"source":{"path":"metallb"}}}'
+application.argoproj.io/metallb patched
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get application metallb -n openshift-gitops -o jsonpath='{.spec.source.path}'
+ocp-ai-config/metallbhsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ tree
+.
+├── apps
+│   ├── machineconfigs-app.yaml
+│   ├── nmstate-app.yaml
+│   ├── root-app.yaml
+│   ├── test.yaml
+│   └── trident-apps.yaml
+├── machineconfigs
+│   └── mc-worker-mtu.yaml
+├── metallb
+│   ├── ipaddresspools.yaml
+│   ├── l2advertisement.yaml
+│   ├── metallb-instance.yaml
+│   └── namespaces.yaml
+├── nmstate
+│   ├── nncp-gpu01.yaml
+│   ├── nncp-gpu02.yaml
+│   ├── nncp-master01.yaml
+│   ├── nncp-master02.yaml
+│   └── nncp-master03.yaml
+├── README.md
+└── trident
+    ├── backend-app.yaml
+    ├── backend-infra.yaml
+    ├── secret-app.yaml
+    ├── secret-infra.yaml
+    └── storageclasses.yaml
+
+5 directories, 21 files
+hsuma@plnx-admin:~/ocp-ai-config$
