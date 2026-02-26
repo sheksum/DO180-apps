@@ -137,3 +137,83 @@ openshift-nmstate                                  nmstate-handler-fj6df        
 openshift-ovn-kubernetes                           ovnkube-node-m272s                                                8/8     Running                 91               8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
 trident                                            trident-node-linux-8nxg6                                          2/2     Running                 91               8d      10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
 hsuma@plnx-admin:~$
+
+
+
+Events:
+  Type     Reason   Age                      From     Message
+  ----     ------   ----                     ----     -------
+  Normal   Created  99m (x713 over 2d14h)    kubelet  Created container: render-config-coredns
+  Warning  BackOff  49m (x16927 over 2d14h)  kubelet  Back-off restarting failed container render-config-coredns in pod coredns-ocp-ai-gpu01.calix.local_openshift-kni-infra(effafdddf3b9659cb014efd2486b2214)
+  Normal   Pulled   48m (x723 over 2d14h)    kubelet  Container image "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd" already present on machine
+  Normal   Pulled   11m (x5 over 13m)        kubelet  Container image "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd" already present on machine
+  Normal   Created  11m (x5 over 13m)        kubelet  Created container: render-config-coredns
+  Normal   Started  11m (x5 over 13m)        kubelet  Started container render-config-coredns
+  Warning  BackOff  10m (x11 over 13m)       kubelet  Back-off restarting failed container render-config-coredns in pod coredns-ocp-ai-gpu01.calix.local_openshift-kni-infra(effafdddf3b9659cb014efd2486b2214)
+  Warning  BackOff  48s (x50 over 10m)       kubelet  Back-off restarting failed container render-config-coredns in pod coredns-ocp-ai-gpu01.calix.local_openshift-kni-infra(effafdddf3b9659cb014efd2486b2214)
+  Normal   Pulled   5s (x7 over 10m)         kubelet  Container image "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd" already present on machine
+  Normal   Created  5s (x7 over 10m)         kubelet  Created container: render-config-coredns
+  Normal   Started  5s (x7 over 10m)         kubelet  Started container render-config-coredns
+hsuma@plnx-admin:~$
+
+
+
+time="2026-02-26T18:17:05Z" level=fatal msg="Error executing runtimecfg: open /var/run/NetworkManager/resolv.conf: no such file or directory"
+
+
+IPs:
+  IP:           10.172.248.153
+Controlled By:  Node/ocp-ai-gpu01.calix.local
+Init Containers:
+  render-config-coredns:
+    Container ID:  cri-o://4ca0312c33c0404ddd7f5c16d308bf4a8e695bc07562939a8677933d8679d0d0
+    Image:         quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd
+    Image ID:      quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:08de867062cd36fdbdced721a950eca386875d9d130e191ea6c1e1c9d2ed9bcd
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      runtimecfg
+      render
+      /var/lib/kubelet/kubeconfig
+      --api-vips
+      10.172.248.155
+      --ingress-vips
+      10.172.248.156
+      /config
+      --out-dir
+      /etc/coredns
+      --resolvconf-path
+      /var/run/NetworkManager/resolv.conf
+    State:      Terminated
+      Reason:   Error
+      Message:  .conf: no such file or directory
+Usage:
+  runtimecfg render [path to kubeconfig] [paths to render]...
+            If there is one single path and it is a directory, it renders the .tmpl files in it [flags]
+
+Flags:
+      --api-port uint16                Port where the OpenShift API listens at (default 6443)
+      --api-vip ip                     DEPRECATED: Virtual IP Address to reach the OpenShift API
+      --api-vips ipSlice               Virtual IP Addresses to reach the OpenShift API (default [])
+      --cloud-ext-lb-ips ipSlice       IP Addresses of Cloud External Load Balancers for OpenShift API (default [])
+      --cloud-ingress-lb-ips ipSlice   IP Addresses of Cloud Ingress Load Balancers (default [])
+      --cloud-int-lb-ips ipSlice       IP Addresses of Cloud Internal Load Balancers for OpenShift Internal API (default [])
+  -c, --cluster-config string          Path to cluster-config ConfigMap to retrieve ControlPlane info
+      --dns-vip ip                     DEPRECATED: Virtual IP Address to reach an OpenShift node resolving DNS server
+  -h, --help                           help for render
+      --ingress-vip ip                 DEPRECATED: Virtual IP Address to reach the OpenShift Ingress Routers
+      --ingress-vips ipSlice           Virtual IP Addresses to reach the OpenShift Ingress Routers (default [])
+      --lb-port uint16                 Port where the API HAProxy LB will listen at (default 9445)
+  -o, --out-dir string                 Directory where the templates will be rendered
+  -p, --platform string                Cluster Platform
+  -r, --resolvconf-path string         Optional path to a resolv.conf file to use to get upstream DNS servers (default "/etc/resolv.conf")
+      --stat-port uint16               Port where the HAProxy stats API will listen at (default 29445)
+      --verbose                        Display extra information about the rendering
+
+time="2026-02-26T18:17:05Z" level=fatal msg="Error executing runtimecfg: open /var/run/NetworkManager/resolv.conf: no such file or directory"
+
+      Exit Code:  1
+      Started:    Thu, 26 Feb 2026 12:17:05 -0600
+      Finished:   Thu, 26 Feb 2026 12:17:05 -0600
+    Last State:   Terminated
+      Reason:     Error
