@@ -526,3 +526,36 @@ Events:
   Normal  OperationCompleted  2m49s  argocd-application-controller  Sync operation to b01d9d89a138f16b727c2072bfb42b200da17e3f succeeded
   Normal  ResourceUpdated     2m48s  argocd-application-controller  Updated sync status: OutOfSync -> Unknown
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+oc delete application metallb -n openshift-gitops
+
+oc apply -f - <<EOF
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb
+  namespace: openshift-gitops
+  labels:
+    app.kubernetes.io/part-of: ocp-ai-platform
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: metallb
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+EOF
