@@ -12,16 +12,35 @@ total 44
 /root/certs/vault.calix.local
 [root@plnx-vault vault.calix.local]#
 
-# Check the cert subject and issuer
-openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -subject -issuer -dates
+[root@plnx-vault vault.calix.local]#
+[root@plnx-vault vault.calix.local]# openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -subject -issuer -dates
+subject=C=US, ST=California, L=San Jose, O=Calix, OU=Engineering Operations, CN=vault.calix.local
+issuer=DC=local, DC=calix, CN=CalixEntCA
+notBefore=Feb 27 16:19:50 2026 GMT
+notAfter=Feb 27 16:19:50 2028 GMT
+[root@plnx-vault vault.calix.local]# openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -modulus | md5sum
+628e37cb6bc6328e689c36c58042d5ad  -
+[root@plnx-vault vault.calix.local]# openssl rsa -in /root/certs/vault.calix.local/vault.calix.local.key -noout -modulus | md5sum
+628e37cb6bc6328e689c36c58042d5ad  -
+[root@plnx-vault vault.calix.local]#
+[root@plnx-vault vault.calix.local]#
+[root@plnx-vault vault.calix.local]# openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -ext subjectAltName
+X509v3 Subject Alternative Name:
+    DNS:vault.calix.local, DNS:plnx-vault.calix.local, email:EngineeringOperations-Infrastructure@calix.com
+[root@plnx-vault vault.calix.local]#
+[root@plnx-vault vault.calix.local]#
+[root@plnx-vault vault.calix.local]# cat /etc/vault.d/vault.hcl | grep -A5 tls
+#  tls_disable = 1
+#}
 
-# Verify key matches cert
-openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -modulus | md5sum
-openssl rsa -in /root/certs/vault.calix.local/vault.calix.local.key -noout -modulus | md5sum
-# Both md5sums must match
+# HTTPS listener
+listener "tcp" {
+  address       = "0.0.0.0:8200"
+  tls_cert_file = "/opt/vault/tls/fullchain.pem"
+  tls_key_file  = "/opt/vault/tls/privkey.pem"
+}
 
-# Check SANs include plnx-vault.calix.local
-openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -ext subjectAltName
-
-
-cat /etc/vault.d/vault.hcl | grep -A5 tls
+# Enterprise license_path
+# This will be required for enterprise as of v1.8
+#license_path = "/etc/vault.d/vault.hclic"
+[root@plnx-vault vault.calix.local]#
