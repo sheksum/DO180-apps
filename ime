@@ -11,3 +11,17 @@ total 44
 [root@plnx-vault vault.calix.local]# pwd
 /root/certs/vault.calix.local
 [root@plnx-vault vault.calix.local]#
+
+# Check the cert subject and issuer
+openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -subject -issuer -dates
+
+# Verify key matches cert
+openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -modulus | md5sum
+openssl rsa -in /root/certs/vault.calix.local/vault.calix.local.key -noout -modulus | md5sum
+# Both md5sums must match
+
+# Check SANs include plnx-vault.calix.local
+openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -ext subjectAltName
+
+
+cat /etc/vault.d/vault.hcl | grep -A5 tls
