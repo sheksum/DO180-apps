@@ -1,2 +1,13 @@
-Hey, issue resolved. Basically killing two birds with one stone — node failing to join the cluster, coredns failing, and NFD pods crashlooping were all the same root cause. OVN-K creates the network connection on the fly without DNS, so after a reboot NetworkManager generates resolv.conf with no nameservers and kubelet just hangs forever. You can't nmcli fix it either because RHCOS wipes /run/ on every boot.
-Dropped a MachineConfig that lays down a permanent NM config forcing DNS on all connections plus a systemd service that covers the early boot window. Both GPU workers rolled and validated, DNS persists across reboots now. Everything is in Git under ArgoCD.
+[root@plnx-vault vault.calix.local]# ls -ltr
+total 44
+-rw-r--r--. 1 root root  2676 Feb 27 12:20 vault.calix.local.cer
+-rw-r--r--. 1 root root  1704 Feb 27 12:20 vault.calix.local.key
+-rw-r--r--. 1 root root 12436 Feb 27 12:20 chain.p7b
+-rw-r--r--. 1 root root   481 Feb 27 12:20 vault.calix.local.cfg
+-rw-r--r--. 1 root root  1204 Feb 27 12:20 vault.calix.local.csr
+-rw-r--r--. 1 root root 10086 Feb 27 12:20 vault.calix.local.fullchain.cer
+[root@plnx-vault vault.calix.local]#
+[root@plnx-vault vault.calix.local]#
+[root@plnx-vault vault.calix.local]# pwd
+/root/certs/vault.calix.local
+[root@plnx-vault vault.calix.local]#
