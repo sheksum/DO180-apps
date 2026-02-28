@@ -1,13 +1,13 @@
-[root@plnx-vault ~]# journalctl -u vault --since "1 min ago" | grep -i "error\|fail\|denied\|tls"
-Feb 28 17:05:11 plnx-vault.calix.local vault[252439]: 2026-02-28T17:05:11.724-0500 [INFO]  http: TLS handshake error from 10.172.248.150:51030: remote error: tls: bad certificate
-[root@plnx-vault ~]#
-[root@plnx-vault ~]#
-[root@plnx-vault ~]#
-[root@plnx-vault ~]# curl --cacert /tmp/k8s-ca.pem https://api.ocp-ai.calix.local:6443/api/v1/namespaces/pai-dev/serviceaccounts/external-secrets
-curl: (60) SSL certificate problem: unable to get local issuer certificate
-More details here: https://curl.se/docs/sslcerts.html
+# Get the Calix CA chain that the API server cert is signed by
+openssl s_client -connect api.ocp-ai.calix.local:6443 -servername api.ocp-ai.calix.local -showcerts 2>/dev/null | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/' > /tmp/api-ca-chain.pem
 
-curl failed to verify the legitimacy of the server and therefore could not
-establish a secure connection to it. To learn more about this situation and
-how to fix it, please visit the web page mentioned above.
-[root@plnx-vault ~]#
+# Combine both
+cat /tmp/k8s-ca.pem /tmp/api-ca-chain.pem > /tmp/combined-ca.pem
+
+# Verify it works
+curl --cacert /tmp/combined-ca.pem https://api.ocp-ai.calix.local:6443/api/v1/namespaces
+
+vault write auth/kubernetes-ocp-ai/config \
+  kubernetes_host="https://api.ocp-ai.calix.local:6443" \
+  token_reviewer_jwt="<same-token-as-before>" \
+  kubernetes_ca_cert=@/tmp/combined-ca.pem
