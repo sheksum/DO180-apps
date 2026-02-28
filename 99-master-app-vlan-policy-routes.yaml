@@ -1,16 +1,3 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get clusterrolebinding | grep -i "token-review\|auth-delegator\|external-secrets"
-console-auth-delegator                                                       ClusterRole/system:auth-delegator                                                       12d
-console-operator-auth-delegator                                              ClusterRole/system:auth-delegator                                                       12d
-external-secrets-cert-controller                                             ClusterRole/external-secrets-cert-controller                                            2d15h
-external-secrets-controller                                                  ClusterRole/external-secrets-controller                                                 2d15h
-external-secrets-operato-5aHVrM0vjUBvQZX9aEtXqyNMIfcPavAYBMffqw              ClusterRole/external-secrets-operato-5aHVrM0vjUBvQZX9aEtXqyNMIfcPavAYBMffqw             5d1h
-insights-operator-auth                                                       ClusterRole/system:auth-delegator                                                       12d
-metallb-operator-controller-manager-service-system:auth-delegator            ClusterRole/system:auth-delegator                                                       2d19h
-metallb-operator-webhook-server-service-system:auth-delegator                ClusterRole/system:auth-delegator                                                       2d19h
-metrics-server:system:auth-delegator                                         ClusterRole/system:auth-delegator                                                       12d
-openshift-gitops-operator-controller-manager-service-system:auth-delegator   ClusterRole/system:auth-delegator                                                       10d
-packageserver-service-system:auth-delegator                                  ClusterRole/system:auth-delegator                                                       12d
-system-auth-delegator                                                        ClusterRole/system-auth-delegator                                                       9d
-system:auth-delegator                                                        ClusterRole/system:auth-delegator                                                       9d
-system:openshift:controller:kube-apiserver-check-endpoints-auth-delegator    ClusterRole/system:auth-delegator                                                       12d
-hsuma@plnx-admin:~/ocp-ai-config$
+oc create clusterrolebinding vault-tokenreview-binding \
+  --clusterrole=system:auth-delegator \
+  --serviceaccount=external-secrets:external-secrets
