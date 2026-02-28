@@ -1,47 +1,82 @@
-[core@ocp-ai-gpu01 ~]$ journalctl -u app-vlan-policy-routes.service
-Feb 28 20:16:13 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added rule from 10.172.194.153 table 101
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6199]: Error: ipv4: FIB table does not exist.
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6199]: Dump terminated
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added default route via 10.172.194.1 dev bond0.1794 table 101
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added rule from 10.172.198.153 table 100
-Feb 28 20:16:13 ocp-ai-gpu01.calix.local systemd[1]: Starting Configure policy-based routing for app VLANs...
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6218]: Error: ipv4: FIB table does not exist.
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6218]: Dump terminated
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added default route via 10.172.198.1 dev bond0.1798 table 100
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added rule from 10.172.202.153 table 102
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6233]: Error: ipv4: FIB table does not exist.
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6233]: Dump terminated
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added default route via 10.172.202.1 dev bond0.1797 table 102
-Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Configuration complete
-Feb 28 20:16:13 ocp-ai-gpu01.calix.local systemd[1]: Finished Configure policy-based routing for app VLANs.
-[core@ocp-ai-gpu01 ~]$
-
-
-^Chsuma@plnx-admin:~$ ping -c3 10.172.194.153
-PING 10.172.194.153 (10.172.194.153) 56(84) bytes of data.
-64 bytes from 10.172.194.153: icmp_seq=1 ttl=63 time=0.549 ms
-64 bytes from 10.172.194.153: icmp_seq=2 ttl=63 time=0.206 ms
-64 bytes from 10.172.194.153: icmp_seq=3 ttl=63 time=0.141 ms
-
---- 10.172.194.153 ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2027ms
-rtt min/avg/max/mdev = 0.141/0.298/0.549/0.178 ms
-hsuma@plnx-admin:~$ ping -c3 10.172.198.153
-PING 10.172.198.153 (10.172.198.153) 56(84) bytes of data.
-64 bytes from 10.172.198.153: icmp_seq=1 ttl=63 time=0.573 ms
-64 bytes from 10.172.198.153: icmp_seq=2 ttl=63 time=0.140 ms
-64 bytes from 10.172.198.153: icmp_seq=3 ttl=63 time=0.220 ms
-
---- 10.172.198.153 ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2044ms
-rtt min/avg/max/mdev = 0.140/0.311/0.573/0.188 ms
-hsuma@plnx-admin:~$ ping -c3 10.172.202.153
-PING 10.172.202.153 (10.172.202.153) 56(84) bytes of data.
-64 bytes from 10.172.202.153: icmp_seq=1 ttl=63 time=0.459 ms
-64 bytes from 10.172.202.153: icmp_seq=2 ttl=63 time=0.167 ms
-64 bytes from 10.172.202.153: icmp_seq=3 ttl=63 time=0.141 ms
-
---- 10.172.202.153 ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2040ms
-rtt min/avg/max/mdev = 0.141/0.255/0.459/0.144 ms
-hsuma@plnx-admin:~$
+hsuma@plnx-admin:~/ocp-ai-config$ cat metallb/*.yaml
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pai-services-dev
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.160-10.172.248.163
+  autoAssign: false
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pai-services-test
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.165-10.172.248.168
+  autoAssign: false
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pai-services-prod
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.170-10.172.248.173
+  autoAssign: false
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: reserved-future
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.175-10.172.248.180
+  autoAssign: false
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1510
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - pai-services-dev
+    - pai-services-test
+    - pai-services-prod
+    - reserved-future
+apiVersion: metallb.io/v1beta1
+kind: MetalLB
+metadata:
+  name: metallb
+  namespace: metallb-system
+spec:
+  logLevel: warn
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pai-dev
+  labels:
+    env: dev
+    app.kubernetes.io/part-of: pai
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pai-test
+  labels:
+    env: test
+    app.kubernetes.io/part-of: pai
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pai-prod
+  labels:
+    env: prod
+    app.kubernetes.io/part-of: pai
+hsuma@plnx-admin:~/ocp-ai-config$
