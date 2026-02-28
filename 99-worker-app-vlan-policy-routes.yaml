@@ -1,8 +1,2 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get svc -A -o wide | grep LoadBalancer
-openshift-ingress                                  pai-gateway-openshift-default                                  LoadBalancer   172.30.31.98     10.172.248.175                         15021:30643/TCP,80:31594/TCP                   2d15h   gateway.networking.k8s.io/gateway-name=pai-gateway
-hsuma@plnx-admin:~/ocp-ai-config$
-
-[root@ocp-ai-master01 ~]# ip -o addr show | grep "10.172.194"
-15: bnd0.1794    inet 10.172.194.150/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794\       valid_lft forever preferred_lft forever
-[root@ocp-ai-master01 ~]#
-[root@ocp-ai-master01 ~]#
+hsuma@plnx-admin:~/ocp-ai-config$ ls metallb/
+ipaddresspools.yaml  l2advertisement.yaml  metallb-instance.yaml  namespaces.yaml
