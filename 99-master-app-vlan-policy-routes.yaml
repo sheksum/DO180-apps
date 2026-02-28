@@ -1,4 +1,11 @@
 oc get sa external-secrets -n pai-dev
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get sa external-secrets -n pai-dev
+NAME               SECRETS   AGE
+external-secrets   1         2d15h
+hsuma@plnx-admin:~/ocp-ai-config$
 oc create token external-secrets -n pai-dev --duration=120s | cut -d. -f2 | base64 -d 2>/dev/null | python3 -m json.tool
 
 TOKEN=$(oc create token external-secrets -n pai-dev --duration=300s)
