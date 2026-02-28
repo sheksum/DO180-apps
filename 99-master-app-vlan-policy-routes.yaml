@@ -15,6 +15,18 @@ oc exec -n external-secrets deploy/external-secrets -- curl -sk \
   https://vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login
 
 
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ TOKEN=$(oc create token external-secrets -n pai-dev --duration=300s)
+oc exec -n external-secrets deploy/external-secrets -- curl -sk \
+  --request POST \
+  --data "{\"jwt\":\"$TOKEN\",\"role\":\"eso-pai-dev\"}" \
+  https://vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login
+error: failed to create token: TokenRequest.authentication.k8s.io "" is invalid: spec.expirationSeconds: Invalid value: 300: may not specify a duration less than 10 minutes
+{"errors":["missing jwt"]}
+hsuma@plnx-admin:~/ocp-ai-config$
+
+
   # Gene runs on Vault:
 vault write auth/kubernetes-ocp-ai/config \
   kubernetes_host="https://api.ocp-ai.calix.local:6443" \
