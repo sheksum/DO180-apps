@@ -1,46 +1,41 @@
-[root@plnx-vault vault.calix.local]# ls -ltr
-total 44
--rw-r--r--. 1 root root  2676 Feb 27 12:20 vault.calix.local.cer
--rw-r--r--. 1 root root  1704 Feb 27 12:20 vault.calix.local.key
--rw-r--r--. 1 root root 12436 Feb 27 12:20 chain.p7b
--rw-r--r--. 1 root root   481 Feb 27 12:20 vault.calix.local.cfg
--rw-r--r--. 1 root root  1204 Feb 27 12:20 vault.calix.local.csr
--rw-r--r--. 1 root root 10086 Feb 27 12:20 vault.calix.local.fullchain.cer
-[root@plnx-vault vault.calix.local]#
-[root@plnx-vault vault.calix.local]#
-[root@plnx-vault vault.calix.local]# pwd
-/root/certs/vault.calix.local
-[root@plnx-vault vault.calix.local]#
-
-[root@plnx-vault vault.calix.local]#
-[root@plnx-vault vault.calix.local]# openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -subject -issuer -dates
-subject=C=US, ST=California, L=San Jose, O=Calix, OU=Engineering Operations, CN=vault.calix.local
-issuer=DC=local, DC=calix, CN=CalixEntCA
-notBefore=Feb 27 16:19:50 2026 GMT
-notAfter=Feb 27 16:19:50 2028 GMT
-[root@plnx-vault vault.calix.local]# openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -modulus | md5sum
-628e37cb6bc6328e689c36c58042d5ad  -
-[root@plnx-vault vault.calix.local]# openssl rsa -in /root/certs/vault.calix.local/vault.calix.local.key -noout -modulus | md5sum
-628e37cb6bc6328e689c36c58042d5ad  -
-[root@plnx-vault vault.calix.local]#
-[root@plnx-vault vault.calix.local]#
-[root@plnx-vault vault.calix.local]# openssl x509 -in /root/certs/vault.calix.local/vault.calix.local.cer -noout -ext subjectAltName
-X509v3 Subject Alternative Name:
-    DNS:vault.calix.local, DNS:plnx-vault.calix.local, email:EngineeringOperations-Infrastructure@calix.com
-[root@plnx-vault vault.calix.local]#
-[root@plnx-vault vault.calix.local]#
-[root@plnx-vault vault.calix.local]# cat /etc/vault.d/vault.hcl | grep -A5 tls
-#  tls_disable = 1
-#}
-
-# HTTPS listener
-listener "tcp" {
-  address       = "0.0.0.0:8200"
-  tls_cert_file = "/opt/vault/tls/fullchain.pem"
-  tls_key_file  = "/opt/vault/tls/privkey.pem"
-}
-
-# Enterprise license_path
-# This will be required for enterprise as of v1.8
-#license_path = "/etc/vault.d/vault.hclic"
-[root@plnx-vault vault.calix.local]#
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ sudo nmcli connection modify bond0.1798 ipv4.method manual ipv4.addresses 10.172.198.153/23 ipv4.gateway 10.172.198.1
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ sudo nmcli connection up bond0.1798
+Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/21)
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ ip route show
+default via 10.172.248.1 dev br-ex proto static metric 48
+default via 10.172.198.1 dev bond0.1798 proto static metric 406
+10.128.0.0/14 via 10.131.0.1 dev ovn-k8s-mp0
+10.131.0.0/23 dev ovn-k8s-mp0 proto kernel scope link src 10.131.0.2
+10.172.192.0/23 dev bond0.1792 proto kernel scope link src 10.172.192.153 metric 401
+10.172.194.0/23 dev bond0.1794 proto kernel scope link src 10.172.194.153 metric 403
+10.172.196.0/23 dev bond0.1796 proto kernel scope link src 10.172.196.153 metric 404
+10.172.198.0/23 dev bond0.1798 proto kernel scope link src 10.172.198.153 metric 406
+10.172.200.0/23 dev bond0.1793 proto kernel scope link src 10.172.200.153 metric 402
+10.172.202.0/23 dev bond0.1797 proto kernel scope link src 10.172.202.153 metric 405
+10.172.248.0/24 dev br-ex proto kernel scope link src 10.172.248.153 metric 48
+169.254.0.0/17 dev br-ex proto kernel scope link src 169.254.0.2
+169.254.0.1 dev br-ex src 10.172.248.153
+169.254.0.3 via 10.131.0.1 dev ovn-k8s-mp0
+172.30.0.0/16 via 169.254.0.4 dev br-ex src 169.254.0.2 mtu 8900
+[core@ocp-ai-gpu01 ~]$ sudo ip rule add from 10.172.198.153 table 100
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ sudo ip route add default via 10.172.198.1 dev bond0.1798 table 100
+[core@ocp-ai-gpu01 ~]$ sudo nmcli connection modify bond0.1798 ipv4.gateway ""
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$
+[core@ocp-ai-gpu01 ~]$ sudo nmcli connection up bond0.1798
+Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/22)
