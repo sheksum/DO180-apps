@@ -1,27 +1,14 @@
-[root@plnx-vault ~]#
-[root@plnx-vault ~]#
-[root@plnx-vault ~]# openssl s_client -connect api.ocp-ai.calix.local:6443 -servername api.ocp-ai.calix.local -showcerts 2>/dev/null | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/' > /tmp/api-ca-chain.pem
-[root@plnx-vault ~]#
-[root@plnx-vault ~]# cat /tmp/k8s-ca.pem /tmp/api-ca-chain.pem > /tmp/combined-ca.pem
-[root@plnx-vault ~]#
-[root@plnx-vault ~]#
-[root@plnx-vault ~]#
-[root@plnx-vault ~]# curl --cacert /tmp/combined-ca.pem https://api.ocp-ai.calix.local:6443/api/v1/namespaces
-{
-  "kind": "Status",
-  "apiVersion": "v1",
-  "metadata": {},
-  "status": "Failure",
-  "message": "namespaces is forbidden: User \"system:anonymous\" cannot list resource \"namespaces\" in API group \"\" at the cluster scope",
-  "reason": "Forbidden",
-  "details": {
-    "kind": "namespaces"
-  },
-  "code": 403
-}[root@plnx-vault ~]#
-
+# On plnx-admin
+oc create token external-secrets -n external-secrets --duration=8760h
 
 vault write auth/kubernetes-ocp-ai/config \
   kubernetes_host="https://api.ocp-ai.calix.local:6443" \
-  token_reviewer_jwt="<same-token-as-before>" \
+  token_reviewer_jwt="<paste-token>" \
   kubernetes_ca_cert=@/tmp/combined-ca.pem
+
+
+  TOKEN=$(oc create token external-secrets -n pai-dev --duration=600s)
+oc exec -n external-secrets deploy/external-secrets -- curl -sk \
+  --request POST \
+  --data "{\"jwt\":\"$TOKEN\",\"role\":\"eso-pai-dev\"}" \
+  https://vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login
