@@ -4,30 +4,38 @@ pai-dev     vault-store   22h     InvalidProviderConfig                  False
 pai-prod    vault-store   2d15h   InvalidProviderConfig                  False
 pai-test    vault-store   2d15h   InvalidProviderConfig                  False
 trident     vault-store   4d20h   InvalidProviderConfig                  False
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstore vault-store -n pai-dev -o jsonpath='{.spec.provider.vault.caBundle}' | base64 -d | grep -A 1000 "BEGIN CERTIFICATE" | head -20
------BEGIN CERTIFICATE-----
-MIIIADCCBeigAwIBAgITMgAAAAcEg3EgSFBSPAABAAAABzANBgkqhkiG9w0BAQsF
-ADBFMRUwEwYKCZImiZPyLGQBGRYFbG9jYWwxFTATBgoJkiaJk/IsZAEZFgVjYWxp
-eDEVMBMGA1UEAxMMQ2FsaXhJbnRlckNBMB4XDTI1MDEyODA3MTYwMloXDTMwMDEy
-NzA3MTYwMlowQzEVMBMGCgmSJomT8ixkARkWBWxvY2FsMRUwEwYKCZImiZPyLGQB
-GRYFY2FsaXgxEzARBgNVBAMTCkNhbGl4RW50Q0EwggIiMA0GCSqGSIb3DQEBAQUA
-A4ICDwAwggIKAoICAQDXO2Iyi3OXHGQDQSN2xRI2xBXi8zkpSOc+a4lmLNqDQLUF
-r6lAeNn5FvucGSqabq3ZM/E6wp1ealsQ57O1vswM5RO2bveGMyeLoF3gmiCiT2Rp
-6O5MmDxvI+Vq2GPBU4sqngpMp2N9/wF8ZRDma/xdYr4F7D+nfgwt2jpp+R8kxAkk
-nS41FYMBrMYtFbO6VcTNLaWb/pm0xqCSLOj5HFXrjFfYk+HzCaMvQSCfP8VuPyYc
-XRujiRwG3j97rhyOzZe4URqLaPuU1gh53WX3DgKUgi9HkqdI+VtfryOtAXSjkEy6
-XL4PdC7jqyJX6cTri6c/xadEpMnXOUFe3txhopnM8mZazXS/bxkz/uHFK8WSjx5F
-vUHLo4mSyjyG+QTgxRwhPJ8kUSkESuyApP3iI+s7W5KIWMFl1z4PUwisixxd3zB4
-FANg373Wmc/nnZO3OTolQ+j8A0Y2v6mbn95zyY18TlAA77ScDd6HRJhBBmOrC1IC
-5WHjUfEzPq+Gce/pIWab43rIf5BW3nwTPmnUEPxuHXWz+N8wEwat4nc1LYF/YQjG
-4Y2NPB1c8yY1Vc4SXRxbIV6I4HN/JEZ1KZwybeL3Dq+VbhoF1bziKm/i+72eAWjM
-K56/udmC8YtCvFOnngBxHzyaI3JJk0Vgb8cD+Su1CTv18nvE0JiyNngtiNPSWQID
-AQABo4IC6TCCAuUwEgYJKwYBBAGCNxUBBAUCAwEAATAjBgkrBgEEAYI3FQIEFgQU
-F9WY3XQQIe/uU7CbOKqBcziN1SAwHQYDVR0OBBYEFEo5y38V5uxVs4bjxGSCftgC
-/DVjMBkGCSsGAQQBgjcUAgQMHgoAUwB1AGIAQwBBMAsGA1UdDwQEAwIBhjAPBgNV
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc patch secretstore vault-store -n pai-dev --type json -p '[{"op":"remove","path":"/spec/provider/vault/caBundle"}]'
-secretstore.external-secrets.io/vault-store patched
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstore vault-store -n pai-dev -o yaml
+apiVersion: external-secrets.io/v1
+kind: SecretStore
+metadata:
+  annotations:
+    external-secrets.io/disable-maintenance-checks: "true"
+  creationTimestamp: "2026-02-27T22:42:17Z"
+  generation: 3
+  labels:
+    app: external-secrets-operator
+  name: vault-store
+  namespace: pai-dev
+  resourceVersion: "6540661"
+  uid: 59452602-3824-4b1d-b34e-4bee641127d5
+spec:
+  provider:
+    vault:
+      auth:
+        kubernetes:
+          mountPath: kubernetes-ocp-ai
+          role: eso-pai-dev
+          serviceAccountRef:
+            name: external-secrets
+            namespace: pai-dev
+      path: kv
+      server: https://vault.calix.local:8200
+      version: v2
+status:
+  conditions:
+  - lastTransitionTime: "2026-02-27T22:42:17Z"
+    message: unable to create client
+    reason: InvalidProviderConfig
+    status: "False"
+    type: Ready
 hsuma@plnx-admin:~/ocp-ai-config$
