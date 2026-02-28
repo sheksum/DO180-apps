@@ -1,5 +1,18 @@
-oc get secretstore vault-store -n pai-dev -o jsonpath='{.spec.provider.vault.caBundle}' | base64 -d | head -5
-
-oc exec -n external-secrets deploy/external-secrets -it -- curl -sk https://vault.calix.local:8200/v1/sys/health
-
-oc rollout restart deployment -n external-secrets external-secrets
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstore vault-store -n pai-dev -o jsonpath='{.spec.provider.vault.caBundle}' | base64 -d | head -5
+subject=/DC=local/DC=calix/CN=CalixEntCA
+issuer=/DC=local/DC=calix/CN=CalixInterCA
+-----BEGIN CERTIFICATE-----
+MIIIADCCBeigAwIBAgITMgAAAAcEg3EgSFBSPAABAAAABzANBgkqhkiG9w0BAQsF
+ADBFMRUwEwYKCZImiZPyLGQBGRYFbG9jYWwxFTATBgoJkiaJk/IsZAEZFgVjYWxp
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc exec -n external-secrets deploy/external-secrets -it -- curl -sk https://vault.calix.local:8200/v1/sys/health
+{"initialized":true,"sealed":false,"standby":false,"performance_standby":false,"replication_performance_mode":"disabled","replication_dr_mode":"disabled","server_time_utc":1772313979,"version":"1.21.1","enterprise":false,"cluster_name":"vault-cluster-89efaedc","cluster_id":"6ff3691d-c5fc-d59f-739b-50f5252b5155","echo_duration_ms":0,"clock_skew_ms":0,"replication_primary_canary_age_ms":0}
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc rollout restart deployment -n external-secrets external-secrets
+deployment.apps/external-secrets restarted
+hsuma@plnx-admin:~/ocp-ai-config$
