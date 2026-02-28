@@ -1,21 +1,14 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc exec -n external-secrets deploy/external-secrets -- curl -sv https://vault.calix.local:8200/v1/sys/health 2>&1 | grep -E "SSL|TLS|subject|issuer|verify"
-* TLSv1.0 (OUT), TLS header, Certificate Status (22):
-* TLSv1.3 (OUT), TLS handshake, Client hello (1):
-* TLSv1.2 (IN), TLS header, Certificate Status (22):
-* TLSv1.3 (IN), TLS handshake, Server hello (2):
-* TLSv1.2 (IN), TLS header, Finished (20):
-* TLSv1.2 (IN), TLS header, Unknown (23):
-* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
-* TLSv1.2 (IN), TLS header, Unknown (23):
-* TLSv1.3 (IN), TLS handshake, Request CERT (13):
-* TLSv1.2 (IN), TLS header, Unknown (23):
-* TLSv1.3 (IN), TLS handshake, Certificate (11):
-* TLSv1.2 (OUT), TLS header, Unknown (21):
-* TLSv1.3 (OUT), TLS alert, unknown CA (560):
-* SSL certificate problem: self-signed certificate in certificate chain
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ echo $TOKEN | cut -d. -f2 | base64 -d 2>/dev/null
-{"aud":["https://kubernetes.default.svc"],"exp":1772316010,"iat":1772315410,"iss":"https://kubernetes.default.svc","jti":"466b0954-e588-49b7-a40d-2b9c34bb5d39","kubernetes.io":{"namespace":"pai-dev","serviceaccount":{"name":"external-secrets","uid":"c5d41ca6-2e97-421f-b198-0934285dd7ce"}},"nbf":1772315410,"sub":"system:serviceaccount:pai-dev:external-secrets"}hsuma@plnx-admin:~/ocp-ai-config$
+# Extract just the PEM certs from Vault's TLS chain
+openssl s_client -connect vault.calix.local:8200 -servername vault.calix.local -showcerts 2>/dev/null | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/' > /tmp/vault-ca-chain.pem
+
+# Verify it's clean
+cat /tmp/vault-ca-chain.pem | head -5
+
+# Base64 encode for caBundle
+cat /tmp/vault-ca-chain.pem | base64 -w 0
+
+CABUNDLE=$(cat /tmp/vault-ca-chain.pem | base64 -w 0)
+oc patch secretstore vault-store -n pai-dev --type merge -p "{\"spec\":{\"provider\":{\"vault\":{\"caBundle\":\"$CABUNDLE\"}}}}"
+
+
+oc get secretstore vault-store -n pai-dev
