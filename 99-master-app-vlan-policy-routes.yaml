@@ -2,3 +2,10 @@ hsuma@plnx-admin:~/ocp-ai-config$ oc patch configs.imageregistry.operator.opensh
 config.imageregistry.operator.openshift.io/cluster patched (no change)
 hsuma@plnx-admin:~/ocp-ai-config$
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get route -n openshift-image-registry
+NAME            HOST/PORT                                                        PATH   SERVICES         PORT    TERMINATION   WILDCARD
+default-route   default-route-openshift-image-registry.apps.ocp-ai.calix.local          image-registry   <all>   reencrypt     None
+hsuma@plnx-admin:~/ocp-ai-config$
