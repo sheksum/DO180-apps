@@ -1,14 +1,16 @@
-# Extract just the PEM certs from Vault's TLS chain
-openssl s_client -connect vault.calix.local:8200 -servername vault.calix.local -showcerts 2>/dev/null | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/' > /tmp/vault-ca-chain.pem
-
-# Verify it's clean
-cat /tmp/vault-ca-chain.pem | head -5
-
-# Base64 encode for caBundle
-cat /tmp/vault-ca-chain.pem | base64 -w 0
-
-CABUNDLE=$(cat /tmp/vault-ca-chain.pem | base64 -w 0)
-oc patch secretstore vault-store -n pai-dev --type merge -p "{\"spec\":{\"provider\":{\"vault\":{\"caBundle\":\"$CABUNDLE\"}}}}"
-
-
-oc get secretstore vault-store -n pai-dev
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ CABUNDLE=$(cat /tmp/vault-ca-chain.pem | base64 -w 0)
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc patch secretstore vault-store -n pai-dev --type merge -p "{\"spec\":{\"provider\":{\"vault\":{\"caBundle\":\"$CABUNDLE\"}}}}"
+secretstore.external-secrets.io/vault-store patched
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstore vault-store -n pai-dev
+NAME          AGE   STATUS                  CAPABILITIES   READY
+vault-store   23h   InvalidProviderConfig                  False
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstore vault-store -n pai-dev
+NAME          AGE   STATUS                  CAPABILITIES   READY
+vault-store   23h   InvalidProviderConfig                  False
+hsuma@plnx-admin:~/ocp-ai-config$
