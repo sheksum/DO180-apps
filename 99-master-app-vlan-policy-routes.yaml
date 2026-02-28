@@ -1,46 +1,20 @@
-oc apply -f - <<'EOF'
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: wildcard-dev-tls
-  namespace: openshift-ingress
-spec:
-  secretName: wildcard-dev-tls-secret
-  issuerRef:
-    name: vault-issuer
-    kind: ClusterIssuer
-  dnsNames:
-    - "*.dev.ocp-ai.calix.local"
-  duration: 8760h
-  renewBefore: 720h
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: wildcard-test-tls
-  namespace: openshift-ingress
-spec:
-  secretName: wildcard-test-tls-secret
-  issuerRef:
-    name: vault-issuer
-    kind: ClusterIssuer
-  dnsNames:
-    - "*.test.ocp-ai.calix.local"
-  duration: 8760h
-  renewBefore: 720h
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: wildcard-prod-tls
-  namespace: openshift-ingress
-spec:
-  secretName: wildcard-prod-tls-secret
-  issuerRef:
-    name: vault-issuer
-    kind: ClusterIssuer
-  dnsNames:
-    - "*.prod.ocp-ai.calix.local"
-  duration: 8760h
-  renewBefore: 720h
-EOF
+hsuma@plnx-admin:~$ oc get certificate -n openshift-ingress
+NAME                READY   SECRET                     AGE
+apps-wildcard-tls   True    apps-wildcard-tls          4d22h
+wildcard-dev-tls    False   wildcard-dev-tls-secret    20s
+wildcard-prod-tls   False   wildcard-prod-tls-secret   20s
+wildcard-test-tls   False   wildcard-test-tls-secret   20s
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get certificate -n openshift-ingress
+NAME                READY   SECRET                     AGE
+apps-wildcard-tls   True    apps-wildcard-tls          4d22h
+wildcard-dev-tls    False   wildcard-dev-tls-secret    25s
+wildcard-prod-tls   False   wildcard-prod-tls-secret   25s
+wildcard-test-tls   False   wildcard-test-tls-secret   25s
+hsuma@plnx-admin:~$ oc get certificate -n openshift-ingress
+NAME                READY   SECRET                     AGE
+apps-wildcard-tls   True    apps-wildcard-tls          4d22h
+wildcard-dev-tls    False   wildcard-dev-tls-secret    27s
+wildcard-prod-tls   False   wildcard-prod-tls-secret   27s
+wildcard-test-tls   False   wildcard-test-tls-secret   27s
+hsuma@plnx-admin:~$
