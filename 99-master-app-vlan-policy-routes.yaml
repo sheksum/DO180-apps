@@ -1,4 +1,1 @@
-vault write auth/kubernetes-ocp-ai/config \
-  kubernetes_host="https://api.ocp-ai.calix.local:6443" \
-  token_reviewer_jwt="<paste-token>" \
-  kubernetes_ca_cert=@/tmp/combined-ca.pem
+hkfdhf
