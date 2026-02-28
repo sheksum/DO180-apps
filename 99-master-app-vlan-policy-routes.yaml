@@ -1,2 +1,8 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc exec -n external-secrets deploy/external-secrets -- curl -sk   --request POST   --data "{\"jwt\":\"$TOKEN\",\"role\":\"eso-pai-dev\"}"   https://vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login
-{"request_id":"6b7bad5a-6e3d-d04b-bd4b-5b23f0134b22","lease_id":"","renewable":false,"lease_duration":0,"data":null,"wrap_info":null,"warnings":null,"auth":{"client_token”:”<.redacted>,”accessor”:”<redacted>,”policies":["default","eso-pai-dev"],"token_policies":["default","eso-pai-dev"],"metadata":{"role":"eso-pai-dev","service_account_name":"external-secrets","service_account_namespace":"pai-dev","service_account_secret_name":"","service_account_uid":"c5d41ca6-2e97-421f-b198-0934285dd7ce"},"lease_duration":3600,"renewable":true,"entity_id":"49dfb616-d644-76ab-1d97-9fac50eeb015","token_type":"service","orphan":true,"mfa_requirement":null,"num_uses":0},"mount_type":""}
+CABUNDLE=$(cat /tmp/vault-ca-chain.pem | base64 -w 0)
+
+oc patch secretstore vault-store -n pai-test --type merge -p "{\"spec\":{\"provider\":{\"vault\":{\"caBundle\":\"$CABUNDLE\",\"server\":\"https://vault.calix.local:8200\"}}}}"
+
+oc patch secretstore vault-store -n pai-prod --type merge -p "{\"spec\":{\"provider\":{\"vault\":{\"caBundle\":\"$CABUNDLE\",\"server\":\"https://vault.calix.local:8200\"}}}}"
+
+oc create sa external-secrets -n trident
+oc patch secretstore vault-store -n trident --type merge -p "{\"spec\":{\"provider\":{\"vault\":{\"caBundle\":\"$CABUNDLE\",\"server\":\"https://vault.calix.local:8200\"}}}}"
