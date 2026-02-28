@@ -1,14 +1,20 @@
-# On plnx-vault
-curl -sk https://api.ocp-ai.calix.local:6443/.well-known/openid-configuration
+[root@plnx-vault ~]# curl -sk https://api.ocp-ai.calix.local:6443/.well-known/openid-configuration
+{"issuer":"https://kubernetes.default.svc","jwks_uri":"https://api.ocp-ai.calix.local:6443/openid/v1/jwks","response_types_supported":["id_token"],"subject_types_supported":["public"],"id_token_signing_alg_values_supported":["RS256"]}[root@plnx-vault ~]#
+[root@plnx-vault ~]#
+[root@plnx-vault ~]#
+[root@plnx-vault ~]# vault audit enable file file_path=/var/log/vault/audit.log
+Error enabling audit device: Error making API request.
 
-vault audit enable file file_path=/var/log/vault/audit.log
+URL: PUT https://vault.calix.local:8200/v1/sys/audit/file
+Code: 400. Errors:
 
+* unable to create new audit backend: file sink creation failed for path "/var/log/vault/audit.log": sanity check failed; unable to open "/var/log/vault/audit.log" for writing: unable to create file "/var/log/vault/audit.log": mkdir /var/log/vault: permission denied
+[root@plnx-vault ~]# mkdir /var/log/vault
+[root@plnx-vault ~]# vault audit enable file file_path=/var/log/vault/audit.log
+Error enabling audit device: Error making API request.
 
-TOKEN=$(oc create token external-secrets -n pai-dev --duration=600s)
-oc exec -n external-secrets deploy/external-secrets -- curl -sk \
-  --request POST \
-  --data "{\"jwt\":\"$TOKEN\",\"role\":\"eso-pai-dev\"}" \
-  https://vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login
+URL: PUT https://vault.calix.local:8200/v1/sys/audit/file
+Code: 400. Errors:
 
-
-  tail -5 /var/log/vault/audit.log | python3 -m json.tool
+* unable to create new audit backend: file sink creation failed for path "/var/log/vault/audit.log": sanity check failed; unable to open "/var/log/vault/audit.log" for writing: unable to open file for sink "/var/log/vault/audit.log": open /var/log/vault/audit.log: permission denied
+[root@plnx-vault ~]#
