@@ -1,26 +1,3 @@
-hsuma@plnx-admin:~$ oc get certificate -n openshift-ingress
-NAME                READY   SECRET                     AGE
-apps-wildcard-tls   True    apps-wildcard-tls          4d22h
-wildcard-dev-tls    False   wildcard-dev-tls-secret    3m45s
-wildcard-prod-tls   False   wildcard-prod-tls-secret   3m45s
-wildcard-test-tls   False   wildcard-test-tls-secret   3m45s
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get certificaterequest -n openshift-ingress
-NAME                  APPROVED   DENIED   READY   ISSUER         REQUESTER                                         AGE
-apps-wildcard-tls-1   True                True    vault-issuer   system:serviceaccount:cert-manager:cert-manager   4d22h
-wildcard-dev-tls-1    True                False   vault-issuer   system:serviceaccount:cert-manager:cert-manager   4m8s
-wildcard-prod-tls-1   True                False   vault-issuer   system:serviceaccount:cert-manager:cert-manager   4m8s
-wildcard-test-tls-1   True                False   vault-issuer   system:serviceaccount:cert-manager:cert-manager   4m8s
-hsuma@plnx-admin:~$ oc delete certificaterequest -n openshift-ingress wildcard-dev-tls-1 wildcard-prod-tls-1 wildcard-test-tls-1
-certificaterequest.cert-manager.io "wildcard-dev-tls-1" deleted from openshift-ingress namespace
-certificaterequest.cert-manager.io "wildcard-prod-tls-1" deleted from openshift-ingress namespace
-certificaterequest.cert-manager.io "wildcard-test-tls-1" deleted from openshift-ingress namespace
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get certificate -n openshift-ingress -w
-NAME                READY   SECRET                     AGE
-apps-wildcard-tls   True    apps-wildcard-tls          4d22h
-wildcard-dev-tls    False   wildcard-dev-tls-secret    5m3s
-wildcard-prod-tls   False   wildcard-prod-tls-secret   5m3s
-wildcard-test-tls   False   wildcard-test-tls-secret   5m3s
+oc annotate certificate wildcard-dev-tls -n openshift-ingress cert-manager.io/issuing-refresh="$(date +%s)" --overwrite
+oc annotate certificate wildcard-test-tls -n openshift-ingress cert-manager.io/issuing-refresh="$(date +%s)" --overwrite
+oc annotate certificate wildcard-prod-tls -n openshift-ingress cert-manager.io/issuing-refresh="$(date +%s)" --overwrite
