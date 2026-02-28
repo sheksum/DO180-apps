@@ -18,3 +18,15 @@ Code: 400. Errors:
 
 * unable to create new audit backend: file sink creation failed for path "/var/log/vault/audit.log": sanity check failed; unable to open "/var/log/vault/audit.log" for writing: unable to open file for sink "/var/log/vault/audit.log": open /var/log/vault/audit.log: permission denied
 [root@plnx-vault ~]#
+
+
+[root@plnx-vault ~]#
+[root@plnx-vault ~]#
+[root@plnx-vault ~]# chown vault:vault /var/log/vault
+[root@plnx-vault ~]#
+[root@plnx-vault ~]# vault audit enable file file_path=/var/log/vault/audit.log
+Success! Enabled the file audit device at: file/
+[root@plnx-vault ~]#
+[root@plnx-vault ~]# tail  -5 /var/log/vault/audit.log | python3 -m json.tool
+Extra data: line 2 column 1 (char 185)
+[root@plnx-vault ~]#
