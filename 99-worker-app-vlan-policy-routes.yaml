@@ -1,39 +1,21 @@
-NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
-master   rendered-master-42e0368e702b157e1b557a102f867da5   True      False      False      3              3                   3                     0                      12d
-worker   rendered-worker-592050073eb90e1efadba3f3d9e9422a   True      False      True       2              2                   2                     0                      12d
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc describe mcp worker | grep -A 20 "Conditions"
-  Conditions:
-    Last Transition Time:  2026-02-15T22:46:14Z
-    Message:
-    Reason:
-    Status:                False
-    Type:                  PinnedImageSetsDegraded
-    Last Transition Time:  2026-02-15T22:46:19Z
-    Message:
-    Reason:
-    Status:                False
-    Type:                  NodeDegraded
-    Last Transition Time:  2026-02-27T20:43:20Z
-    Message:               All nodes are updated with MachineConfig rendered-worker-592050073eb90e1efadba3f3d9e9422a
-    Reason:
-    Status:                True
-    Type:                  Updated
-    Last Transition Time:  2026-02-27T20:43:20Z
-    Message:
-    Reason:
-    Status:                False
-    Type:                  Updating
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get nodes -A
-NAME                          STATUS   ROLES                         AGE   VERSION
-ocp-ai-gpu01.calix.local      Ready    worker                        10d   v1.33.6
-ocp-ai-gpu02.calix.local      Ready    worker                        10d   v1.33.6
-ocp-ai-master01.calix.local   Ready    control-plane,master,worker   12d   v1.33.6
-ocp-ai-master02.calix.local   Ready    control-plane,master,worker   12d   v1.33.6
-ocp-ai-master03.calix.local   Ready    control-plane,master,worker   12d   v1.33.6
-hsuma@plnx-admin:~$ oc get mcp -w
-NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
-master   rendered-master-42e0368e702b157e1b557a102f867da5   True      False      False      3              3                   3                     0                      12d
-worker   rendered-worker-592050073eb90e1efadba3f3d9e9422a   True      False      True       2              2                   2                     0                      12d
-^Chsuma@plnx-admin:~$
+oc describe mcp worker | grep -A 5 "Degraded"
+
+
+oc get mcp worker -o jsonpath='{.status.conditions[?(@.type=="Degraded")]}'
+
+
+oc get mcp worker -o jsonpath='{.status.conditions[?(@.type=="RenderDegraded")]}'
+
+
+# From plnx-admin — test gpu01 all three VLANs
+ping -c 3 10.172.194.153
+ping -c 3 10.172.198.153
+ping -c 3 10.172.202.153
+
+
+ssh core@ocp-ai-gpu01.calix.local
+journalctl -u app-vlan-policy-routes
+ip rule show
+ip route show table 100
+ip route show table 101
+ip route show table 102
