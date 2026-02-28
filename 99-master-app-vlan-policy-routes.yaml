@@ -1,24 +1,38 @@
-hsuma@plnx-admin:~$ oc get pods -n cert-manager
-NAME                                      READY   STATUS    RESTARTS   AGE
-cert-manager-759f64656b-j49mg             1/1     Running   0          3h6m
-cert-manager-cainjector-8966b78d4-nzrfl   1/1     Running   0          3h6m
-cert-manager-webhook-597b96b99b-8pwwj     1/1     Running   0          178m
 hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get clusterissuer vault-issuer
-NAME           READY   AGE
-vault-issuer   False   9d
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc exec -n external-secrets deploy/external-secrets -- curl -sk https://vault.calix.local:8200/v1/sys/health
-{"initialized":true,"sealed":false,"standby":false,"performance_standby":false,"replication_performance_mode":"disabled","replication_dr_mode":"disabled","server_time_utc":1772322163,"version":"1.21.1","enterprise":false,"cluster_name":"vault-cluster-89efaedc","cluster_id":"6ff3691d-c5fc-d59f-739b-50f5252b5155","echo_duration_ms":0,"clock_skew_ms":0,"replication_primary_canary_age_ms":0}
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pai-gateway -n openshift-ingress
-error: the server doesn't have a resource type "pai-gateway"
-hsuma@plnx-admin:~$ oc get gateway pai-gateway -n openshift-ingress
-NAME          CLASS               ADDRESS          PROGRAMMED   AGE
-pai-gateway   openshift-default   10.172.248.175   True         2d18h
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get gatewayclass
-NAME                CONTROLLER                           ACCEPTED   AGE
-openshift-default   openshift.io/gateway-controller/v1   True       2d18h
+hsuma@plnx-admin:~$ oc describe clusterissuer vault-issuer
+Name:         vault-issuer
+Namespace:
+Labels:       <none>
+Annotations:  <none>
+API Version:  cert-manager.io/v1
+Kind:         ClusterIssuer
+Metadata:
+  Creation Timestamp:  2026-02-19T21:11:27Z
+  Generation:          2
+  Resource Version:    5770237
+  UID:                 39b27e27-3b34-41c7-8954-114df9f7ca04
+Spec:
+  Vault:
+    Auth:
+      Kubernetes:
+        Mount Path:  /v1/auth/kubernetes-ocp-ai
+        Role:        cert-manager
+        Service Account Ref:
+          Name:  vault-auth
+    Ca Bundle:   LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZGRENDQXZ5Z0F3SUJBZ0lVVFdVYktqa3BYdE1QS0VKNkxnRHkrMGlxN3FVd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0lURWZNQjBHQTFVRUF3d1djR3h1ZUMxMllYVnNkQzVqWVd4cGVDNXNiMk5oYkRBZUZ3MHlOVEV5TURZeApPVEE0TVRGYUZ3MHlOakV5TURZeE9UQTRNVEZhTUNFeEh6QWRCZ05WQkFNTUZuQnNibmd0ZG1GMWJIUXVZMkZzCmFYZ3ViRzlqWVd3d2dnSWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUNEd0F3Z2dJS0FvSUNBUURNNU10SzI2aE4Ka3pQcTJxbXRRK24zSGVJZ1dCbHRlUm1XKzEvbEdsQnNzUDhCN3JjYzk0SDF3SHZBNytrYXlXdEVYODR5RWNLdApJeVBGS1QzSzVxbCtCNHlQOEhoSXBYL0tidjFTMC93blpNMDRyd05EZ1VlL3lHWnVDbEJDdEw5U2E5UGZxaHR1ClF1SXRsUEdLTHpkQnB5Y042dXo4VEE1WWViSm5ENTRFeklxYXJDaDY0Yy9FWVJUZzR3NWlDK3NSRnpVc1k0bFcKdWFvZmJheW9OOUF2Nm5rUWJHLytJZEtuVVR1VVc2c01tMUFTSGxObGhlWDJMOHRlYm5jNm0wUVcxd1o5cHhuVwpRT2l3YTgweHhiWHZHVSs4U0JtQlpwTkR6ZURHeVgxdE8ySnlZcUNpWWdrZmpxdU8rdzd0bWQyOE05NFQ3ZjlRCitxbmlmaW9TNWVRR1l1MDIvT0o2cFZyWEluRjhHT21WeFp1SHRQZGlnKzBLOTNyeUxkU0xLTmNuQmVJcEtmaWkKemJERVEwRU8xN0ZmOExrb2I1YUUzTHNlaW5YTFlIbVZCT1BtZm9UNnpMa2J6aTBWMnJUcEhWRUVuQzErd09jRApVdzlrNEZ2S1hoQUFpUGE5SFVsak1WdnM2bEI0UVlaZlVzbFRnUTVRT3lXQjNsZ25PbDdMcWdBTytKMDduYnZnCm9iYnhtTHcyaktTbGxEU0JCdE91c3Y5NEFCRExoTktQNWlmYkJTZ3d3eWw1Zk5LWDZ4V1JmbWxsZFF5TFBMQm0KVmI1THh0ejh4VXhUWU5QbEdTZW5EVFZadlR6akQ0T0xad2xJRllzSG9qSE42M1hERlNKQU53eWw5ejZibEl6bAowbC9KTnJTT1hvaWJPM0dDWXZmSkpoTlB5UWV1clRZcC9RSURBUUFCbzBRd1FqQWhCZ05WSFJFRUdqQVlnaFp3CmJHNTRMWFpoZFd4MExtTmhiR2w0TG14dlkyRnNNQjBHQTFVZERnUVdCQlJ5d3VnOVA5SjBjU2hsaGlUckxWbzAKbm95N2FEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FnRUFKaE1IckZnT1N5aGxoTUxyNWF5WURKb0laRU5rcjdyUQpoOHgrQmJ0U1VMQzlXcEFXMXc3TEprU0dHQTZTdko0ZVFIL3FuT3ZqLytpencwSWVEVis2K0JxYUFwb1IzQlYwCjAzOTQwVjViWDZMQ0s3OXpCMUpqM1RXamNpZktQOHR2NWFFOEZENmV1MlhFcm5KcHJjSFFBdWNwbmtXSXVmajUKNzYvK1FIdUVUWTc5WVRSNi9SbDBDSFJubTI4bU9vN1VBY2F4TnBvbVFxYkNYaXZwWksybnVHMmdxWU9UY01KRAp4R0p5a0ZMMzBTUEp4cWJrVUJXcVEzK28zYzVnekNITVRUTmtkdGZhcVdiZHRMV1VHaGR2dVpaM0xIWERoNm9QCktZNEphdjBNRXlEUlExSkM5OWxCSjdBRnd3NmZZWEdldVN4Q25zSzROcmVIVDkxUnpGOUtZSFAxejhlQUd2dW4KeE5QMk1zWlpybmdHc2VWNWN1WmpKallDckgyZllWK0VWOWpVcFhEUXI0ZVA3czVHZmNPN0NiSk5WZE02aDJsawpXN0Naald5YmZySC9HYmRTTjV2MWRPSW5RbjZ4cFBmdW0zLzFEeEIzSnJuRXFIOXE0WktRUVRtNDhBb2tYTjhsCk4rMWlUeGFZU094N2RZamZJWllPL0p4b3R3am1PZm0rS3RsWVlZdlBQRzRaaTJhb0dDMzFuOXhReGt5eHlPTUoKQ1RaTFptbzlGSU1JUyszKzB1QmlvakNUa25IMW5zNFJ2UWhWTkh1c3RrR2FlZUlQemx4SmI1K3pPNWdaa2dYbgpFWUpJUHZPUXBYSDdiVXh0dkJuS1lCQmJTMkhWaElCKzV5eW50WXNRb0R4Tk9wUlR4SVF1ektWUm5lUHBVWk1CCmJ1TkZoeUFiTEw4PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    Path:        pki_int/sign/ocp-ai
+    Server:      https://plnx-vault.calix.local:8200
+Status:
+  Conditions:
+    Last Transition Time:  2026-02-24T03:28:58Z
+    Message:               Failed to initialize Vault client: while requesting a Vault token using the Kubernetes auth: error calling Vault server: Post "https://plnx-vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login": tls: failed to verify certificate: x509: certificate signed by unknown authority
+    Observed Generation:   2
+    Reason:                VaultError
+    Status:                False
+    Type:                  Ready
+Events:
+  Type     Reason         Age                    From                         Message
+  ----     ------         ----                   ----                         -------
+  Warning  ErrInitIssuer  3h13m (x292 over 27h)  cert-manager-clusterissuers  Error initializing issuer: while requesting a Vault token using the Kubernetes auth: error calling Vault server: Post "https://plnx-vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login": tls: failed to verify certificate: x509: certificate signed by unknown authority
+  Warning  ErrInitIssuer  17s (x44 over 3h10m)   cert-manager-clusterissuers  Error initializing issuer: while requesting a Vault token using the Kubernetes auth: error calling Vault server: Post "https://plnx-vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login": tls: failed to verify certificate: x509: certificate signed by unknown authority
 hsuma@plnx-admin:~$
