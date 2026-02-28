@@ -1,36 +1,47 @@
-apiVersion: machineconfiguration.openshift.io/v1
-kind: MachineConfig
-metadata:
-  name: 99-worker-app-vlan-policy-routes
-  labels:
-    machineconfiguration.openshift.io/role: worker
-spec:
-  config:
-    ignition:
-      version: 3.5.0
-    storage:
-      files:
-      - contents:
-          source: data:text/plain;charset=utf-8;base64,IyEvYmluL2Jhc2gKIyBDb25maWd1cmUgcG9saWN5LWJhc2VkIHJvdXRpbmcgZm9yIGFwcCBWTEFOcyBzbyBjcm9zcy1WTEFOCiMgdHJhZmZpYyByZXBsaWVzIHRocm91Z2ggdGhlIGNvcnJlY3QgU1ZJIGdhdGV3YXkgaW5zdGVhZCBvZgojIHRoZSBkZWZhdWx0IGdhdGV3YXkgb24gYnItZXggKFZMQU4gMTUxMCkuCiMKIyBXaXRob3V0IHRoaXMsIHJlcGxpZXMgZnJvbSBhcHAgVkxBTiBJUHMgZ28gb3V0IGJyLWV4IHdpdGgKIyBhIHNvdXJjZSBJUCB0aGF0IGRvZXNuJ3QgYmVsb25nIHRvIFZMQU4gMTUxMCwgYW5kIGdldCBkcm9wcGVkLgojCiMgVkxBTiAxNzk0IChEZXYpOiAgMTAuMTcyLjE5NC4wLzIzLCBnYXRld2F5IDEwLjE3Mi4xOTQuMSwgdGFibGUgMTAxCiMgVkxBTiAxNzk4IChUZXN0KTogMTAuMTcyLjE5OC4wLzIzLCBnYXRld2F5IDEwLjE3Mi4xOTguMSwgdGFibGUgMTAwCiMgVkxBTiAxNzk3IChQcm9kKTogMTAuMTcyLjIwMi4wLzIzLCBnYXRld2F5IDEwLjE3Mi4yMDIuMSwgdGFibGUgMTAyCgpzZXQgLWUKCmFkZF9wb2xpY3lfcm91dGUoKSB7CiAgbG9jYWwgU1VCTkVUX1BBVFRFUk49IiQxIgogIGxvY2FsIEdBVEVXQVk9IiQyIgogIGxvY2FsIFRBQkxFPSIkMyIKCiAgIyBGaW5kIHRoZSBpbnRlcmZhY2UgYW5kIElQIGZvciB0aGlzIFZMQU4KICBsb2NhbCBJRkFDRT0kKGlwIC1vIGFkZHIgc2hvdyB8IGdyZXAgIiR7U1VCTkVUX1BBVFRFUk59IiB8IGF3ayAne3ByaW50ICQyfScpCiAgbG9jYWwgSVA9JChpcCAtbyBhZGRyIHNob3cgfCBncmVwICIke1NVQk5FVF9QQVRURVJOfSIgfCBhd2sgJ3twcmludCAkNH0nIHwgY3V0IC1kLyAtZjEpCgogIGlmIFsgLXogIiRJRkFDRSIgXSB8fCBbIC16ICIkSVAiIF07IHRoZW4KICAgIGVjaG8gImFwcC12bGFuLXBvbGljeS1yb3V0ZXM6IE5vIGludGVyZmFjZSBmb3VuZCBmb3IgJHtTVUJORVRfUEFUVEVSTn0sIHNraXBwaW5nIgogICAgcmV0dXJuIDAKICBmaQoKICAjIEFkZCBpcCBydWxlIGlmIG5vdCBhbHJlYWR5IHByZXNlbnQKICBpZiAhIGlwIHJ1bGUgc2hvdyB8IGdyZXAgLXEgImZyb20gJHtJUH0gbG9va3VwICR7VEFCTEV9IjsgdGhlbgogICAgaXAgcnVsZSBhZGQgZnJvbSAiJHtJUH0iIHRhYmxlICIke1RBQkxFfSIKICAgIGVjaG8gImFwcC12bGFuLXBvbGljeS1yb3V0ZXM6IEFkZGVkIHJ1bGUgZnJvbSAke0lQfSB0YWJsZSAke1RBQkxFfSIKICBlbHNlCiAgICBlY2hvICJhcHAtdmxhbi1wb2xpY3ktcm91dGVzOiBSdWxlIGZyb20gJHtJUH0gdGFibGUgJHtUQUJMRX0gYWxyZWFkeSBleGlzdHMiCiAgZmkKCiAgIyBBZGQgZGVmYXVsdCByb3V0ZSBpbiB0YWJsZSBpZiBub3QgYWxyZWFkeSBwcmVzZW50CiAgaWYgISBpcCByb3V0ZSBzaG93IHRhYmxlICIke1RBQkxFfSIgfCBncmVwIC1xICJkZWZhdWx0IjsgdGhlbgogICAgaXAgcm91dGUgYWRkIGRlZmF1bHQgdmlhICIke0dBVEVXQVl9IiBkZXYgIiR7SUZBQ0V9IiB0YWJsZSAiJHtUQUJMRX0iCiAgICBlY2hvICJhcHAtdmxhbi1wb2xpY3ktcm91dGVzOiBBZGRlZCBkZWZhdWx0IHJvdXRlIHZpYSAke0dBVEVXQVl9IGRldiAke0lGQUNFfSB0YWJsZSAke1RBQkxFfSIKICBlbHNlCiAgICBlY2hvICJhcHAtdmxhbi1wb2xpY3ktcm91dGVzOiBEZWZhdWx0IHJvdXRlIGluIHRhYmxlICR7VEFCTEV9IGFscmVhZHkgZXhpc3RzIgogIGZpCn0KCiMgVkxBTiAxNzk0IC0gRGV2CmFkZF9wb2xpY3lfcm91dGUgIjEwLjE3Mi4xOTQiICIxMC4xNzIuMTk0LjEiICIxMDEiCgojIFZMQU4gMTc5OCAtIFRlc3QKYWRkX3BvbGljeV9yb3V0ZSAiMTAuMTcyLjE5OCIgIjEwLjE3Mi4xOTguMSIgIjEwMCIKCiMgVkxBTiAxNzk3IC0gUHJvZAphZGRfcG9saWN5X3JvdXRlICIxMC4xNzIuMjAyIiAiMTAuMTcyLjIwMi4xIiAiMTAyIgoKZWNobyAiYXBwLXZsYW4tcG9saWN5LXJvdXRlczogQ29uZmlndXJhdGlvbiBjb21wbGV0ZSIK
-        mode: 493
-        overwrite: true
-        path: /usr/local/bin/app-vlan-policy-routes.sh
-    systemd:
-      units:
-      - contents: |
-          [Unit]
-          Description=Configure policy-based routing for app VLANs
-          After=NetworkManager.service network-online.target ovs-configuration.service
-          Wants=network-online.target
+[core@ocp-ai-gpu01 ~]$ journalctl -u app-vlan-policy-routes.service
+Feb 28 20:16:13 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added rule from 10.172.194.153 table 101
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6199]: Error: ipv4: FIB table does not exist.
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6199]: Dump terminated
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added default route via 10.172.194.1 dev bond0.1794 table 101
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added rule from 10.172.198.153 table 100
+Feb 28 20:16:13 ocp-ai-gpu01.calix.local systemd[1]: Starting Configure policy-based routing for app VLANs...
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6218]: Error: ipv4: FIB table does not exist.
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6218]: Dump terminated
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added default route via 10.172.198.1 dev bond0.1798 table 100
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added rule from 10.172.202.153 table 102
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6233]: Error: ipv4: FIB table does not exist.
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6233]: Dump terminated
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Added default route via 10.172.202.1 dev bond0.1797 table 102
+Feb 28 20:16:14 ocp-ai-gpu01.calix.local app-vlan-policy-routes.sh[6185]: app-vlan-policy-routes: Configuration complete
+Feb 28 20:16:13 ocp-ai-gpu01.calix.local systemd[1]: Finished Configure policy-based routing for app VLANs.
+[core@ocp-ai-gpu01 ~]$
 
-          [Service]
-          Type=oneshot
-          ExecStart=/usr/local/bin/app-vlan-policy-routes.sh
-          RemainAfterExit=yes
-          StandardOutput=journal
-          StandardError=journal
 
-          [Install]
-          WantedBy=multi-user.target
-        enabled: true
-        name: app-vlan-policy-routes.service
+^Chsuma@plnx-admin:~$ ping -c3 10.172.194.153
+PING 10.172.194.153 (10.172.194.153) 56(84) bytes of data.
+64 bytes from 10.172.194.153: icmp_seq=1 ttl=63 time=0.549 ms
+64 bytes from 10.172.194.153: icmp_seq=2 ttl=63 time=0.206 ms
+64 bytes from 10.172.194.153: icmp_seq=3 ttl=63 time=0.141 ms
+
+--- 10.172.194.153 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2027ms
+rtt min/avg/max/mdev = 0.141/0.298/0.549/0.178 ms
+hsuma@plnx-admin:~$ ping -c3 10.172.198.153
+PING 10.172.198.153 (10.172.198.153) 56(84) bytes of data.
+64 bytes from 10.172.198.153: icmp_seq=1 ttl=63 time=0.573 ms
+64 bytes from 10.172.198.153: icmp_seq=2 ttl=63 time=0.140 ms
+64 bytes from 10.172.198.153: icmp_seq=3 ttl=63 time=0.220 ms
+
+--- 10.172.198.153 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2044ms
+rtt min/avg/max/mdev = 0.140/0.311/0.573/0.188 ms
+hsuma@plnx-admin:~$ ping -c3 10.172.202.153
+PING 10.172.202.153 (10.172.202.153) 56(84) bytes of data.
+64 bytes from 10.172.202.153: icmp_seq=1 ttl=63 time=0.459 ms
+64 bytes from 10.172.202.153: icmp_seq=2 ttl=63 time=0.167 ms
+64 bytes from 10.172.202.153: icmp_seq=3 ttl=63 time=0.141 ms
+
+--- 10.172.202.153 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2040ms
+rtt min/avg/max/mdev = 0.141/0.255/0.459/0.144 ms
+hsuma@plnx-admin:~$
