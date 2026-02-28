@@ -1,8 +1,48 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstore vault-store -n pai-dev -o yaml | grep -A 5 "server"
-      server: '"https://vault.calix.local:8200"'
-      version: v2
-status:
-  conditions:
-  - lastTransitionTime: "2026-02-27T22:42:17Z"
-    message: unable to create client
+hsuma@plnx-admin:~/ocp-ai-config$ dig plnx-vault.calix.local
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> plnx-vault.calix.local
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 2125
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 65494
+;; QUESTION SECTION:
+;plnx-vault.calix.local.		IN	A
+
+;; ANSWER SECTION:
+plnx-vault.calix.local.	3600	IN	A	10.172.249.106
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.53#53(127.0.0.53) (UDP)
+;; WHEN: Sat Feb 28 15:18:20 CST 2026
+;; MSG SIZE  rcvd: 67
+
+hsuma@plnx-admin:~/ocp-ai-config$ dig vault.calix.local
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> vault.calix.local
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 43420
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 65494
+;; QUESTION SECTION:
+;vault.calix.local.		IN	A
+
+;; ANSWER SECTION:
+vault.calix.local.	3600	IN	CNAME	plnx-vault.calix.local.
+plnx-vault.calix.local.	3600	IN	A	10.172.249.106
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.53#53(127.0.0.53) (UDP)
+;; WHEN: Sat Feb 28 15:18:28 CST 2026
+;; MSG SIZE  rcvd: 87
+
 hsuma@plnx-admin:~/ocp-ai-config$
