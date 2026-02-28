@@ -1,10 +1,19 @@
-# On master01
-ip -o addr show | grep 10.172.198 | awk '{print $2}'
-ip -o addr show | grep 10.172.194 | awk '{print $2}'
-ip -o addr show | grep 10.172.202 | awk '{print $2}'
+[core@ocp-ai-master01 ~]$ ip -o addr show | grep 10.172.198 | awk '{print $2}'
+bnd0.1798
+[core@ocp-ai-master01 ~]$
+[core@ocp-ai-master01 ~]$ ip -o addr show | grep 10.172.194 | awk '{print $2}'
+bnd0.1794
+[core@ocp-ai-master01 ~]$
+[core@ocp-ai-master01 ~]$ ip -o addr show | grep 10.172.202 | awk '{print $2}'
+bnd0.1797
+[core@ocp-ai-master01 ~]$
 
 
-# On gpu01
-ip -o addr show | grep 10.172.198 | awk '{print $2}'
-ip -o addr show | grep 10.172.194 | awk '{print $2}'
-ip -o addr show | grep 10.172.202 | awk '{print $2}'
+
+[core@ocp-ai-gpu01 ~]$ ip -o addr show | grep 10.172.198 | awk '{print $2}'
+bond0.1798
+[core@ocp-ai-gpu01 ~]$ ip -o addr show | grep 10.172.194 | awk '{print $2}'
+bond0.1794
+[core@ocp-ai-gpu01 ~]$ ip -o addr show | grep 10.172.202 | awk '{print $2}'
+bond0.1797
+[core@ocp-ai-gpu01 ~]$
