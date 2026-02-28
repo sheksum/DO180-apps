@@ -1,32 +1,37 @@
-[root@plnx-vault ~]# curl -sk https://api.ocp-ai.calix.local:6443/.well-known/openid-configuration
-{"issuer":"https://kubernetes.default.svc","jwks_uri":"https://api.ocp-ai.calix.local:6443/openid/v1/jwks","response_types_supported":["id_token"],"subject_types_supported":["public"],"id_token_signing_alg_values_supported":["RS256"]}[root@plnx-vault ~]#
-[root@plnx-vault ~]#
-[root@plnx-vault ~]#
-[root@plnx-vault ~]# vault audit enable file file_path=/var/log/vault/audit.log
-Error enabling audit device: Error making API request.
-
-URL: PUT https://vault.calix.local:8200/v1/sys/audit/file
-Code: 400. Errors:
-
-* unable to create new audit backend: file sink creation failed for path "/var/log/vault/audit.log": sanity check failed; unable to open "/var/log/vault/audit.log" for writing: unable to create file "/var/log/vault/audit.log": mkdir /var/log/vault: permission denied
-[root@plnx-vault ~]# mkdir /var/log/vault
-[root@plnx-vault ~]# vault audit enable file file_path=/var/log/vault/audit.log
-Error enabling audit device: Error making API request.
-
-URL: PUT https://vault.calix.local:8200/v1/sys/audit/file
-Code: 400. Errors:
-
-* unable to create new audit backend: file sink creation failed for path "/var/log/vault/audit.log": sanity check failed; unable to open "/var/log/vault/audit.log" for writing: unable to open file for sink "/var/log/vault/audit.log": open /var/log/vault/audit.log: permission denied
-[root@plnx-vault ~]#
-
-
-[root@plnx-vault ~]#
-[root@plnx-vault ~]#
-[root@plnx-vault ~]# chown vault:vault /var/log/vault
-[root@plnx-vault ~]#
-[root@plnx-vault ~]# vault audit enable file file_path=/var/log/vault/audit.log
-Success! Enabled the file audit device at: file/
-[root@plnx-vault ~]#
-[root@plnx-vault ~]# tail  -5 /var/log/vault/audit.log | python3 -m json.tool
-Extra data: line 2 column 1 (char 185)
+[root@plnx-vault ~]# tail  -1 /var/log/vault/audit.log | python3 -m json.tool
+{
+    "auth": {
+        "policy_results": {
+            "allowed": true
+        },
+        "token_type": "default"
+    },
+    "error": "permission denied",
+    "request": {
+        "data": {
+            "jwt": "hmac-sha256:bf29b2879aafba131bbf0fab819ecea6f13d75bd89292f35b8ad37c6c323a688",
+            "role": "hmac-sha256:1868c43f3f9546eddcd9dacbcbc72e896e404c0b9b6bb95085375120e6ec76df"
+        },
+        "headers": {
+            "user-agent": [
+                "curl/7.76.1"
+            ]
+        },
+        "id": "248ca96b-1c3e-66bd-689b-e8c523384cca",
+        "mount_accessor": "auth_kubernetes_90947394",
+        "mount_class": "auth",
+        "mount_point": "auth/kubernetes-ocp-ai/",
+        "mount_running_version": "v0.23.1+builtin",
+        "mount_type": "kubernetes",
+        "namespace": {
+            "id": "root"
+        },
+        "operation": "update",
+        "path": "auth/kubernetes-ocp-ai/login",
+        "remote_address": "10.172.248.152",
+        "remote_port": 58080
+    },
+    "time": "2026-02-28T22:04:44.320814981Z",
+    "type": "response"
+}
 [root@plnx-vault ~]#
