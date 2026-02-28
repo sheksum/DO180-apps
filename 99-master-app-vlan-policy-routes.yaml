@@ -1,21 +1,12 @@
-oc get sa external-secrets -n pai-dev
-
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get sa external-secrets -n pai-dev
-NAME               SECRETS   AGE
-external-secrets   1         2d15h
-hsuma@plnx-admin:~/ocp-ai-config$
-oc create token external-secrets -n pai-dev --duration=120s | cut -d. -f2 | base64 -d 2>/dev/null | python3 -m json.tool
-
-# On plnx-vault as root (with VAULT_SKIP_VERIFY=true)
-vault read auth/kubernetes-ocp-ai/config -format=json | python3 -c "import sys,json; print(json.load(sys.stdin)['data'].get('token_reviewer_jwt_set', 'not set'))"
-
-oc create token external-secrets -n external-secrets --duration=8760h
-
-
-vault write auth/kubernetes-ocp-ai/config \
+[root@plnx-vault ~]# vault read auth/kubernetes-ocp-ai/config -format=json | python3 -c "import sys,json; print(json.load(sys.stdin)['data'].get('token_reviewer_jwt_set', 'not set'))"
+True
+[root@plnx-vault ~]# vault write auth/kubernetes-ocp-ai/config \
   kubernetes_host="https://api.ocp-ai.calix.local:6443" \
-  token_reviewer_jwt="<paste-the-token-from-above>"
+  token_reviewer_jwt="eyJhbGciOiJSUzI1NiIsImtpZCI6ImJ5S3hpYldNYnpYUkk4aG5ESDNsSWM2RjYybEM3aXBtSUR1bVB3eThSancifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjIl0sImV4cCI6MTgwMzg1MDgyNCwiaWF0IjoxNzcyMzE0ODI0LCJpc3MiOiJodHRwczovL2t1YmVybmV0ZXMuZGVmYXVsdC5zdmMiLCJqdGkiOiIxYjBkODljMi02NTgyLTRlMTItYTAxMy03NGIzNjdiMGNlZjIiLCJrdWJlcm5ldGVzLmlvIjp7Im5hbWVzcGFjZSI6ImV4dGVybmFsLXNlY3JldHMiLCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiZXh0ZXJuYWwtc2VjcmV0cyIsInVpZCI6IjlkNTc5MDRmLWVhNzMtNGU3OS1iNTkzLTI2YTE1NjYwN2IyYiJ9fSwibmJmIjoxNzcyMzE0ODI0LCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZXh0ZXJuYWwtc2VjcmV0czpleHRlcm5hbC1zZWNyZXRzIn0.GvRM6OcpbQSO0ilv0ZUTMVvZMXlYjuIeDy7CtbETjw34XXFPZ3j6VNAnRm-3NsuU68UFnyY6F28r0rnkU6xSGBF4X0yxcPl8vVlalktoMWpUyXuLs3lmzrJ7STux95Mhk1CGc7KH9OTZj5mEKibRKzaEF8zTPg8bYgox-aZuf2moZYpTHmxCl1ZkFphZAV0bajg5l8jRldQ0kSvHWUJIXNqA2ZaQlSfbHbmSZ8sIk6DFE3gOz8lVrGCPLQyzEPCT5-uuFq4MI8z8xIqknxALfB5jB0K8gkL8bWiFN7vxsGrrSKGRvqhDKSWtTv0rnCawzOWz1KoQNthV6dn8CnlXYiXbw1vPO0eCUcxzXJF7vxIqkLjIVpQdzWGIIVCniggiAFgWj5DCgT--thcbTwShOkBd_jf-WL6utTS3_HRdfhjl3Dz2EO5dbeXtwp-fw6Y_nPZV_wlktFuA_DUYUhwO64UjpgJnKzidsKS6UXNtW92CPeCgf5lzfVHAlZ2k8n072387Dw0sUCpYCJGvUNJwWfxit-rIES8YILQJ_llpHydJjYrT9RZuXZK2mS2ZFZhUPVrei43r_JLTIG6-AzB5IDQxdTEeZS8h8Mx3T7qDh5L7XZGoY6eeLfM4EuRaAMQd2vNM_rQe0Tl6r8weshhe-pjqyEhFL9tEGxcyrZIwyaQ"
+Error writing data to auth/kubernetes-ocp-ai/config: Error making API request.
 
-  oc get sa -n kube-system | grep token-review
+URL: PUT https://vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/config
+Code: 400. Errors:
+
+* open /var/run/secrets/kubernetes.io/serviceaccount/ca.crt: no such file or directory
+[root@plnx-vault ~]#
