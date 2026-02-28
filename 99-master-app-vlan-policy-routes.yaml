@@ -1,3 +1,24 @@
-vault read auth/kubernetes-ocp-ai/role/eso-pai-test
-vault read auth/kubernetes-ocp-ai/role/eso-pai-prod
-vault read auth/kubernetes-ocp-ai/role/eso-trident
+hsuma@plnx-admin:~$ oc get pods -n cert-manager
+NAME                                      READY   STATUS    RESTARTS   AGE
+cert-manager-759f64656b-j49mg             1/1     Running   0          3h6m
+cert-manager-cainjector-8966b78d4-nzrfl   1/1     Running   0          3h6m
+cert-manager-webhook-597b96b99b-8pwwj     1/1     Running   0          178m
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get clusterissuer vault-issuer
+NAME           READY   AGE
+vault-issuer   False   9d
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc exec -n external-secrets deploy/external-secrets -- curl -sk https://vault.calix.local:8200/v1/sys/health
+{"initialized":true,"sealed":false,"standby":false,"performance_standby":false,"replication_performance_mode":"disabled","replication_dr_mode":"disabled","server_time_utc":1772322163,"version":"1.21.1","enterprise":false,"cluster_name":"vault-cluster-89efaedc","cluster_id":"6ff3691d-c5fc-d59f-739b-50f5252b5155","echo_duration_ms":0,"clock_skew_ms":0,"replication_primary_canary_age_ms":0}
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pai-gateway -n openshift-ingress
+error: the server doesn't have a resource type "pai-gateway"
+hsuma@plnx-admin:~$ oc get gateway pai-gateway -n openshift-ingress
+NAME          CLASS               ADDRESS          PROGRAMMED   AGE
+pai-gateway   openshift-default   10.172.248.175   True         2d18h
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get gatewayclass
+NAME                CONTROLLER                           ACCEPTED   AGE
+openshift-default   openshift.io/gateway-controller/v1   True       2d18h
+hsuma@plnx-admin:~$
