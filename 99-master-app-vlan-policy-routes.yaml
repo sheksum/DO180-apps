@@ -1,59 +1,26 @@
-[root@plnx-vault ~]#
-[root@plnx-vault ~]# vault write pki_int/roles/ocp-ai \
-  allow_any_name=true \
-  allow_wildcard_certificates=true \
-  require_cn=false \
-  use_csr_common_name=true \
-  use_csr_sans=true \
-  max_ttl=8760h
-Key                                   Value
----                                   -----
-allow_any_name                        true
-allow_bare_domains                    false
-allow_glob_domains                    false
-allow_ip_sans                         true
-allow_localhost                       true
-allow_subdomains                      false
-allow_token_displayname               false
-allow_wildcard_certificates           true
-allowed_domains                       []
-allowed_domains_template              false
-allowed_other_sans                    []
-allowed_serial_numbers                []
-allowed_uri_sans                      []
-allowed_uri_sans_template             false
-allowed_user_ids                      []
-basic_constraints_valid_for_non_ca    false
-client_flag                           true
-cn_validations                        [email hostname]
-code_signing_flag                     false
-country                               []
-email_protection_flag                 false
-enforce_hostnames                     true
-ext_key_usage                         []
-ext_key_usage_oids                    []
-generate_lease                        false
-issuer_ref                            default
-key_bits                              2048
-key_type                              rsa
-key_usage                             [DigitalSignature KeyAgreement KeyEncipherment]
-locality                              []
-max_ttl                               8760h
-no_store                              false
-not_after                             n/a
-not_before_duration                   30s
-organization                          []
-ou                                    []
-policy_identifiers                    []
-postal_code                           []
-province                              []
-require_cn                            false
-serial_number_source                  json-csr
-server_flag                           true
-signature_bits                        256
-street_address                        []
-ttl                                   0s
-use_csr_common_name                   true
-use_csr_sans                          true
-use_pss                               false
-[root@plnx-vault ~]#
+hsuma@plnx-admin:~$ oc get certificate -n openshift-ingress
+NAME                READY   SECRET                     AGE
+apps-wildcard-tls   True    apps-wildcard-tls          4d22h
+wildcard-dev-tls    False   wildcard-dev-tls-secret    3m45s
+wildcard-prod-tls   False   wildcard-prod-tls-secret   3m45s
+wildcard-test-tls   False   wildcard-test-tls-secret   3m45s
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get certificaterequest -n openshift-ingress
+NAME                  APPROVED   DENIED   READY   ISSUER         REQUESTER                                         AGE
+apps-wildcard-tls-1   True                True    vault-issuer   system:serviceaccount:cert-manager:cert-manager   4d22h
+wildcard-dev-tls-1    True                False   vault-issuer   system:serviceaccount:cert-manager:cert-manager   4m8s
+wildcard-prod-tls-1   True                False   vault-issuer   system:serviceaccount:cert-manager:cert-manager   4m8s
+wildcard-test-tls-1   True                False   vault-issuer   system:serviceaccount:cert-manager:cert-manager   4m8s
+hsuma@plnx-admin:~$ oc delete certificaterequest -n openshift-ingress wildcard-dev-tls-1 wildcard-prod-tls-1 wildcard-test-tls-1
+certificaterequest.cert-manager.io "wildcard-dev-tls-1" deleted from openshift-ingress namespace
+certificaterequest.cert-manager.io "wildcard-prod-tls-1" deleted from openshift-ingress namespace
+certificaterequest.cert-manager.io "wildcard-test-tls-1" deleted from openshift-ingress namespace
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get certificate -n openshift-ingress -w
+NAME                READY   SECRET                     AGE
+apps-wildcard-tls   True    apps-wildcard-tls          4d22h
+wildcard-dev-tls    False   wildcard-dev-tls-secret    5m3s
+wildcard-prod-tls   False   wildcard-prod-tls-secret   5m3s
+wildcard-test-tls   False   wildcard-test-tls-secret   5m3s
