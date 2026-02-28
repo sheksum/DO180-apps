@@ -8,16 +8,14 @@ external-secrets   1         2d15h
 hsuma@plnx-admin:~/ocp-ai-config$
 oc create token external-secrets -n pai-dev --duration=120s | cut -d. -f2 | base64 -d 2>/dev/null | python3 -m json.tool
 
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ TOKEN=$(oc create token external-secrets -n pai-dev --duration=600s)
-oc exec -n external-secrets deploy/external-secrets -- curl -sk \
-  --request POST \
-  --data "{\"jwt\":\"$TOKEN\",\"role\":\"eso-pai-dev\"}" \
-  https://vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login
-{"errors":["permission denied"]}
-hsuma@plnx-admin:~/ocp-ai-config$
+# On plnx-vault as root (with VAULT_SKIP_VERIFY=true)
+vault read auth/kubernetes-ocp-ai/config -format=json | python3 -c "import sys,json; print(json.load(sys.stdin)['data'].get('token_reviewer_jwt_set', 'not set'))"
 
-  # Gene runs on Vault:
+oc create token external-secrets -n external-secrets --duration=8760h
+
+
 vault write auth/kubernetes-ocp-ai/config \
   kubernetes_host="https://api.ocp-ai.calix.local:6443" \
-  token_reviewer_jwt="<new-long-lived-token>"
+  token_reviewer_jwt="<paste-the-token-from-above>"
+
+  oc get sa -n kube-system | grep token-review
