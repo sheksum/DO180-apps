@@ -1,5 +1,10 @@
 oc auth can-i create tokenreviews --as=system:serviceaccount:external-secrets:external-secrets
 
+Warning: resource 'tokenreviews' is not namespace scoped in group 'authentication.k8s.io'
+
+yes
+hsuma@plnx-admin:~/ocp-ai-config$
+
 # On plnx-vault
 vault audit list
 # If no audit device, check Vault server logs
