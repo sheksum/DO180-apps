@@ -1,55 +1,7 @@
-hsuma@plnx-admin:~$ oc describe certificate wildcard-dev-tls -n openshift-ingress
-Name:         wildcard-dev-tls
-Namespace:    openshift-ingress
-Labels:       <none>
-Annotations:  <none>
-API Version:  cert-manager.io/v1
-Kind:         Certificate
-Metadata:
-  Creation Timestamp:  2026-02-28T23:51:06Z
-  Generation:          1
-  Resource Version:    6611982
-  UID:                 c19ae064-adb3-4d08-9f3d-ef957098e866
-Spec:
-  Dns Names:
-    *.dev.ocp-ai.calix.local
-  Duration:  8760h
-  Issuer Ref:
-    Kind:        ClusterIssuer
-    Name:        vault-issuer
-  Renew Before:  720h
-  Secret Name:   wildcard-dev-tls-secret
-Status:
-  Conditions:
-    Last Transition Time:  2026-02-28T23:51:06Z
-    Message:               The certificate request has failed to complete and will be retried: Vault failed to sign certificate: failed to sign certificate by vault: Error making API request.
-
-URL: POST https://vault.calix.local:8200/v1/pki_int/sign/ocp-ai
-Code: 400. Errors:
-
-* the common_name field is required, or must be provided in a CSR with "use_csr_common_name" set to true, unless "require_cn" is set to false
-    Observed Generation:     1
-    Reason:                  Failed
-    Status:                  False
-    Type:                    Issuing
-    Last Transition Time:    2026-02-28T23:51:06Z
-    Message:                 Issuing certificate as Secret does not exist
-    Observed Generation:     1
-    Reason:                  DoesNotExist
-    Status:                  False
-    Type:                    Ready
-  Failed Issuance Attempts:  1
-  Last Failure Time:         2026-02-28T23:51:06Z
-Events:
-  Type     Reason     Age   From                                       Message
-  ----     ------     ----  ----                                       -------
-  Normal   Issuing    81s   cert-manager-certificates-trigger          Issuing certificate as Secret does not exist
-  Normal   Generated  81s   cert-manager-certificates-key-manager      Stored new private key in temporary Secret resource "wildcard-dev-tls-dwfhn"
-  Normal   Requested  81s   cert-manager-certificates-request-manager  Created new CertificateRequest resource "wildcard-dev-tls-1"
-  Warning  Failed     81s   cert-manager-certificates-issuing          The certificate request has failed to complete and will be retried: Vault failed to sign certificate: failed to sign certificate by vault: Error making API request.
-
-URL: POST https://vault.calix.local:8200/v1/pki_int/sign/ocp-ai
-Code: 400. Errors:
-
-* the common_name field is required, or must be provided in a CSR with "use_csr_common_name" set to true, unless "require_cn" is set to false
-hsuma@plnx-admin:~$
+vault write pki_int/roles/ocp-ai \
+  allow_any_name=true \
+  allow_wildcard_certificates=true \
+  require_cn=false \
+  use_csr_common_name=true \
+  use_csr_sans=true \
+  max_ttl=8760h
