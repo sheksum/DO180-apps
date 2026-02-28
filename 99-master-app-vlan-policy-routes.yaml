@@ -1,10 +1,6 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc create clusterrolebinding vault-tokenreview-binding \
-  --clusterrole=system:auth-delegator \
-  --serviceaccount=external-secrets:external-secrets
-clusterrolebinding.rbac.authorization.k8s.io/vault-tokenreview-binding created
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ TOKEN=$(oc create token external-secrets -n pai-dev --duration=600s)
-hsuma@plnx-admin:~/ocp-ai-config$ oc exec -n external-secrets deploy/external-secrets -- curl -sk   --request POST   --data "{\"jwt\":\"$TOKEN\",\"role\":\"eso-pai-dev\"}"   https://vault.calix.local:8200/v1/auth/kubernetes-ocp-ai/login
-{"errors":["permission denied"]}
+oc create token external-secrets -n external-secrets --duration=8760h
+
+vault write auth/kubernetes-ocp-ai/config \
+  kubernetes_host="https://api.ocp-ai.calix.local:6443" \
+  token_reviewer_jwt="<paste-new-token>" \
+  kubernetes_ca_cert=@/tmp/k8s-ca.pem
