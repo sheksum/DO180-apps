@@ -1,8 +1,3 @@
-CABUNDLE=$(cat /tmp/vault-ca-chain.pem | base64 -w 0)
-
-oc patch secretstore vault-store -n pai-test --type merge -p "{\"spec\":{\"provider\":{\"vault\":{\"caBundle\":\"$CABUNDLE\",\"server\":\"https://vault.calix.local:8200\"}}}}"
-
-oc patch secretstore vault-store -n pai-prod --type merge -p "{\"spec\":{\"provider\":{\"vault\":{\"caBundle\":\"$CABUNDLE\",\"server\":\"https://vault.calix.local:8200\"}}}}"
-
-oc create sa external-secrets -n trident
-oc patch secretstore vault-store -n trident --type merge -p "{\"spec\":{\"provider\":{\"vault\":{\"caBundle\":\"$CABUNDLE\",\"server\":\"https://vault.calix.local:8200\"}}}}"
+vault read auth/kubernetes-ocp-ai/role/eso-pai-test
+vault read auth/kubernetes-ocp-ai/role/eso-pai-prod
+vault read auth/kubernetes-ocp-ai/role/eso-trident
