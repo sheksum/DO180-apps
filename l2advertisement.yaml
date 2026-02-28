@@ -1,0 +1,44 @@
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1794-dev
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - pai-services-dev
+  interfaces:
+    - bond0.1794
+    - bnd0.1794
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1798-test
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - pai-services-test
+  interfaces:
+    - bond0.1798
+    - bnd0.1798
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1797-prod
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - pai-services-prod
+  interfaces:
+    - bond0.1797
+    - bnd0.1797
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1510
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - reserved-future

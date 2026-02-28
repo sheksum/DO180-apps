@@ -1,0 +1,39 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pai-services-dev
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.194.160-10.172.194.179
+  autoAssign: true
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pai-services-test
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.198.160-10.172.198.179
+  autoAssign: true
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pai-services-prod
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.202.160-10.172.202.179
+  autoAssign: true
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: reserved-future
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.172.248.175-10.172.248.180
+  autoAssign: false
