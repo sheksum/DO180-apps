@@ -1,10 +1,10 @@
-hsuma@plnx-admin:~$ openssl s_client -connect vault.calix.local:8200 -showcerts 2>/dev/null \
-  | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/' > /tmp/vault-fullchain.pem
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ openssl x509 -in /tmp/vault-fullchain.pem -noout -subject -issuer
-cat /tmp/vault-fullchain.pem | grep 'BEGIN CERTIFICATE' | wc -l
-subject=C = US, ST = California, L = San Jose, O = Calix, OU = Engineering Operations, CN = vault.calix.local
-issuer=DC = local, DC = calix, CN = CalixEntCA
-4
-hsuma@plnx-admin:~$
+CABUNDLE=$(base64 -w 0 /tmp/vault-fullchain.pem)
+
+oc patch clusterissuer vault-issuer --type merge -p "{
+  \"spec\": {
+    \"vault\": {
+      \"server\": \"https://vault.calix.local:8200\",
+      \"caBundle\": \"$CABUNDLE\"
+    }
+  }
+}"
