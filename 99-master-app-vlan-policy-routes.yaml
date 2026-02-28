@@ -1,11 +1,137 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true}}'
-config.imageregistry.operator.openshift.io/cluster patched (no change)
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-
-
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get route -n openshift-image-registry
-NAME            HOST/PORT                                                        PATH   SERVICES         PORT    TERMINATION   WILDCARD
-default-route   default-route-openshift-image-registry.apps.ocp-ai.calix.local          image-registry   <all>   reencrypt     None
+suma@plnx-admin:~/ocp-ai-config$ oc get events -n pai-dev
+LAST SEEN   TYPE      REASON                   OBJECT                                                           MESSAGE
+42m         Normal    Scheduled                pod/agent-gateway-6df79ddc5b-c9nc7                               Successfully assigned pai-dev/agent-gateway-6df79ddc5b-c9nc7 to ocp-ai-master03.calix.local
+42m         Normal    AddedInterface           pod/agent-gateway-6df79ddc5b-c9nc7                               Add eth0 [10.130.0.54/23] from ovn-kubernetes
+42m         Normal    Pulling                  pod/agent-gateway-6df79ddc5b-c9nc7                               Pulling image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c"
+42m         Normal    Pulled                   pod/agent-gateway-6df79ddc5b-c9nc7                               Successfully pulled image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" in 17.884s (17.884s including waiting). Image size: 1334587136 bytes.
+30m         Normal    Created                  pod/agent-gateway-6df79ddc5b-c9nc7                               Created container: agent-gateway
+30m         Normal    Started                  pod/agent-gateway-6df79ddc5b-c9nc7                               Started container agent-gateway
+30m         Normal    Pulled                   pod/agent-gateway-6df79ddc5b-c9nc7                               Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" already present on machine
+32m         Warning   BackOff                  pod/agent-gateway-6df79ddc5b-c9nc7                               Back-off restarting failed container agent-gateway in pod agent-gateway-6df79ddc5b-c9nc7_pai-dev(2bf246d7-a65d-4bed-b9ed-181811c4d563)
+46m         Normal    Pulled                   pod/agent-gateway-6df79ddc5b-djpf8                               Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" already present on machine
+67m         Normal    Created                  pod/agent-gateway-6df79ddc5b-djpf8                               Created container: agent-gateway
+47m         Warning   BackOff                  pod/agent-gateway-6df79ddc5b-djpf8                               Back-off restarting failed container agent-gateway in pod agent-gateway-6df79ddc5b-djpf8_pai-dev(60a9cff7-142c-4de3-808e-c8847ef1d805)
+28m         Normal    Scheduled                pod/agent-gateway-6df79ddc5b-fcx4k                               Successfully assigned pai-dev/agent-gateway-6df79ddc5b-fcx4k to ocp-ai-master02.calix.local
+27m         Normal    AddedInterface           pod/agent-gateway-6df79ddc5b-fcx4k                               Add eth0 [10.128.0.68/23] from ovn-kubernetes
+19s         Normal    Pulled                   pod/agent-gateway-6df79ddc5b-fcx4k                               Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" already present on machine
+5m40s       Normal    Created                  pod/agent-gateway-6df79ddc5b-fcx4k                               Created container: agent-gateway
+10m         Normal    Started                  pod/agent-gateway-6df79ddc5b-fcx4k                               Started container agent-gateway
+2m37s       Warning   BackOff                  pod/agent-gateway-6df79ddc5b-fcx4k                               Back-off restarting failed container agent-gateway in pod agent-gateway-6df79ddc5b-fcx4k_pai-dev(0a72852d-cdd1-445e-a3f7-b651a7ea0953)
+42m         Normal    SuccessfulCreate         replicaset/agent-gateway-6df79ddc5b                              Created pod: agent-gateway-6df79ddc5b-c9nc7
+28m         Normal    SuccessfulCreate         replicaset/agent-gateway-6df79ddc5b                              Created pod: agent-gateway-6df79ddc5b-fcx4k
+46m         Normal    Pulled                   pod/agent-gateway-7978c8fbf4-l8257                               Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" already present on machine
+83m         Normal    Created                  pod/agent-gateway-7978c8fbf4-l8257                               Created container: agent-gateway
+43m         Warning   BackOff                  pod/agent-gateway-7978c8fbf4-l8257                               Back-off restarting failed container agent-gateway in pod agent-gateway-7978c8fbf4-l8257_pai-dev(7b253a3f-398b-4f08-a0f7-09f55b3ff2b1)
+28m         Normal    Scheduled                pod/agent-gateway-7978c8fbf4-m9pks                               Successfully assigned pai-dev/agent-gateway-7978c8fbf4-m9pks to ocp-ai-master02.calix.local
+28m         Normal    AddedInterface           pod/agent-gateway-7978c8fbf4-m9pks                               Add eth0 [10.128.0.19/23] from ovn-kubernetes
+42s         Normal    Pulled                   pod/agent-gateway-7978c8fbf4-m9pks                               Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" already present on machine
+6m3s        Normal    Created                  pod/agent-gateway-7978c8fbf4-m9pks                               Created container: agent-gateway
+11m         Normal    Started                  pod/agent-gateway-7978c8fbf4-m9pks                               Started container agent-gateway
+2m41s       Warning   BackOff                  pod/agent-gateway-7978c8fbf4-m9pks                               Back-off restarting failed container agent-gateway in pod agent-gateway-7978c8fbf4-m9pks_pai-dev(f87c426e-d1ac-4ed0-949e-95544074b413)
+42m         Normal    Scheduled                pod/agent-gateway-7978c8fbf4-s7rk2                               Successfully assigned pai-dev/agent-gateway-7978c8fbf4-s7rk2 to ocp-ai-master03.calix.local
+42m         Normal    AddedInterface           pod/agent-gateway-7978c8fbf4-s7rk2                               Add eth0 [10.130.0.33/23] from ovn-kubernetes
+42m         Normal    Pulling                  pod/agent-gateway-7978c8fbf4-s7rk2                               Pulling image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c"
+42m         Normal    Pulled                   pod/agent-gateway-7978c8fbf4-s7rk2                               Successfully pulled image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" in 18.673s (18.673s including waiting). Image size: 1334587136 bytes.
+30m         Normal    Created                  pod/agent-gateway-7978c8fbf4-s7rk2                               Created container: agent-gateway
+30m         Normal    Started                  pod/agent-gateway-7978c8fbf4-s7rk2                               Started container agent-gateway
+30m         Normal    Pulled                   pod/agent-gateway-7978c8fbf4-s7rk2                               Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" already present on machine
+32m         Warning   BackOff                  pod/agent-gateway-7978c8fbf4-s7rk2                               Back-off restarting failed container agent-gateway in pod agent-gateway-7978c8fbf4-s7rk2_pai-dev(71610916-e396-4c0c-a33c-5ee3851222ea)
+42m         Normal    SuccessfulCreate         replicaset/agent-gateway-7978c8fbf4                              Created pod: agent-gateway-7978c8fbf4-s7rk2
+28m         Normal    SuccessfulCreate         replicaset/agent-gateway-7978c8fbf4                              Created pod: agent-gateway-7978c8fbf4-m9pks
+54m         Warning   FailedScheduling         pod/ai-model-multimodel-service-897db5c4c-nrzbk                  0/5 nodes are available: 1 Insufficient nvidia.com/gpu, 1 node(s) were unschedulable, 3 node(s) didn't match Pod's node affinity/selector. preemption: 0/5 nodes are available: 1 No preemption victims found for incoming pod, 4 Preemption is not helpful for scheduling.
+52m         Warning   FailedScheduling         pod/ai-model-multimodel-service-897db5c4c-nrzbk                  0/5 nodes are available: 1 Insufficient nvidia.com/gpu, 1 node(s) were unschedulable, 3 node(s) didn't match Pod's node affinity/selector. preemption: 0/5 nodes are available: 1 No preemption victims found for incoming pod, 4 Preemption is not helpful for scheduling.
+52m         Warning   FailedScheduling         pod/ai-model-multimodel-service-897db5c4c-nrzbk                  0/5 nodes are available: 1 node(s) had untolerated taint {node.kubernetes.io/not-ready: }, 1 node(s) were unschedulable, 3 node(s) didn't match Pod's node affinity/selector. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
+52m         Warning   FailedScheduling         pod/ai-model-multimodel-service-897db5c4c-nrzbk                  0/5 nodes are available: 1 Insufficient nvidia.com/gpu, 1 node(s) were unschedulable, 3 node(s) didn't match Pod's node affinity/selector. preemption: 0/5 nodes are available: 1 No preemption victims found for incoming pod, 4 Preemption is not helpful for scheduling.
+52m         Normal    Scheduled                pod/ai-model-multimodel-service-897db5c4c-nrzbk                  Successfully assigned pai-dev/ai-model-multimodel-service-897db5c4c-nrzbk to ocp-ai-gpu01.calix.local
+52m         Normal    SuccessfulAttachVolume   pod/ai-model-multimodel-service-897db5c4c-nrzbk                  AttachVolume.Attach succeeded for volume "pvc-ed941f98-0820-4b25-be8d-c69bebc4e2d3"
+52m         Normal    AddedInterface           pod/ai-model-multimodel-service-897db5c4c-nrzbk                  Add eth0 [10.131.0.16/23] from ovn-kubernetes
+52m         Normal    Pulling                  pod/ai-model-multimodel-service-897db5c4c-nrzbk                  Pulling image "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+51m         Normal    Pulled                   pod/ai-model-multimodel-service-897db5c4c-nrzbk                  Successfully pulled image "gcr.io/google.com/cloudsdktool/cloud-sdk:slim" in 14.183s (14.183s including waiting). Image size: 1715196923 bytes.
+51m         Normal    Created                  pod/ai-model-multimodel-service-897db5c4c-nrzbk                  Created container: fetch-model
+51m         Normal    Started                  pod/ai-model-multimodel-service-897db5c4c-nrzbk                  Started container fetch-model
+51m         Normal    Pulling                  pod/ai-model-multimodel-service-897db5c4c-nrzbk                  Pulling image "us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20250805_0916_RC01"
+47m         Normal    Pulled                   pod/ai-model-multimodel-service-897db5c4c-nrzbk                  Successfully pulled image "us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20250805_0916_RC01" in 4m32.816s (4m32.816s including waiting). Image size: 35059881373 bytes.
+47m         Normal    Created                  pod/ai-model-multimodel-service-897db5c4c-nrzbk                  Created container: inference-server-phi4
+47m         Normal    Started                  pod/ai-model-multimodel-service-897db5c4c-nrzbk                  Started container inference-server-phi4
+46m         Warning   Unhealthy                pod/ai-model-multimodel-service-897db5c4c-nrzbk                  Readiness probe failed: Get "http://10.131.0.16:8000/health": dial tcp 10.131.0.16:8000: connect: connection refused
+54m         Normal    Killing                  pod/ai-model-multimodel-service-897db5c4c-wnqr5                  Stopping container inference-server-phi4
+54m         Warning   Unhealthy                pod/ai-model-multimodel-service-897db5c4c-wnqr5                  Readiness probe failed: Get "http://10.128.2.22:8000/health": read tcp 10.128.2.2:44858->10.128.2.22:8000: read: connection reset by peer
+54m         Normal    SuccessfulCreate         replicaset/ai-model-multimodel-service-897db5c4c                 Created pod: ai-model-multimodel-service-897db5c4c-nrzbk
+54m         Warning   FailedScheduling         pod/fileparser-5697c67df8-6n7pn                                  0/5 nodes are available: 1 Insufficient nvidia.com/gpu, 1 node(s) were unschedulable, 3 node(s) didn't match Pod's node affinity/selector. preemption: 0/5 nodes are available: 1 No preemption victims found for incoming pod, 4 Preemption is not helpful for scheduling.
+52m         Warning   FailedScheduling         pod/fileparser-5697c67df8-6n7pn                                  0/5 nodes are available: 1 Insufficient nvidia.com/gpu, 1 node(s) were unschedulable, 3 node(s) didn't match Pod's node affinity/selector. preemption: 0/5 nodes are available: 1 No preemption victims found for incoming pod, 4 Preemption is not helpful for scheduling.
+52m         Warning   FailedScheduling         pod/fileparser-5697c67df8-6n7pn                                  0/5 nodes are available: 1 node(s) had untolerated taint {node.kubernetes.io/not-ready: }, 1 node(s) were unschedulable, 3 node(s) didn't match Pod's node affinity/selector. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
+52m         Warning   FailedScheduling         pod/fileparser-5697c67df8-6n7pn                                  0/5 nodes are available: 1 Insufficient nvidia.com/gpu, 1 node(s) were unschedulable, 3 node(s) didn't match Pod's node affinity/selector. preemption: 0/5 nodes are available: 1 No preemption victims found for incoming pod, 4 Preemption is not helpful for scheduling.
+52m         Normal    Scheduled                pod/fileparser-5697c67df8-6n7pn                                  Successfully assigned pai-dev/fileparser-5697c67df8-6n7pn to ocp-ai-gpu01.calix.local
+52m         Normal    AddedInterface           pod/fileparser-5697c67df8-6n7pn                                  Add eth0 [10.131.0.18/23] from ovn-kubernetes
+52m         Normal    Pulled                   pod/fileparser-5697c67df8-6n7pn                                  Container image "paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3" already present on machine
+52m         Normal    Created                  pod/fileparser-5697c67df8-6n7pn                                  Created container: fileparser
+52m         Normal    Started                  pod/fileparser-5697c67df8-6n7pn                                  Started container fileparser
+3h27m       Normal    Scheduled                pod/fileparser-5697c67df8-8b728                                  Successfully assigned pai-dev/fileparser-5697c67df8-8b728 to ocp-ai-gpu01.calix.local
+3h27m       Normal    AddedInterface           pod/fileparser-5697c67df8-8b728                                  Add eth0 [10.131.0.25/23] from ovn-kubernetes
+3h27m       Normal    Pulled                   pod/fileparser-5697c67df8-8b728                                  Container image "paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3" already present on machine
+3h27m       Normal    Created                  pod/fileparser-5697c67df8-8b728                                  Created container: fileparser
+3h27m       Normal    Started                  pod/fileparser-5697c67df8-8b728                                  Started container fileparser
+57m         Normal    Killing                  pod/fileparser-5697c67df8-8b728                                  Stopping container fileparser
+57m         Normal    Scheduled                pod/fileparser-5697c67df8-98rv2                                  Successfully assigned pai-dev/fileparser-5697c67df8-98rv2 to ocp-ai-gpu02.calix.local
+57m         Normal    AddedInterface           pod/fileparser-5697c67df8-98rv2                                  Add eth0 [10.128.2.23/23] from ovn-kubernetes
+57m         Normal    Pulling                  pod/fileparser-5697c67df8-98rv2                                  Pulling image "paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3"
+54m         Normal    Pulled                   pod/fileparser-5697c67df8-98rv2                                  Successfully pulled image "paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3" in 3m8.301s (3m8.301s including waiting). Image size: 12305701562 bytes.
+54m         Normal    Created                  pod/fileparser-5697c67df8-98rv2                                  Created container: fileparser
+54m         Normal    Started                  pod/fileparser-5697c67df8-98rv2                                  Started container fileparser
+54m         Normal    Killing                  pod/fileparser-5697c67df8-98rv2                                  Stopping container fileparser
+3h27m       Normal    SuccessfulCreate         replicaset/fileparser-5697c67df8                                 Created pod: fileparser-5697c67df8-8b728
+57m         Normal    SuccessfulCreate         replicaset/fileparser-5697c67df8                                 Created pod: fileparser-5697c67df8-98rv2
+54m         Normal    SuccessfulCreate         replicaset/fileparser-5697c67df8                                 Created pod: fileparser-5697c67df8-6n7pn
+3h29m       Warning   FailedScheduling         pod/fileparser-7dd7bc65b8-44ztq                                  0/5 nodes are available: 2 node(s) had untolerated taint {nvidia.com/gpu: true}, 3 Insufficient nvidia.com/gpu. preemption: 0/5 nodes are available: 2 Preemption is not helpful for scheduling, 3 No preemption victims found for incoming pod.
+3h27m       Normal    SuccessfulDelete         replicaset/fileparser-7dd7bc65b8                                 Deleted pod: fileparser-7dd7bc65b8-44ztq
+3h27m       Normal    ScalingReplicaSet        deployment/fileparser                                            Scaled up replica set fileparser-5697c67df8 from 0 to 1
+3h27m       Normal    ScalingReplicaSet        deployment/fileparser                                            Scaled down replica set fileparser-7dd7bc65b8 from 1 to 0
+36m         Normal    Scheduled                pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-2297f    Successfully assigned pai-dev/internal-agentmesh-agent-gateway-service-6d5cc69c59-2297f to ocp-ai-master01.calix.local
+36m         Normal    AddedInterface           pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-2297f    Add eth0 [10.129.0.45/23] from ovn-kubernetes
+3m50s       Normal    Pulled                   pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-2297f    Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" already present on machine
+14m         Normal    Created                  pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-2297f    Created container: internal-agentmesh-agent-gateway-service
+19m         Normal    Started                  pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-2297f    Started container internal-agentmesh-agent-gateway-service
+46s         Warning   BackOff                  pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-2297f    Back-off restarting failed container internal-agentmesh-agent-gateway-service in pod internal-agentmesh-agent-gateway-service-6d5cc69c59-2297f_pai-dev(c5401946-4943-4185-b9ab-fe45f001685a)
+42m         Normal    Scheduled                pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-r76s5    Successfully assigned pai-dev/internal-agentmesh-agent-gateway-service-6d5cc69c59-r76s5 to ocp-ai-master02.calix.local
+42m         Normal    AddedInterface           pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-r76s5    Add eth0 [10.128.0.243/23] from ovn-kubernetes
+42m         Normal    Pulling                  pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-r76s5    Pulling image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c"
+42m         Normal    Pulled                   pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-r76s5    Successfully pulled image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" in 18.373s (18.373s including waiting). Image size: 1334587136 bytes.
+36m         Normal    Created                  pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-r76s5    Created container: internal-agentmesh-agent-gateway-service
+36m         Normal    Started                  pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-r76s5    Started container internal-agentmesh-agent-gateway-service
+36m         Normal    Pulled                   pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-r76s5    Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" already present on machine
+37m         Warning   BackOff                  pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-r76s5    Back-off restarting failed container internal-agentmesh-agent-gateway-service in pod internal-agentmesh-agent-gateway-service-6d5cc69c59-r76s5_pai-dev(ba043f73-667f-47b1-b1b8-be1112c6d8b1)
+125m        Normal    Created                  pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-wzbz5    Created container: internal-agentmesh-agent-gateway-service
+47m         Normal    Pulled                   pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-wzbz5    Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c" already present on machine
+45m         Warning   BackOff                  pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-wzbz5    Back-off restarting failed container internal-agentmesh-agent-gateway-service in pod internal-agentmesh-agent-gateway-service-6d5cc69c59-wzbz5_pai-dev(fb100a30-cb5a-4c0f-b062-cec052669158)
+42m         Normal    SuccessfulCreate         replicaset/internal-agentmesh-agent-gateway-service-6d5cc69c59   Created pod: internal-agentmesh-agent-gateway-service-6d5cc69c59-r76s5
+36m         Normal    SuccessfulCreate         replicaset/internal-agentmesh-agent-gateway-service-6d5cc69c59   Created pod: internal-agentmesh-agent-gateway-service-6d5cc69c59-2297f
+36m         Normal    Scheduled                pod/internal-agentmesh-agent-gateway-service-b98b46d44-f7jvs     Successfully assigned pai-dev/internal-agentmesh-agent-gateway-service-b98b46d44-f7jvs to ocp-ai-master01.calix.local
+36m         Normal    AddedInterface           pod/internal-agentmesh-agent-gateway-service-b98b46d44-f7jvs     Add eth0 [10.129.0.66/23] from ovn-kubernetes
+3m43s       Normal    Pulled                   pod/internal-agentmesh-agent-gateway-service-b98b46d44-f7jvs     Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-13fbfs26.0a6e2a6" already present on machine
+14m         Normal    Created                  pod/internal-agentmesh-agent-gateway-service-b98b46d44-f7jvs     Created container: internal-agentmesh-agent-gateway-service
+19m         Normal    Started                  pod/internal-agentmesh-agent-gateway-service-b98b46d44-f7jvs     Started container internal-agentmesh-agent-gateway-service
+45s         Warning   BackOff                  pod/internal-agentmesh-agent-gateway-service-b98b46d44-f7jvs     Back-off restarting failed container internal-agentmesh-agent-gateway-service in pod internal-agentmesh-agent-gateway-service-b98b46d44-f7jvs_pai-dev(5548f20f-565e-4474-8d5a-d4d8574db28a)
+94m         Normal    Created                  pod/internal-agentmesh-agent-gateway-service-b98b46d44-snz7m     Created container: internal-agentmesh-agent-gateway-service
+36m         Normal    Pulled                   pod/internal-agentmesh-agent-gateway-service-b98b46d44-snz7m     Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-13fbfs26.0a6e2a6" already present on machine
+38m         Warning   BackOff                  pod/internal-agentmesh-agent-gateway-service-b98b46d44-snz7m     Back-off restarting failed container internal-agentmesh-agent-gateway-service in pod internal-agentmesh-agent-gateway-service-b98b46d44-snz7m_pai-dev(fcbd2b81-904d-411f-a041-fd0171089282)
+36m         Normal    SuccessfulCreate         replicaset/internal-agentmesh-agent-gateway-service-b98b46d44    Created pod: internal-agentmesh-agent-gateway-service-b98b46d44-f7jvs
+36m         Normal    Killing                  pod/postgresql-78b656858b-252lj                                  Stopping container postgresql
+36m         Normal    Scheduled                pod/postgresql-78b656858b-7qblr                                  Successfully assigned pai-dev/postgresql-78b656858b-7qblr to ocp-ai-master01.calix.local
+36m         Normal    AddedInterface           pod/postgresql-78b656858b-7qblr                                  Add eth0 [10.129.0.40/23] from ovn-kubernetes
+36m         Normal    Pulled                   pod/postgresql-78b656858b-7qblr                                  Container image "image-registry.openshift-image-registry.svc:5000/openshift/postgresql@sha256:8fdc09d6745ef0babba82e3f2e30596266ee8575ae5e1be73df88ab1a18df0f5" already present on machine
+36m         Normal    Created                  pod/postgresql-78b656858b-7qblr                                  Created container: postgresql
+36m         Normal    Started                  pod/postgresql-78b656858b-7qblr                                  Started container postgresql
+36m         Normal    SuccessfulCreate         replicaset/postgresql-78b656858b                                 Created pod: postgresql-78b656858b-7qblr
+45m         Warning   UpdateFailed             externalsecret/test-secret                                       error processing spec.data[0] (key: pai/dev/test-secret), err: SecretStore "vault-store" is not ready
+34m         Warning   UpdateFailed             externalsecret/test-secret                                       error processing spec.data[0] (key: pai/dev/test-secret), err: SecretStore "vault-store" is not ready
+5m28s       Warning   UpdateFailed             externalsecret/test-secret                                       error processing spec.data[0] (key: pai/dev/test-secret), err: SecretStore "vault-store" is not ready
+45m         Warning   InvalidProviderConfig    secretstore/vault-store                                          cannot setup new vault client: cannot setup new vault client: parse "\"https://vault.calix.local:8200\"": first path segment in URL cannot contain colon
+34m         Warning   InvalidProviderConfig    secretstore/vault-store                                          cannot setup new vault client: cannot setup new vault client: parse "\"https://vault.calix.local:8200\"": first path segment in URL cannot contain colon
+5m28s       Warning   InvalidProviderConfig    secretstore/vault-store                                          cannot setup new vault client: cannot setup new vault client: parse "\"https://vault.calix.local:8200\"": first path segment in URL cannot contain colon
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstore -A
+NAMESPACE   NAME          AGE     STATUS                  CAPABILITIES   READY
+pai-dev     vault-store   22h     InvalidProviderConfig                  False
+pai-prod    vault-store   2d15h   InvalidProviderConfig                  False
+pai-test    vault-store   2d15h   InvalidProviderConfig                  False
+trident     vault-store   4d20h   InvalidProviderConfig                  False
 hsuma@plnx-admin:~/ocp-ai-config$
