@@ -1,32 +1,91 @@
-s unspecified\n; component errors: \u003cnil\u003e","reason":"","status":"True","type":"RenderDegraded"}hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get mcp worker -o jsonpath='{.status.configuration.name}'
-rendered-worker-592050073eb90e1efadba3f3d9e9422ahsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get mcp worker -o jsonpath='{.spec.configuration.name}'
-rendered-worker-592050073eb90e1efadba3f3d9e9422ahsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get mc -l machineconfiguration.openshift.io/role=worker --sort-by=.metadata.name
-NAME                                                GENERATEDBYCONTROLLER                      IGNITIONVERSION   AGE
-00-override-worker-generated-crio-default-ulimits                                              3.5.0             12d
-00-worker                                           035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
-01-worker-container-runtime                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
-01-worker-kubelet                                   035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
-50-worker-auto-sizing-disabled                                                                 3.5.0             12d
-50-workers-chrony-configuration                                                                3.1.0             12d
-97-worker-generated-kubelet                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
-98-worker-generated-kubelet                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
-99-worker-app-vlan-policy-routes                                                               3.2.0             11m
-99-worker-chrony                                                                               3.2.0             9d
-99-worker-generated-registries                      035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
-99-worker-mtu-9000                                                                             3.2.0             10d
-99-worker-nm-dns-fix                                                                           3.5.0             45h
-99-worker-ssh                                                                                  3.2.0             12d
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get mc 99-worker-app-vlan-policy-routes -o yaml | grep -A 3 "overwrite"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get mc rendered-worker-f95f3734cb1f80b40240990e768af289 -o jsonpath='{.spec.config.storage.files[58]}' 2>/dev/null | python3 -m json.tool
-Expecting value: line 1 column 1 (char 0)
-hsuma@plnx-admin:~$
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 99-worker-app-vlan-policy-routes
+  labels:
+    machineconfiguration.openshift.io/role: worker
+spec:
+  config:
+    ignition:
+      version: 3.5.0
+    storage:
+      files:
+        - path: /usr/local/bin/app-vlan-policy-routes.sh
+          mode: 0755
+          overwrite: true
+          contents:
+            inline: |
+              #!/bin/bash
+              # Configure policy-based routing for app VLANs so cross-VLAN
+              # traffic replies through the correct SVI gateway instead of
+              # the default gateway on br-ex (VLAN 1510).
+              #
+              # Without this, replies from app VLAN IPs go out br-ex with
+              # a source IP that doesn't belong to VLAN 1510, and get dropped.
+              #
+              # VLAN 1794 (Dev):  10.172.194.0/23, gateway 10.172.194.1, table 101
+              # VLAN 1798 (Test): 10.172.198.0/23, gateway 10.172.198.1, table 100
+              # VLAN 1797 (Prod): 10.172.202.0/23, gateway 10.172.202.1, table 102
+
+              set -e
+
+              add_policy_route() {
+                local SUBNET_PATTERN="$1"
+                local GATEWAY="$2"
+                local TABLE="$3"
+
+                # Find the interface and IP for this VLAN
+                local IFACE=$(ip -o addr show | grep "${SUBNET_PATTERN}" | awk '{print $2}')
+                local IP=$(ip -o addr show | grep "${SUBNET_PATTERN}" | awk '{print $4}' | cut -d/ -f1)
+
+                if [ -z "$IFACE" ] || [ -z "$IP" ]; then
+                  echo "app-vlan-policy-routes: No interface found for ${SUBNET_PATTERN}, skipping"
+                  return 0
+                fi
+
+                # Add ip rule if not already present
+                if ! ip rule show | grep -q "from ${IP} lookup ${TABLE}"; then
+                  ip rule add from "${IP}" table "${TABLE}"
+                  echo "app-vlan-policy-routes: Added rule from ${IP} table ${TABLE}"
+                else
+                  echo "app-vlan-policy-routes: Rule from ${IP} table ${TABLE} already exists"
+                fi
+
+                # Add default route in table if not already present
+                if ! ip route show table "${TABLE}" | grep -q "default"; then
+                  ip route add default via "${GATEWAY}" dev "${IFACE}" table "${TABLE}"
+                  echo "app-vlan-policy-routes: Added default route via ${GATEWAY} dev ${IFACE} table ${TABLE}"
+                else
+                  echo "app-vlan-policy-routes: Default route in table ${TABLE} already exists"
+                fi
+              }
+
+              # VLAN 1794 - Dev
+              add_policy_route "10.172.194" "10.172.194.1" "101"
+
+              # VLAN 1798 - Test
+              add_policy_route "10.172.198" "10.172.198.1" "100"
+
+              # VLAN 1797 - Prod
+              add_policy_route "10.172.202" "10.172.202.1" "102"
+
+              echo "app-vlan-policy-routes: Configuration complete"
+    systemd:
+      units:
+        - name: app-vlan-policy-routes.service
+          enabled: true
+          contents: |
+            [Unit]
+            Description=Configure policy-based routing for app VLANs
+            After=NetworkManager.service network-online.target ovs-configuration.service
+            Wants=network-online.target
+            
+            [Service]
+            Type=oneshot
+            ExecStart=/usr/local/bin/app-vlan-policy-routes.sh
+            RemainAfterExit=yes
+            StandardOutput=journal
+            StandardError=journal
+            
+            [Install]
+            WantedBy=multi-user.target

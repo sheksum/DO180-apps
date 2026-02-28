@@ -7,11 +7,12 @@ metadata:
 spec:
   config:
     ignition:
-      version: 3.2.0
+      version: 3.5.0
     storage:
       files:
         - path: /usr/local/bin/app-vlan-policy-routes.sh
           mode: 0755
+          overwrite: true
           contents:
             inline: |
               #!/bin/bash
