@@ -1,37 +1,4 @@
-[root@plnx-vault ~]# tail  -1 /var/log/vault/audit.log | python3 -m json.tool
-{
-    "auth": {
-        "policy_results": {
-            "allowed": true
-        },
-        "token_type": "default"
-    },
-    "error": "permission denied",
-    "request": {
-        "data": {
-            "jwt": "hmac-sha256:bf29b2879aafba131bbf0fab819ecea6f13d75bd89292f35b8ad37c6c323a688",
-            "role": "hmac-sha256:1868c43f3f9546eddcd9dacbcbc72e896e404c0b9b6bb95085375120e6ec76df"
-        },
-        "headers": {
-            "user-agent": [
-                "curl/7.76.1"
-            ]
-        },
-        "id": "248ca96b-1c3e-66bd-689b-e8c523384cca",
-        "mount_accessor": "auth_kubernetes_90947394",
-        "mount_class": "auth",
-        "mount_point": "auth/kubernetes-ocp-ai/",
-        "mount_running_version": "v0.23.1+builtin",
-        "mount_type": "kubernetes",
-        "namespace": {
-            "id": "root"
-        },
-        "operation": "update",
-        "path": "auth/kubernetes-ocp-ai/login",
-        "remote_address": "10.172.248.152",
-        "remote_port": 58080
-    },
-    "time": "2026-02-28T22:04:44.320814981Z",
-    "type": "response"
-}
-[root@plnx-vault ~]#
+journalctl -u vault --since "1 min ago" | grep -i "error\|fail\|denied\|tls"
+
+# On plnx-vault - test the API server connectivity with the K8s CA
+curl --cacert /tmp/k8s-ca.pem https://api.ocp-ai.calix.local:6443/api/v1/namespaces/pai-dev/serviceaccounts/external-secrets
