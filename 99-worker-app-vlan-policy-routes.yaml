@@ -1,90 +1,39 @@
-apiVersion: machineconfiguration.openshift.io/v1
-kind: MachineConfig
-metadata:
-  name: 99-worker-app-vlan-policy-routes
-  labels:
-    machineconfiguration.openshift.io/role: worker
-spec:
-  config:
-    ignition:
-      version: 3.2.0
-    storage:
-      files:
-        - path: /usr/local/bin/app-vlan-policy-routes.sh
-          mode: 0755
-          contents:
-            inline: |
-              #!/bin/bash
-              # Configure policy-based routing for app VLANs so cross-VLAN
-              # traffic replies through the correct SVI gateway instead of
-              # the default gateway on br-ex (VLAN 1510).
-              #
-              # Without this, replies from app VLAN IPs go out br-ex with
-              # a source IP that doesn't belong to VLAN 1510, and get dropped.
-              #
-              # VLAN 1794 (Dev):  10.172.194.0/23, gateway 10.172.194.1, table 101
-              # VLAN 1798 (Test): 10.172.198.0/23, gateway 10.172.198.1, table 100
-              # VLAN 1797 (Prod): 10.172.202.0/23, gateway 10.172.202.1, table 102
-
-              set -e
-
-              add_policy_route() {
-                local SUBNET_PATTERN="$1"
-                local GATEWAY="$2"
-                local TABLE="$3"
-
-                # Find the interface and IP for this VLAN
-                local IFACE=$(ip -o addr show | grep "${SUBNET_PATTERN}" | awk '{print $2}')
-                local IP=$(ip -o addr show | grep "${SUBNET_PATTERN}" | awk '{print $4}' | cut -d/ -f1)
-
-                if [ -z "$IFACE" ] || [ -z "$IP" ]; then
-                  echo "app-vlan-policy-routes: No interface found for ${SUBNET_PATTERN}, skipping"
-                  return 0
-                fi
-
-                # Add ip rule if not already present
-                if ! ip rule show | grep -q "from ${IP} lookup ${TABLE}"; then
-                  ip rule add from "${IP}" table "${TABLE}"
-                  echo "app-vlan-policy-routes: Added rule from ${IP} table ${TABLE}"
-                else
-                  echo "app-vlan-policy-routes: Rule from ${IP} table ${TABLE} already exists"
-                fi
-
-                # Add default route in table if not already present
-                if ! ip route show table "${TABLE}" | grep -q "default"; then
-                  ip route add default via "${GATEWAY}" dev "${IFACE}" table "${TABLE}"
-                  echo "app-vlan-policy-routes: Added default route via ${GATEWAY} dev ${IFACE} table ${TABLE}"
-                else
-                  echo "app-vlan-policy-routes: Default route in table ${TABLE} already exists"
-                fi
-              }
-
-              # VLAN 1794 - Dev
-              add_policy_route "10.172.194" "10.172.194.1" "101"
-
-              # VLAN 1798 - Test
-              add_policy_route "10.172.198" "10.172.198.1" "100"
-
-              # VLAN 1797 - Prod
-              add_policy_route "10.172.202" "10.172.202.1" "102"
-
-              echo "app-vlan-policy-routes: Configuration complete"
-    systemd:
-      units:
-        - name: app-vlan-policy-routes.service
-          enabled: true
-          contents: |
-            [Unit]
-            Description=Configure policy-based routing for app VLANs
-            After=NetworkManager.service network-online.target ovs-configuration.service
-            Wants=network-online.target
-            
-            [Service]
-            Type=oneshot
-            ExecStart=/usr/local/bin/app-vlan-policy-routes.sh
-            RemainAfterExit=yes
-            StandardOutput=journal
-            StandardError=journal
-            
-            [Install]
-            WantedBy=multi-user.target
+NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
+master   rendered-master-42e0368e702b157e1b557a102f867da5   True      False      False      3              3                   3                     0                      12d
+worker   rendered-worker-592050073eb90e1efadba3f3d9e9422a   True      False      True       2              2                   2                     0                      12d
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc describe mcp worker | grep -A 20 "Conditions"
+  Conditions:
+    Last Transition Time:  2026-02-15T22:46:14Z
+    Message:
+    Reason:
+    Status:                False
+    Type:                  PinnedImageSetsDegraded
+    Last Transition Time:  2026-02-15T22:46:19Z
+    Message:
+    Reason:
+    Status:                False
+    Type:                  NodeDegraded
+    Last Transition Time:  2026-02-27T20:43:20Z
+    Message:               All nodes are updated with MachineConfig rendered-worker-592050073eb90e1efadba3f3d9e9422a
+    Reason:
+    Status:                True
+    Type:                  Updated
+    Last Transition Time:  2026-02-27T20:43:20Z
+    Message:
+    Reason:
+    Status:                False
+    Type:                  Updating
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get nodes -A
+NAME                          STATUS   ROLES                         AGE   VERSION
+ocp-ai-gpu01.calix.local      Ready    worker                        10d   v1.33.6
+ocp-ai-gpu02.calix.local      Ready    worker                        10d   v1.33.6
+ocp-ai-master01.calix.local   Ready    control-plane,master,worker   12d   v1.33.6
+ocp-ai-master02.calix.local   Ready    control-plane,master,worker   12d   v1.33.6
+ocp-ai-master03.calix.local   Ready    control-plane,master,worker   12d   v1.33.6
+hsuma@plnx-admin:~$ oc get mcp -w
+NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
+master   rendered-master-42e0368e702b157e1b557a102f867da5   True      False      False      3              3                   3                     0                      12d
+worker   rendered-worker-592050073eb90e1efadba3f3d9e9422a   True      False      True       2              2                   2                     0                      12d
+^Chsuma@plnx-admin:~$
