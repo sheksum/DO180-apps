@@ -1,10 +1,46 @@
-CABUNDLE=$(base64 -w 0 /tmp/vault-fullchain.pem)
-
-oc patch clusterissuer vault-issuer --type merge -p "{
-  \"spec\": {
-    \"vault\": {
-      \"server\": \"https://vault.calix.local:8200\",
-      \"caBundle\": \"$CABUNDLE\"
-    }
-  }
-}"
+oc apply -f - <<'EOF'
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-dev-tls
+  namespace: openshift-ingress
+spec:
+  secretName: wildcard-dev-tls-secret
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "*.dev.ocp-ai.calix.local"
+  duration: 8760h
+  renewBefore: 720h
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-test-tls
+  namespace: openshift-ingress
+spec:
+  secretName: wildcard-test-tls-secret
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "*.test.ocp-ai.calix.local"
+  duration: 8760h
+  renewBefore: 720h
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-prod-tls
+  namespace: openshift-ingress
+spec:
+  secretName: wildcard-prod-tls-secret
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "*.prod.ocp-ai.calix.local"
+  duration: 8760h
+  renewBefore: 720h
+EOF
