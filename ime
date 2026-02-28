@@ -1,3 +1,10 @@
-[core@ocp-ai-master01 ~]$ ip -o link show | grep "1798@" | awk -F: '{print $2}' | tr -d ' '
-bnd0.1798@bnd0
-[core@ocp-ai-master01 ~]$
+# On master01
+ip -o addr show | grep 10.172.198 | awk '{print $2}'
+ip -o addr show | grep 10.172.194 | awk '{print $2}'
+ip -o addr show | grep 10.172.202 | awk '{print $2}'
+
+
+# On gpu01
+ip -o addr show | grep 10.172.198 | awk '{print $2}'
+ip -o addr show | grep 10.172.194 | awk '{print $2}'
+ip -o addr show | grep 10.172.202 | awk '{print $2}'
