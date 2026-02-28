@@ -1,57 +1,13 @@
-hsuma@plnx-admin:~$ oc describe mcp worker | grep -A 5 "Degraded"
-    Type:                  PinnedImageSetsDegraded
-    Last Transition Time:  2026-02-15T22:46:19Z
-    Message:
-    Reason:
-    Status:                False
-    Type:                  NodeDegraded
-    Last Transition Time:  2026-02-27T20:43:20Z
-    Message:               All nodes are updated with MachineConfig rendered-worker-592050073eb90e1efadba3f3d9e9422a
-    Reason:
-    Status:                True
-    Type:                  Updated
---
-    Type:                  RenderDegraded
-    Last Transition Time:  2026-02-28T19:47:22Z
-    Message:
-    Reason:
-    Status:                True
-    Type:                  Degraded
-  Configuration:
-    Name:  rendered-worker-592050073eb90e1efadba3f3d9e9422a
-    Source:
-      API Version:         machineconfiguration.openshift.io/v1
-      Kind:                MachineConfig
---
-  Degraded Machine Count:  0
-  Machine Count:           2
-  Observed Generation:     8
-  Pool Synchronizers Status:
-    Available Machine Count:    2
-    Machine Count:              2
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get mcp worker -o jsonpath='{.status.conditions[?(@.type=="Degraded")]}'
-{"lastTransitionTime":"2026-02-28T19:47:22Z","message":"","reason":"","status":"True","type":"Degraded"}hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get mcp worker -o jsonpath='{.status.conditions[?(@.type=="RenderDegraded")]}'
-{"lastTransitionTime":"2026-02-28T19:47:17Z","message":"Failed to render configuration for pool worker: could not generate rendered MachineConfig: render reconciliation error: parsing new Ignition config from machineconfig \"rendered-worker-f95f3734cb1f80b40240990e768af289\" failed: failed to parse Ignition config: parsing Ignition config spec v3 failed with error: config is not valid\nReport: error at $.storage.files.58.overwrite, line 1 col 196777: overwrite must be false if source is unspecified\n; component errors: \u003cnil\u003e","reason":"","status":"True","type":"RenderDegraded"}hsuma@plnx-admin:~$
+# What's actually running on the nodes
+oc get mcp worker -o jsonpath='{.status.configuration.name}'
+
+# What failed to render
+oc get mcp worker -o jsonpath='{.spec.configuration.name}'
+
+# List all worker MachineConfigs to see what's being combined
+oc get mc -l machineconfiguration.openshift.io/role=worker --sort-by=.metadata.name
 
 
+oc get mc 99-worker-app-vlan-policy-routes -o yaml | grep -A 3 "overwrite"
 
-[core@ocp-ai-gpu02 ~]$ ip rule show
-0:	from all lookup local
-30:	from all fwmark 0x1745ec lookup 7
-32766:	from all lookup main
-32767:	from all lookup default
-[core@ocp-ai-gpu02 ~]$ ip route show table 100
-Error: ipv4: FIB table does not exist.
-Dump terminated
-[core@ocp-ai-gpu02 ~]$ ip route show table 101
-Error: ipv4: FIB table does not exist.
-Dump terminated
-[core@ocp-ai-gpu02 ~]$ ip route show table 102
-Error: ipv4: FIB table does not exist.
-Dump terminated
-[core@ocp-ai-gpu02 ~]$ journalctl -u ap-vlan-policy-routes
--- No entries --
-[core@ocp-ai-gpu02 ~]$
+oc get mc rendered-worker-f95f3734cb1f80b40240990e768af289 -o jsonpath='{.spec.config.storage.files[58]}' 2>/dev/null | python3 -m json.tool
