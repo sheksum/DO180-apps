@@ -1,13 +1,32 @@
-# What's actually running on the nodes
-oc get mcp worker -o jsonpath='{.status.configuration.name}'
-
-# What failed to render
-oc get mcp worker -o jsonpath='{.spec.configuration.name}'
-
-# List all worker MachineConfigs to see what's being combined
-oc get mc -l machineconfiguration.openshift.io/role=worker --sort-by=.metadata.name
-
-
-oc get mc 99-worker-app-vlan-policy-routes -o yaml | grep -A 3 "overwrite"
-
-oc get mc rendered-worker-f95f3734cb1f80b40240990e768af289 -o jsonpath='{.spec.config.storage.files[58]}' 2>/dev/null | python3 -m json.tool
+s unspecified\n; component errors: \u003cnil\u003e","reason":"","status":"True","type":"RenderDegraded"}hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get mcp worker -o jsonpath='{.status.configuration.name}'
+rendered-worker-592050073eb90e1efadba3f3d9e9422ahsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get mcp worker -o jsonpath='{.spec.configuration.name}'
+rendered-worker-592050073eb90e1efadba3f3d9e9422ahsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get mc -l machineconfiguration.openshift.io/role=worker --sort-by=.metadata.name
+NAME                                                GENERATEDBYCONTROLLER                      IGNITIONVERSION   AGE
+00-override-worker-generated-crio-default-ulimits                                              3.5.0             12d
+00-worker                                           035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
+01-worker-container-runtime                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
+01-worker-kubelet                                   035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
+50-worker-auto-sizing-disabled                                                                 3.5.0             12d
+50-workers-chrony-configuration                                                                3.1.0             12d
+97-worker-generated-kubelet                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
+98-worker-generated-kubelet                         035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
+99-worker-app-vlan-policy-routes                                                               3.2.0             11m
+99-worker-chrony                                                                               3.2.0             9d
+99-worker-generated-registries                      035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             12d
+99-worker-mtu-9000                                                                             3.2.0             10d
+99-worker-nm-dns-fix                                                                           3.5.0             45h
+99-worker-ssh                                                                                  3.2.0             12d
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get mc 99-worker-app-vlan-policy-routes -o yaml | grep -A 3 "overwrite"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get mc rendered-worker-f95f3734cb1f80b40240990e768af289 -o jsonpath='{.spec.config.storage.files[58]}' 2>/dev/null | python3 -m json.tool
+Expecting value: line 1 column 1 (char 0)
+hsuma@plnx-admin:~$
