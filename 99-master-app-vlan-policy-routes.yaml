@@ -5,4 +5,26 @@ vault audit list
 # If no audit device, check Vault server logs
 journalctl -u vault --tail=20 | grep -i "permission\|login\|error"
 
+
+[root@plnx-vault ~]#
+[root@plnx-vault ~]#
+[root@plnx-vault ~]# vault audit list
+No audit devices are enabled.
+Feb 28 16:33:37 plnx-vault.calix.local vault[252439]: 2026-02-28T16:33:37.599-0500 [INFO]  http: TLS handshake error from 10.172.249.106:37018: remote error: tls: bad certificate
+Feb 28 16:35:11 plnx-vault.calix.local vault[252439]: 2026-02-28T16:35:11.603-0500 [INFO]  http: TLS handshake error from 10.172.248.150:32838: remote error: tls: bad certificate
+Feb 28 16:35:20 plnx-vault.calix.local vault[252439]: 2026-02-28T16:35:20.803-0500 [INFO]  http: TLS handshake error from 10.172.248.152:48051: remote error: tls: bad certificate
+Feb 28 16:35:20 plnx-vault.calix.local vault[252439]: 2026-02-28T16:35:20.818-0500 [INFO]  http: TLS handshake error from 10.172.248.152:34294: remote error: tls: bad certificate
+Feb 28 16:40:11 plnx-vault.calix.local vault[252439]: 2026-02-28T16:40:11.625-0500 [INFO]  http: TLS handshake error from 10.172.248.150:45336: remote error: tls: bad certificate
+Feb 28 16:40:12 plnx-vault.calix.local vault[252439]: 2026-02-28T16:40:12.786-0500 [INFO]  http: TLS handshake error from 10.172.248.152:39583: remote error: tls: bad certificate
+Feb 28 16:40:15 plnx-vault.calix.local vault[252439]: 2026-02-28T16:40:15.706-0500 [INFO]  http: TLS handshake error from 10.172.249.105:39471: remote error: tls: bad certificate
+Feb 28 16:42:20 plnx-vault.calix.local vault[252439]: 2026-02-28T16:42:20.825-0500 [INFO]  http: TLS handshake error from 10.172.248.152:45469: remote error: tls: bad certificate
+Feb 28 16:42:20 plnx-vault.calix.local vault[252439]: 2026-02-28T16:42:20.841-0500 [INFO]  http: TLS handshake error from 10.172.248.152:34012: remote error: tls: bad certificate
+Feb 28 16:45:11 plnx-vault.calix.local vault[252439]: 2026-02-28T16:45:11.645-0500 [INFO]  http: TLS handshake error from 10.172.248.150:55741: remote error: tls: bad certificate
+Feb 28 16:47:12 plnx-vault.calix.local vault[252439]: 2026-02-28T16:47:12.808-0500 [INFO]  http: TLS handshake error from 10.172.248.152:45973: remote error: tls: bad certificate
+Feb 28 16:47:15 plnx-vault.calix.local vault[252439]: 2026-02-28T16:47:15.737-0500 [INFO]  http: TLS handshake error from 10.172.249.105:14273: remote error: tls: bad certificate
+Feb 28 16:49:20 plnx-vault.calix.local vault[252439]: 2026-02-28T16:49:20.843-0500 [INFO]  http: TLS handshake error from 10.172.248.152:49818: remote error: tls: bad certificate
+Feb 28 16:49:20 plnx-vault.calix.local vault[252439]: 2026-02-28T16:49:20.857-0500 [INFO]  http: TLS handshake error from 10.172.248.152:39722: remote error: tls: bad certificate
+Feb 28 16:50:11 plnx-vault.calix.local vault[252439]: 2026-02-28T16:50:11.663-0500 [INFO]  http: TLS handshake error from 10.172.248.150:37527: remote error: tls: bad certificate
+(END)
+
 echo $TOKEN | cut -d. -f2 | base64 -d 2>/dev/null
