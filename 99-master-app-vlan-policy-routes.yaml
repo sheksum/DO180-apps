@@ -1,3 +1,9 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pvc -A | grep pai
-pai-dev                    model-cache-pvc          Bound    pvc-ed941f98-0820-4b25-be8d-c69bebc4e2d3   500Gi      RWO            netapp-app     <unset>                 12h
+hsuma@plnx-admin:~/ocp-ai-config$ oc get all -n pai-test
+Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+No resources found in pai-test namespace.
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get all -n pai-prod
+Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+No resources found in pai-prod namespace.
 hsuma@plnx-admin:~/ocp-ai-config$
