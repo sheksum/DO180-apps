@@ -1,12 +1,201 @@
-# What env vars are in the secret
-oc get secret agent-gateway-env -n pai-dev -o jsonpath='{.data}' | jq -r 'keys[]'
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secret agent-gateway-env -n pai-dev -o jsonpath='{.data}' | jq -r 'keys[]'
+AGENT_CARD_PATH
+ALLOWED_AUTHORS
+APP_NAME
+ATLASSIAN_AGENT_BASEURL
+ATLASSIAN_AGENT_ID
+ATLASSIAN_APP_NAME
+ATLASSIAN_CLIENT_ID
+ATLASSIAN_CLIENT_SECRET
+ATLASSIAN_TOKEN_URL
+AUTH_SERVICE_URL
+CONNECTION_TIMEOUT
+DATABASE_HOST
+DATABASE_NAME
+DATABASE_PASSWORD
+DATABASE_PORT
+DATABASE_USER
+EMPLOYEE_ENGAGEMENT_AGENT_BASEURL
+EMPLOYEE_ENGAGEMENT_AGENT_ID
+EMPLOYEE_ENGAGEMENT_AGENT_NAME
+EMPLOYEE_ENGAGEMENT_APP_NAME
+EVENTS_TABLE
+FERNET_SECRET
+FILE_RECORD_TABLE
+FILE_UPLOAD_BASE_URL
+GENERAL_AGENT_BASEURL
+GENERAL_AGENT_ID
+GENERAL_AGENT_NAME
+HOST
+IT_SERVICE_DESK_AGENT_BASEURL
+IT_SERVICE_DESK_AGENT_ID
+IT_SERVICE_DESK_AGENT_NAME
+IT_SERVICE_DESK_APP_NAME
+MARKET_RESEARCH_AGENT_BASEURL
+MARKET_RESEARCH_AGENT_ID
+MARKET_RESEARCH_APP_NAME
+OTEL_ENABLE_WEBSOCKET_TRACING
+OTEL_ENVIRONMENT
+OTEL_LOGS_ENDPOINT
+OTEL_LOG_LEVEL
+OTEL_METRICS_ENABLED
+OTEL_METRICS_ENDPOINT
+OTEL_PROPAGATORS
+OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED
+OTEL_SERVICE_NAME
+OTEL_TRACES_ENABLED
+OTEL_TRACES_ENDPOINT
+PORT
+POSTGRES_ASYNC_DB_URL
+POSTGRES_DB_URL
+QUERY_TIMEOUT
+TOKEN_EXPIRY_BUFFER_SECONDS
+USER_SESSION_TABLE
+WEB_SEARCH_AGENT_BASEURL
+WEB_SEARCH_AGENT_ID
+WEB_SEARCH_APP_NAME
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs deploy/agent-gateway -n pai-dev --tail=50
+Found 2 pods, using pod/agent-gateway-7978c8fbf4-vbhlv
+  File "/app/src/agentmesh_agent_gateway/controller/api_controller.py", line 103, in combined_lifespan
+    async with create_conn_pool(app):
+               ~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/agentmesh_agent_gateway/utils/db_utils.py", line 47, in create_conn_pool
+    db_pool = await asyncpg.create_pool(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/pool.py", line 418, in _async__init__
+    await self._initialize()
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/pool.py", line 445, in _initialize
+    await first_ch.connect()
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/pool.py", line 132, in connect
+    self._con = await self._pool._get_new_connection()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/pool.py", line 517, in _get_new_connection
+    con = await self._connect(
+          ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/connection.py", line 2421, in connect
+    return await connect_utils._connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<20 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/connect_utils.py", line 1041, in _connect
+    addrs, params, config = _parse_connect_arguments(**kwargs)
+                            ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/connect_utils.py", line 749, in _parse_connect_arguments
+    addrs, params = _parse_connect_dsn_and_args(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dsn=dsn, host=host, port=port, user=user,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        target_session_attrs=target_session_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        krbsrvname=krbsrvname, gsslib=gsslib)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/connect_utils.py", line 564, in _parse_connect_dsn_and_args
+    ssl.load_verify_locations(cafile=sslrootcert)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied
 
-# Current crash logs
-oc logs deploy/agent-gateway -n pai-dev --tail=50
+ERROR:    Application startup failed. Exiting.
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs deploy/internal-agentmesh-agent-gateway-service -n pai-dev --tail=50
+Found 2 pods, using pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-pkl67
+  File "/app/src/agentmesh_agent_gateway/utils/db_utils.py", line 47, in create_conn_pool
+    db_pool = await asyncpg.create_pool(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/pool.py", line 418, in _async__init__
+    await self._initialize()
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/pool.py", line 445, in _initialize
+    await first_ch.connect()
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/pool.py", line 132, in connect
+    self._con = await self._pool._get_new_connection()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/pool.py", line 517, in _get_new_connection
+    con = await self._connect(
+          ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/connection.py", line 2421, in connect
+    return await connect_utils._connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<20 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/connect_utils.py", line 1041, in _connect
+    addrs, params, config = _parse_connect_arguments(**kwargs)
+                            ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/connect_utils.py", line 749, in _parse_connect_arguments
+    addrs, params = _parse_connect_dsn_and_args(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dsn=dsn, host=host, port=port, user=user,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        target_session_attrs=target_session_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        krbsrvname=krbsrvname, gsslib=gsslib)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/asyncpg/connect_utils.py", line 624, in _parse_connect_dsn_and_args
+    if sslkey is not None and not sslkey.exists():
+                                  ~~~~~~~~~~~~~^^
+  File "/usr/local/lib/python3.13/pathlib/_abc.py", line 450, in exists
+    self.stat(follow_symlinks=follow_symlinks)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/pathlib/_local.py", line 515, in stat
+    return os.stat(self, follow_symlinks=follow_symlinks)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: '/home/appuser/.postgresql/postgresql.key'
 
-# Also check the internal one
-oc logs deploy/internal-agentmesh-agent-gateway-service -n pai-dev --tail=50
-
-# And the deployment spec to see volume mounts and env setup
-oc get deploy agent-gateway -n pai-dev -o yaml | grep -A5 -i ssl
-oc get deploy agent-gateway -n pai-dev -o yaml | grep -A10 envFrom
+ERROR:    Application startup failed. Exiting.
+hsuma@plnx-admin:~/ocp-ai-config$ oc get deploy agent-gateway -n pai-dev -o yaml | grep -A5 -i ssl
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"agent-gateway"},"name":"agent-gateway","namespace":"pai-dev"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"agent-gateway"}},"template":{"metadata":{"labels":{"app":"agent-gateway"}},"spec":{"containers":[{"env":[{"name":"PGSSLMODE","value":"require"},{"name":"UV_CACHE_DIR","value":"/cache/uv"},{"name":"XDG_CACHE_HOME","value":"/cache"},{"name":"PIP_CACHE_DIR","value":"/cache/pip"}],"envFrom":[{"secretRef":{"name":"agent-gateway-env"}}],"image":"paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c","imagePullPolicy":"IfNotPresent","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":"http"},"initialDelaySeconds":15,"periodSeconds":30,"timeoutSeconds":5},"name":"agent-gateway","ports":[{"containerPort":8089,"name":"http"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":"http"},"initialDelaySeconds":5,"periodSeconds":20,"timeoutSeconds":3},"resources":{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}},"volumeMounts":[{"mountPath":"/cache","name":"cache"}]}],"imagePullSecrets":[{"name":"reg-secret"}],"securityContext":{"runAsNonRoot":true},"volumes":[{"emptyDir":{},"name":"cache"}]}}}}
+  creationTimestamp: "2026-02-28T10:52:25Z"
+  generation: 5
+  labels:
+    app: agent-gateway
+  name: agent-gateway
+--
+        - name: PGSSLMODE
+          value: require
+        - name: UV_CACHE_DIR
+          value: /cache/uv
+        - name: XDG_CACHE_HOME
+          value: /cache
+hsuma@plnx-admin:~/ocp-ai-config$ oc get deploy agent-gateway -n pai-dev -o yaml | grep -A10 envFrom
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"agent-gateway"},"name":"agent-gateway","namespace":"pai-dev"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"agent-gateway"}},"template":{"metadata":{"labels":{"app":"agent-gateway"}},"spec":{"containers":[{"env":[{"name":"PGSSLMODE","value":"require"},{"name":"UV_CACHE_DIR","value":"/cache/uv"},{"name":"XDG_CACHE_HOME","value":"/cache"},{"name":"PIP_CACHE_DIR","value":"/cache/pip"}],"envFrom":[{"secretRef":{"name":"agent-gateway-env"}}],"image":"paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c","imagePullPolicy":"IfNotPresent","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":"http"},"initialDelaySeconds":15,"periodSeconds":30,"timeoutSeconds":5},"name":"agent-gateway","ports":[{"containerPort":8089,"name":"http"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":"http"},"initialDelaySeconds":5,"periodSeconds":20,"timeoutSeconds":3},"resources":{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}},"volumeMounts":[{"mountPath":"/cache","name":"cache"}]}],"imagePullSecrets":[{"name":"reg-secret"}],"securityContext":{"runAsNonRoot":true},"volumes":[{"emptyDir":{},"name":"cache"}]}}}}
+  creationTimestamp: "2026-02-28T10:52:25Z"
+  generation: 5
+  labels:
+    app: agent-gateway
+  name: agent-gateway
+  namespace: pai-dev
+  resourceVersion: "6687083"
+  uid: b71fdcf1-35e3-4c89-8c93-a76f32b5f077
+spec:
+  progressDeadlineSeconds: 600
+--
+        envFrom:
+        - secretRef:
+            name: agent-gateway-env
+        image: paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+hsuma@plnx-admin:~/ocp-ai-config$
