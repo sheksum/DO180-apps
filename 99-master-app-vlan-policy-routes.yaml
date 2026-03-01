@@ -1,9 +1,6 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get all -n pai-test
-Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
-No resources found in pai-test namespace.
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get all -n pai-prod
-Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
-No resources found in pai-prod namespace.
-hsuma@plnx-admin:~/ocp-ai-config$
+# Check existing ESO SecretStores and ExternalSecrets
+oc get secretstores -A
+oc get externalsecrets -A
+
+# Check the existing test-secret to see the Vault path pattern
+oc get externalsecret test-secret -n pai-dev -o yaml | grep -A10 "spec:"
