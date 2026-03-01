@@ -1,7 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$ sudo arp -d 10.172.248.175 2>/dev/null; sleep 10; ping -c 3 10.172.248.175
-PING 10.172.248.175 (10.172.248.175) 56(84) bytes of data.
-
---- 10.172.248.175 ping statistics ---
-3 packets transmitted, 0 received, 100% packet loss, time 2035ms
-
-hsuma@plnx-admin:~/ocp-ai-config$
+oc debug node/ocp-ai-master03.calix.local -- chroot /host ip addr show br-ex | head -5
