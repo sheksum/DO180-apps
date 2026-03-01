@@ -1,8 +1,1 @@
-hsuma@plnx-admin:~$ oc get pods -n pai-dev
-NAME                                                        READY   STATUS    RESTARTS   AGE
-agent-gateway-5598fbc67-fwmtg                               1/1     Running   0          18m
-ai-model-multimodel-service-897db5c4c-nrzbk                 1/1     Running   0          6h23m
-fileparser-8fd4dd8bb-xj6wj                                  1/1     Running   0          33s
-internal-agentmesh-agent-gateway-service-7978484664-wzp2j   1/1     Running   0          18m
-postgresql-78b656858b-4fmhl                                 1/1     Running   0          69m
-hsuma@plnx-admin:~$
+oc get configmap internal-agentmesh-agent-gateway-service -n pai-dev -o yaml | grep -v "^  f:" | grep -v "manager"
