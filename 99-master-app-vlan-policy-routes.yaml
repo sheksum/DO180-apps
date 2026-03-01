@@ -1,1 +1,24 @@
-oc logs -n metallb-system daemonset/speaker --all-containers --tail=20
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n metallb-system daemonset/speaker --all-containers --tail=20
+Found 3 pods, using pod/speaker-77d99
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.151:9122: dial tcp 10.172.248.151:9122: connect: connection refused\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:38:27Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.151:9122: dial tcp 10.172.248.151:9122: i/o timeout\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:39:37Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.151:9122: dial tcp 10.172.248.151:9122: connect: no route to host\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:40:29Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.151:9122: dial tcp 10.172.248.151:9122: connect: no route to host\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:41:31Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.151:9122: dial tcp 10.172.248.151:9122: connect: connection refused\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:42:28Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: connect: connection refused\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:46:27Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: i/o timeout\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:47:37Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: connect: no route to host\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:48:32Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: connect: no route to host\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:49:27Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: connect: no route to host\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:50:32Z"}
+W0228 20:34:20.088937       1 deprecated.go:66]
+==== Removed Flag Warning ======================
+
+logtostderr is removed in the k8s upstream and has no effect any more.
+
+===============================================
+
+I0228 20:34:20.091320       1 kube-rbac-proxy.go:235] Valid token audiences:
+I0228 20:34:20.092190       1 kube-rbac-proxy.go:349] Reading certificate files
+I0228 20:34:20.093812       1 kube-rbac-proxy.go:397] Starting TCP socket on :9120
+I0228 20:34:20.097490       1 kube-rbac-proxy.go:404] Listening securely on :9120
+hsuma@plnx-admin:~/ocp-ai-config$
