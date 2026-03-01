@@ -1,7 +1,3 @@
-hsuma@plnx-admin:~/ocp-ai-config$ curl -sk --connect-timeout 5 -v https://tls-test.dev.ocp-ai.calix.local
-*   Trying 10.172.248.175:443...
-* After 5000ms connect time, move on!
-* connect to 10.172.248.175 port 443 failed: Connection timed out
-* Connection timeout after 5000 ms
-* Closing connection 0
+hsuma@plnx-admin:~/ocp-ai-config$ oc get svc -n openshift-ingress | grep pai-gateway
+pai-gateway-openshift-default   LoadBalancer   172.30.31.98    10.172.248.175   15021:30643/TCP,80:31594/TCP,443:30465/TCP   2d19h
 hsuma@plnx-admin:~/ocp-ai-config$
