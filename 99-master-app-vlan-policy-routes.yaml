@@ -1,4 +1,20 @@
-sudo arp -d 10.172.248.175
-arping -c 3 10.172.248.175
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ sudo arp -d 10.172.248.175
+hsuma@plnx-admin:~/ocp-ai-config$ arping -c 3 10.172.248.175
+arping: libnet_init(LIBNET_LINK, <null>): libnet_open_link(): UID/EUID 0 or capability CAP_NET_RAW required
+arping: you may need to run as root
+hsuma@plnx-admin:~/ocp-ai-config$ sudo arping -c 3 10.172.248.175
+ARPING 10.172.248.175
+60 bytes from 00:25:b5:51:0b:68 (10.172.248.175): index=0 time=444.492 usec
+60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=1 time=1.028 msec
+60 bytes from 00:25:b5:51:0b:68 (10.172.248.175): index=2 time=304.298 usec
+60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=3 time=426.581 usec
+60 bytes from 00:25:b5:51:0b:68 (10.172.248.175): index=4 time=401.157 usec
+60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=5 time=442.493 usec
 
-oc logs -n metallb-system daemonset/speaker --all-containers | grep '248.175' | tail -10
+--- 10.172.248.175 statistics ---
+3 packets transmitted, 6 packets received,   0% unanswered (3 extra)
+rtt min/avg/max/std-dev = 0.304/0.508/1.028/0.238 ms
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n metallb-system daemonset/speaker --all-containers | grep '248.175' | tail -10
+Found 3 pods, using pod/speaker-77d99
+hsuma@plnx-admin:~/ocp-ai-config$
