@@ -1,4 +1,4 @@
-hsuma@plnx-admin:~/ocp-ai-config$ cat metallb/l2advertisement.yaml
+cat > metallb/l2advertisement.yaml << 'EOF'
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
@@ -43,4 +43,11 @@ metadata:
 spec:
   ipAddressPools:
     - reserved-future
-hsuma@plnx-admin:~/ocp-ai-config$
+  interfaces:
+    - br-ex
+EOF
+
+
+git add metallb/l2advertisement.yaml
+git commit -m "fix: pin VLAN 1510 L2Advertisement to br-ex to stop ARP flapping"
+git push origin main
