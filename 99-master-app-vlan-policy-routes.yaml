@@ -1,2 +1,8 @@
-# Check the dev policy to see what paths are allowed
-vault policy read eso-pai-dev
+[root@plnx-vault ~]# vault policy read eso-pai-dev
+path "kv/data/pai/dev/*" {
+  capabilities = ["read"]
+}
+path "kv/metadata/pai/dev/*" {
+  capabilities = ["read", "list"]
+}
+[root@plnx-vault ~]#
