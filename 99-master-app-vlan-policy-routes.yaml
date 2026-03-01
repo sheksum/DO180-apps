@@ -1,2 +1,1 @@
-oc rollout restart deployment pai-gateway-openshift-default -n openshift-ingress
-oc rollout status deployment pai-gateway-openshift-default -n openshift-ingress
+oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- cat /proc/net/tcp6
