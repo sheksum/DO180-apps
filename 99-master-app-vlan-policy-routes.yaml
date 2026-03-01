@@ -40,116 +40,54 @@ curl -sk https://minio.dev.ocp-ai.calix.local
 
 
 
-
-Create ObjectStore
-
-
-Create by completing the form. Default values may be provided by the Operator authors.
-Configure via:
-
-Form view
-
-YAML view
-
-provided by MinIO
-
-
-Info alert:Note: Some fields may not be represented in this form view. Please select "YAML view" for full control.
-Name
-
-Labels
-app=minio
-
-
-
-
-pools
-
-
-firewall
-
-
-initContainers
-
-
-cache
-
-serviceAccountName
-
-
-liveness
-
-rollingTimeoutSeconds
-
-subPath
-
-
-readiness
-
-
-lifecycle
-
-
-env
-
-
-prometheusOperatorScrapeMetricsPaths
-
-prometheusOperator
-
-prometheusOperator
-
-sftp
-
-
-imagePullSecret
-
-
-additionalVolumes
-
-imagePullPolicy
-
-
-configuration
-
-
-sideCars
-
-pvcProtection
-
-pvcProtection
-
-kes
-
-podManagementPolicy
-
-
-additionalVolumeMounts
-
-image
-
-
-certificates
-
-
-startup
-
-
-services
-
-mountPath
-
-priorityClassName
-
-
-logging
-
-
-scheduler
-
-
-Create
-
-Cancel
+apiVersion: aistor.min.io/v1
+kind: ObjectStore
+metadata:
+  name: my-objectstore
+  labels:
+    app: minio
+  annotations:
+    prometheus.io/path: /minio/v2/metrics/cluster
+    prometheus.io/port: '9000'
+    prometheus.io/scrape: 'true'
+  namespace: aistor
+spec:
+  firewall:
+    imagePullPolicy: IfNotPresent
+    enabled: false
+  cache:
+    enabled: false
+  configuration:
+    name: storage-configuration
+  pvcProtection: false
+  pools:
+    - spreadZoneConfig:
+        enabled: false
+      annotations:
+        io.kubernetes.cri-o.TrySkipVolumeSELinuxLabel: 'true'
+      securityContext:
+        fsGroupChangePolicy: OnRootMismatch
+      volumeClaimTemplate:
+        apiVersion: v1
+        kind: persistentvolumeclaims
+        spec:
+          resources:
+            requests:
+              storage: 1Ti
+          accessModes:
+            - ReadWriteOnce
+          storageClassName: directpv-min-io
+      name: pool-0
+      runtimeClassName: selinux
+      servers: 4
+      volumesPerServer: 4
+  kes:
+    imagePullPolicy: IfNotPresent
+    replicas: 2
+  certificates:
+    disableAutoCert: false
+  mountPath: /export
+  podManagementPolicy: Parallel
+  rollingTimeoutSeconds: 600
 
 
