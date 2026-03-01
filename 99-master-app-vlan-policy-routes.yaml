@@ -1,6 +1,3 @@
-oc debug node/ocp-ai-master03.calix.local -- chroot /host sysctl net.ipv4.conf.eno6.arp_ignore
+oc debug node/ocp-ai-master03.calix.local -- chroot /host sysctl -w net.ipv4.conf.eno6.arp_ignore=1 net.ipv4.conf.eno6.arp_announce=2
 
-
-oc debug node/ocp-ai-master03.calix.local -- chroot /host sysctl net.ipv4.conf.eno6.arp_ignore
-oc debug node/ocp-ai-master01.calix.local -- chroot /host sysctl net.ipv4.conf.eno6.arp_ignore
-oc debug node/ocp-ai-master02.calix.local -- chroot /host sysctl net.ipv4.conf.eno6.arp_ignore
+sudo arp -d 10.172.248.175 2>/dev/null; sleep 3; ping -c 3 10.172.248.175
