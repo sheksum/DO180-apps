@@ -1,25 +1,8 @@
-hsuma@plnx-admin:~/ocp-ai-config$ sed -n '368,390p' /tmp/milvus-dev.yaml
-              weight: 1
-        nodeAffinity:
+# Remove fsGroup: 1001
+sed -i 's/        fsGroup: 1001/        {}/' /tmp/milvus-dev.yaml
 
-      securityContext:
-        fsGroup: 1001
-      serviceAccountName: "default"
-      containers:
-        - name: etcd
-          image: docker.io/milvusdb/etcd:3.5.25-r1
-          imagePullPolicy: "IfNotPresent"
-          securityContext:
-            allowPrivilegeEscalation: false
-            runAsNonRoot: true
-            runAsUser: 1001
-          env:
-            - name: BITNAMI_DEBUG
-              value: "false"
-            - name: MY_POD_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
-            - name: MY_POD_NAME
-              valueFrom:
-hsuma@plnx-admin:~/ocp-ai-config$
+# Remove runAsUser: 1001 but keep the rest of the container securityContext
+sed -i '/            runAsUser: 1001/d' /tmp/milvus-dev.yaml
+
+# Verify the fix
+sed -n '368,390p' /tmp/milvus-dev.yaml
