@@ -1,29 +1,4 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstores -A
-NAMESPACE   NAME          AGE     STATUS   CAPABILITIES   READY
-pai-dev     vault-store   28h     Valid    ReadWrite      True
-pai-prod    vault-store   2d21h   Valid    ReadWrite      True
-pai-test    vault-store   2d21h   Valid    ReadWrite      True
-trident     vault-store   5d2h    Valid    ReadWrite      True
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecrets -A
-NAMESPACE   NAME                   STORETYPE     STORE         REFRESH INTERVAL   STATUS         READY
-pai-dev     test-secret            SecretStore   vault-store   1m                 SecretSynced   True
-trident     backend-app-secret     SecretStore   vault-store   1h                 SecretSynced   True
-trident     backend-infra-secret   SecretStore   vault-store   1h                 SecretSynced   True
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecret test-secret -n pai-dev -o yaml | grep -A10 "spec:"
-spec:
-  data:
-  - remoteRef:
-      conversionStrategy: Default
-      decodingStrategy: None
-      key: pai/dev/test-secret
-      metadataPolicy: None
-      property: username
-    secretKey: username
-  - remoteRef:
-      conversionStrategy: Default
-hsuma@plnx-admin:~/ocp-ai-config$
+# Check existing Vault policies for the pai namespaces
+# SSH to plnx-vault or run from plnx-admin?
+# Let's check the test-secret to see the full path structure
+oc get externalsecret test-secret -n pai-dev -o yaml | grep -A20 "spec:"
