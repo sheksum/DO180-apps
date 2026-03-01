@@ -1,9 +1,3 @@
-# Check the operator deployment for any hints
-oc get deployment -n aistor -o yaml | grep -i config -A3 | head -20
-
-
-# Create the configuration secret for pai-dev
-# It references the minio-credentials secret values
 MINIO_USER_DEV=$(oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d)
 MINIO_PASS_DEV=$(oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d)
 
@@ -57,33 +51,3 @@ stringData:
     export MINIO_STORAGE_CLASS_STANDARD="EC:0"
     export MINIO_BROWSER="on"
 EOF
-
-# Verify
-oc get secret storage-configuration -n pai-dev
-oc get secret storage-configuration -n pai-test
-oc get secret storage-configuration -n pai-prod
-
-
-
-hsuma@plnx-admin:~/ocp-ai-config$ oc get deployment -n aistor -o yaml | grep -i config -A3 | head -20
-                  "configuration": {
-                    "name": "storage-configuration"
-                  },
-                  "firewall": {
-                    "enabled": false
---
-        - configMap:
-            defaultMode: 420
-            items:
-            - key: service-ca.crt
---
-                  "configuration": {
-                    "name": "storage-configuration"
-                  },
-                  "firewall": {
-                    "enabled": false
---
-        - configMap:
-            defaultMode: 420
-            items:
-hsuma@plnx-admin:~/ocp-ai-config$
