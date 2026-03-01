@@ -1,9 +1,14 @@
-oc get deploy internal-agentmesh-agent-gateway-service -n pai-dev -o yaml | grep -B1 -A1 PGSSLMODE
-
-
-oc get deploy internal-agentmesh-agent-gateway-service -n pai-dev -o yaml | grep -B1 -A1 PGSSLMODE
-
-oc get secret agent-gateway-env -n pai-dev -o jsonpath='{.data.PGSSLMODE}' | base64 -d
-
-oc get secret agent-gateway-env -n pai-dev -o jsonpath='{.data.POSTGRES_DB_URL}' | base64 -d
-oc get secret agent-gateway-env -n pai-dev -o jsonpath='{.data.POSTGRES_ASYNC_DB_URL}' | base64 -d
+hsuma@plnx-admin:~/ocp-ai-config$ oc get deploy internal-agentmesh-agent-gateway-service -n pai-dev -o yaml | grep -B1 -A1 PGSSLMODE
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get deploy internal-agentmesh-agent-gateway-service -n pai-dev -o yaml | grep -B1 -A1 PGSSLMODE
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secret agent-gateway-env -n pai-dev -o jsonpath='{.data.PGSSLMODE}' | base64 -d
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secret agent-gateway-env -n pai-dev -o jsonpath='{.data.POSTGRES_DB_URL}' | base64 -d
+postgresql+asyncpg://appuser:calix123@postgresql:5432/test_dbhsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secret agent-gateway-env -n pai-dev -o jsonpath='{.data.POSTGRES_ASYNC_DB_URL}' | base64 -d
+postgresql+asyncpg://appuser:calix123@postgresql:5432/test_dbhsuma@plnx-admin:~/ocp-ai-config$
