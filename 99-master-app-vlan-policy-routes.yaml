@@ -1,19 +1,6 @@
-cat <<'EOF' | oc apply -f -
-apiVersion: v1
-kind: Service
-metadata:
-  name: milvus-lb
-  namespace: pai-prod
-  annotations:
-    metallb.universe.tf/address-pool: pai-services-prod
-    metallb.universe.tf/loadBalancerIPs: "10.172.202.161"
-spec:
-  type: LoadBalancer
-  selector:
-    app: milvus
-  ports:
-    - name: grpc
-      port: 19530
-      targetPort: 19530
-      protocol: TCP
-EOF
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -l app=milvus -A
+NAMESPACE   NAME                      READY   STATUS    RESTARTS      AGE
+pai-dev     milvus-78b5c96bfb-xphxl   1/1     Running   0             5m12s
+pai-prod    milvus-59bdf9dbc8-qnggs   0/1     Running   2 (27s ago)   3m15s
+pai-test    milvus-bcdb44ffc-skvzb    1/1     Running   0             3m15s
+hsuma@plnx-admin:~/ocp-ai-config$
