@@ -1,6 +1,15 @@
-# Check what SA etcd uses
-oc get statefulset milvus-etcd -n pai-dev -o jsonpath='{.spec.template.spec.serviceAccountName}'
+hsuma@plnx-admin:~/ocp-ai-config$ oc get statefulset milvus-etcd -n pai-dev -o jsonpath='{.spec.template.spec.serviceAccountName}'
+defaulthsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get statefulset milvus-etcd -n pai-dev -o jsonpath='{.spec.template.spec.securityContext}' | jq .
+{
+  "fsGroup": 1001
+}
+hsuma@plnx-admin:~/ocp-ai-config$ oc get statefulset milvus-etcd -n pai-dev -o jsonpath='{.spec.template.spec.containers[0].securityContext}' | jq .
+{
+  "allowPrivilegeEscalation": false,
+  "runAsNonRoot": true,
+  "runAsUser": 1001
+}
+hsuma@plnx-admin:~/ocp-ai-config$
 
-# Check the etcd security context
-oc get statefulset milvus-etcd -n pai-dev -o jsonpath='{.spec.template.spec.securityContext}' | jq .
-oc get statefulset milvus-etcd -n pai-dev -o jsonpath='{.spec.template.spec.containers[0].securityContext}' | jq .
