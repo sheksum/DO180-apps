@@ -37,4 +37,11 @@ oc get httproutes -A | grep minio
 # Health check
 curl -sk https://minio.dev.ocp-ai.calix.local
 
-oc get externalsecret test-secret -n pai-dev -o yaml | head -5
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecret test-secret -n pai-dev -o yaml | head -5
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+hsuma@plnx-admin:~/ocp-ai-config$
