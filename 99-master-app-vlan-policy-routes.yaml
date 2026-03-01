@@ -1,9 +1,15 @@
-hsuma@plnx-admin:~/ocp-ai-config$ curl -sk --connect-timeout 5 https://console-openshift-console.apps.ocp-ai.calix.local | head -5
-<!doctype html><html lang="en" class="no-js"><head><base href="/"/><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>   <title>Red Hat OpenShift</title><meta name="application-name" content="Red Hat OpenShift"/>     <link rel="icon" href="static/assets/public/imgs/openshift-favicon.png"/><link rel="apple-touch-icon-precomposed" sizes="144x144" href="static/assets/public/imgs/openshift-apple-touch-icon-precomposed.png"/><link rel="mask-icon" href="static/assets/public/imgs/openshift-mask-icon.svg" color="#DB242F"/><meta name="msapplication-TileColor" content="#000000"/><meta name="msapplication-TileImage" content="static/assets/public/imgs/openshift-mstile-144x144.png"/> <meta name="description" content=""/><meta name="viewport" content="width=device-width,initial-scale=1"/><script nonce="ZHWJAaR0duXuPFH-2-BjsCTFiqWTBfqU">window.SERVER_FLAGS = {"addPage":"{}","alertManagerBaseURL":"/api/alertmanager","alertManagerPublicURL":"","alertmanagerUserWorkloadBaseURL":"/api/alertmanager-user-workload","authDisabled":false,"basePath":"/","branding":"ocp","capabilities":[{"name":"LightspeedButton","visibility":{"state":"Enabled"}},{"name":"GettingStartedBanner","visibility":{"state":"Enabled"}}],"consolePlugins":["gitops-plugin","monitoring-plugin","networking-console-plugin","nmstate-console-plugin"],"consoleVersion":"v6.0.6-25109-g52fe23a5f7","contentSecurityPolicy":"","controlPlaneTopology":"HighlyAvailable","copiedCSVsDisabled":false,"customFaviconsConfigured":false,"customLogosConfigured":false,"customLogoURL":"","customProductName":"","developerCatalogCategories":"","developerCatalogTypes":"{\"state\":\"Enabled\"}","documentationBaseURL":"https://access.redhat.com/documentation/en-us/openshift_container_platform/4.20/","GOARCH":"amd64","GOOS":"linux","grafanaPublicURL":"","graphqlBaseURL":"/api/graphql","i18nNamespaces":["plugin__gitops-plugin","plugin__monitoring-plugin","plugin__networking-console-plugin"],"inactivityTimeout":0,"kubeAdminLogoutURL":"https://oauth-openshift.apps.ocp-ai.calix.local/logout","kubeAPIServerURL":"https://api.ocp-ai.calix.local:6443","k8sMode":"in-cluster","loadTestFactor":0,"loginErrorURL":"https://console-openshift-console.apps.ocp-ai.calix.local/auth/error","loginSuccessURL":"https://console-openshift-console.apps.ocp-ai.calix.local/","loginURL":"https://console-openshift-console.apps.ocp-ai.calix.local/auth/login","logoutRedirect":"","logoutURL":"/api/console/logout","nodeArchitectures":["amd64"],"nodeOperatingSystems":["linux"],"perspectives":"[{\"id\":\"dev\",\"visibility\":{\"state\":\"Disabled\"}}]","projectAccessClusterRoles":"","prometheusBaseURL":"/api/prometheus","prometheusPublicURL":"","prometheusTenancyBaseURL":"/api/prometheus-tenancy","quickStarts":"","releaseVersion":"4.20.13","statuspageID":"","telemetry":{"ACCOUNT_MAIL":"haj.suma@calix.com","CLUSTER_ID":"a755e1fd-ea30-48c8-ae58-28e16e760bae","ORGANIZATION_ID":"4539005","SEGMENT_API_HOST":"console.redhat.com/connections/api/v1","SEGMENT_JS_HOST":"console.redhat.com/connections/cdn","SEGMENT_PUBLIC_API_KEY":"BnuS1RP39EmLQjP21ko67oDjhbl9zpNU"},"thanosPublicURL":"","userSettingsLocation":"configmap"};
-      let theme = localStorage.getItem('bridge/theme') || 'systemDefault';
-      if (theme === 'systemDefault' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        theme = 'dark';
-      }
-hsuma@plnx-admin:~/ocp-ai-config$ arp -n | grep 175
-10.172.248.175           ether   00:25:b5:51:0b:68   C                     ens33
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ ip addr show ens33
+2: ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:50:56:b5:7a:3a brd ff:ff:ff:ff:ff:ff
+    altname enp2s1
+    inet 10.172.248.105/24 brd 10.172.248.255 scope global ens33
+       valid_lft forever preferred_lft forever
+    inet6 fe80::250:56ff:feb5:7a3a/64 scope link
+       valid_lft forever preferred_lft forever
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ ip link show ens33
+2: ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 00:50:56:b5:7a:3a brd ff:ff:ff:ff:ff:ff
+    altname enp2s1
 hsuma@plnx-admin:~/ocp-ai-config$
