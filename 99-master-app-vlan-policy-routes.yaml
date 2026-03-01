@@ -1,16 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc debug node/ocp-ai-master01.calix.local -- chroot /host ip link set eno6 down
-Starting pod/ocp-ai-master01calixlocal-debug-rw6b4 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-
-Removing debug pod ...
-hsuma@plnx-admin:~/ocp-ai-config$ oc debug node/ocp-ai-master02.calix.local -- chroot /host ip link set eno6 down
-Starting pod/ocp-ai-master02calixlocal-debug-pjbp4 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-
-Removing debug pod ...
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ curl -svk --connect-timeout 5 http://tls-test.dev.ocp-ai.calix.local 2>&1 | grep -E 'HTTP/|Location'
-> GET / HTTP/1.1
-< HTTP/1.1 301 Moved Permanently
-hsuma@plnx-admin:~/ocp-ai-config$
+oc get mc 99-worker-nm-dns-fix -o yaml | head -30
