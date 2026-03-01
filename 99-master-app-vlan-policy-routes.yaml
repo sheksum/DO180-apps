@@ -46,3 +46,10 @@ oc get secretstore vault-store -n pai-dev -o yaml | grep -A15 "provider:"
 
 # On plnx-admin
 oc get packagemanifests -n openshift-marketplace | grep -i minio
+
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get packagemanifests -n openshift-marketplace | grep -i minio
+minio-minkms-operator                                Certified Operators   13d
+minio-object-store-operator                          Certified Operators   13d
+hsuma@plnx-admin:~/ocp-ai-config$
