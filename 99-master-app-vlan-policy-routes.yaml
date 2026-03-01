@@ -39,4 +39,5 @@ curl -sk https://minio.dev.ocp-ai.calix.local
 
 
 
-oc get crd externalsecrets.external-secrets.io -o jsonpath='{.spec.versions[*].name}'
+hsuma@plnx-admin:~/ocp-ai-config$ oc get crd externalsecrets.external-secrets.io -o jsonpath='{.spec.versions[*].name}'
+v1 v1beta1hsuma@plnx-admin:~/ocp-ai-config$
