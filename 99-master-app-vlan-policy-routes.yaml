@@ -1,11 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc debug node/ocp-ai-master03.calix.local -- chroot /host ip addr show br-ex | head -5
-Starting pod/ocp-ai-master03calixlocal-debug-flccc ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-17: br-ex: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/ether 00:25:b5:50:0a:68 brd ff:ff:ff:ff:ff:ff
-    inet 10.172.248.152/24 brd 10.172.248.255 scope global noprefixroute br-ex
-       valid_lft forever preferred_lft forever
-    inet 169.254.0.2/17 brd 169.254.127.255 scope global br-ex
-
-Removing debug pod ...
-hsuma@plnx-admin:~/ocp-ai-config$
+oc logs -n metallb-system daemonset/speaker --all-containers --tail=20
