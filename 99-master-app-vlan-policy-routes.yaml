@@ -1,48 +1,522 @@
+# Create the minio folder
+mkdir -p ~/ocp-ai-config/minio
+
+# Create the manifests — ExternalSecrets + Deployments + Services + HTTPRoutes for all 3 envs
+cat <<'EOF' > ~/ocp-ai-config/minio/external-secrets.yaml
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: minio-credentials
+  namespace: pai-dev
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-store
+    kind: SecretStore
+  target:
+    name: minio-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: MINIO_ROOT_USER
+      remoteRef:
+        key: pai/dev/minio-credentials
+        property: MINIO_ROOT_USER
+    - secretKey: MINIO_ROOT_PASSWORD
+      remoteRef:
+        key: pai/dev/minio-credentials
+        property: MINIO_ROOT_PASSWORD
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: minio-credentials
+  namespace: pai-test
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-store
+    kind: SecretStore
+  target:
+    name: minio-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: MINIO_ROOT_USER
+      remoteRef:
+        key: pai/test/minio-credentials
+        property: MINIO_ROOT_USER
+    - secretKey: MINIO_ROOT_PASSWORD
+      remoteRef:
+        key: pai/test/minio-credentials
+        property: MINIO_ROOT_PASSWORD
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: minio-credentials
+  namespace: pai-prod
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-store
+    kind: SecretStore
+  target:
+    name: minio-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: MINIO_ROOT_USER
+      remoteRef:
+        key: pai/prod/minio-credentials
+        property: MINIO_ROOT_USER
+    - secretKey: MINIO_ROOT_PASSWORD
+      remoteRef:
+        key: pai/prod/minio-credentials
+        property: MINIO_ROOT_PASSWORD
+EOF
+
+cat <<'EOF' > ~/ocp-ai-config/minio/pai-dev.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-data
+  namespace: pai-dev
+spec:
+  storageClassName: netapp-app
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: pai-dev
+  labels:
+    app: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: minio
+          image: quay.io/minio/minio:latest
+          args:
+            - server
+            - /data
+            - --console-address
+            - ":9001"
+          envFrom:
+            - secretRef:
+                name: minio-credentials
+          ports:
+            - name: s3
+              containerPort: 9000
+            - name: console
+              containerPort: 9001
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "8"
+              memory: 16Gi
+            limits:
+              cpu: "8"
+              memory: 16Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: s3
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: s3
+            initialDelaySeconds: 10
+            periodSeconds: 15
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minio-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: pai-dev
+spec:
+  selector:
+    app: minio
+  ports:
+    - name: s3
+      port: 9000
+      targetPort: 9000
+    - name: console
+      port: 9001
+      targetPort: 9001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-lb
+  namespace: pai-dev
+  annotations:
+    metallb.universe.tf/address-pool: pai-services-dev
+    metallb.universe.tf/loadBalancerIPs: "10.172.194.160"
+spec:
+  type: LoadBalancer
+  selector:
+    app: minio
+  ports:
+    - name: s3
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: minio-console-route
+  namespace: pai-dev
+spec:
+  parentRefs:
+    - name: pai-gateway
+      namespace: openshift-ingress
+      sectionName: https-dev
+  hostnames:
+    - minio.dev.ocp-ai.calix.local
+  rules:
+    - backendRefs:
+        - name: minio
+          port: 9001
+EOF
+
+cat <<'EOF' > ~/ocp-ai-config/minio/pai-test.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-data
+  namespace: pai-test
+spec:
+  storageClassName: netapp-app
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: pai-test
+  labels:
+    app: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: minio
+          image: quay.io/minio/minio:latest
+          args:
+            - server
+            - /data
+            - --console-address
+            - ":9001"
+          envFrom:
+            - secretRef:
+                name: minio-credentials
+          ports:
+            - name: s3
+              containerPort: 9000
+            - name: console
+              containerPort: 9001
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "8"
+              memory: 16Gi
+            limits:
+              cpu: "8"
+              memory: 16Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: s3
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: s3
+            initialDelaySeconds: 10
+            periodSeconds: 15
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minio-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: pai-test
+spec:
+  selector:
+    app: minio
+  ports:
+    - name: s3
+      port: 9000
+      targetPort: 9000
+    - name: console
+      port: 9001
+      targetPort: 9001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-lb
+  namespace: pai-test
+  annotations:
+    metallb.universe.tf/address-pool: pai-services-test
+    metallb.universe.tf/loadBalancerIPs: "10.172.198.160"
+spec:
+  type: LoadBalancer
+  selector:
+    app: minio
+  ports:
+    - name: s3
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: minio-console-route
+  namespace: pai-test
+spec:
+  parentRefs:
+    - name: pai-gateway
+      namespace: openshift-ingress
+      sectionName: https-test
+  hostnames:
+    - minio.test.ocp-ai.calix.local
+  rules:
+    - backendRefs:
+        - name: minio
+          port: 9001
+EOF
+
+cat <<'EOF' > ~/ocp-ai-config/minio/pai-prod.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-data
+  namespace: pai-prod
+spec:
+  storageClassName: netapp-app
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Ti
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: pai-prod
+  labels:
+    app: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: minio
+          image: quay.io/minio/minio:latest
+          args:
+            - server
+            - /data
+            - --console-address
+            - ":9001"
+          envFrom:
+            - secretRef:
+                name: minio-credentials
+          ports:
+            - name: s3
+              containerPort: 9000
+            - name: console
+              containerPort: 9001
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "16"
+              memory: 32Gi
+            limits:
+              cpu: "16"
+              memory: 32Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: s3
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: s3
+            initialDelaySeconds: 10
+            periodSeconds: 15
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minio-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: pai-prod
+spec:
+  selector:
+    app: minio
+  ports:
+    - name: s3
+      port: 9000
+      targetPort: 9000
+    - name: console
+      port: 9001
+      targetPort: 9001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-lb
+  namespace: pai-prod
+  annotations:
+    metallb.universe.tf/address-pool: pai-services-prod
+    metallb.universe.tf/loadBalancerIPs: "10.172.202.160"
+spec:
+  type: LoadBalancer
+  selector:
+    app: minio
+  ports:
+    - name: s3
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: minio-console-route
+  namespace: pai-prod
+spec:
+  parentRefs:
+    - name: pai-gateway
+      namespace: openshift-ingress
+      sectionName: https-prod
+  hostnames:
+    - minio.prod.ocp-ai.calix.local
+  rules:
+    - backendRefs:
+        - name: minio
+          port: 9001
+EOF
+
+
+
+
+cat <<'EOF' > ~/ocp-ai-config/apps/minio-app.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: gateway-api
+  name: minio
   namespace: openshift-gitops
 spec:
   project: default
   source:
     repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
     targetRevision: main
-    path: gateway-api
+    path: minio
   destination:
     server: https://kubernetes.default.svc
-    namespace: openshift-ingress
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=false
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: machineconfigs
-  namespace: openshift-gitops
-spec:
-  project: default
-  source:
-    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
-    targetRevision: main
-    path: machineconfigs
-  destination:
-    server: https://kubernetes.default.svc
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-hsuma@plnx-admin:~/ocp-ai-config$  ls ~/ocp-ai-config/apps/
-gateway-api-app.yaml  machineconfigs-app.yaml  metallb-app.yaml  nmstate-app.yaml  root-app.yaml  test.yaml  trident-apps.yaml
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ ls ~/ocp-ai-config/metallb/
-ipaddresspools.yaml  l2advertisement.yaml  metallb-instance.yaml  namespaces.yaml
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
+EOF
+
+
+
+
+cd ~/ocp-ai-config
+git add minio/ apps/minio-app.yaml
+git commit -m "Add MinIO object storage - all environments (dev/test/prod)"
+git push
