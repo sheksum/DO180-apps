@@ -1,15 +1,4 @@
-hsuma@plnx-admin:~/ocp-ai-config$ ping -c 3 10.172.248.175
-PING 10.172.248.175 (10.172.248.175) 56(84) bytes of data.
+oc debug node/ocp-ai-master01.calix.local -- chroot /host ip link set eno6 down
+oc debug node/ocp-ai-master02.calix.local -- chroot /host ip link set eno6 down
 
---- 10.172.248.175 ping statistics ---
-3 packets transmitted, 0 received, 100% packet loss, time 2046ms
-
-hsuma@plnx-admin:~/ocp-ai-config$ curl -svk --connect-timeout 5 https://tls-test.dev.ocp-ai.calix.local 2>&1 | grep -E 'subject:|issuer:|SSL connection|HTTP/'
-* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
-*  subject: [NONE]
-*  issuer: CN=Calix OCP-AI Intermediate CA
-* Connection state changed (HTTP/2 confirmed)
-* Copying HTTP/2 data in stream buffer to connection buffer after upgrade: len=0
-> GET / HTTP/2
-< HTTP/2 403
-hsuma@plnx-admin:~/ocp-ai-config$
+curl -svk --connect-timeout 5 http://tls-test.dev.ocp-ai.calix.local 2>&1 | grep -E 'HTTP/|Location'
