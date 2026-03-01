@@ -1,11 +1,9 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get tridentbackendconfig -A
-NAMESPACE   NAME                BACKEND NAME        BACKEND UUID                           PHASE   STATUS
-trident     backend-app-nfs     backend-app-nfs     27f061fd-e6e4-448c-a4e4-c4302ac4a01a   Bound   Success
-trident     backend-infra-nfs   backend-infra-nfs   88ba74b5-6d56-47cf-a16d-9066ae716681   Bound   Success
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get tridentbackend -A -o custom-columns=NAME:.metadata.name,PROTOCOL:.spec.storageDriverName,STATE:.status.phase
-NAME        PROTOCOL   STATE
-tbe-wp27v   <none>     <none>
-tbe-zg42j   <none>     <none>
-hsuma@plnx-admin:~/ocp-ai-config$
+# Clean up current manifest deployment
+oc delete -f /tmp/milvus-dev.yaml -n pai-dev 2>/dev/null
+oc delete pvc -n pai-dev -l app.kubernetes.io/instance=milvus 2>/dev/null
+oc delete pvc milvus -n pai-dev 2>/dev/null
+oc delete pvc data-milvus-etcd-0 -n pai-dev 2>/dev/null
+
+# Verify clean
+oc get pods -n pai-dev | grep milvus
+oc get pvc -n pai-dev | grep milvus
