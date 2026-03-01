@@ -1,26 +1,46 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n metallb-system
-NAME                                                   READY   STATUS    RESTARTS   AGE
-controller-fb7fcb695-tjrtj                             2/2     Running   0          4h11m
-metallb-operator-controller-manager-68b4948857-nvlkv   1/1     Running   0          4h20m
-metallb-operator-webhook-server-6c48f9b746-z4fcs       1/1     Running   0          4h11m
-speaker-4sm8f                                          2/2     Running   2          2d19h
-speaker-77d99                                          2/2     Running   5          2d19h
-speaker-vcmvl                                          2/2     Running   3          2d19h
-hsuma@plnx-admin:~/ocp-ai-config$ oc get ipaddresspool -n metallb-system
-NAME                AUTO ASSIGN   AVOID BUGGY IPS   ADDRESSES
-pai-services-dev    true          false             ["10.172.194.160-10.172.194.179"]
-pai-services-prod   true          false             ["10.172.202.160-10.172.202.179"]
-pai-services-test   true          false             ["10.172.198.160-10.172.198.179"]
-reserved-future     false         false             ["10.172.248.175-10.172.248.180"]
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get svc pai-gateway-openshift-default -n openshift-ingress -o yaml | grep -A5 'metallb'
-    metallb.io/ip-allocated-from-pool: reserved-future
-    metallb.universe.tf/address-pool: reserved-future
-    metallb.universe.tf/loadBalancerIPs: 10.172.248.175
-  creationTimestamp: "2026-02-26T04:51:26Z"
-  labels:
-    gateway.istio.io/managed: openshift.io-gateway-controller-v1
-    gateway.networking.k8s.io/gateway-name: pai-gateway
-  name: pai-gateway-openshift-default
-hsuma@plnx-admin:~/ocp-ai-config$
+cat > metallb/l2advertisement.yaml << 'EOF'
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1794-dev
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - pai-services-dev
+  interfaces:
+    - bond0.1794
+    - bnd0.1794
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1798-test
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - pai-services-test
+  interfaces:
+    - bond0.1798
+    - bnd0.1798
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1797-prod
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - pai-services-prod
+  interfaces:
+    - bond0.1797
+    - bnd0.1797
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-vlan1510
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - reserved-future
+EOF
