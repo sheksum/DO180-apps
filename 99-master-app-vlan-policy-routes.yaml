@@ -1,48 +1,6 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get deploy fileparser -n pai-dev -o jsonpath='{.spec.replicas}'
-1hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ echo
+oc create sa internal-datapipeline-rag-fileparser-service -n pai-dev
 
-hsuma@plnx-admin:~/ocp-ai-config$ oc get deploy fileparser -n pai-dev -o jsonpath='{.status.conditions}' | jq .
-[
-  {
-    "lastTransitionTime": "2026-02-28T23:48:12Z",
-    "lastUpdateTime": "2026-02-28T23:48:12Z",
-    "message": "Deployment does not have minimum availability.",
-    "reason": "MinimumReplicasUnavailable",
-    "status": "False",
-    "type": "Available"
-  },
-  {
-    "lastTransitionTime": "2026-02-28T23:48:12Z",
-    "lastUpdateTime": "2026-02-28T23:48:12Z",
-    "message": "pods \"fileparser-7bcfcfbf8-\" is forbidden: error looking up service account pai-dev/internal-datapipeline-rag-fileparser-service: serviceaccount \"internal-datapipeline-rag-fileparser-service\" not found",
-    "reason": "FailedCreate",
-    "status": "True",
-    "type": "ReplicaFailure"
-  },
-  {
-    "lastTransitionTime": "2026-02-28T23:58:13Z",
-    "lastUpdateTime": "2026-02-28T23:58:13Z",
-    "message": "ReplicaSet \"fileparser-7bcfcfbf8\" has timed out progressing.",
-    "reason": "ProgressDeadlineExceeded",
-    "status": "False",
-    "type": "Progressing"
-  }
-]
-hsuma@plnx-admin:~/ocp-ai-config$ oc get deploy fileparser -n pai-dev -o yaml | grep -A5 -i toleration
-      tolerations:
-      - effect: NoSchedule
-        key: nvidia.com/gpu
-        operator: Equal
-        value: "true"
-      volumes:
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get deploy fileparser -n pai-dev -o yaml | grep -A3 -i resources
-        resources:
-          limits:
-            cpu: "4"
-            memory: 8Gi
-hsuma@plnx-admin:~/ocp-ai-config$
+
+# Force a new rollout
+oc rollout restart deploy/fileparser -n pai-dev
+oc rollout status deploy/fileparser -n pai-dev --timeout=120s
