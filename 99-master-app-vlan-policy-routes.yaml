@@ -1,6 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- cat /proc/net/tcp6 | awk '{print $2}' | cut -d: -f5 | sort -u
-
-local_address
-hsuma@plnx-admin:~/ocp-ai-config$ curl -sk --connect-timeout 5 https://tls-test.dev.ocp-ai.calix.local
-hsuma@plnx-admin:~/ocp-ai-config$
+curl -svk --connect-timeout 5 https://tls-test.dev.ocp-ai.calix.local 2>&1 | head -30
