@@ -1,12 +1,47 @@
-# Uninstall all three
-helm uninstall milvus -n pai-dev
-helm uninstall milvus -n pai-test
-helm uninstall milvus -n pai-prod
+release "milvus" uninstalled
+hsuma@plnx-admin:~/ocp-ai-config$ oc delete pvc -n pai-dev -l app.kubernetes.io/instance=milvus
+persistentvolumeclaim "data-milvus-etcd-0" deleted from pai-dev namespace
+persistentvolumeclaim "milvus" deleted from pai-dev namespace
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc delete pvc -n pai-test -l app.kubernetes.io/instance=milvus
+persistentvolumeclaim "data-milvus-etcd-0" deleted from pai-test namespace
+persistentvolumeclaim "milvus" deleted from pai-test namespace
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc delete pvc -n pai-prod -l app.kubernetes.io/instance=milvus
+persistentvolumeclaim "data-milvus-etcd-0" deleted from pai-prod namespace
+persistentvolumeclaim "milvus" deleted from pai-prod namespace
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ helm show values zilliztech/milvus | grep -A30 "^etcd:"
+etcd:
+  enabled: true
+  name: etcd
+  replicaCount: 3
+  pdb:
+    create: false
+  image:
+    repository: "milvusdb/etcd"
+    tag: "3.5.25-r1"
+    pullPolicy: IfNotPresent
 
-# Clean up stuck PVCs
-oc delete pvc -n pai-dev -l app.kubernetes.io/instance=milvus
-oc delete pvc -n pai-test -l app.kubernetes.io/instance=milvus
-oc delete pvc -n pai-prod -l app.kubernetes.io/instance=milvus
+  service:
+    type: ClusterIP
+    port: 2379
+    peerPort: 2380
 
+  auth:
+    rbac:
+      enabled: false
+      create: false
+    token:
+      enabled: false
 
-helm show values zilliztech/milvus | grep -A30 "^etcd:"
+  persistence:
+    enabled: true
+    storageClass:
+    accessMode: ReadWriteOnce
+    size: 10Gi
+
+  ## Change default timeout periods to mitigate zoobie probe process
+  livenessProbe:
+hsuma@plnx-admin:~/ocp-ai-config$
