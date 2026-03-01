@@ -1,21 +1,19 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc debug --image=paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3 \
-  -n pai-dev -- ls /app/
-Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "debug" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "debug" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "debug" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "debug" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
-Starting pod/image-debug-sr8h8 ...
-warning: Container debug is unable to start due to an error: Back-off pulling image "paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3": ErrImagePull: unable to pull image or OCI artifact: pull image err: initializing source docker://paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3: reading manifest 1.0.0-63dbse.ca8b1a3 in paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service: unauthorized: access to the requested resource is not authorized; artifact err: get manifest: build image source: reading manifest 1.0.0-63dbse.ca8b1a3 in paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service: unauthorized: access to the requested resource is not authorized
-warning: Container debug is unable to start due to an error: Back-off pulling image "paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3": ErrImagePull: unable to pull image or OCI artifact: pull image err: initializing source docker://paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3: reading manifest 1.0.0-63dbse.ca8b1a3 in paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service: unauthorized: access to the requested resource is not authorized; artifact err: get manifest: build image source: reading manifest 1.0.0-63dbse.ca8b1a3 in paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service: unauthorized: access to the requested resource is not authorized
-warning: Container debug is unable to start due to an error: Back-off pulling image "paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3": ErrImagePull: unable to pull image or OCI artifact: pull image err: initializing source docker://paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3: reading manifest 1.0.0-63dbse.ca8b1a3 in paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service: unauthorized: access to the requested resource is not authorized; artifact err: get manifest: build image source: reading manifest 1.0.0-63dbse.ca8b1a3 in paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service: unauthorized: access to the requested resource is not authorized
-^C
-Removing debug pod ...
-warning: Container debug is unable to start due to an error: Back-off pulling image "paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3": ErrImagePull: unable to pull image or OCI artifact: pull image err: initializing source docker://paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3: reading manifest 1.0.0-63dbse.ca8b1a3 in paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service: unauthorized: access to the requested resource is not authorized; artifact err: get manifest: build image source: reading manifest 1.0.0-63dbse.ca8b1a3 in paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service: unauthorized: access to the requested resource is not authorized
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$   oc run fileparser-debug -n pai-dev --rm -it --restart=Never \
+oc scale deploy fileparser -n pai-dev --replicas=0
+
+oc run fileparser-debug -n pai-dev --rm -it --restart=Never \
   --image=paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3 \
-  --overrides='{"spec":{"imagePullSecrets":[{"name":"reg-secret"}]}}' \
-  --command -- /bin/sh -c "which parser-service; find / -name 'parser*' 2>/dev/null; cat /app/pyproject.toml 2>/dev/null; ls -la /app/"
-Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "fileparser-debug" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "fileparser-debug" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "fileparser-debug" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "fileparser-debug" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
-pod "fileparser-debug" deleted from pai-dev namespace
-error: timed out waiting for the condition
-hsuma@plnx-admin:~/ocp-ai-config$
+  --overrides='{
+    "spec": {
+      "imagePullSecrets": [{"name":"reg-secret"}],
+      "securityContext": {"runAsNonRoot": true, "seccompProfile": {"type": "RuntimeDefault"}},
+      "containers": [{
+        "name": "fileparser-debug",
+        "image": "paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3",
+        "command": ["/bin/sh", "-c", "sleep 300"],
+        "securityContext": {"allowPrivilegeEscalation": false, "capabilities": {"drop": ["ALL"]}}
+      }],
+      "nodeSelector": {"nvidia.com/gpu.present": "true"},
+      "tolerations": [{"key": "nvidia.com/gpu", "operator": "Equal", "value": "true", "effect": "NoSchedule"}]
+    }
+  }' \
+  --command -- /bin/sh -c "sleep 300"
