@@ -1,29 +1,28 @@
-# Render the template to a manifest file
-helm template milvus zilliztech/milvus -n pai-dev \
-  --set cluster.enabled=false \
-  --set image.all.tag=v2.6.11 \
-  --set standalone.resources.requests.cpu=4 \
-  --set standalone.resources.requests.memory=8Gi \
-  --set standalone.resources.limits.cpu=4 \
-  --set standalone.resources.limits.memory=8Gi \
-  --set minio.enabled=false \
-  --set pulsarv3.enabled=false \
-  --set streaming.enabled=true \
-  --set streaming.woodpecker.embedded=true \
-  --set streaming.woodpecker.storage.type=minio \
-  --set externalS3.enabled=true \
-  --set externalS3.host=minio.pai-dev.svc.cluster.local \
-  --set externalS3.port=9000 \
-  --set "externalS3.accessKey=$DEV_USER" \
-  --set "externalS3.secretKey=$DEV_PASS" \
-  --set externalS3.useSSL=false \
-  --set externalS3.bucketName=milvus-bucket \
-  --set externalS3.rootPath=milvus \
-  --set etcd.enabled=true \
-  --set etcd.replicaCount=1 \
-  --set etcd.persistence.storageClass=netapp-app \
-  --set etcd.persistence.size=10Gi > /tmp/milvus-dev.yaml 2>&1
-
-# Check if it rendered
-wc -l /tmp/milvus-dev.yaml
-head -20 /tmp/milvus-dev.yaml
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ wc -l /tmp/milvus-dev.yaml
+473 /tmp/milvus-dev.yaml
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ head -20 /tmp/milvus-dev.yaml
+---
+# Source: milvus/templates/configmap.yaml
+# If customConfigMap is not set, this ConfigMap will be redendered.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: milvus
+  namespace: pai-dev
+data:
+  default.yaml: |+
+    # Copyright (C) 2019-2021 Zilliz. All rights reserved.
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance
+    # with the License. You may obtain a copy of the License at
+    #
+    # http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software distributed under the License
+    # is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    # or implied. See the License for the specific language governing permissions and limitations under the License.
+hsuma@plnx-admin:~/ocp-ai-config$
