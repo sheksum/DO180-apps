@@ -1,52 +1,64 @@
-DEV_PASS=$(openssl rand -base64 24)
-TEST_PASS=$(openssl rand -base64 24)
-PROD_PASS=$(openssl rand -base64 24)
-
-echo "Dev:  $DEV_PASS"
-echo "Test: $TEST_PASS"
-echo "Prod: $PROD_PASS"
-
-vault kv put kv/pai/dev/minio-credentials MINIO_ROOT_USER=minioadmin MINIO_ROOT_PASSWORD="$DEV_PASS"
-vault kv put kv/pai/test/minio-credentials MINIO_ROOT_USER=minioadmin MINIO_ROOT_PASSWORD="$TEST_PASS"
-vault kv put kv/pai/prod/minio-credentials MINIO_ROOT_USER=minioadmin MINIO_ROOT_PASSWORD="$PROD_PASS"
+# Check the operator deployment for any hints
+oc get deployment -n aistor -o yaml | grep -i config -A3 | head -20
 
 
-# Copy 01-external-secrets.yaml and 02-minio-all-envs.yaml to plnx-admin first
-# Then:
-oc apply -f 01-external-secrets.yaml
+# Create the configuration secret for pai-dev
+# It references the minio-credentials secret values
+MINIO_USER_DEV=$(oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d)
+MINIO_PASS_DEV=$(oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d)
 
-# Wait for sync, verify
-oc get externalsecrets -A | grep minio
-# All three should show SecretSynced / True
+cat <<EOF | oc apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: storage-configuration
+  namespace: pai-dev
+type: Opaque
+stringData:
+  config.env: |
+    export MINIO_ROOT_USER="${MINIO_USER_DEV}"
+    export MINIO_ROOT_PASSWORD="${MINIO_PASS_DEV}"
+    export MINIO_STORAGE_CLASS_STANDARD="EC:0"
+    export MINIO_BROWSER="on"
+EOF
 
+MINIO_USER_TEST=$(oc get secret minio-credentials -n pai-test -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d)
+MINIO_PASS_TEST=$(oc get secret minio-credentials -n pai-test -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d)
 
-oc apply -f 02-minio-all-envs.yaml
+cat <<EOF | oc apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: storage-configuration
+  namespace: pai-test
+type: Opaque
+stringData:
+  config.env: |
+    export MINIO_ROOT_USER="${MINIO_USER_TEST}"
+    export MINIO_ROOT_PASSWORD="${MINIO_PASS_TEST}"
+    export MINIO_STORAGE_CLASS_STANDARD="EC:0"
+    export MINIO_BROWSER="on"
+EOF
 
+MINIO_USER_PROD=$(oc get secret minio-credentials -n pai-prod -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d)
+MINIO_PASS_PROD=$(oc get secret minio-credentials -n pai-prod -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d)
 
-# Pods running
-oc get pods -n pai-dev -l app=minio
-oc get pods -n pai-test -l app=minio
-oc get pods -n pai-prod -l app=minio
+cat <<EOF | oc apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: storage-configuration
+  namespace: pai-prod
+type: Opaque
+stringData:
+  config.env: |
+    export MINIO_ROOT_USER="${MINIO_USER_PROD}"
+    export MINIO_ROOT_PASSWORD="${MINIO_PASS_PROD}"
+    export MINIO_STORAGE_CLASS_STANDARD="EC:0"
+    export MINIO_BROWSER="on"
+EOF
 
-# LB IPs assigned
-oc get svc -A --field-selector spec.type=LoadBalancer
-
-# HTTPRoutes
-oc get httproutes -A | grep minio
-
-# Health check
-curl -sk https://minio.dev.ocp-ai.calix.local
-
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get secret storage-configuration -n aistor -o yaml 2>/dev/null
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get secret -n aistor
-NAME                                  TYPE                      DATA   AGE
-aistor-adminjob-dockercfg-9tg2n       kubernetes.io/dockercfg   1      18m
-aistor-object-store-dockercfg-2bv7n   kubernetes.io/dockercfg   1      18m
-builder-dockercfg-pl654               kubernetes.io/dockercfg   1      18m
-default-dockercfg-tsz8m               kubernetes.io/dockercfg   1      18m
-deployer-dockercfg-q9t4f              kubernetes.io/dockercfg   1      18m
-object-store-operator-tls             kubernetes.io/tls         2      18m
-object-store-webhook-service-cert     kubernetes.io/tls         3      18m
-hsuma@plnx-admin:~/ocp-ai-config$
+# Verify
+oc get secret storage-configuration -n pai-dev
+oc get secret storage-configuration -n pai-test
+oc get secret storage-configuration -n pai-prod
