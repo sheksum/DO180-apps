@@ -37,7 +37,4 @@ oc get httproutes -A | grep minio
 # Health check
 curl -sk https://minio.dev.ocp-ai.calix.local
 
-
-
-hsuma@plnx-admin:~/ocp-ai-config$ oc get crd externalsecrets.external-secrets.io -o jsonpath='{.spec.versions[*].name}'
-v1 v1beta1hsuma@plnx-admin:~/ocp-ai-config$
+oc get externalsecret test-secret -n pai-dev -o yaml | head -5
