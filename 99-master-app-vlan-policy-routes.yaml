@@ -9,3 +9,6 @@ oc patch deploy internal-agentmesh-agent-gateway-service -n pai-dev --type json 
 
   oc rollout status deploy/agent-gateway -n pai-dev --timeout=120s
 oc rollout status deploy/internal-agentmesh-agent-gateway-service -n pai-dev --timeout=120s
+
+
+oc get pods -n pai-dev -w
