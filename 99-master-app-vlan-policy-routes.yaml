@@ -1,46 +1,4 @@
-Hey Awanish — got all your pods running in pai-dev tonight. Here's what I found and fixed, you'll need to make these permanent in your Helm charts before your next deploy:
-
-**1. agent-gateway + internal-agentmesh-agent-gateway-service — both crash-looping**
-Both were failing on PostgreSQL SSL. agent-gateway had PGSSLMODE=require hardcoded in the deployment env, and internal-agentmesh didn't have it set at all so asyncpg defaulted to looking for client certs at /home/appuser/.postgresql/postgresql.key. Your PostgreSQL instance has ssl=off so require will never work anyway. I set PGSSLMODE=disable on both — update your charts to match.
-
-**2. fileparser — stuck at 0 pods**
-Two issues:
-- Missing ServiceAccount — chart references `internal-datapipeline-rag-fileparser-service` SA but doesn't create it. I created it manually, add it to your chart.
-- Broken entrypoint — image uses `uv run parser-service` but the binary is at /app/.venv/bin/parser-service, not in PATH. I overrode the command to call the venv binary directly. Fix either the Dockerfile entrypoint or add `command: ["/app/.venv/bin/parser-service"]` to the chart.
-
-**3. Also spotted:**
-- Typo in the internal-agentmesh configmap: POSTGRES_DB_URL has `test_dB` (capital B), POSTGRES_ASYNC_DB_URL has `test_db`. That'll bite you. Quick fix:
-```
-oc get configmap internal-agentmesh-agent-gateway-service -n pai-dev -o json | sed 's/test_dB/test_db/g' | oc apply -f -
-```
-- DB creds are plaintext in the configmap — when you're ready we can move those to Vault, the ESO pipeline is working.
-
-After you update the charts, verify with:
-```
-oc get pods -n pai-dev
-```
-All 5 should show Running with 0 restarts.
-
-All pods are Running now. Let me know if you have questions.
+oc get svc -n pai-dev --field-selector spec.type=LoadBalancer
 
 
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-dev
-NAME                                                        READY   STATUS             RESTARTS        AGE
-agent-gateway-6df79ddc5b-pt8dg                              0/1     CrashLoopBackOff   6 (3m16s ago)   9m49s
-agent-gateway-7978c8fbf4-vbhlv                              0/1     CrashLoopBackOff   6 (3m3s ago)    9m52s
-ai-model-multimodel-service-897db5c4c-nrzbk                 1/1     Running            0               5h30m
-internal-agentmesh-agent-gateway-service-6d5cc69c59-pkl67   0/1     CrashLoopBackOff   7 (4m51s ago)   16m
-internal-agentmesh-agent-gateway-service-b98b46d44-dlc2g    0/1     CrashLoopBackOff   6 (3m24s ago)   9m51s
-postgresql-78b656858b-4fmhl                                 1/1     Running            0               16m
-
-
-
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-dev
-NAME                                                        READY   STATUS    RESTARTS   AGE
-agent-gateway-5598fbc67-fwmtg                               1/1     Running   0          35m
-ai-model-multimodel-service-897db5c4c-nrzbk                 1/1     Running   0          6h41m
-fileparser-8fd4dd8bb-xj6wj                                  1/1     Running   0          17m
-internal-agentmesh-agent-gateway-service-7978484664-wzp2j   1/1     Running   0          35m
-postgresql-78b656858b-4fmhl                                 1/1     Running   0          86m
-hsuma@plnx-admin:~/ocp-ai-config$
+oc get ipaddresspools -n metallb-system -o yaml | grep -A5 pai-services-dev
