@@ -1,29 +1,87 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ helm show values zilliztech/milvus | grep -A25 "externalS3:"
-externalS3:
-  enabled: false
-  host: ""
-  port: ""
-  accessKey: ""
-  secretKey: ""
-  useSSL: false
-  bucketName: ""
-  rootPath: ""
-  useIAM: false
-  cloudProvider: "aws"
-  iamEndpoint: ""
-  region: ""
-  useVirtualHost: false
+mkdir -p ~/ocp-ai-config/milvus
 
-###################################
-# GCS Gateway
-# - these configs are only used when `minio.gcsgateway.enabled` is true
-###################################
-externalGcs:
-  bucketName: ""
+# Get credentials
+DEV_USER=$(oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d)
+DEV_PASS=$(oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d)
+TEST_USER=$(oc get secret minio-credentials -n pai-test -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d)
+TEST_PASS=$(oc get secret minio-credentials -n pai-test -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d)
+PROD_USER=$(oc get secret minio-credentials -n pai-prod -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d)
+PROD_PASS=$(oc get secret minio-credentials -n pai-prod -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d)
 
-###################################
-# External etcd
-# - these configs are only used when `externalEtcd.enabled` is true
-###################################
+# Deploy to pai-dev
+helm install milvus zilliztech/milvus -n pai-dev \
+  --set cluster.enabled=false \
+  --set image.all.tag=v2.6.11 \
+  --set standalone.resources.requests.cpu=4 \
+  --set standalone.resources.requests.memory=8Gi \
+  --set standalone.resources.limits.cpu=4 \
+  --set standalone.resources.limits.memory=8Gi \
+  --set minio.enabled=false \
+  --set pulsarv3.enabled=false \
+  --set streaming.enabled=true \
+  --set streaming.woodpecker.embedded=true \
+  --set streaming.woodpecker.storage.type=minio \
+  --set externalS3.enabled=true \
+  --set externalS3.host=minio.pai-dev.svc.cluster.local \
+  --set externalS3.port=9000 \
+  --set externalS3.accessKey="$DEV_USER" \
+  --set externalS3.secretKey="$DEV_PASS" \
+  --set externalS3.useSSL=false \
+  --set externalS3.bucketName=milvus-bucket \
+  --set externalS3.rootPath=milvus \
+  --set etcd.enabled=true \
+  --set etcd.replicaCount=1 \
+  --set etcd.persistence.storageClass=netapp-app \
+  --set etcd.persistence.size=10Gi
+
+# Deploy to pai-test
+helm install milvus zilliztech/milvus -n pai-test \
+  --set cluster.enabled=false \
+  --set image.all.tag=v2.6.11 \
+  --set standalone.resources.requests.cpu=4 \
+  --set standalone.resources.requests.memory=8Gi \
+  --set standalone.resources.limits.cpu=4 \
+  --set standalone.resources.limits.memory=8Gi \
+  --set minio.enabled=false \
+  --set pulsarv3.enabled=false \
+  --set streaming.enabled=true \
+  --set streaming.woodpecker.embedded=true \
+  --set streaming.woodpecker.storage.type=minio \
+  --set externalS3.enabled=true \
+  --set externalS3.host=minio.pai-test.svc.cluster.local \
+  --set externalS3.port=9000 \
+  --set externalS3.accessKey="$TEST_USER" \
+  --set externalS3.secretKey="$TEST_PASS" \
+  --set externalS3.useSSL=false \
+  --set externalS3.bucketName=milvus-bucket \
+  --set externalS3.rootPath=milvus \
+  --set etcd.enabled=true \
+  --set etcd.replicaCount=1 \
+  --set etcd.persistence.storageClass=netapp-app \
+  --set etcd.persistence.size=10Gi
+
+# Deploy to pai-prod
+helm install milvus zilliztech/milvus -n pai-prod \
+  --set cluster.enabled=false \
+  --set image.all.tag=v2.6.11 \
+  --set standalone.resources.requests.cpu=8 \
+  --set standalone.resources.requests.memory=16Gi \
+  --set standalone.resources.limits.cpu=8 \
+  --set standalone.resources.limits.memory=16Gi \
+  --set minio.enabled=false \
+  --set pulsarv3.enabled=false \
+  --set streaming.enabled=true \
+  --set streaming.woodpecker.embedded=true \
+  --set streaming.woodpecker.storage.type=minio \
+  --set externalS3.enabled=true \
+  --set externalS3.host=minio.pai-prod.svc.cluster.local \
+  --set externalS3.port=9000 \
+  --set externalS3.accessKey="$PROD_USER" \
+  --set externalS3.secretKey="$PROD_PASS" \
+  --set externalS3.useSSL=false \
+  --set externalS3.bucketName=milvus-bucket \
+  --set externalS3.rootPath=milvus \
+  --set etcd.enabled=true \
+  --set etcd.replicaCount=3 \
+  --set etcd.persistence.storageClass=netapp-app \
+  --set etcd.persistence.size=20Gi
