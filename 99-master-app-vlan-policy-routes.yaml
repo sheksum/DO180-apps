@@ -22,3 +22,13 @@ oc get pods -n pai-dev
 All 5 should show Running with 0 restarts.
 
 All pods are Running now. Let me know if you have questions.
+
+
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-dev
+NAME                                                        READY   STATUS             RESTARTS        AGE
+agent-gateway-6df79ddc5b-pt8dg                              0/1     CrashLoopBackOff   6 (3m16s ago)   9m49s
+agent-gateway-7978c8fbf4-vbhlv                              0/1     CrashLoopBackOff   6 (3m3s ago)    9m52s
+ai-model-multimodel-service-897db5c4c-nrzbk                 1/1     Running            0               5h30m
+internal-agentmesh-agent-gateway-service-6d5cc69c59-pkl67   0/1     CrashLoopBackOff   7 (4m51s ago)   16m
+internal-agentmesh-agent-gateway-service-b98b46d44-dlc2g    0/1     CrashLoopBackOff   6 (3m24s ago)   9m51s
+postgresql-78b656858b-4fmhl                                 1/1     Running            0               16m
