@@ -1,56 +1,15 @@
-cat > metallb/l2advertisement.yaml << 'EOF'
-apiVersion: metallb.io/v1beta1
-kind: L2Advertisement
-metadata:
-  name: l2-vlan1794-dev
-  namespace: metallb-system
-spec:
-  ipAddressPools:
-    - pai-services-dev
-  interfaces:
-    - bond0.1794
-    - bnd0.1794
----
-apiVersion: metallb.io/v1beta1
-kind: L2Advertisement
-metadata:
-  name: l2-vlan1798-test
-  namespace: metallb-system
-spec:
-  ipAddressPools:
-    - pai-services-test
-  interfaces:
-    - bond0.1798
-    - bnd0.1798
----
-apiVersion: metallb.io/v1beta1
-kind: L2Advertisement
-metadata:
-  name: l2-vlan1797-prod
-  namespace: metallb-system
-spec:
-  ipAddressPools:
-    - pai-services-prod
-  interfaces:
-    - bond0.1797
-    - bnd0.1797
----
-apiVersion: metallb.io/v1beta1
-kind: L2Advertisement
-metadata:
-  name: l2-vlan1510
-  namespace: metallb-system
-spec:
-  ipAddressPools:
-    - reserved-future
-EOF
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 395 bytes | 395.00 KiB/s, done.
+Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
+To bitbucket.org:calixprod/ocp-ai-platform.git
+   1739bd8..a44c0b4  main -> main
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ sudo arp -d 10.172.248.175 2>/dev/null; sleep 10; ping -c 3 10.172.248.175
+PING 10.172.248.175 (10.172.248.175) 56(84) bytes of data.
 
+--- 10.172.248.175 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2052ms
 
-
-git add metallb/l2advertisement.yaml
-git commit -m "test: remove br-ex interface restriction on vlan1510 L2Advertisement"
-git push origin main
-
-
-
-sudo arp -d 10.172.248.175 2>/dev/null; sleep 10; ping -c 3 10.172.248.175
+hsuma@plnx-admin:~/ocp-ai-config$
