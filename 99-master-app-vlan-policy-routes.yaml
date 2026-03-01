@@ -3,3 +3,7 @@ hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-prod -l app=milvus
 NAME                      READY   STATUS    RESTARTS     AGE
 milvus-59bdf9dbc8-c4m5p   0/1     Running   2 (7s ago)   2m40s
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+oc logs -n pai-dev deploy/milvus --tail=5 | grep -i "streaming\|error"
+oc logs -n pai-prod deploy/milvus --tail=5
