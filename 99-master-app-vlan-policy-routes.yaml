@@ -1,15 +1,4 @@
-Compressing objects: 100% (4/4), done.
-Writing objects: 100% (4/4), 395 bytes | 395.00 KiB/s, done.
-Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
-To bitbucket.org:calixprod/ocp-ai-platform.git
-   1739bd8..a44c0b4  main -> main
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ sudo arp -d 10.172.248.175 2>/dev/null; sleep 10; ping -c 3 10.172.248.175
-PING 10.172.248.175 (10.172.248.175) 56(84) bytes of data.
+oc get svc pai-gateway-openshift-default -n openshift-ingress -o yaml | grep -E 'type:|externalTrafficPolicy|externalIPs|loadBalancer'
 
---- 10.172.248.175 ping statistics ---
-3 packets transmitted, 0 received, 100% packet loss, time 2052ms
-
-hsuma@plnx-admin:~/ocp-ai-config$
+# Check if .175 is maybe assigned directly to a node
+oc debug node/ocp-ai-master03.calix.local -- chroot /host ip addr | grep 248.175
