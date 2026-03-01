@@ -1,1 +1,29 @@
-helm show values zilliztech/milvus | grep -A25 "externalS3:"
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ helm show values zilliztech/milvus | grep -A25 "externalS3:"
+externalS3:
+  enabled: false
+  host: ""
+  port: ""
+  accessKey: ""
+  secretKey: ""
+  useSSL: false
+  bucketName: ""
+  rootPath: ""
+  useIAM: false
+  cloudProvider: "aws"
+  iamEndpoint: ""
+  region: ""
+  useVirtualHost: false
+
+###################################
+# GCS Gateway
+# - these configs are only used when `minio.gcsgateway.enabled` is true
+###################################
+externalGcs:
+  bucketName: ""
+
+###################################
+# External etcd
+# - these configs are only used when `externalEtcd.enabled` is true
+###################################
