@@ -39,10 +39,4 @@ curl -sk https://minio.dev.ocp-ai.calix.local
 
 
 
-resource mapping not found for name: "minio-credentials" namespace: "pai-dev" from "STDIN": no matches for kind "ExternalSecret" in version "external-secrets.io/v1beta1"
-ensure CRDs are installed first
-resource mapping not found for name: "minio-credentials" namespace: "pai-test" from "STDIN": no matches for kind "ExternalSecret" in version "external-secrets.io/v1beta1"
-ensure CRDs are installed first
-resource mapping not found for name: "minio-credentials" namespace: "pai-prod" from "STDIN": no matches for kind "ExternalSecret" in version "external-secrets.io/v1beta1"
-ensure CRDs are installed first
-hsuma@plnx-admin:~/ocp-ai-config$
+oc get crd externalsecrets.external-secrets.io -o jsonpath='{.spec.versions[*].name}'
