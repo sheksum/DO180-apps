@@ -1,7 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$ curl -svk --connect-timeout 5 https://tls-test.dev.ocp-ai.calix.local 2>&1 | head -30
-*   Trying 10.172.248.175:443...
-* After 5000ms connect time, move on!
-* connect to 10.172.248.175 port 443 failed: Connection timed out
-* Connection timeout after 5000 ms
-* Closing connection 0
-hsuma@plnx-admin:~/ocp-ai-config$
+curl -svk --connect-timeout 10 https://tls-test.dev.ocp-ai.calix.local 2>&1 | grep -E 'subject:|issuer:|SSL connection'
