@@ -1,3 +1,30 @@
-oc debug node/ocp-ai-master03.calix.local -- chroot /host sysctl net.ipv4.conf.eno6.arp_ignore net.ipv4.conf.eno6.arp_announce
+hsuma@plnx-admin:~/ocp-ai-config$ oc debug node/ocp-ai-master03.calix.local -- chroot /host sysctl net.ipv4.conf.eno6.arp_ignore net.ipv4.conf.eno6.arp_announce
+Starting pod/ocp-ai-master03calixlocal-debug-qc7v6 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+net.ipv4.conf.eno6.arp_ignore = 1
+net.ipv4.conf.eno6.arp_announce = 2
 
-oc debug node/ocp-ai-master03.calix.local -- chroot /host ip link | grep -A1 'eno\|br-'
+Removing debug pod ...
+hsuma@plnx-admin:~/ocp-ai-config$ oc debug node/ocp-ai-master03.calix.local -- chroot /host ip link | grep -A1 'eno\|br-'
+Starting pod/ocp-ai-master03calixlocal-debug-4nlxq ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+2: eno5: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc mq master ovs-system state UP mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:50:0a:68 brd ff:ff:ff:ff:ff:ff
+--
+3: eno6: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:51:0b:68 brd ff:ff:ff:ff:ff:ff
+--
+4: eno7: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 9000 qdisc mq master bnd0 state UP mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:50:0a:69 brd ff:ff:ff:ff:ff:ff
+--
+5: eno8: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 9000 qdisc mq master bnd0 state UP mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:50:0a:69 brd ff:ff:ff:ff:ff:ff permaddr 00:25:b5:51:0b:69
+--
+9: br-int: <BROADCAST,MULTICAST> mtu 8900 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether ea:a2:ba:ef:18:7c brd ff:ff:ff:ff:ff:ff
+--
+17: br-ex: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:50:0a:68 brd ff:ff:ff:ff:ff:ff
+
+Removing debug pod ...
+hsuma@plnx-admin:~/ocp-ai-config$
