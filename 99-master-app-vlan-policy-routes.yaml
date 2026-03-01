@@ -1,1 +1,15 @@
-curl -sk --connect-timeout 5 http://tls-test.dev.ocp-ai.calix.local
+hsuma@plnx-admin:~/ocp-ai-config$ curl -sk --connect-timeout 5 http://tls-test.dev.ocp-ai.calix.local
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ ping -c 2 10.172.248.175
+PING 10.172.248.175 (10.172.248.175) 56(84) bytes of data.
+
+--- 10.172.248.175 ping statistics ---
+2 packets transmitted, 0 received, 100% packet loss, time 1020ms
+
+hsuma@plnx-admin:~/ocp-ai-config$ ping -c 15 10.172.248.175
+PING 10.172.248.175 (10.172.248.175) 56(84) bytes of data.
+
+--- 10.172.248.175 ping statistics ---
+15 packets transmitted, 0 received, 100% packet loss, time 14329ms
+
+hsuma@plnx-admin:~/ocp-ai-config$
