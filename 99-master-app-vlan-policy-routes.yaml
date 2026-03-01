@@ -1,6 +1,29 @@
-# Check existing ESO SecretStores and ExternalSecrets
-oc get secretstores -A
-oc get externalsecrets -A
-
-# Check the existing test-secret to see the Vault path pattern
-oc get externalsecret test-secret -n pai-dev -o yaml | grep -A10 "spec:"
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secretstores -A
+NAMESPACE   NAME          AGE     STATUS   CAPABILITIES   READY
+pai-dev     vault-store   28h     Valid    ReadWrite      True
+pai-prod    vault-store   2d21h   Valid    ReadWrite      True
+pai-test    vault-store   2d21h   Valid    ReadWrite      True
+trident     vault-store   5d2h    Valid    ReadWrite      True
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecrets -A
+NAMESPACE   NAME                   STORETYPE     STORE         REFRESH INTERVAL   STATUS         READY
+pai-dev     test-secret            SecretStore   vault-store   1m                 SecretSynced   True
+trident     backend-app-secret     SecretStore   vault-store   1h                 SecretSynced   True
+trident     backend-infra-secret   SecretStore   vault-store   1h                 SecretSynced   True
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecret test-secret -n pai-dev -o yaml | grep -A10 "spec:"
+spec:
+  data:
+  - remoteRef:
+      conversionStrategy: Default
+      decodingStrategy: None
+      key: pai/dev/test-secret
+      metadataPolicy: None
+      property: username
+    secretKey: username
+  - remoteRef:
+      conversionStrategy: Default
+hsuma@plnx-admin:~/ocp-ai-config$
