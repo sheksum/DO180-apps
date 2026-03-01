@@ -1,19 +1,134 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ sleep 120 && oc get pods -n pai-prod -l app=milvus && oc logs -n pai-prod deploy/milvus --tail=3
-NAME                      READY   STATUS    RESTARTS      AGE
-milvus-59bdf9dbc8-c4m5p   0/1     Running   5 (39s ago)   6m50s
-[2026/03/01 05:38:06.864 +00:00] [WARN] [balancer/balancer_impl.go:572] ["channel is not assigned to any server"] [channel=by-dev-rootcoord-dml_14] [term=1] [serverID=0] [state=PCHANNEL_META_STATE_UNINITIALIZED]
-[2026/03/01 05:38:06.864 +00:00] [WARN] [balancer/balancer_impl.go:572] ["channel is not assigned to any server"] [channel=by-dev-rootcoord-dml_10] [term=1] [serverID=0] [state=PCHANNEL_META_STATE_UNINITIALIZED]
-[2026/03/01 05:38:06.864 +00:00] [WARN] [balancer/balancer_impl.go:572] ["channel is not assigned to any server"] [channel=by-dev-rootcoord-dml_15] [term=1] [serverID=0] [state=PCHANNEL_META_STATE_UNINITIALIZED]
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-prod -l app=milvus
-NAME                      READY   STATUS    RESTARTS      AGE
-milvus-59bdf9dbc8-c4m5p   0/1     Running   5 (53s ago)   7m4s
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get svc -n pai-prod
-NAME        TYPE           CLUSTER-IP       EXTERNAL-IP      PORT(S)              AGE
-milvus      ClusterIP      172.30.56.92     <none>           19530/TCP,9091/TCP   12m
-milvus-lb   LoadBalancer   172.30.250.144   10.172.202.161   19530:30139/TCP      9m27s
-minio       ClusterIP      172.30.77.23     <none>           9000/TCP,9001/TCP    81m
-minio-lb    LoadBalancer   172.30.161.228   10.172.202.160   9000:32639/TCP       81m
-hsuma@plnx-admin:~/ocp-ai-config$
+oc delete deploy milvus -n pai-prod
+oc delete configmap milvus-config -n pai-prod
+oc delete pvc milvus-data -n pai-prod
+
+
+cat <<'EOF' | oc apply -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: milvus-data
+  namespace: pai-prod
+spec:
+  storageClassName: netapp-app
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: milvus-config
+  namespace: pai-prod
+data:
+  embedEtcd.yaml: |
+    listen-client-urls: http://0.0.0.0:2379
+    advertise-client-urls: http://0.0.0.0:2379
+    quota-backend-bytes: 4294967296
+    auto-compaction-mode: revision
+    auto-compaction-retention: "1000"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: milvus
+  namespace: pai-prod
+  labels:
+    app: milvus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: milvus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: milvus
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: milvus
+          image: milvusdb/milvus:v2.6.11
+          command: ["milvus"]
+          args: ["run", "standalone"]
+          env:
+            - name: DEPLOY_MODE
+              value: "STANDALONE"
+            - name: ETCD_USE_EMBED
+              value: "true"
+            - name: ETCD_CONFIG_PATH
+              value: "/milvus/configs/embedEtcd.yaml"
+            - name: ETCD_DATA_DIR
+              value: "/var/lib/milvus/etcd"
+            - name: COMMON_STORAGETYPE
+              value: "remote"
+            - name: MINIO_ADDRESS
+              value: "minio.pai-prod.svc.cluster.local"
+            - name: MINIO_PORT
+              value: "9000"
+            - name: MINIO_USE_SSL
+              value: "false"
+            - name: MINIO_BUCKET_NAME
+              value: "milvus-bucket"
+            - name: MINIO_ROOT_PATH
+              value: "milvus"
+            - name: MINIO_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: MINIO_ROOT_USER
+            - name: MINIO_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: MINIO_ROOT_PASSWORD
+          ports:
+            - name: grpc
+              containerPort: 19530
+            - name: http
+              containerPort: 9091
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "8"
+              memory: 16Gi
+            limits:
+              cpu: "8"
+              memory: 16Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/milvus
+            - name: config
+              mountPath: /milvus/configs/embedEtcd.yaml
+              subPath: embedEtcd.yaml
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: milvus-data
+        - name: config
+          configMap:
+            name: milvus-config
+EOF
