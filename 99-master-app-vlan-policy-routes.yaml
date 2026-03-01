@@ -1,11 +1,19 @@
-persistentvolumeclaim/milvus-data created
-configmap/milvus-config created
-deployment.apps/milvus created
-service/milvus created
-service/milvus-lb created
-persistentvolumeclaim/milvus-data created
-configmap/milvus-config created
-deployment.apps/milvus created
-service/milvus created
-error: error parsing STDIN: error converting YAML to JSON: yaml: line 19: mapping values are not allowed in this context
-hsuma@plnx-admin:~/ocp-ai-config$
+cat <<'EOF' | oc apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: milvus-lb
+  namespace: pai-prod
+  annotations:
+    metallb.universe.tf/address-pool: pai-services-prod
+    metallb.universe.tf/loadBalancerIPs: "10.172.202.161"
+spec:
+  type: LoadBalancer
+  selector:
+    app: milvus
+  ports:
+    - name: grpc
+      port: 19530
+      targetPort: 19530
+      protocol: TCP
+EOF
