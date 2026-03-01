@@ -1,6 +1,8 @@
-oc scale deploy fileparser -n pai-dev --replicas=0
-
-oc run fileparser-debug -n pai-dev --rm -it --restart=Never \
+hsuma@plnx-admin:~/ocp-ai-config$ oc scale deploy fileparser -n pai-dev --replicas=0
+deployment.apps/fileparser scaled
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc run fileparser-debug -n pai-dev --rm -it --restart=Never \
   --image=paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3 \
   --overrides='{
     "spec": {
@@ -17,3 +19,5 @@ oc run fileparser-debug -n pai-dev --rm -it --restart=Never \
     }
   }' \
   --command -- /bin/sh -c "sleep 300"
+Error from server (AlreadyExists): object is being deleted: pods "fileparser-debug" already exists
+hsuma@plnx-admin:~/ocp-ai-config$
