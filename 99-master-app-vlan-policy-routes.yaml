@@ -1,2 +1,24 @@
-oc get pods -n pai-dev -l app.kubernetes.io/instance=milvus
-oc logs -n pai-dev -l app.kubernetes.io/name=milvus --tail=30
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-dev -l app.kubernetes.io/instance=milvus
+NAME                                 READY   STATUS    RESTARTS      AGE
+milvus-standalone-5669fd9774-xc9pt   0/1     Running   4 (56s ago)   3m
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n pai-dev -l app.kubernetes.io/name=milvus --tail=30
+	/workspace/source/internal/coordinator/snmanager/streaming_node_manager.go:31 +0x25 fp=0xc001397fe0 sp=0xc001397fc8 pc=0x5800c05
+runtime.goexit({})
+	/usr/local/go/src/runtime/asm_amd64.s:1700 +0x1 fp=0xc001397fe8 sp=0xc001397fe0 pc=0x28e15a1
+created by github.com/milvus-io/milvus/internal/coordinator/snmanager.newStreamingNodeManager in goroutine 1
+	/workspace/source/internal/coordinator/snmanager/streaming_node_manager.go:31 +0x1c7
+
+goroutine 362 gp=0xc00021fc00 m=nil [select, locked to thread]:
+runtime.gopark(0xc0013987a8?, 0x2?, 0x8c?, 0xb1?, 0xc001398794?)
+	/usr/local/go/src/runtime/proc.go:435 +0xce fp=0xc001398620 sp=0xc001398600 pc=0x28d892e
+runtime.selectgo(0xc0013987a8, 0xc001398790, 0x0?, 0x0, 0xc001baf001?, 0x1)
+	/usr/local/go/src/runtime/select.go:351 +0x837 fp=0xc001398758 sp=0xc001398620 pc=0x28b3f37
+runtime.ensureSigM.func1()
+	/usr/local/go/src/runtime/signal_unix.go:1085 +0x192 fp=0xc0013987e0 sp=0xc001398758 pc=0x28d1ff2
+runtime.goexit({})
+	/usr/local/go/src/runtime/asm_amd64.s:1700 +0x1 fp=0xc0013987e8 sp=0xc0013987e0 pc=0x28e15a1
+created by runtime.ensureSigM in goroutine 1
+	/usr/local/go/src/runtime/signal_unix.go:1068 +0xc8
+hsuma@plnx-admin:~/ocp-ai-config$
