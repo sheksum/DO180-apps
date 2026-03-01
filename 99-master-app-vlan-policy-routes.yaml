@@ -85,3 +85,5 @@ hsuma@plnx-admin:~/ocp-ai-config$ oc get crd | grep -i aistor
 adminjobs.aistor.min.io                                           2026-03-01T03:45:05Z
 objectstores.aistor.min.io                                        2026-03-01T03:45:05Z
 hsuma@plnx-admin:~/ocp-ai-config$
+
+oc explain objectstore.spec --api-version=aistor.min.io/v1 | head -60
