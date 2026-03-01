@@ -1,1 +1,32 @@
-oc get mc 99-worker-nm-dns-fix -o yaml | head -30
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mc 99-worker-nm-dns-fix -o yaml | head -30
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: machineconfigs:machineconfiguration.openshift.io/MachineConfig:/99-worker-nm-dns-fix
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"machineconfiguration.openshift.io/v1","kind":"MachineConfig","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"machineconfigs:machineconfiguration.openshift.io/MachineConfig:/99-worker-nm-dns-fix"},"labels":{"machineconfiguration.openshift.io/role":"worker"},"name":"99-worker-nm-dns-fix"},"spec":{"config":{"ignition":{"version":"3.5.0"},"storage":{"files":[{"contents":{"source":"data:text/plain;charset=utf-8;base64,W2dsb2JhbC1kbnMtZG9tYWluLSpdCnNlcnZlcnM9MTAuMTcyLjI0OC4zMSwxMC4xNzIuMjQ4LjMyCgpbZ2xvYmFsLWRuc10Kc2VhcmNoZXM9Y2FsaXgubG9jYWwK"},"mode":420,"overwrite":true,"path":"/etc/NetworkManager/conf.d/90-dns-fix.conf"},{"contents":{"source":"data:text/plain;charset=utf-8;base64,IyEvYmluL2Jhc2gKUkVTT0xWPSIvdmFyL3J1bi9OZXR3b3JrTWFuYWdlci9yZXNvbHYuY29uZiIKRE5TMT0iMTAuMTcyLjI0OC4zMSIKRE5TMj0iMTAuMTcyLjI0OC4zMiIKU0VBUkNIPSJjYWxpeC5sb2NhbCIKTUFYX1dBSVQ9MzAKSU5URVJWQUw9MgoKZWNobyAiW2Vuc3VyZS1ubS1kbnNdIFdhaXRpbmcgZm9yIE5NIHJlc29sdi5jb25mIChtYXggJHtNQVhfV0FJVH1zKS4uLiIKCmVsYXBzZWQ9MAp3aGlsZSBbICEgLWYgIiRSRVNPTFYiIF07IGRvCiAgaWYgWyAkZWxhcHNlZCAtZ2UgJE1BWF9XQUlUIF07IHRoZW4KICAgIGVjaG8gIltlbnN1cmUtbm0tZG5zXSBXQVJOOiAke1JFU09MVn0gbm90IGZvdW5kIGFmdGVyICR7TUFYX1dBSVR9cywgY3JlYXRpbmcgaXQiCiAgICBta2RpciAtcCAvdmFyL3J1bi9OZXR3b3JrTWFuYWdlcgogICAgYnJlYWsKICBmaQogIHNsZWVwICRJTlRFUlZBTAogIGVsYXBzZWQ9JCgoZWxhcHNlZCArIElOVEVSVkFMKSkKZG9uZQoKIyBBbHdheXMgd3JpdGUgRE5TIHRvIHJlc29sdi5jb25mCnByaW50ZiAic2VhcmNoICVzXG5uYW1lc2VydmVyICVzXG5uYW1lc2VydmVyICVzXG4iICIkU0VBUkNIIiAiJEROUzEiICIkRE5TMiIgPiAiJFJFU09MViIKCmVjaG8gIltlbnN1cmUtbm0tZG5zXSBETlMgaW5qZWN0ZWQgaW50byAke1JFU09MVn0iCmNhdCAiJFJFU09MViIKZXhpdCAwCg=="},"mode":493,"overwrite":true,"path":"/usr/local/bin/ensure-nm-dns.sh"}]},"systemd":{"units":[{"contents":"[Unit]\nDescription=Ensure NM resolv.conf has DNS servers (OVN-K bare-metal fix)\nAfter=NetworkManager.service\nBefore=kubelet.service\nBefore=nodeip-configuration.service\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/local/bin/ensure-nm-dns.sh\nTimeoutStartSec=180\n\n[Install]\nWantedBy=multi-user.target\n","enabled":true,"name":"ensure-nm-dns.service"}]}}}}
+  creationTimestamp: "2026-02-26T22:47:30Z"
+  generation: 4
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-nm-dns-fix
+  resourceVersion: "5150635"
+  uid: 3db46b1b-de4a-4a11-88b4-e743e00e395d
+spec:
+  config:
+    ignition:
+      version: 3.5.0
+    storage:
+      files:
+      - contents:
+          source: data:text/plain;charset=utf-8;base64,W2dsb2JhbC1kbnMtZG9tYWluLSpdCnNlcnZlcnM9MTAuMTcyLjI0OC4zMSwxMC4xNzIuMjQ4LjMyCgpbZ2xvYmFsLWRuc10Kc2VhcmNoZXM9Y2FsaXgubG9jYWwK
+        mode: 420
+        overwrite: true
+        path: /etc/NetworkManager/conf.d/90-dns-fix.conf
+      - contents:
+          source: data:text/plain;charset=utf-8;base64,IyEvYmluL2Jhc2gKUkVTT0xWPSIvdmFyL3J1bi9OZXR3b3JrTWFuYWdlci9yZXNvbHYuY29uZiIKRE5TMT0iMTAuMTcyLjI0OC4zMSIKRE5TMj0iMTAuMTcyLjI0OC4zMiIKU0VBUkNIPSJjYWxpeC5sb2NhbCIKTUFYX1dBSVQ9MzAKSU5URVJWQUw9MgoKZWNobyAiW2Vuc3VyZS1ubS1kbnNdIFdhaXRpbmcgZm9yIE5NIHJlc29sdi5jb25mIChtYXggJHtNQVhfV0FJVH1zKS4uLiIKCmVsYXBzZWQ9MAp3aGlsZSBbICEgLWYgIiRSRVNPTFYiIF07IGRvCiAgaWYgWyAkZWxhcHNlZCAtZ2UgJE1BWF9XQUlUIF07IHRoZW4KICAgIGVjaG8gIltlbnN1cmUtbm0tZG5zXSBXQVJOOiAke1JFU09MVn0gbm90IGZvdW5kIGFmdGVyICR7TUFYX1dBSVR9cywgY3JlYXRpbmcgaXQiCiAgICBta2RpciAtcCAvdmFyL3J1bi9OZXR3b3JrTWFuYWdlcgogICAgYnJlYWsKICBmaQogIHNsZWVwICRJTlRFUlZBTAogIGVsYXBzZWQ9JCgoZWxhcHNlZCArIElOVEVSVkFMKSkKZG9uZQoKIyBBbHdheXMgd3JpdGUgRE5TIHRvIHJlc29sdi5jb25mCnByaW50ZiAic2VhcmNoICVzXG5uYW1lc2VydmVyICVzXG5uYW1lc2VydmVyICVzXG4iICIkU0VBUkNIIiAiJEROUzEiICIkRE5TMiIgPiAiJFJFU09MViIKCmVjaG8gIltlbnN1cmUtbm0tZG5zXSBETlMgaW5qZWN0ZWQgaW50byAke1JFU09MVn0iCmNhdCAiJFJFU09MViIKZXhpdCAwCg==
+        mode: 493
+        overwrite: true
+        path: /usr/local/bin/ensure-nm-dns.sh
+hsuma@plnx-admin:~/ocp-ai-config$
