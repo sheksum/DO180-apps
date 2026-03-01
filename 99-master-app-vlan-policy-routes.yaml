@@ -1,7 +1,14 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get objectstore -A
-NAMESPACE   NAME    STATE                              HEALTH   AGE
-pai-dev     minio   secret "minio-license" not found   red      62s
-pai-prod    minio   secret "minio-license" not found   red      62s
-pai-test    minio   secret "minio-license" not found   red      62s
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
+# Delete ObjectStore instances
+oc delete objectstore minio -n pai-dev
+oc delete objectstore minio -n pai-test
+oc delete objectstore minio -n pai-prod
+
+# Delete the storage-configuration secrets (not needed for community image)
+oc delete secret storage-configuration -n pai-dev
+oc delete secret storage-configuration -n pai-test
+oc delete secret storage-configuration -n pai-prod
+
+# Uninstall the operator
+oc delete subscription minio-object-store-operator -n aistor
+oc delete csv -n aistor --all
+oc delete namespace aistor
