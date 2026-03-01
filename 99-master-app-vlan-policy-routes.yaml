@@ -1,4 +1,24 @@
-# Check existing Vault policies for the pai namespaces
-# SSH to plnx-vault or run from plnx-admin?
-# Let's check the test-secret to see the full path structure
-oc get externalsecret test-secret -n pai-dev -o yaml | grep -A20 "spec:"
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecret test-secret -n pai-dev -o yaml | grep -A20 "spec:"
+spec:
+  data:
+  - remoteRef:
+      conversionStrategy: Default
+      decodingStrategy: None
+      key: pai/dev/test-secret
+      metadataPolicy: None
+      property: username
+    secretKey: username
+  - remoteRef:
+      conversionStrategy: Default
+      decodingStrategy: None
+      key: pai/dev/test-secret
+      metadataPolicy: None
+      property: password
+    secretKey: password
+  refreshInterval: 1m
+  secretStoreRef:
+    kind: SecretStore
+    name: vault-store
+  target:
+hsuma@plnx-admin:~/ocp-ai-config$
