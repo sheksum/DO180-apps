@@ -1,16 +1,6 @@
-# Patch all three environments uniformly
-
-for ns in pai-dev pai-test pai-prod; do
-  oc patch deploy milvus -n $ns --type json -p '[
-    {"op":"add","path":"/spec/template/spec/containers/0/startupProbe","value":{
-      "httpGet":{"path":"/healthz","port":"http"},
-      "initialDelaySeconds":10,
-      "periodSeconds":10,
-      "failureThreshold":30
-    }},
-    {"op":"replace","path":"/spec/template/spec/containers/0/livenessProbe/initialDelaySeconds","value":10},
-    {"op":"replace","path":"/spec/template/spec/containers/0/livenessProbe/periodSeconds","value":30},
-    {"op":"add","path":"/spec/template/spec/volumes/-","value":{"name":"etcd-data","emptyDir":{"sizeLimit":"10Gi"}}},
-    {"op":"add","path":"/spec/template/spec/containers/0/volumeMounts/-","value":{"name":"etcd-data","mountPath":"/var/lib/milvus/etcd"}}
-  ]'
-done
+deployment.apps/milvus patched
+deployment.apps/milvus patched
+The Deployment "milvus" is invalid:
+* spec.template.spec.volumes[3].name: Duplicate value: "etcd-data"
+* spec.template.spec.containers[0].volumeMounts[3].mountPath: Invalid value: "/var/lib/milvus/etcd": must be unique
+hsuma@plnx-admin:~/ocp-ai-config$
