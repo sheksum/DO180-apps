@@ -39,51 +39,5 @@ curl -sk https://minio.dev.ocp-ai.calix.local
 
 
 
-# On plnx-admin:
 oc get secretstore vault-store -n pai-dev -o yaml | grep -A15 "provider:"
-hsuma@plnx-admin:~/ocp-ai-config$ oc explain objectstore.spec.configuration --api-version=aistor.min.io/v1
-GROUP:      aistor.min.io
-KIND:       ObjectStore
-VERSION:    v1
-
-FIELD: configuration <Object>
-
-
-DESCRIPTION:
-    <empty>
-FIELDS:
-  name	<string>
-    <no description>
-
-
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc explain objectstore.spec.pools.volumeClaimTemplate --api-version=aistor.min.io/v1
-GROUP:      aistor.min.io
-KIND:       ObjectStore
-VERSION:    v1
-
-FIELD: volumeClaimTemplate <Object>
-
-
-DESCRIPTION:
-    <empty>
-FIELDS:
-  apiVersion	<string>
-    <no description>
-
-  kind	<string>
-    <no description>
-
-  metadata	<Object>
-    <no description>
-
-  spec	<Object>
-    <no description>
-
-  status	<Object>
-    <no description>
-
-
-hsuma@plnx-admin:~/ocp-ai-config$
 
