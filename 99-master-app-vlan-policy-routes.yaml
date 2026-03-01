@@ -1,2 +1,9 @@
-oc exec deploy/postgresql -n pai-dev -- env | grep -i ssl
-oc exec deploy/postgresql -n pai-dev -- psql -U appuser -d test_db -c "SHOW ssl;"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc exec deploy/postgresql -n pai-dev -- env | grep -i ssl
+hsuma@plnx-admin:~$ oc exec deploy/postgresql -n pai-dev -- psql -U appuser -d test_db -c "SHOW ssl;"
+ ssl
+-----
+ off
+(1 row)
+
+hsuma@plnx-admin:~$
