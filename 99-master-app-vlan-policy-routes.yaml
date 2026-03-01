@@ -1,3 +1,11 @@
-# Check what Trident backends exist
-oc get tridentbackendconfig -A
-oc get tridentbackend -A -o custom-columns=NAME:.metadata.name,PROTOCOL:.spec.storageDriverName,STATE:.status.phase
+hsuma@plnx-admin:~/ocp-ai-config$ oc get tridentbackendconfig -A
+NAMESPACE   NAME                BACKEND NAME        BACKEND UUID                           PHASE   STATUS
+trident     backend-app-nfs     backend-app-nfs     27f061fd-e6e4-448c-a4e4-c4302ac4a01a   Bound   Success
+trident     backend-infra-nfs   backend-infra-nfs   88ba74b5-6d56-47cf-a16d-9066ae716681   Bound   Success
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get tridentbackend -A -o custom-columns=NAME:.metadata.name,PROTOCOL:.spec.storageDriverName,STATE:.status.phase
+NAME        PROTOCOL   STATE
+tbe-wp27v   <none>     <none>
+tbe-zg42j   <none>     <none>
+hsuma@plnx-admin:~/ocp-ai-config$
