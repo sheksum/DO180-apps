@@ -5,3 +5,7 @@ oc patch deploy agent-gateway -n pai-dev --type json \
 # Fix internal-agentmesh — append PGSSLMODE=disable to existing env array
 oc patch deploy internal-agentmesh-agent-gateway-service -n pai-dev --type json \
   -p '[{"op":"add","path":"/spec/template/spec/containers/0/env/-","value":{"name":"PGSSLMODE","value":"disable"}}]'
+
+
+  oc rollout status deploy/agent-gateway -n pai-dev --timeout=120s
+oc rollout status deploy/internal-agentmesh-agent-gateway-service -n pai-dev --timeout=120s
