@@ -1,20 +1,3 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get svc -n pai-dev --field-selector spec.type=LoadBalancer
-No resources found in pai-dev namespace.
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get ipaddresspools -n metallb-system -o yaml | grep -A5 pai-services-dev
-      argocd.argoproj.io/tracking-id: metallb:metallb.io/IPAddressPool:metallb-system/pai-services-dev
-      kubectl.kubernetes.io/last-applied-configuration: |
-        {"apiVersion":"metallb.io/v1beta1","kind":"IPAddressPool","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/IPAddressPool:metallb-system/pai-services-dev"},"name":"pai-services-dev","namespace":"metallb-system"},"spec":{"addresses":["10.172.194.160-10.172.194.179"],"autoAssign":true}}
-    creationTimestamp: "2026-02-26T04:36:27Z"
-    generation: 2
-    name: pai-services-dev
-    namespace: metallb-system
-    resourceVersion: "6676838"
-    uid: 32a68711-ad19-4fa4-851c-02a9a4f96f14
-  spec:
-    addresses:
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pvc -A | grep pai
+pai-dev                    model-cache-pvc          Bound    pvc-ed941f98-0820-4b25-be8d-c69bebc4e2d3   500Gi      RWO            netapp-app     <unset>                 12h
 hsuma@plnx-admin:~/ocp-ai-config$
