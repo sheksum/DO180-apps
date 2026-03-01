@@ -1,9 +1,2 @@
-# Clean up current manifest deployment
-oc delete -f /tmp/milvus-dev.yaml -n pai-dev 2>/dev/null
-oc delete pvc -n pai-dev -l app.kubernetes.io/instance=milvus 2>/dev/null
-oc delete pvc milvus -n pai-dev 2>/dev/null
-oc delete pvc data-milvus-etcd-0 -n pai-dev 2>/dev/null
-
-# Verify clean
-oc get pods -n pai-dev | grep milvus
-oc get pvc -n pai-dev | grep milvus
+oc patch pvc milvus -n pai-dev -p '{"metadata":{"finalizers":null}}' --type=merge
+oc patch pvc data-milvus-etcd-0 -n pai-dev -p '{"metadata":{"finalizers":null}}' --type=merge
