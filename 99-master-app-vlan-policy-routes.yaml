@@ -1,15 +1,12 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get statefulset milvus-etcd -n pai-dev -o jsonpath='{.spec.template.spec.serviceAccountName}'
-defaulthsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get statefulset milvus-etcd -n pai-dev -o jsonpath='{.spec.template.spec.securityContext}' | jq .
-{
-  "fsGroup": 1001
-}
-hsuma@plnx-admin:~/ocp-ai-config$ oc get statefulset milvus-etcd -n pai-dev -o jsonpath='{.spec.template.spec.containers[0].securityContext}' | jq .
-{
-  "allowPrivilegeEscalation": false,
-  "runAsNonRoot": true,
-  "runAsUser": 1001
-}
-hsuma@plnx-admin:~/ocp-ai-config$
+# Uninstall all three
+helm uninstall milvus -n pai-dev
+helm uninstall milvus -n pai-test
+helm uninstall milvus -n pai-prod
 
+# Clean up stuck PVCs
+oc delete pvc -n pai-dev -l app.kubernetes.io/instance=milvus
+oc delete pvc -n pai-test -l app.kubernetes.io/instance=milvus
+oc delete pvc -n pai-prod -l app.kubernetes.io/instance=milvus
+
+
+helm show values zilliztech/milvus | grep -A30 "^etcd:"
