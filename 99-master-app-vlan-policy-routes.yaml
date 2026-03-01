@@ -1,8 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n openshift-ingress | grep pai-gateway
-pai-gateway-openshift-default-59c9d58c94-wkxdw   1/1     Running   0          3h41m
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- ss -tlnp | grep 443
-executable file `ss` not found in $PATH: No such file or directory
-command terminated with exit code 1
-hsuma@plnx-admin:~/ocp-ai-config$
+oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- netstat -tlnp 2>/dev/null || oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- cat /proc/net/tcp6
