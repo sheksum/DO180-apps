@@ -1,7 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- cat /proc/net/tcp6
-  sl  local_address                         remote_address                        st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
-   0: 00000000000000000000000000000000:3AAC 00000000000000000000000000000000:0000 0A 00000000:00000000 00:00000000 00000000 1000729999        0 2964552 1 0000000000000000 100 0 0 10 0
-   1: 0000000000000000FFFF00000100007F:3AAC 0000000000000000FFFF00000100007F:C616 01 00000000:00000000 02:0000018B 00000000 1000729999        0 2943400 2 0000000000000000 20 4 31 10 -1
-   2: 0000000000000000FFFF00000100007F:3AAC 0000000000000000FFFF00000100007F:C61E 01 00000000:00000000 02:000001D6 00000000 1000729999        0 2832218 2 0000000000000000 20 4 31 10 -1
-hsuma@plnx-admin:~/ocp-ai-config$
-
+oc logs deploy/pai-gateway-openshift-default -n openshift-ingress --tail=30 | grep -i -E 'error|warn|listener|443'
