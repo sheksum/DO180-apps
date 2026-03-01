@@ -3,7 +3,4 @@ helm template milvus zilliztech/milvus -n pai-dev \
   --set minio.enabled=false \
   --set pulsarv3.enabled=false \
   --set etcd.enabled=true \
-  --set etcd.replicaCount=1 \
-  --set etcd.containerSecurityContext.runAsUser=null \
-  --set etcd.podSecurityContext.fsGroup=null \
-  2>/dev/null | grep -B2 -A15 "kind: StatefulSet"
+  --set etcd.replicaCount=1 2>&1 | grep -i "statefulset" | head -5
