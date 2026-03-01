@@ -1,2 +1,31 @@
-oc get deploy internal-agentmesh-agent-gateway-service -n pai-dev \
+hsuma@plnx-admin:~/ocp-ai-config$ oc get deploy internal-agentmesh-agent-gateway-service -n pai-dev \
   -o jsonpath='{.spec.template.spec.containers[0].env}' | jq .
+[
+  {
+    "name": "XDG_CACHE_HOME",
+    "value": "/tmp/.cache"
+  },
+  {
+    "name": "UV_CACHE_DIR",
+    "value": "/tmp/uv-cache"
+  },
+  {
+    "name": "DATABASE_USER",
+    "valueFrom": {
+      "secretKeyRef": {
+        "key": "DATABASE_USER",
+        "name": "db-credentials"
+      }
+    }
+  },
+  {
+    "name": "DATABASE_PASSWORD",
+    "valueFrom": {
+      "secretKeyRef": {
+        "key": "DATABASE_PASSWORD",
+        "name": "db-credentials"
+      }
+    }
+  }
+]
+hsuma@plnx-admin:~/ocp-ai-config$
