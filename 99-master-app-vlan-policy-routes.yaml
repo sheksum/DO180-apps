@@ -1,12 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n istio-system
-No resources found in istio-system namespace.
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc logs deploy/istiod -n istio-system --tail=30 | grep -i -E 'error|gateway|pai'
-error: error from server (NotFound): namespaces "istio-system" not found in namespace "istio-system"
-hsuma@plnx-admin:~/ocp-ai-config$
-
-
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -A | grep -i istio
-openshift-ingress                                  istiod-openshift-gateway-7cd77c7ffd-r2z4x                       1/1     Running            0                3h54m
-hsuma@plnx-admin:~/ocp-ai-config$
+oc logs deploy/istiod-openshift-gateway -n openshift-ingress --tail=50 | grep -i -E 'error|warn|reject|invalid|443|https|tls|secret'
