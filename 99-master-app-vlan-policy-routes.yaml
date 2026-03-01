@@ -1,1 +1,5 @@
-oc logs deploy/pai-gateway-openshift-default -n openshift-ingress --tail=30 | grep -i -E 'error|warn|listener|443'
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs deploy/pai-gateway-openshift-default -n openshift-ingress --tail=30 | grep -i -E 'error|warn|listener|443'
+2026-03-01T00:26:34.244150Z	info	Envoy command: [-c etc/istio/proxy/envoy-rev.json --drain-time-s 45 --drain-strategy immediate --local-address-ip-version v4 --file-flush-interval-msec 1000 --disable-hot-restart --allow-unknown-static-fields -l warning --component-log-level misc:error --skip-deprecated-logs --concurrency 2]
+2026-03-01T00:26:34.408723Z	warning	envoy main external/envoy/source/server/server.cc:874	Usage of the deprecated runtime key overload.global_downstream_max_connections, consider switching to `envoy.resource_monitors.global_downstream_max_connections` instead.This runtime key will be removed in future.	thread=8
+2026-03-01T00:26:34.409055Z	warning	envoy main external/envoy/source/server/server.cc:970	There is no configured limit to the number of allowed active downstream connections. Configure a limit in `envoy.resource_monitors.global_downstream_max_connections` resource monitor.	thread=8
+hsuma@plnx-admin:~/ocp-ai-config$
