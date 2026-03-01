@@ -1,6 +1,3 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n metallb-system speaker-4sm8f -c speaker --tail=5 --since=5m
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n metallb-system speaker-77d99 -c speaker --tail=5 --since=5m
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n metallb-system speaker-vcmvl -c speaker --tail=5 --since=5m
-hsuma@plnx-admin:~/ocp-ai-config$
+oc logs -n metallb-system speaker-4sm8f -c speaker | grep '248.175' | tail -5
+oc logs -n metallb-system speaker-77d99 -c speaker | grep '248.175' | tail -5
+oc logs -n metallb-system speaker-vcmvl -c speaker | grep '248.175' | tail -5
