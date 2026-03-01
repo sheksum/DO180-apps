@@ -1,1 +1,43 @@
-helm show values zilliztech/milvus | grep -A80 "^etcd:" | tail -40
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ helm show values zilliztech/milvus | grep -A80 "^etcd:" | tail -40
+  ##
+  autoCompactionMode: revision
+  autoCompactionRetention: "1000"
+
+  ## Increase default quota to 4G
+  ##
+  extraEnvVars:
+  - name: ETCD_QUOTA_BACKEND_BYTES
+    value: "4294967296"
+  - name: ETCD_HEARTBEAT_INTERVAL
+    value: "500"
+  - name: ETCD_ELECTION_TIMEOUT
+    value: "2500"
+
+## Configuration values for the pulsar dependency
+## ref: https://github.com/apache/pulsar-helm-chart
+##
+
+# default values for pulsar v3
+pulsarv3:
+  name: "pulsarv3" # note: nameOveride should be kept the same as the name field
+  nameOverride: "pulsarv3"
+  enabled: true
+  persistence: true
+  extra: {}
+  monitoring: {}
+  volumes:
+    persistence: true
+    local_storage: false
+
+  components:
+    # zookeeper
+    zookeeper: true
+    # bookkeeper
+    bookkeeper: true
+    # bookkeeper - autorecovery
+    autorecovery: true
+    # broker
+    broker: true
+    # functions
+hsuma@plnx-admin:~/ocp-ai-config$
