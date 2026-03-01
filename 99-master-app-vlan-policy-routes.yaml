@@ -1,11 +1,115 @@
-# Check what dev is using
-oc get deploy milvus -n pai-dev -o jsonpath='{.spec.template.spec.containers[0].env}' | jq '.[] | select(.name | test("MINIO_ROOT_PATH|rootPath"))'
-
-
-# Fix rootPath for each environment
-oc set env deploy/milvus -n pai-dev MINIO_ROOT_PATH=milvus/dev
-oc set env deploy/milvus -n pai-test MINIO_ROOT_PATH=milvus/test
-oc set env deploy/milvus -n pai-prod MINIO_ROOT_PATH=milvus/prod
-
-
-sleep 60 && oc get pods -l app=milvus -A
+cat <<'EOF' | oc apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: milvus
+  namespace: pai-prod
+  labels:
+    app: milvus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: milvus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: milvus
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: milvus
+          image: milvusdb/milvus:v2.6.11
+          command: ["milvus"]
+          args: ["run", "standalone"]
+          env:
+            - name: DEPLOY_MODE
+              value: "STANDALONE"
+            - name: ETCD_USE_EMBED
+              value: "true"
+            - name: ETCD_CONFIG_PATH
+              value: "/milvus/configs/embedEtcd.yaml"
+            - name: ETCD_DATA_DIR
+              value: "/var/lib/milvus/etcd"
+            - name: COMMON_STORAGETYPE
+              value: "remote"
+            - name: MINIO_ADDRESS
+              value: "minio.pai-prod.svc.cluster.local"
+            - name: MINIO_PORT
+              value: "9000"
+            - name: MINIO_USE_SSL
+              value: "false"
+            - name: MINIO_BUCKET_NAME
+              value: "milvus-bucket"
+            - name: MINIO_ROOT_PATH
+              value: "milvus/prod"
+            - name: MINIO_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: MINIO_ROOT_USER
+            - name: MINIO_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: MINIO_ROOT_PASSWORD
+          ports:
+            - name: grpc
+              containerPort: 19530
+            - name: http
+              containerPort: 9091
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "8"
+              memory: 16Gi
+            limits:
+              cpu: "8"
+              memory: 16Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/milvus
+            - name: etcd-data
+              mountPath: /var/lib/milvus/etcd
+            - name: config
+              mountPath: /milvus/configs/embedEtcd.yaml
+              subPath: embedEtcd.yaml
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: milvus-data
+        - name: etcd-data
+          emptyDir:
+            sizeLimit: 10Gi
+        - name: config
+          configMap:
+            name: milvus-config
+EOF
