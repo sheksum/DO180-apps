@@ -1,2 +1,13 @@
-oc get networkpolicy -n metallb-system
-oc logs -n metallb-system speaker-4sm8f --all-containers --tail=10 | grep -E 'error|join|announce'
+hsuma@plnx-admin:~/ocp-ai-config$ oc get networkpolicy -n metallb-system
+NAME         POD-SELECTOR                       AGE
+controller   app=metallb,component=controller   2d20h
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n metallb-system speaker-4sm8f --all-containers --tail=10 | grep -E 'error|join|announce'
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: connect: connection refused\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:46:39Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: i/o timeout\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:47:49Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: connect: no route to host\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:48:42Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: connect: no route to host\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:49:47Z"}
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.152:9122: dial tcp 10.172.248.152:9122: connect: connection refused\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-02-28T20:50:39Z"}
+hsuma@plnx-admin:~/ocp-ai-config$
