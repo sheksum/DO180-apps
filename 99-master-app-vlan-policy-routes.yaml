@@ -1,21 +1,3 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc debug node/ocp-ai-master03.calix.local -- chroot /host sysctl -w net.ipv4.conf.eno6.arp_filter=1
-Starting pod/ocp-ai-master03calixlocal-debug-72tzh ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-net.ipv4.conf.eno6.arp_filter = 1
+oc debug node/ocp-ai-master03.calix.local -- chroot /host ip link set eno6 down
 
-Removing debug pod ...
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ sudo arp -d 10.172.248.175 2>/dev/null; sleep 3; sudo arping -c 3 10.172.248.175
-No ARP entry for 10.172.248.175
-ARPING 10.172.248.175
-60 bytes from 00:25:b5:51:0b:68 (10.172.248.175): index=0 time=379.243 usec
-60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=1 time=737.970 usec
-60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=2 time=205.440 usec
-60 bytes from 00:25:b5:51:0b:68 (10.172.248.175): index=3 time=307.096 usec
-60 bytes from 00:25:b5:51:0b:68 (10.172.248.175): index=4 time=217.931 usec
-60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=5 time=318.769 usec
-
---- 10.172.248.175 statistics ---
-3 packets transmitted, 6 packets received,   0% unanswered (3 extra)
-rtt min/avg/max/std-dev = 0.205/0.361/0.738/0.179 ms
-hsuma@plnx-admin:~/ocp-ai-config$
+sudo arp -d 10.172.248.175 2>/dev/null; sleep 3; sudo arping -c 3 10.172.248.175
