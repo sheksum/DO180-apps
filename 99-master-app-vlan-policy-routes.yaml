@@ -1,134 +1,42 @@
-oc delete deploy milvus -n pai-prod
-oc delete configmap milvus-config -n pai-prod
-oc delete pvc milvus-data -n pai-prod
+^[[A^[[A^Chsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-prod
+NAME                      READY   STATUS    RESTARTS   AGE
+milvus-59bdf9dbc8-6gr6f   0/1     Running   0          3m38s
+minio-85b4477cdc-g5c6b    1/1     Running   0          87m
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs milvus-59bdf9dbc8-6gr6f -n pai-prod
+2026/03/01 05:40:27 jemalloc memory profiling option is not enabled, cgomemprof http handler will not be registered
+[2026/03/01 05:40:27.910 +00:00] [INFO] [distance/calc_distance_amd64.go:14] ["Hook avx for go simd distance computation"]
+[2026/03/01 05:40:27.920 +00:00] [DEBUG] [runtime/asm_amd64.s:1700] ["start refreshing configurations"] [source=FileSource]
+[2026/03/01 05:40:27.934 +00:00] [DEBUG] [runtime/asm_amd64.s:1700] ["start refreshing configurations"] [source=FileSource]
+[2026/03/01 05:40:27.934 +00:00] [INFO] [paramtable/hook_config.go:21] ["hook config"] [hook={}]
+[2026/03/01 05:40:27.934 +00:00] [INFO] [paramtable/cipher_config.go:24] ["init cipher config"]
+2026/03/01 05:40:27 maxprocs: Updating GOMAXPROCS=8: determined from CPU quota
+Set runtime dir at /run/milvus failed, set it to /tmp/milvus directory
 
+    __  _________ _   ____  ______
+   /  |/  /  _/ /| | / / / / / __/
+  / /|_/ // // /_| |/ / /_/ /\ \
+ /_/  /_/___/____/___/\____/___/
 
-cat <<'EOF' | oc apply -f -
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: milvus-data
-  namespace: pai-prod
-spec:
-  storageClassName: netapp-app
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 200Gi
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: milvus-config
-  namespace: pai-prod
-data:
-  embedEtcd.yaml: |
-    listen-client-urls: http://0.0.0.0:2379
-    advertise-client-urls: http://0.0.0.0:2379
-    quota-backend-bytes: 4294967296
-    auto-compaction-mode: revision
-    auto-compaction-retention: "1000"
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: milvus
-  namespace: pai-prod
-  labels:
-    app: milvus
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: milvus
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: milvus
-    spec:
-      securityContext:
-        runAsNonRoot: true
-        seccompProfile:
-          type: RuntimeDefault
-      containers:
-        - name: milvus
-          image: milvusdb/milvus:v2.6.11
-          command: ["milvus"]
-          args: ["run", "standalone"]
-          env:
-            - name: DEPLOY_MODE
-              value: "STANDALONE"
-            - name: ETCD_USE_EMBED
-              value: "true"
-            - name: ETCD_CONFIG_PATH
-              value: "/milvus/configs/embedEtcd.yaml"
-            - name: ETCD_DATA_DIR
-              value: "/var/lib/milvus/etcd"
-            - name: COMMON_STORAGETYPE
-              value: "remote"
-            - name: MINIO_ADDRESS
-              value: "minio.pai-prod.svc.cluster.local"
-            - name: MINIO_PORT
-              value: "9000"
-            - name: MINIO_USE_SSL
-              value: "false"
-            - name: MINIO_BUCKET_NAME
-              value: "milvus-bucket"
-            - name: MINIO_ROOT_PATH
-              value: "milvus"
-            - name: MINIO_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: minio-credentials
-                  key: MINIO_ROOT_USER
-            - name: MINIO_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: minio-credentials
-                  key: MINIO_ROOT_PASSWORD
-          ports:
-            - name: grpc
-              containerPort: 19530
-            - name: http
-              containerPort: 9091
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-          resources:
-            requests:
-              cpu: "8"
-              memory: 16Gi
-            limits:
-              cpu: "8"
-              memory: 16Gi
-          volumeMounts:
-            - name: data
-              mountPath: /var/lib/milvus
-            - name: config
-              mountPath: /milvus/configs/embedEtcd.yaml
-              subPath: embedEtcd.yaml
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 15
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 15
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: milvus-data
-        - name: config
-          configMap:
-            name: milvus-config
-EOF
+Welcome to Milvus!
+Version:   2.6.11
+Built:     Wed Feb 11 10:30:03 UTC 2026
+GitCommit: 3a8d994
+GoVersion: go version go1.24.12 linux/amd64
+
+TotalMem: 17179869184
+UsedMem: 109244416
+
+open pid file: /tmp/milvus/standalone.pid
+lock pid file: /tmp/milvus/standalone.pid
+[2026/03/01 05:40:27.936 +00:00] [INFO] [roles/roles.go:374] ["starting running Milvus components"]
+[2026/03/01 05:40:27.936 +00:00] [INFO] [roles/roles.go:182] ["Enable Jemalloc"] ["Jemalloc Path"=:/milvus/lib/libjemalloc.so]
+{"level":"warn","ts":"2026-03-01T05:40:27.937396Z","caller":"embed/config.go:689","msg":"Running http and grpc server on single port. This is not recommended for production."}
+{"level":"warn","ts":"2026-03-01T05:40:27.937422Z","caller":"embed/config.go:689","msg":"Running http and grpc server on single port. This is not recommended for production."}
+{"level":"info","ts":"2026-03-01T05:40:27.937426Z","caller":"embed/etcd.go:140","msg":"configuring peer listeners","listen-peer-urls":["http://localhost:2380"]}
+{"level":"info","ts":"2026-03-01T05:40:27.937865Z","caller":"embed/etcd.go:148","msg":"configuring client listeners","listen-client-urls":["http://0.0.0.0:2379"]}
+{"level":"info","ts":"2026-03-01T05:40:27.938053Z","caller":"embed/etcd.go:323","msg":"starting an etcd server","etcd-version":"3.5.23","git-sha":"Not provided (use ./build instead of go build)","go-version":"go1.24.12","go-os":"linux","go-arch":"amd64","max-cpu-set":8,"max-cpu-available":128,"member-initialized":false,"name":"default","data-dir":"/var/lib/milvus/etcd","wal-dir":"","wal-dir-dedicated":"","member-dir":"/var/lib/milvus/etcd/member","force-new-cluster":false,"heartbeat-interval":"100ms","election-timeout":"1s","initial-election-tick-advance":true,"snapshot-count":100000,"max-wals":5,"max-snapshots":5,"snapshot-catchup-entries":5000,"initial-advertise-peer-urls":["http://localhost:2380"],"listen-peer-urls":["http://localhost:2380"],"advertise-client-urls":["http://0.0.0.0:2379"],"listen-client-urls":["http://0.0.0.0:2379"],"listen-metrics-urls":[],"cors":["*"],"host-whitelist":["*"],"initial-cluster":"default=http://localhost:2380","initial-cluster-state":"new","initial-cluster-token":"etcd-cluster","quota-backend-bytes":4294967296,"max-request-bytes":1572864,"max-concurrent-streams":4294967295,"pre-vote":true,"initial-corrupt-check":false,"corrupt-check-time-interval":"0s","compact-check-time-enabled":false,"compact-check-time-interval":"1m0s","auto-compaction-mode":"revision","auto-compaction-retention":"1µs","auto-compaction-interval":"1µs","discovery-url":"","discovery-proxy":"","downgrade-check-interval":"5s"}
+{"level":"info","ts":"2026-03-01T05:40:37.946968Z","caller":"etcdserver/backend.go:85","msg":"db file is flocked by another process, or taking too long","path":"/var/lib/milvus/etcd/member/snap/db","took":"10.000623528s"}
+[2026/03/01 05:40:57.937 +00:00] [DEBUG] [metrics/thread.go:74] ["thread watcher observe thread num"] [threadNum=81]
+[2026/03/01 05:41:27.372 +00:00] [WARN] [roles/roles.go:353] ["Get signal to exit"] [signal=terminated]
+[2026/03/01 05:41:27.937 +00:00] [DEBUG] [metrics/thread.go:74] ["thread watcher observe thread num"] [threadNum=81]
+hsuma@plnx-admin:~/ocp-ai-config$
