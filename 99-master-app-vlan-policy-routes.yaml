@@ -1,6 +1,11 @@
-oc create sa internal-datapipeline-rag-fileparser-service -n pai-dev
-
-
-# Force a new rollout
-oc rollout restart deploy/fileparser -n pai-dev
-oc rollout status deploy/fileparser -n pai-dev --timeout=120s
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc create sa internal-datapipeline-rag-fileparser-service -n pai-dev
+serviceaccount/internal-datapipeline-rag-fileparser-service created
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc rollout restart deploy/fileparser -n pai-dev
+deployment.apps/fileparser restarted
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc rollout status deploy/fileparser -n pai-dev --timeout=120s
+Waiting for deployment "fileparser" rollout to finish: 0 of 1 updated replicas are available...
+error: timed out waiting for the condition
+hsuma@plnx-admin:~/ocp-ai-config$
