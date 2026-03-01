@@ -1,15 +1,11 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc scale deploy fileparser -n pai-dev --replicas=0
-deployment.apps/fileparser scaled
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc run fileparser-debug -n pai-dev --rm -it --restart=Never \
+oc run fileparser-debug2 -n pai-dev --rm -it --restart=Never \
   --image=paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3 \
   --overrides='{
     "spec": {
       "imagePullSecrets": [{"name":"reg-secret"}],
       "securityContext": {"runAsNonRoot": true, "seccompProfile": {"type": "RuntimeDefault"}},
       "containers": [{
-        "name": "fileparser-debug",
+        "name": "fileparser-debug2",
         "image": "paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3",
         "command": ["/bin/sh", "-c", "sleep 300"],
         "securityContext": {"allowPrivilegeEscalation": false, "capabilities": {"drop": ["ALL"]}}
@@ -19,5 +15,6 @@ hsuma@plnx-admin:~/ocp-ai-config$ oc run fileparser-debug -n pai-dev --rm -it --
     }
   }' \
   --command -- /bin/sh -c "sleep 300"
-Error from server (AlreadyExists): object is being deleted: pods "fileparser-debug" already exists
-hsuma@plnx-admin:~/ocp-ai-config$
+
+
+  oc exec -it fileparser-debug2 -n pai-dev -- /bin/sh -c "which parser-service 2>/dev/null; find / -name 'parser*' 2>/dev/null; cat /app/pyproject.toml 2>/dev/null; ls -la /app/"
