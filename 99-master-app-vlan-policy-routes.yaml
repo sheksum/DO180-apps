@@ -37,6 +37,16 @@ oc get httproutes -A | grep minio
 # Health check
 curl -sk https://minio.dev.ocp-ai.calix.local
 
-oc get secret storage-configuration -n aistor -o yaml 2>/dev/null
-# If that doesn't exist, check the operator docs
-oc get secret -n aistor
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secret storage-configuration -n aistor -o yaml 2>/dev/null
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secret -n aistor
+NAME                                  TYPE                      DATA   AGE
+aistor-adminjob-dockercfg-9tg2n       kubernetes.io/dockercfg   1      18m
+aistor-object-store-dockercfg-2bv7n   kubernetes.io/dockercfg   1      18m
+builder-dockercfg-pl654               kubernetes.io/dockercfg   1      18m
+default-dockercfg-tsz8m               kubernetes.io/dockercfg   1      18m
+deployer-dockercfg-q9t4f              kubernetes.io/dockercfg   1      18m
+object-store-operator-tls             kubernetes.io/tls         2      18m
+object-store-webhook-service-cert     kubernetes.io/tls         3      18m
+hsuma@plnx-admin:~/ocp-ai-config$
