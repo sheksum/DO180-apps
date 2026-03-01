@@ -1,1 +1,10 @@
-oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- netstat -tlnp 2>/dev/null || oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- cat /proc/net/tcp6
+hsuma@plnx-admin:~/ocp-ai-config$ oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- ss -tlnp | grep 443
+executable file `ss` not found in $PATH: No such file or directory
+command terminated with exit code 1
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- netstat -tlnp 2>/dev/null || oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- cat /proc/net/tcp6
+  sl  local_address                         remote_address                        st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
+   0: 00000000000000000000000000000000:3AAC 00000000000000000000000000000000:0000 0A 00000000:00000000 00:00000000 00000000 1000729999        0 574568 1 0000000000000000 100 0 0 10 0
+   1: 0000000000000000FFFF00000100007F:3AAC 0000000000000000FFFF00000100007F:A4E4 01 00000000:00000000 02:000001F3 00000000 1000729999        0 481028 2 0000000000000000 20 4 33 10 -1
+   2: 0000000000000000FFFF00000100007F:3AAC 0000000000000000FFFF00000100007F:A4D8 01 00000000:00000000 02:000001C0 00000000 1000729999        0 481025 2 0000000000000000 20 4 33 10 -1
+hsuma@plnx-admin:~/ocp-ai-config$
