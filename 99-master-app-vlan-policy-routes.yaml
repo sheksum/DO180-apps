@@ -1,3 +1,4 @@
+hsuma@plnx-admin:~/ocp-ai-config$
 hsuma@plnx-admin:~/ocp-ai-config$ oc debug --image=paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3 \
   -n pai-dev -- ls /app/
 Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "debug" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "debug" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "debug" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "debug" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
@@ -15,3 +16,6 @@ hsuma@plnx-admin:~/ocp-ai-config$   oc run fileparser-debug -n pai-dev --rm -it 
   --overrides='{"spec":{"imagePullSecrets":[{"name":"reg-secret"}]}}' \
   --command -- /bin/sh -c "which parser-service; find / -name 'parser*' 2>/dev/null; cat /app/pyproject.toml 2>/dev/null; ls -la /app/"
 Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "fileparser-debug" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "fileparser-debug" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "fileparser-debug" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "fileparser-debug" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+pod "fileparser-debug" deleted from pai-dev namespace
+error: timed out waiting for the condition
+hsuma@plnx-admin:~/ocp-ai-config$
