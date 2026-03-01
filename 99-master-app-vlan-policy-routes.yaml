@@ -1,3 +1,67 @@
-oc annotate certificate wildcard-dev-tls -n openshift-ingress cert-manager.io/issuing-refresh="$(date +%s)" --overwrite
-oc annotate certificate wildcard-test-tls -n openshift-ingress cert-manager.io/issuing-refresh="$(date +%s)" --overwrite
-oc annotate certificate wildcard-prod-tls -n openshift-ingress cert-manager.io/issuing-refresh="$(date +%s)" --overwrite
+oc apply -f - <<'EOF'
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: pai-gateway
+  namespace: openshift-ingress
+spec:
+  gatewayClassName: openshift-default
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              app.kubernetes.io/part-of: pai
+
+    - name: https-dev
+      protocol: HTTPS
+      port: 443
+      hostname: "*.dev.ocp-ai.calix.local"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: wildcard-dev-tls-secret
+            kind: Secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              env: dev
+
+    - name: https-test
+      protocol: HTTPS
+      port: 443
+      hostname: "*.test.ocp-ai.calix.local"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: wildcard-test-tls-secret
+            kind: Secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              env: test
+
+    - name: https-prod
+      protocol: HTTPS
+      port: 443
+      hostname: "*.prod.ocp-ai.calix.local"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: wildcard-prod-tls-secret
+            kind: Secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              env: prod
+EOF
