@@ -1,3 +1,2 @@
-oc logs -n metallb-system speaker-4sm8f -c speaker | grep '248.175' | tail -5
-oc logs -n metallb-system speaker-77d99 -c speaker | grep '248.175' | tail -5
-oc logs -n metallb-system speaker-vcmvl -c speaker | grep '248.175' | tail -5
+oc get ipaddresspool -n metallb-system
+oc get svc pai-gateway-openshift-default -n openshift-ingress -o yaml | grep -A5 'metallb'
