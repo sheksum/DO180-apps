@@ -1,1 +1,5 @@
-oc get pod agent-gateway-6df79ddc5b-pt8dg -n pai-dev -o yaml | grep -A2 -E 'env:|name:.*PG|name:.*SSL|name:.*DATABASE|name:.*POSTGRES|value.*postgres'
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pod agent-gateway-6df79ddc5b-pt8dg -n pai-dev -o yaml | grep -A2 -E 'env:|name:.*PG|name:.*SSL|name:.*DATABASE|name:.*POSTGRES|value.*postgres'
+  - env:
+    - name: UV_CACHE_DIR
+      value: /cache/uv
+hsuma@plnx-admin:~/ocp-ai-config$
