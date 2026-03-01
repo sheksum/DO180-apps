@@ -1,6 +1,3 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get storageclass
-NAME                   PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
-netapp-app (default)   csi.trident.netapp.io   Retain          Immediate           true                   11d
-netapp-infra           csi.trident.netapp.io   Retain          Immediate           true                   11d
-hsuma@plnx-admin:~/ocp-ai-config$
+# Check what Trident backends exist
+oc get tridentbackendconfig -A
+oc get tridentbackend -A -o custom-columns=NAME:.metadata.name,PROTOCOL:.spec.storageDriverName,STATE:.status.phase
