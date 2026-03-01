@@ -1,3 +1,2 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get svc -n openshift-ingress | grep pai-gateway
-pai-gateway-openshift-default   LoadBalancer   172.30.31.98    10.172.248.175   15021:30643/TCP,80:31594/TCP,443:30465/TCP   2d19h
-hsuma@plnx-admin:~/ocp-ai-config$
+oc get pods -n openshift-ingress | grep pai-gateway
+oc exec -n openshift-ingress deploy/pai-gateway-openshift-default -- ss -tlnp | grep 443
