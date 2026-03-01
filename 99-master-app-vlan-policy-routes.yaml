@@ -1,3 +1,6 @@
+oc logs -n pai-prod deploy/milvus --tail=30 | grep -i -E "error|fail|panic" | head -10
+
+
 hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -l app=milvus -A
 NAMESPACE   NAME                      READY   STATUS    RESTARTS      AGE
 pai-dev     milvus-78b5c96bfb-xphxl   1/1     Running   0             5m12s
