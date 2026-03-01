@@ -1,26 +1,5 @@
-91s         Normal    Provisioning             persistentvolumeclaim/milvus                                     External provisioner is provisioning volume for claim "pai-dev/milvus"
-90s         Normal    Provisioning             persistentvolumeclaim/data-milvus-etcd-0                         External provisioner is provisioning volume for claim "pai-dev/data-milvus-etcd-0"
-90s         Normal    SuccessfulCreate         replicaset/milvus-standalone-5669fd9774                          Created pod: milvus-standalone-5669fd9774-xh9h4
-90s         Normal    SuccessfulCreate         statefulset/milvus-etcd                                          create Claim data-milvus-etcd-0 Pod milvus-etcd-0 in StatefulSet milvus-etcd success
-90s         Normal    SuccessfulCreate         statefulset/milvus-etcd                                          create Pod milvus-etcd-0 in StatefulSet milvus-etcd successful
-90s         Normal    ScalingReplicaSet        deployment/milvus-standalone                                     Scaled up replica set milvus-standalone-5669fd9774 from 0 to 1
-87s         Normal    ExternalProvisioning     persistentvolumeclaim/data-milvus-etcd-0                         Waiting for a volume to be created either by the external provisioner 'csi.trident.netapp.io' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
-87s         Normal    ExternalProvisioning     persistentvolumeclaim/milvus                                     Waiting for a volume to be created either by the external provisioner 'csi.trident.netapp.io' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
-84s         Normal    ProvisioningSucceeded    persistentvolumeclaim/milvus                                     Successfully provisioned volume pvc-8ee66980-93ba-42e5-a3c5-8cf1ced4bbe6
-84s         Normal    ProvisioningSuccess      persistentvolumeclaim/milvus                                     provisioned a volume
-72s         Normal    ProvisioningSucceeded    persistentvolumeclaim/data-milvus-etcd-0                         Successfully provisioned volume pvc-e034e58f-df07-4a5b-9e76-6154a81956aa
-72s         Normal    SuccessfulAttachVolume   pod/milvus-etcd-0                                                AttachVolume.Attach succeeded for volume "pvc-e034e58f-df07-4a5b-9e76-6154a81956aa"
-72s         Normal    ProvisioningSuccess      persistentvolumeclaim/data-milvus-etcd-0                         provisioned a volume
-71s         Normal    SuccessfulAttachVolume   pod/milvus-standalone-5669fd9774-xh9h4                           AttachVolume.Attach succeeded for volume "pvc-8ee66980-93ba-42e5-a3c5-8cf1ced4bbe6"
-71s         Normal    Pulling                  pod/milvus-etcd-0                                                Pulling image "docker.io/milvusdb/etcd:3.5.25-r1"
-71s         Normal    AddedInterface           pod/milvus-etcd-0                                                Add eth0 [10.129.0.81/23] from ovn-kubernetes
-71s         Normal    AddedInterface           pod/milvus-standalone-5669fd9774-xh9h4                           Add eth0 [10.128.0.29/23] from ovn-kubernetes
-69s         Normal    Started                  pod/milvus-etcd-0                                                Started container etcd
-69s         Normal    Created                  pod/milvus-etcd-0                                                Created container: etcd
-69s         Normal    Pulled                   pod/milvus-etcd-0                                                Successfully pulled image "docker.io/milvusdb/etcd:3.5.25-r1" in 2.138s (2.138s including waiting). Image size: 162750430 bytes.
-29s         Normal    Created                  pod/milvus-standalone-5669fd9774-xh9h4                           Created container: standalone
-29s         Normal    Pulled                   pod/milvus-standalone-5669fd9774-xh9h4                           Container image "milvusdb/milvus:v2.6.11" already present on machine
-29s         Normal    Started                  pod/milvus-standalone-5669fd9774-xh9h4                           Started container standalone
-11s         Warning   BackOff                  pod/milvus-standalone-5669fd9774-xh9h4                           Back-off restarting failed container standalone in pod milvus-standalone-5669fd9774-xh9h4_pai-dev(a2cadde5-6ffe-47da-91bd-a8314a1013f3)
-2s          Warning   Unhealthy                pod/milvus-etcd-0                                                Readiness probe failed: {"level":"warn","ts":"2026-03-01T05:09:58.119948Z","logger":"client","caller":"v3@v3.5.25/retry_interceptor.go:63","msg":"retrying of unary invoker failed","target":"etcd-endpoints://0xc00054e960/milvus-etcd-0.milvus-etcd-headless.pai-dev.svc.cluster.local:2379","attempt":0,"error":"rpc error: code = DeadlineExceeded desc = context deadline exceeded while waiting for connections to become ready"}...
-hsuma@plnx-admin:~/ocp-ai-config$
+# etcd logs
+oc logs milvus-etcd-0 -n pai-dev --tail=20
+
+# milvus standalone logs — look for the actual error
+oc logs -n pai-dev -l app.kubernetes.io/component=standalone --tail=30 | grep -i -E "error|fail|cannot|refused" | head -10
