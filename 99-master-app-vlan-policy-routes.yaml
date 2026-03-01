@@ -1,151 +1,150 @@
-cat > gateway-api/gateway.yaml << 'EOF'
-apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
-metadata:
-  name: pai-gateway
-  namespace: openshift-ingress
-spec:
-  gatewayClassName: openshift-default
-  listeners:
-    - name: http
-      protocol: HTTP
-      port: 80
-      allowedRoutes:
-        namespaces:
-          from: Selector
-          selector:
-            matchLabels:
-              app.kubernetes.io/part-of: pai
-
-    - name: https-dev
-      protocol: HTTPS
-      port: 443
-      hostname: "*.dev.ocp-ai.calix.local"
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - name: wildcard-dev-tls-secret
-            kind: Secret
-      allowedRoutes:
-        namespaces:
-          from: Selector
-          selector:
-            matchLabels:
-              env: dev
-
-    - name: https-test
-      protocol: HTTPS
-      port: 443
-      hostname: "*.test.ocp-ai.calix.local"
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - name: wildcard-test-tls-secret
-            kind: Secret
-      allowedRoutes:
-        namespaces:
-          from: Selector
-          selector:
-            matchLabels:
-              env: test
-
-    - name: https-prod
-      protocol: HTTPS
-      port: 443
-      hostname: "*.prod.ocp-ai.calix.local"
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - name: wildcard-prod-tls-secret
-            kind: Secret
-      allowedRoutes:
-        namespaces:
-          from: Selector
-          selector:
-            matchLabels:
-              env: prod
-EOF
-
-
-
-
-cat > gateway-api/certificates.yaml << 'EOF'
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: wildcard-dev-tls
-  namespace: openshift-ingress
-spec:
-  secretName: wildcard-dev-tls-secret
-  issuerRef:
-    name: vault-issuer
-    kind: ClusterIssuer
-  dnsNames:
-    - "*.dev.ocp-ai.calix.local"
-  duration: 8760h
-  renewBefore: 720h
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: wildcard-test-tls
-  namespace: openshift-ingress
-spec:
-  secretName: wildcard-test-tls-secret
-  issuerRef:
-    name: vault-issuer
-    kind: ClusterIssuer
-  dnsNames:
-    - "*.test.ocp-ai.calix.local"
-  duration: 8760h
-  renewBefore: 720h
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: wildcard-prod-tls
-  namespace: openshift-ingress
-spec:
-  secretName: wildcard-prod-tls-secret
-  issuerRef:
-    name: vault-issuer
-    kind: ClusterIssuer
-  dnsNames:
-    - "*.prod.ocp-ai.calix.local"
-  duration: 8760h
-  renewBefore: 720h
-EOF
-
-
-
-
-cat > gateway-api/http-redirect.yaml << 'EOF'
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: http-to-https-redirect
-  namespace: openshift-ingress
-spec:
-  parentRefs:
-    - name: pai-gateway
-      namespace: openshift-ingress
-      sectionName: http
-  rules:
-    - filters:
-        - type: RequestRedirect
-          requestRedirect:
-            scheme: https
-            statusCode: 301
-EOF
-
-
-
-cd ~/ocp-ai-config
-git add gateway-api/
-git status
-git commit -m "feat: Gateway API TLS - wildcard certs, HTTPS listeners, HTTP redirect"
-git push origin main
-
-
-
-oc get application gateway-api -n openshift-gitops -w
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get application gateway-api -n openshift-gitops -o yaml | grep -A20 'status:'
+status:
+  controllerNamespace: openshift-gitops
+  health:
+    lastTransitionTime: "2026-03-01T00:10:17Z"
+    status: Degraded
+  history:
+  - deployStartedAt: "2026-02-26T05:30:30Z"
+    deployedAt: "2026-02-26T05:30:32Z"
+    id: 0
+    initiatedBy:
+      automated: true
+    revision: d13f1f03017914f372344ecac9b5f1823808ac81
+    source:
+      path: gateway-api
+      repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+      targetRevision: main
+  - deployStartedAt: "2026-03-01T00:00:29Z"
+    deployedAt: "2026-03-01T00:00:30Z"
+    id: 1
+    initiatedBy:
+      automated: true
+    revision: 8469241f9a5e9cdc305332ddd356eea442868d29
+    source:
+      path: gateway-api
+      repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+--
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: gateway.networking.k8s.io
+        hookPhase: Running
+        kind: GatewayClass
+        message: gatewayclass.gateway.networking.k8s.io/openshift-default unchanged
+        name: openshift-default
+        namespace: openshift-ingress
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: gateway.networking.k8s.io
+        hookPhase: Running
+        kind: Gateway
+        message: gateway.gateway.networking.k8s.io/pai-gateway configured
+        name: pai-gateway
+        namespace: openshift-ingress
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: cert-manager.io
+        hookPhase: Running
+        kind: Certificate
+        message: certificate.cert-manager.io/wildcard-prod-tls configured
+        name: wildcard-prod-tls
+        namespace: openshift-ingress
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: cert-manager.io
+        hookPhase: Running
+        kind: Certificate
+        message: certificate.cert-manager.io/wildcard-test-tls configured
+        name: wildcard-test-tls
+        namespace: openshift-ingress
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: cert-manager.io
+        hookPhase: Running
+        kind: Certificate
+        message: certificate.cert-manager.io/wildcard-dev-tls configured
+        name: wildcard-dev-tls
+        namespace: openshift-ingress
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      revision: 6cc781956ccf4bd2d106ee4cf126386160e7271b
+      source:
+        path: gateway-api
+        repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+        targetRevision: main
+  reconciledAt: "2026-03-01T00:10:17Z"
+  resources:
+  - group: cert-manager.io
+    health:
+      message: Certificate is up to date and has not expired
+      status: Healthy
+    kind: Certificate
+    name: wildcard-dev-tls
+    namespace: openshift-ingress
+    status: Synced
+    version: v1
+  - group: cert-manager.io
+    health:
+      message: Certificate is up to date and has not expired
+      status: Healthy
+    kind: Certificate
+    name: wildcard-prod-tls
+    namespace: openshift-ingress
+    status: Synced
+    version: v1
+  - group: cert-manager.io
+    health:
+      message: Certificate is up to date and has not expired
+      status: Healthy
+    kind: Certificate
+    name: wildcard-test-tls
+    namespace: openshift-ingress
+    status: Synced
+    version: v1
+  - group: gateway.networking.k8s.io
+    health:
+      message: Gateway is healthy
+      status: Healthy
+    kind: Gateway
+    name: pai-gateway
+    namespace: openshift-ingress
+    status: Synced
+    version: v1
+  - group: gateway.networking.k8s.io
+    kind: GatewayClass
+    name: openshift-default
+    status: Synced
+    version: v1
+  - group: gateway.networking.k8s.io
+    health:
+      message: 'Parent pai-gateway: hostnames matched parent hostname "", but namespace
+        "openshift-ingress" is not allowed by the parent'
+      status: Degraded
+    kind: HTTPRoute
+    name: http-to-https-redirect
+    namespace: openshift-ingress
+    status: Synced
+    version: v1
+  sourceHydrator: {}
+  sourceType: Directory
+  summary:
+    images:
+    - registry.redhat.io/openshift-service-mesh/istio-proxyv2-rhel9@sha256:d518f3d1539f45e1253c5c9fa22062802804601d4998cd50344e476a3cc388fe
+  sync:
+    comparedTo:
+      destination:
+        namespace: openshift-ingress
+        server: https://kubernetes.default.svc
+      source:
+        path: gateway-api
+        repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+        targetRevision: main
+    revision: 6cc781956ccf4bd2d106ee4cf126386160e7271b
+    status: Synced
