@@ -1,14 +1,8 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get deploy fileparser -n pai-dev -o jsonpath='{.spec.template.spec.containers[0].command}' | jq .
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get deploy fileparser -n pai-dev -o jsonpath='{.spec.template.spec.containers[0].args}' | jq .
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-dev
-NAME                                                        READY   STATUS             RESTARTS        AGE
-agent-gateway-5598fbc67-fwmtg                               1/1     Running            0               9m32s
-ai-model-multimodel-service-897db5c4c-nrzbk                 1/1     Running            0               6h15m
-fileparser-5d5f4cb54f-4vwh2                                 0/1     CrashLoopBackOff   5 (2m25s ago)   5m22s
-fileparser-7bcfcfbf8-cxf74                                  0/1     CrashLoopBackOff   3 (11s ago)     57s
-internal-agentmesh-agent-gateway-service-7978484664-wzp2j   1/1     Running            0               9m25s
-postgresql-78b656858b-4fmhl                                 1/1     Running            0               60m
-hsuma@plnx-admin:~/ocp-ai-config$
+oc debug --image=paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3 \
+  -n pai-dev -- ls /app/
+
+
+  oc run fileparser-debug -n pai-dev --rm -it --restart=Never \
+  --image=paidev-nexus.tools.shared.xilac.net/internal-datapipeline-rag-fileparser-service:1.0.0-63dbse.ca8b1a3 \
+  --overrides='{"spec":{"imagePullSecrets":[{"name":"reg-secret"}]}}' \
+  --command -- /bin/sh -c "which parser-service; find / -name 'parser*' 2>/dev/null; cat /app/pyproject.toml 2>/dev/null; ls -la /app/"
