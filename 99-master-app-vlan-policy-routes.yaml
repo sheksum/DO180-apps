@@ -1,2 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$ helm show values zilliztech/milvus | grep -A50 "^etcd:" | grep -i -E "security|runAs|fsGroup|container"
-hsuma@plnx-admin:~/ocp-ai-config$
+helm show values zilliztech/milvus | grep -A80 "^etcd:" | tail -40
