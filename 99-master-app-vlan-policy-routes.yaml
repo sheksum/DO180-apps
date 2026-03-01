@@ -1,11 +1,1 @@
-^Chsuma@plnx-admin:~/ocp-ai-config$ oc get pods -l app=milvus -n pai-prod -o wide
-NAME                     READY   STATUS    RESTARTS   AGE    IP            NODE                          NOMINATED NODE   READINESS GATES
-milvus-f85d66bc5-2gnmb   0/1     Running   0          110s   10.128.0.39   ocp-ai-master02.calix.local   <none>           <none>
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -l app=milvus -n pai-dev -o wide
-NAME                      READY   STATUS    RESTARTS   AGE     IP            NODE                          NOMINATED NODE   READINESS GATES
-milvus-649d5c577f-6jdw6   1/1     Running   0          2m59s   10.128.0.38   ocp-ai-master02.calix.local   <none>           <none>
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -l app=milvus -n pai-test -o wide
-NAME                      READY   STATUS    RESTARTS   AGE    IP            NODE                          NOMINATED NODE   READINESS GATES
-milvus-5cdc547556-m6v75   1/1     Running   0          3m4s   10.129.0.85   ocp-ai-master01.calix.local   <none>           <none>
-hsuma@plnx-admin:~/ocp-ai-config$
+oc logs -n pai-prod deploy/milvus | grep -i "bind\|address already in use\|2379" | head -5
