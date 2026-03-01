@@ -78,3 +78,10 @@ hsuma@plnx-admin:~/ocp-ai-config$ oc describe packagemanifest minio-object-store
 Events:    <none>
 hsuma@plnx-admin:~/ocp-ai-config$
 
+
+hsuma@plnx-admin:~/ocp-ai-config$ oc get crd | grep -i minio
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get crd | grep -i aistor
+adminjobs.aistor.min.io                                           2026-03-01T03:45:05Z
+objectstores.aistor.min.io                                        2026-03-01T03:45:05Z
+hsuma@plnx-admin:~/ocp-ai-config$
