@@ -1,1 +1,54 @@
-oc get deployment agent-gateway -n pai-dev -o yaml | grep -A50 'containers:'  | head -60
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get deployment agent-gateway -n pai-dev -o yaml | grep -A50 'containers:'  | head -60
+      containers:
+      - env:
+        - name: PGSSLMODE
+          value: require
+        - name: UV_CACHE_DIR
+          value: /cache/uv
+        - name: XDG_CACHE_HOME
+          value: /cache
+        - name: PIP_CACHE_DIR
+          value: /cache/pip
+        envFrom:
+        - secretRef:
+            name: agent-gateway-env
+        image: paidev-nexus.tools.shared.xilac.net/internal-agentmesh-agent-gateway-service:1.0.0-14fbfs26.044ee8c
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: agent-gateway
+        ports:
+        - containerPort: 8089
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 3
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /cache
+hsuma@plnx-admin:~/ocp-ai-config$
