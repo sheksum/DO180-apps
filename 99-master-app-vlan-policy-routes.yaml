@@ -1,10 +1,7 @@
-hsuma@plnx-admin:~/ocp-ai-config$ curl -sk https://tls-test.dev.ocp.calix.local
-hsuma@plnx-admin:~/ocp-ai-config$ curl -sk https://tls-test.dev.ocp.calix.local -vv
-* Could not resolve host: tls-test.dev.ocp.calix.local
+hsuma@plnx-admin:~/ocp-ai-config$ curl -sk --connect-timeout 5 -v https://tls-test.dev.ocp-ai.calix.local
+*   Trying 10.172.248.175:443...
+* After 5000ms connect time, move on!
+* connect to 10.172.248.175 port 443 failed: Connection timed out
+* Connection timeout after 5000 ms
 * Closing connection 0
-hsuma@plnx-admin:~/ocp-ai-config$ curl -sv https://tls-test.dev.ocp.calix.local
-* Could not resolve host: tls-test.dev.ocp.calix.local
-* Closing connection 0
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ curl -sI https://tls-test.dev.ocp.calix.local
 hsuma@plnx-admin:~/ocp-ai-config$
