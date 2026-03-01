@@ -1,2 +1,19 @@
-# Wait 2 minutes then check
-sleep 120 && oc get pods -n pai-prod -l app=milvus && oc logs -n pai-prod deploy/milvus --tail=3
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ sleep 120 && oc get pods -n pai-prod -l app=milvus && oc logs -n pai-prod deploy/milvus --tail=3
+NAME                      READY   STATUS    RESTARTS      AGE
+milvus-59bdf9dbc8-c4m5p   0/1     Running   5 (39s ago)   6m50s
+[2026/03/01 05:38:06.864 +00:00] [WARN] [balancer/balancer_impl.go:572] ["channel is not assigned to any server"] [channel=by-dev-rootcoord-dml_14] [term=1] [serverID=0] [state=PCHANNEL_META_STATE_UNINITIALIZED]
+[2026/03/01 05:38:06.864 +00:00] [WARN] [balancer/balancer_impl.go:572] ["channel is not assigned to any server"] [channel=by-dev-rootcoord-dml_10] [term=1] [serverID=0] [state=PCHANNEL_META_STATE_UNINITIALIZED]
+[2026/03/01 05:38:06.864 +00:00] [WARN] [balancer/balancer_impl.go:572] ["channel is not assigned to any server"] [channel=by-dev-rootcoord-dml_15] [term=1] [serverID=0] [state=PCHANNEL_META_STATE_UNINITIALIZED]
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-prod -l app=milvus
+NAME                      READY   STATUS    RESTARTS      AGE
+milvus-59bdf9dbc8-c4m5p   0/1     Running   5 (53s ago)   7m4s
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get svc -n pai-prod
+NAME        TYPE           CLUSTER-IP       EXTERNAL-IP      PORT(S)              AGE
+milvus      ClusterIP      172.30.56.92     <none>           19530/TCP,9091/TCP   12m
+milvus-lb   LoadBalancer   172.30.250.144   10.172.202.161   19530:30139/TCP      9m27s
+minio       ClusterIP      172.30.77.23     <none>           9000/TCP,9001/TCP    81m
+minio-lb    LoadBalancer   172.30.161.228   10.172.202.160   9000:32639/TCP       81m
+hsuma@plnx-admin:~/ocp-ai-config$
