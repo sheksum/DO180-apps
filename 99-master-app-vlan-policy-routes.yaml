@@ -32,3 +32,15 @@ ai-model-multimodel-service-897db5c4c-nrzbk                 1/1     Running     
 internal-agentmesh-agent-gateway-service-6d5cc69c59-pkl67   0/1     CrashLoopBackOff   7 (4m51s ago)   16m
 internal-agentmesh-agent-gateway-service-b98b46d44-dlc2g    0/1     CrashLoopBackOff   6 (3m24s ago)   9m51s
 postgresql-78b656858b-4fmhl                                 1/1     Running            0               16m
+
+
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-dev
+NAME                                                        READY   STATUS    RESTARTS   AGE
+agent-gateway-5598fbc67-fwmtg                               1/1     Running   0          35m
+ai-model-multimodel-service-897db5c4c-nrzbk                 1/1     Running   0          6h41m
+fileparser-8fd4dd8bb-xj6wj                                  1/1     Running   0          17m
+internal-agentmesh-agent-gateway-service-7978484664-wzp2j   1/1     Running   0          35m
+postgresql-78b656858b-4fmhl                                 1/1     Running   0          86m
+hsuma@plnx-admin:~/ocp-ai-config$
