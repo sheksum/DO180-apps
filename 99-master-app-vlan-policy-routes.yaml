@@ -1,23 +1,135 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc logs -n pai-prod deploy/milvus | grep -i -E "error|fail|panic|started|listening|ready" | head -20
-[2026/03/01 06:04:54.631 +00:00] [WARN] [balancer/balancer_impl.go:294] ["fail to apply balance, start a backoff..."] [module=streamingcoord] [component=balancer] [policy=vchannelFair] [error="fail to balance: no available streaming node"] [errorVerbose="fail to balance: no available streaming node\n(1) attached stack trace\n  -- stack trace:\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:476\n  | [...repeated from below...]\nWraps: (2) fail to balance\nWraps: (3) attached stack trace\n  -- stack trace:\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer/policy/vchannelfair.(*policy).Balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/policy/vchannelfair/vchannel_fair_policy.go:33\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:474\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balanceUntilNoChanged\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:445\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).execute\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:289\n  | runtime.goexit\n  | \t/usr/local/go/src/runtime/asm_amd64.s:1700\nWraps: (4) no available streaming node\nError types: (1) *withstack.withStack (2) *errutil.withPrefix (3) *withstack.withStack (4) *errutil.leafError"]
-[2026/03/01 06:04:56.235 +00:00] [WARN] [grpcclient/client.go:420] ["call received grpc error"] [clientRole=mixcoord] [error="rpc error: code = Unknown desc = node not match[expectedNodeID=3][actualNodeID=4]"]
-[2026/03/01 06:04:56.235 +00:00] [WARN] [grpcclient/client.go:504] ["start to reset connection because of specific reasons"] [client_role=mixcoord] [error="rpc error: code = Unknown desc = node not match[expectedNodeID=3][actualNodeID=4]"]
-[2026/03/01 06:04:56.236 +00:00] [WARN] [grpcclient/client.go:420] ["call received grpc error"] [clientRole=mixcoord] [error="rpc error: code = Unknown desc = node not match[expectedNodeID=3][actualNodeID=4]"]
-[2026/03/01 06:04:56.236 +00:00] [WARN] [grpcclient/client.go:504] ["start to reset connection because of specific reasons"] [client_role=mixcoord] [error="rpc error: code = Unknown desc = node not match[expectedNodeID=3][actualNodeID=4]"]
-[2026/03/01 06:04:56.300 +00:00] [WARN] [resolver/watch_based_grpc_resolver.go:54] ["fail to update resolver state"] [component=grpc-resolver] [scheme=channel-assignment] [id=29] [state="Version: 175/1, Addrs: "] [error="bad resolver state"]
-[2026/03/01 06:04:56.500 +00:00] [WARN] [lazygrpc/conn.go:67] ["async dial failed, wait for retry..."] [error="context deadline exceeded"]
-[2026/03/01 06:04:58.572 +00:00] [WARN] [resolver/watch_based_grpc_resolver.go:54] ["fail to update resolver state"] [prefix=by-dev/meta/session/streamingnode] [exclusive=false] [semver=">=2.6.0-dev"] [component=grpc-resolver] [scheme=milvus-session] [id=30] [state="Version: 169, Addrs: "] [error="bad resolver state"]
-[2026/03/01 06:04:58.772 +00:00] [WARN] [lazygrpc/conn.go:67] ["async dial failed, wait for retry..."] [error="context deadline exceeded"]
-[2026/03/01 06:04:59.364 +00:00] [WARN] [balancer/balancer_impl.go:294] ["fail to apply balance, start a backoff..."] [module=streamingcoord] [component=balancer] [policy=vchannelFair] [error="fail to balance: no available streaming node"] [errorVerbose="fail to balance: no available streaming node\n(1) attached stack trace\n  -- stack trace:\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:476\n  | [...repeated from below...]\nWraps: (2) fail to balance\nWraps: (3) attached stack trace\n  -- stack trace:\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer/policy/vchannelfair.(*policy).Balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/policy/vchannelfair/vchannel_fair_policy.go:33\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:474\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balanceUntilNoChanged\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:445\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).execute\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:289\n  | runtime.goexit\n  | \t/usr/local/go/src/runtime/asm_amd64.s:1700\nWraps: (4) no available streaming node\nError types: (1) *withstack.withStack (2) *errutil.withPrefix (3) *withstack.withStack (4) *errutil.leafError"]
-[2026/03/01 06:05:03.671 +00:00] [INFO] [healthz/healthz_handler.go:116] ["check health failed"] [UnhealthyComponent="[querynode,proxy,streamingnode]"]
----Milvus Proxy successfully initialized and ready to serve!---
-[2026/03/01 06:05:05.000 +00:00] [WARN] [balancer/balancer_impl.go:294] ["fail to apply balance, start a backoff..."] [module=streamingcoord] [component=balancer] [policy=vchannelFair] [error="fail to balance: no available streaming node"] [errorVerbose="fail to balance: no available streaming node\n(1) attached stack trace\n  -- stack trace:\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:476\n  | [...repeated from below...]\nWraps: (2) fail to balance\nWraps: (3) attached stack trace\n  -- stack trace:\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer/policy/vchannelfair.(*policy).Balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/policy/vchannelfair/vchannel_fair_policy.go:33\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:474\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balanceUntilNoChanged\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:445\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).execute\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:289\n  | runtime.goexit\n  | \t/usr/local/go/src/runtime/asm_amd64.s:1700\nWraps: (4) no available streaming node\nError types: (1) *withstack.withStack (2) *errutil.withPrefix (3) *withstack.withStack (4) *errutil.leafError"]
-[2026/03/01 06:05:06.059 +00:00] [WARN] [resolver/watch_based_grpc_resolver.go:54] ["fail to update resolver state"] [component=grpc-resolver] [scheme=channel-assignment] [id=31] [state="Version: 175/1, Addrs: "] [error="bad resolver state"]
-[2026/03/01 06:05:06.238 +00:00] [INFO] [streamingnode/service.go:309] ["StreamingNode wait for mixCoord ready"]
-[2026/03/01 06:05:06.243 +00:00] [INFO] [components/proxy.go:64] ["Proxy successfully started"]
-[2026/03/01 06:05:06.243 +00:00] [INFO] [roles/roles.go:256] ["component is ready"] [role=proxy]
-[2026/03/01 06:05:06.260 +00:00] [WARN] [lazygrpc/conn.go:67] ["async dial failed, wait for retry..."] [error="context deadline exceeded"]
-[2026/03/01 06:05:08.308 +00:00] [WARN] [balancer/balancer_impl.go:294] ["fail to apply balance, start a backoff..."] [module=streamingcoord] [component=balancer] [policy=vchannelFair] [error="fail to balance: no available streaming node"] [errorVerbose="fail to balance: no available streaming node\n(1) attached stack trace\n  -- stack trace:\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:476\n  | [...repeated from below...]\nWraps: (2) fail to balance\nWraps: (3) attached stack trace\n  -- stack trace:\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer/policy/vchannelfair.(*policy).Balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/policy/vchannelfair/vchannel_fair_policy.go:33\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balance\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:474\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).balanceUntilNoChanged\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:445\n  | github.com/milvus-io/milvus/internal/streamingcoord/server/balancer.(*balancerImpl).execute\n  | \t/workspace/source/internal/streamingcoord/server/balancer/balancer_impl.go:289\n  | runtime.goexit\n  | \t/usr/local/go/src/runtime/asm_amd64.s:1700\nWraps: (4) no available streaming node\nError types: (1) *withstack.withStack (2) *errutil.withPrefix (3) *withstack.withStack (4) *errutil.leafError"]
-[2026/03/01 06:05:10.490 +00:00] [WARN] [resolver/watch_based_grpc_resolver.go:54] ["fail to update resolver state"] [prefix=by-dev/meta/session/streamingnode] [exclusive=false] [semver=">=2.6.0-dev"] [component=grpc-resolver] [scheme=milvus-session] [id=32] [state="Version: 169, Addrs: "] [error="bad resolver state"]
-hsuma@plnx-admin:~/ocp-ai-config$
+# Delete the deploy
+oc delete deploy milvus -n pai-prod
+
+# Delete the PVC to get a fresh volume
+oc delete pvc milvus-data -n pai-prod
+
+# Also clean the milvus-bucket in MinIO for prod
+# We can exec into the MinIO pod and remove the milvus prefix
+oc exec -n pai-prod deploy/minio -- mc alias set local http://localhost:9000 $(oc get secret minio-credentials -n pai-prod -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d) $(oc get secret minio-credentials -n pai-prod -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d) 2>/dev/null; oc exec -n pai-prod deploy/minio -- mc rm --recursive --force local/milvus-bucket/milvus/ 2>/dev/null
+
+# Recreate PVC
+cat <<'EOF' | oc apply -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: milvus-data
+  namespace: pai-prod
+spec:
+  storageClassName: netapp-app
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Gi
+EOF
+
+# Recreate deployment
+cat <<'EOF' | oc apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: milvus
+  namespace: pai-prod
+  labels:
+    app: milvus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: milvus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: milvus
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: milvus
+          image: milvusdb/milvus:v2.6.11
+          command: ["milvus"]
+          args: ["run", "standalone"]
+          env:
+            - name: DEPLOY_MODE
+              value: "STANDALONE"
+            - name: ETCD_USE_EMBED
+              value: "true"
+            - name: ETCD_CONFIG_PATH
+              value: "/milvus/configs/embedEtcd.yaml"
+            - name: ETCD_DATA_DIR
+              value: "/var/lib/milvus/etcd"
+            - name: COMMON_STORAGETYPE
+              value: "remote"
+            - name: MINIO_ADDRESS
+              value: "minio.pai-prod.svc.cluster.local"
+            - name: MINIO_PORT
+              value: "9000"
+            - name: MINIO_USE_SSL
+              value: "false"
+            - name: MINIO_BUCKET_NAME
+              value: "milvus-bucket"
+            - name: MINIO_ROOT_PATH
+              value: "milvus"
+            - name: MINIO_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: MINIO_ROOT_USER
+            - name: MINIO_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: MINIO_ROOT_PASSWORD
+          ports:
+            - name: grpc
+              containerPort: 19530
+            - name: http
+              containerPort: 9091
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "8"
+              memory: 16Gi
+            limits:
+              cpu: "8"
+              memory: 16Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/milvus
+            - name: etcd-data
+              mountPath: /var/lib/milvus/etcd
+            - name: config
+              mountPath: /milvus/configs/embedEtcd.yaml
+              subPath: embedEtcd.yaml
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 90
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: milvus-data
+        - name: etcd-data
+          emptyDir:
+            sizeLimit: 10Gi
+        - name: config
+          configMap:
+            name: milvus-config
+EOF
