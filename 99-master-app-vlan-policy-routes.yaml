@@ -62,3 +62,8 @@ spec:
             matchLabels:
               env: prod
 EOF
+
+
+git add gateway-api/gateway.yaml
+git commit -m "fix: http listener allow Same namespace for redirect route"
+git push origin main
