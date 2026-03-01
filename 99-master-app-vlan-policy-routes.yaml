@@ -44,3 +44,13 @@ spec:
   ipAddressPools:
     - reserved-future
 EOF
+
+
+
+git add metallb/l2advertisement.yaml
+git commit -m "test: remove br-ex interface restriction on vlan1510 L2Advertisement"
+git push origin main
+
+
+
+sudo arp -d 10.172.248.175 2>/dev/null; sleep 10; ping -c 3 10.172.248.175
