@@ -1,24 +1,5 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecret test-secret -n pai-dev -o yaml | grep -A20 "spec:"
-spec:
-  data:
-  - remoteRef:
-      conversionStrategy: Default
-      decodingStrategy: None
-      key: pai/dev/test-secret
-      metadataPolicy: None
-      property: username
-    secretKey: username
-  - remoteRef:
-      conversionStrategy: Default
-      decodingStrategy: None
-      key: pai/dev/test-secret
-      metadataPolicy: None
-      property: password
-    secretKey: password
-  refreshInterval: 1m
-  secretStoreRef:
-    kind: SecretStore
-    name: vault-store
-  target:
-hsuma@plnx-admin:~/ocp-ai-config$
+[root@plnx-vault ~]#
+[root@plnx-vault ~]# vault secrets list | grep -i kv
+kv/           kv           kv_9c27639a           n/a
+secret/       kv           kv_bc0662a0           n/a
+[root@plnx-vault ~]#
