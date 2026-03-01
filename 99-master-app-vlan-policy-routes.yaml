@@ -37,11 +37,75 @@ oc get httproutes -A | grep minio
 # Health check
 curl -sk https://minio.dev.ocp-ai.calix.local
 
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecret test-secret -n pai-dev -o yaml | head -5
+
+cat <<'EOF' | oc apply -f -
+---
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-hsuma@plnx-admin:~/ocp-ai-config$
+  name: minio-credentials
+  namespace: pai-dev
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-store
+    kind: SecretStore
+  target:
+    name: minio-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: MINIO_ROOT_USER
+      remoteRef:
+        key: pai/dev/minio-credentials
+        property: MINIO_ROOT_USER
+    - secretKey: MINIO_ROOT_PASSWORD
+      remoteRef:
+        key: pai/dev/minio-credentials
+        property: MINIO_ROOT_PASSWORD
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: minio-credentials
+  namespace: pai-test
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-store
+    kind: SecretStore
+  target:
+    name: minio-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: MINIO_ROOT_USER
+      remoteRef:
+        key: pai/test/minio-credentials
+        property: MINIO_ROOT_USER
+    - secretKey: MINIO_ROOT_PASSWORD
+      remoteRef:
+        key: pai/test/minio-credentials
+        property: MINIO_ROOT_PASSWORD
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: minio-credentials
+  namespace: pai-prod
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-store
+    kind: SecretStore
+  target:
+    name: minio-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: MINIO_ROOT_USER
+      remoteRef:
+        key: pai/prod/minio-credentials
+        property: MINIO_ROOT_USER
+    - secretKey: MINIO_ROOT_PASSWORD
+      remoteRef:
+        key: pai/prod/minio-credentials
+        property: MINIO_ROOT_PASSWORD
+EOF
