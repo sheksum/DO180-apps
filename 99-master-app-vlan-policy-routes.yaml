@@ -1,16 +1,2 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc debug node/ocp-ai-master03.calix.local -- chroot /host ip link set eno6 down
-Starting pod/ocp-ai-master03calixlocal-debug-xxpbx ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-
-Removing debug pod ...
-hsuma@plnx-admin:~/ocp-ai-config$ sudo arp -d 10.172.248.175 2>/dev/null; sleep 3; sudo arping -c 3 10.172.248.175
-No ARP entry for 10.172.248.175
-ARPING 10.172.248.175
-60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=0 time=1.258 msec
-60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=1 time=317.181 usec
-60 bytes from 00:25:b5:50:0a:68 (10.172.248.175): index=2 time=352.695 usec
-
---- 10.172.248.175 statistics ---
-3 packets transmitted, 3 packets received,   0% unanswered (0 extra)
-rtt min/avg/max/std-dev = 0.317/0.642/1.258/0.435 ms
-hsuma@plnx-admin:~/ocp-ai-config$
+ping -c 3 10.172.248.175
+curl -svk --connect-timeout 5 https://tls-test.dev.ocp-ai.calix.local 2>&1 | grep -E 'subject:|issuer:|SSL connection|HTTP/'
