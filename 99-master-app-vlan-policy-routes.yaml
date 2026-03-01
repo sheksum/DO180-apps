@@ -1,1 +1,11 @@
-helm show values zilliztech/milvus | grep -B2 -A5 "existingSecret"
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ helm show values zilliztech/milvus | grep -B2 -A5 "existingSecret"
+  accessKey: minioadmin
+  secretKey: minioadmin
+  existingSecret: ""
+  bucketName: "milvus-bucket"
+  rootPath: file
+  useIAM: false
+  iamEndpoint: ""
+  region: ""
+hsuma@plnx-admin:~/ocp-ai-config$
