@@ -1,3 +1,48 @@
-ls ~/ocp-ai-config/apps/
-ls ~/ocp-ai-config/metallb/
-cat ~/ocp-ai-config/apps/*.yaml | head -40
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gateway-api
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: gateway-api
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openshift-ingress
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: machineconfigs
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: machineconfigs
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+hsuma@plnx-admin:~/ocp-ai-config$  ls ~/ocp-ai-config/apps/
+gateway-api-app.yaml  machineconfigs-app.yaml  metallb-app.yaml  nmstate-app.yaml  root-app.yaml  test.yaml  trident-apps.yaml
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ ls ~/ocp-ai-config/metallb/
+ipaddresspools.yaml  l2advertisement.yaml  metallb-instance.yaml  namespaces.yaml
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
