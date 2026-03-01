@@ -1,25 +1,7 @@
-hsuma@plnx-admin:~/ocp-ai-config$ cat gateway-api/*.yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: GatewayClass
-metadata:
-  name: openshift-default
-spec:
-  controllerName: openshift.io/gateway-controller/v1
-apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
-metadata:
-  name: pai-gateway
-  namespace: openshift-ingress
-spec:
-  gatewayClassName: openshift-default
-  listeners:
-    - name: http
-      port: 80
-      protocol: HTTP
-      allowedRoutes:
-        namespaces:
-          from: Selector
-          selector:
-            matchLabels:
-              app.kubernetes.io/part-of: pai
+hsuma@plnx-admin:~/ocp-ai-config$ ls -la gateway-api/
+total 16
+drwxr-xr-x 2 hsuma sw 4096 Feb 25 23:24 .
+drwxr-xr-x 9 hsuma sw 4096 Feb 25 23:22 ..
+-rw-r--r-- 1 hsuma sw  155 Feb 25 23:24 gatewayclass.yaml
+-rw-r--r-- 1 hsuma sw  382 Feb 25 23:24 gateway.yaml
 hsuma@plnx-admin:~/ocp-ai-config$
