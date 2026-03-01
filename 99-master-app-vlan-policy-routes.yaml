@@ -56,3 +56,25 @@ hsuma@plnx-admin:~/ocp-ai-config$
 
 
 oc describe packagemanifest minio-object-store-operator -n openshift-marketplace | grep -A5 "Default Channel\|Current CSV\|Channels"
+
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc describe packagemanifest minio-object-store-operator -n openshift-marketplace | grep -A5 "Default Channel\|Current CSV\|Channels"
+  Channels:
+    Current CSV:  minio-object-store-operator.v2026.2.9031243
+    Current CSV Desc:
+      Annotations:
+        Alm - Examples:  [
+  {
+    "apiVersion": "aistor.min.io/v1",
+    "kind": "ObjectStore",
+--
+  Default Channel:  stable
+  Package Name:     minio-object-store-operator
+  Provider:
+    Name:  MinIO
+    URL:   https://min.io
+Events:    <none>
+hsuma@plnx-admin:~/ocp-ai-config$
+
