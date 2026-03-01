@@ -1,9 +1,8 @@
-oc patch deploy fileparser -n pai-dev --type json -p '[
-  {"op":"add","path":"/spec/template/spec/containers/0/command","value":["/app/.venv/bin/parser-service"]}
-]'
-
-oc scale deploy fileparser -n pai-dev --replicas=1
-oc rollout status deploy/fileparser -n pai-dev --timeout=120s
-
-
-oc delete pod fileparser-debug2 -n pai-dev --force --grace-period=0
+hsuma@plnx-admin:~$ oc get pods -n pai-dev
+NAME                                                        READY   STATUS    RESTARTS   AGE
+agent-gateway-5598fbc67-fwmtg                               1/1     Running   0          18m
+ai-model-multimodel-service-897db5c4c-nrzbk                 1/1     Running   0          6h23m
+fileparser-8fd4dd8bb-xj6wj                                  1/1     Running   0          33s
+internal-agentmesh-agent-gateway-service-7978484664-wzp2j   1/1     Running   0          18m
+postgresql-78b656858b-4fmhl                                 1/1     Running   0          69m
+hsuma@plnx-admin:~$
