@@ -1,53 +1,25 @@
-hsuma@plnx-admin:~$ oc describe gateway pai-gateway -n openshift-ingress | grep -A60 'Status:'
-Status:
-  Addresses:
-    Type:   IPAddress
-    Value:  10.172.248.175
-  Conditions:
-    Last Transition Time:  2026-02-26T04:51:26Z
-    Message:               Resource accepted
-    Observed Generation:   3
-    Reason:                Accepted
-    Status:                True
-    Type:                  Accepted
-    Last Transition Time:  2026-03-01T00:00:29Z
-    Message:               Resource programmed, assigned to service(s) pai-gateway-openshift-default.openshift-ingress.svc.cluster.local:80
-    Observed Generation:   3
-    Reason:                Programmed
-    Status:                True
-    Type:                  Programmed
-  Listeners:
-    Attached Routes:  0
-    Conditions:
-      Last Transition Time:  2026-02-26T04:51:26Z
-      Message:               No errors found
-      Observed Generation:   3
-      Reason:                Accepted
-      Status:                True
-      Type:                  Accepted
-      Last Transition Time:  2026-02-26T04:51:26Z
-      Message:               No errors found
-      Observed Generation:   3
-      Reason:                NoConflicts
-      Status:                False
-      Type:                  Conflicted
-      Last Transition Time:  2026-02-26T04:51:26Z
-      Message:               No errors found
-      Observed Generation:   3
-      Reason:                Programmed
-      Status:                True
-      Type:                  Programmed
-      Last Transition Time:  2026-02-26T04:51:26Z
-      Message:               No errors found
-      Observed Generation:   3
-      Reason:                ResolvedRefs
-      Status:                True
-      Type:                  ResolvedRefs
-    Name:                    http
-    Supported Kinds:
-      Group:  gateway.networking.k8s.io
-      Kind:   HTTPRoute
-      Group:  gateway.networking.k8s.io
-      Kind:   GRPCRoute
-Events:       <none>
-hsuma@plnx-admin:~$
+hsuma@plnx-admin:~/ocp-ai-config$ cat gateway-api/*.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: openshift-default
+spec:
+  controllerName: openshift.io/gateway-controller/v1
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: pai-gateway
+  namespace: openshift-ingress
+spec:
+  gatewayClassName: openshift-default
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              app.kubernetes.io/part-of: pai
+hsuma@plnx-admin:~/ocp-ai-config$
