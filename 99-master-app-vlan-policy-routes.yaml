@@ -1,13 +1,6 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get svc pai-gateway-openshift-default -n openshift-ingress -o yaml | grep -E 'type:|externalTrafficPolicy|externalIPs|loadBalancer'
-    metallb.universe.tf/loadBalancerIPs: 10.172.248.175
-  externalTrafficPolicy: Cluster
-  type: LoadBalancer
-  loadBalancer:
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc debug node/ocp-ai-master03.calix.local -- chroot /host ip addr | grep 248.175
-Starting pod/ocp-ai-master03calixlocal-debug-gpjfl ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+# From plnx-admin, let's check if the issue is plnx-admin specific
+# Can plnx-admin reach the platform ingress VIP on the same subnet?
+curl -sk --connect-timeout 5 https://console-openshift-console.apps.ocp-ai.calix.local | head -5
 
-Removing debug pod ...
-hsuma@plnx-admin:~/ocp-ai-config$
+
+arp -n | grep 175
