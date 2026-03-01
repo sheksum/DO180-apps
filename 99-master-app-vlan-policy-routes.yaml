@@ -1,4 +1,75 @@
-helm show values zilliztech/milvus | grep -A30 "^minio:"
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ helm show values zilliztech/milvus | grep -A30 "^minio:"
 helm show values zilliztech/milvus | grep -A20 "^etcd:"
 helm show values zilliztech/milvus | grep -A10 "^standalone:"
 helm show values zilliztech/milvus | grep -A5 "^pulsarv3:"
+minio:
+  enabled: true
+  name: minio
+  mode: distributed
+  image:
+    tag: "RELEASE.2024-12-18T13-15-44Z"
+    pullPolicy: IfNotPresent
+  accessKey: minioadmin
+  secretKey: minioadmin
+  existingSecret: ""
+  bucketName: "milvus-bucket"
+  rootPath: file
+  useIAM: false
+  iamEndpoint: ""
+  region: ""
+  useVirtualHost: false
+  podDisruptionBudget:
+    enabled: false
+  resources:
+    requests:
+      memory: 2Gi
+
+  service:
+    type: ClusterIP
+    port: 9000
+
+  persistence:
+    enabled: true
+    existingClaim: ""
+    storageClass:
+    accessMode: ReadWriteOnce
+etcd:
+  enabled: true
+  name: etcd
+  replicaCount: 3
+  pdb:
+    create: false
+  image:
+    repository: "milvusdb/etcd"
+    tag: "3.5.25-r1"
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 2379
+    peerPort: 2380
+
+  auth:
+    rbac:
+      enabled: false
+      create: false
+    token:
+standalone:
+  replicas: 1  # Run standalone mode with replication disabled
+  resources: {}
+  # Set local storage size in resources
+  # resources:
+  #   limits:
+  #     ephemeral-storage: 100Gi
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  securityContext: {}
+pulsarv3:
+  name: "pulsarv3" # note: nameOveride should be kept the same as the name field
+  nameOverride: "pulsarv3"
+  enabled: true
+  persistence: true
+  extra: {}
+hsuma@plnx-admin:~/ocp-ai-config$
