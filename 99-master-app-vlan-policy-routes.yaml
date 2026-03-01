@@ -1,43 +1,12 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ helm show values zilliztech/milvus | grep -A80 "^etcd:" | tail -40
-  ##
-  autoCompactionMode: revision
-  autoCompactionRetention: "1000"
-
-  ## Increase default quota to 4G
-  ##
-  extraEnvVars:
-  - name: ETCD_QUOTA_BACKEND_BYTES
-    value: "4294967296"
-  - name: ETCD_HEARTBEAT_INTERVAL
-    value: "500"
-  - name: ETCD_ELECTION_TIMEOUT
-    value: "2500"
-
-## Configuration values for the pulsar dependency
-## ref: https://github.com/apache/pulsar-helm-chart
-##
-
-# default values for pulsar v3
-pulsarv3:
-  name: "pulsarv3" # note: nameOveride should be kept the same as the name field
-  nameOverride: "pulsarv3"
-  enabled: true
-  persistence: true
-  extra: {}
-  monitoring: {}
-  volumes:
-    persistence: true
-    local_storage: false
-
-  components:
-    # zookeeper
-    zookeeper: true
-    # bookkeeper
-    bookkeeper: true
-    # bookkeeper - autorecovery
-    autorecovery: true
-    # broker
-    broker: true
-    # functions
-hsuma@plnx-admin:~/ocp-ai-config$
+# Test if etcd subchart accepts these values
+helm template milvus zilliztech/milvus -n pai-dev \
+  --set cluster.enabled=false \
+  --set minio.enabled=false \
+  --set pulsarv3.enabled=false \
+  --set etcd.enabled=true \
+  --set etcd.replicaCount=1 \
+  --set etcd.containerSecurityContext.runAsUser=null \
+  --set etcd.containerSecurityContext.runAsNonRoot=true \
+  --set etcd.containerSecurityContext.allowPrivilegeEscalation=false \
+  --set etcd.podSecurityContext.fsGroup=null \
+  2>/dev/null | grep -A10 "kind: StatefulSet" | grep -A10 "securityContext"
