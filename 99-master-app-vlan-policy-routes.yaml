@@ -39,55 +39,74 @@ curl -sk https://minio.dev.ocp-ai.calix.local
 
 
 
-
-apiVersion: aistor.min.io/v1
-kind: ObjectStore
+cat <<'EOF' | oc apply -f -
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
 metadata:
-  name: my-objectstore
-  labels:
-    app: minio
-  annotations:
-    prometheus.io/path: /minio/v2/metrics/cluster
-    prometheus.io/port: '9000'
-    prometheus.io/scrape: 'true'
-  namespace: aistor
+  name: minio-credentials
+  namespace: pai-dev
 spec:
-  firewall:
-    imagePullPolicy: IfNotPresent
-    enabled: false
-  cache:
-    enabled: false
-  configuration:
-    name: storage-configuration
-  pvcProtection: false
-  pools:
-    - spreadZoneConfig:
-        enabled: false
-      annotations:
-        io.kubernetes.cri-o.TrySkipVolumeSELinuxLabel: 'true'
-      securityContext:
-        fsGroupChangePolicy: OnRootMismatch
-      volumeClaimTemplate:
-        apiVersion: v1
-        kind: persistentvolumeclaims
-        spec:
-          resources:
-            requests:
-              storage: 1Ti
-          accessModes:
-            - ReadWriteOnce
-          storageClassName: directpv-min-io
-      name: pool-0
-      runtimeClassName: selinux
-      servers: 4
-      volumesPerServer: 4
-  kes:
-    imagePullPolicy: IfNotPresent
-    replicas: 2
-  certificates:
-    disableAutoCert: false
-  mountPath: /export
-  podManagementPolicy: Parallel
-  rollingTimeoutSeconds: 600
-
-
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-store
+    kind: SecretStore
+  target:
+    name: minio-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: MINIO_ROOT_USER
+      remoteRef:
+        key: pai/dev/minio-credentials
+        property: MINIO_ROOT_USER
+    - secretKey: MINIO_ROOT_PASSWORD
+      remoteRef:
+        key: pai/dev/minio-credentials
+        property: MINIO_ROOT_PASSWORD
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: minio-credentials
+  namespace: pai-test
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-store
+    kind: SecretStore
+  target:
+    name: minio-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: MINIO_ROOT_USER
+      remoteRef:
+        key: pai/test/minio-credentials
+        property: MINIO_ROOT_USER
+    - secretKey: MINIO_ROOT_PASSWORD
+      remoteRef:
+        key: pai/test/minio-credentials
+        property: MINIO_ROOT_PASSWORD
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: minio-credentials
+  namespace: pai-prod
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-store
+    kind: SecretStore
+  target:
+    name: minio-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: MINIO_ROOT_USER
+      remoteRef:
+        key: pai/prod/minio-credentials
+        property: MINIO_ROOT_USER
+    - secretKey: MINIO_ROOT_PASSWORD
+      remoteRef:
+        key: pai/prod/minio-credentials
+        property: MINIO_ROOT_PASSWORD
+EOF
