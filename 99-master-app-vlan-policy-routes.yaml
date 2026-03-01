@@ -1,1 +1,20 @@
-helm show values zilliztech/milvus | grep -B2 -A15 "externalS3:"
+hsuma@plnx-admin:~/ocp-ai-config$ helm show values zilliztech/milvus | grep -B2 -A15 "externalS3:"
+# - these configs are only used when `externalS3.enabled` is true
+###################################
+externalS3:
+  enabled: false
+  host: ""
+  port: ""
+  accessKey: ""
+  secretKey: ""
+  useSSL: false
+  bucketName: ""
+  rootPath: ""
+  useIAM: false
+  cloudProvider: "aws"
+  iamEndpoint: ""
+  region: ""
+  useVirtualHost: false
+
+###################################
+hsuma@plnx-admin:~/ocp-ai-config$
