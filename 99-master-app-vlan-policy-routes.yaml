@@ -1,9 +1,24 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc exec deploy/postgresql -n pai-dev -- env | grep -i ssl
-hsuma@plnx-admin:~$ oc exec deploy/postgresql -n pai-dev -- psql -U appuser -d test_db -c "SHOW ssl;"
- ssl
------
- off
-(1 row)
+Hey Awanish — got all your pods running in pai-dev tonight. Here's what I found and fixed, you'll need to make these permanent in your Helm charts before your next deploy:
 
-hsuma@plnx-admin:~$
+**1. agent-gateway + internal-agentmesh-agent-gateway-service — both crash-looping**
+Both were failing on PostgreSQL SSL. agent-gateway had PGSSLMODE=require hardcoded in the deployment env, and internal-agentmesh didn't have it set at all so asyncpg defaulted to looking for client certs at /home/appuser/.postgresql/postgresql.key. Your PostgreSQL instance has ssl=off so require will never work anyway. I set PGSSLMODE=disable on both — update your charts to match.
+
+**2. fileparser — stuck at 0 pods**
+Two issues:
+- Missing ServiceAccount — chart references `internal-datapipeline-rag-fileparser-service` SA but doesn't create it. I created it manually, add it to your chart.
+- Broken entrypoint — image uses `uv run parser-service` but the binary is at /app/.venv/bin/parser-service, not in PATH. I overrode the command to call the venv binary directly. Fix either the Dockerfile entrypoint or add `command: ["/app/.venv/bin/parser-service"]` to the chart.
+
+**3. Also spotted:**
+- Typo in the internal-agentmesh configmap: POSTGRES_DB_URL has `test_dB` (capital B), POSTGRES_ASYNC_DB_URL has `test_db`. That'll bite you. Quick fix:
+```
+oc get configmap internal-agentmesh-agent-gateway-service -n pai-dev -o json | sed 's/test_dB/test_db/g' | oc apply -f -
+```
+- DB creds are plaintext in the configmap — when you're ready we can move those to Vault, the ESO pipeline is working.
+
+After you update the charts, verify with:
+```
+oc get pods -n pai-dev
+```
+All 5 should show Running with 0 restarts.
+
+All pods are Running now. Let me know if you have questions.
