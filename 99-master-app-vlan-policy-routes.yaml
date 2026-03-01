@@ -1,15 +1,106 @@
-# Everything in pai-dev
-oc get all -n pai-dev
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get all -n pai-dev
+Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+NAME                                                            READY   STATUS             RESTARTS         AGE
+pod/agent-gateway-6df79ddc5b-pt8dg                              0/1     CrashLoopBackOff   11 (2m57s ago)   35m
+pod/agent-gateway-7978c8fbf4-vbhlv                              0/1     CrashLoopBackOff   11 (2m58s ago)   35m
+pod/ai-model-multimodel-service-897db5c4c-nrzbk                 1/1     Running            0                5h56m
+pod/internal-agentmesh-agent-gateway-service-6d5cc69c59-pkl67   0/1     CrashLoopBackOff   12 (4m22s ago)   42m
+pod/internal-agentmesh-agent-gateway-service-b98b46d44-dlc2g    0/1     CrashLoopBackOff   11 (3m40s ago)   35m
+pod/postgresql-78b656858b-4fmhl                                 1/1     Running            0                42m
 
-# Secrets and configmaps driving config
-oc get secrets,configmaps -n pai-dev
+NAME                                               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/agent-gateway                              ClusterIP   172.30.195.98    <none>        8089/TCP   15h
+service/fileparser-svc                             ClusterIP   172.30.88.97     <none>        8053/TCP   145m
+service/internal-agentmesh-agent-gateway-service   ClusterIP   172.30.15.92     <none>        8089/TCP   43h
+service/phi4-svc                                   ClusterIP   172.30.189.223   <none>        8000/TCP   11h
+service/postgresql                                 ClusterIP   172.30.114.142   <none>        5432/TCP   41h
 
-# Any PVCs they've created
-oc get pvc -n pai-dev
+NAME                                                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/agent-gateway                              0/1     1            0           15h
+deployment.apps/ai-model-multimodel-service                1/1     1            1           11h
+deployment.apps/fileparser                                 0/1     0            0           145m
+deployment.apps/internal-agentmesh-agent-gateway-service   0/1     1            0           43h
+deployment.apps/postgresql                                 1/1     1            1           41h
 
-# Any ExternalSecrets they're using
-oc get externalsecrets -n pai-dev
+NAME                                                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/agent-gateway-5665999d7                               0         0         0       15h
+replicaset.apps/agent-gateway-58b5b87f8f                              0         0         0       15h
+replicaset.apps/agent-gateway-59d799c9b8                              0         0         0       15h
+replicaset.apps/agent-gateway-6df79ddc5b                              1         1         0       15h
+replicaset.apps/agent-gateway-7978c8fbf4                              1         1         0       15h
+replicaset.apps/ai-model-multimodel-service-897db5c4c                 1         1         1       11h
+replicaset.apps/fileparser-7bcfcfbf8                                  1         0         0       145m
+replicaset.apps/internal-agentmesh-agent-gateway-service-59474f44     0         0         0       40h
+replicaset.apps/internal-agentmesh-agent-gateway-service-594f7dd9cd   0         0         0       40h
+replicaset.apps/internal-agentmesh-agent-gateway-service-66f6d8b4cf   0         0         0       38h
+replicaset.apps/internal-agentmesh-agent-gateway-service-6d5cc69c59   1         1         0       16h
+replicaset.apps/internal-agentmesh-agent-gateway-service-749fb45495   0         0         0       43h
+replicaset.apps/internal-agentmesh-agent-gateway-service-74dd47675d   0         0         0       40h
+replicaset.apps/internal-agentmesh-agent-gateway-service-76c8cd74dc   0         0         0       38h
+replicaset.apps/internal-agentmesh-agent-gateway-service-858f468ff9   0         0         0       38h
+replicaset.apps/internal-agentmesh-agent-gateway-service-b8c46c847    0         0         0       39h
+replicaset.apps/internal-agentmesh-agent-gateway-service-b98b46d44    1         1         0       37h
+replicaset.apps/internal-agentmesh-agent-gateway-service-c5f647888    0         0         0       40h
+replicaset.apps/internal-agentmesh-agent-gateway-service-cf8dbb9d8    0         0         0       43h
+replicaset.apps/postgresql-67cff87fd5                                 0         0         0       41h
+replicaset.apps/postgresql-6ff758777f                                 0         0         0       41h
+replicaset.apps/postgresql-78b656858b                                 1         1         1       41h
 
-# Any HTTPRoutes or LB services already created
-oc get httproutes -n pai-dev
-oc get svc -n pai-dev
+NAME                                     HOST/PORT                                       PATH   SERVICES        PORT   TERMINATION     WILDCARD
+route.route.openshift.io/agent-gateway   agent-gateway-pai-dev.apps.ocp-ai.calix.local          agent-gateway   http   edge/Redirect   None
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get secrets,configmaps -n pai-dev
+NAME                                                                     TYPE                                  DATA   AGE
+secret/agent-gateway-env                                                 Opaque                                55     15h
+secret/ai-model-multimodel-service-dockercfg-7x8sn                       kubernetes.io/dockercfg               1      11h
+secret/builder-dockercfg-k8rn9                                           kubernetes.io/dockercfg               1      2d21h
+secret/db-credentials                                                    Opaque                                2      40h
+secret/default-dockercfg-fm6zc                                           kubernetes.io/dockercfg               1      2d21h
+secret/deployer-dockercfg-w74k9                                          kubernetes.io/dockercfg               1      2d21h
+secret/external-secrets-dockercfg-6c5j8                                  kubernetes.io/dockercfg               1      2d20h
+secret/external-secrets-token                                            kubernetes.io/service-account-token   4      2d5h
+secret/gcs-sa                                                            Opaque                                1      11h
+secret/hf-secret                                                         Opaque                                1      12h
+secret/internal-agentmesh-agent-gateway-service                          Opaque                                1      43h
+secret/internal-agentmesh-agent-gateway-service-dockercfg-btvhd          kubernetes.io/dockercfg               1      43h
+secret/nexus-secret                                                      kubernetes.io/dockerconfigjson        1      10h
+secret/reg-secret                                                        kubernetes.io/dockerconfigjson        1      43h
+secret/sh.helm.release.v1.fileparser-1.v1                                helm.sh/release.v1                    1      145m
+secret/sh.helm.release.v1.internal-agentmesh-agent-gateway-service.v10   helm.sh/release.v1                    1      38h
+secret/sh.helm.release.v1.internal-agentmesh-agent-gateway-service.v11   helm.sh/release.v1                    1      37h
+secret/sh.helm.release.v1.internal-agentmesh-agent-gateway-service.v12   helm.sh/release.v1                    1      37h
+secret/sh.helm.release.v1.internal-agentmesh-agent-gateway-service.v13   helm.sh/release.v1                    1      37h
+secret/sh.helm.release.v1.internal-agentmesh-agent-gateway-service.v14   helm.sh/release.v1                    1      37h
+secret/sh.helm.release.v1.internal-agentmesh-agent-gateway-service.v15   helm.sh/release.v1                    1      16h
+secret/sh.helm.release.v1.internal-agentmesh-agent-gateway-service.v6    helm.sh/release.v1                    1      40h
+secret/sh.helm.release.v1.internal-agentmesh-agent-gateway-service.v7    helm.sh/release.v1                    1      39h
+secret/sh.helm.release.v1.internal-agentmesh-agent-gateway-service.v8    helm.sh/release.v1                    1      38h
+secret/sh.helm.release.v1.internal-agentmesh-agent-gateway-service.v9    helm.sh/release.v1                    1      38h
+secret/sh.helm.release.v1.phi4.v1                                        helm.sh/release.v1                    1      11h
+secret/test-secret                                                       Opaque                                2      3h58m
+
+NAME                                                 DATA   AGE
+configmap/internal-agentmesh-agent-gateway-service   54     43h
+configmap/kube-root-ca.crt                           1      2d21h
+configmap/openshift-service-ca.crt                   1      2d21h
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pvc -n pai-dev
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+model-cache-pvc   Bound    pvc-ed941f98-0820-4b25-be8d-c69bebc4e2d3   500Gi      RWO            netapp-app     <unset>                 11h
+hsuma@plnx-admin:~/ocp-ai-config$ oc get externalsecrets -n pai-dev
+NAME          STORETYPE     STORE         REFRESH INTERVAL   STATUS         READY
+test-secret   SecretStore   vault-store   1m                 SecretSynced   True
+hsuma@plnx-admin:~/ocp-ai-config$ oc get httproutes -n pai-dev
+No resources found in pai-dev namespace.
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get svc -n pai-dev
+NAME                                       TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+agent-gateway                              ClusterIP   172.30.195.98    <none>        8089/TCP   15h
+fileparser-svc                             ClusterIP   172.30.88.97     <none>        8053/TCP   146m
+internal-agentmesh-agent-gateway-service   ClusterIP   172.30.15.92     <none>        8089/TCP   43h
+phi4-svc                                   ClusterIP   172.30.189.223   <none>        8000/TCP   11h
+postgresql                                 ClusterIP   172.30.114.142   <none>        5432/TCP   41h
+hsuma@plnx-admin:~/ocp-ai-config$
