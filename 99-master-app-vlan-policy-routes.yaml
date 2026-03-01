@@ -1,15 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ ip addr show ens33
-2: ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-    link/ether 00:50:56:b5:7a:3a brd ff:ff:ff:ff:ff:ff
-    altname enp2s1
-    inet 10.172.248.105/24 brd 10.172.248.255 scope global ens33
-       valid_lft forever preferred_lft forever
-    inet6 fe80::250:56ff:feb5:7a3a/64 scope link
-       valid_lft forever preferred_lft forever
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ ip link show ens33
-2: ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
-    link/ether 00:50:56:b5:7a:3a brd ff:ff:ff:ff:ff:ff
-    altname enp2s1
-hsuma@plnx-admin:~/ocp-ai-config$
+oc debug node/ocp-ai-master03.calix.local -- chroot /host ip link | grep -B1 '51:0b:68'
