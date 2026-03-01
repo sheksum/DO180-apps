@@ -39,74 +39,10 @@ curl -sk https://minio.dev.ocp-ai.calix.local
 
 
 
-cat <<'EOF' | oc apply -f -
----
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  name: minio-credentials
-  namespace: pai-dev
-spec:
-  refreshInterval: 1h
-  secretStoreRef:
-    name: vault-store
-    kind: SecretStore
-  target:
-    name: minio-credentials
-    creationPolicy: Owner
-  data:
-    - secretKey: MINIO_ROOT_USER
-      remoteRef:
-        key: pai/dev/minio-credentials
-        property: MINIO_ROOT_USER
-    - secretKey: MINIO_ROOT_PASSWORD
-      remoteRef:
-        key: pai/dev/minio-credentials
-        property: MINIO_ROOT_PASSWORD
----
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  name: minio-credentials
-  namespace: pai-test
-spec:
-  refreshInterval: 1h
-  secretStoreRef:
-    name: vault-store
-    kind: SecretStore
-  target:
-    name: minio-credentials
-    creationPolicy: Owner
-  data:
-    - secretKey: MINIO_ROOT_USER
-      remoteRef:
-        key: pai/test/minio-credentials
-        property: MINIO_ROOT_USER
-    - secretKey: MINIO_ROOT_PASSWORD
-      remoteRef:
-        key: pai/test/minio-credentials
-        property: MINIO_ROOT_PASSWORD
----
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  name: minio-credentials
-  namespace: pai-prod
-spec:
-  refreshInterval: 1h
-  secretStoreRef:
-    name: vault-store
-    kind: SecretStore
-  target:
-    name: minio-credentials
-    creationPolicy: Owner
-  data:
-    - secretKey: MINIO_ROOT_USER
-      remoteRef:
-        key: pai/prod/minio-credentials
-        property: MINIO_ROOT_USER
-    - secretKey: MINIO_ROOT_PASSWORD
-      remoteRef:
-        key: pai/prod/minio-credentials
-        property: MINIO_ROOT_PASSWORD
-EOF
+resource mapping not found for name: "minio-credentials" namespace: "pai-dev" from "STDIN": no matches for kind "ExternalSecret" in version "external-secrets.io/v1beta1"
+ensure CRDs are installed first
+resource mapping not found for name: "minio-credentials" namespace: "pai-test" from "STDIN": no matches for kind "ExternalSecret" in version "external-secrets.io/v1beta1"
+ensure CRDs are installed first
+resource mapping not found for name: "minio-credentials" namespace: "pai-prod" from "STDIN": no matches for kind "ExternalSecret" in version "external-secrets.io/v1beta1"
+ensure CRDs are installed first
+hsuma@plnx-admin:~/ocp-ai-config$
