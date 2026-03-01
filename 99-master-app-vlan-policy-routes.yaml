@@ -53,3 +53,6 @@ hsuma@plnx-admin:~/ocp-ai-config$ oc get packagemanifests -n openshift-marketpla
 minio-minkms-operator                                Certified Operators   13d
 minio-object-store-operator                          Certified Operators   13d
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+oc describe packagemanifest minio-object-store-operator -n openshift-marketplace | grep -A5 "Default Channel\|Current CSV\|Channels"
