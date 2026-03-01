@@ -87,3 +87,68 @@ objectstores.aistor.min.io                                        2026-03-01T03:
 hsuma@plnx-admin:~/ocp-ai-config$
 
 oc explain objectstore.spec --api-version=aistor.min.io/v1 | head -60
+
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc explain objectstore.spec --api-version=aistor.min.io/v1 | head -60
+GROUP:      aistor.min.io
+KIND:       ObjectStore
+VERSION:    v1
+
+FIELD: spec <Object>
+
+
+DESCRIPTION:
+    <empty>
+FIELDS:
+  additionalVolumeMounts	<[]Object>
+    <no description>
+
+  additionalVolumes	<[]Object>
+    <no description>
+
+  cache	<Object>
+    <no description>
+
+  certificates	<Object>
+    <no description>
+
+  configuration	<Object>
+    <no description>
+
+  env	<[]Object>
+    <no description>
+
+  firewall	<Object>
+    <no description>
+
+  image	<string>
+    <no description>
+
+  imagePullPolicy	<string>
+    <no description>
+
+  imagePullSecret	<Object>
+    <no description>
+
+  initContainers	<[]Object>
+    <no description>
+
+  kes	<Object>
+    <no description>
+
+  lifecycle	<Object>
+    <no description>
+
+  liveness	<Object>
+    <no description>
+
+  logging	<Object>
+    <no description>
+
+  mountPath	<string>
+    <no description>
+
+  podManagementPolicy	<string>
+    <no description>
+hsuma@plnx-admin:~/ocp-ai-config$
