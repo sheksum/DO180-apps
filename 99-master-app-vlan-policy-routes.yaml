@@ -1,2 +1,38 @@
-oc get svc pai-gateway-openshift-default -n openshift-ingress -o wide
-oc get l2advertisement -n metallb-system -o yaml | grep -A10 'reserved'
+
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$  oc get svc pai-gateway-openshift-default -n openshift-ingress -o wide
+NAME                            TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)                                      AGE     SELECTOR
+pai-gateway-openshift-default   LoadBalancer   172.30.31.98   10.172.248.175   15021:30643/TCP,80:31594/TCP,443:30465/TCP   2d19h   gateway.networking.k8s.io/gateway-name=pai-gateway
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get l2advertisement -n metallb-system -o yaml | grep -A10 'reserved'
+        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1510"},"name":"l2-vlan1510","namespace":"metallb-system"},"spec":{"ipAddressPools":["reserved-future"]}}
+    creationTimestamp: "2026-02-26T04:36:27Z"
+    generation: 5
+    name: l2-vlan1510
+    namespace: metallb-system
+    resourceVersion: "6525413"
+    uid: e2169b8c-eded-430a-9a67-bda4c55a4f8a
+  spec:
+    ipAddressPools:
+    - reserved-future
+- apiVersion: metallb.io/v1beta1
+  kind: L2Advertisement
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1794-dev
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1794-dev"},"name":"l2-vlan1794-dev","namespace":"metallb-system"},"spec":{"interfaces":["bond0.1794","bnd0.1794"],"ipAddressPools":["pai-services-dev"]}}
+    creationTimestamp: "2026-02-28T20:56:44Z"
+    generation: 1
+    name: l2-vlan1794-dev
+hsuma@plnx-admin:~/ocp-ai-config$ ping -c 2 10.172.248.156
+PING 10.172.248.156 (10.172.248.156) 56(84) bytes of data.
+64 bytes from 10.172.248.156: icmp_seq=1 ttl=64 time=0.430 ms
+64 bytes from 10.172.248.156: icmp_seq=2 ttl=64 time=0.173 ms
+
+--- 10.172.248.156 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1005ms
+rtt min/avg/max/mdev = 0.173/0.301/0.430/0.128 ms
+hsuma@plnx-admin:~/ocp-ai-config$
