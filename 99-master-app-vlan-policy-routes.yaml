@@ -1,3 +1,38 @@
+Hi Awanish,
+
+Yeah that ownership split is correct.
+
+Milvus and MinIO have been deployed and ready for testing in dev and test. Still looking at prod, will update once it's sorted.
+
+Access details:
+
+*MinIO Console (browser):*
+Dev: `https://minio.dev.ocp-ai.calix.local`
+Test: `https://minio.test.ocp-ai.calix.local`
+
+*MinIO S3 API:*
+Dev: `http://10.172.194.160:9000`
+Test: `http://10.172.198.160:9000`
+
+*Milvus gRPC:*
+Dev: `10.172.194.161:19530`
+Test: `10.172.198.161:19530`
+
+*To get MinIO credentials:*
+```
+oc login -u kubeadmin https://api.ocp-ai.calix.local:6443 --insecure-skip-tls-verify
+oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d
+oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d
+```
+(swap `pai-dev` for `pai-test` as needed)
+
+Milvus has no auth right now, just connect to the gRPC endpoint.
+
+I'll be sharing an onboarding template to follow when connecting your apps — covers endpoint config, credential mounting, and examples.
+
+
+
+
 Resolving Task 6 — Ingress and Load Balancing is 100% complete.
 
 Summary of all work completed:
