@@ -1,16 +1,26 @@
-Hi @haj.suma & @gene.siepka,
-Just wanted to get some clarity specifically regarding Milvus ownership. Please let me know if this understanding is correct or if it needs adjustment.
-From my understanding:
-Infra team would manage:
+TASK 6: Ingress and Load Balancing (required)
 
-Milvus cluster deployment on Kubernetes
-Storage configuration
-Scaling and resource management
-Backups and high availability
-MLOps would manage:
 
-Milvus schema and collections
-Index creation and tuning
-Data ingestion pipelines
-Retrieval/query logic used by our services
-Please let me know if this separation for Milvus responsibilities aligns with our plan.
+
+Key details
+General
+Notes
+Priority
+
+
+
+P1-Critical
+Components
+
+
+Engineering Infrastructure
+Fix versions
+
+
+None
+Description
+
+6.1 Deploy MetalLB or configure F5 integration 
+6.2 Define IP pools and ingress configuration 
+6.3 Configure DNS wildcard records 
+6.4 Configure TLS certificates 
