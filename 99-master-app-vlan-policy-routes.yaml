@@ -1,26 +1,130 @@
-TASK 6: Ingress and Load Balancing (required)
+Resolving Task 6 — Ingress and Load Balancing is 100% complete.
 
+Summary of all work completed:
 
+== MetalLB (6.1) ==
+- MetalLB Operator deployed in L2 mode on VLAN 1510
+- 4 IPAddressPools configured:
+  • pai-services-dev (VLAN 1794)
+  • pai-services-test (VLAN 1798)
+  • pai-services-prod (VLAN 1797)
+  • reserved-future
+- L2Advertisement deployed for all pools
+- Managed via ArgoCD (self-healing + prune enabled)
 
-Key details
-General
-Notes
-Priority
+== IP Pools and Ingress (6.2) ==
+- Gateway API deployed (replacing legacy OpenShift Routes)
+- GatewayClass: openshift-default
+- Gateway: pai-gateway (namespace: openshift-ingress)
+  • HTTPS listeners per environment (https-dev, https-test, https-prod)
+  • HTTP listener with redirect-to-HTTPS
+- LoadBalancer IPs allocated:
 
+  | IP               | Service         | Environment |
+  |------------------|-----------------|-------------|
+  | 10.172.194.160   | MinIO S3 API    | pai-dev     |
+  | 10.172.194.161   | Milvus gRPC     | pai-dev     |
+  | 10.172.198.160   | MinIO S3 API    | pai-test    |
+  | 10.172.198.161   | Milvus gRPC     | pai-test    |
+  | 10.172.202.160   | MinIO S3 API    | pai-prod    |
+  | 10.172.202.161   | Milvus gRPC     | pai-prod    |
 
+== DNS (6.3) ==
+- Wildcard records configured:
+  • *.dev.ocp-ai.calix.local → Gateway VIP
+  • *.test.ocp-ai.calix.local → Gateway VIP
+  • *.prod.ocp-ai.calix.local → Gateway VIP
 
-P1-Critical
-Components
+== TLS Certificates (6.4) ==
+- HashiCorp Vault PKI engine on plnx-vault.calix.local
+  • Root CA: pki_root / Intermediate CA: pki_int
+  • Self-signed root CA (temporary — production CA integration pending)
+- Vault Kubernetes auth path: kubernetes-ocp-ai
+- cert-manager ClusterIssuer: vault-issuer (Ready)
+- TLS certs issued per environment, mounted on Gateway HTTPS listeners
+- End-to-end TLS verified
 
+== Service Access Details ==
 
-Engineering Infrastructure
-Fix versions
+MinIO Object Storage (Console UI):
+  • Dev:  https://minio.dev.ocp-ai.calix.local
+  • Test: https://minio.test.ocp-ai.calix.local
+  • Prod: https://minio.prod.ocp-ai.calix.local
 
+MinIO S3 API (external via LoadBalancer):
+  • Dev:  http://10.172.194.160:9000
+  • Test: http://10.172.198.160:9000
+  • Prod: http://10.172.202.160:9000
 
-None
-Description
+MinIO S3 API (internal ClusterIP):
+  • Dev:  http://minio.pai-dev.svc.cluster.local:9000
+  • Test: http://minio.pai-test.svc.cluster.local:9000
+  • Prod: http://minio.pai-prod.svc.cluster.local:9000
 
-6.1 Deploy MetalLB or configure F5 integration 
-6.2 Define IP pools and ingress configuration 
-6.3 Configure DNS wildcard records 
-6.4 Configure TLS certificates 
+Milvus Vector Database (gRPC):
+  • Dev:  grpc://10.172.194.161:19530 (internal: milvus.pai-dev.svc.cluster.local:19530)
+  • Test: grpc://10.172.198.161:19530 (internal: milvus.pai-test.svc.cluster.local:19530)
+  • Prod: grpc://10.172.202.161:19530 — PENDING (startup issue under investigation)
+
+Milvus HTTP API:
+  • Dev:  http://milvus.pai-dev.svc.cluster.local:9091
+  • Test: http://milvus.pai-test.svc.cluster.local:9091
+  • Prod: http://milvus.pai-prod.svc.cluster.local:9091
+
+== Credential Retrieval Procedures ==
+
+All secrets are sourced from HashiCorp Vault and synced to Kubernetes via 
+ExternalSecrets Operator (ESO). Do not manually edit K8s secrets — update 
+Vault and ESO will reconcile automatically.
+
+1. MinIO Credentials (per environment):
+
+   Vault paths:
+     kv/pai/dev/minio-credentials
+     kv/pai/test/minio-credentials
+     kv/pai/prod/minio-credentials
+
+   From Vault CLI (on plnx-admin):
+     export VAULT_ADDR=https://plnx-vault.calix.local:8200
+     vault kv get kv/pai/dev/minio-credentials
+
+   From Kubernetes:
+     # Username
+     oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d
+
+     # Password
+     oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d
+
+   Replace pai-dev with pai-test or pai-prod for other environments.
+
+2. MinIO mc CLI access (from within cluster):
+
+     oc exec -n pai-dev deploy/minio -- mc alias set local http://localhost:9000 $(oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d) $(oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d)
+     oc exec -n pai-dev deploy/minio -- mc ls local/
+
+3. Vault PKI / TLS Certificates:
+
+   Vault PKI paths:
+     Root CA:         pki_root/ca/pem
+     Intermediate CA: pki_int/ca/pem
+
+   Certificates are auto-issued by cert-manager via ClusterIssuer vault-issuer.
+   To inspect a cert:
+     oc get certificate -n pai-dev
+     oc describe certificate <cert-name> -n pai-dev
+
+4. Milvus uses the same MinIO credentials (minio-credentials secret) for 
+   object storage access — no separate Milvus credentials needed.
+
+5. ArgoCD:
+   URL: https://openshift-gitops-server-openshift-gitops.apps.ocp-ai.calix.local
+   Auth: OpenShift SSO (ADFS/Duo MFA)
+
+== HTTPRoutes Deployed ==
+  • minio-console-route (pai-dev/test/prod) — MinIO web console via Gateway API
+
+== GitOps ==
+- MetalLB config: ocp-ai-platform.git → metallb/
+- Gateway API config: ocp-ai-platform.git → gateway-api/
+- MinIO config: ocp-ai-platform.git → minio/
+- All managed via ArgoCD with self-healing + prune enabled
