@@ -1,3 +1,16 @@
-oc patch deploy milvus -n pai-prod --type json -p '[
-  {"op":"add","path":"/spec/template/spec/nodeName","value":"ocp-ai-master03.calix.local"}
-]'
+Hi @haj.suma & @gene.siepka,
+Just wanted to get some clarity specifically regarding Milvus ownership. Please let me know if this understanding is correct or if it needs adjustment.
+From my understanding:
+Infra team would manage:
+
+Milvus cluster deployment on Kubernetes
+Storage configuration
+Scaling and resource management
+Backups and high availability
+MLOps would manage:
+
+Milvus schema and collections
+Index creation and tuning
+Data ingestion pipelines
+Retrieval/query logic used by our services
+Please let me know if this separation for Milvus responsibilities aligns with our plan.
