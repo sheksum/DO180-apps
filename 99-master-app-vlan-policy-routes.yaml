@@ -1,24 +1,24 @@
 Hi Awanish,
 
-Yeah that ownership split is correct.
+Yes that ownership split is correct. Just so you're aware, we deployed Milvus and MinIO over the weekend. You can see the pods in the namespace. Dev and test are ready for testing, still looking at prod — will update once it's sorted.
 
-Milvus and MinIO have been deployed and ready for testing in dev and test. Still looking at prod, will update once it's sorted.
+On the HA/backups piece — both are running in standalone mode right now. HA and backups aren't a requirement at this stage. The services are up and ready so you have what you need to start running your tests against them.
 
 Access details:
 
-*MinIO Console (browser):*
+MinIO Console (browser):
 Dev: `https://minio.dev.ocp-ai.calix.local`
 Test: `https://minio.test.ocp-ai.calix.local`
 
-*MinIO S3 API:*
+MinIO S3 API:
 Dev: `http://10.172.194.160:9000`
 Test: `http://10.172.198.160:9000`
 
-*Milvus gRPC:*
+Milvus gRPC:
 Dev: `10.172.194.161:19530`
 Test: `10.172.198.161:19530`
 
-*To get MinIO credentials:*
+To get MinIO credentials:*=
 ```
 oc login -u kubeadmin https://api.ocp-ai.calix.local:6443 --insecure-skip-tls-verify
 oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d
