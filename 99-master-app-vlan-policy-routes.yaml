@@ -1,34 +1,11 @@
-Hi Awanish,
 
-Yes that ownership split is correct. Just so you're aware, we deployed Milvus and MinIO over the weekend. You can see the pods in the namespace. Dev and test are ready for testing, still looking at prod — will update once it's sorted.
+The service onboarding templates for OCP-AI are ready. This covers everything you need to get your apps connected to the platform -- HTTPRoutes, LoadBalancer services, TLS certificates, storage, and connecting to the shared services (MinIO and Milvus).
 
-On the HA/backups piece — both are running in standalone mode right now. HA and backups aren't a requirement at this stage. The services are up and ready so you have what you need to start running your tests against them.
+Confluence page: [link]
 
-Access details:
+Dev and test environments are ready for testing. Prod is still being worked on.
 
-MinIO Console (browser):
-Dev: `https://minio.dev.ocp-ai.calix.local`
-Test: `https://minio.test.ocp-ai.calix.local`
-
-MinIO S3 API:
-Dev: `http://10.172.194.160:9000`
-Test: `http://10.172.198.160:9000`
-
-Milvus gRPC:
-Dev: `10.172.194.161:19530`
-Test: `10.172.198.161:19530`
-
-To get MinIO credentials:*=
-```
-oc login -u kubeadmin https://api.ocp-ai.calix.local:6443 --insecure-skip-tls-verify
-oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d
-oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d
-```
-(swap `pai-dev` for `pai-test` as needed)
-
-Milvus has no auth right now, just connect to the gRPC endpoint.
-
-I'll be sharing an onboarding template to follow when connecting your apps — covers endpoint config, credential mounting, and examples.
+Let me know if you have any questions.
 
 
 
