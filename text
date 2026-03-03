@@ -1,1 +1,559 @@
-Hi @haj.suma /@gene.siepka - FYI, we will need to have Kafka cluster deployed instead of RabbitMQ.  I have updated the JIRA and visual on our end, please let me know if you want me to update anything on your end.  Also will it impact any timelines?
+Hi Sulabh - Swapping to Kafka doesn't impact our side. Messaging services like Kafka and RabbitMQ are application-owned. We provide the underlying platform -- MetalLB IP allocation, storage, networking. We have .162 reserved in each env for you to use.
+
+The onboarding templates on Confluence cover how to set up a LoadBalancer service, request storage, and get connected: [link]
+
+@Awanish the service onboarding templates are ready on Confluence as well. Covers MinIO and Milvus endpoints, credentials, deployment examples. Dev and test are ready for testing.
+
+
+
+
+# OCP-AI Platform -- Service Onboarding Templates
+
+**Cluster:** ocp-ai.calix.local
+**Gateway VIP:** 10.172.248.175
+**Namespaces:** pai-dev | pai-test | pai-prod
+
+---
+
+## Quick Reference
+
+| I need to... | Template | Section |
+|---|---|---|
+| Expose an HTTP/S web app or API | HTTPRoute | Template A |
+| Expose a TCP service (database, queue) | LoadBalancer Service | Template B |
+| Expose HTTP with path/header routing | HTTPRoute (advanced) | Template C |
+| Get a TLS certificate for my service | Certificate | Template D |
+| Request persistent storage | PVC | Template E |
+| Connect my app to MinIO (S3 object storage) | Shared Service | Template F |
+| Connect my app to Milvus (vector database) | Shared Service | Template F |
+
+---
+
+## How to Use These Templates
+
+Placeholders you need to replace:
+
+- `<YOUR-APP-NAME>` -- your application name
+- `<YOUR-NAMESPACE>` -- pai-dev, pai-test, or pai-prod
+- `<YOUR-PORT>` -- the port your app listens on
+- `<YOUR-HOSTNAME>` -- FQDN for your service
+
+Do not modify anything outside the placeholders unless instructed. The annotations, labels, and references are pre-configured for the OCP-AI platform.
+
+---
+
+## Template A: HTTPRoute (HTTP/S Web App or API)
+
+Use this when you have an HTTP-based application (web UI, REST API, etc.) that needs external access through the Gateway API.
+
+### Prerequisites
+
+1. Your application is deployed and running in pai-dev, pai-test, or pai-prod
+2. You have a ClusterIP Service pointing to your pods
+
+### Step 1: Create your Service (if you don't have one)
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: <YOUR-APP-NAME>
+  namespace: <YOUR-NAMESPACE>
+spec:
+  selector:
+    app: <YOUR-APP-NAME>
+  ports:
+    - name: http
+      port: <YOUR-PORT>
+      targetPort: <YOUR-PORT>
+```
+
+### Step 2: Create the HTTPRoute
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: <YOUR-APP-NAME>-route
+  namespace: <YOUR-NAMESPACE>
+spec:
+  parentRefs:
+    - name: pai-gateway
+      namespace: openshift-ingress
+      sectionName: https-dev    # Change: https-test or https-prod
+  hostnames:
+    - <YOUR-HOSTNAME>
+  rules:
+    - backendRefs:
+        - name: <YOUR-APP-NAME>
+          port: <YOUR-PORT>
+```
+
+### Step 3: Verify
+
+```bash
+# Check route is accepted
+oc get httproute <YOUR-APP-NAME>-route -n <YOUR-NAMESPACE>
+
+# Test
+curl -sk https://<YOUR-HOSTNAME>
+```
+
+### Example: Airflow Web UI in pai-dev
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: airflow-route
+  namespace: pai-dev
+spec:
+  parentRefs:
+    - name: pai-gateway
+      namespace: openshift-ingress
+      sectionName: https-dev
+  hostnames:
+    - airflow-dev.apps.ocp-ai.calix.local
+  rules:
+    - backendRefs:
+        - name: airflow-webserver
+          port: 8080
+```
+
+---
+
+## Template B: LoadBalancer Service (TCP -- Database, Queue)
+
+Use this when you need a dedicated IP for a TCP service like PostgreSQL, Milvus, MinIO S3 API, or Kafka.
+
+### Available IPs
+
+**pai-dev (pai-services-dev: 10.172.194.160-179)**
+
+| IP | Status | Service |
+|---|---|---|
+| 10.172.194.160 | Allocated | MinIO S3 API |
+| 10.172.194.161 | Allocated | Milvus gRPC |
+| 10.172.194.162 | Reserved | Kafka |
+| 10.172.194.163-179 | Available | 17 IPs |
+
+**pai-test (pai-services-test: 10.172.198.160-179)**
+
+| IP | Status | Service |
+|---|---|---|
+| 10.172.198.160 | Allocated | MinIO S3 API |
+| 10.172.198.161 | Allocated | Milvus gRPC |
+| 10.172.198.162 | Reserved | Kafka |
+| 10.172.198.163-179 | Available | 17 IPs |
+
+**pai-prod (pai-services-prod: 10.172.202.160-179)**
+
+| IP | Status | Service |
+|---|---|---|
+| 10.172.202.160 | Allocated | MinIO S3 API |
+| 10.172.202.161 | Allocated | Milvus gRPC |
+| 10.172.202.162 | Reserved | Kafka |
+| 10.172.202.163-179 | Available | 17 IPs |
+
+### Template
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: <YOUR-APP-NAME>-lb
+  namespace: <YOUR-NAMESPACE>
+  annotations:
+    metallb.universe.tf/address-pool: <POOL-NAME>
+    metallb.universe.tf/loadBalancerIPs: "<YOUR-IP>"
+spec:
+  type: LoadBalancer
+  ports:
+    - name: <PROTOCOL-NAME>
+      port: <YOUR-PORT>
+      targetPort: <YOUR-PORT>
+      protocol: TCP
+  selector:
+    app: <YOUR-APP-NAME>
+```
+
+Do NOT use the `spec.loadBalancerIP` field. Use ONLY the `metallb.universe.tf/loadBalancerIPs` annotation. Using both causes allocation failure.
+
+### Verify
+
+```bash
+oc get svc <YOUR-APP-NAME>-lb -n <YOUR-NAMESPACE>
+# EXTERNAL-IP should show your requested IP
+# If it shows <pending>, check:
+oc describe svc <YOUR-APP-NAME>-lb -n <YOUR-NAMESPACE>
+```
+
+### Example: PostgreSQL in pai-prod
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cnpg-lb
+  namespace: pai-prod
+  annotations:
+    metallb.universe.tf/address-pool: pai-services-prod
+    metallb.universe.tf/loadBalancerIPs: "10.172.202.160"
+spec:
+  type: LoadBalancer
+  ports:
+    - name: postgresql
+      port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: cnpg
+```
+
+---
+
+## Template C: HTTPRoute with Path or Header Routing
+
+Use this when you need to route different URL paths or HTTP headers to different backend services.
+
+### Path-Based Routing
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: <YOUR-APP-NAME>-routes
+  namespace: <YOUR-NAMESPACE>
+spec:
+  parentRefs:
+    - name: pai-gateway
+      namespace: openshift-ingress
+      sectionName: https-dev    # Change: https-test or https-prod
+  hostnames:
+    - <YOUR-HOSTNAME>
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: <PATH-1>
+      backendRefs:
+        - name: <SERVICE-1>
+          port: <PORT-1>
+    - matches:
+        - path:
+            type: PathPrefix
+            value: <PATH-2>
+      backendRefs:
+        - name: <SERVICE-2>
+          port: <PORT-2>
+```
+
+### Traffic Splitting (Canary Deployment)
+
+```yaml
+  rules:
+    - backendRefs:
+        - name: <YOUR-APP-V1>
+          port: <YOUR-PORT>
+          weight: 90
+        - name: <YOUR-APP-V2>
+          port: <YOUR-PORT>
+          weight: 10
+```
+
+---
+
+## Template D: TLS Certificate
+
+Use this to request a TLS certificate from the platform's Vault PKI. The certificate is automatically issued and renewed by cert-manager.
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: <YOUR-APP-NAME>-tls
+  namespace: <YOUR-NAMESPACE>
+spec:
+  secretName: <YOUR-APP-NAME>-tls-secret
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - <YOUR-HOSTNAME>
+  duration: 8760h
+  renewBefore: 720h
+```
+
+### Verify
+
+```bash
+oc get certificate <YOUR-APP-NAME>-tls -n <YOUR-NAMESPACE>
+# Should show READY: True
+oc get secret <YOUR-APP-NAME>-tls-secret -n <YOUR-NAMESPACE>
+```
+
+### Mount in Your Pod
+
+```yaml
+volumes:
+  - name: tls-certs
+    secret:
+      secretName: <YOUR-APP-NAME>-tls-secret
+volumeMounts:
+  - name: tls-certs
+    mountPath: /etc/tls
+    readOnly: true
+```
+
+---
+
+## Template E: Persistent Volume Claim (Storage)
+
+Use this to request persistent storage backed by NetApp. The default StorageClass (netapp-app) provisions NFS volumes automatically.
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: <YOUR-APP-NAME>-data
+  namespace: <YOUR-NAMESPACE>
+spec:
+  storageClassName: netapp-app
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: <SIZE>Gi
+```
+
+### Verify
+
+```bash
+oc get pvc <YOUR-APP-NAME>-data -n <YOUR-NAMESPACE>
+# Should show STATUS: Bound
+```
+
+---
+
+## Template F: Connecting to Shared Platform Services
+
+These services are pre-deployed on the OCP-AI platform. Your application connects to them via internal ClusterIP DNS names. Credentials are already provisioned in each namespace via Vault/ESO.
+
+### F.1 MinIO (S3-Compatible Object Storage)
+
+#### Endpoints
+
+| Environment | Internal S3 API | External S3 API | Console (Browser) |
+|---|---|---|---|
+| pai-dev | http://minio.pai-dev.svc.cluster.local:9000 | http://10.172.194.160:9000 | https://minio.dev.ocp-ai.calix.local |
+| pai-test | http://minio.pai-test.svc.cluster.local:9000 | http://10.172.198.160:9000 | https://minio.test.ocp-ai.calix.local |
+| pai-prod | http://minio.pai-prod.svc.cluster.local:9000 | http://10.172.202.160:9000 | https://minio.prod.ocp-ai.calix.local |
+
+#### Credentials
+
+Pre-provisioned as K8s secret `minio-credentials` in each pai-* namespace (synced from Vault via ESO). Keys: `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD`.
+
+To retrieve:
+
+```bash
+oc login -u kubeadmin https://api.ocp-ai.calix.local:6443 --insecure-skip-tls-verify
+oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d
+oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d
+# swap pai-dev for pai-test or pai-prod as needed
+```
+
+#### Reference credentials in your Deployment
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: <YOUR-APP-NAME>
+  namespace: <YOUR-NAMESPACE>
+spec:
+  template:
+    spec:
+      containers:
+        - name: <YOUR-APP-NAME>
+          env:
+            - name: S3_ENDPOINT
+              value: "http://minio.<YOUR-NAMESPACE>.svc.cluster.local:9000"
+            - name: S3_USE_SSL
+              value: "false"
+            - name: S3_BUCKET
+              value: "<YOUR-BUCKET-NAME>"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: MINIO_ROOT_USER
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: MINIO_ROOT_PASSWORD
+```
+
+#### Python (boto3) connection
+
+```python
+import boto3
+
+s3 = boto3.client(
+    "s3",
+    endpoint_url=os.environ["S3_ENDPOINT"],
+    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+    region_name="us-east-1",  # required by boto3, value irrelevant for MinIO
+)
+
+s3.create_bucket(Bucket="my-app-data")
+s3.upload_file("model.bin", "my-app-data", "models/v1/model.bin")
+
+response = s3.list_objects_v2(Bucket="my-app-data", Prefix="models/")
+for obj in response.get("Contents", []):
+    print(obj["Key"])
+```
+
+#### mc CLI (from within a pod)
+
+```bash
+mc alias set ocp-minio http://minio.pai-dev.svc.cluster.local:9000 $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY
+mc ls ocp-minio/
+mc mb ocp-minio/my-app-data
+mc cp model.bin ocp-minio/my-app-data/models/v1/
+```
+
+#### Things to know
+
+- Use internal ClusterIP endpoints from pods, not LoadBalancer IPs
+- LoadBalancer IPs are for external access only (admin tools, CI/CD outside cluster)
+- Do not hardcode credentials -- always reference the `minio-credentials` secret
+- Create your own bucket(s) -- do not use `milvus-bucket` (reserved for Milvus)
+- MinIO is S3-compatible so any S3 SDK works (boto3, aws-sdk, minio-py)
+
+---
+
+### F.2 Milvus (Vector Database)
+
+#### Endpoints
+
+| Environment | Internal gRPC | External gRPC | Internal HTTP (health) |
+|---|---|---|---|
+| pai-dev | milvus.pai-dev.svc.cluster.local:19530 | 10.172.194.161:19530 | milvus.pai-dev.svc:9091 |
+| pai-test | milvus.pai-test.svc.cluster.local:19530 | 10.172.198.161:19530 | milvus.pai-test.svc:9091 |
+| pai-prod | milvus.pai-prod.svc.cluster.local:19530 | 10.172.202.161:19530 | under maintenance |
+
+pai-prod Milvus is currently under maintenance. Use pai-dev or pai-test for development.
+
+#### Authentication
+
+No credentials required. Milvus does not have authentication enabled (internal cluster access only). Network isolation via NetworkPolicies will be added before release.
+
+#### Reference in your Deployment
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: <YOUR-APP-NAME>
+  namespace: <YOUR-NAMESPACE>
+spec:
+  template:
+    spec:
+      containers:
+        - name: <YOUR-APP-NAME>
+          env:
+            - name: MILVUS_HOST
+              value: "milvus.<YOUR-NAMESPACE>.svc.cluster.local"
+            - name: MILVUS_PORT
+              value: "19530"
+```
+
+#### Python (pymilvus) connection
+
+```python
+from pymilvus import connections, Collection, FieldSchema, CollectionSchema, DataType
+
+connections.connect(
+    alias="default",
+    host=os.environ["MILVUS_HOST"],
+    port=os.environ["MILVUS_PORT"],
+)
+
+fields = [
+    FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
+    FieldSchema(name="embedding", dtype=DataType.FLOAT_VECTOR, dim=768),
+    FieldSchema(name="text", dtype=DataType.VARCHAR, max_length=65535),
+]
+schema = CollectionSchema(fields, description="Document embeddings")
+
+collection = Collection(name="documents", schema=schema)
+
+index_params = {
+    "metric_type": "COSINE",
+    "index_type": "IVF_FLAT",
+    "params": {"nlist": 1024},
+}
+collection.create_index("embedding", index_params)
+
+# Insert
+data = [
+    [[0.1] * 768, [0.2] * 768],
+    ["doc1 text", "doc2 text"],
+]
+collection.insert(data)
+
+# Search
+collection.load()
+results = collection.search(
+    data=[[0.1] * 768],
+    anns_field="embedding",
+    param={"metric_type": "COSINE", "params": {"nprobe": 10}},
+    limit=5,
+    output_fields=["text"],
+)
+```
+
+#### Health check (from a pod)
+
+```bash
+curl -s http://milvus.<YOUR-NAMESPACE>.svc.cluster.local:9091/healthz
+# Returns: {"status":"ok"} when healthy
+```
+
+#### Things to know
+
+- Use gRPC port 19530 for SDK connections (pymilvus, Java, Go, Node.js)
+- HTTP port 9091 is for health checks and RESTful API (limited functionality)
+- LoadBalancer IPs (external gRPC) are for access from outside the cluster only
+- Each environment is isolated -- collections in pai-dev are not visible in pai-test/prod
+- Milvus stores vector data in MinIO automatically -- do not modify `milvus-bucket`
+
+---
+
+## Service Onboarding Checklist
+
+| Step | Template | Owner |
+|---|---|---|
+| Pick your namespace (pai-dev, pai-test, or pai-prod) | -- | App Team |
+| Deploy your application (Deployment + Pods) | -- | App Team |
+| Create ClusterIP Service for your pods | Template A Step 1 | App Team |
+| Request persistent storage if needed | Template E | App Team |
+| Decide: HTTPRoute or LoadBalancer? | See Quick Reference | App Team + Infra |
+| If HTTPRoute: create HTTPRoute YAML | Template A or C | App Team |
+| If LoadBalancer: request IP from infra team | Template B | Infra Team |
+| If LoadBalancer: create LB Service YAML | Template B | App Team |
+| Request TLS certificate if needed | Template D | App Team |
+| Request DNS record from infra team | -- | Infra Team |
+| Verify connectivity end-to-end | Verify steps in each template | App Team |
+
+---
+
+## Support
+
+**Infrastructure requests** (IP allocation, DNS records, storage, troubleshooting): Infra Team | Jira: PAI project (PAI-xxxx)
+
+**Application-level issues** (pod crashes, service config, HTTPRoute not working): MLOps Team
+
+
