@@ -1,22 +1,3 @@
-apiVersion: external-secrets.io/v1
-kind: ExternalSecret
-metadata:
-  name: vault-example
-  namespace: vault-poc
-spec:
-  refreshInterval: 15s
-  secretStoreRef:
-    name: vault-backend
-    kind: ClusterSecretStore
-  target:
-    name: my-synced-secret
-    creationPolicy: Owner
-  data:
-  - secretKey: username
-    remoteRef:
-      key: secret/data/myapp          # KV v2
-      property: username
-  - secretKey: password
-    remoteRef:
-      key: secret/data/myapp
-      property: password
+Hi Guys
+I’d like to share an update with Vivek tomorrow.  If you can share the status of our OpenShift deployment, let me know if any dates have changed, or if there are any blockers.  Or, ideally, that we’ve extended access to the AI Dev team and our initial work is completed.  Just a little summary would be great.  Let me know if you have any questions.
+Thanks,
