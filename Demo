@@ -1,3 +1,22 @@
-Hi Guys
-I’d like to share an update with Vivek tomorrow.  If you can share the status of our OpenShift deployment, let me know if any dates have changed, or if there are any blockers.  Or, ideally, that we’ve extended access to the AI Dev team and our initial work is completed.  Just a little summary would be great.  Let me know if you have any questions.
+Subject: Re: OCP-AI Status Update
+
+Hey Brian,
+
+Here's where we're at.
+
+The core platform is built and operational. All infrastructure services are deployed across dev, test, and prod — that includes MinIO for object storage, Milvus for vector search, and the full ingress stack with Gateway API and MetalLB. TLS is automated through Vault PKI, secrets management is flowing through ESO, and everything is managed via ArgoCD GitOps.
+
+LDAP integration into Vault is done. The AI team can now log into the Vault UI with their IPA credentials and manage their own secrets per environment. ESO pulls those secrets automatically into the cluster. Two policies are in place — engops has full admin access, mlops is scoped to the pai-dev, pai-test, and pai-prod namespaces.
+
+Onboarding templates have been documented and shared with the MLOps team on Confluence. They have what they need to start deploying — HTTPRoutes, LoadBalancer services, TLS certs, storage, and connection details for MinIO and Milvus.
+
+Still in progress — deploying and setting up CNPG (PostgreSQL operator) for proper HA and automated backups across all three environments. NetworkPolicies for environment isolation between pai-dev, pai-test, and pai-prod still need to be implemented before release.
+
+One blocker — Milvus prod has a streaming node startup issue. Dev and test are fully usable, still working through the prod issue.
+
+Timeline hasn't changed. March 18 for engineering completion, March 23 for release.
+
+Let me know if you need anything else for the call with Vivek.
+
 Thanks,
+Haj
