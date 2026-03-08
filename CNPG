@@ -1,0 +1,74 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-test
+  namespace: pai-dev
+spec:
+  instances: 3
+  storage:
+    storageClass: netapp-app
+    size: 10Gi
+  bootstrap:
+    initdb:
+      database: testdb
+      owner: testuser
+
+
+oc apply -f cnpg-test-cluster.yaml
+
+
+# Watch pods
+oc get pods -n pai-dev -l cnpg.io/cluster=cnpg-test -w
+
+# Check cluster status
+oc get cluster cnpg-test -n pai-dev
+
+# All 3 instances should show Ready
+
+oc get secret cnpg-test-app -n pai-dev
+oc get secret cnpg-test-app -n pai-dev -o jsonpath='{.data.username}' | base64 -d
+oc get secret cnpg-test-app -n pai-dev -o jsonpath='{.data.password}' | base64 -d
+
+oc run pg-test --rm -it --image=postgres:17 --restart=Never -n pai-dev -- \
+  psql "host=cnpg-test-rw port=5432 dbname=testdb user=testuser"
+
+
+CREATE TABLE test (id serial PRIMARY KEY, name text);
+INSERT INTO test (name) VALUES ('hello from cnpg');
+SELECT * FROM test;
+\q
+
+
+# Find the primary
+oc get pods -n pai-dev -l cnpg.io/cluster=cnpg-test -L role
+
+# Delete the primary pod
+oc delete pod cnpg-test-1 -n pai-dev
+
+# Watch failover happen
+oc get pods -n pai-dev -l cnpg.io/cluster=cnpg-test -w
+
+# Reconnect and verify data survived
+oc run pg-test2 --rm -it --image=postgres:17 --restart=Never -n pai-dev -- \
+  psql "host=cnpg-test-rw port=5432 dbname=testdb user=testuser" -c "SELECT * FROM test;"
+
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: cnpg-test-backup
+  namespace: pai-dev
+spec:
+  schedule: "0 */1 * * *"
+  cluster:
+    name: cnpg-test
+
+
+oc delete cluster cnpg-test -n pai-dev
+# PVCs get cleaned up automatically
+
+
+
+
+
+
+
