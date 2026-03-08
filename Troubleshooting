@@ -1,6 +1,48 @@
 hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -v -t nfs4 -o nfsvers=4.1,tcp 10.172.194.22:/trident_pvc_97a9fba4_3ef2_4d84_a539_bee0bcdd27a2 /mnt && echo SUCCESS && sudo umount /mnt"
-mount.nfs4: timeout set for Sun Mar  8 21:08:12 2026
-mount.nfs4: trying text-based options 'nfsvers=4.1,tcp,addr=10.172.194.22,clientaddr=10.172.194.152'
-SUCCESS
+hsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -w
+NAME                       READY   STATUS     RESTARTS   AGE
+cnpg-test-1-initdb-nkpwk   0/1     Init:0/1   0          8s
+cnpg-test-1-initdb-nkpwk   0/1     Init:0/1   0          8s
+cnpg-test-1-initdb-nkpwk   0/1     PodInitializing   0          11s
+cnpg-test-1-initdb-nkpwk   1/1     Running           0          16s
+cnpg-test-1-initdb-nkpwk   0/1     Completed         0          19s
+cnpg-test-1-initdb-nkpwk   0/1     Completed         0          20s
+cnpg-test-1-initdb-nkpwk   0/1     Completed         0          21s
+cnpg-test-1                0/1     Pending           0          0s
+cnpg-test-1                0/1     Pending           0          0s
+cnpg-test-1                0/1     Pending           0          0s
+cnpg-test-1                0/1     Init:0/1          0          0s
+cnpg-test-1                0/1     Init:0/1          0          8s
+cnpg-test-1                0/1     Init:0/1          0          8s
+cnpg-test-1                0/1     PodInitializing   0          9s
+cnpg-test-1                0/1     Running           0          10s
+cnpg-test-1                0/1     Running           0          10s
+cnpg-test-1                0/1     Running           0          18s
+cnpg-test-1                1/1     Running           0          18s
+cnpg-test-2-join-ljlfs     0/1     Pending           0          0s
+cnpg-test-2-join-ljlfs     0/1     Pending           0          0s
+cnpg-test-2-join-ljlfs     0/1     Pending           0          6s
+cnpg-test-2-join-ljlfs     0/1     Pending           0          6s
+cnpg-test-2-join-ljlfs     0/1     Init:0/1          0          6s
+^Chsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -w
+NAME                       READY   STATUS      RESTARTS   AGE
+cnpg-test-1                1/1     Running     0          57s
+cnpg-test-1-initdb-nkpwk   0/1     Completed   0          78s
+cnpg-test-2-join-ljlfs     0/1     Init:0/1    0          39s
+^Chsuma@plnx-admin:~$ oc describe pod cnpg-test-2-join-ljlfs -n pai-test | tail -15
+    Optional:                false
+    DownwardAPI:             true
+    ConfigMapName:           openshift-service-ca.crt
+    Optional:                false
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason                  Age                 From                     Message
+  ----     ------                  ----                ----                     -------
+  Warning  FailedScheduling        100s                default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
+  Warning  FailedScheduling        95s (x2 over 100s)  default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
+  Normal   Scheduled               95s                 default-scheduler        Successfully assigned pai-test/cnpg-test-2-join-ljlfs to ocp-ai-master01.calix.local
+  Normal   SuccessfulAttachVolume  95s                 attachdetach-controller  AttachVolume.Attach succeeded for volume "pvc-d85da02c-eb58-4e9c-badb-2695210d5ff4"
 hsuma@plnx-admin:~$
