@@ -1,76 +1,14 @@
-Events:
-  Type     Reason                  Age              From                     Message
-  ----     ------                  ----             ----                     -------
-  Warning  FailedScheduling        2m11s            default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
-  Warning  FailedScheduling        2m (x2 over 2m)  default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
-  Normal   Scheduled               2m               default-scheduler        Successfully assigned pai-test/cnpg-test-1-initdb-2q8rw to ocp-ai-master02.calix.local
-  Normal   SuccessfulAttachVolume  2m               attachdetach-controller  AttachVolume.Attach succeeded for volume "pvc-116b094c-3a61-494e-b67b-94851b8be967"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test
-NAME                       READY   STATUS     RESTARTS   AGE
-cnpg-test-1-initdb-2q8rw   0/1     Init:0/1   0          2m16s
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ kubectl logs cnpg-test-1-initdb-2q8rw -n pai-test -c bootstrap-controller
-Error from server (BadRequest): container "bootstrap-controller" in pod "cnpg-test-1-initdb-2q8rw" is waiting to start: PodInitializing
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ kubectl logs trident-node-linux-5fkmm -n trident -c trident-main | grep pvc-116b094c
-time="2026-03-08T19:48:04Z" level=debug msg="GRPC call: /csi.v1.Node/NodeStageVolume" Request="GRPC request: volume_id:\"pvc-116b094c-3a61-494e-b67b-94851b8be967\"  publish_context:{key:\"filesystemType\"  value:\"nfs\"}  publish_context:{key:\"formatOptions\"  value:\"\"}  publish_context:{key:\"mountOptions\"  value:\"nfsvers=4.1\"}  publish_context:{key:\"nfsPath\"  value:\"/trident_pvc_116b094c_3a61_494e_b67b_94851b8be967\"}  publish_context:{key:\"nfsServerIp\"  value:\"10.172.194.22\"}  publish_context:{key:\"protocol\"  value:\"file\"}  staging_target_path:\"/var/lib/kubelet/plugins/kubernetes.io/csi/csi.trident.netapp.io/f520cd08b1dbe8cbf106ed6396368bf188117a1e82a0809def38608a07464889/globalmount\"  volume_capability:{mount:{mount_flags:\"nfsvers=4.1\"}  access_mode:{mode:SINGLE_NODE_MULTI_WRITER}}  volume_context:{key:\"backendUUID\"  value:\"27f061fd-e6e4-448c-a4e4-c4302ac4a01a\"}  volume_context:{key:\"internalName\"  value:\"trident_pvc_116b094c_3a61_494e_b67b_94851b8be967\"}  volume_context:{key:\"name\"  value:\"pvc-116b094c-3a61-494e-b67b-94851b8be967\"}  volume_context:{key:\"protocol\"  value:\"file\"}  volume_context:{key:\"storage.kubernetes.io/csiProvisionerIdentity\"  value:\"1772328673165-9222-csi.trident.netapp.io\"}" logLayer=csi_frontend requestID=919588b9-b1a3-4871-9ed8-829c49f88d49 requestSource=CSI
-time="2026-03-08T19:48:04Z" level=debug msg="Attempting to acquire shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967); 1 position in the queue." lockContext=NodeStageVolume logLayer=csi_frontend requestID=919588b9-b1a3-4871-9ed8-829c49f88d49 requestSource=CSI workflow="node_server=stage"
-time="2026-03-08T19:48:04Z" level=debug msg="Created shared lock." lock=pvc-116b094c-3a61-494e-b67b-94851b8be967 logLayer=csi_frontend requestID=919588b9-b1a3-4871-9ed8-829c49f88d49 requestSource=CSI workflow="node_server=stage"
-time="2026-03-08T19:48:04Z" level=debug msg="Acquired shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967)." lockContext=NodeStageVolume logLayer=csi_frontend requestID=919588b9-b1a3-4871-9ed8-829c49f88d49 requestSource=CSI workflow="node_server=stage"
-time="2026-03-08T19:48:04Z" level=debug msg="Writing temporary tracking info file." logLayer=csi_frontend requestID=919588b9-b1a3-4871-9ed8-829c49f88d49 requestSource=CSI tempFile=/var/lib/trident/tracking/tmp-pvc-116b094c-3a61-494e-b67b-94851b8be967.json workflow="node_server=stage"
-time="2026-03-08T19:48:04Z" level=debug msg="Attempting to acquire shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967.json); 1 position in the queue." lockContext=WriteTrackingInfo logLayer=csi_frontend requestID=919588b9-b1a3-4871-9ed8-829c49f88d49 requestSource=CSI workflow="node_server=stage"
-time="2026-03-08T19:48:04Z" level=debug msg="Created shared lock." lock=pvc-116b094c-3a61-494e-b67b-94851b8be967.json logLayer=csi_frontend requestID=919588b9-b1a3-4871-9ed8-829c49f88d49 requestSource=CSI workflow="node_server=stage"
-time="2026-03-08T19:48:04Z" level=debug msg="Acquired shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967.json)." lockContext=WriteTrackingInfo logLayer=csi_frontend requestID=919588b9-b1a3-4871-9ed8-829c49f88d49 requestSource=CSI workflow="node_server=stage"
-time="2026-03-08T19:48:04Z" level=debug msg="Updating tracking info file." fileName=/var/lib/trident/tracking/pvc-116b094c-3a61-494e-b67b-94851b8be967.json logLayer=csi_frontend requestID=919588b9-b1a3-4871-9ed8-829c49f88d49 requestSource=CSI workflow="node_server=stage"
-time="2026-03-08T19:48:04Z" level=debug msg="Released shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967.json)." lockContext=WriteTrackingInfo logLayer=csi_frontend requestID=919588b9-b1a3-4871-9ed8-829c49f88d49 requestSource=CSI workflow="node_server=stage"
-time="2026-03-08T19:48:04Z" level=debug msg="Released shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967)." lockContext=NodeStageVolume logLayer=csi_frontend requestID=919588b9-b1a3-4871-9ed8-829c49f88d49 requestSource=CSI workflow="node_server=stage"
-time="2026-03-08T19:48:04Z" level=debug msg="GRPC call: /csi.v1.Node/NodePublishVolume" Request="GRPC request: volume_id:\"pvc-116b094c-3a61-494e-b67b-94851b8be967\"  publish_context:{key:\"filesystemType\"  value:\"nfs\"}  publish_context:{key:\"formatOptions\"  value:\"\"}  publish_context:{key:\"mountOptions\"  value:\"nfsvers=4.1\"}  publish_context:{key:\"nfsPath\"  value:\"/trident_pvc_116b094c_3a61_494e_b67b_94851b8be967\"}  publish_context:{key:\"nfsServerIp\"  value:\"10.172.194.22\"}  publish_context:{key:\"protocol\"  value:\"file\"}  staging_target_path:\"/var/lib/kubelet/plugins/kubernetes.io/csi/csi.trident.netapp.io/f520cd08b1dbe8cbf106ed6396368bf188117a1e82a0809def38608a07464889/globalmount\"  target_path:\"/var/lib/kubelet/pods/65adf8b0-01c9-4bb6-b5e9-e99cd2696f7e/volumes/kubernetes.io~csi/pvc-116b094c-3a61-494e-b67b-94851b8be967/mount\"  volume_capability:{mount:{mount_flags:\"nfsvers=4.1\"}  access_mode:{mode:SINGLE_NODE_MULTI_WRITER}}  volume_context:{key:\"backendUUID\"  value:\"27f061fd-e6e4-448c-a4e4-c4302ac4a01a\"}  volume_context:{key:\"internalName\"  value:\"trident_pvc_116b094c_3a61_494e_b67b_94851b8be967\"}  volume_context:{key:\"name\"  value:\"pvc-116b094c-3a61-494e-b67b-94851b8be967\"}  volume_context:{key:\"protocol\"  value:\"file\"}  volume_context:{key:\"storage.kubernetes.io/csiProvisionerIdentity\"  value:\"1772328673165-9222-csi.trident.netapp.io\"}" logLayer=csi_frontend requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI
-time="2026-03-08T19:48:04Z" level=debug msg="Attempting to acquire shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967); 1 position in the queue." lockContext=NodePublishVolume logLayer=csi_frontend requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg="Acquired shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967)." lockContext=NodePublishVolume logLayer=csi_frontend requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg="Attempting to acquire shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967.json); 1 position in the queue." lockContext=ReadTrackingInfo logLayer=csi_frontend requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg="Acquired shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967.json)." lockContext=ReadTrackingInfo logLayer=csi_frontend requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg="Released shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967.json)." lockContext=ReadTrackingInfo logLayer=csi_frontend requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg=">>>> mount_linux.IsLikelyNotMountPoint" logLayer=csi_frontend mountpoint="/var/lib/kubelet/pods/65adf8b0-01c9-4bb6-b5e9-e99cd2696f7e/volumes/kubernetes.io~csi/pvc-116b094c-3a61-494e-b67b-94851b8be967/mount" requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg="<<<< mount_linux.IsLikelyNotMountPoint" logLayer=csi_frontend mountpoint="/var/lib/kubelet/pods/65adf8b0-01c9-4bb6-b5e9-e99cd2696f7e/volumes/kubernetes.io~csi/pvc-116b094c-3a61-494e-b67b-94851b8be967/mount" requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg="Attempting to acquire shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967.json); 1 position in the queue." lockContext=ReadTrackingInfo logLayer=csi_frontend requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg="Acquired shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967.json)." lockContext=ReadTrackingInfo logLayer=csi_frontend requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg="Released shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967.json)." lockContext=ReadTrackingInfo logLayer=csi_frontend requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg="Publishing NFS volume." exportPath="10.172.194.22:/trident_pvc_116b094c_3a61_494e_b67b_94851b8be967" logLayer=csi_frontend mountpoint="/var/lib/kubelet/pods/65adf8b0-01c9-4bb6-b5e9-e99cd2696f7e/volumes/kubernetes.io~csi/pvc-116b094c-3a61-494e-b67b-94851b8be967/mount" options="nfsvers=4.1" requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI volume=trident_pvc_116b094c_3a61_494e_b67b_94851b8be967 workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg=">>>> mount_linux.mountNFSPath" exportPath="10.172.194.22:/trident_pvc_116b094c_3a61_494e_b67b_94851b8be967" logLayer=csi_frontend mountpoint="/var/lib/kubelet/pods/65adf8b0-01c9-4bb6-b5e9-e99cd2696f7e/volumes/kubernetes.io~csi/pvc-116b094c-3a61-494e-b67b-94851b8be967/mount" options="nfsvers=4.1" requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg=">>>> command.Execute." args="[-p /var/lib/kubelet/pods/65adf8b0-01c9-4bb6-b5e9-e99cd2696f7e/volumes/kubernetes.io~csi/pvc-116b094c-3a61-494e-b67b-94851b8be967/mount]" command=mkdir logLayer=csi_frontend requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:48:04Z" level=debug msg=">>>> command.Execute." args="[-o nfsvers=4.1 10.172.194.22:/trident_pvc_116b094c_3a61_494e_b67b_94851b8be967 /var/lib/kubelet/pods/65adf8b0-01c9-4bb6-b5e9-e99cd2696f7e/volumes/kubernetes.io~csi/pvc-116b094c-3a61-494e-b67b-94851b8be967/mount]" command=mount.nfs4 logLayer=csi_frontend requestID=d07ffe30-03ca-44f4-899e-5bfc9327789b requestSource=CSI workflow="node_server=publish"
-time="2026-03-08T19:50:04Z" level=debug msg="GRPC call: /csi.v1.Node/NodePublishVolume" Request="GRPC request: volume_id:\"pvc-116b094c-3a61-494e-b67b-94851b8be967\"  publish_context:{key:\"filesystemType\"  value:\"nfs\"}  publish_context:{key:\"formatOptions\"  value:\"\"}  publish_context:{key:\"mountOptions\"  value:\"nfsvers=4.1\"}  publish_context:{key:\"nfsPath\"  value:\"/trident_pvc_116b094c_3a61_494e_b67b_94851b8be967\"}  publish_context:{key:\"nfsServerIp\"  value:\"10.172.194.22\"}  publish_context:{key:\"protocol\"  value:\"file\"}  staging_target_path:\"/var/lib/kubelet/plugins/kubernetes.io/csi/csi.trident.netapp.io/f520cd08b1dbe8cbf106ed6396368bf188117a1e82a0809def38608a07464889/globalmount\"  target_path:\"/var/lib/kubelet/pods/65adf8b0-01c9-4bb6-b5e9-e99cd2696f7e/volumes/kubernetes.io~csi/pvc-116b094c-3a61-494e-b67b-94851b8be967/mount\"  volume_capability:{mount:{mount_flags:\"nfsvers=4.1\"}  access_mode:{mode:SINGLE_NODE_MULTI_WRITER}}  volume_context:{key:\"backendUUID\"  value:\"27f061fd-e6e4-448c-a4e4-c4302ac4a01a\"}  volume_context:{key:\"internalName\"  value:\"trident_pvc_116b094c_3a61_494e_b67b_94851b8be967\"}  volume_context:{key:\"name\"  value:\"pvc-116b094c-3a61-494e-b67b-94851b8be967\"}  volume_context:{key:\"protocol\"  value:\"file\"}  volume_context:{key:\"storage.kubernetes.io/csiProvisionerIdentity\"  value:\"1772328673165-9222-csi.trident.netapp.io\"}" logLayer=csi_frontend requestID=a12d30cd-1ff9-49e1-8cb6-f70136c72880 requestSource=CSI
-time="2026-03-08T19:50:04Z" level=debug msg="Attempting to acquire shared lock (pvc-116b094c-3a61-494e-b67b-94851b8be967); 1 position in the queue." lockContext=NodePublishVolume logLayer=csi_frontend requestID=a12d30cd-1ff9-49e1-8cb6-f70136c72880 requestSource=CSI workflow="node_server=publish"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- dmesg | tail -n 20
-Starting pod/ocp-ai-master02calixlocal-debug-gkszg ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+oc delete cluster cnpg-test -n pai-test
 
-Removing debug pod ...
-[661619.805167] 3023b755b572721: left promiscuous mode
-[662517.761279] c4d356e474f5382: entered promiscuous mode
-[662519.855934] c4d356e474f5382: left promiscuous mode
-[663417.780447] fa82e72d78dc983: entered promiscuous mode
-[663419.894476] fa82e72d78dc983: left promiscuous mode
-[664317.809202] a65d0a0183c2d18: entered promiscuous mode
-[664319.899653] a65d0a0183c2d18: left promiscuous mode
-[664387.800150] f1bb54010ac6c84: entered promiscuous mode
-[664420.245630] f1bb54010ac6c84: left promiscuous mode
-[664465.908724] 3e4c260ee0cb7fa: entered promiscuous mode
-[664468.516596] 93d68fc7aa49605: entered promiscuous mode
-[665217.836748] 2072ec4b76de581: entered promiscuous mode
-[665220.112784] 2072ec4b76de581: left promiscuous mode
-[665243.377121] nfs: server 10.172.194.22 not responding, still trying
-[666461.460985] nfs: server 10.172.194.22 not responding, timed out
-[667508.019866] nfs: server 10.172.194.22 not responding, still trying
-[667917.933066] 4e76b11ada4b3d5: entered promiscuous mode
-[667919.565567] 4e76b11ada4b3d5: left promiscuous mode
-[668429.199032] nfs: server 10.172.194.22 not responding, timed out
-[670033.406269] nfs: server 10.172.194.22 not responding, timed out
+# Verify the patch is there
+oc get tridentbackendconfig backend-app-nfs -n trident -o jsonpath='{.spec.nfsMountOptions}'
+# Should show: nfsvers=3
+
+# Also check the backend itself picked it up
+oc get tridentbackend tbe-zg42j -n trident -o jsonpath='{.spec.defaults}' 
+
+
+oc get storageclass netapp-app -o yaml | grep -A5 mountOptions
+
+
+oc patch storageclass netapp-app -p '{"mountOptions":["nfsvers=3"]}'
