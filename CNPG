@@ -68,7 +68,14 @@ oc delete cluster cnpg-test -n pai-dev
 
 
 
-
+Events:
+  Type     Reason                  Age                    From                     Message
+  ----     ------                  ----                   ----                     -------
+  Warning  FailedScheduling        5m18s                  default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
+  Warning  FailedScheduling        5m13s (x4 over 5m18s)  default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
+  Normal   Scheduled               5m13s                  default-scheduler        Successfully assigned pai-dev/cnpg-test-2-join-8r4xc to ocp-ai-master02.calix.local
+  Normal   SuccessfulAttachVolume  5m13s                  attachdetach-controller  AttachVolume.Attach succeeded for volume "pvc-0ff7498e-a403-4cbd-9dda-62c0050241d0"
+  Warning  FailedMount             72s (x2 over 3m13s)    kubelet                  MountVolume.SetUp failed for volume "pvc-0ff7498e-a403-4cbd-9dda-62c0050241d0" : rpc error: code = DeadlineExceeded desc = context deadline exceeded
 
 
 
