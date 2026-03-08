@@ -1,12 +1,39 @@
-# Find the primary
-oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -L role
-
-# Delete the primary
-oc delete pod cnpg-test-1 -n pai-test
-
-# Watch failover
-oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -o wide -w
-
-
-oc run pg-test2 --rm -it --image=postgres:17 --restart=Never -n pai-test -- \
+hsuma@plnx-admin:~$ oc adm uncordon ocp-ai-master01.calix.local
+node/ocp-ai-master01.calix.local uncordoned
+hsuma@plnx-admin:~$ oc adm uncordon ocp-ai-master02.calix.local
+node/ocp-ai-master02.calix.local uncordoned
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -L role
+NAME          READY   STATUS    RESTARTS        AGE     ROLE
+cnpg-test-1   1/1     Running   1 (7m15s ago)   28m     primary
+cnpg-test-2   1/1     Running   0               6m51s   replica
+cnpg-test-3   1/1     Running   0               6m9s    replica
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc delete pod cnpg-test-1 -n pai-test
+pod "cnpg-test-1" deleted from pai-test namespace
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -o wide -w
+NAME          READY   STATUS     RESTARTS   AGE     IP            NODE                          NOMINATED NODE   READINESS GATES
+cnpg-test-1   0/1     Init:0/1   0          14s     <none>        ocp-ai-master01.calix.local   <none>           <none>
+cnpg-test-2   1/1     Running    0          7m16s   10.130.0.32   ocp-ai-master03.calix.local   <none>           <none>
+cnpg-test-3   1/1     Running    0          6m34s   10.130.0.34   ocp-ai-master03.calix.local   <none>           <none>
+cnpg-test-1   0/1     Init:0/1   0          14s     <none>        ocp-ai-master01.calix.local   <none>           <none>
+cnpg-test-1   0/1     PodInitializing   0          14s     10.129.0.220   ocp-ai-master01.calix.local   <none>           <none>
+cnpg-test-1   0/1     Running           0          15s     10.129.0.220   ocp-ai-master01.calix.local   <none>           <none>
+cnpg-test-1   0/1     Running           0          16s     10.129.0.220   ocp-ai-master01.calix.local   <none>           <none>
+cnpg-test-1   0/1     Running           0          24s     10.129.0.220   ocp-ai-master01.calix.local   <none>           <none>
+cnpg-test-1   1/1     Running           0          24s     10.129.0.220   ocp-ai-master01.calix.local   <none>           <none>
+^Chsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc run pg-test2 --rm -it --image=postgres:17 --restart=Never -n pai-test -- \
   psql "host=cnpg-test-rw port=5432 dbname=testdb user=testuser password=$PGPASS sslmode=require" -c "SELECT * FROM test;"
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "pg-test2" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "pg-test2" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "pg-test2" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "pg-test2" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+...skipping...
+ id |      name
+----+-----------------
+  1 | hello from cnpg
+(1 row)
