@@ -1,16 +1,19 @@
 hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs cnpg-test-2-join-z6kd4 -n pai-test -c join
-hsuma@plnx-admin:~$ oc logs cnpg-test-2-join-z6kd4 -n pai-test -c join
-{"level":"info","ts":"2026-03-08T21:19:34.251481432Z","msg":"Refreshed configuration file","logging_pod":"cnpg-test-2-join","filename":"/controller/certificates/server.crt","secret":"cnpg-test-server"}
-{"level":"info","ts":"2026-03-08T21:19:34.251846333Z","msg":"Refreshed configuration file","logging_pod":"cnpg-test-2-join","filename":"/controller/certificates/server.key","secret":"cnpg-test-server"}
-{"level":"info","ts":"2026-03-08T21:19:34.253326645Z","msg":"Refreshed configuration file","logging_pod":"cnpg-test-2-join","filename":"/controller/certificates/streaming_replica.crt","secret":"cnpg-test-replication"}
-{"level":"info","ts":"2026-03-08T21:19:34.253639475Z","msg":"Refreshed configuration file","logging_pod":"cnpg-test-2-join","filename":"/controller/certificates/streaming_replica.key","secret":"cnpg-test-replication"}
-{"level":"info","ts":"2026-03-08T21:19:34.255225681Z","msg":"Refreshed configuration file","logging_pod":"cnpg-test-2-join","filename":"/controller/certificates/client-ca.crt","secret":"cnpg-test-ca"}
-{"level":"info","ts":"2026-03-08T21:19:34.25647393Z","msg":"Refreshed configuration file","logging_pod":"cnpg-test-2-join","filename":"/controller/certificates/server-ca.crt","secret":"cnpg-test-ca"}
-{"level":"info","ts":"2026-03-08T21:19:34.256502197Z","msg":"Waiting for server to be available","logging_pod":"cnpg-test-2-join","connectionString":"host=cnpg-test-rw user=streaming_replica port=5432 sslkey=/controller/certificates/streaming_replica.key sslcert=/controller/certificates/streaming_replica.crt sslrootcert=/controller/certificates/server-ca.crt application_name=cnpg-test-2-join sslmode=verify-ca dbname=postgres connect_timeout=5 options='-c wal_sender_timeout=0s'"}
-{"level":"info","ts":"2026-03-08T21:19:34.309377899Z","logger":"pg_basebackup","msg":"pg_basebackup: initiating base backup, waiting for checkpoint to complete","pipe":"stderr","logging_pod":"cnpg-test-2-join"}
-{"level":"info","ts":"2026-03-08T21:19:36.01682143Z","logger":"pg_basebackup","msg":"pg_basebackup: checkpoint completed","pipe":"stderr","logging_pod":"cnpg-test-2-join"}
-{"level":"info","ts":"2026-03-08T21:19:36.016840191Z","logger":"pg_basebackup","msg":"pg_basebackup: write-ahead log start point: 0/3000028 on timeline 1","pipe":"stderr","logging_pod":"cnpg-test-2-join"}
-{"level":"info","ts":"2026-03-08T21:19:36.01684382Z","logger":"pg_basebackup","msg":"pg_basebackup: starting background WAL receiver","pipe":"stderr","logging_pod":"cnpg-test-2-join"}
-{"level":"info","ts":"2026-03-08T21:19:36.026221246Z","logger":"pg_basebackup","msg":"pg_basebackup: created temporary replication slot \"pg_basebackup_294\"","pipe":"stderr","logging_pod":"cnpg-test-2-join"}
+hsuma@plnx-admin:~$ oc get pods -n pai-test
+NAME                       READY   STATUS      RESTARTS   AGE
+cnpg-test-1                1/1     Running     0          8m51s
+cnpg-test-1-initdb-lrcwc   0/1     Completed   0          9m15s
+cnpg-test-2-join-z6kd4     1/1     Running     0          8m38s
+milvus-58cf68b68f-8bwq8    1/1     Running     0          50m
+minio-788889d4b7-995kh     1/1     Running     0          50m
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test
+NAME                       READY   STATUS      RESTARTS   AGE
+cnpg-test-1                1/1     Running     0          9m8s
+cnpg-test-1-initdb-lrcwc   0/1     Completed   0          9m32s
+cnpg-test-2-join-z6kd4     1/1     Running     0          8m55s
+hsuma@plnx-admin:~$ oc get cluster cnpg-test -n pai-test
+NAME        AGE     INSTANCES   READY   STATUS                   PRIMARY
+cnpg-test   9m45s   2           1       Creating a new replica   cnpg-test-1
 hsuma@plnx-admin:~$
