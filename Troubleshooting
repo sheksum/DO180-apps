@@ -1,30 +1,15 @@
-plano_aff_cl::>
-plano_aff_cl::> export-policy rule show -vserver ocp_app_svm -policyname default -instance
+# NFS operation stats - look for errors
+statistics show-periodic -object nfsv4_1 -vserver ocp_app_svm -interval 5 -iterations 2
 
-                                    Vserver: ocp_app_svm
-                                Policy Name: default
-                                 Rule Index: 1
-                            Access Protocol: nfs3, nfs4, nfs
-List of Client Match Hostnames, IP Addresses, Netgroups, or Domains: 0.0.0.0/0
-                             RO Access Rule: any
-                             RW Access Rule: any
-User ID To Which Anonymous Users Are Mapped: 65534
-                   Superuser Security Types: any
-               Honor SetUID Bits in SETATTR: true
-                  Allow Creation of Devices: true
+# If that doesn't work, try:
+statistics start -object nfsv4_1 -vserver ocp_app_svm
+# Wait 10 seconds
+statistics show -object nfsv4_1 -vserver ocp_app_svm
+statistics stop
 
-plano_aff_cl::>
-plano_aff_cl::>
-plano_aff_cl::> vserver locks show -vserver ocp_app_svm
 
-Notice: Using this command can impact system performance. It is recommended
-that you specify both the vserver and the volume when issuing this command to
-minimize the scope of the command's operation. To abort the command, press Ctrl-C.
-There are no entries matching your query.
+network interface show -vserver ocp_app_svm -lif ocp_app_dev_lif01 -instance
+network port show -node plano_aff_cl-05 -port a0a-1794 -instance
 
-plano_aff_cl::>
-plano_aff_cl::> vserver nfs session show -vserver ocp_app_svm
 
-Error: "session" is not a recognized command
-
-plano_aff_cl::>
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -t nfs -o nfsvers=3 10.172.194.22:/trident_pvc_2fb0fd2e_82ed_4dca_8c02_50c4e98ec29e /mnt && echo SUCCESS && sudo umount /mnt"
