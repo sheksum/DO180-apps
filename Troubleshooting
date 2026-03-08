@@ -1,10 +1,1 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -v -t nfs -o nfsvers=3,tcp,mountproto=tcp 10.172.194.22:/trident_pvc_97a9fba4_3ef2_4d84_a539_bee0bcdd27a2 /mnt && echo SUCCESS && sudo umount /mnt"
-mount.nfs: trying 10.172.194.22 prog 100003 vers 3 prot TCP port 2049
-mount.nfs: trying 10.172.194.22 prog 100005 vers 3 prot TCP port 635
-mount.nfs: timeout set for Sun Mar  8 21:06:01 2026
-mount.nfs: trying text-based options 'nfsvers=3,tcp,mountproto=tcp,addr=10.172.194.22'
-mount.nfs: prog 100003, trying vers=3, prot=6
-mount.nfs: prog 100005, trying vers=3, prot=6
-SUCCESS
-hsuma@plnx-admin:~$
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -v -t nfs4 -o nfsvers=4.1,tcp 10.172.194.22:/trident_pvc_97a9fba4_3ef2_4d84_a539_bee0bcdd27a2 /mnt && echo SUCCESS && sudo umount /mnt"
