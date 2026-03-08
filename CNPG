@@ -81,3 +81,102 @@ oc delete pod cnpg-test-2-join-8r4xc -n pai-dev
 
 
 
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n trident -o wide | grep trident-node
+trident-node-linux-5fkmm              2/2     Running   6          18d     10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
+trident-node-linux-8nxg6              2/2     Running   99         18d     10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
+trident-node-linux-9lsbz              2/2     Running   8          18d     10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
+trident-node-linux-htgkq              2/2     Running   6          18d     10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
+trident-node-linux-tct7v              2/2     Running   93         18d     10.172.248.154   ocp-ai-gpu02.calix.local      <none>           <none>
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs -n trident trident-node-linux-5fkmm -c trident-main --tail=50
+time="2026-03-08T18:38:15Z" level=debug msg="GRPC call: /csi.v1.Node/NodeUnpublishVolume" Request="GRPC request: volume_id:\"pvc-1f5ba9f4-a72f-4f86-92e2-100d24347d7e\"  target_path:\"/var/lib/kubelet/pods/cdc8518e-18e4-4b06-bedb-d5aeac686830/volumes/kubernetes.io~csi/pvc-1f5ba9f4-a72f-4f86-92e2-100d24347d7e/mount\"" logLayer=csi_frontend requestID=40bab60d-4315-4904-b592-015838104783 requestSource=CSI
+time="2026-03-08T18:38:15Z" level=debug msg=">>>> NodeUnpublishVolume" Method=NodeUnpublishVolume Type=CSI_Node logLayer=csi_frontend requestID=40bab60d-4315-4904-b592-015838104783 requestSource=CSI workflow="node_server=unpublish"
+time="2026-03-08T18:38:15Z" level=debug msg="Attempting to acquire shared lock (pvc-1f5ba9f4-a72f-4f86-92e2-100d24347d7e); 2155 position in the queue." lockContext=NodeUnpublishVolume logLayer=csi_frontend requestID=40bab60d-4315-4904-b592-015838104783 requestSource=CSI workflow="node_server=unpublish"
+time="2026-03-08T18:38:22Z" level=debug msg="REST API call received." Duration="10.255µs" Method=GET RequestURL=/readiness Route=ReadinessProbe logLayer=rest_frontend requestID=537a92d5-3c7e-41bc-9686-7a18141ecbda requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:22Z" level=debug msg="REST API call complete." Duration="107.794µs" Method=GET RequestURL=/readiness Route=ReadinessProbe StatusCode=200 logLayer=rest_frontend requestID=537a92d5-3c7e-41bc-9686-7a18141ecbda requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:25Z" level=debug msg="REST API call received." Duration="7.133µs" Method=GET RequestURL=/liveness Route=LivenessProbe logLayer=rest_frontend requestID=5bf834ff-baf9-4eee-9054-2b6252351a67 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:25Z" level=debug msg="REST API call complete." Duration="104.786µs" Method=GET RequestURL=/liveness Route=LivenessProbe StatusCode=200 logLayer=rest_frontend requestID=5bf834ff-baf9-4eee-9054-2b6252351a67 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:32Z" level=debug msg="REST API call received." Duration="14.783µs" Method=GET RequestURL=/readiness Route=ReadinessProbe logLayer=rest_frontend requestID=54852b99-e563-42e5-964c-491f42e1448e requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:32Z" level=debug msg="REST API call complete." Duration="129.686µs" Method=GET RequestURL=/readiness Route=ReadinessProbe StatusCode=200 logLayer=rest_frontend requestID=54852b99-e563-42e5-964c-491f42e1448e requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:35Z" level=debug msg="REST API call received." Duration="13.261µs" Method=GET RequestURL=/liveness Route=LivenessProbe logLayer=rest_frontend requestID=c4d9783d-0ec0-4411-993c-2a5c4f5ab0fe requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:35Z" level=debug msg="REST API call complete." Duration="104.126µs" Method=GET RequestURL=/liveness Route=LivenessProbe StatusCode=200 logLayer=rest_frontend requestID=c4d9783d-0ec0-4411-993c-2a5c4f5ab0fe requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:42Z" level=debug msg="REST API call received." Duration="10.166µs" Method=GET RequestURL=/readiness Route=ReadinessProbe logLayer=rest_frontend requestID=ee2251ec-9a07-4a43-aa17-ff21a3d2455c requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:42Z" level=debug msg="REST API call complete." Duration="114.025µs" Method=GET RequestURL=/readiness Route=ReadinessProbe StatusCode=200 logLayer=rest_frontend requestID=ee2251ec-9a07-4a43-aa17-ff21a3d2455c requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:45Z" level=debug msg="REST API call received." Duration="5.145µs" Method=GET RequestURL=/liveness Route=LivenessProbe logLayer=rest_frontend requestID=b96ca094-88f4-4cd3-b543-62772ed9439c requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:45Z" level=debug msg="REST API call complete." Duration="86.664µs" Method=GET RequestURL=/liveness Route=LivenessProbe StatusCode=200 logLayer=rest_frontend requestID=b96ca094-88f4-4cd3-b543-62772ed9439c requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:52Z" level=debug msg="REST API call received." Duration="12.759µs" Method=GET RequestURL=/readiness Route=ReadinessProbe logLayer=rest_frontend requestID=e50145c1-1776-42a1-8bee-c56989a2ac47 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:52Z" level=debug msg="REST API call complete." Duration="126.757µs" Method=GET RequestURL=/readiness Route=ReadinessProbe StatusCode=200 logLayer=rest_frontend requestID=e50145c1-1776-42a1-8bee-c56989a2ac47 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:55Z" level=debug msg="iSCSI self-healing is running." logLayer=csi_frontend requestID=abbaf12c-e2d4-4ffc-9001-d89e82848640 requestSource=Periodic tick="2026-03-08 18:38:55.09734875 +0000 UTC m=+665709.119651417" workflow="node_server=heal_iscsi"
+time="2026-03-08T18:38:55Z" level=debug msg="Attempting to acquire shared lock (iSCSISelfHealingSessionLock); 1 position in the queue." lockContext=performISCSISelfHealing.SessionLock logLayer=csi_frontend requestID=abbaf12c-e2d4-4ffc-9001-d89e82848640 requestSource=Periodic workflow="node_server=heal_iscsi"
+time="2026-03-08T18:38:55Z" level=debug msg="Acquired shared lock (iSCSISelfHealingSessionLock)." lockContext=performISCSISelfHealing.SessionLock logLayer=csi_frontend requestID=abbaf12c-e2d4-4ffc-9001-d89e82848640 requestSource=Periodic workflow="node_server=heal_iscsi"
+time="2026-03-08T18:38:55Z" level=debug msg="Skipping iSCSI self-heal cycle; no iSCSI volumes published on the host." logLayer=csi_frontend requestID=abbaf12c-e2d4-4ffc-9001-d89e82848640 requestSource=Periodic workflow="node_server=heal_iscsi"
+time="2026-03-08T18:38:55Z" level=debug msg="Released shared lock (iSCSISelfHealingSessionLock)." lockContext=performISCSISelfHealing.SessionLock logLayer=csi_frontend requestID=abbaf12c-e2d4-4ffc-9001-d89e82848640 requestSource=Periodic workflow="node_server=heal_iscsi"
+time="2026-03-08T18:38:55Z" level=debug msg="REST API call received." Duration="8.372µs" Method=GET RequestURL=/liveness Route=LivenessProbe logLayer=rest_frontend requestID=a1a95db9-3a79-480c-b350-65c23215ba63 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:55Z" level=debug msg="REST API call complete." Duration="121.211µs" Method=GET RequestURL=/liveness Route=LivenessProbe StatusCode=200 logLayer=rest_frontend requestID=a1a95db9-3a79-480c-b350-65c23215ba63 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:38:55Z" level=debug msg="Periodic backend state reconciliation loop beginning." logLayer=core requestID=509095b2-061c-4479-b625-98f81e24c1af requestSource=Periodic workflow="core=backend_reconcile"
+time="2026-03-08T18:39:02Z" level=debug msg="REST API call received." Duration="10.696µs" Method=GET RequestURL=/readiness Route=ReadinessProbe logLayer=rest_frontend requestID=1a3b582a-e571-422c-99d9-ca18fc313422 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:02Z" level=debug msg="REST API call complete." Duration="116.922µs" Method=GET RequestURL=/readiness Route=ReadinessProbe StatusCode=200 logLayer=rest_frontend requestID=1a3b582a-e571-422c-99d9-ca18fc313422 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:05Z" level=debug msg="REST API call received." Duration="15.511µs" Method=GET RequestURL=/liveness Route=LivenessProbe logLayer=rest_frontend requestID=26c5562d-14db-4a0e-94ff-9390d57f6960 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:05Z" level=debug msg="REST API call complete." Duration="120.238µs" Method=GET RequestURL=/liveness Route=LivenessProbe StatusCode=200 logLayer=rest_frontend requestID=26c5562d-14db-4a0e-94ff-9390d57f6960 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:06Z" level=debug msg="GRPC call: /csi.v1.Node/NodeGetCapabilities" Request="GRPC request: " logLayer=csi_frontend requestID=12df6332-d548-4746-8ddb-8393a254612f requestSource=CSI
+time="2026-03-08T18:39:06Z" level=debug msg="GRPC call: /csi.v1.Node/NodeGetVolumeStats" Request="GRPC request: volume_id:\"pvc-d37b3ec1-a8ed-4fce-9c0e-0cc49cec9d34\"  volume_path:\"/var/lib/kubelet/pods/69609be3-e647-4dd5-a1e6-916d97f03129/volumes/kubernetes.io~csi/pvc-d37b3ec1-a8ed-4fce-9c0e-0cc49cec9d34/mount\"" logLayer=csi_frontend requestID=ed005cfc-a663-4495-8c74-41bde237501f requestSource=CSI
+time="2026-03-08T18:39:06Z" level=debug msg=">>>> command.Execute." args="[5s exists /var/lib/kubelet/pods/69609be3-e647-4dd5-a1e6-916d97f03129/volumes/kubernetes.io~csi/pvc-d37b3ec1-a8ed-4fce-9c0e-0cc49cec9d34/mount]" command=/syswrap logLayer=csi_frontend requestID=ed005cfc-a663-4495-8c74-41bde237501f requestSource=CSI workflow="volume=get_stats"
+time="2026-03-08T18:39:06Z" level=debug msg="<<<< Execute." command=/syswrap error="<nil>" logLayer=csi_frontend output=true requestID=ed005cfc-a663-4495-8c74-41bde237501f requestSource=CSI workflow="volume=get_stats"
+time="2026-03-08T18:39:06Z" level=debug msg=">>>> filesystem_linux.GetFilesystemStats" logLayer=csi_frontend requestID=ed005cfc-a663-4495-8c74-41bde237501f requestSource=CSI workflow="volume=get_stats"
+time="2026-03-08T18:39:06Z" level=debug msg=">>>> command.Execute." args="[30s statfs /var/lib/kubelet/pods/69609be3-e647-4dd5-a1e6-916d97f03129/volumes/kubernetes.io~csi/pvc-d37b3ec1-a8ed-4fce-9c0e-0cc49cec9d34/mount]" command=/syswrap logLayer=csi_frontend requestID=ed005cfc-a663-4495-8c74-41bde237501f requestSource=CSI workflow="volume=get_stats"
+time="2026-03-08T18:39:06Z" level=debug msg="<<<< Execute." command=/syswrap error="<nil>" logLayer=csi_frontend output="{\"Type\":26985,\"Bsize\":65536,\"Blocks\":8192001,\"Bfree\":8191736,\"Bavail\":8191736,\"Files\":16383991,\"Ffree\":16383815,\"Fsid\":{\"Val\":[0,0]},\"Namelen\":255,\"Frsize\":65536,\"Flags\":4128,\"Spare\":[0,0,0,0]}" requestID=ed005cfc-a663-4495-8c74-41bde237501f requestSource=CSI workflow="volume=get_stats"
+time="2026-03-08T18:39:06Z" level=debug msg="Filesystem size information" avail=8191736 blocks=8192001 bsize=65536 free=8191736 logLayer=csi_frontend path="/var/lib/kubelet/pods/69609be3-e647-4dd5-a1e6-916d97f03129/volumes/kubernetes.io~csi/pvc-d37b3ec1-a8ed-4fce-9c0e-0cc49cec9d34/mount" requestID=ed005cfc-a663-4495-8c74-41bde237501f requestSource=CSI size=536870977536 workflow="volume=get_stats"
+time="2026-03-08T18:39:06Z" level=debug msg="<<<< filesystem_linux.GetFilesystemStats" logLayer=csi_frontend requestID=ed005cfc-a663-4495-8c74-41bde237501f requestSource=CSI workflow="volume=get_stats"
+time="2026-03-08T18:39:12Z" level=debug msg="REST API call received." Duration="8.695µs" Method=GET RequestURL=/readiness Route=ReadinessProbe logLayer=rest_frontend requestID=3fa82698-0d5a-41d0-b190-840214cddabf requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:12Z" level=debug msg="REST API call complete." Duration="99.707µs" Method=GET RequestURL=/readiness Route=ReadinessProbe StatusCode=200 logLayer=rest_frontend requestID=3fa82698-0d5a-41d0-b190-840214cddabf requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:15Z" level=debug msg="REST API call received." Duration="8.111µs" Method=GET RequestURL=/liveness Route=LivenessProbe logLayer=rest_frontend requestID=9648ac2c-6d33-45e7-94e3-ef691c2edc2a requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:15Z" level=debug msg="REST API call complete." Duration="104.072µs" Method=GET RequestURL=/liveness Route=LivenessProbe StatusCode=200 logLayer=rest_frontend requestID=9648ac2c-6d33-45e7-94e3-ef691c2edc2a requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:22Z" level=debug msg="REST API call received." Duration="13.693µs" Method=GET RequestURL=/readiness Route=ReadinessProbe logLayer=rest_frontend requestID=49c4345d-f11a-4912-ab5f-11fe5b918ee4 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:22Z" level=debug msg="REST API call complete." Duration="146.057µs" Method=GET RequestURL=/readiness Route=ReadinessProbe StatusCode=200 logLayer=rest_frontend requestID=49c4345d-f11a-4912-ab5f-11fe5b918ee4 requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:25Z" level=debug msg="REST API call received." Duration="8.001µs" Method=GET RequestURL=/liveness Route=LivenessProbe logLayer=rest_frontend requestID=94d41a85-168d-4964-bf5a-fcf58805a40d requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:25Z" level=debug msg="REST API call complete." Duration="95.994µs" Method=GET RequestURL=/liveness Route=LivenessProbe StatusCode=200 logLayer=rest_frontend requestID=94d41a85-168d-4964-bf5a-fcf58805a40d requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:32Z" level=debug msg="REST API call received." Duration="8.735µs" Method=GET RequestURL=/readiness Route=ReadinessProbe logLayer=rest_frontend requestID=0780fe45-744f-4325-bda8-0ad4e4143a3f requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:32Z" level=debug msg="REST API call complete." Duration="99.863µs" Method=GET RequestURL=/readiness Route=ReadinessProbe StatusCode=200 logLayer=rest_frontend requestID=0780fe45-744f-4325-bda8-0ad4e4143a3f requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:35Z" level=debug msg="REST API call received." Duration="7.075µs" Method=GET RequestURL=/liveness Route=LivenessProbe logLayer=rest_frontend requestID=5198032b-984b-438e-8003-c31ced69b58b requestSource=REST workflow="trident_rest=logger"
+time="2026-03-08T18:39:35Z" level=debug msg="REST API call complete." Duration="99.052µs" Method=GET RequestURL=/liveness Route=LivenessProbe StatusCode=200 logLayer=rest_frontend requestID=5198032b-984b-438e-8003-c31ced69b58b requestSource=REST workflow="trident_rest=logger"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n pai-dev -l cnpg.io/cluster=cnpg-test -o wide
+NAME                       READY   STATUS      RESTARTS   AGE   IP             NODE                          NOMINATED NODE   READINESS GATES
+cnpg-test-1                1/1     Running     0          12m   10.129.0.124   ocp-ai-master01.calix.local   <none>           <none>
+cnpg-test-1-initdb-zx8fv   0/1     Completed   0          13m   10.129.0.123   ocp-ai-master01.calix.local   <none>           <none>
+cnpg-test-2-join-8r4xc     0/1     Init:0/1    0          12m   <none>         ocp-ai-master02.calix.local   <none>           <none>
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc describe pod cnpg-test-2 -n pai-dev | tail -20
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+    ConfigMapName:           openshift-service-ca.crt
+    Optional:                false
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason                  Age                From                     Message
+  ----     ------                  ----               ----                     -------
+  Warning  FailedScheduling        12m                default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
+  Warning  FailedScheduling        12m (x4 over 12m)  default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
+  Normal   Scheduled               12m                default-scheduler        Successfully assigned pai-dev/cnpg-test-2-join-8r4xc to ocp-ai-master02.calix.local
+  Normal   SuccessfulAttachVolume  12m                attachdetach-controller  AttachVolume.Attach succeeded for volume "pvc-0ff7498e-a403-4cbd-9dda-62c0050241d0"
+  Warning  FailedMount             26s (x6 over 10m)  kubelet                  MountVolume.SetUp failed for volume "pvc-0ff7498e-a403-4cbd-9dda-62c0050241d0" : rpc error: code = DeadlineExceeded desc = context deadline exceeded
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc delete pod cnpg-test-2-join-8r4xc -n pai-dev
+pod "cnpg-test-2-join-8r4xc" deleted from pai-dev namespace
+
+
+
+
