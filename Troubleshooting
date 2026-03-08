@@ -1,8 +1,3 @@
 oc exec cnpg-test-1-initdb-xphxg -n pai-test -c initdb -- ps aux
-
-
-oc exec cnpg-test-1-initdb-xphxg -n pai-test -c initdb -- df -h /var/lib/postgresql/data
 oc exec cnpg-test-1-initdb-xphxg -n pai-test -c initdb -- ls -la /var/lib/postgresql/data/
-
-
 ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "dmesg | tail -20"
