@@ -1,5 +1,30 @@
-export-policy rule show -vserver ocp_app_svm -policyname default -instance
+plano_aff_cl::>
+plano_aff_cl::> export-policy rule show -vserver ocp_app_svm -policyname default -instance
 
-vserver locks show -vserver ocp_app_svm
+                                    Vserver: ocp_app_svm
+                                Policy Name: default
+                                 Rule Index: 1
+                            Access Protocol: nfs3, nfs4, nfs
+List of Client Match Hostnames, IP Addresses, Netgroups, or Domains: 0.0.0.0/0
+                             RO Access Rule: any
+                             RW Access Rule: any
+User ID To Which Anonymous Users Are Mapped: 65534
+                   Superuser Security Types: any
+               Honor SetUID Bits in SETATTR: true
+                  Allow Creation of Devices: true
 
-vserver nfs session show -vserver ocp_app_svm
+plano_aff_cl::>
+plano_aff_cl::>
+plano_aff_cl::> vserver locks show -vserver ocp_app_svm
+
+Notice: Using this command can impact system performance. It is recommended
+that you specify both the vserver and the volume when issuing this command to
+minimize the scope of the command's operation. To abort the command, press Ctrl-C.
+There are no entries matching your query.
+
+plano_aff_cl::>
+plano_aff_cl::> vserver nfs session show -vserver ocp_app_svm
+
+Error: "session" is not a recognized command
+
+plano_aff_cl::>
