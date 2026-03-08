@@ -67,3 +67,17 @@ oc delete cluster cnpg-test -n pai-dev
 # PVCs get cleaned up automatically
 
 
+# Find which trident-node is on master02
+oc get pods -n trident -o wide | grep trident-node
+
+# Check the one on master02
+oc logs -n trident <trident-node-pod-on-master02> -c trident-main --tail=50
+
+oc get pods -n pai-dev -l cnpg.io/cluster=cnpg-test -o wide
+oc describe pod cnpg-test-2 -n pai-dev | tail -20
+
+oc delete pod cnpg-test-2-join-8r4xc -n pai-dev
+
+
+
+
