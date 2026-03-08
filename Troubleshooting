@@ -1,11 +1,197 @@
-hsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test
-NAME                       READY   STATUS      RESTARTS   AGE
-cnpg-test-1                1/1     Running     0          4m13s
-cnpg-test-1-initdb-lrcwc   0/1     Completed   0          4m37s
-cnpg-test-2-join-z6kd4     1/1     Running     0          4m
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get cluster cnpg-test -n pai-test
-NAME        AGE     INSTANCES   READY   STATUS                   PRIMARY
-cnpg-test   4m56s   2           1       Creating a new replica   cnpg-test-1
+hsuma@plnx-admin:~$ oc describe cluster cnpg-test -n pai-test
+Name:         cnpg-test
+Namespace:    pai-test
+Labels:       <none>
+Annotations:  <none>
+API Version:  postgresql.cnpg.io/v1
+Kind:         Cluster
+Metadata:
+  Creation Timestamp:  2026-03-08T21:18:37Z
+  Generation:          1
+  Resource Version:    12289978
+  UID:                 8a4e36e1-1ba2-4279-bfb7-ea4ad1a200ef
+Spec:
+  Affinity:
+    Pod Anti Affinity Type:  preferred
+  Bootstrap:
+    Initdb:
+      Database:             testdb
+      Encoding:             UTF8
+      Locale C Type:        C
+      Locale Collate:       C
+      Owner:                testuser
+  Enable PDB:               true
+  Enable Superuser Access:  false
+  Failover Delay:           0
+  Image Name:               ghcr.io/cloudnative-pg/postgresql:18.1-system-trixie
+  Instances:                3
+  Log Level:                info
+  Max Sync Replicas:        0
+  Min Sync Replicas:        0
+  Monitoring:
+    Custom Queries Config Map:
+      Key:                    queries
+      Name:                   cnpg-default-monitoring
+    Disable Default Queries:  false
+    Enable Pod Monitor:       false
+  Postgres GID:               26
+  Postgres UID:               26
+  Postgresql:
+    Parameters:
+      archive_mode:                on
+      archive_timeout:             5min
+      dynamic_shared_memory_type:  posix
+      full_page_writes:            on
+      log_destination:             csvlog
+      log_directory:               /controller/log
+      log_filename:                postgres
+      log_rotation_age:            0
+      log_rotation_size:           0
+      log_truncate_on_rotation:    false
+      logging_collector:           on
+      max_parallel_workers:        32
+      max_replication_slots:       32
+      max_worker_processes:        32
+      shared_memory_type:          mmap
+      shared_preload_libraries:
+      ssl_max_protocol_version:    TLSv1.3
+      ssl_min_protocol_version:    TLSv1.3
+      wal_keep_size:               512MB
+      wal_level:                   logical
+      wal_log_hints:               on
+      wal_receiver_timeout:        5s
+      wal_sender_timeout:          5s
+    Sync Replica Election Constraint:
+      Enabled:              false
+  Primary Update Method:    restart
+  Primary Update Strategy:  unsupervised
+  Probes:
+    Liveness:
+      Isolation Check:
+        Connection Timeout:  1000
+        Enabled:             true
+        Request Timeout:     1000
+  Replication Slots:
+    High Availability:
+      Enabled:      true
+      Slot Prefix:  _cnpg_
+    Synchronize Replicas:
+      Enabled:        true
+    Update Interval:  30
+  Resources:
+  Smart Shutdown Timeout:  180
+  Start Delay:             3600
+  Stop Delay:              1800
+  Storage:
+    Resize In Use Volumes:  true
+    Size:                   10Gi
+    Storage Class:          netapp-app
+  Switchover Delay:         3600
+Status:
+  Available Architectures:
+    Go Arch:  amd64
+    Hash:     1fa32bddc89d8eb9de4a448660db1f1d0227e0269b4ffdcb98e6dbbcffe12cf9
+    Go Arch:  arm64
+    Hash:     e340717194993e45f026a61c78a424a5eba6a3b628e6c2d1d617ae1a94a58ee0
+  Certificates:
+    Client CA Secret:  cnpg-test-ca
+    Expirations:
+      Cnpg - Test - Ca:           2026-06-06 21:13:37 +0000 UTC
+      Cnpg - Test - Replication:  2026-06-06 21:13:37 +0000 UTC
+      Cnpg - Test - Server:       2026-06-06 21:13:37 +0000 UTC
+    Replication TLS Secret:       cnpg-test-replication
+    Server Alt DNS Names:
+      cnpg-test-rw
+      cnpg-test-rw.pai-test
+      cnpg-test-rw.pai-test.svc
+      cnpg-test-rw.pai-test.svc.cluster.local
+      cnpg-test-r
+      cnpg-test-r.pai-test
+      cnpg-test-r.pai-test.svc
+      cnpg-test-r.pai-test.svc.cluster.local
+      cnpg-test-ro
+      cnpg-test-ro.pai-test
+      cnpg-test-ro.pai-test.svc
+      cnpg-test-ro.pai-test.svc.cluster.local
+    Server CA Secret:             cnpg-test-ca
+    Server TLS Secret:            cnpg-test-server
+  Cloud Native PG Commit Hash:    1ecc48340
+  Cloud Native PG Operator Hash:  1fa32bddc89d8eb9de4a448660db1f1d0227e0269b4ffdcb98e6dbbcffe12cf9
+  Conditions:
+    Last Transition Time:  2026-03-08T21:19:05Z
+    Message:               A single, unique system ID was found across reporting instances.
+    Reason:                Unique
+    Status:                True
+    Type:                  ConsistentSystemID
+    Last Transition Time:  2026-03-08T21:18:37Z
+    Message:               Cluster Is Not Ready
+    Reason:                ClusterIsNotReady
+    Status:                False
+    Type:                  Ready
+    Last Transition Time:  2026-03-08T21:19:04Z
+    Message:               Continuous archiving is working
+    Reason:                ContinuousArchivingSuccess
+    Status:                True
+    Type:                  ContinuousArchiving
+  Config Map Resource Version:
+    Metrics:
+      Cnpg - Default - Monitoring:  12289550
+  Current Primary:                  cnpg-test-1
+  Current Primary Timestamp:        2026-03-08T21:19:04.638557Z
+  Healthy PVC:
+    cnpg-test-1
+  Image:  ghcr.io/cloudnative-pg/postgresql:18.1-system-trixie
+  Initializing PVC:
+    cnpg-test-2
+  Instance Names:
+    cnpg-test-1
+    cnpg-test-2
+  Instances:  2
+  Instances Reported State:
+    cnpg-test-1:
+      Ip:            10.130.0.28
+      Is Primary:    true
+      Time Line ID:  1
+  Instances Status:
+    Healthy:
+      cnpg-test-1
+  Job Count:              2
+  Latest Generated Node:  2
+  Managed Roles Status:
+  Pg Data Image Info:
+    Image:          ghcr.io/cloudnative-pg/postgresql:18.1-system-trixie
+    Major Version:  18
+  Phase:            Creating a new replica
+  Phase Reason:     Creating replica cnpg-test-2-join
+  Pooler Integrations:
+    Pg Bouncer Integration:
+  Pvc Count:        2
+  Read Service:     cnpg-test-r
+  Ready Instances:  1
+  Secrets Resource Version:
+    Application Secret Version:  12289514
+    Client Ca Secret Version:    12289511
+    Replication Secret Version:  12289513
+    Server Ca Secret Version:    12289511
+    Server Secret Version:       12289512
+  Switch Replica Cluster Status:
+  System ID:                 7614997349202173978
+  Target Primary:            cnpg-test-1
+  Target Primary Timestamp:  2026-03-08T21:18:37.694292Z
+  Timeline ID:               1
+  Topology:
+    Instances:
+      cnpg-test-1:
+    Nodes Used:              1
+    Successfully Extracted:  true
+  Write Service:             cnpg-test-rw
+Events:
+  Type    Reason                       Age    From            Message
+  ----    ------                       ----   ----            -------
+  Normal  CreatingPodDisruptionBudget  6m10s  cloudnative-pg  Creating PodDisruptionBudget cnpg-test-primary
+  Normal  CreatingPodDisruptionBudget  6m10s  cloudnative-pg  Creating PodDisruptionBudget cnpg-test
+  Normal  CreatingServiceAccount       6m10s  cloudnative-pg  Creating ServiceAccount
+  Normal  CreatingRole                 6m10s  cloudnative-pg  Creating Cluster Role
+  Normal  CreatingInstance             6m10s  cloudnative-pg  Primary instance (initdb)
+  Normal  CreatingInstance             5m33s  cloudnative-pg  Creating instance cnpg-test-2
 hsuma@plnx-admin:~$
