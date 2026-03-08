@@ -67,15 +67,14 @@ oc delete cluster cnpg-test -n pai-dev
 # PVCs get cleaned up automatically
 
 
+# Is the PVC bound?
+oc get pvc -n pai-dev | grep cnpg-test-2
 
-Events:
-  Type     Reason                  Age                    From                     Message
-  ----     ------                  ----                   ----                     -------
-  Warning  FailedScheduling        5m18s                  default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
-  Warning  FailedScheduling        5m13s (x4 over 5m18s)  default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
-  Normal   Scheduled               5m13s                  default-scheduler        Successfully assigned pai-dev/cnpg-test-2-join-8r4xc to ocp-ai-master02.calix.local
-  Normal   SuccessfulAttachVolume  5m13s                  attachdetach-controller  AttachVolume.Attach succeeded for volume "pvc-0ff7498e-a403-4cbd-9dda-62c0050241d0"
-  Warning  FailedMount             72s (x2 over 3m13s)    kubelet                  MountVolume.SetUp failed for volume "pvc-0ff7498e-a403-4cbd-9dda-62c0050241d0" : rpc error: code = DeadlineExceeded desc = context deadline exceeded
+# Check Trident
+oc get pods -n trident
+oc logs -n trident $(oc get pods -n trident -l app=controller -o name) --tail=50
 
-
+# Check if master02 can reach the NetApp data LIF
+ssh -i ~/.ssh/ocp-ai core@10.172.248.151 "ping -c 3 10.172.194.22"
+ssh -i ~/.ssh/ocp-ai core@10.172.248.151 "showmount -e 10.172.194.22"
 
