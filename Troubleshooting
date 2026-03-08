@@ -1,7 +1,22 @@
-
-which argocd || curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 && chmod +x /usr/local/bin/argocd
-
-
-
-argocd app sync trident --resource storage.k8s.io/StorageClass/netapp-app --replace
-argocd app sync trident --resource storage.k8s.io/StorageClass/netapp-infra --replace
+3m23s       Normal    SuccessfulCreate              job/cnpg-test-1-initdb                  Created pod: cnpg-test-1-initdb-xphxg
+3m23s       Normal    Provisioning                  persistentvolumeclaim/cnpg-test-1       External provisioner is provisioning volume for claim "pai-test/cnpg-test-1"
+3m23s       Normal    CreatingInstance              cluster/cnpg-test                       Primary instance (initdb)
+3m23s       Normal    CreatingRole                  cluster/cnpg-test                       Creating Cluster Role
+3m23s       Normal    CreatingServiceAccount        cluster/cnpg-test                       Creating ServiceAccount
+3m23s       Normal    CreatingPodDisruptionBudget   cluster/cnpg-test                       Creating PodDisruptionBudget cnpg-test
+3m23s       Normal    CreatingPodDisruptionBudget   cluster/cnpg-test                       Creating PodDisruptionBudget cnpg-test-primary
+3m18s       Normal    ExternalProvisioning          persistentvolumeclaim/cnpg-test-1       Waiting for a volume to be created either by the external provisioner 'csi.trident.netapp.io' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
+3m14s       Normal    ProvisioningSuccess           persistentvolumeclaim/cnpg-test-1       provisioned a volume
+3m14s       Normal    ProvisioningSucceeded         persistentvolumeclaim/cnpg-test-1       Successfully provisioned volume pvc-79fbd5c7-2687-49eb-85f9-ff273a1c5f41
+3m13s       Normal    SuccessfulAttachVolume        pod/cnpg-test-1-initdb-xphxg            AttachVolume.Attach succeeded for volume "pvc-79fbd5c7-2687-49eb-85f9-ff273a1c5f41"
+3m11s       Normal    Started                       pod/cnpg-test-1-initdb-xphxg            Started container bootstrap-controller
+3m11s       Normal    Pulled                        pod/cnpg-test-1-initdb-xphxg            Container image "ghcr.io/cloudnative-pg/postgresql:18.1-system-trixie" already present on machine
+3m11s       Normal    Created                       pod/cnpg-test-1-initdb-xphxg            Created container: bootstrap-controller
+3m11s       Normal    Created                       pod/cnpg-test-1-initdb-xphxg            Created container: initdb
+3m11s       Normal    Started                       pod/cnpg-test-1-initdb-xphxg            Started container initdb
+3m11s       Normal    AddedInterface                pod/cnpg-test-1-initdb-xphxg            Add eth0 [10.129.0.138/23] from ovn-kubernetes
+3m11s       Normal    Pulled                        pod/cnpg-test-1-initdb-xphxg            Container image "ghcr.io/cloudnative-pg/cloudnative-pg@sha256:f80601be27336bdf95ee22aeb6ae2ca42b5221551c69c831ccc12293deb0ee85" already present on machine
+2m16s       Normal    NoPods                        poddisruptionbudget/cnpg-test-primary   No matching pods found
+2m16s       Normal    NoPods                        poddisruptionbudget/cnpg-test           No matching pods found
+25s         Normal    Valid                         secretstore/vault-store                 store validated
+hsuma@plnx-admin:~$
