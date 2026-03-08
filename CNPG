@@ -97,4 +97,22 @@ oc delete pod cnpg-test-2-join-8r4xc -n pai-dev
 68s         Normal    SuccessfulAttachVolume            pod/cnpg-test-2-join-pmw6l                                      AttachVolume.Attach
 
 
+hsuma@plnx-admin:~$ oc get pods -n pai-dev -l cnpg.io/cluster=cnpg-test -o wide
+NAME                       READY   STATUS      RESTARTS   AGE     IP             NODE                          NOMINATED NODE   READINESS GATES
+cnpg-test-1                1/1     Running     0          2m55s   10.129.0.131   ocp-ai-master01.calix.local   <none>           <none>
+cnpg-test-1-initdb-chht4   0/1     Completed   0          3m13s   10.129.0.130   ocp-ai-master01.calix.local   <none>           <none>
+cnpg-test-2-join-pmw6l     0/1     Init:0/1    0          2m42s   <none>         ocp-ai-master03.calix.local   <none>           <none>
+hsuma@plnx-admin:~$ oc describe pod cnpg-test-2-join-pmw6l -n pai-dev | tail -10
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason                  Age                    From                     Message
+  ----     ------                  ----                   ----                     -------
+  Warning  FailedScheduling        3m25s                  default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
+  Warning  FailedScheduling        3m15s (x4 over 3m25s)  default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
+  Normal   Scheduled               3m15s                  default-scheduler        Successfully assigned pai-dev/cnpg-test-2-join-pmw6l to ocp-ai-master03.calix.local
+  Normal   SuccessfulAttachVolume  3m15s                  attachdetach-controller  AttachVolume.Attach succeeded for volume "pvc-42c84f27-1ebc-4810-9a5f-643f94963b73"
+  Warning  FailedMount             72s                    kubelet                  MountVolume.SetUp failed for volume "pvc-42c84f27-1ebc-4810-9a5f-643f94963b73" : rpc error: code = DeadlineExceeded desc = context deadline exceeded
+hsuma@plnx-admin:~$
+
 
