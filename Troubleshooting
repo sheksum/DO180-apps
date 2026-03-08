@@ -1,0 +1,3 @@
+ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "dmesg | grep -c 'not responding'"
+ssh -i ~/.ssh/ocp-ai core@10.172.248.151 "dmesg | grep -c 'not responding'"
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "dmesg | grep -c 'not responding'"
