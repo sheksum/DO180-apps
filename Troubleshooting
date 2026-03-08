@@ -1,3 +1,25 @@
 oc patch tridentbackendconfig backend-app-nfs -n trident --type=merge -p '{"spec":{"nfsMountOptions":"nfsvers=3"}}'
 
 oc patch tridentbackendconfig backend-infra-nfs -n trident --type=merge -p '{"spec":{"nfsMountOptions":"nfsvers=3"}}'
+
+
+
+Wait—don't do that yet.
+While forcing NFSv3 might bypass the current v4.1 state hang on that one node, it's a "downgrade" for the whole cluster. NFSv3 lacks the modern locking and performance features (like delegations and better security) that CloudNativePG and Trident prefer.
+Why you should hesitate:
+The Root Cause is Node-Specific: Your manual test proved the storage is fine and other nodes are likely fine. The issue is just a "stale" session on .151.
+NFSv4.1 is Better for Databases: It handles file locking much more reliably than v3, which is critical for Postgres.
+Better Path Forward:
+Instead of downgrading the whole backend, target the broken node first.
+Cordon the bad node to get your DB running on a healthy one (like .152):
+bash
+kubectl cordon ocp-ai-master02.calix.local
+kubectl delete pod cnpg-test-2-join-rhvmb -n pai-test
+Fix the Backend Policy (Optional but Recommended):
+Instead of changing the version, change the Export Policy so it's not using default:
+
+oc patch tridentbackendconfig backend-app-nfs -n trident --type=merge -p '{"spec":{"defaults":{"exportPolicy":"backend_app_access"}}}'
+
+
+Reboot .151:
+That dmesg loop on .151 is a kernel-level hang. Even if you switch to NFSv3 now, the kernel might still be "stuck" on the previous v4.1 mount attempt for that specific PVC ID.
