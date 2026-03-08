@@ -80,14 +80,21 @@ oc delete pod cnpg-test-2-join-8r4xc -n pai-dev
 
 
 
-Events:
-  Type     Reason            Age    From               Message
-  ----     ------            ----   ----               -------
-  Warning  FailedScheduling  2m34s  default-scheduler  0/5 nodes are available: persistentvolumeclaim "cnpg-test-2" is being deleted. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
-  Warning  FailedScheduling  2m33s  default-scheduler  0/5 nodes are available: persistentvolumeclaim "cnpg-test-2" not found. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
+91s         Normal    Completed                         job/cnpg-test-1-initdb                                          Job completed
+88s         Normal    AddedInterface                    pod/cnpg-test-1                                                 Add eth0 [10.129.0.131/23] from ovn-kubernetes
+88s         Normal    Started                           pod/cnpg-test-1                                                 Started container bootstrap-controller
+88s         Normal    Pulled                            pod/cnpg-test-1                                                 Container image "ghcr.io/cloudnative-pg/cloudnative-pg@sha256:f80601be27336bdf95ee22aeb6ae2ca42b5221551c69c831ccc12293deb0ee85" already present on machine
+88s         Normal    Created                           pod/cnpg-test-1                                                 Created container: bootstrap-controller
+87s         Normal    Pulled                            pod/cnpg-test-1                                                 Container image "ghcr.io/cloudnative-pg/postgresql:18.1-system-trixie" already present on machine
+87s         Normal    Started                           pod/cnpg-test-1                                                 Started container postgres
+87s         Normal    Created                           pod/cnpg-test-1                                                 Created container: postgres
+78s         Normal    Provisioning                      persistentvolumeclaim/cnpg-test-2                               External provisioner is provisioning volume for claim "pai-dev/cnpg-test-2"
+78s         Normal    SuccessfulCreate                  job/cnpg-test-2-join                                            Created pod: cnpg-test-2-join-pmw6l
+78s         Normal    ExternalProvisioning              persistentvolumeclaim/cnpg-test-2                               Waiting for a volume to be created either by the external provisioner 'csi.trident.netapp.io' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
+78s         Normal    CreatingInstance                  cluster/cnpg-test                                               Creating instance cnpg-test-2
+68s         Normal    ProvisioningSucceeded             persistentvolumeclaim/cnpg-test-2                               Successfully provisioned volume pvc-42c84f27-1ebc-4810-9a5f-643f94963b73
+68s         Normal    ProvisioningSuccess               persistentvolumeclaim/cnpg-test-2                               provisioned a volume
+68s         Normal    SuccessfulAttachVolume            pod/cnpg-test-2-join-pmw6l                                      AttachVolume.Attach
 
 
 
