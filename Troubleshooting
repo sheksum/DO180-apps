@@ -1,34 +1,4 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test
-NAME                       READY   STATUS      RESTARTS   AGE
-cnpg-test-1                1/1     Running     0          10m
-cnpg-test-1-initdb-lrcwc   0/1     Completed   0          11m
-cnpg-test-2-join-z6kd4     1/1     Running     0          10m
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs cnpg-test-2-join-z6kd4 -n pai-test -c join -- ps aux
-error: expected 'logs [-f] [-p] (POD | TYPE/NAME) [-c CONTAINER]'.
-POD or TYPE/NAME is a required argument for the logs command
-See 'oc logs -h' for help and examples
-hsuma@plnx-admin:~$ oc logs cnpg-test-2-join-z6kd4 -n pai-test -c join --tail=10
-{"level":"info","ts":"2026-03-08T21:19:34.253326645Z","msg":"Refreshed configuration file","logging_pod":"cnpg-test-2-join","filename":"/controller/certificates/streaming_replica.crt","secret":"cnpg-test-replication"}
-{"level":"info","ts":"2026-03-08T21:19:34.253639475Z","msg":"Refreshed configuration file","logging_pod":"cnpg-test-2-join","filename":"/controller/certificates/streaming_replica.key","secret":"cnpg-test-replication"}
-{"level":"info","ts":"2026-03-08T21:19:34.255225681Z","msg":"Refreshed configuration file","logging_pod":"cnpg-test-2-join","filename":"/controller/certificates/client-ca.crt","secret":"cnpg-test-ca"}
-{"level":"info","ts":"2026-03-08T21:19:34.25647393Z","msg":"Refreshed configuration file","logging_pod":"cnpg-test-2-join","filename":"/controller/certificates/server-ca.crt","secret":"cnpg-test-ca"}
-{"level":"info","ts":"2026-03-08T21:19:34.256502197Z","msg":"Waiting for server to be available","logging_pod":"cnpg-test-2-join","connectionString":"host=cnpg-test-rw user=streaming_replica port=5432 sslkey=/controller/certificates/streaming_replica.key sslcert=/controller/certificates/streaming_replica.crt sslrootcert=/controller/certificates/server-ca.crt application_name=cnpg-test-2-join sslmode=verify-ca dbname=postgres connect_timeout=5 options='-c wal_sender_timeout=0s'"}
-{"level":"info","ts":"2026-03-08T21:19:34.309377899Z","logger":"pg_basebackup","msg":"pg_basebackup: initiating base backup, waiting for checkpoint to complete","pipe":"stderr","logging_pod":"cnpg-test-2-join"}
-{"level":"info","ts":"2026-03-08T21:19:36.01682143Z","logger":"pg_basebackup","msg":"pg_basebackup: checkpoint completed","pipe":"stderr","logging_pod":"cnpg-test-2-join"}
-{"level":"info","ts":"2026-03-08T21:19:36.016840191Z","logger":"pg_basebackup","msg":"pg_basebackup: write-ahead log start point: 0/3000028 on timeline 1","pipe":"stderr","logging_pod":"cnpg-test-2-join"}
-{"level":"info","ts":"2026-03-08T21:19:36.01684382Z","logger":"pg_basebackup","msg":"pg_basebackup: starting background WAL receiver","pipe":"stderr","logging_pod":"cnpg-test-2-join"}
-{"level":"info","ts":"2026-03-08T21:19:36.026221246Z","logger":"pg_basebackup","msg":"pg_basebackup: created temporary replication slot \"pg_basebackup_294\"","pipe":"stderr","logging_pod":"cnpg-test-2-join"}
-hsuma@plnx-admin:~$ oc exec cnpg-test-2-join -n pai-test -c join -- df -h /var/lib/postgresql/data
-Error from server (NotFound): pods "cnpg-test-2-join" not found
-hsuma@plnx-admin:~$ oc exec cnpg-test-2-join-z6kd4 -n pai-test -c join -- df -h /var/lib/postgresql/data
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -v -t nfs4 -o nfsvers=4.1,tcp 10.172.194.22:/trident_pvc_161c0226_ca74_4539_a301_ee66bf77d53b /mnt && echo SUCCESS && sudo umount /mnt"
 
 
-
-^C
-hsuma@plnx-admin:~$ oc exec cnpg-test-2-join-z6kd4 -n pai-test -c join -- ls -la  /var/lib/postgresql/data
-^C
-hsuma@plnx-admin:~$
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "dmesg | tail -20"
