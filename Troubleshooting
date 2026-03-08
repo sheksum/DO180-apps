@@ -1,25 +1,5 @@
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -v -t nfs4 -o nfsvers=4.1,tcp 10.172.194.22:/trident_pvc_161c0226_ca74_4539_a301_ee66bf77d53b /mnt && echo SUCCESS && sudo umount /mnt"
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 8972 10.172.194.22 -c 3"
 
-^Chsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "dmesg | tail -20"
-[ 2213.887658]  ? nfs_ctx_key_to_expire+0xd4/0x120 [nfs]
-[ 2213.887685]  nfs_file_write+0x16d/0x250 [nfs]
-[ 2213.887706]  vfs_write+0x33a/0x480
-[ 2213.887709]  ksys_write+0x5f/0xe0
-[ 2213.887712]  do_syscall_64+0x5c/0xe0
-[ 2213.887715]  ? __handle_mm_fault+0x2fe/0x650
-[ 2213.887719]  ? __count_memcg_events+0x4f/0xb0
-[ 2213.887722]  ? mm_account_fault+0x6c/0x100
-[ 2213.887726]  ? handle_mm_fault+0x123/0x250
-[ 2213.887728]  ? do_user_addr_fault+0x362/0x620
-[ 2213.887733]  ? exc_page_fault+0x62/0x150
-[ 2213.887736]  entry_SYSCALL_64_after_hwframe+0x78/0x80
-[ 2213.887738] RIP: 0033:0x7fb6fd988687
-[ 2213.887740] RSP: 002b:00007ffda60d5940 EFLAGS: 00000202 ORIG_RAX: 0000000000000001
-[ 2213.887741] RAX: ffffffffffffffda RBX: 00007fb6fce8b780 RCX: 00007fb6fd988687
-[ 2213.887742] RDX: 0000000000000038 RSI: 000056524dafab19 RDI: 0000000000000007
-[ 2213.887743] RBP: 00007ffda60d59d0 R08: 0000000000000000 R09: 0000000000000000
-[ 2213.887744] R10: 0000000000000000 R11: 0000000000000202 R12: 00007fb6fce8b708
-[ 2213.887745] R13: 00007ffda60d6020 R14: 000056524dafab19 R15: 0000000000000038
-[ 2213.887746]  </TASK>
-hsuma@plnx-admin:~$
+
+
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 1472 10.172.194.22 -c 3"
