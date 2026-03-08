@@ -1,2 +1,8 @@
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo ip link set bnd0 mtu 1500"
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -v -t nfs4 -o nfsvers=4.1,tcp 10.172.194.22:/trident_pvc_161c0226_ca74_4539_a301_ee66bf77d53b /mnt && echo SUCCESS && sudo umount /mnt"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo ip link set bnd0 mtu 1500"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -v -t nfs4 -o nfsvers=4.1,tcp 10.172.194.22:/trident_pvc_161c0226_ca74_4539_a301_ee66bf77d53b /mnt && echo SUCCESS && sudo umount /mnt"
+mount.nfs4: timeout set for Sun Mar  8 21:40:07 2026
+mount.nfs4: trying text-based options 'nfsvers=4.1,tcp,addr=10.172.194.22,clientaddr=10.172.194.152'
+SUCCESS
+hsuma@plnx-admin:~$
