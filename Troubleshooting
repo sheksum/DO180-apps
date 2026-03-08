@@ -1,39 +1,79 @@
-hsuma@plnx-admin:~$ oc adm uncordon ocp-ai-master01.calix.local
-node/ocp-ai-master01.calix.local uncordoned
-hsuma@plnx-admin:~$ oc adm uncordon ocp-ai-master02.calix.local
-node/ocp-ai-master02.calix.local uncordoned
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -L role
-NAME          READY   STATUS    RESTARTS        AGE     ROLE
-cnpg-test-1   1/1     Running   1 (7m15s ago)   28m     primary
-cnpg-test-2   1/1     Running   0               6m51s   replica
-cnpg-test-3   1/1     Running   0               6m9s    replica
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc delete pod cnpg-test-1 -n pai-test
-pod "cnpg-test-1" deleted from pai-test namespace
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -o wide -w
-NAME          READY   STATUS     RESTARTS   AGE     IP            NODE                          NOMINATED NODE   READINESS GATES
-cnpg-test-1   0/1     Init:0/1   0          14s     <none>        ocp-ai-master01.calix.local   <none>           <none>
-cnpg-test-2   1/1     Running    0          7m16s   10.130.0.32   ocp-ai-master03.calix.local   <none>           <none>
-cnpg-test-3   1/1     Running    0          6m34s   10.130.0.34   ocp-ai-master03.calix.local   <none>           <none>
-cnpg-test-1   0/1     Init:0/1   0          14s     <none>        ocp-ai-master01.calix.local   <none>           <none>
-cnpg-test-1   0/1     PodInitializing   0          14s     10.129.0.220   ocp-ai-master01.calix.local   <none>           <none>
-cnpg-test-1   0/1     Running           0          15s     10.129.0.220   ocp-ai-master01.calix.local   <none>           <none>
-cnpg-test-1   0/1     Running           0          16s     10.129.0.220   ocp-ai-master01.calix.local   <none>           <none>
-cnpg-test-1   0/1     Running           0          24s     10.129.0.220   ocp-ai-master01.calix.local   <none>           <none>
-cnpg-test-1   1/1     Running           0          24s     10.129.0.220   ocp-ai-master01.calix.local   <none>           <none>
-^Chsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc run pg-test2 --rm -it --image=postgres:17 --restart=Never -n pai-test -- \
-  psql "host=cnpg-test-rw port=5432 dbname=testdb user=testuser password=$PGPASS sslmode=require" -c "SELECT * FROM test;"
-Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "pg-test2" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "pg-test2" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "pg-test2" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "pg-test2" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
-All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
-If you don't see a command prompt, try pressing enter.
-...skipping...
- id |      name
-----+-----------------
-  1 | hello from cnpg
-(1 row)
+Subject: NFS issue on OCP-AI cluster – Jumbo frame path check
+
+Hey Chetan,
+
+I’ve been troubleshooting some NFS issues on the OCP-AI cluster and it looks like the root cause is related to jumbo frames on the storage VLANs.
+
+Our storage bond (bnd0) on the masters is set to MTU 9000 and the NetApp ports are also configured for MTU 9000. Small NFS operations like checking a share or establishing a mount work fine because those packets fit within a normal 1500 byte frame. But when NFS starts doing actual reads or writes, it sends larger packets that depend on the full 9000 MTU path. Those packets appear to be getting dropped somewhere between the masters and the NetApp, which causes the NFS mounts or writes to hang.
+
+Here’s how I verified it.
+
+A jumbo frame ping from a master to the NetApp data LIF fails:
+
+ping -I 10.172.194.152 -M do -s 8972 10.172.194.22 -c 3
+
+This results in 100% packet loss.
+
+But a standard size ping works fine:
+
+ping -I 10.172.194.152 -M do -s 1472 10.172.194.22 -c 3
+
+That returns normally with 0% packet loss.
+
+The -M do flag prevents fragmentation, which means the packet must pass through every hop at that size. 8972 bytes plus headers equals the full 9000 MTU. If any port or trunk in the path is still set to the default 1500, the packet gets dropped.
+
+Could you trace the path from the master nodes through the fabric interconnects and storage switches to the NetApp and confirm MTU 9000 is set end-to-end? The VLANs involved are 1792 through 1798. Usually this ends up being a single port or trunk that was missed.
+
+For reference, here are the node and NetApp LIF IPs on the storage VLANs:
+
+VLAN 1792
+master01 — 10.172.192.150
+master02 — 10.172.192.151
+master03 — 10.172.192.152
+NetApp LIF — 10.172.192.22 (plano_aff_cl-05, a0a-1792)
+NetApp LIF — 10.172.192.23 (plano_aff_cl-06, a0a-1792)
+
+VLAN 1793
+master01 — 10.172.200.150
+master02 — 10.172.200.151
+master03 — 10.172.200.152
+NetApp LIF — 10.172.200.22 (plano_aff_cl-05, a0a-1793)
+NetApp LIF — 10.172.200.23 (plano_aff_cl-06, a0a-1793)
+
+VLAN 1794
+master01 — 10.172.194.150
+master02 — 10.172.194.151
+master03 — 10.172.194.152
+NetApp LIF — 10.172.194.22 (plano_aff_cl-05, a0a-1794)
+NetApp LIF — 10.172.194.23 (plano_aff_cl-06, a0a-1794)
+
+VLAN 1796
+master01 — 10.172.196.150
+master02 — 10.172.196.151
+master03 — 10.172.196.152
+NetApp LIF — 10.172.196.22 (plano_aff_cl-05, a0a-1796)
+NetApp LIF — 10.172.196.23 (plano_aff_cl-06, a0a-1796)
+
+VLAN 1797
+master01 — 10.172.202.150
+master02 — 10.172.202.151
+master03 — 10.172.202.152
+NetApp LIF — 10.172.202.22 (plano_aff_cl-05, a0a-1797)
+NetApp LIF — 10.172.202.23 (plano_aff_cl-06, a0a-1797)
+
+VLAN 1798
+master01 — 10.172.198.150
+master02 — 10.172.198.151
+master03 — 10.172.198.152
+NetApp LIF — 10.172.198.22 (plano_aff_cl-05, a0a-1798)
+NetApp LIF — 10.172.198.23 (plano_aff_cl-06, a0a-1798)
+
+Once that’s corrected I can validate from my side with jumbo frame tests from each master.
+
+For now I temporarily dropped the masters back to MTU 1500 so things are working again, but obviously that’s not ideal since it increases packet overhead for NFS.
+
+Let me know when you have time to take a look. Happy to jump on a call and walk through it together.
+
+Thanks,
+Haj
+
