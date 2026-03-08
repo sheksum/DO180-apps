@@ -1,20 +1,2 @@
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 8972 10.172.194.22 -c 3"
-
-
-
-PING 10.172.194.22 (10.172.194.22) from 10.172.194.152 : 8972(9000) bytes of data.
-
---- 10.172.194.22 ping statistics ---
-3 packets transmitted, 0 received, 100% packet loss, time 2063ms
-
-hsuma@plnx-admin:~$ ^C
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 1472 10.172.194.22 -c 3"
-PING 10.172.194.22 (10.172.194.22) from 10.172.194.152 : 1472(1500) bytes of data.
-1480 bytes from 10.172.194.22: icmp_seq=1 ttl=64 time=0.082 ms
-1480 bytes from 10.172.194.22: icmp_seq=2 ttl=64 time=0.062 ms
-1480 bytes from 10.172.194.22: icmp_seq=3 ttl=64 time=0.064 ms
-
---- 10.172.194.22 ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2036ms
-rtt min/avg/max/mdev = 0.062/0.069/0.082/0.009 ms
-hsuma@plnx-admin:~$
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo ip link set bnd0 mtu 1500"
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -v -t nfs4 -o nfsvers=4.1,tcp 10.172.194.22:/trident_pvc_161c0226_ca74_4539_a301_ee66bf77d53b /mnt && echo SUCCESS && sudo umount /mnt"
