@@ -1,30 +1,28 @@
-Subject: NFS issue on OCP-AI cluster – Jumbo frame path check
-
 Hey Chetan,
 
-I’ve been troubleshooting some NFS issues on the OCP-AI cluster and it looks like the root cause is related to jumbo frames on the storage VLANs.
+I’ve been troubleshooting the NFS issues on the OCP-AI cluster and it looks like the root cause is related to jumbo frames on the storage VLANs.
 
-Our storage bond (bnd0) on the masters is set to MTU 9000 and the NetApp ports are also configured for MTU 9000. Small NFS operations like checking a share or establishing a mount work fine because those packets fit within a normal 1500 byte frame. But when NFS starts doing actual reads or writes, it sends larger packets that depend on the full 9000 MTU path. Those packets appear to be getting dropped somewhere between the masters and the NetApp, which causes the NFS mounts or writes to hang.
+Our storage bond (bnd0) on the masters is set to MTU 9000 and the NetApp ports are also at 9000. Small NFS operations work fine, but when NFS starts doing actual reads/writes it sends larger packets that rely on the full 9000 MTU path. Those packets appear to be getting dropped somewhere between the masters and the NetApp, which causes mounts and writes to hang.
 
-Here’s how I verified it.
-
-A jumbo frame ping from a master to the NetApp data LIF fails:
+I validated this with ping tests. A jumbo frame ping fails:
 
 ping -I 10.172.194.152 -M do -s 8972 10.172.194.22 -c 3
 
-This results in 100% packet loss.
+But a standard MTU ping works without issues.
 
-But a standard size ping works fine:
+The -M do flag prevents fragmentation, so the packet has to pass through every hop at that size. If any port or trunk along the path is still at MTU 1500 it will drop the packet.
 
-ping -I 10.172.194.152 -M do -s 1472 10.172.194.22 -c 3
+Could you trace the path from the master nodes through the fabric interconnects and storage switches to the NetApp and confirm MTU 9000 is set end-to-end for VLANs 1792–1798?
 
-That returns normally with 0% packet loss.
+I’ve pinged you on Slack with the full reference list of node and NetApp LIF IPs for those VLANs.
 
-The -M do flag prevents fragmentation, which means the packet must pass through every hop at that size. 8972 bytes plus headers equals the full 9000 MTU. If any port or trunk in the path is still set to the default 1500, the packet gets dropped.
+For now I temporarily dropped the masters back to MTU 1500 so things are working again, but obviously that’s not ideal for NFS performance.
 
-Could you trace the path from the master nodes through the fabric interconnects and storage switches to the NetApp and confirm MTU 9000 is set end-to-end? The VLANs involved are 1792 through 1798. Usually this ends up being a single port or trunk that was missed.
+Let me know when you have a chance to take a look.
 
-For reference, here are the node and NetApp LIF IPs on the storage VLANs:
+Thanks,
+Haj
+
 
 VLAN 1792
 master01 — 10.172.192.150
