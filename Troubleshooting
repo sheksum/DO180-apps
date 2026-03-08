@@ -1,95 +1,73 @@
-plano_aff_cl::>
-plano_aff_cl::> statistics show-periodic -object nfsv4_1 -vserver ocp_app_svm -interval 5 -iterations 2
-
-Error: "show-periodic" is not a recognized command
-
-plano_aff_cl::> statistics start -object nfsv4_1 -vserver ocp_app_svm
-
-Error: "start" is not a recognized command
-
-plano_aff_cl::> statistics show -object nfsv4_1 -vserver ocp_app_svm
-
-Error: "show" is not a recognized command
-
-plano_aff_cl::>
-plano_aff_cl::> network interface show -vserver ocp_app_svm -lif ocp_app_dev_lif01 -instance
-
-                      Vserver Name: ocp_app_svm
-            Logical Interface Name: ocp_app_dev_lif01
-                    Service Policy: default-data-files
-                      Service List: data-core, data-nfs, data-fpolicy-client,
-                                    management-dns-client,
-                                    management-ad-client,
-                                    management-ldap-client,
-                                    management-nis-client, data-dns-server
-                 (DEPRECATED)-Role: data
-                     Data Protocol: nfs
-                   Network Address: 10.172.194.22
-                           Netmask: 255.255.254.0
-               Bits in the Netmask: 23
-                        Is VIP LIF: false
-                       Subnet Name: -
-                         Home Node: plano_aff_cl-05
-                         Home Port: a0a-1794
-                      Current Node: plano_aff_cl-05
-                      Current Port: a0a-1794
-                Operational Status: up
-                   Extended Status: -
-                           Is Home: true
-             Administrative Status: up
-                   Failover Policy: system-defined
-      (DEPRECATED)-Firewall Policy: data
-                       Auto Revert: false
-     Fully Qualified DNS Zone Name: none
-           DNS Query Listen Enable: false
-               Failover Group Name: backend-app-dev
-                          FCP WWPN: -
-                    Address family: ipv4
-                           Comment: -
-                    IPspace of LIF: Default
-    Is Dynamic DNS Update Enabled?: true
-Probe-port for Cloud Load Balancer: -
-                  Broadcast Domain: backend-app-dev
-Press <space> to page down, <return> for next line, or 'q' to quit... q
-
-plano_aff_cl::> network port show -node plano_aff_cl-05 -port a0a-1794 -instance
-
-                                        Node: plano_aff_cl-05
-                                        Port: a0a-1794
-                                        Link: up
-                                         MTU: 9000
-             Auto-Negotiation Administrative: -
-                Auto-Negotiation Operational: -
-                  Duplex Mode Administrative: -
-                     Duplex Mode Operational: -
-                        Speed Administrative: -
-                           Speed Operational: -
-                 Flow Control Administrative: -
-                    Flow Control Operational: -
-                                 MAC Address: d2:39:ea:db:8e:81
-                                   Port Type: vlan
-                 Interface Group Parent Node: -
-                 Interface Group Parent Port: -
-                       Distribution Function: -
-                               Create Policy: -
-                            Parent VLAN Node: plano_aff_cl-05
-                            Parent VLAN Port: a0a
-                                    VLAN Tag: 1794
-                            Remote Device ID: -
-                                IPspace Name: Default
-                            Broadcast Domain: backend-app-dev
-                          MTU Administrative: 9000
-                          Port Health Status: healthy
-                   Ignore Port Health Status: false
-                Port Health Degraded Reasons: -
-                Virtual Machine Network Name:
-                    Supported RDMA Protocols: -
-           List of PFC Queues Administrative: -
-              List of PFC Queues Operational: -
-
-plano_aff_cl::>
-
-
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -t nfs -o nfsvers=3 10.172.194.22:/trident_pvc_2fb0fd2e_82ed_4dca_8c02_50c4e98ec29e /mnt && echo SUCCESS && sudo umount /mnt"
-SUCCESS
+hsuma@plnx-admin:~$ oc get tridentbackend -n trident
+NAME        BACKEND             BACKEND UUID
+tbe-wp27v   backend-infra-nfs   88ba74b5-6d56-47cf-a16d-9066ae716681
+tbe-zg42j   backend-app-nfs     27f061fd-e6e4-448c-a4e4-c4302ac4a01a
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get tridentbackendconfig -n trident -o yaml | grep -B5 -A10 app
+apiVersion: v1
+items:
+- apiVersion: trident.netapp.io/v1
+  kind: TridentBackendConfig
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: trident:trident.netapp.io/TridentBackendConfig:trident/backend-app-nfs
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"trident.netapp.io/v1","kind":"TridentBackendConfig","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"trident:trident.netapp.io/TridentBackendConfig:trident/backend-app-nfs"},"name":"backend-app-nfs","namespace":"trident"},"spec":{"credentials":{"name":"backend-app-secret"},"dataLIF":"10.172.194.22","defaults":{"exportPolicy":"default","snapshotPolicy":"default","spaceReserve":"none"},"managementLIF":"10.172.254.47","storage":[{"defaults":{"snapshotPolicy":"default","spaceReserve":"none"},"labels":{"environment":"dev"}},{"defaults":{"snapshotPolicy":"default","spaceReserve":"none"},"labels":{"environment":"test"}},{"defaults":{"snapshotPolicy":"default","spaceReserve":"volume"},"labels":{"environment":"prod"}}],"storageDriverName":"ontap-nas","svm":"ocp_app_svm","version":1}}
+    creationTimestamp: "2026-02-17T21:31:39Z"
+    finalizers:
+    - trident.netapp.io
+    generation: 8
+    name: backend-app-nfs
+    namespace: trident
+    resourceVersion: "3438610"
+    uid: df168257-e589-4246-903d-9d8a493252cc
+  spec:
+    credentials:
+      name: backend-app-secret
+    dataLIF: 10.172.194.22
+    defaults:
+      exportPolicy: default
+      snapshotPolicy: default
+      spaceReserve: none
+    managementLIF: 10.172.254.47
+    storage:
+    - defaults:
+        snapshotPolicy: default
+        spaceReserve: none
+--
+        snapshotPolicy: default
+        spaceReserve: volume
+      labels:
+        environment: prod
+    storageDriverName: ontap-nas
+    svm: ocp_app_svm
+    version: 1
+  status:
+    backendInfo:
+      backendName: backend-app-nfs
+      backendUUID: 27f061fd-e6e4-448c-a4e4-c4302ac4a01a
+    deletionPolicy: delete
+    lastOperationStatus: Success
+    message: Backend 'backend-app-nfs' updated
+    phase: Bound
+- apiVersion: trident.netapp.io/v1
+  kind: TridentBackendConfig
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: trident:trident.netapp.io/TridentBackendConfig:trident/backend-infra-nfs
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"trident.netapp.io/v1","kind":"TridentBackendConfig","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"trident:trident.netapp.io/TridentBackendConfig:trident/backend-infra-nfs"},"name":"backend-infra-nfs","namespace":"trident"},"spec":{"credentials":{"name":"backend-infra-secret"},"dataLIF":"10.172.192.22","defaults":{"exportPolicy":"default","snapshotPolicy":"default","spaceReserve":"none"},"managementLIF":"10.172.254.46","storage":[{"defaults":{"snapshotPolicy":"default","spaceReserve":"none"},"labels":{"environment":"dev"}},{"defaults":{"snapshotPolicy":"default","spaceReserve":"none"},"labels":{"environment":"test"}},{"defaults":{"snapshotPolicy":"default","spaceReserve":"volume"},"labels":{"environment":"prod"}}],"storageDriverName":"ontap-nas","svm":"ocp_infra_svm","version":1}}
+    creationTimestamp: "2026-02-17T21:31:35Z"
+    finalizers:
+    - trident.netapp.io
+    generation: 6
+    name: backend-infra-nfs
+    namespace: trident
+    resourceVersion: "3438603"
+    uid: e25d6ba1-8824-4554-a27f-3319f603f4fe
+  spec:
+    credentials:
+      name: backend-infra-secret
+    dataLIF: 10.172.192.22
+    defaults:
 hsuma@plnx-admin:~$
