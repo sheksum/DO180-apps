@@ -1,33 +1,12 @@
-# Get the password
-PGPASS=$(oc get secret cnpg-test-app -n pai-test -o jsonpath='{.data.password}' | base64 -d)
+# Find the primary
+oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -L role
 
-# Connect with password in the URI
-oc run pg-test --rm -it --image=postgres:17 --restart=Never -n pai-test -- \
-  psql "host=cnpg-test-rw port=5432 dbname=testdb user=testuser password=$PGPASS sslmode=require"
+# Delete the primary
+oc delete pod cnpg-test-1 -n pai-test
 
-
-CREATE TABLE test (id serial PRIMARY KEY, name text);
-INSERT INTO test (name) VALUES ('hello from cnpg');
-SELECT * FROM test;
-\q
+# Watch failover
+oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -o wide -w
 
 
-hsuma@plnx-admin:~$ PGPASS=$(oc get secret cnpg-test-app -n pai-test -o jsonpath='{.data.password}' | base64 -d)
-hsuma@plnx-admin:~$ oc run pg-test --rm -it --image=postgres:17 --restart=Never -n pai-test -- \
-  psql "host=cnpg-test-rw port=5432 dbname=testdb user=testuser password=$PGPASS sslmode=require"
-Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "pg-test" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "pg-test" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "pg-test" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "pg-test" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
-All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
-If you don't see a command prompt, try pressing enter.
-testdb=> CREATE TABLE test (id serial PRIMARY KEY, name text);
-CREATE TABLE
-testdb=> INSERT INTO test (name) VALUES ('hello from cnpg');
-INSERT 0 1
-testdb=> SELECT * FROM test;
- id |      name
-----+-----------------
-  1 | hello from cnpg
-(1 row)
-
-testdb=> \q
-pod "pg-test" deleted from pai-test namespace
-hsuma@plnx-admin:~$
+oc run pg-test2 --rm -it --image=postgres:17 --restart=Never -n pai-test -- \
+  psql "host=cnpg-test-rw port=5432 dbname=testdb user=testuser password=$PGPASS sslmode=require" -c "SELECT * FROM test;"
