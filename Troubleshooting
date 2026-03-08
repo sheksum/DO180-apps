@@ -1,22 +1,2 @@
-suma@plnx-admin:~$ oc get storageclass netapp-app -o yaml | grep -A5 mountOptions
-mountOptions:
-- nfsvers=3
-parameters:
-  backendType: ontap-nas
-  selector: environment=dev
-provisioner: csi.trident.netapp.io
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pvc -n pai-test
-NAME          STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
-cnpg-test-1   Bound    pvc-97a9fba4-3ef2-4d84-a539-bee0bcdd27a2   10Gi       RWO            netapp-app     <unset>                 4m56s
-milvus-data   Bound    pvc-1b6fb075-fe3f-4072-8619-fe5c59d75dc8   100Gi      RWX            netapp-app     <unset>                 7d15h
-minio-data    Bound    pvc-0d7a5bf3-4ccb-4fdb-8ecf-702df572eea5   500Gi      RWX            netapp-app     <unset>                 7d16h
-hsuma@plnx-admin:~$ oc get pv pvc-97a9fba4-3ef2-4d84-a539-bee0bcdd27a2 -o yaml | grep -A5 mountOptions
-  mountOptions:
-  - nfsvers=3
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: netapp-app
-  volumeMode: Filesystem
-status:
-hsuma@plnx-admin:~$
+# Replace with the correct node IP
+ssh -i ~/.ssh/ocp-ai core@<NODE-IP> "sudo mount -t nfs -o nfsvers=3 10.172.194.22:/trident_pvc_97a9fba4_3ef2_4d84_a539_bee0bcdd27a2 /mnt && echo SUCCESS && sudo umount /mnt"
