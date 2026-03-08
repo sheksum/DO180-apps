@@ -1,3 +1,16 @@
 ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "dmesg | grep -c 'not responding'"
 ssh -i ~/.ssh/ocp-ai core@10.172.248.151 "dmesg | grep -c 'not responding'"
 ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "dmesg | grep -c 'not responding'"
+
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "dmesg | grep -c 'not responding'"
+178
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.151 "dmesg | grep -c 'not responding'"
+239
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "dmesg | grep -c 'not responding'"
+132
+hsuma@plnx-admin:~$
