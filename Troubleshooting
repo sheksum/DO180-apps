@@ -1,1 +1,6 @@
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -v -t nfs4 -o nfsvers=4.1,tcp 10.172.194.22:/trident_pvc_97a9fba4_3ef2_4d84_a539_bee0bcdd27a2 /mnt && echo SUCCESS && sudo umount /mnt"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -v -t nfs4 -o nfsvers=4.1,tcp 10.172.194.22:/trident_pvc_97a9fba4_3ef2_4d84_a539_bee0bcdd27a2 /mnt && echo SUCCESS && sudo umount /mnt"
+mount.nfs4: timeout set for Sun Mar  8 21:08:12 2026
+mount.nfs4: trying text-based options 'nfsvers=4.1,tcp,addr=10.172.194.22,clientaddr=10.172.194.152'
+SUCCESS
+hsuma@plnx-admin:~$
