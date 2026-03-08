@@ -1,14 +1,118 @@
-oc get deployments -n pai-dev -o yaml | grep -A10 "affinity\|nodeSelector\|nodeName"
-oc get deployments -n pai-test -o yaml | grep -A10 "affinity\|nodeSelector\|nodeName"
-oc get deployments -n pai-prod -o yaml | grep -A10 "affinity\|nodeSelector\|nodeName"
-
-
-oc get pods -n pai-dev -o wide
-oc get pods -n pai-test -o wide
-oc get pods -n pai-prod -o wide
-
-
-for ip in 150 151 152; do
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get deployments -n pai-dev -o yaml | grep -A10 "affinity\|nodeSelector\|nodeName"
+        nodeSelector:
+          nvidia.com/gpu.present: "true"
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: friendli
+        serviceAccountName: friendli
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+--
+        nodeSelector:
+          nvidia.com/gpu.present: "true"
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: ai-model-multimodel-service
+        serviceAccountName: ai-model-multimodel-service
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+--
+        nodeSelector:
+          nvidia.com/gpu.present: "true"
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: internal-datapipeline-rag-fileparser-service
+        serviceAccountName: internal-datapipeline-rag-fileparser-service
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get deployments -n pai-test -o yaml | grep -A10 "affinity\|nodeSelector\|nodeName"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get deployments -n pai-prod -o yaml | grep -A10 "affinity\|nodeSelector\|nodeName"
+        nodeName: ocp-ai-master03.calix.local
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: data
+          persistentVolumeClaim:
+hsuma@plnx-admin:~$ oc get pods -n pai-dev -o wide
+NAME                                                        READY   STATUS             RESTARTS         AGE     IP             NODE                          NOMINATED NODE   READINESS GATES
+ai-model-library-7df58c7b85-stt22                           0/1     CrashLoopBackOff   1470 (87s ago)   5d5h    10.131.0.24    ocp-ai-gpu01.calix.local      <none>           <none>
+ai-model-multimodel-service-897db5c4c-nrzbk                 1/1     Running            0                8d      10.131.0.16    ocp-ai-gpu01.calix.local      <none>           <none>
+fileparser-7785486794-9l6x2                                 1/1     Running            0                6d13h   10.128.2.27    ocp-ai-gpu02.calix.local      <none>           <none>
+internal-agentmesh-agent-gateway-service-5d9dcc86b5-9d5dw   1/1     Running            0                4d12h   10.128.0.165   ocp-ai-master02.calix.local   <none>           <none>
+internal-agentmesh-auth-service-66b5dcc967-6dzc6            1/1     Running            0                4d12h   10.128.0.162   ocp-ai-master02.calix.local   <none>           <none>
+internal-agentmesh-generic-agent-5c4bd7b4fb-nqbkr           1/1     Running            0                4d13h   10.128.0.157   ocp-ai-master02.calix.local   <none>           <none>
+internal-agentmesh-it-service-desk-agent-6c6db8dd48-96dmf   1/1     Running            0                3d14h   10.128.1.18    ocp-ai-master02.calix.local   <none>           <none>
+internal-agentmesh-ui-service-75d889b5fd-xsrbp              1/1     Running            0                2d10h   10.128.1.183   ocp-ai-master02.calix.local   <none>           <none>
+internal-mcp-atlassian-service-6bb559fdb7-rgp2s             1/1     Running            0                2d9h    10.128.1.193   ocp-ai-master02.calix.local   <none>           <none>
+milvus-6d97bf4f9f-gkgvv                                     1/1     Running            0                7d14h   10.128.0.40    ocp-ai-master02.calix.local   <none>           <none>
+minio-788889d4b7-g9g59                                      1/1     Running            0                7d16h   10.128.0.26    ocp-ai-master02.calix.local   <none>           <none>
+pg-client                                                   1/1     Running            0                6d13h   10.128.0.53    ocp-ai-master02.calix.local   <none>           <none>
+postgresql-78b656858b-jfw6d                                 1/1     Running            0                6d13h   10.128.0.54    ocp-ai-master02.calix.local   <none>           <none>
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n pai-test -o wide
+NAME                       READY   STATUS        RESTARTS   AGE     IP            NODE                          NOMINATED NODE   READINESS GATES
+cnpg-test-1-initdb-2hhtg   0/1     Init:0/1      0          3m52s   <none>        ocp-ai-master02.calix.local   <none>           <none>
+cnpg-test-1-initdb-h7zvh   0/1     Terminating   0          13m     <none>        ocp-ai-master01.calix.local   <none>           <none>
+milvus-58cf68b68f-8bwq8    1/1     Running       0          3m53s   10.128.1.6    ocp-ai-master02.calix.local   <none>           <none>
+minio-788889d4b7-995kh     1/1     Running       0          3m51s   10.128.1.10   ocp-ai-master02.calix.local   <none>           <none>
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n pai-prod -o wide
+NAME                      READY   STATUS    RESTARTS         AGE     IP             NODE                          NOMINATED NODE   READINESS GATES
+milvus-79bbc5967b-8ttjt   0/1     Running   2091 (26s ago)   7d14h   10.130.0.102   ocp-ai-master03.calix.local   <none>           <none>
+minio-85b4477cdc-g5c6b    1/1     Running   0                7d16h   10.130.0.92    ocp-ai-master03.calix.local   <none>           <none>
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ for ip in 150 151 152; do
   echo "=== master $(($ip - 149)) ==="
   ssh -i ~/.ssh/ocp-ai core@10.172.248.$ip "ip -br addr show | grep bnd0"
 done
+=== master 1 ===
+bnd0             UP
+bnd0.1798@bnd0   UP             10.172.198.150/23
+bnd0.1797@bnd0   UP             10.172.202.150/23
+bnd0.1796@bnd0   UP             10.172.196.150/23
+bnd0.1793@bnd0   UP             10.172.200.150/23
+bnd0.1794@bnd0   UP             10.172.194.150/23
+bnd0.1792@bnd0   UP             10.172.192.150/23
+=== master 2 ===
+bnd0             UP
+bnd0.1792@bnd0   UP             10.172.192.151/23
+bnd0.1793@bnd0   UP             10.172.200.151/23
+bnd0.1798@bnd0   UP             10.172.198.151/23
+bnd0.1794@bnd0   UP             10.172.194.151/23
+bnd0.1796@bnd0   UP             10.172.196.151/23
+bnd0.1797@bnd0   UP             10.172.202.151/23
+=== master 3 ===
+bnd0             UP
+bnd0.1796@bnd0   UP             10.172.196.152/23
+bnd0.1793@bnd0   UP             10.172.200.152/23
+bnd0.1797@bnd0   UP             10.172.202.152/23
+bnd0.1794@bnd0   UP             10.172.194.152/23
+bnd0.1792@bnd0   UP             10.172.192.152/23
+bnd0.1798@bnd0   UP             10.172.198.152/23
+hsuma@plnx-admin:~$
