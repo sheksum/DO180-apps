@@ -1,16 +1,124 @@
-ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "dmesg | grep -c 'not responding'"
-ssh -i ~/.ssh/ocp-ai core@10.172.248.151 "dmesg | grep -c 'not responding'"
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "dmesg | grep -c 'not responding'"
+plano_aff_cl::>
+plano_aff_cl::> network interface show -vserver ocp_app_svm
+            Logical    Status     Network            Current       Current Is
+Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
+----------- ---------- ---------- ------------------ ------------- ------- ----
+ocp_app_svm
+            ocp_app_dev_lif01
+                         up/up    10.172.194.22/23   plano_aff_cl-05
+                                                                   a0a-1794
+                                                                           true
+            ocp_app_dev_lif02
+                         up/up    10.172.194.23/23   plano_aff_cl-06
+                                                                   a0a-1794
+                                                                           true
+            ocp_app_mgmt up/up    10.172.254.47/24   plano_aff_cl-06
+                                                                   a0a-1570
+                                                                           true
+            ocp_app_prod_lif01
+                         up/up    10.172.202.22/23   plano_aff_cl-05
+                                                                   a0a-1797
+                                                                           true
+            ocp_app_prod_lif02
+                         up/up    10.172.202.23/23   plano_aff_cl-06
+                                                                   a0a-1797
+                                                                           true
+            ocp_app_test_lif01
+                         up/up    10.172.198.22/23   plano_aff_cl-05
+                                                                   a0a-1798
+                                                                           true
+            ocp_app_test_lif02
+                         up/up    10.172.198.23/23   plano_aff_cl-06
+                                                                   a0a-1798
+                                                                           true
+7 entries were displayed.
 
+plano_aff_cl::> network connections active show -vserver ocp_app_svm -count
 
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "dmesg | grep -c 'not responding'"
-178
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.151 "dmesg | grep -c 'not responding'"
-239
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "dmesg | grep -c 'not responding'"
-132
-hsuma@plnx-admin:~$
+Error: invalid argument "-count"
+
+plano_aff_cl::>
+plano_aff_cl::> vserver nfs show -vserver ocp_app_svm
+
+                                          Vserver: ocp_app_svm
+                               General NFS Access: true
+                                           NFS v3: enabled
+                                         NFS v4.0: enabled
+                                     UDP Protocol: enabled
+                                     TCP Protocol: enabled
+                             Default Windows User: -
+                              NFSv4.0 ACL Support: disabled
+                  NFSv4.0 Read Delegation Support: disabled
+                 NFSv4.0 Write Delegation Support: disabled
+                          NFSv4 ID Mapping Domain: calix.local
+              NFSv4 Grace Timeout Value (in secs): 45
+Preserves and Modifies NFSv4 ACL (and NTFS File Permissions in Unified Security Style): enabled
+                    NFSv4.1 Minor Version Support: enabled
+                                    Rquota Enable: disabled
+                     NFSv4.1 Parallel NFS Support: disabled
+                              NFSv4.1 ACL Support: disabled
+                             NFS vStorage Support: disabled
+              NFSv4 Support for Numeric Owner IDs: enabled
+                            Default Windows Group: -
+                  NFSv4.1 Read Delegation Support: disabled
+                 NFSv4.1 Write Delegation Support: disabled
+                              NFS Mount Root Only: enabled
+                                    NFS Root Only: disabled
+              Permitted Kerberos Encryption Types: aes-128, aes-256
+                                Showmount Enabled: enabled
+Set the Protocol Used for Name Services Lookups for Exports: udp
+                      NFSv3 MS-DOS Client Support: disabled
+       Idle Connection Timeout Value (in seconds): 360
+               Are Idle NFS Connections Supported: enabled
+  Hide Snapshot Directory under NFSv3 Mount Point: disabled
+             Provide Root Path as Showmount State: disabled
+                                    RDMA Protocol: enabled
+                         NFSV4.1 Trunking Support: disabled
+              NFSV4.2 Extended Attributes Support: enabled
+Press <space> to page down, <return> for next line, or 'q' to quit...
+
+plano_aff_cl::> vserver nfs connected-clients show -vserver ocp_app_svm
+
+Info: This command displays cached values of currently connected NFS clients, idle NFS connections, and recently unmounted clients. By default, the cached
+      idle time is 48 hours, which is modifiable using the "-client-retention-interval" parameter.
+
+     Node: plano_aff_cl-05
+  Vserver: ocp_app_svm
+  Data-Ip: 10.172.194.22
+                                                         Local Remote
+Client-Ip       Protocol Volume    Policy   Idle-Time    Reqs  Reqs   Trunking
+--------------- -------- --------- -------- ------------ ----- ------ --------
+10.172.248.41   nfs4.2   ocp_app_svm_root
+                                   default  2h 44m 8s    0     20     false
+10.172.248.140  nfs4.2   ocp_app_svm_root
+                                   default  5h 44m 11s   0     420    false
+
+     Node: plano_aff_cl-05
+  Vserver: ocp_app_svm
+  Data-Ip: 10.172.198.22
+                                                         Local Remote
+Client-Ip       Protocol Volume    Policy   Idle-Time    Reqs  Reqs   Trunking
+--------------- -------- --------- -------- ------------ ----- ------ --------
+10.172.248.140  nfs4.2   ocp_app_svm_root
+                                   default  44m 9s       0     520    false
+
+     Node: plano_aff_cl-05
+  Vserver: ocp_app_svm
+  Data-Ip: 10.172.202.22
+                                                         Local Remote
+Client-Ip       Protocol Volume    Policy   Idle-Time    Reqs  Reqs   Trunking
+--------------- -------- --------- -------- ------------ ----- ------ --------
+10.172.248.140  nfs4.2   ocp_app_svm_root
+                                   default  4h 44m 11s   0     360    false
+
+     Node: plano_aff_cl-06
+  Vserver: ocp_app_svm
+  Data-Ip: 10.172.194.23
+Press <space> to page down, <return> for next line, or 'q' to quit...
+5 entries were displayed.
+
+plano_aff_cl::> statistics show -object volume -instance * -count avg_latency,total_ops -vserver ocp_app_svm
+
+Error: "show" is not a recognized command
+
+plano_aff_cl::>
