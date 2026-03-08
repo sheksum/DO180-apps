@@ -1,48 +1,59 @@
+6m13s       Warning   FailedKillPod                 pod/cnpg-test-1-initdb-xphxg               error killing pod: [failed to "KillContainer" for "initdb" with KillContainerError: "rpc error: code = DeadlineExceeded desc = context deadline exceeded", failed to "KillPodSandbox" for "2c21e10e-5e81-46be-87c9-4d6e890614fe" with KillPodSandboxError: "rpc error: code = DeadlineExceeded desc = stream terminated by RST_STREAM with error code: CANCEL"]
+5m57s       Normal    SuccessfulCreate              job/cnpg-test-2-join                       Created pod: cnpg-test-2-join-vrcr6
+5m57s       Warning   FailedAttachVolume            pod/cnpg-test-2-join-vrcr6                 Multi-Attach error for volume "pvc-d85da02c-eb58-4e9c-badb-2695210d5ff4" Volume is already exclusively attached to one node and can't be attached to another
+4m55s       Warning   FailedAttachVolume            pod/cnpg-test-2-join-2v6ms                 Multi-Attach error for volume "pvc-d85da02c-eb58-4e9c-badb-2695210d5ff4" Volume is already exclusively attached to one node and can't be attached to another
+4m55s       Normal    SuccessfulCreate              job/cnpg-test-2-join                       Created pod: cnpg-test-2-join-2v6ms
+4m26s       Warning   FailedMount                   pod/cnpg-test-2-join-ljlfs                 MountVolume.SetUp failed for volume "pvc-d85da02c-eb58-4e9c-badb-2695210d5ff4" : rpc error: code = DeadlineExceeded desc = context deadline exceeded
+4m14s       Normal    Valid                         secretstore/vault-store                    store validated
+4m          Normal    Killing                       pod/cnpg-test-1                            Stopping container postgres
+3m57s       Warning   Unhealthy                     pod/cnpg-test-1                            Readiness probe failed: HTTP probe failed with statuscode: 500
+3m24s       Normal    CreatingServiceAccount        cluster/cnpg-test                          Creating ServiceAccount
+3m24s       Normal    CreatingPodDisruptionBudget   cluster/cnpg-test                          Creating PodDisruptionBudget cnpg-test-primary
+3m24s       Normal    NoPods                        poddisruptionbudget/cnpg-test-primary      No matching pods found
+3m24s       Normal    CreatingPodDisruptionBudget   cluster/cnpg-test                          Creating PodDisruptionBudget cnpg-test
+3m24s       Normal    CreatingInstance              cluster/cnpg-test                          Primary instance (initdb)
+3m24s       Normal    Provisioning                  persistentvolumeclaim/cnpg-test-1          External provisioner is provisioning volume for claim "pai-test/cnpg-test-1"
+3m24s       Normal    CreatingRole                  cluster/cnpg-test                          Creating Cluster Role
+3m24s       Normal    SuccessfulCreate              job/cnpg-test-1-initdb                     Created pod: cnpg-test-1-initdb-lrcwc
+3m15s       Normal    ExternalProvisioning          persistentvolumeclaim/cnpg-test-1          Waiting for a volume to be created either by the external provisioner 'csi.trident.netapp.io' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
+3m13s       Normal    ProvisioningSuccess           persistentvolumeclaim/cnpg-test-1          provisioned a volume
+3m13s       Normal    ProvisioningSucceeded         persistentvolumeclaim/cnpg-test-1          Successfully provisioned volume pvc-b89017aa-c237-4aed-98c3-c1b076ca2a1f
+3m13s       Normal    SuccessfulAttachVolume        pod/cnpg-test-1-initdb-lrcwc               AttachVolume.Attach succeeded for volume "pvc-b89017aa-c237-4aed-98c3-c1b076ca2a1f"
+3m8s        Normal    Pulled                        pod/cnpg-test-1-initdb-lrcwc               Container image "ghcr.io/cloudnative-pg/cloudnative-pg@sha256:f80601be27336bdf95ee22aeb6ae2ca42b5221551c69c831ccc12293deb0ee85" already present on machine
+3m8s        Normal    Started                       pod/cnpg-test-1-initdb-lrcwc               Started container bootstrap-controller
+3m8s        Normal    Created                       pod/cnpg-test-1-initdb-lrcwc               Created container: bootstrap-controller
+3m8s        Normal    AddedInterface                pod/cnpg-test-1-initdb-lrcwc               Add eth0 [10.130.0.27/23] from ovn-kubernetes
+3m7s        Normal    Pulled                        pod/cnpg-test-1-initdb-lrcwc               Container image "ghcr.io/cloudnative-pg/postgresql:18.1-system-trixie" already present on machine
+3m7s        Normal    Created                       pod/cnpg-test-1-initdb-lrcwc               Created container: initdb
+3m7s        Normal    Started                       pod/cnpg-test-1-initdb-lrcwc               Started container initdb
+3m          Normal    Completed                     job/cnpg-test-1-initdb                     Job completed
+2m58s       Normal    AddedInterface                pod/cnpg-test-1                            Add eth0 [10.130.0.28/23] from ovn-kubernetes
+2m58s       Normal    Started                       pod/cnpg-test-1                            Started container bootstrap-controller
+2m58s       Normal    Created                       pod/cnpg-test-1                            Created container: bootstrap-controller
+2m58s       Normal    Pulled                        pod/cnpg-test-1                            Container image "ghcr.io/cloudnative-pg/cloudnative-pg@sha256:f80601be27336bdf95ee22aeb6ae2ca42b5221551c69c831ccc12293deb0ee85" already present on machine
+2m57s       Normal    Started                       pod/cnpg-test-1                            Started container postgres
+2m57s       Normal    Created                       pod/cnpg-test-1                            Created container: postgres
+2m57s       Normal    Pulled                        pod/cnpg-test-1                            Container image "ghcr.io/cloudnative-pg/postgresql:18.1-system-trixie" already present on machine
+2m47s       Normal    SuccessfulCreate              job/cnpg-test-2-join                       Created pod: cnpg-test-2-join-z6kd4
+2m47s       Normal    CreatingInstance              cluster/cnpg-test                          Creating instance cnpg-test-2
+2m47s       Normal    Provisioning                  persistentvolumeclaim/cnpg-test-2          External provisioner is provisioning volume for claim "pai-test/cnpg-test-2"
+2m45s       Normal    ExternalProvisioning          persistentvolumeclaim/cnpg-test-2          Waiting for a volume to be created either by the external provisioner 'csi.trident.netapp.io' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
+2m37s       Normal    ProvisioningSucceeded         persistentvolumeclaim/cnpg-test-2          Successfully provisioned volume pvc-161c0226-ca74-4539-a301-ee66bf77d53b
+2m37s       Normal    ProvisioningSuccess           persistentvolumeclaim/cnpg-test-2          provisioned a volume
+2m36s       Normal    SuccessfulAttachVolume        pod/cnpg-test-2-join-z6kd4                 AttachVolume.Attach succeeded for volume "pvc-161c0226-ca74-4539-a301-ee66bf77d53b"
+2m28s       Normal    Started                       pod/cnpg-test-2-join-z6kd4                 Started container bootstrap-controller
+2m28s       Normal    AddedInterface                pod/cnpg-test-2-join-z6kd4                 Add eth0 [10.130.0.29/23] from ovn-kubernetes
+2m28s       Normal    Pulled                        pod/cnpg-test-2-join-z6kd4                 Container image "ghcr.io/cloudnative-pg/cloudnative-pg@sha256:f80601be27336bdf95ee22aeb6ae2ca42b5221551c69c831ccc12293deb0ee85" already present on machine
+2m28s       Normal    Created                       pod/cnpg-test-2-join-z6kd4                 Created container: bootstrap-controller
+2m27s       Normal    nodeAssigned                  service/milvus-lb                          announcing from node "ocp-ai-master01.calix.local" with protocol "layer2"
+2m27s       Normal    nodeAssigned                  service/minio-lb                           announcing from node "ocp-ai-master01.calix.local" with protocol "layer2"
+2m27s       Normal    Pulled                        pod/cnpg-test-2-join-z6kd4                 Container image "ghcr.io/cloudnative-pg/postgresql:18.1-system-trixie" already present on machine
+2m27s       Normal    Created                       pod/cnpg-test-2-join-z6kd4                 Created container: join
+2m27s       Normal    Started                       pod/cnpg-test-2-join-z6kd4                 Started container join
+2m11s       Warning   FailedKillPod                 pod/cnpg-test-1-initdb-xphxg               error killing pod: [failed to "KillContainer" for "initdb" with KillContainerError: "rpc error: code = DeadlineExceeded desc = context deadline exceeded", failed to "KillPodSandbox" for "2c21e10e-5e81-46be-87c9-4d6e890614fe" with KillPodSandboxError: "rpc error: code = DeadlineExceeded desc = context deadline exceeded"]
+2m11s       Normal    Killing                       pod/cnpg-test-1-initdb-xphxg               Stopping container initdb
+73s         Normal    NoPods                        poddisruptionbudget/cnpg-test              No matching pods found
 hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -w
-NAME                       READY   STATUS     RESTARTS   AGE
-cnpg-test-1-initdb-nkpwk   0/1     Init:0/1   0          8s
-cnpg-test-1-initdb-nkpwk   0/1     Init:0/1   0          8s
-cnpg-test-1-initdb-nkpwk   0/1     PodInitializing   0          11s
-cnpg-test-1-initdb-nkpwk   1/1     Running           0          16s
-cnpg-test-1-initdb-nkpwk   0/1     Completed         0          19s
-cnpg-test-1-initdb-nkpwk   0/1     Completed         0          20s
-cnpg-test-1-initdb-nkpwk   0/1     Completed         0          21s
-cnpg-test-1                0/1     Pending           0          0s
-cnpg-test-1                0/1     Pending           0          0s
-cnpg-test-1                0/1     Pending           0          0s
-cnpg-test-1                0/1     Init:0/1          0          0s
-cnpg-test-1                0/1     Init:0/1          0          8s
-cnpg-test-1                0/1     Init:0/1          0          8s
-cnpg-test-1                0/1     PodInitializing   0          9s
-cnpg-test-1                0/1     Running           0          10s
-cnpg-test-1                0/1     Running           0          10s
-cnpg-test-1                0/1     Running           0          18s
-cnpg-test-1                1/1     Running           0          18s
-cnpg-test-2-join-ljlfs     0/1     Pending           0          0s
-cnpg-test-2-join-ljlfs     0/1     Pending           0          0s
-cnpg-test-2-join-ljlfs     0/1     Pending           0          6s
-cnpg-test-2-join-ljlfs     0/1     Pending           0          6s
-cnpg-test-2-join-ljlfs     0/1     Init:0/1          0          6s
-^Chsuma@plnx-admin:~$ oc get pods -n pai-test -l cnpg.io/cluster=cnpg-test -w
-NAME                       READY   STATUS      RESTARTS   AGE
-cnpg-test-1                1/1     Running     0          57s
-cnpg-test-1-initdb-nkpwk   0/1     Completed   0          78s
-cnpg-test-2-join-ljlfs     0/1     Init:0/1    0          39s
-^Chsuma@plnx-admin:~$ oc describe pod cnpg-test-2-join-ljlfs -n pai-test | tail -15
-    Optional:                false
-    DownwardAPI:             true
-    ConfigMapName:           openshift-service-ca.crt
-    Optional:                false
-QoS Class:                   BestEffort
-Node-Selectors:              <none>
-Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
-                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
-Events:
-  Type     Reason                  Age                 From                     Message
-  ----     ------                  ----                ----                     -------
-  Warning  FailedScheduling        100s                default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
-  Warning  FailedScheduling        95s (x2 over 100s)  default-scheduler        0/5 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/5 nodes are available: 5 Preemption is not helpful for scheduling.
-  Normal   Scheduled               95s                 default-scheduler        Successfully assigned pai-test/cnpg-test-2-join-ljlfs to ocp-ai-master01.calix.local
-  Normal   SuccessfulAttachVolume  95s                 attachdetach-controller  AttachVolume.Attach succeeded for volume "pvc-d85da02c-eb58-4e9c-badb-2695210d5ff4"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$
