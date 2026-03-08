@@ -1,3 +1,23 @@
+hsuma@plnx-admin:~$ oc get secret cnpg-test-app -n pai-test -o jsonpath='{.data.username}' | base64 -d && echo
+testuser
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get secret cnpg-test-app -n pai-test -o jsonpath='{.data.password}' | base64 -d && echo
+<redacted>
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc run pg-test --rm -it --image=postgres:17 --restart=Never -n pai-test -- \
+  psql "host=cnpg-test-rw port=5432 dbname=testdb user=testuser sslmode=require"
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "pg-test" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "pg-test" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "pg-test" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "pg-test" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+
+psql: error: connection to server at "cnpg-test-rw" (172.30.86.226), port 5432 failed: fe_sendauth: no password supplied
+pod "pg-test" deleted from pai-test namespace
+pod pai-test/pg-test terminated (Error)
+hsuma@plnx-admin:~$
+
 # Check cluster status
 oc get cluster cnpg-test -n pai-test
 
