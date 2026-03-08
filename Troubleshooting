@@ -1,66 +1,66 @@
-plano_aff_cl::>
-plano_aff_cl::> network interface show -vserver ocp_app_svm
-            Logical    Status     Network            Current       Current Is
-Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
------------ ---------- ---------- ------------------ ------------- ------- ----
-ocp_app_svm
-            ocp_app_dev_lif01
-                         up/up    10.172.194.22/23   plano_aff_cl-05
-                                                                   a0a-1794
-                                                                           true
-            ocp_app_dev_lif02
-                         up/up    10.172.194.23/23   plano_aff_cl-06
-                                                                   a0a-1794
-                                                                           true
-            ocp_app_mgmt up/up    10.172.254.47/24   plano_aff_cl-06
-                                                                   a0a-1570
-                                                                           true
-            ocp_app_prod_lif01
-                         up/up    10.172.202.22/23   plano_aff_cl-05
-                                                                   a0a-1797
-                                                                           true
-            ocp_app_prod_lif02
-                         up/up    10.172.202.23/23   plano_aff_cl-06
-                                                                   a0a-1797
-                                                                           true
-            ocp_app_test_lif01
-                         up/up    10.172.198.22/23   plano_aff_cl-05
-                                                                   a0a-1798
-                                                                           true
-            ocp_app_test_lif02
-                         up/up    10.172.198.23/23   plano_aff_cl-06
-                                                                   a0a-1798
-                                                                           true
-7 entries were displayed.
+plano_aff_cl::> export-policy rule show -vserver ocp_app_svm -policyname backend_app_access
+             Policy          Rule    Access   Client                RO
+Vserver      Name            Index   Protocol Match                 Rule
+------------ --------------- ------  -------- --------------------- ---------
+ocp_app_svm  backend_app_access
+                             1       nfs3,    10.172.194.0/24       any
+                                     nfs4,
+                                     nfs
+ocp_app_svm  backend_app_access
+                             2       nfs3,    10.172.198.0/24       any
+                                     nfs4,
+                                     nfs
+ocp_app_svm  backend_app_access
+                             3       nfs3,    10.172.202.0/24       any
+                                     nfs4,
+                                     nfs
+ocp_app_svm  backend_app_access
+                             4       nfs3,    10.172.248.0/24       any
+                                     nfs4,
+                                     nfs
+4 entries were displayed.
 
-plano_aff_cl::> network connections active show -vserver ocp_app_svm -count
+plano_aff_cl::> volume show -vserver ocp_app_svm -fields policy
+vserver     volume           policy
+----------- ---------------- -------
+ocp_app_svm ocp_app_svm_root default
+ocp_app_svm trident_pvc_0044ef44_15b1_493e_aeb1_4d64a3b4c375
+                             default
+ocp_app_svm trident_pvc_00e9178d_e410_43b4_b83d_f394ef00b72c
+                             default
+ocp_app_svm trident_pvc_0ff7498e_a403_4cbd_9dda_62c0050241d0
+                             default
+ocp_app_svm trident_pvc_131edc3f_480b_47dd_bc98_b077bd05b17b
+                             default
+ocp_app_svm trident_pvc_16c5c855_da8a_4444_8a69_297b3b0e41b5
+                             default
+ocp_app_svm trident_pvc_17395924_9c6b_4059_b4b5_f9c496be3cf6
+                             default
+ocp_app_svm trident_pvc_1f5ba9f4_a72f_4f86_92e2_100d24347d7e
+                             default
+ocp_app_svm trident_pvc_24df8bf6_b20d_4279_acd4_55e399fdf695
+                             default
+ocp_app_svm trident_pvc_2fb0fd2e_82ed_4dca_8c02_50c4e98ec29e
+                             default
+ocp_app_svm trident_pvc_36a4e0fc_2fd8_42f8_b96c_eb00f9d9de98
+                             default
+ocp_app_svm trident_pvc_42c84f27_1ebc_4810_9a5f_643f94963b73
+                             default
+ocp_app_svm trident_pvc_766e03dc_d5e4_496f_9bd0_8b38905999dd
+                             default
+ocp_app_svm trident_pvc_77207d12_c003_4d6b_a451_a78ee8786cbf
+                             default
+ocp_app_svm trident_pvc_b32a448e_3efc_4101_a296_770ed1b9e62a
+                             default
+ocp_app_svm trident_pvc_c5bb4c5c_a616_45e6_a86a_f06cfc593eed
+                             default
+ocp_app_svm trident_pvc_c7f60b00_60ba_44c9_9c16_8d2f301890c5
+                             default
+ocp_app_svm trident_pvc_dd5d77e6_0ce0_4ed7_bf42_c0b48b8fdb00
+                             default
+Press <space> to page down, <return> for next line, or 'q' to quit... q
 
-Error: invalid argument "-count"
-
-plano_aff_cl::>
-plano_aff_cl::> vserver nfs show -vserver ocp_app_svm
-
-                                          Vserver: ocp_app_svm
-                               General NFS Access: true
-                                           NFS v3: enabled
-                                         NFS v4.0: enabled
-                                     UDP Protocol: enabled
-                                     TCP Protocol: enabled
-                             Default Windows User: -
-                              NFSv4.0 ACL Support: disabled
-                  NFSv4.0 Read Delegation Support: disabled
-                 NFSv4.0 Write Delegation Support: disabled
-                          NFSv4 ID Mapping Domain: calix.local
-              NFSv4 Grace Timeout Value (in secs): 45
-Preserves and Modifies NFSv4 ACL (and NTFS File Permissions in Unified Security Style): enabled
-                    NFSv4.1 Minor Version Support: enabled
-                                    Rquota Enable: disabled
-                     NFSv4.1 Parallel NFS Support: disabled
-                              NFSv4.1 ACL Support: disabled
-                             NFS vStorage Support: disabled
-              NFSv4 Support for Numeric Owner IDs: enabled
-                            Default Windows Group: -
-                  NFSv4.1 Read Delegation Support: disabled
+plano_aff_cl::>                  NFSv4.1 Read Delegation Support: disabled
                  NFSv4.1 Write Delegation Support: disabled
                               NFS Mount Root Only: enabled
                                     NFS Root Only: disabled
