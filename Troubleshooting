@@ -1,2 +1,11 @@
-# Replace with the correct node IP
-ssh -i ~/.ssh/ocp-ai core@<NODE-IP> "sudo mount -t nfs -o nfsvers=3 10.172.194.22:/trident_pvc_97a9fba4_3ef2_4d84_a539_bee0bcdd27a2 /mnt && echo SUCCESS && sudo umount /mnt"
+# Drain the node (moves workloads off)
+oc adm drain <node-name> --ignore-daemonsets --delete-emptydir-data --force
+
+# Reboot via SSH
+ssh -i ~/.ssh/ocp-ai core@<node-ip> "sudo systemctl reboot"
+
+# Watch it come back
+oc get nodes -w
+
+# Uncordon after it's Ready
+oc adm uncordon <node-name>
