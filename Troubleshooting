@@ -1,2 +1,7 @@
+
+which argocd || curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 && chmod +x /usr/local/bin/argocd
+
+
+
 argocd app sync trident --resource storage.k8s.io/StorageClass/netapp-app --replace
 argocd app sync trident --resource storage.k8s.io/StorageClass/netapp-infra --replace
