@@ -1,3 +1,18 @@
-oc exec cnpg-test-1-initdb-xphxg -n pai-test -c initdb -- ps aux
-oc exec cnpg-test-1-initdb-xphxg -n pai-test -c initdb -- ls -la /var/lib/postgresql/data/
-ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "dmesg | tail -20"
+2m39s       Warning   FailedKillPod                 pod/cnpg-test-1-initdb-xphxg               error killing pod: [failed to "KillContainer" for "initdb" with KillContainerError: "rpc error: code = DeadlineExceeded desc = stream terminated by RST_STREAM with error code: CANCEL", failed to "KillPodSandbox" for "2c21e10e-5e81-46be-87c9-4d6e890614fe" with KillPodSandboxError: "rpc error: code = DeadlineExceeded desc = context deadline exceeded"]
+2m39s       Normal    Killing                       pod/cnpg-test-1-initdb-xphxg               Stopping container initdb
+2m31s       Normal    NoPods                        poddisruptionbudget/cnpg-test-primary      No matching pods found
+2m31s       Normal    CreatingPodDisruptionBudget   cluster/cnpg-test                          Creating PodDisruptionBudget cnpg-test-primary
+2m31s       Normal    CreatingInstance              cluster/cnpg-test                          Primary instance (initdb)
+2m31s       Normal    CreatingRole                  cluster/cnpg-test                          Creating Cluster Role
+2m31s       Normal    Provisioning                  persistentvolumeclaim/cnpg-test-1          External provisioner is provisioning volume for claim "pai-test/cnpg-test-1"
+2m31s       Normal    SuccessfulCreate              job/cnpg-test-1-initdb                     Created pod: cnpg-test-1-initdb-h7zvh
+2m31s       Normal    NoPods                        poddisruptionbudget/cnpg-test              No matching pods found
+2m31s       Normal    CreatingServiceAccount        cluster/cnpg-test                          Creating ServiceAccount
+2m31s       Normal    CreatingPodDisruptionBudget   cluster/cnpg-test                          Creating PodDisruptionBudget cnpg-test
+2m30s       Normal    ExternalProvisioning          persistentvolumeclaim/cnpg-test-1          Waiting for a volume to be created either by the external provisioner 'csi.trident.netapp.io' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
+2m26s       Normal    ProvisioningSucceeded         persistentvolumeclaim/cnpg-test-1          Successfully provisioned volume pvc-97a9fba4-3ef2-4d84-a539-bee0bcdd27a2
+2m26s       Normal    SuccessfulAttachVolume        pod/cnpg-test-1-initdb-h7zvh               AttachVolume.Attach succeeded for volume "pvc-97a9fba4-3ef2-4d84-a539-bee0bcdd27a2"
+2m26s       Normal    ProvisioningSuccess           persistentvolumeclaim/cnpg-test-1          provisioned a volume
+2m22s       Normal    Valid                         secretstore/vault-store                    store validated
+20s         Warning   FailedMount                   pod/cnpg-test-1-initdb-h7zvh               MountVolume.SetUp failed for volume "pvc-97a9fba4-3ef2-4d84-a539-bee0bcdd27a2" : rpc error: code = DeadlineExceeded desc = context deadline exceeded
+hsuma@plnx-admin:~$
