@@ -1,11 +1,14 @@
-# Drain the node (moves workloads off)
-oc adm drain <node-name> --ignore-daemonsets --delete-emptydir-data --force
+oc get deployments -n pai-dev -o yaml | grep -A10 "affinity\|nodeSelector\|nodeName"
+oc get deployments -n pai-test -o yaml | grep -A10 "affinity\|nodeSelector\|nodeName"
+oc get deployments -n pai-prod -o yaml | grep -A10 "affinity\|nodeSelector\|nodeName"
 
-# Reboot via SSH
-ssh -i ~/.ssh/ocp-ai core@<node-ip> "sudo systemctl reboot"
 
-# Watch it come back
-oc get nodes -w
+oc get pods -n pai-dev -o wide
+oc get pods -n pai-test -o wide
+oc get pods -n pai-prod -o wide
 
-# Uncordon after it's Ready
-oc adm uncordon <node-name>
+
+for ip in 150 151 152; do
+  echo "=== master $(($ip - 149)) ==="
+  ssh -i ~/.ssh/ocp-ai core@10.172.248.$ip "ip -br addr show | grep bnd0"
+done
