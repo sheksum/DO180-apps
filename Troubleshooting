@@ -1,63 +1,71 @@
-plano_aff_cl::> export-policy rule show -vserver ocp_app_svm -policyname backend_app_access
+plano_aff_cl::>
+plano_aff_cl::>
+plano_aff_cl::> export-policy rule show -vserver ocp_app_svm -policyname default
              Policy          Rule    Access   Client                RO
 Vserver      Name            Index   Protocol Match                 Rule
 ------------ --------------- ------  -------- --------------------- ---------
-ocp_app_svm  backend_app_access
-                             1       nfs3,    10.172.194.0/24       any
+ocp_app_svm  default         1       nfs3,    0.0.0.0/0             any
                                      nfs4,
                                      nfs
-ocp_app_svm  backend_app_access
-                             2       nfs3,    10.172.198.0/24       any
-                                     nfs4,
-                                     nfs
-ocp_app_svm  backend_app_access
-                             3       nfs3,    10.172.202.0/24       any
-                                     nfs4,
-                                     nfs
-ocp_app_svm  backend_app_access
-                             4       nfs3,    10.172.248.0/24       any
-                                     nfs4,
-                                     nfs
-4 entries were displayed.
-
-plano_aff_cl::> volume show -vserver ocp_app_svm -fields policy
-vserver     volume           policy
------------ ---------------- -------
-ocp_app_svm ocp_app_svm_root default
-ocp_app_svm trident_pvc_0044ef44_15b1_493e_aeb1_4d64a3b4c375
-                             default
-ocp_app_svm trident_pvc_00e9178d_e410_43b4_b83d_f394ef00b72c
-                             default
-ocp_app_svm trident_pvc_0ff7498e_a403_4cbd_9dda_62c0050241d0
-                             default
-ocp_app_svm trident_pvc_131edc3f_480b_47dd_bc98_b077bd05b17b
-                             default
-ocp_app_svm trident_pvc_16c5c855_da8a_4444_8a69_297b3b0e41b5
-                             default
-ocp_app_svm trident_pvc_17395924_9c6b_4059_b4b5_f9c496be3cf6
-                             default
-ocp_app_svm trident_pvc_1f5ba9f4_a72f_4f86_92e2_100d24347d7e
-                             default
-ocp_app_svm trident_pvc_24df8bf6_b20d_4279_acd4_55e399fdf695
-                             default
-ocp_app_svm trident_pvc_2fb0fd2e_82ed_4dca_8c02_50c4e98ec29e
-                             default
-ocp_app_svm trident_pvc_36a4e0fc_2fd8_42f8_b96c_eb00f9d9de98
-                             default
-ocp_app_svm trident_pvc_42c84f27_1ebc_4810_9a5f_643f94963b73
-                             default
-ocp_app_svm trident_pvc_766e03dc_d5e4_496f_9bd0_8b38905999dd
-                             default
-ocp_app_svm trident_pvc_77207d12_c003_4d6b_a451_a78ee8786cbf
-                             default
-ocp_app_svm trident_pvc_b32a448e_3efc_4101_a296_770ed1b9e62a
-                             default
-ocp_app_svm trident_pvc_c5bb4c5c_a616_45e6_a86a_f06cfc593eed
-                             default
-ocp_app_svm trident_pvc_c7f60b00_60ba_44c9_9c16_8d2f301890c5
-                             default
-ocp_app_svm trident_pvc_dd5d77e6_0ce0_4ed7_bf42_c0b48b8fdb00
-                             default
-Press <space> to page down, <return> for next line, or 'q' to quit... q
 
 plano_aff_cl::>
+
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get tridentbackend -n trident -o yaml | grep -A5 exportPolicy
+        exportPolicy: default
+        fileSystemType: ext4
+        formatOptions: ""
+        mirroring: "false"
+        nameTemplate: ""
+        qosPolicy: ""
+--
+          exportPolicy: ""
+          fileSystemType: ""
+          formatOptions: ""
+          mirroring: ""
+          nameTemplate: ""
+          qosPolicy: ""
+--
+          exportPolicy: ""
+          fileSystemType: ""
+          formatOptions: ""
+          mirroring: ""
+          nameTemplate: ""
+          qosPolicy: ""
+--
+          exportPolicy: ""
+          fileSystemType: ""
+          formatOptions: ""
+          mirroring: ""
+          nameTemplate: ""
+          qosPolicy: ""
+--
+        exportPolicy: default
+        fileSystemType: ext4
+        formatOptions: ""
+        mirroring: "false"
+        nameTemplate: ""
+        qosPolicy: ""
+--
+          exportPolicy: ""
+          fileSystemType: ""
+          formatOptions: ""
+          mirroring: ""
+          nameTemplate: ""
+          qosPolicy: ""
+--
+          exportPolicy: ""
+          fileSystemType: ""
+          formatOptions: ""
+          mirroring: ""
+          nameTemplate: ""
+          qosPolicy: ""
+--
+          exportPolicy: ""
+          fileSystemType: ""
+          formatOptions: ""
+          mirroring: ""
+          nameTemplate: ""
+          qosPolicy: ""
+hsuma@plnx-admin:~$
