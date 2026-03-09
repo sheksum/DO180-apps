@@ -1,3 +1,53 @@
+N9K-C9336C-FX2-005# show vpc
+Legend:
+        (*) - local vPC is down, forwarding via vPC peer-link
+
+vPC domain id           : 1
+Peer status            : peer adjacency formed ok
+vPC keep-alive status       : peer is alive
+Configuration consistency status : success
+Per-vlan consistency status    : success
+Type-2 consistency status     : success
+vPC role             : primary, operational secondary
+Number of vPCs configured     : 21
+Peer Gateway           : Enabled
+Dual-active excluded VLANs    : -
+Graceful Consistency Check    : Enabled
+Auto-recovery status       : Enabled, timer is off.(timeout = 360s)
+Delay-restore status       : Timer is off.(timeout = 150s)
+Delay-restore SVI status     : Timer is off.(timeout = 10s)
+Delay-restore Orphan-port status : Timer is off.(timeout = 0s)
+Operational Layer3 Peer-router  : Disabled
+Virtual-peerlink mode       : Enabled
+
+vPC Peer-link status
+---------------------------------------------------------------------
+id  Port  Status Active vlans
+--  ----  ------ -------------------------------------------------
+1   Po500 up   1,100-101,104,106,113,1001-1003,1015,1109,
+          1112-1113,1200-1202,1205,1210,1220,1230,1240,1250
+          ,1260,1270-1271,1396,1510,1520,1530,1540,1550,
+          1560,1570,1580,1601,1701,1792-1794,1796-1798,
+          1801-1803,1805-1806,1808,1816-1817,1826,1999-2003
+          ,3005,3072,3109-3124,3528,3791,3793,3800-3808,    ...
+
+vPC status
+----------------------------------------------------------------------------
+Id  Port     Status Consistency Reason        Active vlans
+--  ------------ ------ ----------- ------        ---------------
+10  Po10     up   success   success        100-101,104,106,
+                               113,1001-1003,1015
+                               ,1109,1112-1113,
+                               1200-1202,1205,
+                               1210,1220,1230,
+                               1240,1250,12...
+N9K-C9336C-FX2-005# show interface port-channel 500 | include MTU
+ MTU 9216 bytes, BW 100000 Kbit , DLY 10 usec
+N9K-C9336C-FX2-005#
+
+
+
+
 PLN-UCSX-F1-01-A(nx-os)# show interface ethernet 1/13 | include MTU
  MTU 9216 bytes, BW 100000000 Kbit , DLY 10 usec
 PLN-UCSX-F1-01-A(nx-os)# show interface ethernet 1/14 | include MTU
