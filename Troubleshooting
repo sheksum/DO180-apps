@@ -1,82 +1,9 @@
-network port show -node plano_aff_cl-05 -port a0a-1794
+# Jumbo frame flood from all three masters to the NetApp LIF
+# Master01
+ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "ping -I 10.172.194.150 -M do -s 8972 -c 100 -i 0.2 10.172.194.22" &
 
-network port show -node plano_aff_cl-05 -port a0a
+# Master02
+ssh -i ~/.ssh/ocp-ai core@10.172.248.151 "ping -I 10.172.194.151 -M do -s 8972 -c 100 -i 0.2 10.172.194.22" &
 
-
-
-plano_aff_cl::> network port show -node plano_aff_cl-05 -port a0a-1794
-
-                                        Node: plano_aff_cl-05
-                                        Port: a0a-1794
-                                        Link: up
-                                         MTU: 9000
-             Auto-Negotiation Administrative: -
-                Auto-Negotiation Operational: -
-                  Duplex Mode Administrative: -
-                     Duplex Mode Operational: -
-                        Speed Administrative: -
-                           Speed Operational: -
-                 Flow Control Administrative: -
-                    Flow Control Operational: -
-                                 MAC Address: d2:39:ea:db:8e:81
-                                   Port Type: vlan
-                 Interface Group Parent Node: -
-                 Interface Group Parent Port: -
-                       Distribution Function: -
-                               Create Policy: -
-                            Parent VLAN Node: plano_aff_cl-05
-                            Parent VLAN Port: a0a
-                                    VLAN Tag: 1794
-                            Remote Device ID: -
-                                IPspace Name: Default
-                            Broadcast Domain: backend-app-dev
-                          MTU Administrative: 9000
-                          Port Health Status: healthy
-                   Ignore Port Health Status: false
-                Port Health Degraded Reasons: -
-                Virtual Machine Network Name:
-                    Supported RDMA Protocols: -
-           List of PFC Queues Administrative: -
-              List of PFC Queues Operational: -
-
-plano_aff_cl::> network port show -node plano_aff_cl-05 -port a0a
-
-                                        Node: plano_aff_cl-05
-                                        Port: a0a
-                                        Link: up
-                                         MTU: 9000
-             Auto-Negotiation Administrative: -
-                Auto-Negotiation Operational: -
-                  Duplex Mode Administrative: -
-                     Duplex Mode Operational: -
-                        Speed Administrative: -
-                           Speed Operational: -
-                 Flow Control Administrative: -
-                    Flow Control Operational: -
-                                 MAC Address: d2:39:ea:db:8e:81
-                                   Port Type: if-group
-                 Interface Group Parent Node: -
-                 Interface Group Parent Port: -
-                       Distribution Function: ip
-                               Create Policy: multimode_lacp
-                            Parent VLAN Node: -
-                            Parent VLAN Port: -
-                                    VLAN Tag: -
-                            Remote Device ID: -
-                                IPspace Name: Default
-                            Broadcast Domain: -
-                          MTU Administrative: 9000
-                          Port Health Status: healthy
-                   Ignore Port Health Status: false
-                Port Health Degraded Reasons: -
-                Virtual Machine Network Name:
-                    Supported RDMA Protocols: -
-           List of PFC Queues Administrative: -
-              List of PFC Queues Operational: -
-
-plano_aff_cl::>
-
-Already verified the NetApp side — the LIF (ocp_app_dev_lif01 on plano_aff_cl-05, port a0a-1794) and the port are both configured for MTU 9000 and showing healthy. The issue is somewhere in the switch path between the masters and the NetApp.“​​​​​​​​​​​​​​​​
-
-
-Already verified the NetApp side. The VLAN port a0a-1794 and the parent interface group a0a on plano_aff_cl-05 are both configured for MTU 9000 and showing healthy. The issue is in the switch path between the UCS fabric interconnects and the NetApp
+# Master03
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 8972 -c 100 -i 0.2 10.172.194.22" &
