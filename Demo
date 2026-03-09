@@ -3,3 +3,15 @@ oc run test-isolation --rm -it --image=busybox --restart=Never -n pai-dev -- wge
 
 # Same namespace should WORK
 oc run test-isolation --rm -it --image=busybox --restart=Never -n pai-dev -- wget -qO- --timeout=3 http://milvus.pai-dev.svc:9091/healthz
+
+
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc run test-isolation --rm -it --image=busybox --restart=Never -n pai-dev -- wget -qO- --timeout=3 http://milvus.pai-test.svc:9091/healthz
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+wget: download timed out
+pod "test-isolation" deleted from pai-dev namespace
+pod pai-dev/test-isolation terminated (Error)
+hsuma@plnx-admin:~/ocp-ai-config$ oc run test-isolation --rm -it --image=busybox --restart=Never -n pai-dev -- wget -qO- --timeout=3 http://milvus.pai-dev.svc:9091/healthz
+OKpod "test-isolation" deleted from pai-dev namespace
+hsuma@plnx-admin:~/ocp-ai-config$
