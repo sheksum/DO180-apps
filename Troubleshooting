@@ -1,43 +1,12 @@
-PLN-UCSX-F1-01-A(nx-os)# show pinning border-interfaces | include Veth1010
-                Veth1008 Veth1010 Eth2/1/33
-PLN-UCSX-F1-01-A(nx-os)# show pinning border-interfaces
-
---------------------+---------+----------------------------------------
-Border Interface   Status  SIFs
---------------------+---------+----------------------------------------
-Po134        Active  sup-eth1 Veth800 Veth802 Veth804
-                Veth806 Veth808 Veth810 Veth812 Veth814
-                Veth816 Veth818 Veth820 Veth822 Veth824
-                Veth826 Veth828 Veth830 Veth832 Veth834
-                Veth836 Veth838 Veth840 Veth842 Veth844
-                Veth846 Veth848 Veth850 Veth852 Veth854
-                Veth856 Veth858 Veth860 Veth862 Veth864
-                Veth866 Veth868 Veth870 Veth872 Veth874
-                Veth876 Veth878 Veth880 Veth882 Veth884
-                Veth886 Veth888 Veth890 Veth892 Veth894
-                Veth896 Veth898 Veth900 Veth902 Veth904
-                Veth906 Veth908 Veth910 Veth912 Veth914
-                Veth916 Veth918 Veth920 Veth922 Veth924
-                Veth926 Veth928 Veth930 Veth932 Veth934
-                Veth936 Veth938 Veth940 Veth942 Veth944
-                Veth946 Veth948 Veth950 Veth952 Veth954
-                Veth956 Veth958 Veth960 Veth962 Veth964
-                Veth966 Veth968 Veth970 Veth972 Veth974
-                Veth1000 Veth1002 Veth1004 Veth1006
-                Veth1008 Veth1010 Eth2/1/33
-
-Total Interfaces : 1
-
-PLN-UCSX-F1-01-A(nx-os)# show por
-port      port-channel  port-profile  port-security
-PLN-UCSX-F1-01-A(nx-os)# show port-channel summary | in Po134
-134  Po134(SU)  Eth   LACP   Eth1/1(P)  Eth1/2(P)
-PLN-UCSX-F1-01-A(nx-os)# show interface ethernet 1/1 | include MTU
+PLN-UCSX-F1-01-A(nx-os)# show interface ethernet 1/13 | include MTU
  MTU 9216 bytes, BW 100000000 Kbit , DLY 10 usec
-PLN-UCSX-F1-01-A(nx-os)# show interface ethernet 1/2 | include MTU
+PLN-UCSX-F1-01-A(nx-os)# show interface ethernet 1/14 | include MTU
  MTU 9216 bytes, BW 100000000 Kbit , DLY 10 usec
-PLN-UCSX-F1-01-A(nx-os)#[6:09 AM]
-
+PLN-UCSX-F1-01-A(nx-os)# show interface ethernet 1/15 | include MTU
+ MTU 9216 bytes, BW 100000000 Kbit , DLY 10 usec
+PLN-UCSX-F1-01-A(nx-os)# show interface ethernet 1/16 | include MTU
+ MTU 9216 bytes, BW 100000000 Kbit , DLY 10 usec
+PLN-UCSX-F1-01-A(nx-os)#
 
 
 
