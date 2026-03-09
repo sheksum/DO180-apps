@@ -1,29 +1,5 @@
-network interface show — ocp_app_dev_lif01 is up on plano_aff_cl-05, port a0a-1794
-network port show — a0a-1794 on plano_aff_cl-05 shows MTU 9000, link up, healthy
+network port show -node plano_aff_cl-05 -port a0a-1794
 
-
-plano_aff_cl::> network interface show ocp_app_dev_lif01
-            Logical    Status     Network            Current       Current Is
-Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
------------ ---------- ---------- ------------------ ------------- ------- ----
-ocp_app_svm
-            ocp_app_dev_lif01
-                         up/up    10.172.194.22/23   plano_aff_cl-05
-                                                                   a0a-1794
-                                                                           true
-
-plano_aff_cl::>
-plano_aff_cl::>
-plano_aff_cl::>
-plano_aff_cl::> network port  a0a-1794
-
-Error: "a0a-1794" is not a recognized command
-
-plano_aff_cl::> network port show  a0a-1794
-
-Error: "a0a-1794" is an invalid value for field "-node <nodename>"
-       Valid choices in this command's context: plano_aff_cl-01, plano_aff_cl-02, plano_aff_cl-03, plano_aff_cl-04, plano_aff_cl-05, plano_aff_cl-06
-
-plano_aff_cl::>
+network port show -node plano_aff_cl-05 -port a0a
 
 Already verified the NetApp side — the LIF (ocp_app_dev_lif01 on plano_aff_cl-05, port a0a-1794) and the port are both configured for MTU 9000 and showing healthy. The issue is somewhere in the switch path between the masters and the NetApp.“​​​​​​​​​​​​​​​​
