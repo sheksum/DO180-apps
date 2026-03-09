@@ -1,3 +1,11 @@
+
+network port ifgrp show -node plano_aff_cl-05 -ifgrp a0a
+
+
+network port show -node plano_aff_cl-05 -port e0e
+network port show -node plano_aff_cl-05 -port e0f
+
+
 # Jumbo frame flood from all three masters to the NetApp LIF
 # Master01
 ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "ping -I 10.172.194.150 -M do -s 8972 -c 100 -i 0.2 10.172.194.22" &
