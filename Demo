@@ -1,4 +1,5 @@
-oc get externalsecret backend-app-secret -n trident -o yaml | grep tracking-id
-oc get externalsecret backend-infra-secret -n trident -o yaml | grep tracking-id
-
-oc get externalsecret test-secret -n pai-dev -o yaml | grep tracking-id
+cat ~/eso-backup/secretstore-test.yaml | grep -A30 "spec:"
+cat ~/eso-backup/secretstore-prod.yaml | grep -A30 "spec:"
+cat ~/eso-backup/secretstore-trident.yaml | grep -A30 "spec:"
+cat ~/eso-backup/es-app-trident.yaml | grep -A20 "spec:"
+cat ~/eso-backup/es-infra-trident.yaml | grep -A20 "spec:"
