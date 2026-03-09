@@ -1,17 +1,7 @@
-hsuma@plnx-admin:~$ ls -la ~/ocp-ai-config/
-total 64
-drwxr-xr-x 12 hsuma sw  4096 Mar  9 05:51 .
-drwxr-xr-x 46 hsuma sw 16384 Mar  9 06:14 ..
-drwxr-xr-x  2 hsuma sw  4096 Mar  9 05:51 apps
-drwxr-xr-x  2 hsuma sw  4096 Mar  9 05:51 eso-network-policy
-drwxr-xr-x  2 hsuma sw  4096 Feb 28 18:08 gateway-api
-drwxr-xr-x  8 hsuma sw  4096 Mar  9 06:15 .git
--rw-r--r--  1 hsuma sw    22 Feb 19 13:55 .gitignore
-drwxr-xr-x  2 hsuma sw  4096 Feb 28 19:21 machineconfigs
-drwxr-xr-x  2 hsuma sw  4096 Feb 25 21:43 metallb
-drwxr-xr-x  2 hsuma sw  4096 Feb 28 22:43 milvus
-drwxr-xr-x  2 hsuma sw  4096 Feb 28 22:33 minio
-drwxr-xr-x  2 hsuma sw  4096 Mar  9 05:51 nmstate
--rw-r--r--  1 hsuma sw  2622 Feb 19 13:55 README.md
-drwxr-xr-x  2 hsuma sw  4096 Mar  9 06:14 trident
+hsuma@plnx-admin:~$ ls -la ~/ocp-ai-config/milvus
+total 8
+drwxr-xr-x  2 hsuma sw 4096 Feb 28 22:43 .
+drwxr-xr-x 12 hsuma sw 4096 Mar  9 05:51 ..
+hsuma@plnx-admin:~$ ls -l ~/ocp-ai-config/milvus
+total 0
 hsuma@plnx-admin:~$
