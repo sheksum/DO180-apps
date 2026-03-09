@@ -1,1 +1,4 @@
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -t nfs4 -o nfsvers=4.1 10.172.194.22:/trident_pvc_97a9fba4_3ef2_4d84_a539_bee0bcdd27a2 /mnt && echo SUCCESS && sudo umount /mnt"
+uma@plnx-admin:~/ocp-ai-config/trident$
+hsuma@plnx-admin:~/ocp-ai-config/trident$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -t nfs4 -o nfsvers=4.1 10.172.194.22:/trident_pvc_97a9fba4_3ef2_4d84_a539_bee0bcdd27a2 /mnt && echo SUCCESS && sudo umount /mnt"
+SUCCESS
+hsuma@plnx-admin:~/ocp-ai-config/trident$
