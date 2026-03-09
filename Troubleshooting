@@ -1,1 +1,7 @@
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 8972 10.172.194.22 -c 3"
+hsuma@plnx-admin:~/ocp-ai-config/nmstate$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 8972 10.172.194.22 -c 3"
+PING 10.172.194.22 (10.172.194.22) from 10.172.194.152 : 8972(9000) bytes of data.
+
+--- 10.172.194.22 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2079ms
+
+hsuma@plnx-admin:~/ocp-ai-config/nmstate$
