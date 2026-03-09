@@ -1,1 +1,15 @@
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ip link show bnd0; ip link show bnd0.1794; ip link show eno7; ip link show eno8"
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ip link show bnd0; ip link show bnd0.1794; ip link show eno7; ip link show eno8"
+10: bnd0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:50:0a:69 brd ff:ff:ff:ff:ff:ff
+14: bnd0.1794@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:50:0a:69 brd ff:ff:ff:ff:ff:ff
+4: eno7: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 1500 qdisc mq master bnd0 state UP mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:50:0a:69 brd ff:ff:ff:ff:ff:ff
+    altname enp27s0f2
+    altname ens7f2
+5: eno8: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 1500 qdisc mq master bnd0 state UP mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:50:0a:69 brd ff:ff:ff:ff:ff:ff permaddr 00:25:b5:51:0b:69
+    altname enp27s0f3
+    altname ens7f3
+hsuma@plnx-admin:~$
+
