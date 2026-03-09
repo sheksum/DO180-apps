@@ -1,3 +1,30 @@
+PLN-UCSX-F1-01-A(nx-os)# show running-config interface Vethernet1010
+
+!Command: show running-config interface Vethernet1010
+!Running configuration last done at: Fri Mar 6 17:20:11 2026
+!Time: Mon Mar 9 04:55:23 2026
+
+version 9.3(5)I43(5c) Bios:version 01.06
+
+interface Vethernet1010
+ description SP pln_esxi-4-3, vNIC OCP-DATA-A, Blade:FCH285174A2
+ no lldp transmit
+ no lldp receive
+ no pinning server sticky
+ pinning server pinning-failure link-down
+ switchport mode trunk
+ switchport trunk allowed vlan 1792-1794,1796-1798
+ no hardware vethernet mac filtering per-vlan
+ bind interface port-channel1330 channel 1010
+ service-policy type qos input Engineering_Operations-pln_qos_9000_EO
+ no shutdown
+
+PLN-UCSX-F1-01-A(nx-os)#
+
+
+
+
+
 PLN-UCSX-F1-01-A(nx-os)# show interface Vethernet 1010
 Vethernet1010 is up
   Port description is SP pln_esxi-4-3, vNIC OCP-DATA-A, Blade:FCH285174A2
