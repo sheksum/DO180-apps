@@ -1,9 +1,14 @@
+mv ~/ocp-ai-config/eso-network-policy/\ allow-egress-to-vault-host.yaml ~/ocp-ai-config/eso/allow-egress-to-vault-host.yaml
+
+
+# Remove the old directory
+rm -rf ~/ocp-ai-config/eso-network-policy/
+
+# Remove the old app manifest
+rm ~/ocp-ai-config/apps/eso-network-policy.yaml
+
+
 cd ~/ocp-ai-config
-git add eso/ apps/eso.yaml
-git commit -m "Add ESO SecretStores and Trident ExternalSecrets to ArgoCD"
+git add -A
+git commit -m "Consolidate ESO resources - SecretStores, ExternalSecrets, NetworkPolicy"
 git push
-
-
-oc get applications -n openshift-gitops | grep eso
-oc get secretstores -A
-oc get externalsecrets -A
