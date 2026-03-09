@@ -1,1039 +1,177 @@
-# OCP-AI Platform -- Service Onboarding Templates
-
-**Cluster:** ocp-ai.calix.local
-**Gateway VIP:** 10.172.248.175
-**Namespaces:** pai-dev | pai-test | pai-prod
-
----
-
-## Quick Reference
-
-| I need to... | Template | Section |
-|---|---|---|
-| Expose an HTTP/S web app or API | HTTPRoute | Template A |
-| Expose a TCP service (database, queue) | LoadBalancer Service | Template B |
-| Expose HTTP with path/header routing | HTTPRoute (advanced) | Template C |
-| Get a TLS certificate for my service | Certificate | Template D |
-| Request persistent storage | PVC | Template E |
-| Connect my app to MinIO (S3 object storage) | Shared Service | Template F |
-| Connect my app to Milvus (vector database) | Shared Service | Template F |
-| Deploy a managed PostgreSQL cluster | CNPG Cluster | Template G |
-
----
-
-## How to Use These Templates
-
-Placeholders you need to replace:
-
-- `<YOUR-APP-NAME>` -- your application name
-- `<YOUR-NAMESPACE>` -- pai-dev, pai-test, or pai-prod
-- `<YOUR-PORT>` -- the port your app listens on
-- `<YOUR-HOSTNAME>` -- FQDN for your service
-
-Do not modify anything outside the placeholders unless instructed. The annotations, labels, and references are pre-configured for the OCP-AI platform.
-
-### Platform Reference
-
-These are the pre-configured values for the OCP-AI platform. Use these when filling in the templates.
-
-**Namespaces:**
-
-| Environment | Namespace | VLAN |
-|---|---|---|
-| Development | pai-dev | 1794 |
-| Test | pai-test | 1798 |
-| Production | pai-prod | 1797 |
-
-**Gateway API:**
-
-| Setting | Value |
-|---|---|
-| Gateway name | pai-gateway |
-| Gateway namespace | openshift-ingress |
-| Dev listener | https-dev |
-| Test listener | https-test |
-| Prod listener | https-prod |
-| Hostname format | `<app-name>.dev.ocp-ai.calix.local` / `<app-name>.test.ocp-ai.calix.local` / `<app-name>.prod.ocp-ai.calix.local` |
-
-**MetalLB Address Pools:**
-
-| Namespace | Pool Name | IP Range |
-|---|---|---|
-| pai-dev | pai-services-dev | 10.172.194.160-179 |
-| pai-test | pai-services-test | 10.172.198.160-179 |
-| pai-prod | pai-services-prod | 10.172.202.160-179 |
-
-**TLS Certificates:**
-
-| Setting | Value |
-|---|---|
-| Issuer name | vault-issuer |
-| Issuer kind | ClusterIssuer |
-
-**Storage:**
-
-| Setting | Value |
-|---|---|
-| StorageClass | netapp-app |
-| Access mode | ReadWriteMany |
-| Backend | NetApp NFS |
-
-**Shared Service Credentials:**
-
-| Secret Name | Namespace | Keys | Source |
-|---|---|---|---|
-| minio-credentials | pai-dev, pai-test, pai-prod | MINIO_ROOT_USER, MINIO_ROOT_PASSWORD | Vault/ESO |
-
-**Cluster Access:**
-
-```bash
-oc login -u kubeadmin https://api.ocp-ai.calix.local:6443 --insecure-skip-tls-verify
-```
-
----
-
-## Template A: HTTPRoute (HTTP/S Web App or API)
-
-Use this when you have an HTTP-based application (web UI, REST API, etc.) that needs external access through the Gateway API.
-
-### Prerequisites
-
-1. Your application is deployed and running in pai-dev, pai-test, or pai-prod
-2. You have a ClusterIP Service pointing to your pods
-
-### Step 1: Create your Service (if you don't have one)
-
-```yaml
-apiVersion: v1
-kind: Service
+hsuma@plnx-admin:~$ oc get deployment milvus -n pai-dev -o yaml
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: <YOUR-APP-NAME>
-  namespace: <YOUR-NAMESPACE>
-spec:
-  selector:
-    app: <YOUR-APP-NAME>
-  ports:
-    - name: http
-      port: <YOUR-PORT>
-      targetPort: <YOUR-PORT>
-```
-
-### Step 2: Create the HTTPRoute
-
-```yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: <YOUR-APP-NAME>-route
-  namespace: <YOUR-NAMESPACE>
-spec:
-  parentRefs:
-    - name: pai-gateway
-      namespace: openshift-ingress
-      sectionName: https-dev
-      # pai-dev  = https-dev
-      # pai-test = https-test
-      # pai-prod = https-prod
-  hostnames:
-    - <YOUR-HOSTNAME>
-    # Format: <app-name>.<env>.ocp-ai.calix.local
-    # pai-dev  = <app-name>.dev.ocp-ai.calix.local
-    # pai-test = <app-name>.test.ocp-ai.calix.local
-    # pai-prod = <app-name>.prod.ocp-ai.calix.local
-  rules:
-    - backendRefs:
-        - name: <YOUR-APP-NAME>
-          port: <YOUR-PORT>
-```
-
-### Step 3: Verify
-
-```bash
-# Check route is accepted
-oc get httproute <YOUR-APP-NAME>-route -n <YOUR-NAMESPACE>
-
-# Test
-curl -sk https://<YOUR-HOSTNAME>
-```
-
-### EXAMPLE ONLY -- Airflow Web UI in pai-dev
-
-```yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: airflow-route
-  namespace: pai-dev
-spec:
-  parentRefs:
-    - name: pai-gateway
-      namespace: openshift-ingress
-      sectionName: https-dev
-  hostnames:
-    - airflow-dev.apps.ocp-ai.calix.local
-  rules:
-    - backendRefs:
-        - name: airflow-webserver
-          port: 8080
-```
-
----
-
-## Template B: LoadBalancer Service (TCP -- Database, Queue)
-
-Use this when you need a dedicated IP for a TCP service like PostgreSQL, Milvus, MinIO S3 API, or Kafka.
-
-### Available IPs
-
-**pai-dev (pai-services-dev: 10.172.194.160-179)**
-
-| IP | Status | Service |
-|---|---|---|
-| 10.172.194.160 | Allocated | MinIO S3 API |
-| 10.172.194.161 | Allocated | Milvus gRPC |
-| 10.172.194.162 | Reserved | Kafka |
-| 10.172.194.163-179 | Available | 17 IPs |
-
-**pai-test (pai-services-test: 10.172.198.160-179)**
-
-| IP | Status | Service |
-|---|---|---|
-| 10.172.198.160 | Allocated | MinIO S3 API |
-| 10.172.198.161 | Allocated | Milvus gRPC |
-| 10.172.198.162 | Reserved | Kafka |
-| 10.172.198.163-179 | Available | 17 IPs |
-
-**pai-prod (pai-services-prod: 10.172.202.160-179)**
-
-| IP | Status | Service |
-|---|---|---|
-| 10.172.202.160 | Allocated | MinIO S3 API |
-| 10.172.202.161 | Allocated | Milvus gRPC |
-| 10.172.202.162 | Reserved | Kafka |
-| 10.172.202.163-179 | Available | 17 IPs |
-
-### Template
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: <YOUR-APP-NAME>-lb
-  namespace: <YOUR-NAMESPACE>
   annotations:
-    metallb.universe.tf/address-pool: <POOL-NAME>
-    # pai-dev  = pai-services-dev
-    # pai-test = pai-services-test
-    # pai-prod = pai-services-prod
-    metallb.universe.tf/loadBalancerIPs: "<YOUR-IP>"
-    # Pick an available IP from the table above for your environment
-spec:
-  type: LoadBalancer
-  ports:
-    - name: <PROTOCOL-NAME>
-      port: <YOUR-PORT>
-      targetPort: <YOUR-PORT>
-      protocol: TCP
-  selector:
-    app: <YOUR-APP-NAME>
-```
-
-Do NOT use the `spec.loadBalancerIP` field. Use ONLY the `metallb.universe.tf/loadBalancerIPs` annotation. Using both causes allocation failure.
-
-### Verify
-
-```bash
-oc get svc <YOUR-APP-NAME>-lb -n <YOUR-NAMESPACE>
-# EXTERNAL-IP should show your requested IP
-# If it shows <pending>, check:
-oc describe svc <YOUR-APP-NAME>-lb -n <YOUR-NAMESPACE>
-```
-
-### EXAMPLE ONLY -- PostgreSQL in pai-prod
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: cnpg-lb
-  namespace: pai-prod
-  annotations:
-    metallb.universe.tf/address-pool: pai-services-prod
-    metallb.universe.tf/loadBalancerIPs: "10.172.202.160"
-spec:
-  type: LoadBalancer
-  ports:
-    - name: postgresql
-      port: 5432
-      targetPort: 5432
-      protocol: TCP
-  selector:
-    app: cnpg
-```
-
----
-
-## Template C: HTTPRoute with Path or Header Routing
-
-Use this when you need to route different URL paths or HTTP headers to different backend services.
-
-### Path-Based Routing
-
-```yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: <YOUR-APP-NAME>-routes
-  namespace: <YOUR-NAMESPACE>
-spec:
-  parentRefs:
-    - name: pai-gateway
-      namespace: openshift-ingress
-      sectionName: https-dev
-      # pai-dev  = https-dev
-      # pai-test = https-test
-      # pai-prod = https-prod
-  hostnames:
-    - <YOUR-HOSTNAME>
-    # Format: <app-name>.<env>.ocp-ai.calix.local
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: <PATH-1>
-      backendRefs:
-        - name: <SERVICE-1>
-          port: <PORT-1>
-    - matches:
-        - path:
-            type: PathPrefix
-            value: <PATH-2>
-      backendRefs:
-        - name: <SERVICE-2>
-          port: <PORT-2>
-```
-
-### Traffic Splitting (Canary Deployment)
-
-```yaml
-  rules:
-    - backendRefs:
-        - name: <YOUR-APP-V1>
-          port: <YOUR-PORT>
-          weight: 90
-        - name: <YOUR-APP-V2>
-          port: <YOUR-PORT>
-          weight: 10
-```
-
-### EXAMPLE ONLY -- Path-Based Routing for an AI API in pai-dev
-
-```yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: ai-api-routes
+    deployment.kubernetes.io/revision: "3"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"milvus"},"name":"milvus","namespace":"pai-dev"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"milvus"}},"strategy":{"type":"Recreate"},"template":{"metadata":{"labels":{"app":"milvus"}},"spec":{"containers":[{"args":["run","standalone"],"command":["milvus"],"env":[{"name":"DEPLOY_MODE","value":"STANDALONE"},{"name":"ETCD_USE_EMBED","value":"true"},{"name":"ETCD_CONFIG_PATH","value":"/milvus/configs/embedEtcd.yaml"},{"name":"ETCD_DATA_DIR","value":"/var/lib/milvus/etcd"},{"name":"COMMON_STORAGETYPE","value":"remote"},{"name":"MINIO_ADDRESS","value":"minio.pai-dev.svc.cluster.local"},{"name":"MINIO_PORT","value":"9000"},{"name":"MINIO_USE_SSL","value":"false"},{"name":"MINIO_BUCKET_NAME","value":"milvus-bucket"},{"name":"MINIO_ROOT_PATH","value":"milvus"},{"name":"MINIO_ACCESS_KEY_ID","valueFrom":{"secretKeyRef":{"key":"MINIO_ROOT_USER","name":"minio-credentials"}}},{"name":"MINIO_SECRET_ACCESS_KEY","valueFrom":{"secretKeyRef":{"key":"MINIO_ROOT_PASSWORD","name":"minio-credentials"}}}],"image":"milvusdb/milvus:v2.6.11","livenessProbe":{"httpGet":{"path":"/healthz","port":"http"},"initialDelaySeconds":30,"periodSeconds":15},"name":"milvus","ports":[{"containerPort":19530,"name":"grpc"},{"containerPort":9091,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/healthz","port":"http"},"initialDelaySeconds":30,"periodSeconds":15},"resources":{"limits":{"cpu":"4","memory":"8Gi"},"requests":{"cpu":"4","memory":"8Gi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}},"volumeMounts":[{"mountPath":"/var/lib/milvus","name":"data"},{"mountPath":"/milvus/configs/embedEtcd.yaml","name":"config","subPath":"embedEtcd.yaml"}]}],"securityContext":{"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}},"volumes":[{"name":"data","persistentVolumeClaim":{"claimName":"milvus-data"}},{"configMap":{"name":"milvus-config"},"name":"config"}]}}}}
+  creationTimestamp: "2026-03-01T05:24:39Z"
+  generation: 3
+  labels:
+    app: milvus
+  name: milvus
   namespace: pai-dev
+  resourceVersion: "6829137"
+  uid: 19c0f55d-ac8c-4290-875f-6bdd142ecfa5
 spec:
-  parentRefs:
-    - name: pai-gateway
-      namespace: openshift-ingress
-      sectionName: https-dev
-  hostnames:
-    - ai-api.dev.ocp-ai.calix.local
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /inference
-      backendRefs:
-        - name: triton-server
-          port: 8000
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /guardrails
-      backendRefs:
-        - name: guardrails-service
-          port: 8080
-```
-
-### EXAMPLE ONLY -- Canary Deployment for Model Upgrade in pai-prod
-
-```yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: triton-canary
-  namespace: pai-prod
-spec:
-  parentRefs:
-    - name: pai-gateway
-      namespace: openshift-ingress
-      sectionName: https-prod
-  hostnames:
-    - inference.prod.ocp-ai.calix.local
-  rules:
-    - backendRefs:
-        - name: triton-server-v1
-          port: 8000
-          weight: 90
-        - name: triton-server-v2
-          port: 8000
-          weight: 10
-```
-
----
-
-## Template D: TLS Certificate
-
-Use this to request a TLS certificate from the platform's Vault PKI. The certificate is automatically issued and renewed by cert-manager.
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: <YOUR-APP-NAME>-tls
-  namespace: <YOUR-NAMESPACE>
-  # pai-dev, pai-test, or pai-prod
-spec:
-  secretName: <YOUR-APP-NAME>-tls-secret
-  issuerRef:
-    name: vault-issuer           # do not change
-    kind: ClusterIssuer          # do not change
-  dnsNames:
-    - <YOUR-HOSTNAME>
-    # Format: <app-name>.<env>.ocp-ai.calix.local
-    # pai-dev  = <app-name>.dev.ocp-ai.calix.local
-    # pai-test = <app-name>.test.ocp-ai.calix.local
-    # pai-prod = <app-name>.prod.ocp-ai.calix.local
-  duration: 8760h                # 1 year
-  renewBefore: 720h              # renews 30 days before expiry
-```
-
-### Verify
-
-```bash
-oc get certificate <YOUR-APP-NAME>-tls -n <YOUR-NAMESPACE>
-# Should show READY: True
-oc get secret <YOUR-APP-NAME>-tls-secret -n <YOUR-NAMESPACE>
-```
-
-### Mount in Your Pod
-
-```yaml
-volumes:
-  - name: tls-certs
-    secret:
-      secretName: <YOUR-APP-NAME>-tls-secret
-volumeMounts:
-  - name: tls-certs
-    mountPath: /etc/tls
-    readOnly: true
-```
-
-### EXAMPLE ONLY -- TLS certificate for Triton inference API in pai-dev
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: triton-tls
-  namespace: pai-dev
-spec:
-  secretName: triton-tls-secret
-  issuerRef:
-    name: vault-issuer
-    kind: ClusterIssuer
-  dnsNames:
-    - inference.dev.ocp-ai.calix.local
-  duration: 8760h
-  renewBefore: 720h
-```
-
-Mounting the cert in your Deployment:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: triton-server
-  namespace: pai-dev
-spec:
+  progressDeadlineSeconds: 600
   replicas: 1
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: triton-server
+      app: milvus
+  strategy:
+    type: Recreate
   template:
     metadata:
+      creationTimestamp: null
       labels:
-        app: triton-server
+        app: milvus
     spec:
       containers:
-        - name: triton-server
-          image: registry.calix.local/ai/triton:latest
-          ports:
-            - containerPort: 8000
-          volumeMounts:
-            - name: tls-certs
-              mountPath: /etc/tls
-              readOnly: true
-          resources:
-            requests:
-              cpu: "2"
-              memory: "4Gi"
-            limits:
-              cpu: "8"
-              memory: "16Gi"
+      - args:
+        - run
+        - standalone
+        command:
+        - milvus
+        env:
+        - name: DEPLOY_MODE
+          value: STANDALONE
+        - name: ETCD_USE_EMBED
+          value: "true"
+        - name: ETCD_CONFIG_PATH
+          value: /milvus/configs/embedEtcd.yaml
+        - name: ETCD_DATA_DIR
+          value: /var/lib/milvus/etcd
+        - name: COMMON_STORAGETYPE
+          value: remote
+        - name: MINIO_ADDRESS
+          value: minio.pai-dev.svc.cluster.local
+        - name: MINIO_PORT
+          value: "9000"
+        - name: MINIO_USE_SSL
+          value: "false"
+        - name: MINIO_BUCKET_NAME
+          value: milvus-bucket
+        - name: MINIO_ROOT_PATH
+          value: milvus/dev
+        - name: MINIO_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              key: MINIO_ROOT_USER
+              name: minio-credentials
+
+        - name: MINIO_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: MINIO_ROOT_PASSWORD
+              name: minio-credentials
+        image: milvusdb/milvus:v2.6.11
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: milvus
+        ports:
+        - containerPort: 19530
+          name: grpc
+          protocol: TCP
+        - containerPort: 9091
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "4"
+            memory: 8Gi
+          requests:
+            cpu: "4"
+            memory: 8Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        startupProbe:
+          failureThreshold: 30
+          httpGet:
+            path: /healthz
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/milvus
+          name: data
+        - mountPath: /milvus/configs/embedEtcd.yaml
+          name: config
+          subPath: embedEtcd.yaml
+        - mountPath: /var/lib/milvus/etcd
+          name: etcd-data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 30
       volumes:
-        - name: tls-certs
-          secret:
-            secretName: triton-tls-secret
-```
-
----
-
-## Template E: Persistent Volume Claim (Storage)
-
-Use this to request persistent storage backed by NetApp. The default StorageClass (netapp-app) provisions NFS volumes automatically.
-
-```yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: <YOUR-APP-NAME>-data
-  namespace: <YOUR-NAMESPACE>
-  # pai-dev, pai-test, or pai-prod
-spec:
-  storageClassName: netapp-app   # do not change -- this is the platform default
-  accessModes:
-    - ReadWriteMany              # NFS supports ReadWriteMany and ReadWriteOnce
-  resources:
-    requests:
-      storage: <SIZE>Gi          # e.g. 10Gi, 50Gi, 100Gi
-```
-
-### Verify
-
-```bash
-oc get pvc <YOUR-APP-NAME>-data -n <YOUR-NAMESPACE>
-# Should show STATUS: Bound
-```
-
-### EXAMPLE ONLY -- 50Gi storage for model artifacts in pai-dev
-
-```yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: model-artifacts-data
-  namespace: pai-dev
-spec:
-  storageClassName: netapp-app
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 50Gi
-```
-
-Using it in your Deployment:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: model-server
-  namespace: pai-dev
-spec:
+      - name: data
+        persistentVolumeClaim:
+          claimName: milvus-data
+      - configMap:
+          defaultMode: 420
+          name: milvus-config
+        name: config
+      - emptyDir:
+          sizeLimit: 10Gi
+        name: etcd-data
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2026-03-01T06:27:08Z"
+    lastUpdateTime: "2026-03-01T06:27:08Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2026-03-01T05:24:39Z"
+    lastUpdateTime: "2026-03-01T06:27:08Z"
+    message: ReplicaSet "milvus-6d97bf4f9f" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 3
+  readyReplicas: 1
   replicas: 1
-  selector:
-    matchLabels:
-      app: model-server
-  template:
-    metadata:
-      labels:
-        app: model-server
-    spec:
-      containers:
-        - name: model-server
-          image: registry.calix.local/ai/model-server:latest
-          ports:
-            - containerPort: 8080
-          volumeMounts:
-            - name: model-data
-              mountPath: /data/models
-          resources:
-            requests:
-              cpu: "1"
-              memory: "2Gi"
-            limits:
-              cpu: "4"
-              memory: "8Gi"
-      volumes:
-        - name: model-data
-          persistentVolumeClaim:
-            claimName: model-artifacts-data
-```
-
----
-
-## Template F: Connecting to Shared Platform Services
-
-These services are pre-deployed on the OCP-AI platform. Your application connects to them via internal ClusterIP DNS names. Credentials are already provisioned in each namespace via Vault/ESO.
-
-### F.1 MinIO (S3-Compatible Object Storage)
-
-#### Endpoints
-
-| Environment | Internal S3 API | External S3 API | Console (Browser) |
-|---|---|---|---|
-| pai-dev | http://minio.pai-dev.svc.cluster.local:9000 | http://10.172.194.160:9000 | https://minio.dev.ocp-ai.calix.local |
-| pai-test | http://minio.pai-test.svc.cluster.local:9000 | http://10.172.198.160:9000 | https://minio.test.ocp-ai.calix.local |
-| pai-prod | http://minio.pai-prod.svc.cluster.local:9000 | http://10.172.202.160:9000 | https://minio.prod.ocp-ai.calix.local |
-
-#### Credentials
-
-Pre-provisioned as K8s secret `minio-credentials` in each pai-* namespace (synced from Vault via ESO). Keys: `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD`.
-
-To retrieve:
-
-```bash
-oc login -u kubeadmin https://api.ocp-ai.calix.local:6443 --insecure-skip-tls-verify
-oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d
-oc get secret minio-credentials -n pai-dev -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d
-# swap pai-dev for pai-test or pai-prod as needed
-```
-
-#### Reference credentials in your Deployment
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: <YOUR-APP-NAME>
-  namespace: <YOUR-NAMESPACE>
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: <YOUR-APP-NAME>
-  template:
-    metadata:
-      labels:
-        app: <YOUR-APP-NAME>
-    spec:
-      containers:
-        - name: <YOUR-APP-NAME>
-          image: <YOUR-IMAGE>
-          ports:
-            - containerPort: <YOUR-PORT>
-          env:
-            - name: S3_ENDPOINT
-              value: "http://minio.<YOUR-NAMESPACE>.svc.cluster.local:9000"
-            - name: S3_USE_SSL
-              value: "false"
-            - name: S3_BUCKET
-              value: "<YOUR-BUCKET-NAME>"
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: minio-credentials
-                  key: MINIO_ROOT_USER
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: minio-credentials
-                  key: MINIO_ROOT_PASSWORD
-          resources:
-            requests:
-              cpu: "500m"
-              memory: "512Mi"
-            limits:
-              cpu: "2"
-              memory: "2Gi"
-```
-
-#### EXAMPLE ONLY -- Data ingestion service connecting to MinIO in pai-dev
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: data-ingestion
-  namespace: pai-dev
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: data-ingestion
-  template:
-    metadata:
-      labels:
-        app: data-ingestion
-    spec:
-      containers:
-        - name: data-ingestion
-          image: registry.calix.local/ai/data-ingestion:latest
-          ports:
-            - containerPort: 8080
-          env:
-            - name: S3_ENDPOINT
-              value: "http://minio.pai-dev.svc.cluster.local:9000"
-            - name: S3_USE_SSL
-              value: "false"
-            - name: S3_BUCKET
-              value: "training-data"
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: minio-credentials
-                  key: MINIO_ROOT_USER
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: minio-credentials
-                  key: MINIO_ROOT_PASSWORD
-          resources:
-            requests:
-              cpu: "500m"
-              memory: "512Mi"
-            limits:
-              cpu: "2"
-              memory: "2Gi"
-```
-
-#### Things to know
-
-- Use internal ClusterIP endpoints from pods, not LoadBalancer IPs
-- LoadBalancer IPs are for external access only (admin tools, CI/CD outside cluster)
-- Do not hardcode credentials -- always reference the `minio-credentials` secret
-- Create your own bucket(s) -- do not use `milvus-bucket` (reserved for Milvus)
-- MinIO is S3-compatible so any S3 SDK works (boto3, aws-sdk, minio-py)
-
----
-
-### F.2 Milvus (Vector Database)
-
-#### Endpoints
-
-| Environment | Internal gRPC | External gRPC | Internal HTTP (health) |
-|---|---|---|---|
-| pai-dev | milvus.pai-dev.svc.cluster.local:19530 | 10.172.194.161:19530 | milvus.pai-dev.svc:9091 |
-| pai-test | milvus.pai-test.svc.cluster.local:19530 | 10.172.198.161:19530 | milvus.pai-test.svc:9091 |
-| pai-prod | milvus.pai-prod.svc.cluster.local:19530 | 10.172.202.161:19530 | milvus.pai-prod.svc:9091 |
-
-#### Authentication
-
-No credentials required. Milvus does not have authentication enabled (internal cluster access only). Network isolation via NetworkPolicies will be added before release.
-
-#### Reference in your Deployment
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: <YOUR-APP-NAME>
-  namespace: <YOUR-NAMESPACE>
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: <YOUR-APP-NAME>
-  template:
-    metadata:
-      labels:
-        app: <YOUR-APP-NAME>
-    spec:
-      containers:
-        - name: <YOUR-APP-NAME>
-          image: <YOUR-IMAGE>
-          ports:
-            - containerPort: <YOUR-PORT>
-          env:
-            - name: MILVUS_HOST
-              value: "milvus.<YOUR-NAMESPACE>.svc.cluster.local"
-            - name: MILVUS_PORT
-              value: "19530"
-          resources:
-            requests:
-              cpu: "500m"
-              memory: "512Mi"
-            limits:
-              cpu: "2"
-              memory: "2Gi"
-```
-
-#### EXAMPLE ONLY -- Embedding search service connecting to Milvus in pai-dev
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: embedding-search
-  namespace: pai-dev
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: embedding-search
-  template:
-    metadata:
-      labels:
-        app: embedding-search
-    spec:
-      containers:
-        - name: embedding-search
-          image: registry.calix.local/ai/embedding-search:latest
-          ports:
-            - containerPort: 8080
-          env:
-            - name: MILVUS_HOST
-              value: "milvus.pai-dev.svc.cluster.local"
-            - name: MILVUS_PORT
-              value: "19530"
-            - name: S3_ENDPOINT
-              value: "http://minio.pai-dev.svc.cluster.local:9000"
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: minio-credentials
-                  key: MINIO_ROOT_USER
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: minio-credentials
-                  key: MINIO_ROOT_PASSWORD
-          resources:
-            requests:
-              cpu: "500m"
-              memory: "1Gi"
-            limits:
-              cpu: "4"
-              memory: "4Gi"
-```
-
-#### Health check (from a pod)
-
-```bash
-curl -s http://milvus.<YOUR-NAMESPACE>.svc.cluster.local:9091/healthz
-# Returns: {"status":"ok"} when healthy
-```
-
-#### Things to know
-
-- Use gRPC port 19530 for SDK connections (pymilvus, Java, Go, Node.js)
-- HTTP port 9091 is for health checks and RESTful API (limited functionality)
-- LoadBalancer IPs (external gRPC) are for access from outside the cluster only
-- Each environment is isolated -- collections in pai-dev are not visible in pai-test/prod
-- Milvus stores vector data in MinIO automatically -- do not modify `milvus-bucket`
-
----
-
-## Template G: CNPG PostgreSQL Cluster
-
-The CloudNativePG (CNPG) operator is installed cluster-wide. You can create managed PostgreSQL clusters in your namespace by applying a Cluster CR. The operator handles HA, automated failover, streaming replication, and backups.
-
-### What you get
-
-- Primary + standby architecture with automatic failover
-- Streaming replication between instances
-- Automated volume management (no StatefulSets)
-- Built-in TLS between instances
-- Optional backups to MinIO (S3)
-
-### Minimal Cluster (no backups)
-
-```yaml
-apiVersion: postgresql.cnpg.io/v1
-kind: Cluster
-metadata:
-  name: <YOUR-DB-NAME>
-  namespace: <YOUR-NAMESPACE>
-spec:
-  instances: 3
-  storage:
-    storageClass: netapp-app
-    size: 50Gi
-  bootstrap:
-    initdb:
-      database: <YOUR-DATABASE>
-      owner: <YOUR-DB-USER>
-```
-
-This creates a 3-instance HA PostgreSQL cluster. CNPG generates credentials automatically as a Kubernetes secret named `<YOUR-DB-NAME>-app`.
-
-### Cluster with backups to MinIO
-
-```yaml
-apiVersion: postgresql.cnpg.io/v1
-kind: Cluster
-metadata:
-  name: <YOUR-DB-NAME>
-  namespace: <YOUR-NAMESPACE>
-spec:
-  instances: 3
-  storage:
-    storageClass: netapp-app
-    size: 50Gi
-  bootstrap:
-    initdb:
-      database: <YOUR-DATABASE>
-      owner: <YOUR-DB-USER>
-  backup:
-    barmanObjectStore:
-      destinationPath: s3://cnpg-backups/<YOUR-NAMESPACE>/
-      endpointURL: http://minio.<YOUR-NAMESPACE>.svc:9000
-      s3Credentials:
-        accessKeyId:
-          name: minio-credentials
-          key: MINIO_ROOT_USER
-        secretAccessKey:
-          name: minio-credentials
-          key: MINIO_ROOT_PASSWORD
-    retentionPolicy: "30d"
-```
-
-### Connecting your application
-
-CNPG creates several services automatically:
-
-| Service | Port | Purpose |
-|---|---|---|
-| `<YOUR-DB-NAME>-rw` | 5432 | Read-write (primary) |
-| `<YOUR-DB-NAME>-ro` | 5432 | Read-only (replicas) |
-| `<YOUR-DB-NAME>-r` | 5432 | Any instance (read) |
-
-Reference in your Deployment:
-
-```yaml
-env:
-  - name: DATABASE_HOST
-    value: "<YOUR-DB-NAME>-rw.<YOUR-NAMESPACE>.svc"
-  - name: DATABASE_PORT
-    value: "5432"
-  - name: DATABASE_NAME
-    value: "<YOUR-DATABASE>"
-  - name: DATABASE_USER
-    valueFrom:
-      secretKeyRef:
-        name: <YOUR-DB-NAME>-app
-        key: username
-  - name: DATABASE_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: <YOUR-DB-NAME>-app
-        key: password
-```
-
-### Verify
-
-```bash
-# Check cluster status
-oc get cluster <YOUR-DB-NAME> -n <YOUR-NAMESPACE>
-
-# Detailed status
-oc describe cluster <YOUR-DB-NAME> -n <YOUR-NAMESPACE>
-
-# Check all instances are ready
-oc get pods -n <YOUR-NAMESPACE> -l cnpg.io/cluster=<YOUR-DB-NAME>
-
-# Get auto-generated credentials
-oc get secret <YOUR-DB-NAME>-app -n <YOUR-NAMESPACE> -o jsonpath='{.data.username}' | base64 -d
-oc get secret <YOUR-DB-NAME>-app -n <YOUR-NAMESPACE> -o jsonpath='{.data.password}' | base64 -d
-
-# Connect from a debug pod
-oc run pg-test --rm -it --image=postgres:17 --restart=Never -n <YOUR-NAMESPACE> -- \
-  psql "host=<YOUR-DB-NAME>-rw port=5432 dbname=<YOUR-DATABASE> user=<YOUR-DB-USER>"
-```
-
-### EXAMPLE ONLY -- MLOps application database in pai-dev
-
-```yaml
-apiVersion: postgresql.cnpg.io/v1
-kind: Cluster
-metadata:
-  name: mlops-db
-  namespace: pai-dev
-spec:
-  instances: 3
-  storage:
-    storageClass: netapp-app
-    size: 50Gi
-  bootstrap:
-    initdb:
-      database: mlopsdb
-      owner: mlops
-  backup:
-    barmanObjectStore:
-      destinationPath: s3://cnpg-backups/pai-dev/
-      endpointURL: http://minio.pai-dev.svc:9000
-      s3Credentials:
-        accessKeyId:
-          name: minio-credentials
-          key: MINIO_ROOT_USER
-        secretAccessKey:
-          name: minio-credentials
-          key: MINIO_ROOT_PASSWORD
-    retentionPolicy: "30d"
-```
-
-Application connects using:
-
-```yaml
-env:
-  - name: DATABASE_HOST
-    value: "mlops-db-rw.pai-dev.svc"
-  - name: DATABASE_PORT
-    value: "5432"
-  - name: DATABASE_NAME
-    value: "mlopsdb"
-  - name: DATABASE_USER
-    valueFrom:
-      secretKeyRef:
-        name: mlops-db-app
-        key: username
-  - name: DATABASE_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: mlops-db-app
-        key: password
-```
-
-### Things to know
-
-- The operator is cluster-wide -- you do not need to install anything, just create a Cluster CR
-- Storage uses `netapp-app` StorageClass (NFS). Each instance gets its own PVC
-- CNPG auto-generates credentials as `<cluster-name>-app` secret in your namespace
-- Use `-rw` service for writes, `-ro` for read replicas, `-r` for any instance
-- Backups to MinIO are optional -- add the `backup` section if needed
-- Create the `cnpg-backups` bucket in MinIO before enabling backups
-- If you need external access (outside cluster), request a MetalLB IP from infra team (Template B)
-- Docs: https://cloudnative-pg.io/documentation/current/
-
----
-
-## Service Onboarding Checklist
-
-| Step | Template | Owner |
-|---|---|---|
-| Pick your namespace (pai-dev, pai-test, or pai-prod) | -- | App Team |
-| Deploy your application (Deployment + Pods) | -- | App Team |
-| Create ClusterIP Service for your pods | Template A Step 1 | App Team |
-| Request persistent storage if needed | Template E | App Team |
-| Decide: HTTPRoute or LoadBalancer? | See Quick Reference | App Team + Infra |
-| If HTTPRoute: create HTTPRoute YAML | Template A or C | App Team |
-| If LoadBalancer: request IP from infra team | Template B | Infra Team |
-| If LoadBalancer: create LB Service YAML | Template B | App Team |
-| Request TLS certificate if needed | Template D | App Team |
-| If PostgreSQL needed: create CNPG Cluster | Template G | App Team |
-| Request DNS record from infra team | -- | Infra Team |
-| Verify connectivity end-to-end | Verify steps in each template | App Team |
-
----
-
-## Support
-
-**Infrastructure requests** (IP allocation, DNS records, storage, troubleshooting): Infra Team | Jira: PAI project (PAI-xxxx)
-
-**Application-level issues** (pod crashes, service config, HTTPRoute not working): MLOps Team
+  updatedReplicas: 1
+hsuma@plnx-admin:~$ oc get svc -n pai-dev | grep milvus
+milvus                                     ClusterIP      172.30.40.235    <none>           19530/TCP,9091/TCP           8d
+milvus-lb                                  LoadBalancer   172.30.156.22    10.172.194.161   19530:30241/TCP              8d
+hsuma@plnx-admin:~$ oc get pvc -n pai-dev | grep milvus
+milvus-data       Bound    pvc-bb439178-7d2d-4d64-bbc1-5555b99c7e49   100Gi      RWX            netapp-app     <unset>                 8d
+hsuma@plnx-admin:~$ oc get pvc -n pai-prod | grep milvus
+milvus-data   Bound    pvc-87fcd918-876a-4729-9009-47476ff759ce   200Gi      RWX            netapp-app     <unset>                 8d
+hsuma@plnx-admin:~$
