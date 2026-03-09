@@ -1,4 +1,19 @@
-
+PLN-UCSX-F1-01-A(nx-os)# show mac address-table address 0025.b550.0a69
+Legend:
+    * - primary entry, G - Gateway MAC, (R) - Routed MAC, O - Overlay MAC
+    age - seconds since last seen,+ - primary entry using vPC Peer-Link,
+    (T) - True, (F) - False, C - ControlPlane MAC, ~ - vsan
+  VLAN   MAC Address   Type   age   Secure NTFY Ports
+---------+-----------------+--------+---------+------+----+------------------
+* 1792   0025.b550.0a69  dynamic 0     F   F  Veth1010
+* 1793   0025.b550.0a69  dynamic 0     F   F  Veth1010
+* 1794   0025.b550.0a69  dynamic 0     F   F  Veth1010
+* 1796   0025.b550.0a69  dynamic 0     F   F  Veth1010
+* 1797   0025.b550.0a69  dynamic 0     F   F  Veth1010
+* 1798   0025.b550.0a69  dynamic 0     F   F  Veth1010
+PLN-UCSX-F1-01-A(nx-os)# show interface ethernet 1/16 | include MTU
+ MTU 9216 bytes, BW 100000000 Kbit , DLY 10 usec
+PLN-UCSX-F1-01-A(nx-os)#
 
 
 
