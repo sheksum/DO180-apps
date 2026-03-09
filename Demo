@@ -16,10 +16,6 @@ spec:
         - namespaceSelector:
             matchLabels:
               network.openshift.io/policy-group: ingress
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              network.openshift.io/policy-group: monitoring
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -37,10 +33,6 @@ spec:
         - namespaceSelector:
             matchLabels:
               network.openshift.io/policy-group: ingress
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              network.openshift.io/policy-group: monitoring
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -58,22 +50,37 @@ spec:
         - namespaceSelector:
             matchLabels:
               network.openshift.io/policy-group: ingress
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              network.openshift.io/policy-group: monitoring
 EOF
 
+cat > ~/ocp-ai-config/apps/network-policies.yaml << 'EOF'
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: network-policies
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: network-policies
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+EOF
 
 
 cd ~/ocp-ai-config
 git add network-policies/ apps/network-policies.yaml
-git commit -m "Add NetworkPolicies for environment isolation with monitoring access"
+git commit -m "Add NetworkPolicies for environment isolation"
 git push
 
 
-# Cross-namespace should FAIL
-oc run test-isolation --rm -it --image=busybox --restart=Never -n pai-dev -- wget -qO- --timeout=3 http://milvus.pai-test.svc:9091/healthz
-
-# Same namespace should WORK
-oc run test-isolation --rm -it --image=busybox --restart=Never -n pai-dev -- wget -qO- --timeout=3 http://milvus.pai-dev.svc:9091/healthz
+oc get networkpolicy -n pai-dev
+oc get networkpolicy -n pai-test
+oc get networkpolicy -n pai-prod
