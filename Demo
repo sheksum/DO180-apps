@@ -1,165 +1,19 @@
-hsuma@plnx-admin:~$ cat ~/ocp-ai-config/minio/pai-dev.yaml
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: minio-data
-  namespace: pai-dev
-spec:
-  storageClassName: netapp-app
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 500Gi
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: minio
-  namespace: pai-dev
-  labels:
-    app: minio
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: minio
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: minio
-    spec:
-      securityContext:
-        runAsNonRoot: true
-        seccompProfile:
-          type: RuntimeDefault
-      containers:
-        - name: minio
-          image: quay.io/minio/minio:latest
-          args:
-            - server
-            - /data
-            - --console-address
-            - ":9001"
-          envFrom:
-            - secretRef:
-                name: minio-credentials
-          ports:
-            - name: s3
-              containerPort: 9000
-            - name: console
-              containerPort: 9001
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-          resources:
-            requests:
-              cpu: "8"
-              memory: 16Gi
-            limits:
-              cpu: "8"
-              memory: 16Gi
-          volumeMounts:
-            - name: data
-              mountPath: /data
-          readinessProbe:
-            httpGet:
-              path: /minio/health/ready
-              port: s3
-            initialDelaySeconds: 10
-            periodSeconds: 15
-          livenessProbe:
-            httpGet:
-              path: /minio/health/live
-              port: s3
-            initialDelaySeconds: 10
-            periodSeconds: 15
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: minio-data
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: minio
-  namespace: pai-dev
-spec:
-  selector:
-    app: minio
-  ports:
-    - name: s3
-      port: 9000
-      targetPort: 9000
-    - name: console
-      port: 9001
-      targetPort: 9001
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: minio-lb
-  namespace: pai-dev
-  annotations:
-    metallb.universe.tf/address-pool: pai-services-dev
-    metallb.universe.tf/loadBalancerIPs: "10.172.194.160"
-spec:
-  type: LoadBalancer
-  selector:
-    app: minio
-  ports:
-    - name: s3
-      port: 9000
-      targetPort: 9000
-      protocol: TCP
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: minio-console-route
-  namespace: pai-dev
-spec:
-  parentRefs:
-    - name: pai-gateway
-      namespace: openshift-ingress
-      sectionName: https-dev
-  hostnames:
-    - minio.dev.ocp-ai.calix.local
-  rules:
-    - backendRefs:
-        - name: minio
-          port: 9001
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ cat ~/ocp-ai-config/apps/*.yaml | grep -B2 -A15 "minio\|milvus"
-kind: Application
-metadata:
-  name: minio
-  namespace: openshift-gitops
-spec:
-  project: default
-  source:
-    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
-    targetRevision: main
-    path: minio
-  destination:
-    server: https://kubernetes.default.svc
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=false
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: nmstate
-  namespace: openshift-gitops
-spec:
-  project: default
-hsuma@plnx-admin:~$
+# Dev
+oc get deployment milvus -n pai-dev -o yaml > ~/milvus-backup/dev-deployment.yaml
+oc get svc milvus milvus-lb -n pai-dev -o yaml > ~/milvus-backup/dev-services.yaml
+oc get configmap milvus-config -n pai-dev -o yaml > ~/milvus-backup/dev-configmap.yaml
+oc get pvc milvus-data -n pai-dev -o yaml > ~/milvus-backup/dev-pvc.yaml
+
+# Test
+oc get deployment milvus -n pai-test -o yaml > ~/milvus-backup/test-deployment.yaml
+oc get svc milvus milvus-lb -n pai-test -o yaml > ~/milvus-backup/test-services.yaml
+oc get configmap milvus-config -n pai-test -o yaml > ~/milvus-backup/test-configmap.yaml
+oc get pvc milvus-data -n pai-test -o yaml > ~/milvus-backup/test-pvc.yaml
+
+# Prod
+oc get deployment milvus -n pai-prod -o yaml > ~/milvus-backup/prod-deployment.yaml
+oc get svc milvus milvus-lb -n pai-prod -o yaml > ~/milvus-backup/prod-services.yaml
+oc get configmap milvus-config -n pai-prod -o yaml > ~/milvus-backup/prod-configmap.yaml
+oc get pvc milvus-data -n pai-prod -o yaml > ~/milvus-backup/prod-pvc.yaml
+
+mkdir -p ~/milvus-backup
