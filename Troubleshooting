@@ -1,13 +1,5 @@
-From: Brian Wing <Brian.Wing@calix.com>
-Date: Sunday, March 8, 2026 at 6:25 PM
-To: Haj Suma <haj.suma@calix.com>, Chetan Kudari <chetan.kudari@calix.com>, Deonna Thornton <deonna.thornton@calix.com>
-Cc: Engineering Operations - Infrastructure <EngineeringOperations-Infrastructure@calix.com>
-Subject: Re: NFS issue on OCP-AI cluster – Jumbo frame path check
-@Deonna Thornton looping you in too.  Let’s check the interfaces on the Netapp for the lif and the trunk interface that the vlan is on
+network interface show — ocp_app_dev_lif01 is up on plano_aff_cl-05, port a0a-1794
+network port show — a0a-1794 on plano_aff_cl-05 shows MTU 9000, link up, healthy
 
- 
-From: Haj Suma <haj.suma@calix.com>
-Sent: Sunday, March 8, 2026 3:09:21 PM
-To: Chetan Kudari <chetan.kudari@calix.com>
-Cc: Engineering Operations - Infrastructure <EngineeringOperations-Infrastructure@calix.com>
-Subject: NFS issue on OCP-AI cluster – Jumbo frame path check 
+
+Already verified the NetApp side — the LIF (ocp_app_dev_lif01 on plano_aff_cl-05, port a0a-1794) and the port are both configured for MTU 9000 and showing healthy. The issue is somewhere in the switch path between the masters and the NetApp.“​​​​​​​​​​​​​​​​
