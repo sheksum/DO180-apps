@@ -1,2 +1,86 @@
-ssh -i ~/.ssh/ocp-ai core@10.172.248.153 "cat /proc/net/bonding/bond0"
-ssh -i ~/.ssh/ocp-ai core@10.172.248.154 "cat /proc/net/bonding/bond0"
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ ssh -i ~/.ssh/ocp-ai core@10.172.248.153 "cat /proc/net/bonding/bond0"
+Ethernet Channel Bonding Driver: v5.14.0-570.83.1.el9_6.x86_64
+
+Bonding Mode: IEEE 802.3ad Dynamic link aggregation
+Transmit Hash Policy: layer2 (0)
+MII Status: up
+MII Polling Interval (ms): 100
+Up Delay (ms): 0
+Down Delay (ms): 0
+Peer Notification Delay (ms): 0
+
+802.3ad info
+LACP active: on
+LACP rate: fast
+Min links: 0
+Aggregator selection policy (ad_select): stable
+
+Slave Interface: ens8f0np0
+MII Status: up
+Speed: 100000 Mbps
+Duplex: full
+Link Failure Count: 0
+Permanent HW addr: 7c:8c:09:c3:74:1e
+Slave queue ID: 0
+Aggregator ID: 1
+Actor Churn State: none
+Partner Churn State: none
+Actor Churned Count: 0
+Partner Churned Count: 0
+
+Slave Interface: ens8f1np1
+MII Status: up
+Speed: 100000 Mbps
+Duplex: full
+Link Failure Count: 0
+Permanent HW addr: 7c:8c:09:c3:74:1f
+Slave queue ID: 0
+Aggregator ID: 1
+Actor Churn State: none
+Partner Churn State: none
+Actor Churned Count: 0
+Partner Churned Count: 0
+hsuma@plnx-admin:~/ocp-ai-config$ ssh -i ~/.ssh/ocp-ai core@10.172.248.154 "cat /proc/net/bonding/bond0"
+Ethernet Channel Bonding Driver: v5.14.0-570.83.1.el9_6.x86_64
+
+Bonding Mode: IEEE 802.3ad Dynamic link aggregation
+Transmit Hash Policy: layer2 (0)
+MII Status: up
+MII Polling Interval (ms): 100
+Up Delay (ms): 0
+Down Delay (ms): 0
+Peer Notification Delay (ms): 0
+
+802.3ad info
+LACP active: on
+LACP rate: fast
+Min links: 0
+Aggregator selection policy (ad_select): stable
+
+Slave Interface: ens8f0np0
+MII Status: up
+Speed: 100000 Mbps
+Duplex: full
+Link Failure Count: 0
+Permanent HW addr: 7c:8c:09:c3:79:86
+Slave queue ID: 0
+Aggregator ID: 1
+Actor Churn State: none
+Partner Churn State: none
+Actor Churned Count: 0
+Partner Churned Count: 0
+
+Slave Interface: ens8f1np1
+MII Status: up
+Speed: 100000 Mbps
+Duplex: full
+Link Failure Count: 0
+Permanent HW addr: 7c:8c:09:c3:79:87
+Slave queue ID: 0
+Aggregator ID: 1
+Actor Churn State: none
+Partner Churn State: none
+Actor Churned Count: 0
+Partner Churned Count: 0
+hsuma@plnx-admin:~/ocp-ai-config$
