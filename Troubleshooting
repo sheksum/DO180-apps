@@ -1,2 +1,13 @@
-ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "sudo ip link set bnd0 mtu 1500"
-ssh -i ~/.ssh/ocp-ai core@10.172.248.151 "sudo ip link set bnd0 mtu 1500"
+From: Brian Wing <Brian.Wing@calix.com>
+Date: Sunday, March 8, 2026 at 6:25 PM
+To: Haj Suma <haj.suma@calix.com>, Chetan Kudari <chetan.kudari@calix.com>, Deonna Thornton <deonna.thornton@calix.com>
+Cc: Engineering Operations - Infrastructure <EngineeringOperations-Infrastructure@calix.com>
+Subject: Re: NFS issue on OCP-AI cluster – Jumbo frame path check
+@Deonna Thornton looping you in too.  Let’s check the interfaces on the Netapp for the lif and the trunk interface that the vlan is on
+
+ 
+From: Haj Suma <haj.suma@calix.com>
+Sent: Sunday, March 8, 2026 3:09:21 PM
+To: Chetan Kudari <chetan.kudari@calix.com>
+Cc: Engineering Operations - Infrastructure <EngineeringOperations-Infrastructure@calix.com>
+Subject: NFS issue on OCP-AI cluster – Jumbo frame path check 
