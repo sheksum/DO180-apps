@@ -70,3 +70,10 @@ cd ~/ocp-ai-config
 git add network-policies/ apps/network-policies.yaml
 git commit -m "Add NetworkPolicies for environment isolation with monitoring access"
 git push
+
+
+# Cross-namespace should FAIL
+oc run test-isolation --rm -it --image=busybox --restart=Never -n pai-dev -- wget -qO- --timeout=3 http://milvus.pai-test.svc:9091/healthz
+
+# Same namespace should WORK
+oc run test-isolation --rm -it --image=busybox --restart=Never -n pai-dev -- wget -qO- --timeout=3 http://milvus.pai-dev.svc:9091/healthz
