@@ -1,12 +1,72 @@
-hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get namespace openshift-ingress --show-labels | grep policy-group
-openshift-ingress   Active   21d   kubernetes.io/metadata.name=openshift-ingress,name=openshift-ingress,network.openshift.io/policy-group=ingress,olm.operatorgroup.uid/8fb02fc3-cb5c-426e-be8b-e72edc4e3af9=,openshift.io/cluster-monitoring=true,pod-security.kubernetes.io/audit=privileged,pod-security.kubernetes.io/enforce=privileged,pod-security.kubernetes.io/warn=privileged,policy-group.network.openshift.io/ingress=
-hsuma@plnx-admin:~/ocp-ai-config/apps$
-hsuma@plnx-admin:~/ocp-ai-config/apps$
-hsuma@plnx-admin:~/ocp-ai-config/apps$ oc label namespace openshift-ingress network.openshift.io/policy-group=ingress
-namespace/openshift-ingress not labeled
-hsuma@plnx-admin:~/ocp-ai-config/apps$
-hsuma@plnx-admin:~/ocp-ai-config/apps$
-hsuma@plnx-admin:~/ocp-ai-config/apps$ oc get namespace openshift-monitoring --show-labels
-NAME                   STATUS   AGE   LABELS
-openshift-monitoring   Active   21d   kubernetes.io/metadata.name=openshift-monitoring,name=openshift-monitoring,network.openshift.io/policy-group=monitoring,olm.operatorgroup.uid/8fb02fc3-cb5c-426e-be8b-e72edc4e3af9=,openshift.io/cluster-monitoring=true,pod-security.kubernetes.io/audit=privileged,pod-security.kubernetes.io/enforce=privileged,pod-security.kubernetes.io/warn=privileged
-hsuma@plnx-admin:~/ocp-ai-config/apps$
+cat > ~/ocp-ai-config/network-policies/environment-isolation.yaml << 'EOF'
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-cross-namespace
+  namespace: pai-dev
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              network.openshift.io/policy-group: ingress
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              network.openshift.io/policy-group: monitoring
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-cross-namespace
+  namespace: pai-test
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              network.openshift.io/policy-group: ingress
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              network.openshift.io/policy-group: monitoring
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-cross-namespace
+  namespace: pai-prod
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              network.openshift.io/policy-group: ingress
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              network.openshift.io/policy-group: monitoring
+EOF
+
+
+
+cd ~/ocp-ai-config
+git add network-policies/ apps/network-policies.yaml
+git commit -m "Add NetworkPolicies for environment isolation with monitoring access"
+git push
