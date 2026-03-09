@@ -1,3 +1,27 @@
+PLN-UCSX-F1-01-A(nx-os)# show interface Vethernet 1010
+Vethernet1010 is up
+  Port description is SP pln_esxi-4-3, vNIC OCP-DATA-A, Blade:FCH285174A2
+  Hardware is Virtual, address is 0000.abcd.dcba
+  Port mode is trunk
+  Speed is 100 Gb/s
+  Duplex mode is full
+ 300 seconds input rate 0 bits/sec, 0 packets/sec
+ 300 seconds output rate 0 bits/sec, 0 packets/sec
+ Rx
+  1315978 unicast packets 0 multicast packets 98 broadcast packets
+  1316076 input packets 1603197684 bytes
+  0 input packet drops
+ Tx
+  655336 unicast packets 2173 multicast packets 64569 broadcast packets
+  722078 output packets 367735656 bytes
+  0 flood packets
+  0 output packet drops
+
+PLN-UCSX-F1-01-A(nx-os)#
+
+
+
+
 PLN-UCSX-F1-01-A(nx-os)# show mac address-table address 0025.b550.0a69
 Legend:
     * - primary entry, G - Gateway MAC, (R) - Routed MAC, O - Overlay MAC
