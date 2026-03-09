@@ -1,4 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config/nmstate$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ip link show bnd0 | grep mtu; ip link show bnd0.1794 | grep mtu"
-10: bnd0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default qlen 1000
-14: bnd0.1794@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default qlen 1000
-hsuma@plnx-admin:~/ocp-ai-config/nmstate$
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 8972 10.172.194.22 -c 3"
