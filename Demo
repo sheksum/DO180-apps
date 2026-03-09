@@ -1,122 +1,17 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get configmap milvus-config -n pai-dev -o yaml
-apiVersion: v1
-data:
-  embedEtcd.yaml: |
-    listen-client-urls: http://0.0.0.0:2379
-    advertise-client-urls: http://0.0.0.0:2379
-    quota-backend-bytes: 4294967296
-    auto-compaction-mode: revision
-    auto-compaction-retention: "1000"
-kind: ConfigMap
-metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"v1","data":{"embedEtcd.yaml":"listen-client-urls: http://0.0.0.0:2379\nadvertise-client-urls: http://0.0.0.0:2379\nquota-backend-bytes: 4294967296\nauto-compaction-mode: revision\nauto-compaction-retention: \"1000\"\n"},"kind":"ConfigMap","metadata":{"annotations":{},"name":"milvus-config","namespace":"pai-dev"}}
-  creationTimestamp: "2026-03-01T05:24:39Z"
-  name: milvus-config
-  namespace: pai-dev
-  resourceVersion: "6797601"
-  uid: ee03d306-a0db-4949-af56-d50499c27c8b
-hsuma@plnx-admin:~$ oc get svc milvus -n pai-dev -o yaml
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"milvus","namespace":"pai-dev"},"spec":{"ports":[{"name":"grpc","port":19530,"targetPort":19530},{"name":"http","port":9091,"targetPort":9091}],"selector":{"app":"milvus"}}}
-  creationTimestamp: "2026-03-01T05:24:39Z"
-  name: milvus
-  namespace: pai-dev
-  resourceVersion: "6797609"
-  uid: 1e1312ab-9a75-4dcf-9ce6-67993d3187ca
-spec:
-  clusterIP: 172.30.40.235
-  clusterIPs:
-  - 172.30.40.235
-  internalTrafficPolicy: Cluster
-  ipFamilies:
-  - IPv4
-  ipFamilyPolicy: SingleStack
-  ports:
-  - name: grpc
-    port: 19530
-    protocol: TCP
-    targetPort: 19530
-  - name: http
-    port: 9091
-    protocol: TCP
-    targetPort: 9091
-  selector:
-    app: milvus
-  sessionAffinity: None
-  type: ClusterIP
-status:
-  loadBalancer: {}
-hsuma@plnx-admin:~$ oc get svc milvus-lb -n pai-dev -o yaml
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"metallb.universe.tf/address-pool":"pai-services-dev","metallb.universe.tf/loadBalancerIPs":"10.172.194.161"},"name":"milvus-lb","namespace":"pai-dev"},"spec":{"ports":[{"name":"grpc","port":19530,"protocol":"TCP","targetPort":19530}],"selector":{"app":"milvus"},"type":"LoadBalancer"}}
-    metallb.io/ip-allocated-from-pool: pai-services-dev
-    metallb.universe.tf/address-pool: pai-services-dev
-    metallb.universe.tf/loadBalancerIPs: 10.172.194.161
-  creationTimestamp: "2026-03-01T05:24:39Z"
-  name: milvus-lb
-  namespace: pai-dev
-  resourceVersion: "6797627"
-  uid: e60e4698-7c60-430b-8e62-dc422fd5b93a
-spec:
-  allocateLoadBalancerNodePorts: true
-  clusterIP: 172.30.156.22
-  clusterIPs:
-  - 172.30.156.22
-  externalTrafficPolicy: Cluster
-  internalTrafficPolicy: Cluster
-  ipFamilies:
-  - IPv4
-  ipFamilyPolicy: SingleStack
-  ports:
-  - name: grpc
-    nodePort: 30241
-    port: 19530
-    protocol: TCP
-    targetPort: 19530
-  selector:
-    app: milvus
-  sessionAffinity: None
-  type: LoadBalancer
-status:
-  loadBalancer:
-    ingress:
-    - ip: 10.172.194.161
-      ipMode: VIP
-hsuma@plnx-admin:~$ oc get deployment milvus -n pai-test -o yaml | grep -E "image:|memory:|cpu:|ROOT_PATH|BUCKET_NAME|MINIO_ADDRESS"
-      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"milvus"},"name":"milvus","namespace":"pai-test"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"milvus"}},"strategy":{"type":"Recreate"},"template":{"metadata":{"labels":{"app":"milvus"}},"spec":{"containers":[{"args":["run","standalone"],"command":["milvus"],"env":[{"name":"DEPLOY_MODE","value":"STANDALONE"},{"name":"ETCD_USE_EMBED","value":"true"},{"name":"ETCD_CONFIG_PATH","value":"/milvus/configs/embedEtcd.yaml"},{"name":"ETCD_DATA_DIR","value":"/var/lib/milvus/etcd"},{"name":"COMMON_STORAGETYPE","value":"remote"},{"name":"MINIO_ADDRESS","value":"minio.pai-test.svc.cluster.local"},{"name":"MINIO_PORT","value":"9000"},{"name":"MINIO_USE_SSL","value":"false"},{"name":"MINIO_BUCKET_NAME","value":"milvus-bucket"},{"name":"MINIO_ROOT_PATH","value":"milvus"},{"name":"MINIO_ACCESS_KEY_ID","valueFrom":{"secretKeyRef":{"key":"MINIO_ROOT_USER","name":"minio-credentials"}}},{"name":"MINIO_SECRET_ACCESS_KEY","valueFrom":{"secretKeyRef":{"key":"MINIO_ROOT_PASSWORD","name":"minio-credentials"}}}],"image":"milvusdb/milvus:v2.6.11","livenessProbe":{"httpGet":{"path":"/healthz","port":"http"},"initialDelaySeconds":30,"periodSeconds":15},"name":"milvus","ports":[{"containerPort":19530,"name":"grpc"},{"containerPort":9091,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/healthz","port":"http"},"initialDelaySeconds":30,"periodSeconds":15},"resources":{"limits":{"cpu":"4","memory":"8Gi"},"requests":{"cpu":"4","memory":"8Gi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}},"volumeMounts":[{"mountPath":"/var/lib/milvus","name":"data"},{"mountPath":"/milvus/configs/embedEtcd.yaml","name":"config","subPath":"embedEtcd.yaml"}]}],"securityContext":{"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}},"volumes":[{"name":"data","persistentVolumeClaim":{"claimName":"milvus-data"}},{"configMap":{"name":"milvus-config"},"name":"config"}]}}}}
-        - name: MINIO_ADDRESS
-        - name: MINIO_BUCKET_NAME
-        - name: MINIO_ROOT_PATH
-        image: milvusdb/milvus:v2.6.11
-            cpu: "4"
-            memory: 8Gi
-            cpu: "4"
-            memory: 8Gi
-hsuma@plnx-admin:~$ oc get deployment milvus -n pai-prod -o yaml | grep -E "image:|memory:|cpu:|ROOT_PATH|BUCKET_NAME|MINIO_ADDRESS"
-      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"milvus"},"name":"milvus","namespace":"pai-prod"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"milvus"}},"strategy":{"type":"Recreate"},"template":{"metadata":{"labels":{"app":"milvus"}},"spec":{"containers":[{"args":["run","standalone"],"command":["milvus"],"env":[{"name":"DEPLOY_MODE","value":"STANDALONE"},{"name":"ETCD_USE_EMBED","value":"true"},{"name":"ETCD_CONFIG_PATH","value":"/milvus/configs/embedEtcd.yaml"},{"name":"ETCD_DATA_DIR","value":"/var/lib/milvus/etcd"},{"name":"COMMON_STORAGETYPE","value":"remote"},{"name":"MINIO_ADDRESS","value":"minio.pai-prod.svc.cluster.local"},{"name":"MINIO_PORT","value":"9000"},{"name":"MINIO_USE_SSL","value":"false"},{"name":"MINIO_BUCKET_NAME","value":"milvus-bucket"},{"name":"MINIO_ROOT_PATH","value":"milvus/prod"},{"name":"MINIO_ACCESS_KEY_ID","valueFrom":{"secretKeyRef":{"key":"MINIO_ROOT_USER","name":"minio-credentials"}}},{"name":"MINIO_SECRET_ACCESS_KEY","valueFrom":{"secretKeyRef":{"key":"MINIO_ROOT_PASSWORD","name":"minio-credentials"}}}],"image":"milvusdb/milvus:v2.6.11","livenessProbe":{"httpGet":{"path":"/healthz","port":"http"},"initialDelaySeconds":10,"periodSeconds":30},"name":"milvus","ports":[{"containerPort":19530,"name":"grpc"},{"containerPort":9091,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/healthz","port":"http"},"initialDelaySeconds":10,"periodSeconds":15},"resources":{"limits":{"cpu":"8","memory":"16Gi"},"requests":{"cpu":"8","memory":"16Gi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}},"startupProbe":{"failureThreshold":30,"httpGet":{"path":"/healthz","port":"http"},"initialDelaySeconds":10,"periodSeconds":10},"volumeMounts":[{"mountPath":"/var/lib/milvus","name":"data"},{"mountPath":"/var/lib/milvus/etcd","name":"etcd-data"},{"mountPath":"/milvus/configs/embedEtcd.yaml","name":"config","subPath":"embedEtcd.yaml"}]}],"securityContext":{"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}},"volumes":[{"name":"data","persistentVolumeClaim":{"claimName":"milvus-data"}},{"emptyDir":{"sizeLimit":"10Gi"},"name":"etcd-data"},{"configMap":{"name":"milvus-config"},"name":"config"}]}}}}
-        - name: MINIO_ADDRESS
-        - name: MINIO_BUCKET_NAME
-        - name: MINIO_ROOT_PATH
-        image: milvusdb/milvus:v2.6.11
-            cpu: "8"
-            memory: 16Gi
-            cpu: "8"
-            memory: 16Gi
-hsuma@plnx-admin:~$ oc get svc -n pai-prod | grep milvus
-milvus      ClusterIP      172.30.56.92     <none>           19530/TCP,9091/TCP   8d
-milvus-lb   LoadBalancer   172.30.250.144   10.172.202.161   19530:30139/TCP      8d
-hsuma@plnx-admin:~$ oc get svc -n pai-test | grep milvus
-milvus      ClusterIP      172.30.83.61    <none>           19530/TCP,9091/TCP   8d
-milvus-lb   LoadBalancer   172.30.154.19   10.172.198.161   19530:31563/TCP      8d
+hsuma@plnx-admin:~$ ls -la ~/ocp-ai-config/
+total 64
+drwxr-xr-x 12 hsuma sw  4096 Mar  9 05:51 .
+drwxr-xr-x 46 hsuma sw 16384 Mar  9 06:14 ..
+drwxr-xr-x  2 hsuma sw  4096 Mar  9 05:51 apps
+drwxr-xr-x  2 hsuma sw  4096 Mar  9 05:51 eso-network-policy
+drwxr-xr-x  2 hsuma sw  4096 Feb 28 18:08 gateway-api
+drwxr-xr-x  8 hsuma sw  4096 Mar  9 06:15 .git
+-rw-r--r--  1 hsuma sw    22 Feb 19 13:55 .gitignore
+drwxr-xr-x  2 hsuma sw  4096 Feb 28 19:21 machineconfigs
+drwxr-xr-x  2 hsuma sw  4096 Feb 25 21:43 metallb
+drwxr-xr-x  2 hsuma sw  4096 Feb 28 22:43 milvus
+drwxr-xr-x  2 hsuma sw  4096 Feb 28 22:33 minio
+drwxr-xr-x  2 hsuma sw  4096 Mar  9 05:51 nmstate
+-rw-r--r--  1 hsuma sw  2622 Feb 19 13:55 README.md
+drwxr-xr-x  2 hsuma sw  4096 Mar  9 06:14 trident
 hsuma@plnx-admin:~$
