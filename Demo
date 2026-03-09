@@ -1,7 +1,2 @@
-hsuma@plnx-admin:~$ ls -la ~/ocp-ai-config/milvus
-total 8
-drwxr-xr-x  2 hsuma sw 4096 Feb 28 22:43 .
-drwxr-xr-x 12 hsuma sw 4096 Mar  9 05:51 ..
-hsuma@plnx-admin:~$ ls -l ~/ocp-ai-config/milvus
-total 0
-hsuma@plnx-admin:~$
+ls -la ~/ocp-ai-config/minio/
+cat ~/ocp-ai-config/apps/*.yaml | head -60
