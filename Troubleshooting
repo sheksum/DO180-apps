@@ -1,15 +1,37 @@
-# Dev infra (1792)
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.192.152 -M do -s 8972 10.172.192.22 -c 3"
+hsuma@plnx-admin:~/ocp-ai-config/nmstate$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.192.152 -M do -s 8972 10.172.192.22 -c 3"
+PING 10.172.192.22 (10.172.192.22) from 10.172.192.152 : 8972(9000) bytes of data.
+8980 bytes from 10.172.192.22: icmp_seq=1 ttl=64 time=0.084 ms
+8980 bytes from 10.172.192.22: icmp_seq=2 ttl=64 time=0.087 ms
+8980 bytes from 10.172.192.22: icmp_seq=3 ttl=64 time=0.164 ms
 
-# Dev app (1794) - already confirmed
-# Test infra (1796)
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.196.152 -M do -s 8972 10.172.196.22 -c 3"
+--- 10.172.192.22 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2045ms
+rtt min/avg/max/mdev = 0.084/0.111/0.164/0.037 ms
+hsuma@plnx-admin:~/ocp-ai-config/nmstate$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.198.152 -M do -s 8972 10.172.198.22 -c 3"
+PING 10.172.198.22 (10.172.198.22) from 10.172.198.152 : 8972(9000) bytes of data.
+8980 bytes from 10.172.198.22: icmp_seq=1 ttl=64 time=0.245 ms
+8980 bytes from 10.172.198.22: icmp_seq=2 ttl=64 time=0.152 ms
+8980 bytes from 10.172.198.22: icmp_seq=3 ttl=64 time=0.091 ms
 
-# Test app (1798)
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.198.152 -M do -s 8972 10.172.198.22 -c 3"
+--- 10.172.198.22 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2060ms
+rtt min/avg/max/mdev = 0.091/0.162/0.245/0.063 ms
+hsuma@plnx-admin:~/ocp-ai-config/nmstate$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.200.152 -M do -s 8972 10.172.200.22 -c 3"
+PING 10.172.200.22 (10.172.200.22) from 10.172.200.152 : 8972(9000) bytes of data.
+8980 bytes from 10.172.200.22: icmp_seq=1 ttl=64 time=0.130 ms
+8980 bytes from 10.172.200.22: icmp_seq=2 ttl=64 time=0.090 ms
+8980 bytes from 10.172.200.22: icmp_seq=3 ttl=64 time=0.084 ms
 
-# Prod infra (1793)
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.200.152 -M do -s 8972 10.172.200.22 -c 3"
+--- 10.172.200.22 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2052ms
+rtt min/avg/max/mdev = 0.084/0.101/0.130/0.020 ms
+hsuma@plnx-admin:~/ocp-ai-config/nmstate$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.202.152 -M do -s 8972 10.172.202.22 -c 3"
+PING 10.172.202.22 (10.172.202.22) from 10.172.202.152 : 8972(9000) bytes of data.
+8980 bytes from 10.172.202.22: icmp_seq=1 ttl=64 time=0.145 ms
+8980 bytes from 10.172.202.22: icmp_seq=2 ttl=64 time=0.173 ms
+8980 bytes from 10.172.202.22: icmp_seq=3 ttl=64 time=0.157 ms
 
-# Prod app (1797)
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.202.152 -M do -s 8972 10.172.202.22 -c 3"
+--- 10.172.202.22 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2046ms
+rtt min/avg/max/mdev = 0.145/0.158/0.173/0.011 ms
+hsuma@plnx-admin:~/ocp-ai-config/nmstate$
