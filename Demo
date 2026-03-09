@@ -1,6 +1,47 @@
-cat ~/ocp-ai-config/eso-network-policy/
-ls -la ~/ocp-ai-config/eso-network-policy/
+cat: /home/hsuma/ocp-ai-config/eso-network-policy/: Is a directory
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ cd
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ cat ~/ocp-ai-config/eso-network-policy/
+cat: /home/hsuma/ocp-ai-config/eso-network-policy/: Is a directory
+hsuma@plnx-admin:~$ cat ~/ocp-ai-config/eso-network-policy/\ allow-egress-to-vault-host.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-to-vault-host
+  namespace: external-secrets
+spec:
+  egress:
+  - ports:
+    - protocol: TCP
+      port: 8200
+    to:
+    - ipBlock:
+        cidr: 10.172.249.106/32
+  policyTypes:
+  - Egress
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ls -la ~/ocp-ai-config/eso-network-policy/
+total 12
+drwxr-xr-x  2 hsuma sw 4096 Mar  9 05:51  .
+drwxr-xr-x 12 hsuma sw 4096 Mar  9 05:51  ..
+-rw-r--r--  1 hsuma sw  273 Mar  9 05:51 ' allow-egress-to-vault-host.yaml'
 
 
-oc get secretstores -A
-oc get externalsecrets -A
+hsuma@plnx-admin:~$ oc get secretstores -A
+NAMESPACE   NAME          AGE   STATUS   CAPABILITIES   READY
+pai-dev     vault-store   9d    Valid    ReadWrite      True
+pai-prod    vault-store   11d   Valid    ReadWrite      True
+pai-test    vault-store   11d   Valid    ReadWrite      True
+trident     vault-store   13d   Valid    ReadWrite      True
+hsuma@plnx-admin:~$ oc get externalsecrets -A
+NAMESPACE   NAME                   STORETYPE     STORE         REFRESH INTERVAL   STATUS         READY
+pai-dev     minio-credentials      SecretStore   vault-store   1h                 SecretSynced   True
+pai-dev     test-secret            SecretStore   vault-store   1m                 SecretSynced   True
+pai-prod    minio-credentials      SecretStore   vault-store   1h                 SecretSynced   True
+pai-test    minio-credentials      SecretStore   vault-store   1h                 SecretSynced   True
+trident     backend-app-secret     SecretStore   vault-store   1h                 SecretSynced   True
+trident     backend-infra-secret   SecretStore   vault-store   1h                 SecretSynced   True
+hsuma@plnx-admin:~$
