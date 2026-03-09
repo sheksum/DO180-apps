@@ -1,3 +1,19 @@
+
+Chetan Kudari  [5:58 AM]
+PLN-UCSX-F1-01-A(nx-os)# show policy-map type qos Engineering_Operations-pln_qos_9000_EO
+
+
+
+ Type qos policy-maps
+ ====================
+
+ policy-map type qos Engineering_Operations-pln_qos_9000_EO
+  Description: Engineering_Operations-pln_qos_9000_EO
+  class class-default
+   police cir 100000000 kbps bc 10240 bytes conform transmit violate drop
+PLN-UCSX-F1-01-A(nx-os)#
+
+
 PLN-UCSX-F1-01-A(nx-os)# show running-config interface Vethernet1010
 
 !Command: show running-config interface Vethernet1010
