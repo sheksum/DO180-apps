@@ -1,6 +1,1 @@
-show interface Vlan1792 | include MTU
-show interface Vlan1793 | include MTU
-show interface Vlan1794 | include MTU
-show interface Vlan1796 | include MTU
-show interface Vlan1797 | include MTU
-show interface Vlan1798 | include MTU
+ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 8972 10.172.194.22 -c 3"
