@@ -1,14 +1,6 @@
-mv ~/ocp-ai-config/eso-network-policy/\ allow-egress-to-vault-host.yaml ~/ocp-ai-config/eso/allow-egress-to-vault-host.yaml
+oc get namespace openshift-ingress --show-labels | grep policy-group
+
+oc label namespace openshift-ingress network.openshift.io/policy-group=ingress
 
 
-# Remove the old directory
-rm -rf ~/ocp-ai-config/eso-network-policy/
-
-# Remove the old app manifest
-rm ~/ocp-ai-config/apps/eso-network-policy.yaml
-
-
-cd ~/ocp-ai-config
-git add -A
-git commit -m "Consolidate ESO resources - SecretStores, ExternalSecrets, NetworkPolicy"
-git push
+oc get namespace openshift-monitoring --show-labels
