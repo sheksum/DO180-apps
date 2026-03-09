@@ -1,47 +1,20 @@
-cat: /home/hsuma/ocp-ai-config/eso-network-policy/: Is a directory
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ cd
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ cat ~/ocp-ai-config/eso-network-policy/
-cat: /home/hsuma/ocp-ai-config/eso-network-policy/: Is a directory
-hsuma@plnx-admin:~$ cat ~/ocp-ai-config/eso-network-policy/\ allow-egress-to-vault-host.yaml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-egress-to-vault-host
-  namespace: external-secrets
-spec:
-  egress:
-  - ports:
-    - protocol: TCP
-      port: 8200
-    to:
-    - ipBlock:
-        cidr: 10.172.249.106/32
-  policyTypes:
-  - Egress
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ls -la ~/ocp-ai-config/eso-network-policy/
-total 12
-drwxr-xr-x  2 hsuma sw 4096 Mar  9 05:51  .
-drwxr-xr-x 12 hsuma sw 4096 Mar  9 05:51  ..
--rw-r--r--  1 hsuma sw  273 Mar  9 05:51 ' allow-egress-to-vault-host.yaml'
+mkdir -p ~/eso-backup
+
+# SecretStores
+oc get secretstore vault-store -n pai-dev -o yaml > ~/eso-backup/secretstore-dev.yaml
+oc get secretstore vault-store -n pai-test -o yaml > ~/eso-backup/secretstore-test.yaml
+oc get secretstore vault-store -n pai-prod -o yaml > ~/eso-backup/secretstore-prod.yaml
+oc get secretstore vault-store -n trident -o yaml > ~/eso-backup/secretstore-trident.yaml
+
+# ExternalSecrets
+oc get externalsecret minio-credentials -n pai-dev -o yaml > ~/eso-backup/es-minio-dev.yaml
+oc get externalsecret minio-credentials -n pai-test -o yaml > ~/eso-backup/es-minio-test.yaml
+oc get externalsecret minio-credentials -n pai-prod -o yaml > ~/eso-backup/es-minio-prod.yaml
+oc get externalsecret test-secret -n pai-dev -o yaml > ~/eso-backup/es-test-dev.yaml
+oc get externalsecret backend-app-secret -n trident -o yaml > ~/eso-backup/es-app-trident.yaml
+oc get externalsecret backend-infra-secret -n trident -o yaml > ~/eso-backup/es-infra-trident.yaml
 
 
-hsuma@plnx-admin:~$ oc get secretstores -A
-NAMESPACE   NAME          AGE   STATUS   CAPABILITIES   READY
-pai-dev     vault-store   9d    Valid    ReadWrite      True
-pai-prod    vault-store   11d   Valid    ReadWrite      True
-pai-test    vault-store   11d   Valid    ReadWrite      True
-trident     vault-store   13d   Valid    ReadWrite      True
-hsuma@plnx-admin:~$ oc get externalsecrets -A
-NAMESPACE   NAME                   STORETYPE     STORE         REFRESH INTERVAL   STATUS         READY
-pai-dev     minio-credentials      SecretStore   vault-store   1h                 SecretSynced   True
-pai-dev     test-secret            SecretStore   vault-store   1m                 SecretSynced   True
-pai-prod    minio-credentials      SecretStore   vault-store   1h                 SecretSynced   True
-pai-test    minio-credentials      SecretStore   vault-store   1h                 SecretSynced   True
-trident     backend-app-secret     SecretStore   vault-store   1h                 SecretSynced   True
-trident     backend-infra-secret   SecretStore   vault-store   1h                 SecretSynced   True
-hsuma@plnx-admin:~$
+
+cat ~/eso-backup/secretstore-dev.yaml
+cat ~/eso-backup/es-minio-dev.yaml
