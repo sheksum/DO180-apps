@@ -1,19 +1,2 @@
-# Dev
-oc get deployment milvus -n pai-dev -o yaml > ~/milvus-backup/dev-deployment.yaml
-oc get svc milvus milvus-lb -n pai-dev -o yaml > ~/milvus-backup/dev-services.yaml
-oc get configmap milvus-config -n pai-dev -o yaml > ~/milvus-backup/dev-configmap.yaml
-oc get pvc milvus-data -n pai-dev -o yaml > ~/milvus-backup/dev-pvc.yaml
-
-# Test
-oc get deployment milvus -n pai-test -o yaml > ~/milvus-backup/test-deployment.yaml
-oc get svc milvus milvus-lb -n pai-test -o yaml > ~/milvus-backup/test-services.yaml
-oc get configmap milvus-config -n pai-test -o yaml > ~/milvus-backup/test-configmap.yaml
-oc get pvc milvus-data -n pai-test -o yaml > ~/milvus-backup/test-pvc.yaml
-
-# Prod
-oc get deployment milvus -n pai-prod -o yaml > ~/milvus-backup/prod-deployment.yaml
-oc get svc milvus milvus-lb -n pai-prod -o yaml > ~/milvus-backup/prod-services.yaml
-oc get configmap milvus-config -n pai-prod -o yaml > ~/milvus-backup/prod-configmap.yaml
-oc get pvc milvus-data -n pai-prod -o yaml > ~/milvus-backup/prod-pvc.yaml
-
-mkdir -p ~/milvus-backup
+ssh -i ~/.ssh/ocp-ai core@10.172.248.153 "cat /proc/net/bonding/bond0"
+ssh -i ~/.ssh/ocp-ai core@10.172.248.154 "cat /proc/net/bonding/bond0"
