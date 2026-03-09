@@ -1,4 +1,28 @@
 
+
+
+
+N9K-C9336C-FX2-006# show ip arp vrf data-center | include 10.172.194.150
+10.172.194.150 00:05:38 0025.b550.0a65 Vlan1794    +
+N9K-C9336C-FX2-006# show mac address-table address 0025.b550.0a65
+Legend:
+    * - primary entry, G - Gateway MAC, (R) - Routed MAC, O - Overlay MAC
+    age - seconds since last seen,+ - primary entry using vPC Peer-Link,
+    (T) - True, (F) - False, C - ControlPlane MAC, ~ - vsan,
+    (NA)- Not Applicable A – ESI Active Path, S – ESI Standby Path
+  VLAN   MAC Address   Type   age   Secure NTFY Ports
+---------+-----------------+--------+---------+------+----+------------------
++ 1792   0025.b550.0a65  dynamic NA     F   F  Po20
++ 1793   0025.b550.0a65  dynamic NA     F   F  Po20
++ 1794   0025.b550.0a65  dynamic NA     F   F  Po20
++ 1796   0025.b550.0a65  dynamic NA     F   F  Po20
++ 1797   0025.b550.0a65  dynamic NA     F   F  Po20
++ 1798   0025.b550.0a65  dynamic NA     F   F  Po20
+N9K-C9336C-FX2-006# show port-channel summary | in Po20
+20  Po20(SU)  Eth   LACP   Eth1/6(P)
+N9K-C9336C-FX2-006# show interface ethernet 1/6 | include MTU
+ MTU 9216 bytes, BW 100000000 Kbit , DLY 10 usec
+N9K-C9336C-FX2-006#
 network port ifgrp show -node plano_aff_cl-05 -ifgrp a0a
 
 
