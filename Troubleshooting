@@ -1,1 +1,10 @@
-ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 8972 10.172.194.22 -c 3"
+hsuma@plnx-admin:~/ocp-ai-config/nmstate$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 8972 10.172.194.22 -c 3"
+PING 10.172.194.22 (10.172.194.22) from 10.172.194.152 : 8972(9000) bytes of data.
+8980 bytes from 10.172.194.22: icmp_seq=1 ttl=64 time=0.079 ms
+8980 bytes from 10.172.194.22: icmp_seq=2 ttl=64 time=0.093 ms
+8980 bytes from 10.172.194.22: icmp_seq=3 ttl=64 time=0.083 ms
+
+--- 10.172.194.22 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2079ms
+rtt min/avg/max/mdev = 0.079/0.085/0.093/0.005 ms
+hsuma@plnx-admin:~/ocp-ai-config/nmstate$
