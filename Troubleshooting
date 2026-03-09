@@ -15,3 +15,35 @@ ssh -i ~/.ssh/ocp-ai core@10.172.248.151 "ping -I 10.172.194.151 -M do -s 8972 -
 
 # Master03
 ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "ping -I 10.172.194.152 -M do -s 8972 -c 100 -i 0.2 10.172.194.22" &
+
+
+N9K-C9336C-FX2-006# show interface Ethernet 1/22 | grep MTU
+ MTU 9216 bytes, BW 100000000 Kbit , DLY 10 usec
+N9K-C9336C-FX2-006# show ip arp vrf data-center | include 10.172.194.22
+10.172.194.22  00:00:56 d239.eadb.8e81 Vlan1794
+N9K-C9336C-FX2-006# show mac address-table address d239.eadb.8e81
+Legend:
+    * - primary entry, G - Gateway MAC, (R) - Routed MAC, O - Overlay MAC
+    age - seconds since last seen,+ - primary entry using vPC Peer-Link,
+    (T) - True, (F) - False, C - ControlPlane MAC, ~ - vsan,
+    (NA)- Not Applicable A – ESI Active Path, S – ESI Standby Path
+  VLAN   MAC Address   Type   age   Secure NTFY Ports
+---------+-----------------+--------+---------+------+----+------------------
++ 1201   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1202   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1540   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1550   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1560   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1570   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1792   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1793   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1794   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1796   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1797   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1798   d239.eadb.8e81  dynamic NA     F   F  Po35
++ 1802   d239.eadb.8e81  dynamic NA     F   F  Po35
+N9K-C9336C-FX2-006# show port-channel summary | grep Po35
+35  Po35(SU)  Eth   LACP   Eth1/22(P)
+N9K-C9336C-FX2-006# show interface Ethernet 1/22 | grep MTU
+ MTU 9216 bytes, BW 100000000 Kbit , DLY 10 usec
+N9K-C9336C-FX2-006#
