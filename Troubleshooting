@@ -1,4 +1,37 @@
-uma@plnx-admin:~/ocp-ai-config/trident$
-hsuma@plnx-admin:~/ocp-ai-config/trident$ ssh -i ~/.ssh/ocp-ai core@10.172.248.152 "sudo mount -t nfs4 -o nfsvers=4.1 10.172.194.22:/trident_pvc_97a9fba4_3ef2_4d84_a539_bee0bcdd27a2 /mnt && echo SUCCESS && sudo umount /mnt"
-SUCCESS
-hsuma@plnx-admin:~/ocp-ai-config/trident$
+We had NFS storage issues across the cluster that were causing Milvus prod to crash-loop and blocking new workloads from mounting volumes. The root cause ended up being the Nexus SVI MTU on the storage VLANs — it was still set to the default 1500 instead of 9216. Chetan fixed it on both switches and everything is running clean now.
+
+For folks interested in how I tracked it down, here’s the recap.
+
+The symptom was NFS mounts and writes randomly hanging across all three master nodes. Milvus prod had been crash-looping for over a week, and new workloads like CNPG couldn’t mount their storage volumes.
+
+The confusing part was that basic connectivity looked fine. Pings worked. TCP port 2049 was open. NFS could establish a connection and even do small operations like listing exports. But the moment it tried to do actual data transfers, it hung.
+
+Here’s the path I took to track it down.
+
+First I checked the obvious things — Trident node pods, export policies on the NetApp, PVC binding, and NFS client state on the masters. Everything looked normal. I did notice hundreds of server not responding messages in dmesg on all three masters going back days, which told me this wasn’t a one-off.
+
+I tested NFSv4.1 vs NFSv3. Both hung. I then forced TCP for the mountd protocol. NFSv3 over TCP worked, which pointed to something being wrong with large packet handling. Small packets were fine, large ones weren’t.
+
+That led me to test jumbo frames directly. I ran a ping with the don’t fragment flag using an 8972 byte payload (which equals a full 9000 MTU frame). That showed 100% packet loss from every master to the NetApp LIF. A standard 1472 byte ping worked perfectly. That confirmed jumbo frames were being dropped somewhere along the network path.
+
+As a temporary workaround I dropped the masters to MTU 1500. Everything came back immediately — Milvus prod started clean and CNPG volumes mounted without issues.
+
+I also tested from the GPU workers, which use a completely different physical path — Mellanox NICs through different leaf switches. Same failure. That told me the problem had to be at a shared point in the network path, which pointed to the Nexus switch.
+
+At that point I brought Chetan in and we traced the path hop by hop.
+
+Master side — bnd0 bond at MTU 9000, eno7 and eno8 at 9000. Clean.
+
+Fabric Interconnect — Veth1010, port-channel 134, uplinks Eth1/1 and Eth1/2, and IOM port Eth2/1/33. All at 9216. Clean.
+
+Nexus switch — FI-facing port Eth1/6 on Po20, NetApp-facing port Eth1/22 on Po35, and the vPC peer-link Po500. All at 9216. Clean.
+
+NetApp — interface group a0a at MTU 9000, VLAN interface a0a-1794 at 9000. Clean.
+
+Intersight — QoS policy pln_qos_9000_EO confirmed at MTU 9000. Clean.
+
+Every physical port and port-channel checked out.
+
+The one thing we hadn’t checked was the Nexus SVI — the Layer 3 VLAN interface that routes traffic between subnets. When Chetan checked it, the SVIs for the storage VLANs were still at the Nexus default MTU of 1500. Every jumbo frame hitting the SVI was being silently dropped.
+
+Chetan updated the SVIs on all storage VLANs to MTU 9216 on both Nexus switches. Jumbo frames started passing immediately. NFS mounts are instant now. CNPG came up with all three instances in under a minute. Milvus prod is running clean.
