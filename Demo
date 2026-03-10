@@ -1,8 +1,1 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc adm policy add-cluster-role-to-group cluster-admin engops
-clusterrole.rbac.authorization.k8s.io/cluster-admin added: "engops"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-
-hsuma@plnx-admin:~$ oc get clusterrolebindings | grep engops
-hsuma@plnx-admin:~$
+oc get clusterrolebindings -o custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECTS:.subjects[*].name | grep engops
