@@ -1,3 +1,22 @@
-oc get rolebinding admin -n pai-dev -o yaml | grep -A10 "subjects:"
-oc get rolebinding admin -n pai-test -o yaml | grep -A10 "subjects:"
-oc get rolebinding admin -n pai-prod -o yaml | grep -A10 "subjects:"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get rolebinding admin -n pai-dev -o yaml | grep -A10 "subjects:"
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: paiteam.admins
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get rolebinding admin -n pai-test -o yaml | grep -A10 "subjects:"
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: paiteam.admins
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get rolebinding admin -n pai-prod -o yaml | grep -A10 "subjects:"
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: paiteam.admins
+hsuma@plnx-admin:~$
