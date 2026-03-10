@@ -1,5 +1,156 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get oauth cluster -o yaml | grep -E "name: ldap"
+mkdir -p ~/ocp-ai-config/oauth
+oc get oauth cluster -o yaml > /tmp/oauth-raw.yaml
+
+
+cat > ~/ocp-ai-config/oauth/oauth.yaml << 'EOF'
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  name: cluster
+spec:
+  identityProviders:
+  - ldap:
+      attributes:
+        email:
+        - email
+        id:
+        - dn
+        name:
+        - cn
+        preferredUsername:
+        - uid
+      bindDN: uid=ldapbind,cn=users,cn=accounts,dc=ipa,dc=calix,dc=local
+      bindPassword:
         name: ldap-bind-password-8gk5w
+      ca:
         name: ldap-ca-m4hvn
+      insecure: false
+      url: ldaps://cpeg-ipareplica.ipa.calix.local./cn=users,cn=accounts,dc=ipa,dc=calix,dc=local?uid
+    mappingMethod: claim
     name: ldap-ipa
-hsuma@plnx-admin:~/ocp-ai-config$
+    type: LDAP
+EOF
+
+
+oc get secret -n openshift-config | grep ldap-bind
+oc get configmap -n openshift-config | grep ldap-ca
+
+
+
+
+cat > ~/ocp-ai-config/apps/oauth.yaml << 'EOF'
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: oauth
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: oauth
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+      - CreateNamespace=false
+EOF
+
+
+
+cd ~/ocp-ai-config
+git add oauth/ apps/oauth.yaml
+git commit -m "Add OAuth LDAP config to ArgoCD - selfHeal, no prune"
+git push
+
+
+
+
+cat > ~/ocp-ai-config/oauth/README.md << 'EOF'
+# OAuth LDAP Configuration
+
+The OAuth config references two resources in the `openshift-config` namespace
+that are NOT managed by ArgoCD or ESO (intentionally — to avoid locking out
+the cluster if ESO has issues).
+
+## Recreating after cluster rebuild
+
+The bind password and CA cert are backed up in Vault:
+```bash
+# Recreate the bind password secret
+vault kv get -field=bindPassword kv/ldap-group-sync/bind-password > /tmp/ldap-bind-password
+oc create secret generic ldap-bind-password-8gk5w \
+  --from-file=bindPassword=/tmp/ldap-bind-password \
+  -n openshift-config
+
+# Recreate the CA configmap
+vault kv get -field=ca.crt kv/ldap-group-sync/ldap-ca > /tmp/ldap-ca.crt
+oc create configmap ldap-ca-m4hvn \
+  --from-file=ca.crt=/tmp/ldap-ca.crt \
+  -n openshift-config
+```
+
+After creating these, ArgoCD will sync the OAuth config and LDAP login will work.
+EOF
+
+
+
+cd ~/ocp-ai-config
+git add oauth/ apps/oauth.yaml
+git commit -m "Add OAuth LDAP config to ArgoCD with Vault backup docs"
+git push
+
+
+
+
+# Create the new directory
+mkdir -p ~/ocp-ai-config/authentication
+
+# Move everything
+mv ~/ocp-ai-config/oauth/* ~/ocp-ai-config/authentication/
+mv ~/ocp-ai-config/ldap-group-sync/* ~/ocp-ai-config/authentication/
+
+# Remove old directories
+rmdir ~/ocp-ai-config/oauth
+rmdir ~/ocp-ai-config/ldap-group-sync
+
+# Remove old app manifests
+rm ~/ocp-ai-config/apps/oauth.yaml
+rm ~/ocp-ai-config/apps/ldap-group-sync.yaml
+
+
+
+cat > ~/ocp-ai-config/apps/authentication.yaml << 'EOF'
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentication
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: authentication
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+      - CreateNamespace=true
+EOF
+
+
+oc delete application ldap-group-sync -n openshift-gitops
+
+
+cd ~/ocp-ai-config
+git add -A
+git commit -m "Consolidate OAuth and LDAP group sync into authentication directory"
+git push
