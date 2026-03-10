@@ -59,3 +59,15 @@ hsuma@plnx-admin:~$ oc get secret -n openshift-config | grep ldap
 ldap-bind-password-596n4                  Opaque                           1      26h
 ldap-bind-password-8gk5w                  Opaque                           1      26h
 hsuma@plnx-admin:~$
+
+
+ldap-bind-password-8gk5w                  Opaque                           1      26h
+hsuma@plnx-admin:~$ oc get configmap -n openshift-config | grep ldap
+ldap-ca-m4hvn                      1      26h
+ldap-ca-npxqj                      1      26h
+hsuma@plnx-admin:~$ oc get configmap ldap-ca-m4hvn -n openshift-config -o jsonpath='{.data.ca\.crt}' | base64 -d > /tmp/ldap-ca.crt
+base64: invalid input
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ cat /tmp/ldap-ca.crt
+hsuma@plnx-admin:~$
