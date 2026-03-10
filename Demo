@@ -1,6 +1,22 @@
-Description
-
-7.1 Configure identity provider 
-7.2 Define RBAC for admin, dev, and ops roles 
-7.3 Create dev/test/prod namespaces 
-7.4 Apply quotas, limits, and network policies 
+hsuma@plnx-admin:~$ oc get rolebindings -n pai-dev
+NAME                          ROLE                                      AGE
+admin                         ClusterRole/admin                         12d
+system:deployers              ClusterRole/system:deployer               12d
+system:image-builders         ClusterRole/system:image-builder          12d
+system:image-pullers          ClusterRole/system:image-puller           12d
+system:openshift:scc:anyuid   ClusterRole/system:openshift:scc:anyuid   7d4h
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get rolebindings -n pai-test
+NAME                    ROLE                               AGE
+admin                   ClusterRole/admin                  12d
+system:deployers        ClusterRole/system:deployer        12d
+system:image-builders   ClusterRole/system:image-builder   12d
+system:image-pullers    ClusterRole/system:image-puller    12d
+hsuma@plnx-admin:~$ oc get rolebindings -n pai-prod
+NAME                    ROLE                               AGE
+admin                   ClusterRole/admin                  12d
+system:deployers        ClusterRole/system:deployer        12d
+system:image-builders   ClusterRole/system:image-builder   12d
+system:image-pullers    ClusterRole/system:image-puller    12d
+hsuma@plnx-admin:~$
