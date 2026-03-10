@@ -31,3 +31,8 @@ EOF
 # Get the CA cert secret name and bind password secret name from the OAuth config
 oc get secret ldap-ca-m4hvn -n openshift-config -o jsonpath='{.data.ca\.crt}' | base64 -d > /tmp/ldap-ca.crt
 oc get secret ldap-bind-password-8gk5w -n openshift-config -o jsonpath='{.data.bindPassword}' | base64 -d > /tmp/ldap-bind-password
+
+oc adm groups sync --sync-config=/tmp/ldap-group-sync.yaml --confirm=false
+
+
+oc adm groups sync --sync-config=/tmp/ldap-group-sync.yaml --confirm
