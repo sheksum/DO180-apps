@@ -1,3 +1,20 @@
-oc get clusterrolebinding cluster-admin-0 -o yaml | grep -A10 "subjects:"
-oc get clusterrolebinding cluster-admin-1 -o yaml | grep -A10 "subjects:"
-oc get clusterrolebinding cluster-admins -o yaml | grep -A10 "subjects:"
+hsuma@plnx-admin:~$ oc get clusterrolebinding cluster-admin-0 -o yaml | grep -A10 "subjects:"
+subjects:
+- kind: ServiceAccount
+  name: openshift-gitops-argocd-application-controller
+  namespace: openshift-gitops
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get clusterrolebinding cluster-admin-1 -o yaml | grep -A10 "subjects:"
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: ocp.admins
+hsuma@plnx-admin:~$ oc get clusterrolebinding cluster-admins -o yaml | grep -A10 "subjects:"
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:cluster-admins
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: system:admin
+hsuma@plnx-admin:~$
