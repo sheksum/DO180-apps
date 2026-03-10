@@ -1,43 +1,23 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get groups
-NAME     USERS
-engops   bwing, akumari, dthornto, ckudari, mbarik, mmanisha, engops_backup, kiskumar, sangyas, fngundam, vsekar, gsiepka, _svc_pan_bind, hsuma
-mlops    sulsinha, ajayacha, awkumar
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get users
-NAME                  UID                                    FULL NAME     IDENTITIES
-athira.jayachandran   a3a33fe2-1b73-49bb-811f-b0ea4e0743eb                 htpasswd:athira.jayachandran
-awanish.kumar         612d177c-240d-4622-9664-4298da09537a                 htpasswd:awanish.kumar
-gene.siepka           f6f62b95-69cf-442f-a6dd-82c69dc06bc8                 htpasswd:gene.siepka
-gsiepka               2663c75e-9172-403c-943f-89180681427a   Gene Siepka   ldap-ipa:dWlkPWdzaWVwa2EsY249dXNlcnMsY249YWNjb3VudHMsZGM9aXBhLGRjPWNhbGl4LGRjPWxvY2Fs
-haj.suma              a091f26c-8967-4871-b716-38de084c7868                 htpasswd:haj.suma
-hsuma                 9e9ada30-3bd4-4df9-a538-30f0634b725f   Haj Suma      ldap-ipa:dWlkPWhzdW1hLGNuPXVzZXJzLGNuPWFjY291bnRzLGRjPWlwYSxkYz1jYWxpeCxkYz1sb2NhbA
-hsuma@plnx-admin:~/ocp-ai-config$ oc get identities
-NAME                                                                                    IDP NAME   IDP USER NAME                                                                  USER NAME             USER UID
-htpasswd:athira.jayachandran                                                            htpasswd   athira.jayachandran                                                            athira.jayachandran   a3a33fe2-1b73-49bb-811f-b0ea4e0743eb
-htpasswd:awanish.kumar                                                                  htpasswd   awanish.kumar                                                                  awanish.kumar         612d177c-240d-4622-9664-4298da09537a
-htpasswd:gene.siepka                                                                    htpasswd   gene.siepka                                                                    gene.siepka           f6f62b95-69cf-442f-a6dd-82c69dc06bc8
-htpasswd:gsiepka                                                                        htpasswd   gsiepka                                                                        gsiepka               69b516d1-2578-4873-9190-f2aeff63a6cf
-htpasswd:haj.suma                                                                       htpasswd   haj.suma                                                                       haj.suma              a091f26c-8967-4871-b716-38de084c7868
-ldap-ipa:dWlkPWdzaWVwa2EsY249dXNlcnMsY249YWNjb3VudHMsZGM9aXBhLGRjPWNhbGl4LGRjPWxvY2Fs   ldap-ipa   dWlkPWdzaWVwa2EsY249dXNlcnMsY249YWNjb3VudHMsZGM9aXBhLGRjPWNhbGl4LGRjPWxvY2Fs   gsiepka               2663c75e-9172-403c-943f-89180681427a
-ldap-ipa:dWlkPWhzdW1hLGNuPXVzZXJzLGNuPWFjY291bnRzLGRjPWlwYSxkYz1jYWxpeCxkYz1sb2NhbA     ldap-ipa   dWlkPWhzdW1hLGNuPXVzZXJzLGNuPWFjY291bnRzLGRjPWlwYSxkYz1jYWxpeCxkYz1sb2NhbA     hsuma                 9e9ada30-3bd4-4df9-a538-30f0634b725f
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n openshift-authentication
-NAME                               READY   STATUS    RESTARTS   AGE
-oauth-openshift-555cb446c6-8s7rh   1/1     Running   0          27h
-oauth-openshift-555cb446c6-bcddc   1/1     Running   0          27h
-oauth-openshift-555cb446c6-h2d25   1/1     Running   0          27h
-hsuma@plnx-admin:~/ocp-ai-config$
+oc edit oauth cluster
 
-{
-  "kind": "Status",
-  "apiVersion": "v1",
-  "metadata": {},
-  "status": "Failure",
-  "message": "forbidden: User \"system:anonymous\" cannot get path \"/\"",
-  "reason": "Forbidden",
-  "details": {},
-  "code": 403
-}
+
+# Delete htpasswd users
+oc delete user haj.suma
+oc delete user gene.siepka
+oc delete user awanish.kumar
+oc delete user athira.jayachandran
+
+# Delete htpasswd identities
+oc delete identity htpasswd:haj.suma
+oc delete identity htpasswd:gene.siepka
+oc delete identity htpasswd:awanish.kumar
+oc delete identity htpasswd:athira.jayachandran
+oc delete identity htpasswd:gsiepka
+
+# Delete the htpasswd secret
+oc delete secret htpasswd-8wkl4 -n openshift-config
+
+
+oc get pods -n openshift-authentication -w
+
+KUBECONFIG=/tmp/test-login oc login -u hsuma https://api.ocp-ai.calix.local:6443 --insecure-skip-tls-verify
