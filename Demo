@@ -1,2 +1,5 @@
-Brian Wing  [10:27 AM]
-@Manoja Kumar Barik can we get a readout from Defender on how many vulnerable instances of NGINX are in our environment?  https://nvd.nist.gov/vuln/detail/CVE-2026-27944  @haj.suma can we check our AI Infra for this one?
+# Check for any nginx images across the cluster
+oc get pods -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\t"}{.metadata.name}{"\t"}{range .spec.containers[*]}{.image}{" "}{end}{"\n"}{end}' | grep -i nginx
+
+# Also check init containers
+oc get pods -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\t"}{.metadata.name}{"\t"}{range .spec.initContainers[*]}{.image}{" "}{end}{"\n"}{end}' | grep -i nginx
