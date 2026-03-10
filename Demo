@@ -1,9 +1,6 @@
-MinIO is deployed and running across all 3 environments. Standalone mode, NetApp backed, credentials from Vault/ESO, console accessible through Gateway API. Managed via ArgoCD.
-Milvus is deployed and running in dev and test. Prod is still having a streaming node startup issue that I'm working through. Dev and test are fully usable.
-CNPG - right now there's just a standalone postgres pod in pai-dev that the app team deployed. We’ll be replacing that with the CNPG operator so we have proper backups and HA. I will be reaching out to MLOps for requirements on this.
-Kafka is replacing RabbitMQ per the app team's request. This is application-owned, not infra. We will reserve the following IPs for them: 
-10.172.194.162 (dev)
-10.172.198.162 (test)
-10.172.202.162 (prod).
-Removing 16.4 (ML Platform), 16.5 (Notebook), and 16.6 (Model Serving) - confirmed not needed.
-Onboarding templates have been documented on ConfluenceOCP-AI Platform - Service Onboarding Templates  and shared with MLOps. Covers endpoints, credentials, deployment references for MinIO and Milvus, plus templates for HTTPRoutes, LoadBalancer services, TLS certs, and storage.
+Description
+
+7.1 Configure identity provider 
+7.2 Define RBAC for admin, dev, and ops roles 
+7.3 Create dev/test/prod namespaces 
+7.4 Apply quotas, limits, and network policies 
