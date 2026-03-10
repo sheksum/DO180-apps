@@ -1,29 +1,5 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get secret -n openshift-config
-NAME                                      TYPE                             DATA   AGE
-api-tls                                   kubernetes.io/tls                3      14d
-builder-dockercfg-ckpk2                   kubernetes.io/dockercfg          1      20d
-default-dockercfg-5jn6w                   kubernetes.io/dockercfg          1      20d
-deployer-dockercfg-7tlgv                  kubernetes.io/dockercfg          1      20d
-etcd-client                               kubernetes.io/tls                2      22d
-htpasswd-wdpxn                            Opaque                           1      12d
-initial-service-account-private-key       Opaque                           1      22d
-ldap-bind-password-596n4                  Opaque                           1      28h
-ldap-bind-password-8gk5w                  Opaque                           1      27h
-pull-secret                               kubernetes.io/dockerconfigjson   1      22d
-webhook-authentication-integrated-oauth   Opaque                           1      22d
-hsuma@plnx-admin:~/ocp-ai-config$ oc get cm -n openshift-config
-NAME                               DATA   AGE
-admin-acks                         0      22d
-admin-kubeconfig-client-ca         1      22d
-custom-ca                          1      11d
-custom-ca-bundle                   1      14d
-etcd-ca-bundle                     1      22d
-etcd-serving-ca                    1      22d
-initial-kube-apiserver-server-ca   1      22d
-installer-images                   1      22d
-kube-root-ca.crt                   1      22d
-ldap-ca-m4hvn                      1      27h
-ldap-ca-npxqj                      1      28h
-openshift-install-manifests        2      22d
-openshift-service-ca.crt           1      22d
+hsuma@plnx-admin:~/ocp-ai-config$ oc get oauth cluster -o yaml | grep -E "name: ldap"
+        name: ldap-bind-password-8gk5w
+        name: ldap-ca-m4hvn
+    name: ldap-ipa
 hsuma@plnx-admin:~/ocp-ai-config$
