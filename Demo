@@ -22,3 +22,38 @@ nmstate            Synced        Healthy
 ocp-ai-platform    Synced        Healthy
 trident            Synced        Healthy
 hsuma@plnx-admin:~/ocp-ai-config$
+
+     key: ldap-group-sync/bind-password
+        metadataPolicy: None
+        property: bindPassword
+      secretKey: bindPassword
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: SecretStore
+    name: vault-store
+  target:
+    creationPolicy: Owner
+    deletionPolicy: Retain
+    name: ldap-bind-password
+status:
+  binding:
+    name: ''
+  conditions:
+    - lastTransitionTime: '2026-03-10T21:46:13Z'
+      message: could not get secret data from provider
+      reason: SecretSyncedError
+      status: 'False'
+      type: Ready
+  refreshTime: null
+
+
+     path: kv
+      server: https://vault.calix.local:8200
+      version: v2
+status:
+  conditions:
+    - lastTransitionTime: '2026-03-10T21:46:13Z'
+      message: unable to create client
+      reason: InvalidProviderConfig
+      status: 'False'
+      type: Ready
