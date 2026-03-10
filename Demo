@@ -1,6 +1,58 @@
-hsuma@plnx-admin:~$ oc logs general-agent-router-module-cffcf97f6-nbmjd -n pai-dev -c model-loader
-mc: <ERROR> Unable to save new mc config. mkdir /.mc: permission denied.
-mc: <ERROR> Unable to save new mc config. mkdir /.mc: permission denied.
---- Model files downloaded ---
-/models/:
+hsuma@plnx-admin:~$ oc logs general-agent-router-module-cb9787c67-mmnf2 -n pai-dev
+Defaulted container "general-agent-router-module" out of: general-agent-router-module, model-loader (init), check-mount (init)
+W0310 14:04:55.516851 1 pinned_memory_manager.cc:237] Unable to allocate pinned system memory, pinned memory pool will not be available: CUDA driver version is insufficient for CUDA runtime version
+I0310 14:04:55.516898 1 cuda_memory_manager.cc:117] CUDA memory pool disabled
+I0310 14:04:55.517924 1 model_lifecycle.cc:461] loading: distilbert:1
+I0310 14:04:55.519558 1 onnxruntime.cc:2608] TRITONBACKEND_Initialize: onnxruntime
+I0310 14:04:55.519572 1 onnxruntime.cc:2618] Triton TRITONBACKEND API version: 1.16
+I0310 14:04:55.519575 1 onnxruntime.cc:2624] 'onnxruntime' TRITONBACKEND API version: 1.16
+I0310 14:04:55.519577 1 onnxruntime.cc:2654] backend configuration:
+{"cmdline":{"auto-complete-config":"false","backend-directory":"/opt/tritonserver/backends","enable_gpu":"false","min-compute-capability":"6.000000","default-max-batch-size":"4"}}
+I0310 14:04:55.532127 1 onnxruntime.cc:2719] TRITONBACKEND_ModelInitialize: distilbert (version 1)
+I0310 14:04:55.532981 1 onnxruntime.cc:2784] TRITONBACKEND_ModelInstanceInitialize: distilbert_0_0 (CPU device 0)
+I0310 14:04:55.817599 1 model_lifecycle.cc:818] successfully loaded 'distilbert'
+I0310 14:04:55.817825 1 server.cc:592]
++------------------+------+
+| Repository Agent | Path |
++------------------+------+
++------------------+------+
+
+I0310 14:04:55.817861 1 server.cc:619]
++-------------+-----------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Backend     | Path                                                            | Config                                                                                                                                                                              |
++-------------+-----------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| onnxruntime | /opt/tritonserver/backends/onnxruntime/libtriton_onnxruntime.so | {"cmdline":{"auto-complete-config":"false","backend-directory":"/opt/tritonserver/backends","enable_gpu":"false","min-compute-capability":"6.000000","default-max-batch-size":"4"}} |
++-------------+-----------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+I0310 14:04:55.817879 1 server.cc:662]
++------------+---------+--------+
+| Model      | Version | Status |
++------------+---------+--------+
+| distilbert | 1       | READY  |
++------------+---------+--------+
+
+I0310 14:04:55.818133 1 metrics.cc:710] Collecting CPU metrics
+I0310 14:04:55.818262 1 tritonserver.cc:2458]
++----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Option                           | Value                                                                                                                                                                                                           |
++----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| server_id                        | triton                                                                                                                                                                                                          |
+| server_version                   | 2.39.0                                                                                                                                                                                                          |
+| server_extensions                | classification sequence model_repository model_repository(unload_dependents) schedule_policy model_configuration system_shared_memory cuda_shared_memory binary_tensor_data parameters statistics trace logging |
+| model_repository_path[0]         | /models                                                                                                                                                                                                         |
+| model_control_mode               | MODE_EXPLICIT                                                                                                                                                                                                   |
+| startup_models_0                 | distilbert                                                                                                                                                                                                      |
+| strict_model_config              | 1                                                                                                                                                                                                               |
+| rate_limit                       | OFF                                                                                                                                                                                                             |
+| pinned_memory_pool_byte_size     | 0                                                                                                                                                                                                               |
+| cuda_memory_pool_byte_size{0}    | 0                                                                                                                                                                                                               |
+| min_supported_compute_capability | 6.0                                                                                                                                                                                                             |
+| strict_readiness                 | 1                                                                                                                                                                                                               |
+| exit_timeout                     | 30                                                                                                                                                                                                              |
+| cache_enabled                    | 0                                                                                                                                                                                                               |
++----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+I0310 14:04:55.819575 1 grpc_server.cc:2513] Started GRPCInferenceService at 0.0.0.0:8001
+I0310 14:04:55.819750 1 http_server.cc:4497] Started HTTPService at 0.0.0.0:8000
+I0310 14:04:55.860631 1 http_server.cc:270] Started Metrics Service at 0.0.0.0:8002
 hsuma@plnx-admin:~$
