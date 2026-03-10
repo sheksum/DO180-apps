@@ -1,28 +1,42 @@
-cat > /tmp/ldap-group-sync.yaml << 'EOF'
-kind: LDAPSyncConfig
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc adm groups sync --sync-config=/tmp/ldap-group-sync.yaml --confirm=false
 apiVersion: v1
-url: ldaps://cpeg-ipareplica.ipa.calix.local
-ca: /tmp/ldap-ca.crt
-bindDN: uid=ldapbind,cn=users,cn=accounts,dc=ipa,dc=calix,dc=local
-bindPassword:
-  file: /tmp/ldap-bind-password
-insecure: false
-rfc2307:
-  groupsQuery:
-    baseDN: cn=groups,cn=accounts,dc=ipa,dc=calix,dc=local
-    scope: sub
-    derefAliases: never
-    filter: (|(cn=engops)(cn=mlops))
-  groupUIDAttribute: dn
-  groupNameAttributes:
-  - cn
-  groupMembershipAttributes:
-  - member
-  usersQuery:
-    baseDN: cn=users,cn=accounts,dc=ipa,dc=calix,dc=local
-    scope: sub
-    derefAliases: never
-  userUIDAttribute: dn
-  userNameAttributes:
-  - uid
-EOF
+items:
+- apiVersion: user.openshift.io/v1
+  kind: Group
+  metadata:
+    annotations:
+      openshift.io/ldap.sync-time: 2026-03-10T15:55:01-0500
+      openshift.io/ldap.uid: cn=engops,cn=groups,cn=accounts,dc=ipa,dc=calix,dc=local
+      openshift.io/ldap.url: cpeg-ipareplica.ipa.calix.local:636
+    labels:
+      openshift.io/ldap.host: cpeg-ipareplica.ipa.calix.local
+    name: engops
+  users:
+  - bwing
+  - akumari
+  - dthornto
+  - ckudari
+  - mbarik
+  - mmanisha
+  - engops_backup
+  - kiskumar
+  - sangyas
+  - fngundam
+  - vsekar
+  - gsiepka
+  - _svc_pan_bind
+- apiVersion: user.openshift.io/v1
+  kind: Group
+  metadata:
+    annotations:
+      openshift.io/ldap.sync-time: 2026-03-10T15:55:01-0500
+      openshift.io/ldap.uid: cn=mlops,cn=groups,cn=accounts,dc=ipa,dc=calix,dc=local
+      openshift.io/ldap.url: cpeg-ipareplica.ipa.calix.local:636
+    labels:
+      openshift.io/ldap.host: cpeg-ipareplica.ipa.calix.local
+    name: mlops
+  users: null
+kind: List
+metadata: {}
+hsuma@plnx-admin:~$
