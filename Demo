@@ -1,8 +1,21 @@
-hsuma@plnx-admin:~$ oc get rolebinding -n pai-test -o custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECTS:.subjects[*].name | grep -v system
-NAME                    ROLE                   SUBJECTS
-edit                    edit                   paiteam.admins
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get rolebinding -n pai-prod -o custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECTS:.subjects[*].name | grep -v system
-NAME                    ROLE                   SUBJECTS
-view                    view                   paiteam.admins
-hsuma@plnx-admin:~$
+Updating Task 7. Here's where we stand:
+
+7.1 Configure identity provider — Complete.
+- LDAP integrated for cluster access (Gene)
+- Vault LDAP integrated with FreeIPA — engops-admin and mlops-app policies
+
+7.2 Define RBAC for admin, dev, and ops roles — Complete.
+- Infra team (ocp.admins group) has cluster-admin
+- App team (paiteam.admins group) RBAC enforced per environment:
+  - pai-dev: admin — full access, manual applies allowed for active development
+  - pai-test: edit — can view logs, exec, port-forward, but deployments go through PR review and ArgoCD
+  - pai-prod: view — read-only, all deployments strictly through ArgoCD, no manual applies or exec
+- Secrets in test/prod managed through Vault — app teams write to their Vault paths via LDAP, ESO syncs into the namespace
+
+7.3 Create dev/test/prod namespaces — Complete. pai-dev, pai-test, pai-prod.
+
+7.4 Apply quotas, limits, and network policies — Partially complete.
+- NetworkPolicies deployed for environment isolation — ArgoCD managed
+- ResourceQuotas and LimitRanges not yet applied. Holding off until we have baseline resource usage from initial deployments so we can set realistic limits.
+
+Leaving this task open for quotas/limits only. Everything else is done.
