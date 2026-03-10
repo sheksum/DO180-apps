@@ -1,12 +1,2 @@
-# pai-test: change paiteam.admins from admin to edit
-oc adm policy remove-role-from-group admin paiteam.admins -n pai-test
-oc adm policy add-role-to-group edit paiteam.admins -n pai-test
-
-# pai-prod: change paiteam.admins from admin to view
-oc adm policy remove-role-from-group admin paiteam.admins -n pai-prod
-oc adm policy add-role-to-group view paiteam.admins -n pai-prod
-
-
-oc get rolebindings -n pai-dev | grep -v system
-oc get rolebindings -n pai-test | grep -v system
-oc get rolebindings -n pai-prod | grep -v system
+oc get rolebinding -n pai-test -o custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECTS:.subjects[*].name | grep -v system
+oc get rolebinding -n pai-prod -o custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECTS:.subjects[*].name | grep -v system
