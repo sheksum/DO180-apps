@@ -1,6 +1,271 @@
-KUBECONFIG=/tmp/test-kubeconfig oc logout
-KUBECONFIG=/tmp/test-kubeconfig oc login -u hsuma https://api.ocp-ai.calix.local:6443 --insecure-skip-tls-verify
+cat > ~/ocp-ai-config/ldap-group-sync/namespace.yaml << 'EOF'
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ldap-group-sync
+EOF
 
-# Should work — cluster-admin via engops
-KUBECONFIG=/tmp/test-kubeconfig oc get nodes
-KUBECONFIG=/tmp/test-kubeconfig oc get pods -n openshift-etcd
+cat > ~/ocp-ai-config/ldap-group-sync/serviceaccount.yaml << 'EOF'
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ldap-group-sync
+  namespace: ldap-group-sync
+EOF
+
+cat > ~/ocp-ai-config/ldap-group-sync/clusterrolebinding.yaml << 'EOF'
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ldap-group-sync
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: ldap-group-sync
+  namespace: ldap-group-sync
+EOF
+
+cat > ~/ocp-ai-config/ldap-group-sync/sync-config.yaml << 'EOF'
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ldap-group-sync-config
+  namespace: ldap-group-sync
+data:
+  sync.yaml: |
+    kind: LDAPSyncConfig
+    apiVersion: v1
+    url: ldaps://cpeg-ipareplica.ipa.calix.local
+    ca: /etc/ldap-sync/ca.crt
+    bindDN: uid=ldapbind,cn=users,cn=accounts,dc=ipa,dc=calix,dc=local
+    bindPassword:
+      file: /etc/ldap-sync/bindPassword
+    insecure: false
+    rfc2307:
+      groupsQuery:
+        baseDN: cn=groups,cn=accounts,dc=ipa,dc=calix,dc=local
+        scope: sub
+        derefAliases: never
+        filter: (|(cn=engops)(cn=mlops))
+      groupUIDAttribute: dn
+      groupNameAttributes:
+      - cn
+      groupMembershipAttributes:
+      - member
+      usersQuery:
+        baseDN: cn=users,cn=accounts,dc=ipa,dc=calix,dc=local
+        scope: sub
+        derefAliases: never
+      userUIDAttribute: dn
+      userNameAttributes:
+      - uid
+EOF
+
+cat > ~/ocp-ai-config/ldap-group-sync/cronjob.yaml << 'EOF'
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ldap-group-sync
+  namespace: ldap-group-sync
+spec:
+  schedule: "*/30 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: ldap-group-sync
+          restartPolicy: Never
+          containers:
+          - name: ldap-group-sync
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            command:
+            - /bin/bash
+            - -c
+            - oc adm groups sync --sync-config=/etc/ldap-sync/sync.yaml --confirm
+            volumeMounts:
+            - name: sync-config
+              mountPath: /etc/ldap-sync/sync.yaml
+              subPath: sync.yaml
+            - name: ldap-ca
+              mountPath: /etc/ldap-sync/ca.crt
+              subPath: ca.crt
+            - name: bind-password
+              mountPath: /etc/ldap-sync/bindPassword
+              subPath: bindPassword
+          volumes:
+          - name: sync-config
+            configMap:
+              name: ldap-group-sync-config
+          - name: ldap-ca
+            configMap:
+              name: ldap-ca
+          - name: bind-password
+            secret:
+              secretName: ldap-bind-password
+EOF
+
+
+
+# Create the namespace first so we can create secrets in it
+oc create namespace ldap-group-sync
+
+# Create the CA ConfigMap and bind password Secret manually
+oc create configmap ldap-ca \
+  --from-file=ca.crt=/tmp/ldap-ca.crt \
+  -n ldap-group-sync
+
+oc create secret generic ldap-bind-password \
+  --from-file=bindPassword=/tmp/ldap-bind-password \
+  -n ldap-group-sync
+
+
+
+
+cat > ~/ocp-ai-config/apps/ldap-group-sync.yaml << 'EOF'
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ldap-group-sync
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:calixprod/ocp-ai-platform.git
+    targetRevision: main
+    path: ldap-group-sync
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+EOF
+
+
+
+
+cd ~/ocp-ai-config
+git add ldap-group-sync/ apps/ldap-group-sync.yaml
+git commit -m "Add LDAP group sync CronJob - syncs engops and mlops from FreeIPA every 30 minutes"
+git push
+
+
+
+
+
+
+=====
+
+
+
+cat > ~/ocp-ai-config/ldap-group-sync/rolebindings.yaml << 'EOF'
+# engops - cluster-admin (via ClusterRoleBinding in clusterrolebinding.yaml)
+# mlops - tiered access per environment
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mlops-admin
+  namespace: pai-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: mlops
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mlops-edit
+  namespace: pai-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: mlops
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mlops-view
+  namespace: pai-prod
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: mlops
+EOF
+
+
+
+
+cat > ~/ocp-ai-config/ldap-group-sync/clusterrolebinding.yaml << 'EOF'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ldap-group-sync
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: ldap-group-sync
+  namespace: ldap-group-sync
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: engops-cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: engops
+EOF
+
+
+
+# Remove the manually created ones
+oc delete clusterrolebinding cluster-admin-2
+oc delete rolebinding admin-0 -n pai-dev
+oc delete rolebinding edit-0 -n pai-test
+oc delete rolebinding view-0 -n pai-prod
+
+
+
+cd ~/ocp-ai-config
+git add ldap-group-sync/ apps/ldap-group-sync.yaml
+git commit -m "Add LDAP group sync CronJob with RBAC - engops cluster-admin, mlops tiered namespace access"
+git push
+
+
+oc get clusterrolebindings | grep engops
+oc get rolebindings -n pai-dev | grep mlops
+oc get rolebindings -n pai-test | grep mlops
+oc get rolebindings -n pai-prod | grep mlops
+
+
+oc create job --from=cronjob/ldap-group-sync ldap-group-sync-test -n ldap-group-sync
+oc logs -n ldap-group-sync -l job-name=ldap-group-sync-test -f
