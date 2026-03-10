@@ -30,3 +30,14 @@ oauth-openshift-555cb446c6-8s7rh   1/1     Running   0          27h
 oauth-openshift-555cb446c6-bcddc   1/1     Running   0          27h
 oauth-openshift-555cb446c6-h2d25   1/1     Running   0          27h
 hsuma@plnx-admin:~/ocp-ai-config$
+
+{
+  "kind": "Status",
+  "apiVersion": "v1",
+  "metadata": {},
+  "status": "Failure",
+  "message": "forbidden: User \"system:anonymous\" cannot get path \"/\"",
+  "reason": "Forbidden",
+  "details": {},
+  "code": 403
+}
