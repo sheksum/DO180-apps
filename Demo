@@ -71,3 +71,15 @@ hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$ cat /tmp/ldap-ca.crt
 hsuma@plnx-admin:~$
+
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ cat /tmp/ldap-ca.crt
+-----BEGIN CERTIFICATE-----
+MIIDlzCCAn+gAwIBAgIBATANBgkqhkiG9w0BAQsFADA6MRgwFgYDVQQKDA9JUEEu
+<redacted>
+TFs62AMhKJgvp/U=
+-----END CERTIFICATE-----
+hsuma@plnx-admin:~$ oc adm groups sync --sync-config=/tmp/ldap-group-sync.yaml --confirm=false
+error: validation of LDAP sync config failed: [bindPassword.file: Invalid value: "/etc/ldap-bind/bindPassword": could not read file: stat /etc/ldap-bind/bindPassword: no such file or directory, bindDN: Invalid value: "uid=ldapbind,cn=users,cn=accounts,dc=ipa,dc=calix,dc=local": bindDN and bindPassword must both be specified, or both be empty, bindPassword: Invalid value: "(masked)": bindDN and bindPassword must both be specified, or both be empty, ca: Invalid value: "/etc/ldap-ca/ca.crt": could not read file: stat /etc/ldap-ca/ca.crt: no such file or directory]
+hsuma@plnx-admin:~$
