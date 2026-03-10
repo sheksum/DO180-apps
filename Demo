@@ -1,29 +1,6 @@
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc login -u hsuma https://api.ocp-ai.calix.local:6443 --insecure-skip-tls-verify
-WARNING: Using insecure TLS client config. Setting this option is not supported!
+KUBECONFIG=/tmp/test-kubeconfig oc delete configmap test-rbac -n pai-dev
+KUBECONFIG=/tmp/test-kubeconfig oc delete configmap test-rbac -n pai-test
 
-Console URL: https://api.ocp-ai.calix.local:6443/console
-Authentication required for https://api.ocp-ai.calix.local:6443 (openshift)
-Username: hsuma
-Password:
-Login successful.
-
-You have access to the following projects and can switch between them with 'oc project <projectname>':
-
-  * pai-dev
-    pai-prod
-    pai-test
-
-Using project "pai-dev".
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-dev
-configmap/test-rbac created
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-test
-configmap/test-rbac created
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-prod
-error: failed to create configmap: configmaps is forbidden: User "hsuma" cannot create resource "configmaps" in API group "" in the namespace "pai-prod"
-hsuma@plnx-admin:~$
+# Remove yourself from mlops, add back to engops
+oc adm groups remove-users mlops hsuma
+ipa group-add-member engops --users=hsuma
