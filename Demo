@@ -1,9 +1,29 @@
-hsuma@plnx-admin:~$ oc get users
-NAME                  UID                                    FULL NAME     IDENTITIES
-athira.jayachandran   a3a33fe2-1b73-49bb-811f-b0ea4e0743eb                 htpasswd:athira.jayachandran
-awanish.kumar         612d177c-240d-4622-9664-4298da09537a                 htpasswd:awanish.kumar
-gene.siepka           f6f62b95-69cf-442f-a6dd-82c69dc06bc8                 htpasswd:gene.siepka
-gsiepka               2663c75e-9172-403c-943f-89180681427a   Gene Siepka   ldap-ipa:dWlkPWdzaWVwa2EsY249dXNlcnMsY249YWNjb3VudHMsZGM9aXBhLGRjPWNhbGl4LGRjPWxvY2Fs
-haj.suma              a091f26c-8967-4871-b716-38de084c7868                 htpasswd:haj.suma
-hsuma                 9e9ada30-3bd4-4df9-a538-30f0634b725f   Haj Suma      ldap-ipa:dWlkPWhzdW1hLGNuPXVzZXJzLGNuPWFjY291bnRzLGRjPWlwYSxkYz1jYWxpeCxkYz1sb2NhbA
+hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc login -u hsuma https://api.ocp-ai.calix.local:6443 --insecure-skip-tls-verify
+WARNING: Using insecure TLS client config. Setting this option is not supported!
+
+Console URL: https://api.ocp-ai.calix.local:6443/console
+Authentication required for https://api.ocp-ai.calix.local:6443 (openshift)
+Username: hsuma
+Password:
+Login successful.
+
+You have access to the following projects and can switch between them with 'oc project <projectname>':
+
+  * pai-dev
+    pai-prod
+    pai-test
+
+Using project "pai-dev".
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-dev
+configmap/test-rbac created
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-test
+configmap/test-rbac created
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-prod
+error: failed to create configmap: configmaps is forbidden: User "hsuma" cannot create resource "configmaps" in API group "" in the namespace "pai-prod"
 hsuma@plnx-admin:~$
