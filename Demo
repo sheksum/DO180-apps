@@ -1,11 +1,3 @@
-hsuma@plnx-admin:~$ oc get clusterrolebindings | grep -i "haj\|gene\|hsuma\|siepka\|cluster-admin" | grep -v system
-cluster-admin                                                                ClusterRole/cluster-admin                                                               22d
-cluster-admin-0                                                              ClusterRole/cluster-admin                                                               15d
-cluster-admin-1                                                              ClusterRole/cluster-admin                                                               12d
-cluster-admins                                                               ClusterRole/cluster-admin                                                               22d
-cluster-network-operator                                                     ClusterRole/cluster-admin                                                               22d
-cluster-storage-operator-role                                                ClusterRole/cluster-admin                                                               22d
-cluster-version-operator                                                     ClusterRole/cluster-admin                                                               22d
-custom-account-openshift-machine-config-operator                             ClusterRole/cluster-admin                                                               22d
-storage-version-migration-migrator                                           ClusterRole/cluster-admin                                                               22d
-hsuma@plnx-admin:~$
+oc get clusterrolebinding cluster-admin-0 -o yaml | grep -A10 "subjects:"
+oc get clusterrolebinding cluster-admin-1 -o yaml | grep -A10 "subjects:"
+oc get clusterrolebinding cluster-admins -o yaml | grep -A10 "subjects:"
