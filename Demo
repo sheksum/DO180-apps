@@ -1,3 +1,13 @@
-Authentication error
-There was an error verifying your session. Please log out and try again.
-If the problem persists, contact a cluster administrator, Red Hat Support or check our status page for known outages.
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-prod
+error: failed to create configmap: configmaps is forbidden: User "hsuma" cannot create resource "configmaps" in API group "" in the namespace "pai-prod"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-test
+error: failed to create configmap: configmaps is forbidden: User "hsuma" cannot create resource "configmaps" in API group "" in the namespace "pai-test"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-dev
+error: failed to create configmap: configmaps is forbidden: User "hsuma" cannot create resource "configmaps" in API group "" in the namespace "pai-dev"
+hsuma@plnx-admin:~$
