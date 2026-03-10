@@ -1,34 +1,9 @@
-GOOD_CABUNDLE=$(oc get secretstore vault-store -n pai-dev -o jsonpath='{.spec.provider.vault.caBundle}')
-oc patch secretstore vault-store -n ldap-group-sync --type=merge -p "{\"spec\":{\"provider\":{\"vault\":{\"caBundle\":\"${GOOD_CABUNDLE}\"}}}}"
-
-
-
-# Write the correct caBundle to the eso.yaml file
-cd ~/ocp-ai-config/ldap-group-sync
-python3 -c "
-import sys
-cabundle = open('/tmp/cabundle.txt').read().strip()
-with open('eso.yaml', 'r') as f:
-    content = f.read()
-# Find and replace the bad caBundle
-lines = content.split('\n')
-new_lines = []
-for line in lines:
-    if 'caBundle:' in line:
-        new_lines.append(f'      caBundle: {cabundle}')
-    else:
-        new_lines.append(line)
-with open('eso.yaml', 'w') as f:
-    f.write('\n'.join(new_lines))
-print('Fixed')
-"
-
-
-cd ~/ocp-ai-config
-git add ldap-group-sync/eso.yaml
-git commit -m "Fix caBundle in ldap-group-sync SecretStore"
-git push
-
-
-oc get secretstore vault-store -n ldap-group-sync
-oc get externalsecret ldap-bind-password -n ldap-group-sync
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pod -n ldap-group-sync
+NAME                             READY   STATUS      RESTARTS   AGE
+ldap-group-sync-29553000-s42qk   0/1     Completed   0          2m55s
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc logs ldap-group-sync-29553000-s42qk -n ldap-group-sync
+group/engops
+group/mlops
+hsuma@plnx-admin:~/ocp-ai-config$
