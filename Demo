@@ -1,31 +1,5 @@
-    Message:               unable to create client
-    Reason:                InvalidProviderConfig
-    Status:                False
-    Type:                  Ready
-Events:
-  Type     Reason                 Age                  From          Message
-  ----     ------                 ----                 ----          -------
-  Warning  InvalidProviderConfig  6m7s (x9 over 10m)   secret-store  failed to decode ca bundle: failed to validate certificate: x509: invalid CRL distribution point
-  Warning  InvalidProviderConfig  76s (x8 over 3m23s)  secret-store  failed to decode ca bundle: failed to validate certificate: x509: invalid CRL distribution point
-hsuma@plnx-admin:~/ocp-ai-config$
+oc get secretstore vault-store -n pai-dev -o jsonpath='{.spec.provider.vault.caBundle}' > /tmp/cabundle.txt
 
 
-[root@plnx-vault ~]# vault read auth/kubernetes-ocp-ai/role/eso-ldap-group-sync
-Key                                         Value
----                                         -----
-alias_name_source                           serviceaccount_uid
-bound_service_account_names                 [external-secrets]
-bound_service_account_namespace_selector    n/a
-bound_service_account_namespaces            [ldap-group-sync]
-policies                                    [engops-admin]
-token_bound_cidrs                           []
-token_explicit_max_ttl                      0s
-token_max_ttl                               0s
-token_no_default_policy                     false
-token_num_uses                              0
-token_period                                0s
-token_policies                              [engops-admin]
-token_ttl                                   1h
-token_type                                  default
-ttl                                         1h
-[root@plnx-vault ~]#
+oc get secretstore vault-store -n ldap-group-sync -o jsonpath='{.spec.provider.vault.caBundle}' > /tmp/cabundle-ldap.txt
+diff /tmp/cabundle.txt /tmp/cabundle-ldap.txt
