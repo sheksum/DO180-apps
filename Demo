@@ -1,59 +1,31 @@
+    Message:               unable to create client
+    Reason:                InvalidProviderConfig
+    Status:                False
+    Type:                  Ready
 Events:
-  Type    Reason              Age   From                           Message
-  ----    ------              ----  ----                           -------
-  Normal  OperationStarted    88s   argocd-application-controller  Initiated automated sync to '3faaf83492bb6535b51b205898b33e8b4fe9cf23'
-  Normal  ResourceUpdated     88s   argocd-application-controller  Updated sync status:  -> OutOfSync
-  Normal  ResourceUpdated     88s   argocd-application-controller  Updated health status:  -> Healthy
-  Normal  OperationCompleted  87s   argocd-application-controller  Sync operation to 3faaf83492bb6535b51b205898b33e8b4fe9cf23 succeeded
-  Normal  ResourceUpdated     87s   argocd-application-controller  Updated health status: Healthy -> Progressing
-  Normal  ResourceUpdated     86s   argocd-application-controller  Updated sync status: OutOfSync -> Synced
-  Normal  ResourceUpdated     86s   argocd-application-controller  Updated health status: Progressing -> Degraded
-hsuma@plnx-admin:~/ocp-ai-config$ oc get applications -n openshift-gitops
-NAME               SYNC STATUS   HEALTH STATUS
-eso                Synced        Healthy
-gateway-api        Synced        Healthy
-ldap-group-sync    Synced        Degraded
-machineconfigs     Synced        Healthy
-metallb            Synced        Healthy
-milvus             Synced        Healthy
-minio              Synced        Healthy
-network-policies   Synced        Healthy
-nmstate            Synced        Healthy
-ocp-ai-platform    Synced        Healthy
-trident            Synced        Healthy
+  Type     Reason                 Age                  From          Message
+  ----     ------                 ----                 ----          -------
+  Warning  InvalidProviderConfig  6m7s (x9 over 10m)   secret-store  failed to decode ca bundle: failed to validate certificate: x509: invalid CRL distribution point
+  Warning  InvalidProviderConfig  76s (x8 over 3m23s)  secret-store  failed to decode ca bundle: failed to validate certificate: x509: invalid CRL distribution point
 hsuma@plnx-admin:~/ocp-ai-config$
 
-     key: ldap-group-sync/bind-password
-        metadataPolicy: None
-        property: bindPassword
-      secretKey: bindPassword
-  refreshInterval: 1h
-  secretStoreRef:
-    kind: SecretStore
-    name: vault-store
-  target:
-    creationPolicy: Owner
-    deletionPolicy: Retain
-    name: ldap-bind-password
-status:
-  binding:
-    name: ''
-  conditions:
-    - lastTransitionTime: '2026-03-10T21:46:13Z'
-      message: could not get secret data from provider
-      reason: SecretSyncedError
-      status: 'False'
-      type: Ready
-  refreshTime: null
 
-
-     path: kv
-      server: https://vault.calix.local:8200
-      version: v2
-status:
-  conditions:
-    - lastTransitionTime: '2026-03-10T21:46:13Z'
-      message: unable to create client
-      reason: InvalidProviderConfig
-      status: 'False'
-      type: Ready
+[root@plnx-vault ~]# vault read auth/kubernetes-ocp-ai/role/eso-ldap-group-sync
+Key                                         Value
+---                                         -----
+alias_name_source                           serviceaccount_uid
+bound_service_account_names                 [external-secrets]
+bound_service_account_namespace_selector    n/a
+bound_service_account_namespaces            [ldap-group-sync]
+policies                                    [engops-admin]
+token_bound_cidrs                           []
+token_explicit_max_ttl                      0s
+token_max_ttl                               0s
+token_no_default_policy                     false
+token_num_uses                              0
+token_period                                0s
+token_policies                              [engops-admin]
+token_ttl                                   1h
+token_type                                  default
+ttl                                         1h
+[root@plnx-vault ~]#
