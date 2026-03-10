@@ -1,1 +1,3 @@
-oc get clusterrolebindings -o custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECTS:.subjects[*].name | grep engops
+hsuma@plnx-admin:~$ oc get clusterrolebindings -o custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECTS:.subjects[*].name | grep engops
+cluster-admin-2                                                              cluster-admin                                                               engops
+hsuma@plnx-admin:~$
