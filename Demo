@@ -2,17 +2,17 @@ cat > /tmp/ldap-group-sync.yaml << 'EOF'
 kind: LDAPSyncConfig
 apiVersion: v1
 url: ldaps://cpeg-ipareplica.ipa.calix.local
-ca: /etc/ldap-ca/ca.crt
+ca: /tmp/ldap-ca.crt
 bindDN: uid=ldapbind,cn=users,cn=accounts,dc=ipa,dc=calix,dc=local
 bindPassword:
-  file: /etc/ldap-bind/bindPassword
+  file: /tmp/ldap-bind-password
 insecure: false
 rfc2307:
   groupsQuery:
     baseDN: cn=groups,cn=accounts,dc=ipa,dc=calix,dc=local
     scope: sub
     derefAliases: never
-    filter: (|(cn=ocp.admins)(cn=mlops)(cn=engops))
+    filter: (|(cn=engops)(cn=mlops))
   groupUIDAttribute: dn
   groupNameAttributes:
   - cn
@@ -26,60 +26,3 @@ rfc2307:
   userNameAttributes:
   - uid
 EOF
-
-
-# Get the CA cert secret name and bind password secret name from the OAuth config
-oc get secret ldap-ca-m4hvn -n openshift-config -o jsonpath='{.data.ca\.crt}' | base64 -d > /tmp/ldap-ca.crt
-oc get secret ldap-bind-password-8gk5w -n openshift-config -o jsonpath='{.data.bindPassword}' | base64 -d > /tmp/ldap-bind-password
-
-oc adm groups sync --sync-config=/tmp/ldap-group-sync.yaml --confirm=false
-
-
-oc adm groups sync --sync-config=/tmp/ldap-group-sync.yaml --confirm
-
-
-
-hsuma@plnx-admin:~$ oc adm groups sync --sync-config=/tmp/ldap-group-sync.yaml --confirm=false
-error: validation of LDAP sync config failed: [bindPassword.file: Invalid value: "/etc/ldap-bind/bindPassword": could not read file: stat /etc/ldap-bind/bindPassword: no such file or directory, bindDN: Invalid value: "uid=ldapbind,cn=users,cn=accounts,dc=ipa,dc=calix,dc=local": bindDN and bindPassword must both be specified, or both be empty, bindPassword: Invalid value: "(masked)": bindDN and bindPassword must both be specified, or both be empty, ca: Invalid value: "/etc/ldap-ca/ca.crt": could not read file: stat /etc/ldap-ca/ca.crt: no such file or directory]
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get secret ldap-ca-m4hvn -n openshift-config -o jsonpath='{.data.ca\.crt}' | base64 -d > /tmp/ldap-ca.crt
-Error from server (NotFound): secrets "ldap-ca-m4hvn" not found
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get secret ldap-bind-password-8gk5w -n openshift-config -o jsonpath='{.data.bindPassword}' | base64 -d > /tmp/ldap-bind-password
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc adm groups sync --sync-config=/tmp/ldap-group-sync.yaml --confirm=false
-error: validation of LDAP sync config failed: [bindPassword.file: Invalid value: "/etc/ldap-bind/bindPassword": could not read file: stat /etc/ldap-bind/bindPassword: no such file or directory, bindDN: Invalid value: "uid=ldapbind,cn=users,cn=accounts,dc=ipa,dc=calix,dc=local": bindDN and bindPassword must both be specified, or both be empty, bindPassword: Invalid value: "(masked)": bindDN and bindPassword must both be specified, or both be empty, ca: Invalid value: "/etc/ldap-ca/ca.crt": could not read file: stat /etc/ldap-ca/ca.crt: no such file or directory]
-hsuma@plnx-admin:~$ oc get secret ldap-ca-m4hvn -n openshift-config
-Error from server (NotFound): secrets "ldap-ca-m4hvn" not found
-hsuma@plnx-admin:~$ oc get secret -n openshift-config | grep ldap
-ldap-bind-password-596n4                  Opaque                           1      26h
-ldap-bind-password-8gk5w                  Opaque                           1      26h
-hsuma@plnx-admin:~$
-
-
-ldap-bind-password-8gk5w                  Opaque                           1      26h
-hsuma@plnx-admin:~$ oc get configmap -n openshift-config | grep ldap
-ldap-ca-m4hvn                      1      26h
-ldap-ca-npxqj                      1      26h
-hsuma@plnx-admin:~$ oc get configmap ldap-ca-m4hvn -n openshift-config -o jsonpath='{.data.ca\.crt}' | base64 -d > /tmp/ldap-ca.crt
-base64: invalid input
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ cat /tmp/ldap-ca.crt
-hsuma@plnx-admin:~$
-
-
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ cat /tmp/ldap-ca.crt
------BEGIN CERTIFICATE-----
-MIIDlzCCAn+gAwIBAgIBATANBgkqhkiG9w0BAQsFADA6MRgwFgYDVQQKDA9JUEEu
-<redacted>
-TFs62AMhKJgvp/U=
------END CERTIFICATE-----
-hsuma@plnx-admin:~$ oc adm groups sync --sync-config=/tmp/ldap-group-sync.yaml --confirm=false
-error: validation of LDAP sync config failed: [bindPassword.file: Invalid value: "/etc/ldap-bind/bindPassword": could not read file: stat /etc/ldap-bind/bindPassword: no such file or directory, bindDN: Invalid value: "uid=ldapbind,cn=users,cn=accounts,dc=ipa,dc=calix,dc=local": bindDN and bindPassword must both be specified, or both be empty, bindPassword: Invalid value: "(masked)": bindDN and bindPassword must both be specified, or both be empty, ca: Invalid value: "/etc/ldap-ca/ca.crt": could not read file: stat /etc/ldap-ca/ca.crt: no such file or directory]
-hsuma@plnx-admin:~$
