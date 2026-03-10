@@ -1,48 +1,14 @@
-Username: hsuma
-Password:
-Login successful.
-
-You don't have any projects. You can try to create a new project, by running
-
-    oc new-project <projectname>
-
+hsuma@plnx-admin:~$ oc adm policy add-role-to-group admin mlops -n pai-dev
+Warning: Group 'mlops' not found
+clusterrole.rbac.authorization.k8s.io/admin added: "mlops"
 hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n pai-dev
-NAME                                                        READY   STATUS             RESTARTS      AGE
-ai-model-library-c599c6897-rzc9q                            1/1     Running            1 (38h ago)   39h
-ai-model-multimodel-service-897db5c4c-nrzbk                 1/1     Running            0             9d
-cuda-check                                                  0/1     ImagePullBackOff   0             39h
-fileparser-7785486794-9l6x2                                 1/1     Running            0             8d
-general-agent-router-module-8656d46865-q6lmh                1/1     Running            0             5h19m
-internal-agentmesh-agent-gateway-service-65d979db8-64727    1/1     Running            0             6h44m
-internal-agentmesh-auth-service-66b5dcc967-5xwkk            1/1     Running            0             7h3m
-internal-agentmesh-generic-agent-5c4bd7b4fb-qh275           1/1     Running            0             7h20m
-internal-agentmesh-it-service-desk-agent-6c6db8dd48-96dmf   1/1     Running            0             5d13h
-internal-agentmesh-ui-service-75d889b5fd-xsrbp              1/1     Running            0             4d9h
-internal-mcp-atlassian-service-6bb559fdb7-rgp2s             1/1     Running            0             4d9h
-milvus-5d4bb7fb7-zl9xz                                      1/1     Running            0             26h
-minio-788889d4b7-g9g59                                      1/1     Running            0             9d
-pg-client                                                   1/1     Running            0             8d
-postgresql-78b656858b-jfw6d                                 1/1     Running            0             8d
-hsuma@plnx-admin:~$ oc get pods -n pai-test
-NAME                      READY   STATUS    RESTARTS   AGE
-milvus-7847d46f4f-gvfxv   1/1     Running   0          26h
-minio-788889d4b7-995kh    1/1     Running   0          47h
-hsuma@plnx-admin:~$ oc get pods -n pai-prod
-NAME                      READY   STATUS    RESTARTS   AGE
-milvus-5dd75f7b74-nzpzt   1/1     Running   0          26h
-minio-85b4477cdc-2rdcj    1/1     Running   0          46h
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-prod
-error: failed to create configmap: configmaps is forbidden: User "hsuma" cannot create resource "configmaps" in API group "" in the namespace "pai-prod"
+hsuma@plnx-admin:~$ oc adm policy add-role-to-group edit mlops -n pai-test
+Warning: Group 'mlops' not found
+clusterrole.rbac.authorization.k8s.io/edit added: "mlops"
 hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-test
-error: failed to create configmap: configmaps is forbidden: User "hsuma" cannot create resource "configmaps" in API group "" in the namespace "pai-test"
+hsuma@plnx-admin:~$ oc adm policy add-role-to-group view mlops -n pai-prod
+Warning: Group 'mlops' not found
+clusterrole.rbac.authorization.k8s.io/view added: "mlops"
 hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-dev
-error: failed to create configmap: configmaps is forbidden: User "hsuma" cannot create resource "configmaps" in API group "" in the namespace "pai-dev"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc exec -n pai-prod deploy/milvus -- ls
-Error from server (Forbidden): deployments.apps "milvus" is forbidden: User "hsuma" cannot get resource "deployments" in API group "apps" in the namespace "pai-prod"
