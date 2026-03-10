@@ -1,2 +1,8 @@
-oc get rolebinding -n pai-test -o custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECTS:.subjects[*].name | grep -v system
-oc get rolebinding -n pai-prod -o custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECTS:.subjects[*].name | grep -v system
+hsuma@plnx-admin:~$ oc get rolebinding -n pai-test -o custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECTS:.subjects[*].name | grep -v system
+NAME                    ROLE                   SUBJECTS
+edit                    edit                   paiteam.admins
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get rolebinding -n pai-prod -o custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECTS:.subjects[*].name | grep -v system
+NAME                    ROLE                   SUBJECTS
+view                    view                   paiteam.admins
+hsuma@plnx-admin:~$
