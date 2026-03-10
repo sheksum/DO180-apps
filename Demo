@@ -1,13 +1,11 @@
-I looked into this and found the issue. You're mounting the `minio-data` PVC directly into your Triton pod — that's MinIO's internal storage volume. MinIO stores objects in its own format with metadata directories, which is why `config.pbtxt` shows up as a directory instead of a file. You should never mount `minio-data` directly into another pod.
+Gene Siepka  [10:09 AM]
+ok. was just reading about that tritonserver app, it should be able to consume S3 directly.
 
-The correct approach is to pull the model from MinIO via the S3 API at pod startup using an init container. I tested this and confirmed it works — distilbert loaded successfully:
-
-```
-| distilbert | 1 | READY |
-```
-
-Here are the three changes to your deployment:
-
-1. **Replace the volume** — change `minio-data` PVC to `emptyDir: {}`
-2. **Replace the init container** — use `minio/mc` to download from MinIO via S3
-3. **Remove `subPath: distilbert`** from the Triton container volumeMount
+    spec:
+      containers:
+      - name: triton-server
+        image: nvcr.io/nvidia/tritonserver:23.10-py3 # Use a recent, appropriate image tag
+        args: [
+          "tritonserver",
+          "--model-repository=s3://your-s3-bucket-name/path/to/models" # Set your S3 URI here[10:09 AM]replacing with the minio httproute
+[10:11 AM]might save the step of the init container
