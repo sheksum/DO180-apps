@@ -1,16 +1,4 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get rolebinding admin -n pai-dev -o jsonpath='{.subjects[*].name}'
-paiteam.adminshsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get rolebinding admin-0 -n pai-dev -o jsonpath='{.subjects[*].name}'
-mlopshsuma@plnx-admioc get clusterrolebindings | grep -i "engops\|cluster-admin-1"in-1"
-cluster-admin-1                                                              ClusterRole/cluster-admin                                                               12d
-hsuma@plnx-admin:~$ oc delete rolebinding admin -n pai-dev
-rolebinding.rbac.authorization.k8s.io "admin" deleted from pai-dev namespace
-hsuma@plnx-admin:~$ oc delete rolebinding edit -n pai-test
-rolebinding.rbac.authorization.k8s.io "edit" deleted from pai-test namespace
-hsuma@plnx-admin:~$ oc delete rolebinding view -n pai-prod
-rolebinding.rbac.authorization.k8s.io "view" deleted from pai-prod namespace
-hsuma@plnx-admin:~$ oc auth can-i --list --as="" --as-group=engops | grep -i "cluster\|admin" | head -5
-error: requesting uid, groups or user-extra for kube:admin/api-ocp-ai-calix-local:6443 without impersonating a user
+hsuma@plnx-admin:~$ oc get clusterrolebinding cluster-admin-1 -o jsonpath='{.subjects[*].name}'
+ocp.adminshsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get clusterrolebindings | grep engops
 hsuma@plnx-admin:~$
