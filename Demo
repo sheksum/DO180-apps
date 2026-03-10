@@ -1,4 +1,58 @@
-hsuma@plnx-admin:~$ oc apply -f triton-deployment-corrected.yaml -n pai-dev
-Warning: resource deployments/general-agent-router-module is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by oc apply. oc apply should only be used on resources created declaratively by either oc create --save-config or oc apply. The missing annotation will be patched automatically.
-deployment.apps/general-agent-router-module configured
+hsuma@plnx-admin:~$ oc get logs general-agent-router-module-5f9cfb4dbf-26lw9 -n pai-dev
+error: the server doesn't have a resource type "logs"
+hsuma@plnx-admin:~$ oc logs general-agent-router-module-5f9cfb4dbf-26lw9 -n pai-dev
+Defaulted container "general-agent-router-module" out of: general-agent-router-module, check-mount (init)
+W0310 13:58:25.958084 1 pinned_memory_manager.cc:237] Unable to allocate pinned system memory, pinned memory pool will not be available: CUDA driver version is insufficient for CUDA runtime version
+I0310 13:58:25.958132 1 cuda_memory_manager.cc:117] CUDA memory pool disabled
+terminate called after throwing an instance of 'std::length_error'
+  what():  basic_string::_M_replace_aux
+hsuma@plnx-admin:~$ oc logs general-agent-router-module-cffcf97f6-nbmjd -n pai-dev
+Defaulted container "general-agent-router-module" out of: general-agent-router-module, model-loader (init), check-mount (init)
+W0310 14:00:41.944570 1 pinned_memory_manager.cc:237] Unable to allocate pinned system memory, pinned memory pool will not be available: CUDA driver version is insufficient for CUDA runtime version
+I0310 14:00:41.944618 1 cuda_memory_manager.cc:117] CUDA memory pool disabled
+E0310 14:00:41.944775 1 model_repository_manager.cc:1265] failed to poll model 'distilbert': model not found in any model repository.
+I0310 14:00:41.944803 1 server.cc:592]
++------------------+------+
+| Repository Agent | Path |
++------------------+------+
++------------------+------+
+
+I0310 14:00:41.944811 1 server.cc:619]
++---------+------+--------+
+| Backend | Path | Config |
++---------+------+--------+
++---------+------+--------+
+
+I0310 14:00:41.944817 1 server.cc:662]
++-------+---------+--------+
+| Model | Version | Status |
++-------+---------+--------+
++-------+---------+--------+
+
+I0310 14:00:41.945014 1 metrics.cc:710] Collecting CPU metrics
+I0310 14:00:41.945098 1 tritonserver.cc:2458]
++----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Option                           | Value                                                                                                                                                                                                           |
++----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| server_id                        | triton                                                                                                                                                                                                          |
+| server_version                   | 2.39.0                                                                                                                                                                                                          |
+| server_extensions                | classification sequence model_repository model_repository(unload_dependents) schedule_policy model_configuration system_shared_memory cuda_shared_memory binary_tensor_data parameters statistics trace logging |
+| model_repository_path[0]         | /models                                                                                                                                                                                                         |
+| model_control_mode               | MODE_EXPLICIT                                                                                                                                                                                                   |
+| startup_models_0                 | distilbert                                                                                                                                                                                                      |
+| strict_model_config              | 1                                                                                                                                                                                                               |
+| rate_limit                       | OFF                                                                                                                                                                                                             |
+| pinned_memory_pool_byte_size     | 0                                                                                                                                                                                                               |
+| cuda_memory_pool_byte_size{0}    | 0                                                                                                                                                                                                               |
+| min_supported_compute_capability | 6.0                                                                                                                                                                                                             |
+| strict_readiness                 | 1                                                                                                                                                                                                               |
+| exit_timeout                     | 30                                                                                                                                                                                                              |
+| cache_enabled                    | 0                                                                                                                                                                                                               |
++----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+I0310 14:00:41.945103 1 server.cc:293] Waiting for in-flight requests to complete.
+I0310 14:00:41.945105 1 server.cc:309] Timeout 30: Found 0 model versions that have in-flight inferences
+I0310 14:00:41.945107 1 server.cc:324] All models are stopped, unloading models
+I0310 14:00:41.945111 1 server.cc:331] Timeout 30: Found 0 live models and 0 in-flight non-inference requests
+error: creating server: Internal - failed to load all models
 hsuma@plnx-admin:~$
