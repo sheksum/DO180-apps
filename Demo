@@ -1,14 +1,3 @@
-hsuma@plnx-admin:~$ oc adm policy add-role-to-group admin mlops -n pai-dev
-Warning: Group 'mlops' not found
-clusterrole.rbac.authorization.k8s.io/admin added: "mlops"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc adm policy add-role-to-group edit mlops -n pai-test
-Warning: Group 'mlops' not found
-clusterrole.rbac.authorization.k8s.io/edit added: "mlops"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc adm policy add-role-to-group view mlops -n pai-prod
-Warning: Group 'mlops' not found
-clusterrole.rbac.authorization.k8s.io/view added: "mlops"
-hsuma@plnx-admin:~$
+Authentication error
+There was an error verifying your session. Please log out and try again.
+If the problem persists, contact a cluster administrator, Red Hat Support or check our status page for known outages.
