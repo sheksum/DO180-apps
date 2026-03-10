@@ -1,6 +1,33 @@
-KUBECONFIG=/tmp/test-kubeconfig oc delete configmap test-rbac -n pai-dev
-KUBECONFIG=/tmp/test-kubeconfig oc delete configmap test-rbac -n pai-test
+cat > /tmp/ldap-group-sync.yaml << 'EOF'
+kind: LDAPSyncConfig
+apiVersion: v1
+url: ldaps://cpeg-ipareplica.ipa.calix.local
+ca: /etc/ldap-ca/ca.crt
+bindDN: uid=ldapbind,cn=users,cn=accounts,dc=ipa,dc=calix,dc=local
+bindPassword:
+  file: /etc/ldap-bind/bindPassword
+insecure: false
+rfc2307:
+  groupsQuery:
+    baseDN: cn=groups,cn=accounts,dc=ipa,dc=calix,dc=local
+    scope: sub
+    derefAliases: never
+    filter: (|(cn=ocp.admins)(cn=mlops)(cn=engops))
+  groupUIDAttribute: dn
+  groupNameAttributes:
+  - cn
+  groupMembershipAttributes:
+  - member
+  usersQuery:
+    baseDN: cn=users,cn=accounts,dc=ipa,dc=calix,dc=local
+    scope: sub
+    derefAliases: never
+  userUIDAttribute: dn
+  userNameAttributes:
+  - uid
+EOF
 
-# Remove yourself from mlops, add back to engops
-oc adm groups remove-users mlops hsuma
-ipa group-add-member engops --users=hsuma
+
+# Get the CA cert secret name and bind password secret name from the OAuth config
+oc get secret ldap-ca-m4hvn -n openshift-config -o jsonpath='{.data.ca\.crt}' | base64 -d > /tmp/ldap-ca.crt
+oc get secret ldap-bind-password-8gk5w -n openshift-config -o jsonpath='{.data.bindPassword}' | base64 -d > /tmp/ldap-bind-password
