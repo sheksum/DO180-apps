@@ -1,2 +1,155 @@
-ocp-ai-master01.calix.local 10.172.248.150 Control Plane + 
-ocp-ai-master02.calix.local10.172.248.151Control Plane + Workerocp-ai-master03.calix.local10.172.248.152Control Plane + Workerocp-ai-gpu01.calix.local10.172.248.153GPU Workerocp-ai-gpu02.calix.local10.172.248.154GPU Workerapi.ocp-ai.calix.local10.172.248.155API VIP*.apps.ocp-ai.calix.local10.172.248.156Ingress VIP
+ATHIRA JAYACHANDRAN  [7:31 AM]
+Hi @haj.suma / @gene.siepka,
+I am trying to deploy triton server with cpu-only deployment. I am getting below error now,
+W0310 10:42:05.861311 1 pinned_memory_manager.cc:237] Unable to allocate pinned system memory, pinned memory pool will not be available: CUDA driver version is insufficient for CUDA runtime version
+I0310 10:42:05.861365 1 cuda_memory_manager.cc:117] CUDA memory pool disabled
+terminate called after throwing an instance of 'std::length_error'
+  what():  basic_string::_M_replace_auxCUDA initialization error is resolved by adding envs and downgrading the image version.
+I created a bucket named distilbert and uploaded the model here. I have mounted minio-data pvc to the pod to mount the model.
+
+There is a config.pbtxt file uploaded under distilbert folder which I can see from console. But inside the minio pod and also in pod mounted volume, I see it as a directory with a metadata file inside. I assume this could be breaking server where it expects a file and finding a directory. Please guide me on how to mount the model correctly to get the same folder structure.
+sh-5.1$ ls -la distilbert/
+total 16
+drwxr-xr-x. 4 1000960000 99 4096 Mar 10 06:58 .
+drwxr-xr-x. 3 1000960000 99 4096 Mar 10 06:57 ..
+drwxr-xr-x. 3 1000960000 99 4096 Mar 10 06:58 1
+drwxr-xr-x. 2 1000960000 99 4096 Mar 10 06:58 config.pbtxt1 replyATHIRA JAYACHANDRAN  [7:32 AM]
+Here is the deployment file which I am using,
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "5"
+    meta.helm.sh/release-name: general-agent-router-module
+    meta.helm.sh/release-namespace: pai-dev
+  creationTimestamp: "2026-03-10T07:05:54Z"
+  generation: 5
+  labels:
+    app: general-agent-router-module
+    app.kubernetes.io/instance: general-agent-router-module
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: general-agent-router-module
+    app.kubernetes.io/version: 1.0.0
+    helm.sh/chart: general-agent-router-module-1.0.0
+  name: general-agent-router-module
+  namespace: pai-dev
+  resourceVersion: "13477247"
+  uid: 1f90df1a-3607-42f3-9f61-2d0e7446eb0a
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: general-agent-router-module
+      app.kubernetes.io/name: general-agent-router-module
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: general-agent-router-module
+        app.kubernetes.io/instance: general-agent-router-module
+        app.kubernetes.io/name: general-agent-router-module
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - args:
+        - --model-repository=/models
+        - --load-model=distilbert
+        - --model-control-mode=explicit
+        - --allow-gpu-metrics=false
+        - --pinned-memory-pool-byte-size=0
+        - --cuda-memory-pool-byte-size=0:0
+        - --backend-config=onnxruntime,enable_gpu=false
+        - --backend-config=pytorch,enable_gpu=false
+        - --backend-config=tensorflow,allow_gpu=false
+        - --backend-config=tensorflow,enable_gpu=false
+        - --disable-auto-complete-config
+        command:
+        - /opt/tritonserver/bin/tritonserver
+        env:
+        - name: CUDA_VISIBLE_DEVICES
+          value: "-1"
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: none
+        - name: NVIDIA_DRIVER_CAPABILITIES
+        - name: TRITON_SERVER_CPU_ONLY
+          value: "1"
+        image: nvcr.io/nvidia/tritonserver:23.10-py3
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /v2/health/live
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 3
+        name: general-agent-router-module
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        - containerPort: 8001
+          name: grpc
+          protocol: TCP
+        - containerPort: 8002
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /v2/health/ready
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 3
+        resources:
+          limits:
+            memory: 10Gi
+          requests:
+            cpu: "1"
+            memory: 2Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /models
+          name: model
+          subPath: distilbert
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: reg-secret
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - ls -R /models || true
+        image: busybox
+        imagePullPolicy: Always
+        name: check-mount
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /models
+          name: model
+          subPath: distilbert
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: general-agent-router-module
+      serviceAccountName: general-agent-router-module
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: model
+        persistentVolumeClaim:
+          claimName: minio-data
