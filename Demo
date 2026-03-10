@@ -1,5 +1,18 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc get groups
-NAME     USERS
-engops   bwing, akumari, dthornto, ckudari, mbarik, mmanisha, engops_backup, kiskumar, sangyas, fngundam, vsekar, gsiepka, _svc_pan_bind, hsuma
-mlops    sulsinha, ajayacha, awkumar
-hsuma@plnx-admin:~/ocp-ai-config$
+oc edit oauth cluster
+
+- htpasswd:
+      fileData:
+        name: htpasswd-8wkl4
+    mappingMethod: claim
+    name: htpasswd
+    type: HTPasswd
+
+
+oc delete user haj.suma
+oc delete user gene.siepka
+oc delete user awanish.kumar
+oc delete user athira.jayachandran
+oc delete identity htpasswd:haj.suma
+oc delete identity htpasswd:gene.siepka
+oc delete identity htpasswd:awanish.kumar
+oc delete identity htpasswd:athira.jayachandran
