@@ -1,11 +1,1 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc auth whoami --show-groups
-error: unknown flag: --show-groups
-See 'oc auth whoami --help' for usage.
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc auth whoami
-ATTRIBUTE                                  VALUE
-Username                                   hsuma
-UID                                        9e9ada30-3bd4-4df9-a538-30f0634b725f
-Groups                                     [system:authenticated:oauth system:authenticated]
-Extra: scopes.authorization.openshift.io   [user:full]
-hsuma@plnx-admin:~$
+oc get oauth cluster -o yaml
