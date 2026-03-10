@@ -1,13 +1,11 @@
 hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-prod
-error: failed to create configmap: configmaps is forbidden: User "hsuma" cannot create resource "configmaps" in API group "" in the namespace "pai-prod"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-test
-error: failed to create configmap: configmaps is forbidden: User "hsuma" cannot create resource "configmaps" in API group "" in the namespace "pai-test"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc create configmap test-rbac --from-literal=key=value -n pai-dev
-error: failed to create configmap: configmaps is forbidden: User "hsuma" cannot create resource "configmaps" in API group "" in the namespace "pai-dev"
+hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc auth whoami --show-groups
+error: unknown flag: --show-groups
+See 'oc auth whoami --help' for usage.
+hsuma@plnx-admin:~$ KUBECONFIG=/tmp/test-kubeconfig oc auth whoami
+ATTRIBUTE                                  VALUE
+Username                                   hsuma
+UID                                        9e9ada30-3bd4-4df9-a538-30f0634b725f
+Groups                                     [system:authenticated:oauth system:authenticated]
+Extra: scopes.authorization.openshift.io   [user:full]
 hsuma@plnx-admin:~$
