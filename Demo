@@ -1,8 +1,24 @@
-A
-SystemMemoryExceedsReservation
+Subject: OCP-AI Platform — Ready for Deployment
 
-Warning
-System memory usage of 1.204G on Node
-N
-ocp-ai-master02.calix.local
- exceeds 95% of the reservation. Reserved memory ensures system processes can function even when the node is fully allocated and protects against workload out of memory events impacting the proper functioning of the node. The default reservation is expected to be sufficient for most configurations and should be increased (https://docs.openshift.com/container-platform/latest/nodes/nodes/nodes-nodes-managing.html) when running nodes with high numbers of pods (either due to rate of change or at steady state).
+Hi Brian,
+
+The OCP-AI platform is now ready for the MLOps team to begin deploying workloads.
+
+We have taken the environment from bare metal to a fully operational OpenShift 4.x platform consisting of three Cisco UCS-X control plane nodes and two Dell GPU worker nodes with a combined 8x NVIDIA H100L GPUs. The cluster provides three isolated environments for dev, test, and prod, with networking, storage, TLS, secrets management, GPU scheduling, and GitOps workflows fully operational.
+
+On the identity side, LDAP synchronization with Red Hat IdM runs every 30 minutes and RBAC is enforced per environment. The MLOps team has full admin access in dev, edit access in test, and read-only access in prod. All production deployments are managed through ArgoCD.
+
+Core platform services including MinIO, Milvus, and CloudNativePG are deployed and running across all three environments. The MLOps team can deploy their own PostgreSQL clusters using the onboarding templates.
+
+They have already deployed their first AI workload, Triton inference server, into pai-dev, confirming the platform is functioning end to end.
+
+All platform components are managed through ArgoCD, with 11 applications currently deployed and self-healing enabled, including the authentication stack. Vault is integrated with IdM so the MLOps team can manage their own secrets, and NetworkPolicies enforce environment isolation.
+
+I have attached three documents for reference. The Architecture Document covers the platform design, hardware layout, networking, storage, services, and diagrams. The Operations Runbook provides day-to-day health checks, troubleshooting procedures, and operational guidance. The Service Onboarding Templates provide self-service deployment patterns covering HTTPRoutes, LoadBalancers, TLS, storage, MinIO, Milvus, PostgreSQL, and External Secrets.
+
+There are several items still on the roadmap, but they do not block the MLOps team from deploying workloads today. These include backup and disaster recovery, monitoring and alerting, centralized logging, MFA enablement, end-to-end validation, Vault PKI transition to the corporate CA, ResourceQuotas and LimitRanges once baseline usage data is available, ArgoCD LDAP integration for scoped access, and MinIO LDAP integration.
+
+Happy to walk through the architecture with leadership if helpful.
+
+Thanks,
+Haji
