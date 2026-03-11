@@ -1,0 +1,103 @@
+hsuma@plnx-admin:~/ocp-ai-config$ ls -l -R
+.:
+total 48
+drwxr-xr-x 2 hsuma sw 4096 Mar 10 17:38 apps
+drwxr-xr-x 2 hsuma sw 4096 Mar 10 17:37 authentication
+drwxr-xr-x 2 hsuma sw 4096 Mar  9 14:31 eso
+drwxr-xr-x 2 hsuma sw 4096 Feb 28 18:08 gateway-api
+drwxr-xr-x 2 hsuma sw 4096 Feb 28 19:21 machineconfigs
+drwxr-xr-x 2 hsuma sw 4096 Feb 25 21:43 metallb
+drwxr-xr-x 2 hsuma sw 4096 Mar  9 13:04 milvus
+drwxr-xr-x 2 hsuma sw 4096 Feb 28 22:33 minio
+drwxr-xr-x 2 hsuma sw 4096 Mar  9 14:31 network-policies
+drwxr-xr-x 2 hsuma sw 4096 Mar  9 05:51 nmstate
+-rw-r--r-- 1 hsuma sw 2622 Feb 19 13:55 README.md
+drwxr-xr-x 2 hsuma sw 4096 Mar  9 06:14 trident
+
+./apps:
+total 44
+-rw-r--r-- 1 hsuma sw 433 Mar 10 17:38 authentication.yaml
+-rw-r--r-- 1 hsuma sw 411 Mar  9 13:35 eso.yaml
+-rw-r--r-- 1 hsuma sw 460 Feb 25 23:25 gateway-api-app.yaml
+-rw-r--r-- 1 hsuma sw 386 Feb 23 13:22 machineconfigs-app.yaml
+-rw-r--r-- 1 hsuma sw 449 Feb 25 22:31 metallb-app.yaml
+-rw-r--r-- 1 hsuma sw 417 Mar  9 13:03 milvus-app.yaml
+-rw-r--r-- 1 hsuma sw 415 Feb 28 22:33 minio-app.yaml
+-rw-r--r-- 1 hsuma sw 437 Mar  9 14:29 network-policies.yaml
+-rw-r--r-- 1 hsuma sw 452 Feb 23 13:20 nmstate-app.yaml
+-rw-r--r-- 1 hsuma sw 378 Feb 19 14:24 root-app.yaml
+-rw-r--r-- 1 hsuma sw 441 Feb 23 13:24 trident-apps.yaml
+
+./authentication:
+total 48
+-rw-r--r-- 1 hsuma sw   275 Mar 10 16:21 clusterrolebinding.yaml
+-rw-r--r-- 1 hsuma sw  1273 Mar 10 16:22 cronjob.yaml
+-rw-r--r-- 1 hsuma sw 13844 Mar 10 17:00 eso.yaml
+-rw-r--r-- 1 hsuma sw    65 Mar 10 16:21 namespace.yaml
+-rw-r--r-- 1 hsuma sw   605 Mar 10 17:36 oauth.yaml
+-rw-r--r-- 1 hsuma sw   858 Mar 10 17:37 README.md
+-rw-r--r-- 1 hsuma sw   928 Mar 10 16:39 rolebindings.yaml
+-rw-r--r-- 1 hsuma sw    99 Mar 10 16:21 serviceaccount.yaml
+-rw-r--r-- 1 hsuma sw   883 Mar 10 16:22 sync-config.yaml
+
+./eso:
+total 64
+-rw-r--r-- 1 hsuma sw  1004 Mar  9 13:35 externalsecrets-trident.yaml
+-rw-r--r-- 1 hsuma sw 53631 Mar  9 13:35 secretstores.yaml
+
+./gateway-api:
+total 16
+-rw-r--r-- 1 hsuma sw  920 Feb 28 18:08 certificates.yaml
+-rw-r--r-- 1 hsuma sw  155 Feb 25 23:24 gatewayclass.yaml
+-rw-r--r-- 1 hsuma sw 1391 Feb 28 18:14 gateway.yaml
+-rw-r--r-- 1 hsuma sw  369 Feb 28 18:08 http-redirect.yaml
+
+./machineconfigs:
+total 20
+-rw-r--r-- 1 hsuma sw 3601 Feb 28 14:21 99-master-app-vlan-policy-routes.yaml
+-rw-r--r-- 1 hsuma sw 1246 Feb 28 19:21 99-master-eno6-down.yaml
+-rw-r--r-- 1 hsuma sw 3601 Feb 28 14:21 99-worker-app-vlan-policy-routes.yaml
+-rw-r--r-- 1 hsuma sw 2261 Feb 26 17:31 99-worker-nm-dns-fix.yaml
+-rw-r--r-- 1 hsuma sw  859 Feb 18 12:18 mc-worker-mtu.yaml
+
+./metallb:
+total 16
+-rw-r--r-- 1 hsuma sw 766 Feb 28 14:52 ipaddresspools.yaml
+-rw-r--r-- 1 hsuma sw 800 Feb 28 18:56 l2advertisement.yaml
+-rw-r--r-- 1 hsuma sw 122 Feb 25 21:24 metallb-instance.yaml
+-rw-r--r-- 1 hsuma sw 357 Feb 25 21:31 namespaces.yaml
+
+./milvus:
+total 24
+-rw-r--r-- 1 hsuma sw 4282 Mar  9 13:03 pai-dev.yaml
+-rw-r--r-- 1 hsuma sw 4292 Mar  9 13:03 pai-prod.yaml
+-rw-r--r-- 1 hsuma sw 4290 Mar  9 13:03 pai-test.yaml
+
+./minio:
+total 16
+-rw-r--r-- 1 hsuma sw 1605 Feb 28 22:32 external-secrets.yaml
+-rw-r--r-- 1 hsuma sw 2778 Feb 28 22:32 pai-dev.yaml
+-rw-r--r-- 1 hsuma sw 2786 Feb 28 22:33 pai-prod.yaml
+-rw-r--r-- 1 hsuma sw 2786 Feb 28 22:33 pai-test.yaml
+
+./network-policies:
+total 8
+-rw-r--r-- 1 hsuma sw  273 Mar  9 05:51 allow-egress-to-vault-host.yaml
+-rw-r--r-- 1 hsuma sw 1052 Mar  9 14:29 environment-isolation.yaml
+
+./nmstate:
+total 20
+-rw-r--r-- 1 hsuma sw 2005 Feb 23 22:29 nncp-gpu01.yaml
+-rw-r--r-- 1 hsuma sw 2005 Feb 23 22:28 nncp-gpu02.yaml
+-rw-r--r-- 1 hsuma sw 2135 Mar  9 05:51 nncp-master01.yaml
+-rw-r--r-- 1 hsuma sw 2135 Mar  9 05:51 nncp-master02.yaml
+-rw-r--r-- 1 hsuma sw 2135 Mar  9 05:51 nncp-master03.yaml
+
+./trident:
+total 20
+-rw-r--r-- 1 hsuma sw 730 Feb 23 19:15 backend-app.yaml
+-rw-r--r-- 1 hsuma sw 736 Feb 23 19:15 backend-infra.yaml
+-rw-r--r-- 1 hsuma sw 158 Feb 17 15:31 secret-app.yaml
+-rw-r--r-- 1 hsuma sw 160 Feb 17 15:30 secret-infra.yaml
+-rw-r--r-- 1 hsuma sw 671 Mar  9 06:13 storageclasses.yaml
+hsuma@plnx-admin:~/ocp-ai-config$
