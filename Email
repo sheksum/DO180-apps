@@ -1,37 +1,453 @@
-Job Description
-Calix is where passionate innovators come together with a shared mission: to reimagine broadband experiences and empower communities like never
-before. As a true pioneer in broadband technology, we ignite transformation by equipping service providers of all sizes with an unrivaled platform, state-of-
-the-art cloud technologies, and AI-driven solutions that redefine what’s possible. Every tool and breakthrough we offer is designed to simplify operations
-and unlock extraordinary subscriber experiences through innovation.
-Calix is seeking a highly skilled Staff AI Ops Engineer with hands-on experience with GCP to join our cutting-edge AI/ML team. In this role, you will
-be responsible for building, scaling, and maintaining the infrastructure that powers our machine learning and generative AI applications. You will work
-closely with data scientists, ML engineers, and software developers to ensure our ML/AI systems are robust, efficient, and production ready.
-This is a remote-based position that can be located anywhere in the United States or Canada.
-Key Responsibilities:
-Design, implement, and maintain scalable infrastructure for ML and GenAI applications
-Deploy, operate, and troubleshoot production ML/GenAI pipelines/services
-Build and optimize CI/CD pipelines for ML model deployment and serving
-Scale compute resources across CPU/GPU architectures to meet performance requirements
-Implement container orchestration with Kubernetes
-Architect and optimize cloud resources on GCP for ML training and inference
-Setup and maintain runtime frameworks and job management systems (Airflow, KubeFlow, MLflow, etc.)
-Establish monitoring, logging and alerting for systems observability
-Optimize system performance and resource utilization for cost efficiency
-Develop and enforce AIOps best practices across the organization
-Qualifications:
-Bachelor's degree in Computer Science, Information Technology, or a related field (or equivalent experience).
-8+ years of overall software engineering experience
-3+ years of focused experience in DevOps/AIOps or similar ML infrastructure roles
-Proficient in IaC, using Terraform.
-Strong experience with containerization and orchestration using Docker and Kubernetes
-Demonstrated expertise in cloud infrastructure management on GCP
-Proficiency with workflow management such as Airflow & Kubeflow
-Strong CI/CD expertise with experience implementing automated testing and deployment pipelines
-Experience with scaling distributed compute architectures utilizing various accelerators (CPU/GPU)
-Solid understanding of system performance optimization techniques
-Experience implementing comprehensive observability solutions for complex systems
-Knowledge of monitoring and logging tools (Prometheus, Grafana, ELK stack).
-Strong proficiency in Python
-Familiarity with ML frameworks such as PyTorch and ML platforms like Vertex AI
-Excellent problem-solving skills and ability to work independently
-Strong commu
+# Staff AI Ops Engineer — Interview Guide
+
+For use by the interviewing engineer. Each question includes the expected answer, what good looks like, follow-up probes, and red flags.
+
+---
+
+## 1. Kubernetes / Container Orchestration
+
+### Q1: Walk me through how you'd deploy a GPU-accelerated ML inference service on Kubernetes from scratch.
+
+**Expected Answer:**
+
+Start with the container image — make sure the inference server (e.g., Triton, TorchServe, vLLM) is built with CUDA support and the right GPU drivers baked in or available via the GPU Operator.
+
+For the Deployment manifest: set resource requests and limits for `nvidia.com/gpu: 1` (or however many GPUs the model needs). This tells the scheduler to place it on a GPU node. If the GPU nodes are tainted (which they should be), add a toleration matching the taint — for example `nvidia.com/gpu=true:NoSchedule` with `operator: Equal` and `value: "true"`.
+
+Add a nodeSelector or nodeAffinity for `nvidia.com/gpu.present=true` to be explicit about placement. Set up health probes — a startupProbe with a generous failure threshold because model loading can take minutes, then liveness and readiness probes on the health endpoint.
+
+For networking, create a ClusterIP Service for internal traffic. If external access is needed, either a LoadBalancer Service (MetalLB for bare metal) or an HTTPRoute (Gateway API) depending on whether it's TCP or HTTP.
+
+For model files, either bake them into the image, pull from S3/MinIO at startup via an init container, or use Triton's native S3 model repository feature. Don't mount object storage PVCs directly — that exposes internal directory structures.
+
+Credentials for S3 access come from a Kubernetes Secret, ideally managed by External Secrets Operator from Vault.
+
+**What good looks like:** Mentions GPU resource requests, taints/tolerations, probes, model loading strategy, and security (secrets not hardcoded). Thinks about the full lifecycle, not just "write a YAML file."
+
+**Follow-up probes:**
+- "The pod starts but nvidia-smi inside the container shows no GPUs. What do you check?" (GPU Operator pods, NFD labels, ClusterPolicy, taint mismatch)
+- "The model takes 4 minutes to load. Pods keep getting killed. Why?" (Liveness probe killing before ready. Need startupProbe or increase initialDelaySeconds.)
+- "How do you handle model versioning?" (Image tags, S3 prefixes, Triton model repository versioning, canary deployments)
+
+**Red flags:** No mention of resource requests for GPU. Doesn't know about taints. Suggests mounting a PVC with model files without understanding the S3 API pattern. No probes.
+
+---
+
+### Q2: You have three environments — dev, test, prod — on the same cluster. How do you isolate them?
+
+**Expected Answer:**
+
+Start with namespaces — one per environment (pai-dev, pai-test, pai-prod). Then layer on:
+
+RBAC: Different roles per namespace. Dev team gets admin in dev (experiment freely), edit in test (deploy but through process), view in prod (read-only, all changes through GitOps). Use RoleBindings scoped to each namespace, tied to LDAP/IdP groups so access is managed centrally.
+
+NetworkPolicies: Default-deny ingress across namespaces. A pod in pai-dev should not be able to reach services in pai-prod. Allow same-namespace traffic, ingress controller traffic (so routes still work), and monitoring traffic (Prometheus scraping).
+
+ResourceQuotas and LimitRanges: Prevent dev workloads from starving prod. Set CPU/memory quotas per namespace and default limits per container.
+
+Separate storage: If using shared storage backends, use different paths or buckets per environment (e.g., MinIO rootPath per env, separate PVCs).
+
+Separate secrets: Each environment has its own Vault path and ESO SecretStore so dev credentials can't access prod data.
+
+**What good looks like:** Layers multiple controls (namespace + RBAC + NetworkPolicy + quotas + secrets isolation). Understands defense in depth. Mentions GitOps for prod changes.
+
+**Follow-up probes:**
+- "A developer wants to test something by curling a prod service from a dev pod. Should that work?" (No — NetworkPolicy blocks it. That's the point.)
+- "How do you handle shared services that all environments need?" (Separate instances per env, or a shared namespace with NetworkPolicy allowing specific traffic)
+- "What about cluster-scoped resources like CRDs or ClusterRoles?" (These cross namespace boundaries — need careful management, usually by infra team only)
+
+**Red flags:** Only mentions namespaces without RBAC or NetworkPolicies. Suggests "just trust the developers." No concept of least privilege.
+
+---
+
+### Q3: A pod is stuck in Pending. Walk me through your troubleshooting steps.
+
+**Expected Answer:**
+
+First: `oc describe pod <name>` — check the Events section at the bottom. That usually tells you exactly why.
+
+Common causes and what to look for:
+
+Insufficient resources: "0/5 nodes are available: insufficient nvidia.com/gpu" or "insufficient memory." Check `oc adm top nodes` to see actual usage. Check if ResourceQuotas are hit: `oc describe resourcequota -n <ns>`.
+
+Taints not tolerated: "0/5 nodes are available: 2 node(s) had taints that the pod didn't tolerate." Check node taints: `oc get nodes -o custom-columns=NAME:.metadata.name,TAINTS:.spec.taints`. Compare with pod tolerations.
+
+PVC not bound: "persistentvolumeclaim is not bound." Check `oc get pvc -n <ns>` — is it Pending? If so, check the StorageClass, Trident backend health, and whether the provisioner can reach the storage backend.
+
+Node affinity/selector mismatch: Pod requires a label that no node has. Check nodeSelector or affinity rules in the pod spec against actual node labels.
+
+ImagePullBackOff (slightly different but related): Pod created but container can't start. Check image name, registry authentication, and network connectivity to the registry.
+
+Scheduler issues: Rare, but check if the scheduler is running: `oc get pods -n openshift-kube-scheduler`.
+
+**What good looks like:** Systematic approach starting with describe. Knows the common causes by heart. Doesn't jump to "restart it."
+
+**Follow-up probes:**
+- "The describe shows no events at all — it's just sitting there." (Possible scheduler issue, or the pod hasn't been processed yet. Check scheduler pods and API server.)
+- "PVC is Pending but StorageClass exists. What next?" (Check Trident controller logs, backend connectivity, NFS mount accessibility, export policies)
+
+**Red flags:** First instinct is to delete and recreate. Can't read describe output. Doesn't know what PVC binding means.
+
+---
+
+## 2. Infrastructure / Linux
+
+### Q4: You're seeing intermittent NFS mount failures on some nodes but not others. Where do you start?
+
+**Expected Answer:**
+
+Start by identifying which nodes fail and which succeed. SSH into a failing node and check:
+
+1. Can we reach the NFS server? `ping <nfs-server-ip>` — if that fails, it's a routing or network issue.
+
+2. Can we mount manually? `sudo mount -v -t nfs4 -o nfsvers=4.1,tcp <nfs-ip>:/<volume> /mnt` — the verbose output tells you exactly where it fails.
+
+3. Check MTU: If pings work at small sizes but fail with jumbo frames, there's an MTU mismatch somewhere in the path. Test: `ping -M do -s 8972 <nfs-ip>` — this sends a 9000-byte frame with don't-fragment set. If it fails, something between the node and NFS server doesn't support jumbo frames. Check every hop: node NIC MTU, bond MTU, VLAN subinterface MTU, switch port MTU, switch SVI MTU, storage LIF MTU.
+
+4. Check dmesg: `dmesg | grep -i "nfs\|nfsd\|not responding"` — NFS client timeout messages point to network-level drops.
+
+5. Check the CSI driver: Trident node agent logs on the failing node might show mount errors or timeouts.
+
+6. Check export policies on the storage backend: Maybe the failing node's IP isn't in the allowed client list.
+
+The intermittent nature and node-specific behavior strongly suggests a network path issue — either MTU mismatch on specific VLANs, a misconfigured bond where one member has wrong MTU, or a switch port/SVI configuration difference.
+
+**What good looks like:** Goes straight to network-layer debugging. Knows about MTU as a root cause. Tests systematically from node through network to storage.
+
+**Follow-up probes:**
+- "Pings work at 1500 bytes but fail at 9000. Where exactly is the MTU wrong?" (Check each layer: node interface, bond, VLAN sub-interface, switch port, switch SVI. The SVI is the one people miss.)
+- "It only fails on the GPU workers, not the masters. Why?" (Different NIC types, different bond modes, different switch ports — each could have different MTU config)
+- "How do you fix it permanently, not just for today?" (MachineConfig for node-side, switch config change on network side. Both need to be in config management.)
+
+**Red flags:** Jumps to "check Trident logs" without checking network. Doesn't know what MTU is. Suggests "reboot the node."
+
+---
+
+### Q5: How would you debug a container that works fine locally but fails with permission errors on OpenShift?
+
+**Expected Answer:**
+
+OpenShift runs containers under a Security Context Constraint (SCC), and the default is `restricted-v2`. This is stricter than vanilla Kubernetes:
+
+- Containers run as a random UID (not root, not a specific user)
+- No privilege escalation
+- Read-only root filesystem (on some SCCs)
+- Drops all capabilities
+- runAsUser, fsGroup, and supplementalGroups are controlled
+
+So if a container works locally (where it probably runs as root), it'll fail on OpenShift if it:
+- Tries to write to a directory owned by root (like /.mc, /var/cache, etc.)
+- Expects a specific UID (hardcoded runAsUser: 1001)
+- Needs to bind to a port below 1024
+- Needs any Linux capabilities
+
+Debugging steps:
+1. Check which SCC the pod is using: `oc get pod <name> -o yaml | grep scc`
+2. Check the container's error logs for specific permission denied paths
+3. If the app needs to write to a path, either use an emptyDir mount at that path or set the MC_CONFIG_DIR / HOME / equivalent env var to /tmp
+4. If the Helm chart hardcodes runAsUser, you either need to override it, use a custom SCC, or deploy with plain manifests
+
+Granting `anyuid` or `privileged` SCC should be a last resort, not the first answer.
+
+**What good looks like:** Knows restricted-v2 by name. Understands the random UID concept. Thinks about workarounds before escalating SCC privileges.
+
+**Follow-up probes:**
+- "A vendor's Helm chart sets runAsUser: 1001 and there's no values override. What do you do?" (Fork the chart, Kustomize overlay, or plain manifests. Don't just grant anyuid.)
+- "The app needs to write to /var/lib/app. How do you handle it without changing the SCC?" (EmptyDir volume mounted at /var/lib/app)
+- "What's the difference between anyuid and privileged?" (anyuid lets you run as any user. privileged gives full host access, device access, capability escalation — much more dangerous.)
+
+**Red flags:** Doesn't know what SCC is. First answer is "grant privileged." Doesn't understand that OpenShift is different from vanilla Kubernetes in this regard.
+
+---
+
+### Q6: Tell me about a time you had to troubleshoot a cross-layer issue — something that touched networking, storage, and application all at once.
+
+**Expected Answer:**
+
+This is behavioral — you're looking for their process, not a specific answer. A good answer describes:
+
+1. The symptom (application-level: pods failing, services degraded)
+2. Initial triage (check obvious things: pods, events, logs)
+3. Realization that it's deeper than application (storage timeouts, network errors)
+4. Systematic investigation across layers (NFS → network path → switch config)
+5. Root cause identification (specific misconfiguration)
+6. Fix and validation
+7. Prevention (config management, monitoring, documentation)
+
+A great answer shows they didn't just fix it — they understood why each layer was involved and how they interact.
+
+**What good looks like:** Clear narrative structure. Moves from symptom to root cause without guessing randomly. Involves other teams (network, storage) when needed. Documents the fix.
+
+**Follow-up probes:**
+- "How did you confirm the root cause vs just finding something that happened to fix it?"
+- "What did you put in place so it doesn't happen again?"
+- "How did you communicate the issue to non-technical stakeholders?"
+
+**Red flags:** "I just restarted everything and it worked." No systematic approach. Blames other teams without investigating. Can't explain the root cause.
+
+---
+
+## 3. GitOps / CI/CD
+
+### Q7: How do you manage secrets in a GitOps workflow where everything is in Git but secrets can't be?
+
+**Expected Answer:**
+
+Several approaches, each with trade-offs:
+
+**External Secrets Operator (ESO):** Store secrets in Vault (or AWS Secrets Manager, etc.). In Git, you commit an ExternalSecret manifest that references the Vault path. ESO pulls the actual secret value from Vault and creates a Kubernetes Secret. The actual credential never touches Git. This is the cleanest enterprise approach — central secret management, audit trail, rotation support.
+
+**Sealed Secrets:** Encrypt the secret with the cluster's public key. The encrypted SealedSecret goes in Git. The Sealed Secrets controller decrypts it on-cluster. Downside: secrets are tied to the cluster's key — you can't just move Git repo to another cluster.
+
+**SOPS (Mozilla):** Encrypt secret values in YAML files using KMS keys. Commit encrypted files to Git. ArgoCD with SOPS plugin decrypts at sync time. Works but adds complexity to the ArgoCD setup.
+
+**Vault Agent Injector:** Vault sidecar injects secrets into pods at runtime via annotations. The secret is never stored as a Kubernetes Secret — it's written to a tmpfs. Good for high-security environments but more complex.
+
+The key principle: the Git repo contains a reference to the secret, not the secret itself. The actual value lives in a secret manager with access controls, rotation, and audit.
+
+**What good looks like:** Knows multiple approaches and can articulate trade-offs. Recommends ESO or Vault-based approach for enterprise. Understands that base64 is not encryption.
+
+**Follow-up probes:**
+- "What happens if Vault goes down? Do your pods still work?" (Existing Kubernetes Secrets persist. New syncs fail until Vault is back. ESO deletionPolicy: Retain helps.)
+- "How do you rotate a secret?" (Update in Vault. ESO refreshInterval syncs it. Restart pods if they don't watch for secret changes.)
+- "A developer commits a secret to Git by accident. Now what?" (Rotate the secret immediately. Git history preserves it forever — even if you delete the commit.)
+
+**Red flags:** "Just base64 encode it." Doesn't know about ESO or Sealed Secrets. Stores secrets in ConfigMaps. No concept of secret rotation.
+
+---
+
+### Q8: What happens if someone makes a manual change on the cluster in a GitOps environment?
+
+**Expected Answer:**
+
+If ArgoCD has selfHeal enabled, it detects the drift within a few minutes (typically 3-5 min sync interval) and reverts the change back to match what's in Git. The cluster state always converges to what Git says.
+
+This is a feature, not a bug. It means:
+- Git is the single source of truth
+- You can't have "snowflake" configurations that someone applied manually and nobody documented
+- Every change has a Git commit with a message, author, and timestamp — full audit trail
+- Recovery from accidental changes is automatic
+
+If selfHeal is disabled, ArgoCD marks the app as OutOfSync but doesn't revert. You'd have to manually sync to restore the Git state.
+
+If prune is enabled, ArgoCD also deletes resources that exist on the cluster but not in Git. If prune is disabled, orphaned resources stay but ArgoCD flags them.
+
+**What good looks like:** Understands selfHeal and prune behavior. Sees it as a positive constraint. Knows the sync interval concept.
+
+**Follow-up probes:**
+- "When would you intentionally disable selfHeal?" (Cluster-critical resources like OAuth where a bad Git commit could lock everyone out. You want to review before applying.)
+- "A developer needs to test something quickly in dev. Do they have to commit to Git?" (In dev, you might allow manual applies with relaxed RBAC. In prod, never.)
+- "How do you handle resources that ArgoCD can't manage — like CRDs installed by OLM?" (Exclude them from ArgoCD tracking, or manage the operator subscription through ArgoCD.)
+
+**Red flags:** Thinks selfHeal is a problem. Suggests disabling it for convenience. Doesn't understand drift detection.
+
+---
+
+## 4. Cloud / GCP
+
+### Q9: How would you architect a training pipeline that needs 8 GPUs for 6 hours then scales to zero?
+
+**Expected Answer:**
+
+Use GKE with a dedicated GPU node pool configured for autoscaling (min: 0, max: N). When a training Job is submitted, the autoscaler provisions GPU nodes. When the Job completes, the nodes scale down after the cooldown period.
+
+Key decisions:
+
+Node pool: Use a separate node pool for GPU training (A100s or H100s depending on the workload). Set taints on the GPU pool so only training jobs land there. Configure autoscaler with scale-down delay (10-15 min) to avoid thrashing if multiple jobs run sequentially.
+
+Spot/preemptible instances: For training jobs that can checkpoint, use Spot VMs for significant cost savings (60-90%). The training code needs to handle preemption — checkpoint regularly and resume from last checkpoint.
+
+Job orchestration: Use Kubernetes Jobs (not Deployments) for training — they run to completion and don't restart. For complex pipelines, use Airflow with KubernetesPodOperator or Kubeflow Pipelines.
+
+Storage: Training data on GCS. Intermediate checkpoints on GCS. Model artifacts on GCS. Avoid persistent disks for training data — they're slower and don't scale with the compute.
+
+Multi-GPU: For 8 GPUs, either a single 8-GPU node (A3 instance) or distributed training across multiple nodes with NCCL. Single node is simpler but harder to get on-demand.
+
+Cost: Set budget alerts. Use committed use discounts for baseline GPU usage. Spot for burst. Tag everything for cost attribution.
+
+**What good looks like:** Thinks about autoscaling to zero first. Mentions spot instances and checkpointing. Considers multi-GPU topology. Cost-aware.
+
+**Follow-up probes:**
+- "The training job needs 8 GPUs but GCP only has 4-GPU instances available in your region. What do you do?" (Distributed training across 2 nodes with NCCL, or request quota in another region)
+- "How do you handle the case where a Spot VM gets preempted mid-training?" (Checkpointing to GCS every N steps. Job controller detects failure and restarts from checkpoint.)
+- "The data science team is spending $50K/month on GPUs. How do you optimize?" (Right-size instances, spot where possible, ensure scale-to-zero works, check for idle resources, consider reserved/committed use)
+
+**Red flags:** Suggests always-on GPU nodes. No concept of spot instances. Doesn't think about cost. No checkpointing strategy.
+
+---
+
+### Q10: You need to serve a model with sub-100ms latency. What infrastructure decisions matter?
+
+**Expected Answer:**
+
+Latency is a function of the entire path from request to response. Every layer matters:
+
+Model optimization: Before touching infrastructure — is the model optimized? Use TensorRT, ONNX Runtime, or vLLM for quantization, pruning, and compilation. A well-optimized model on a T4 can beat an unoptimized model on an A100.
+
+GPU selection: For inference, you often don't need the biggest GPU. T4 (cost-effective), L4 (good balance), or A10G (higher throughput) are typical inference GPUs. H100 is overkill for most single-model inference.
+
+Batching: Dynamic batching groups multiple requests into a single GPU forward pass. Triton Inference Server does this natively. Increases throughput but adds latency for early arrivals in the batch. Tune max batch size and max batch delay for your latency target.
+
+Instance placement: Put inference servers in the same region/zone as the clients. Network latency between regions can be 50-100ms alone.
+
+Load balancing: Use GPU-aware load balancing that routes to instances with available GPU memory. Round-robin doesn't account for model loading or GPU utilization.
+
+Caching: If the same inputs come frequently, cache at the application layer. For embedding models, cache the embeddings.
+
+Autoscaling: Scale on GPU utilization or request queue depth, not just CPU. Set up HPA with custom metrics.
+
+Health probes: Model loading takes time. Use startup probes with generous timeouts so new replicas don't receive traffic until the model is loaded.
+
+**What good looks like:** Thinks end-to-end from model optimization to network latency. Knows about TensorRT/dynamic batching. Cost-conscious about GPU selection.
+
+**Follow-up probes:**
+- "You're serving 10 different models. How do you handle that?" (Model multiplexing on shared GPUs vs dedicated instances per model. Triton handles multi-model serving natively.)
+- "Latency is 95ms at P50 but 500ms at P99. What's happening?" (Cold starts, GC pauses, batch latency spikes, GPU memory contention, or network retries. Look at the P99 tail.)
+- "The data science team says they need the latest H100 for inference. How do you push back?" (Show benchmarks. Profile the model. Often an L4 or T4 serves the same model within SLA at 1/5 the cost.)
+
+**Red flags:** Only thinks about GPU size. No concept of model optimization. Doesn't know what dynamic batching is. No awareness of latency percentiles.
+
+---
+
+## 5. Observability
+
+### Q11: You're tasked with setting up monitoring for an ML platform from scratch. What do you instrument and why?
+
+**Expected Answer:**
+
+Three layers: infrastructure, platform, and application.
+
+**Infrastructure metrics (Prometheus + node-exporter):**
+- Node CPU, memory, disk, network utilization
+- GPU utilization, GPU memory, GPU temperature (DCGM exporter for NVIDIA)
+- NFS mount health, latency, throughput
+- Kubernetes API server latency and error rates
+- etcd health (leader changes, db size, slow operations)
+
+**Platform metrics:**
+- Pod resource usage vs requests/limits (identify over/under-provisioned workloads)
+- PVC utilization (storage filling up)
+- ArgoCD sync status and duration
+- Vault seal status, auth failures
+- ESO sync failures
+- Certificate expiry (cert-manager)
+- CronJob success/failure (LDAP group sync)
+
+**Application / ML metrics:**
+- Model inference latency (P50, P95, P99)
+- Request throughput (requests/sec per model)
+- Error rates (4xx, 5xx, model errors)
+- GPU utilization per model (is the GPU actually being used or waiting for I/O?)
+- Model version tracking (which version is serving)
+- Data drift indicators (input distribution changes)
+- Queue depth (if using async inference)
+
+**Alerting priorities:**
+- Critical: Node down, GPU failure, Vault sealed, API server unhealthy, certificate expiring in <7 days
+- Warning: High GPU memory usage, PVC >80% full, ArgoCD out of sync, pod restart count high
+- Info: New model deployed, training job completed
+
+**Stack:** Prometheus for metrics collection, Grafana for dashboards, Alertmanager for routing alerts to Slack/PagerDuty. Loki or ELK for logs. OpenTelemetry for distributed tracing if services call each other.
+
+**What good looks like:** Three-layer approach. Knows GPU-specific monitoring (DCGM). Mentions ML-specific metrics (latency percentiles, drift). Thinks about alerting priority.
+
+**Follow-up probes:**
+- "GPU utilization is 30% but the team says they need more GPUs. What's going on?" (Model might be I/O bound not compute bound. Or batch size is too small. Profile before scaling.)
+- "How do you monitor something like a vector database (Milvus)?" (Query latency, index build time, memory usage, gRPC connection count, healthz endpoint)
+- "You get 200 alerts per day. How do you fix alert fatigue?" (Tune thresholds, group related alerts, add silence rules for known maintenance, prioritize actionable alerts only)
+
+**Red flags:** Only mentions "install Prometheus and Grafana." No GPU monitoring. No ML-specific metrics. No alerting strategy.
+
+---
+
+## 6. Scenario-Based (Judgment)
+
+### Q12: A data scientist wants to run a Jupyter notebook with root access on a production Kubernetes cluster. How do you handle that?
+
+**Expected Answer:**
+
+No — not in production. But understand why they're asking and offer alternatives.
+
+They probably need root because the notebook installs packages (pip install), writes to system directories, or needs access to GPU drivers. Address each:
+
+1. Provide a dev namespace with relaxed SCC where they can experiment. Dev is isolated from prod via NetworkPolicies and RBAC. They can have admin access there.
+
+2. Build custom notebook images with the packages they need pre-installed. Use a CI pipeline so they can request packages via PR to a Dockerfile.
+
+3. If they need GPU access, configure the notebook pod with GPU resource requests and proper tolerations. The GPU Operator handles driver access without root.
+
+4. For persistent work, provide a PVC so their notebooks survive pod restarts.
+
+5. If they genuinely need root for something specific, understand what and find the minimal SCC that allows it (anyuid, nonroot, etc.) — never privileged in prod.
+
+The conversation should be collaborative, not a flat "no." Understand their workflow and find a secure path that works.
+
+**What good looks like:** Says no to root in prod but offers concrete alternatives. Understands the data scientist's actual needs. Thinks about custom images, dev namespaces, and minimal SCCs.
+
+**Follow-up probes:**
+- "They say the custom image approach is too slow — they need to iterate fast." (Pre-built images with common packages + pip install to a persistent volume at startup. Or use a virtual environment on a PVC.)
+- "They want to access the production database from their notebook." (Read-only credentials via Vault/ESO. NetworkPolicy allowing notebook namespace to reach database. Never write access from notebooks to prod data.)
+
+**Red flags:** Just says "no" without alternatives. Or says "sure, here's privileged SCC." No security awareness.
+
+---
+
+### Q13: The team wants to use a Helm chart but it hardcodes runAsUser: 1001 which doesn't work on your platform. What do you do?
+
+**Expected Answer:**
+
+Several options, in order of preference:
+
+1. **Check Helm values first:** Look at values.yaml for securityContext overrides. Many charts expose this as a configurable value even if the default is hardcoded. `helm show values <chart>` to check.
+
+2. **Kustomize overlay:** If ArgoCD supports it, use a Kustomize patch to override the securityContext. Render the Helm chart, then apply a strategic merge patch that removes or overrides runAsUser/fsGroup. This keeps the chart intact but customizes the output.
+
+3. **Fork the chart:** If the securityContext is deeply embedded (subchart with no values exposure), fork the chart and fix it. Maintain the fork in your own Helm repo. Downside: you own the upgrades now.
+
+4. **Deploy with plain manifests:** Render the chart once (`helm template`), strip the problematic security context, and commit the manifests to Git. Simpler to manage but lose Helm's templating for future changes.
+
+5. **Custom SCC (last resort):** Create a custom SCC that allows UID 1001 and bind it to the service account. This is the least preferred because it weakens the security posture for that namespace.
+
+The right choice depends on how actively the upstream chart is maintained and how often you need to upgrade.
+
+**What good looks like:** Knows multiple approaches with clear trade-offs. Tries values override first. Kustomize or fork before granting custom SCC. Thinks about long-term maintainability.
+
+**Follow-up probes:**
+- "The problematic securityContext is in a subchart dependency, not the parent chart." (Values might still override it via `<subchart>.securityContext`. If not, fork the subchart or use post-render hooks.)
+- "You forked the chart and now there's a critical CVE fix in the upstream. How do you handle it?" (Merge upstream changes into your fork. This is the maintenance cost of forking.)
+- "The vendor says their next release will fix it. Do you wait?" (No — deploy with a workaround now, plan to switch back to upstream when the fix ships.)
+
+**Red flags:** Immediately grants anyuid/privileged. Doesn't know what Kustomize is. No concept of chart forking or post-render.
+
+---
+
+## 7. Scoring Guide
+
+For each question, score 1-4:
+
+| Score | Meaning |
+|---|---|
+| 1 | Cannot answer or fundamentally wrong |
+| 2 | Partial answer, knows basics but gaps in depth |
+| 3 | Solid answer, demonstrates hands-on experience |
+| 4 | Exceptional — goes beyond the question, shows deep understanding and judgment |
+
+### Minimum Bar for Staff Level:
+- Average score of 3.0 or higher across all questions
+- No score of 1 on any question
+- At least two scores of 4
+- Must score 3+ on Q4 (NFS/network debugging), Q5 (SCC/security), and Q7 (secrets management) — these are core to the role
+
+### Strong Hire Indicators:
+- Tells stories from real production experience, not textbook answers
+- Mentions monitoring/observability without being asked
+- Thinks about cost and efficiency unprompted
+- Asks clarifying questions before answering (shows engineering judgment)
+- Can explain trade-offs, not just solutions
+
+### No-Hire Indicators:
+- Repeatedly suggests "just give it admin/privileged access"
+- Cannot troubleshoot systematically (guesses randomly)
+- No awareness of security context or multi-tenancy
+- Cannot explain why, only what
+- Claims expertise but answers are surface-level
