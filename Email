@@ -451,3 +451,5 @@ For each question, score 1-4:
 - No awareness of security context or multi-tenancy
 - Cannot explain why, only what
 - Claims expertise but answers are surface-level
+
+Strong candidate on the AI/ML operations side. Solid Kubernetes knowledge, well grounded in model serving, inference pipelines, and GPU compute. Good communicator. His experience is primarily with cloud-managed Kubernetes (GKE/EKS) so there would be a learning curve on the on-prem and bare-metal infrastructure side, but the AI/ML depth he brings would be a valuable addition to the team.
