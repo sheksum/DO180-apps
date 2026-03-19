@@ -1,3 +1,7 @@
-Awanish Kumar  [2:49 AM]
-@haj.suma & @gene.siepka: we’re getting a “Not Secure” warning despite using HTTPS. This is probably due to the use of a self‑signed certificate. Could we update it to a valid, trusted certificate? EOSM - EOSM-52992
-cc: @sulabh.sinhaimage.png EOSM-52992 Not Secure” warning due to self‑signed certificate on HTTPS endpo…Status: OpenType: [System] IncidentAssignee: UnassignedPriority: P3-Medium
+Hey Awanish, this is expected. The TLS certificates are issued by our Vault PKI which currently uses a self-signed root CA. Browsers don't trust it because it's not part of the corporate CA chain.
+
+This is already on the roadmap — the plan is to swap the Vault PKI intermediate to the Calix corporate CA. That requires IT to sign our intermediate CSR. Once that's done, all certificates issued by Vault will be trusted by browsers automatically.
+
+In the meantime, the connection is still encrypted — the "Not Secure" warning is about trust, not encryption. You can proceed past the warning safely.
+
+I'll close the ticket with this context.
