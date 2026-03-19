@@ -1,2 +1,3 @@
-Brian Wing  [2:40 PM]
-@haj.suma @anjali.kumari @franklyn.ngundam @deonna.thornton ---  Idea for DMZ patching --- Haj, can we create a repository with Landscape and/or Satellite that pushes packages to a VM / host in the DMZ?  Thinking we may get an easier approval for this rather than opening the proxy systems to the inside.  If we have a repo, that is local in the DMZ, even if we have to manually configure the proxy systems to use that repo this may be an acceptable solution.  Would be good for any future systems that might be deployed to DMZ. :thinking_face:
+Awanish Kumar  [2:49 AM]
+@haj.suma & @gene.siepka: we’re getting a “Not Secure” warning despite using HTTPS. This is probably due to the use of a self‑signed certificate. Could we update it to a valid, trusted certificate? EOSM - EOSM-52992
+cc: @sulabh.sinhaimage.png EOSM-52992 Not Secure” warning due to self‑signed certificate on HTTPS endpo…Status: OpenType: [System] IncidentAssignee: UnassignedPriority: P3-Medium
