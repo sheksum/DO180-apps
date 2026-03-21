@@ -1,63 +1,24 @@
- pulpcore-worker@5.service - Pulp Worker
-   Loaded: loaded (/etc/systemd/system/pulpcore-worker@.service; enabled; vendor preset: disabled)
-   Active: active (running) since Sat 2026-03-21 12:54:59 EDT; 1h 34min ago
- Main PID: 74221 (pulpcore-worker)
-    Tasks: 1 (limit: 100497)
-   Memory: 28.4M
-   CGroup: /system.slice/system-pulpcore\x2dworker.slice/pulpcore-worker@5.service
-           └─74221 /usr/bin/python3.11 /usr/bin/pulpcore-worker
+Step 1 — Update networking on the capsule
 
-Mar 21 14:00:16 pln-capsule-dmz01.caal.dev pulpcore-worker-5[109086]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
-Mar 21 14:00:16 pln-capsule-dmz01.caal.dev pulpcore-worker-5[109086]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Excluding 1 packages (duplicates, outdated or skipping was requested e.g. 'skip_types')
-Mar 21 14:11:04 pln-capsule-dmz01.caal.dev pulpcore-worker-5[109086]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-86e6-7b25-92ab-6c20c2347de0
-Mar 21 14:18:13 pln-capsule-dmz01.caal.dev pulpcore-worker-5[111235]: pulp [35ba85e6-2ecb-4c15-970f-4039d1e60f64]: pulpcore.tasking.tasks:INFO: Starting task 019d119e-7f5a-75cd-b281-1278301e1c90
-Mar 21 14:18:13 pln-capsule-dmz01.caal.dev pulpcore-worker-5[111235]: pulp [35ba85e6-2ecb-4c15-970f-4039d1e60f64]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=1-grafana-Prod-fd124b4f-6cbe-4a96-8e9c-8bdfaedbfe22 remote=1-gra>
-Mar 21 14:21:37 pln-capsule-dmz01.caal.dev pulpcore-worker-5[74221]: pulp [None]: pulpcore.tasking.worker:WARNING: Task process for 019d119e-7f5a-75cd-b281-1278301e1c90 exited with non zero exitcode -9.
-Mar 21 14:21:37 pln-capsule-dmz01.caal.dev pulpcore-worker-5[74221]: pulp [None]: pulpcore.tasking.worker:INFO: Cleaning up task 019d119e-7f5a-75cd-b281-1278301e1c90 and marking as failed. Reason: Killed by signal 9.
-Mar 21 14:24:53 pln-capsule-dmz01.caal.dev pulpcore-worker-5[74221]: pulp [None]: pulpcore.tasking.worker:INFO: Worker '74221@pln-capsule-dmz01.caal.dev' is back online.
-Mar 21 14:25:29 pln-capsule-dmz01.caal.dev pulpcore-worker-5[74221]: pulp [None]: pulpcore.tasking.worker:INFO: Worker '74221@pln-capsule-dmz01.caal.dev' is back online.
-Mar 21 14:27:11 pln-capsule-dmz01.caal.dev pulpcore-worker-5[74221]: pulp [None]: pulpcore.tasking.worker:INFO: Worker '74221@pln-capsule-dmz01.caal.dev' is back online.
+satellite-maintain service stop
+Update IP via nmtui to DMZ IP
+satellite-maintain service start
 
-● pulpcore-worker@1.service - Pulp Worker
-   Loaded: loaded (/etc/systemd/system/pulpcore-worker@.service; enabled; vendor preset: disabled)
-   Active: active (running) since Sat 2026-03-21 12:54:56 EDT; 1h 34min ago
- Main PID: 73824 (pulpcore-worker)
-    Tasks: 4 (limit: 100497)
-   Memory: 2.9G
-   CGroup: /system.slice/system-pulpcore\x2dworker.slice/pulpcore-worker@1.service
-           ├─ 73824 /usr/bin/python3.11 /usr/bin/pulpcore-worker
-           └─111276 /usr/bin/python3.11 /usr/bin/pulpcore-worker
+Step 2 — Update DNS
 
-Mar 21 14:02:08 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=1-RHEL8-Prod-611d9669-8d12-46f2-a0e4-d436cb37c32b remote=1-RHEL8>
-Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambi>
-Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
-Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambi>
-Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
-Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Excluding 1 packages (duplicates, outdated or skipping was requested e.g. 'skip_types')
-Mar 21 14:12:07 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-89b6-76eb-9e24-d501aeda3e9c
-Mar 21 14:18:14 pln-capsule-dmz01.caal.dev pulpcore-worker-1[111276]: pulp [35ba85e6-2ecb-4c15-970f-4039d1e60f64]: pulpcore.tasking.tasks:INFO: Starting task 019d119e-828b-70a9-bd65-7f11772bab30
-Mar 21 14:18:14 pln-capsule-dmz01.caal.dev pulpcore-worker-1[111276]: pulp [35ba85e6-2ecb-4c15-970f-4039d1e60f64]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=1-RHEL9-Dev-fd124b4f-6cbe-4a96-8e9c-8bdfaedbfe22 remote=1-RHEL9->
-Mar 21 14:25:19 pln-capsule-dmz01.caal.dev pulpcore-worker-1[73824]: pulp [None]: pulpcore.tasking.worker:INFO: Worker '73824@pln-capsule-dmz01.caal.dev' is back online.
+Update A record in caal.dev zone to new DMZ IP
+Update PTR record to new DMZ IP
 
-● pulpcore-worker@6.service - Pulp Worker
-   Loaded: loaded (/etc/systemd/system/pulpcore-worker@.service; enabled; vendor preset: disabled)
-   Active: active (running) since Sat 2026-03-21 12:55:00 EDT; 1h 34min ago
- Main PID: 74334 (pulpcore-worker)
-    Tasks: 4 (limit: 100497)
-   Memory: 3.7G
-   CGroup: /system.slice/system-pulpcore\x2dworker.slice/pulpcore-worker@6.service
-           ├─ 74334 /usr/bin/python3.11 /usr/bin/pulpcore-worker
-           └─111237 /usr/bin/python3.11 /usr/bin/pulpcore-worker
+Step 3 — Request firewall rules from network team
 
-Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambi>
-Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
-Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambi>
-Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
-Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Excluding 1 packages (duplicates, outdated or skipping was requested e.g. 'skip_types')
-Mar 21 14:12:15 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-8a8a-7062-8f42-465388343ed5
-Mar 21 14:18:13 pln-capsule-dmz01.caal.dev pulpcore-worker-6[111237]: pulp [35ba85e6-2ecb-4c15-970f-4039d1e60f64]: pulpcore.tasking.tasks:INFO: Starting task 019d119e-7f88-7b9e-980c-18e503575da2
-Mar 21 14:18:13 pln-capsule-dmz01.caal.dev pulpcore-worker-6[111237]: pulp [35ba85e6-2ecb-4c15-970f-4039d1e60f64]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=1-rockylinux-9-Dev-fd124b4f-6cbe-4a96-8e9c-8bdfaedbfe22 remote=1>
-Mar 21 14:25:19 pln-capsule-dmz01.caal.dev pulpcore-worker-6[74334]: pulp [None]: pulpcore.tasking.worker:INFO: Worker '74334@pln-capsule-dmz01.caal.dev' is back online.
-Mar 21 14:27:10 pln-capsule-dmz01.caal.dev pulpcore-worker-6[74334]: pulp [None]: pulpcore.tasking.worker:INFO: Worker '74334@pln-capsule-dmz01.caal.dev' is back online.
+DMZ hosts → Capsule DMZ IP — port 443
+Capsule DMZ IP → Satellite Server — port 443
+Capsule DMZ IP → Satellite Server — port 5646
 
-lines 1-62
+Step 4 — Validate
+
+Verify capsule shows green in Satellite UI
+Verify content sync still works
+Register a DMZ test host through the capsule
+
+That's it. The FQDN pln-capsule-dmz01.caal.dev never changes — just the IP. So once DNS and firewall are updated everything should come back up cleanly.
