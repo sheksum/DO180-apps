@@ -1,0 +1,442 @@
+[root@pln-capsule-dmz01 ~]#
+[root@pln-capsule-dmz01 ~]#
+[root@pln-capsule-dmz01 ~]# df -h
+Filesystem                     Size  Used Avail Use% Mounted on
+devtmpfs                       7.7G     0  7.7G   0% /dev
+tmpfs                          7.7G  3.0M  7.7G   1% /dev/shm
+tmpfs                          7.7G   26M  7.7G   1% /run
+tmpfs                          7.7G     0  7.7G   0% /sys/fs/cgroup
+/dev/mapper/rhel-root           50G  7.1G   43G  15% /
+/dev/mapper/rhel-var           200G   14G  187G   7% /var
+/dev/mapper/rhel-tmp            20G  176M   20G   1% /tmp
+/dev/mapper/rhel-var_lib_pulp   50G  3.8G   47G   8% /var/lib/pulp
+/dev/sda2                      2.0G  458M  1.6G  23% /boot
+/dev/sda1                     1022M  9.7M 1013M   1% /boot/efi
+/dev/mapper/rhel-var_log        20G  206M   20G   2% /var/log
+tmpfs                          1.6G   12K  1.6G   1% /run/user/42
+tmpfs                          1.6G     0  1.6G   0% /run/user/0
+[root@pln-capsule-dmz01 ~]#
+[root@pln-capsule-dmz01 ~]#
+[root@pln-capsule-dmz01 ~]#
+[root@pln-capsule-dmz01 ~]#
+[root@pln-capsule-dmz01 ~]# satellite-maintain service status
+Running Status Services
+================================================================================
+Get status of applicable services:
+
+Displaying the following service(s):
+redis, postgresql, pulpcore-api, pulpcore-content, pulpcore-worker@1.service, pulpcore-worker@2.service, pulpcore-worker@3.service, pulpcore-worker@4.service, pulpcore-worker@5.service, pulpcore-worker@6.service, httpd, foreman-proxy
+/ displaying redis
+● redis.service - Redis persistent key-value database
+   Loaded: loaded (/usr/lib/systemd/system/redis.service; enabled; vendor preset: disabled)
+  Drop-In: /etc/systemd/system/redis.service.d
+           └─90-limits.conf
+   Active: active (running) since Sat 2026-03-21 12:54:55 EDT; 1h 19min ago
+ Main PID: 73661 (redis-server)
+   Status: "Ready to accept connections"
+    Tasks: 5 (limit: 100497)
+   Memory: 4.4M
+   CGroup: /system.slice/redis.service
+           └─73661 /usr/bin/redis-server 127.0.0.1:6379
+
+Mar 21 12:54:55 pln-capsule-dmz01.caal.dev systemd[1]: Starting Redis persistent key-value database...
+Mar 21 12:54:55 pln-capsule-dmz01.caal.dev systemd[1]: Started Redis persistent key-value database.
+/ displaying postgresql
+● postgresql.service - PostgreSQL database server
+   Loaded: loaded (/usr/lib/systemd/system/postgresql.service; enabled; vendor preset: disabled)
+  Drop-In: /etc/systemd/system/postgresql.service.d
+           └─postgresql.conf
+   Active: active (running) since Sat 2026-03-21 12:53:24 EDT; 1h 20min ago
+ Main PID: 72823 (postmaster)
+    Tasks: 33 (limit: 100497)
+   Memory: 1.2G
+   CGroup: /system.slice/postgresql.service
+           ├─ 72823 /usr/bin/postmaster -D /var/lib/pgsql/data
+           ├─ 72824 postgres: logger
+           ├─ 72826 postgres: checkpointer
+           ├─ 72827 postgres: background writer
+           ├─ 72828 postgres: walwriter
+           ├─ 72829 postgres: autovacuum launcher
+           ├─ 72830 postgres: stats collector
+           ├─ 72831 postgres: logical replication launcher
+           ├─ 74220 postgres: pulp pulpcore ::1(46200) idle
+           ├─ 74331 postgres: pulp pulpcore ::1(46216) idle
+           ├─ 74400 postgres: pulp pulpcore ::1(46222) idle
+           ├─ 74525 postgres: pulp pulpcore ::1(46248) idle
+           ├─ 74653 postgres: pulp pulpcore ::1(46252) idle
+           ├─ 74656 postgres: pulp pulpcore ::1(50454) idle
+           ├─ 74987 postgres: pulp pulpcore ::1(50538) idle
+           ├─ 74993 postgres: pulp pulpcore ::1(50550) idle
+           ├─ 75002 postgres: pulp pulpcore ::1(50556) idle
+           ├─ 75020 postgres: pulp pulpcore ::1(50570) idle
+           ├─ 75039 postgres: pulp pulpcore ::1(50572) idle
+           ├─ 75042 postgres: pulp pulpcore ::1(50588) idle
+           ├─ 75046 postgres: pulp pulpcore ::1(50604) idle
+           ├─ 75049 postgres: pulp pulpcore ::1(50610) idle
+           ├─ 75053 postgres: pulp pulpcore ::1(50616) idle
+           ├─ 75059 postgres: pulp pulpcore ::1(50630) idle
+           ├─ 75065 postgres: pulp pulpcore ::1(50640) idle
+           ├─ 75067 postgres: pulp pulpcore ::1(50646) idle
+           ├─ 75070 postgres: pulp pulpcore ::1(50650) idle
+           ├─ 75392 postgres: foreman-proxy container_gateway [local] idle
+           ├─110778 postgres: pulp pulpcore ::1(48726) idle
+           ├─110784 postgres: pulp pulpcore ::1(48774) idle
+           ├─110786 postgres: pulp pulpcore ::1(48794) idle
+           ├─110790 postgres: pulp pulpcore ::1(48814) idle
+           └─110792 postgres: pulp pulpcore ::1(48834) idle
+
+Mar 21 12:53:24 pln-capsule-dmz01.caal.dev postmaster[72823]: 2026-03-21 12:53:24 EDT LOG:  starting PostgreSQL 12.22 on x86_64-redhat-linux-gnu, compiled by gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-28), 64-bit
+Mar 21 12:53:24 pln-capsule-dmz01.caal.dev postmaster[72823]: 2026-03-21 12:53:24 EDT LOG:  listening on IPv6 address "::1", port 5432
+Mar 21 12:53:24 pln-capsule-dmz01.caal.dev postmaster[72823]: 2026-03-21 12:53:24 EDT LOG:  listening on IPv4 address "127.0.0.1", port 5432
+Mar 21 12:53:24 pln-capsule-dmz01.caal.dev postmaster[72823]: 2026-03-21 12:53:24 EDT LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+Mar 21 12:53:24 pln-capsule-dmz01.caal.dev postmaster[72823]: 2026-03-21 12:53:24 EDT LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
+Mar 21 12:53:24 pln-capsule-dmz01.caal.dev postmaster[72823]: 2026-03-21 12:53:24 EDT LOG:  redirecting log output to logging collector process
+Mar 21 12:53:24 pln-capsule-dmz01.caal.dev postmaster[72823]: 2026-03-21 12:53:24 EDT HINT:  Future log output will appear in directory "log".
+Mar 21 12:53:24 pln-capsule-dmz01.caal.dev systemd[1]: Started PostgreSQL database server.
+Mar 21 12:53:24 pln-capsule-dmz01.caal.dev systemd[1]: Reloading PostgreSQL database server.
+Mar 21 12:53:24 pln-capsule-dmz01.caal.dev systemd[1]: Reloaded PostgreSQL database server.
+/ displaying pulpcore-api
+● pulpcore-api.service - Pulp API Server
+   Loaded: loaded (/etc/systemd/system/pulpcore-api.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2026-03-21 12:55:04 EDT; 1h 19min ago
+ Main PID: 74649 (pulpcore-api)
+   Status: "Gunicorn arbiter booted"
+    Tasks: 6 (limit: 100497)
+   Memory: 248.7M
+   CGroup: /system.slice/pulpcore-api.service
+           ├─ 74649 /usr/bin/python3.11 /usr/bin/pulpcore-api --preload --timeout 90 --workers 5 --max-requests 800 --max-requests-jitter 100 --access-logfile - --access-logformat pulp [%({correlation-id}o)s]: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+           ├─102283 /usr/bin/python3.11 /usr/bin/pulpcore-api --preload --timeout 90 --workers 5 --max-requests 800 --max-requests-jitter 100 --access-logfile - --access-logformat pulp [%({correlation-id}o)s]: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+           ├─102406 /usr/bin/python3.11 /usr/bin/pulpcore-api --preload --timeout 90 --workers 5 --max-requests 800 --max-requests-jitter 100 --access-logfile - --access-logformat pulp [%({correlation-id}o)s]: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+           ├─102564 /usr/bin/python3.11 /usr/bin/pulpcore-api --preload --timeout 90 --workers 5 --max-requests 800 --max-requests-jitter 100 --access-logfile - --access-logformat pulp [%({correlation-id}o)s]: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+           ├─102728 /usr/bin/python3.11 /usr/bin/pulpcore-api --preload --timeout 90 --workers 5 --max-requests 800 --max-requests-jitter 100 --access-logfile - --access-logformat pulp [%({correlation-id}o)s]: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+           └─103173 /usr/bin/python3.11 /usr/bin/pulpcore-api --preload --timeout 90 --workers 5 --max-requests 800 --max-requests-jitter 100 --access-logfile - --access-logformat pulp [%({correlation-id}o)s]: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+
+Mar 21 14:12:24 pln-capsule-dmz01.caal.dev pulpcore-api[102406]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]:  - - [21/Mar/2026:18:12:24 +0000] "GET /pulp/api/v3/repositories/rpm/rpm/?limit=2000&name=611d9669-8d12-46f2-a0e4-d436cb37c32b&offset=0 HTTP/1.1" 200 708 "-" "OpenAPI-Generator/3.23.0/ruby"
+Mar 21 14:12:24 pln-capsule-dmz01.caal.dev pulpcore-api[102406]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]:  - - [21/Mar/2026:18:12:24 +0000] "GET /pulp/api/v3/publications/rpm/rpm/?repository_version=%2Fpulp%2Fapi%2Fv3%2Frepositories%2Frpm%2Frpm%2F019d115a-7930-76fe-abca-0daad6ad0ecf%2Fversions%2F1%2F HTTP/1.1" 200 500 "-" "OpenAPI-Generator/3.23.0/ruby"
+Mar 21 14:12:24 pln-capsule-dmz01.caal.dev pulpcore-api[102406]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]:  - - [21/Mar/2026:18:12:24 +0000] "GET /pulp/api/v3/repositories/rpm/rpm/?limit=2000&name=611d9669-8d12-46f2-a0e4-d436cb37c32b&offset=0 HTTP/1.1" 200 708 "-" "OpenAPI-Generator/3.23.0/ruby"
+Mar 21 14:12:24 pln-capsule-dmz01.caal.dev pulpcore-api[102728]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]:  - - [21/Mar/2026:18:12:24 +0000] "GET /pulp/api/v3/publications/rpm/rpm/?repository_version=%2Fpulp%2Fapi%2Fv3%2Frepositories%2Frpm%2Frpm%2F019d115a-7930-76fe-abca-0daad6ad0ecf%2Fversions%2F1%2F HTTP/1.1" 200 500 "-" "OpenAPI-Generator/3.23.0/ruby"
+Mar 21 14:12:24 pln-capsule-dmz01.caal.dev pulpcore-api[102406]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]:  - - [21/Mar/2026:18:12:24 +0000] "GET /pulp/api/v3/contentguards/certguard/rhsm/ HTTP/1.1" 200 2788 "-" "OpenAPI-Generator/1.6.4/ruby"
+Mar 21 14:12:25 pln-capsule-dmz01.caal.dev pulpcore-api[102406]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]:  - - [21/Mar/2026:18:12:25 +0000] "GET /pulp/api/v3/distributions/rpm/rpm/?base_path=Calix_Org%2FLibrary%2Fcontent%2Fdist%2Frhel8%2F8%2Fx86_64%2Fappstream%2Fos HTTP/1.1" 200 52 "-" "OpenAPI-Generator/3.23.0/ruby"
+Mar 21 14:12:25 pln-capsule-dmz01.caal.dev pulpcore-api[102283]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]:  - - [21/Mar/2026:18:12:25 +0000] "GET /pulp/api/v3/distributions/rpm/rpm/?name=611d9669-8d12-46f2-a0e4-d436cb37c32b HTTP/1.1" 200 52 "-" "OpenAPI-Generator/3.23.0/ruby"
+Mar 21 14:12:25 pln-capsule-dmz01.caal.dev pulpcore-api[102406]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]:  - - [21/Mar/2026:18:12:25 +0000] "POST /pulp/api/v3/distributions/rpm/rpm/ HTTP/1.1" 202 67 "-" "OpenAPI-Generator/3.23.0/ruby"
+Mar 21 14:12:25 pln-capsule-dmz01.caal.dev pulpcore-api[103173]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]:  - - [21/Mar/2026:18:12:25 +0000] "GET /pulp/api/v3/tasks/019d1199-2fbf-7cfb-ac5a-520f8193a5cb/ HTTP/1.1" 200 640 "-" "OpenAPI-Generator/3.39.2/ruby"
+Mar 21 14:12:25 pln-capsule-dmz01.caal.dev pulpcore-api[102564]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]:  - - [21/Mar/2026:18:12:25 +0000] "GET /pulp/api/v3/tasks/019d1199-2fbf-7cfb-ac5a-520f8193a5cb/ HTTP/1.1" 200 741 "-" "OpenAPI-Generator/3.39.2/ruby"
+/ displaying pulpcore-content
+● pulpcore-content.service - Pulp Content App
+   Loaded: loaded (/etc/systemd/system/pulpcore-content.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2026-03-21 12:55:09 EDT; 1h 19min ago
+ Main PID: 74936 (pulpcore-conten)
+   Status: "Gunicorn arbiter booted"
+    Tasks: 27 (limit: 100497)
+   Memory: 230.5M
+   CGroup: /system.slice/pulpcore-content.service
+           ├─74936 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─74947 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─74953 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─74990 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─74994 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─74996 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─74999 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─75034 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─75037 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─75041 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─75050 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─75058 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           ├─75060 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+           └─75064 /usr/bin/python3.11 /usr/bin/pulpcore-content --preload --timeout 90 --workers 13 --access-logfile -
+
+Mar 21 12:55:09 pln-capsule-dmz01.caal.dev pulpcore-content[74994]: [2026-03-21 16:55:09 +0000] [74994] [INFO] Booting worker with pid: 74994
+Mar 21 12:55:09 pln-capsule-dmz01.caal.dev pulpcore-content[74996]: [2026-03-21 16:55:09 +0000] [74996] [INFO] Booting worker with pid: 74996
+Mar 21 12:55:09 pln-capsule-dmz01.caal.dev pulpcore-content[74999]: [2026-03-21 16:55:09 +0000] [74999] [INFO] Booting worker with pid: 74999
+Mar 21 12:55:09 pln-capsule-dmz01.caal.dev pulpcore-content[75034]: [2026-03-21 16:55:09 +0000] [75034] [INFO] Booting worker with pid: 75034
+Mar 21 12:55:09 pln-capsule-dmz01.caal.dev pulpcore-content[75037]: [2026-03-21 16:55:09 +0000] [75037] [INFO] Booting worker with pid: 75037
+Mar 21 12:55:09 pln-capsule-dmz01.caal.dev pulpcore-content[75041]: [2026-03-21 16:55:09 +0000] [75041] [INFO] Booting worker with pid: 75041
+Mar 21 12:55:09 pln-capsule-dmz01.caal.dev pulpcore-content[75050]: [2026-03-21 16:55:09 +0000] [75050] [INFO] Booting worker with pid: 75050
+Mar 21 12:55:09 pln-capsule-dmz01.caal.dev pulpcore-content[75058]: [2026-03-21 16:55:09 +0000] [75058] [INFO] Booting worker with pid: 75058
+Mar 21 12:55:09 pln-capsule-dmz01.caal.dev pulpcore-content[75060]: [2026-03-21 16:55:09 +0000] [75060] [INFO] Booting worker with pid: 75060
+Mar 21 12:55:09 pln-capsule-dmz01.caal.dev pulpcore-content[75064]: [2026-03-21 16:55:09 +0000] [75064] [INFO] Booting worker with pid: 75064
+/ displaying pulpcore-worker@1.service
+● pulpcore-worker@1.service - Pulp Worker
+   Loaded: loaded (/etc/systemd/system/pulpcore-worker@.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2026-03-21 12:54:56 EDT; 1h 19min ago
+ Main PID: 73824 (pulpcore-worker)
+    Tasks: 1 (limit: 100497)
+   Memory: 53.8M
+   CGroup: /system.slice/system-pulpcore\x2dworker.slice/pulpcore-worker@1.service
+           └─73824 /usr/bin/python3.11 /usr/bin/pulpcore-worker
+
+Mar 21 13:54:11 pln-capsule-dmz01.caal.dev pulpcore-worker-1[107422]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=1-RHEL7-Prod-6effa94d-d7c8-4bcf-a064-9ae19c758323 remote=1-RHEL7-Prod-6effa94d-d7c8-4bcf-a064-9ae19c758323
+Mar 21 14:02:06 pln-capsule-dmz01.caal.dev pulpcore-worker-1[107422]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-7f3a-70fc-b83b-9f42c01de58b
+Mar 21 14:02:07 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d1188-89b6-76eb-9e24-d501aeda3e9c
+Mar 21 14:02:08 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=1-RHEL8-Prod-611d9669-8d12-46f2-a0e4-d436cb37c32b remote=1-RHEL8-Prod-611d9669-8d12-46f2-a0e4-d436cb37c32b
+Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambiguous (duplicate PKGIDs). Yum, DNF and Pulp try to handle these problems, but unexpected things may happen.
+Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
+Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambiguous (duplicate NEVRAs). Yum, DNF and Pulp try to handle these problems, but unexpected things may happen.
+Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
+Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Excluding 1 packages (duplicates, outdated or skipping was requested e.g. 'skip_types')
+Mar 21 14:12:07 pln-capsule-dmz01.caal.dev pulpcore-worker-1[109712]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-89b6-76eb-9e24-d501aeda3e9c
+/ displaying pulpcore-worker@2.service
+● pulpcore-worker@2.service - Pulp Worker
+   Loaded: loaded (/etc/systemd/system/pulpcore-worker@.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2026-03-21 12:54:57 EDT; 1h 19min ago
+ Main PID: 73920 (pulpcore-worker)
+    Tasks: 1 (limit: 100497)
+   Memory: 78.7M
+   CGroup: /system.slice/system-pulpcore\x2dworker.slice/pulpcore-worker@2.service
+           └─73920 /usr/bin/python3.11 /usr/bin/pulpcore-worker
+
+Mar 21 14:05:44 pln-capsule-dmz01.caal.dev pulpcore-worker-2[110267]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d1190-0d6f-7e5f-9839-cb068e89b568
+Mar 21 14:05:44 pln-capsule-dmz01.caal.dev pulpcore-worker-2[110267]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1190-0d6f-7e5f-9839-cb068e89b568
+Mar 21 14:05:56 pln-capsule-dmz01.caal.dev pulpcore-worker-2[110330]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d1193-4041-788d-bb7b-e8952e6500a6
+Mar 21 14:05:56 pln-capsule-dmz01.caal.dev pulpcore-worker-2[110330]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1193-4041-788d-bb7b-e8952e6500a6
+Mar 21 14:11:23 pln-capsule-dmz01.caal.dev pulpcore-worker-2[110664]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d1198-3a79-724f-9809-74901fc444cc
+Mar 21 14:11:25 pln-capsule-dmz01.caal.dev pulpcore-worker-2[110664]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1198-3a79-724f-9809-74901fc444cc
+Mar 21 14:12:09 pln-capsule-dmz01.caal.dev pulpcore-worker-2[110758]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d1198-f0e6-74e4-bc04-ed0ffa04aeef
+Mar 21 14:12:09 pln-capsule-dmz01.caal.dev pulpcore-worker-2[110758]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1198-f0e6-74e4-bc04-ed0ffa04aeef
+Mar 21 14:12:25 pln-capsule-dmz01.caal.dev pulpcore-worker-2[110787]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d1199-2fbf-7cfb-ac5a-520f8193a5cb
+Mar 21 14:12:25 pln-capsule-dmz01.caal.dev pulpcore-worker-2[110787]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1199-2fbf-7cfb-ac5a-520f8193a5cb
+/ displaying pulpcore-worker@3.service
+● pulpcore-worker@3.service - Pulp Worker
+   Loaded: loaded (/etc/systemd/system/pulpcore-worker@.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2026-03-21 12:54:58 EDT; 1h 19min ago
+ Main PID: 74016 (pulpcore-worker)
+    Tasks: 1 (limit: 100497)
+   Memory: 74.9M
+   CGroup: /system.slice/system-pulpcore\x2dworker.slice/pulpcore-worker@3.service
+           └─74016 /usr/bin/python3.11 /usr/bin/pulpcore-worker
+
+Mar 21 13:59:56 pln-capsule-dmz01.caal.dev pulpcore-worker-3[109094]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=6effa94d-d7c8-4bcf-a064-9ae19c758323 remote=6effa94d-d7c8-4bcf-a064-9ae19c758323
+Mar 21 14:05:42 pln-capsule-dmz01.caal.dev pulpcore-worker-3[109094]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-8648-7e01-9acf-1bb9badd5ed8
+Mar 21 14:05:43 pln-capsule-dmz01.caal.dev pulpcore-worker-3[110261]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d118d-d31c-7033-8fa2-202ca7f7aafb
+Mar 21 14:05:43 pln-capsule-dmz01.caal.dev pulpcore-worker-3[110261]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d118d-d31c-7033-8fa2-202ca7f7aafb
+Mar 21 14:05:44 pln-capsule-dmz01.caal.dev pulpcore-worker-3[110265]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d118f-c9e6-75a3-9c85-e2263e91e207
+Mar 21 14:05:44 pln-capsule-dmz01.caal.dev pulpcore-worker-3[110265]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d118f-c9e6-75a3-9c85-e2263e91e207
+Mar 21 14:05:56 pln-capsule-dmz01.caal.dev pulpcore-worker-3[110320]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d1193-3fc3-74c1-b831-04dfe0809136
+Mar 21 14:05:56 pln-capsule-dmz01.caal.dev pulpcore-worker-3[110320]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1193-3fc3-74c1-b831-04dfe0809136
+Mar 21 14:11:37 pln-capsule-dmz01.caal.dev pulpcore-worker-3[110705]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d1198-7335-7891-9e60-92677f706a59
+Mar 21 14:11:39 pln-capsule-dmz01.caal.dev pulpcore-worker-3[110705]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1198-7335-7891-9e60-92677f706a59
+/ displaying pulpcore-worker@4.service
+● pulpcore-worker@4.service - Pulp Worker
+   Loaded: loaded (/etc/systemd/system/pulpcore-worker@.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2026-03-21 12:54:58 EDT; 1h 19min ago
+ Main PID: 74117 (pulpcore-worker)
+    Tasks: 1 (limit: 100497)
+   Memory: 57.0M
+   CGroup: /system.slice/system-pulpcore\x2dworker.slice/pulpcore-worker@4.service
+           └─74117 /usr/bin/python3.11 /usr/bin/pulpcore-worker
+
+Mar 21 13:54:11 pln-capsule-dmz01.caal.dev pulpcore-worker-4[107430]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=1-RHEL8-Library-c1cdd9f9-a3ba-4d1f-b197-673f3afa8298 remote=1-RHEL8-Library-c1cdd9f9-a3ba-4d1f-b197-673f3afa8298
+Mar 21 13:59:54 pln-capsule-dmz01.caal.dev pulpcore-worker-4[107430]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-7f8d-7586-a67d-e858b3406cbb
+Mar 21 13:59:55 pln-capsule-dmz01.caal.dev pulpcore-worker-4[109084]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d1188-861e-73a7-a41f-9e5526d9e0bc
+Mar 21 13:59:55 pln-capsule-dmz01.caal.dev pulpcore-worker-4[109084]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=1-RHEL8-Library-611d9669-8d12-46f2-a0e4-d436cb37c32b remote=1-RHEL8-Library-611d9669-8d12-46f2-a0e4-d436cb37c32b
+Mar 21 14:00:18 pln-capsule-dmz01.caal.dev pulpcore-worker-4[109084]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambiguous (duplicate PKGIDs). Yum, DNF and Pulp try to handle these problems, but unexpected things may happen.
+Mar 21 14:00:18 pln-capsule-dmz01.caal.dev pulpcore-worker-4[109084]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
+Mar 21 14:00:18 pln-capsule-dmz01.caal.dev pulpcore-worker-4[109084]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambiguous (duplicate NEVRAs). Yum, DNF and Pulp try to handle these problems, but unexpected things may happen.
+Mar 21 14:00:18 pln-capsule-dmz01.caal.dev pulpcore-worker-4[109084]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
+Mar 21 14:00:18 pln-capsule-dmz01.caal.dev pulpcore-worker-4[109084]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Excluding 1 packages (duplicates, outdated or skipping was requested e.g. 'skip_types')
+Mar 21 14:11:34 pln-capsule-dmz01.caal.dev pulpcore-worker-4[109084]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-861e-73a7-a41f-9e5526d9e0bc
+/ displaying pulpcore-worker@5.service
+● pulpcore-worker@5.service - Pulp Worker
+   Loaded: loaded (/etc/systemd/system/pulpcore-worker@.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2026-03-21 12:54:59 EDT; 1h 19min ago
+ Main PID: 74221 (pulpcore-worker)
+    Tasks: 1 (limit: 100497)
+   Memory: 158.7M
+   CGroup: /system.slice/system-pulpcore\x2dworker.slice/pulpcore-worker@5.service
+           └─74221 /usr/bin/python3.11 /usr/bin/pulpcore-worker
+
+Mar 21 13:54:12 pln-capsule-dmz01.caal.dev pulpcore-worker-5[107435]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: backoff:INFO: Backing off download_wrapper(...) for 0.1s (aiohttp.client_exceptions.ServerDisconnectedError: Server disconnected)
+Mar 21 13:59:55 pln-capsule-dmz01.caal.dev pulpcore-worker-5[107435]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-7fc9-7b80-aad0-4e5e10ea3666
+Mar 21 13:59:55 pln-capsule-dmz01.caal.dev pulpcore-worker-5[109086]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d1188-86e6-7b25-92ab-6c20c2347de0
+Mar 21 13:59:55 pln-capsule-dmz01.caal.dev pulpcore-worker-5[109086]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=1-RHEL8-Dev-611d9669-8d12-46f2-a0e4-d436cb37c32b remote=1-RHEL8-Dev-611d9669-8d12-46f2-a0e4-d436cb37c32b
+Mar 21 14:00:16 pln-capsule-dmz01.caal.dev pulpcore-worker-5[109086]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambiguous (duplicate PKGIDs). Yum, DNF and Pulp try to handle these problems, but unexpected things may happen.
+Mar 21 14:00:16 pln-capsule-dmz01.caal.dev pulpcore-worker-5[109086]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
+Mar 21 14:00:16 pln-capsule-dmz01.caal.dev pulpcore-worker-5[109086]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambiguous (duplicate NEVRAs). Yum, DNF and Pulp try to handle these problems, but unexpected things may happen.
+Mar 21 14:00:16 pln-capsule-dmz01.caal.dev pulpcore-worker-5[109086]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
+Mar 21 14:00:16 pln-capsule-dmz01.caal.dev pulpcore-worker-5[109086]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Excluding 1 packages (duplicates, outdated or skipping was requested e.g. 'skip_types')
+Mar 21 14:11:04 pln-capsule-dmz01.caal.dev pulpcore-worker-5[109086]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-86e6-7b25-92ab-6c20c2347de0
+/ displaying pulpcore-worker@6.service
+● pulpcore-worker@6.service - Pulp Worker
+   Loaded: loaded (/etc/systemd/system/pulpcore-worker@.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2026-03-21 12:55:00 EDT; 1h 19min ago
+ Main PID: 74334 (pulpcore-worker)
+    Tasks: 1 (limit: 100497)
+   Memory: 53.8M
+   CGroup: /system.slice/system-pulpcore\x2dworker.slice/pulpcore-worker@6.service
+           └─74334 /usr/bin/python3.11 /usr/bin/pulpcore-worker
+
+Mar 21 13:54:13 pln-capsule-dmz01.caal.dev pulpcore-worker-6[107473]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=1-RHEL7-Library-6effa94d-d7c8-4bcf-a064-9ae19c758323 remote=1-RHEL7-Library-6effa94d-d7c8-4bcf-a064-9ae19c758323
+Mar 21 14:02:10 pln-capsule-dmz01.caal.dev pulpcore-worker-6[107473]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-84d9-79a6-a6e7-bd5fc71f6a09
+Mar 21 14:02:10 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Starting task 019d1188-8a8a-7062-8f42-465388343ed5
+Mar 21 14:02:11 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Synchronizing: repository=611d9669-8d12-46f2-a0e4-d436cb37c32b remote=611d9669-8d12-46f2-a0e4-d436cb37c32b
+Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambiguous (duplicate PKGIDs). Yum, DNF and Pulp try to handle these problems, but unexpected things may happen.
+Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
+Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:WARNING: The repository metadata being synced into Pulp is erroneous in a way that makes it ambiguous (duplicate NEVRAs). Yum, DNF and Pulp try to handle these problems, but unexpected things may happen.
+Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: Please read https://github.com/pulp/pulp_rpm/issues/2402 for more details.
+Mar 21 14:02:31 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulp_rpm.app.tasks.synchronizing:INFO: Excluding 1 packages (duplicates, outdated or skipping was requested e.g. 'skip_types')
+Mar 21 14:12:15 pln-capsule-dmz01.caal.dev pulpcore-worker-6[109770]: pulp [e331121f-bd50-49c1-b878-ddd5dd153876]: pulpcore.tasking.tasks:INFO: Task completed 019d1188-8a8a-7062-8f42-465388343ed5
+/ displaying httpd
+● httpd.service - The Apache HTTP Server
+   Loaded: loaded (/usr/lib/systemd/system/httpd.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2026-03-21 12:55:11 EDT; 1h 19min ago
+     Docs: man:httpd.service(8)
+ Main PID: 75113 (httpd)
+   Status: "Total requests: 15858; Idle/Busy workers 100/0;Requests/sec: 3.35; Bytes served/sec: 2.5KB/sec"
+    Tasks: 85 (limit: 100497)
+   Memory: 22.4M
+   CGroup: /system.slice/httpd.service
+           ├─75113 /usr/sbin/httpd -DFOREGROUND
+           ├─75117 /usr/sbin/httpd -DFOREGROUND
+           └─75118 /usr/sbin/httpd -DFOREGROUND
+
+Mar 21 12:55:11 pln-capsule-dmz01.caal.dev systemd[1]: Starting The Apache HTTP Server...
+Mar 21 12:55:11 pln-capsule-dmz01.caal.dev systemd[1]: Started The Apache HTTP Server.
+Mar 21 12:55:11 pln-capsule-dmz01.caal.dev httpd[75113]: Server configured, listening on: port 8443, port 80, port 443
+- displaying foreman-proxy
+● foreman-proxy.service - Foreman Proxy
+   Loaded: loaded (/usr/lib/systemd/system/foreman-proxy.service; enabled; vendor preset: disabled)
+  Drop-In: /etc/systemd/system/foreman-proxy.service.d
+           └─90-limits.conf
+   Active: active (running) since Sat 2026-03-21 12:55:29 EDT; 1h 18min ago
+ Main PID: 75390 (smart-proxy)
+    Tasks: 8 (limit: 100497)
+   Memory: 55.3M
+   CGroup: /system.slice/foreman-proxy.service
+           └─75390 /usr/bin/ruby /usr/share/foreman-proxy/bin/smart-proxy
+
+Mar 21 13:12:04 pln-capsule-dmz01.caal.dev smart-proxy[75390]: /usr/share/gems/gems/sequel-5.74.0/lib/sequel/dataset/actions.rb:51:in `block in all'
+Mar 21 13:12:04 pln-capsule-dmz01.caal.dev smart-proxy[75390]: /usr/share/gems/gems/sequel-5.74.0/lib/sequel/dataset/actions.rb:1097:in `_all'
+Mar 21 13:12:04 pln-capsule-dmz01.caal.dev smart-proxy[75390]: /usr/share/gems/gems/sequel-5.74.0/lib/sequel/dataset/actions.rb:51:in `all'
+Mar 21 13:12:04 pln-capsule-dmz01.caal.dev smart-proxy[75390]: /usr/share/gems/gems/dynflow-1.8.3/lib/dynflow/persistence_adapters/sequel.rb:274:in `find_coordinator_records'
+Mar 21 13:12:04 pln-capsule-dmz01.caal.dev smart-proxy[75390]: /usr/share/gems/gems/dynflow-1.8.3/lib/dynflow/coordinator_adapters/sequel.rb:31:in `find_records'
+Mar 21 13:12:04 pln-capsule-dmz01.caal.dev smart-proxy[75390]: /usr/share/gems/gems/dynflow-1.8.3/lib/dynflow/coordinator.rb:362:in `find_records'
+Mar 21 13:12:04 pln-capsule-dmz01.caal.dev smart-proxy[75390]: /usr/share/gems/gems/dynflow-1.8.3/lib/dynflow/executors/abstract/core.rb:90:in `heartbeat'
+Mar 21 13:12:04 pln-capsule-dmz01.caal.dev smart-proxy[75390]: [ concurrent-ruby ]
+Mar 21 13:12:04 pln-capsule-dmz01.caal.dev smart-proxy[75390]: /usr/share/gems/gems/dynflow-1.8.3/lib/dynflow/executors/abstract/core.rb:123:in `on_message'
+Mar 21 13:12:04 pln-capsule-dmz01.caal.dev smart-proxy[75390]: [ concurrent-ruby ]
+- All services are running                                            [OK]
+--------------------------------------------------------------------------------
+
+[root@pln-capsule-dmz01 ~]# systemctl status httpd
+● httpd.service - The Apache HTTP Server
+   Loaded: loaded (/usr/lib/systemd/system/httpd.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2026-03-21 12:55:11 EDT; 1h 19min ago
+     Docs: man:httpd.service(8)
+ Main PID: 75113 (httpd)
+   Status: "Total requests: 15858; Idle/Busy workers 100/0;Requests/sec: 3.33; Bytes served/sec: 2.5KB/sec"
+    Tasks: 85 (limit: 100497)
+   Memory: 22.4M
+   CGroup: /system.slice/httpd.service
+           ├─75113 /usr/sbin/httpd -DFOREGROUND
+           ├─75117 /usr/sbin/httpd -DFOREGROUND
+           └─75118 /usr/sbin/httpd -DFOREGROUND
+
+Mar 21 12:55:11 pln-capsule-dmz01.caal.dev systemd[1]: Starting The Apache HTTP Server...
+Mar 21 12:55:11 pln-capsule-dmz01.caal.dev systemd[1]: Started The Apache HTTP Server.
+Mar 21 12:55:11 pln-capsule-dmz01.caal.dev httpd[75113]: Server configured, listening on: port 8443, port 80, port 443
+[root@pln-capsule-dmz01 ~]# tail -100 /var/log/foreman-proxy/proxy.log
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:05:33  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:10:49  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:10:50  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:12:37 3579ece8 [I] Started GET /logs/ from_timestamp=0
+2026-03-21T13:12:38 abacc07b [I] Started GET /logs/ from_timestamp=0
+2026-03-21T13:12:38 d04dfc6a [I] Started GET /logs/ from_timestamp=0
+2026-03-21T13:12:38 abacc07b [I] Finished GET /logs/ with 200 (1010.87 ms)
+2026-03-21T13:12:38 3579ece8 [I] Finished GET /logs/ with 200 (1061.22 ms)
+2026-03-21T13:12:39 d04dfc6a [I] Finished GET /logs/ with 200 (1026.48 ms)
+2026-03-21T13:16:52  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:16:52  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:19:58  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:20:00  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:25:03  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:25:14  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:25:30  [I] Execution plan cleaner removing 0 execution plans.
+2026-03-21T13:29:17  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:30:33  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:34:17  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:34:57  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:39:09  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:40:22  [E] <OpenSSL::SSL::SSLError> SSL_accept SYSCALL returned=5 errno=0 state=before SSL initialization
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `accept'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:302:in `block (2 levels) in start_thread'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/utils.rb:258:in `timeout'
+	/usr/share/gems/gems/webrick-1.8.1/lib/webrick/server.rb:300:in `block in start_thread'
+	/usr/share/gems/gems/logging-2.3.1/lib/logging/diagnostic_context.rb:474:in `block in create_with_logging_context'
+2026-03-21T13:55:30  [I] Execution plan cleaner removing 0 execution plans.
+[root@pln-capsule-dmz01 ~]# tail -100 /var/log/httpd/error_log
+[Sat Mar 21 12:55:11.642699 2026] [core:notice] [pid 75113:tid 140639105412800] SELinux policy enabled; httpd running as context system_u:system_r:httpd_t:s0
+[Sat Mar 21 12:55:11.654550 2026] [mpm_event:notice] [pid 75113:tid 140639105412800] AH00489: Apache/2.4.37 (Red Hat Enterprise Linux) OpenSSL/1.1.1k configured -- resuming normal operations
+[Sat Mar 21 12:55:11.654575 2026] [core:notice] [pid 75113:tid 140639105412800] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[root@pln-capsule-dmz01 ~]#
