@@ -1,22 +1,60 @@
-(669/678): cups-ipptool-2.3.3op2-34.el9_7.2.x86_64.rpm                                                                                                                                                                49 MB/s | 3.9 MB     00:00
-(670/678): buildah-1.41.8-1.el9_7.x86_64.rpm                                                                                                                                                                          67 MB/s |  10 MB     00:00
-(671/678): net-snmp-libs-5.9.1-17.el9_7.1.x86_64.rpm                                                                                                                                                                 6.7 MB/s | 765 kB     00:00
-(672/678): fuse-overlayfs-1.16-1.el9_7.x86_64.rpm                                                                                                                                                                    735 kB/s |  66 kB     00:00
-(673/678): libv4l-1.20.0-5.el9_7_1.x86_64.rpm                                                                                                                                                                        2.3 MB/s | 202 kB     00:00
-(674/678): python-unversioned-command-3.9.25-3.el9_7.noarch.rpm                                                                                                                                                      277 kB/s |  15 kB     00:00
-(675/678): python3-perf-5.14.0-611.30.1.el9_7.x86_64.rpm                                                                                                                                                              24 MB/s | 2.5 MB     00:00
-(676/678): podman-5.6.0-13.el9_7.x86_64.rpm                                                                                                                                                                           62 MB/s |  16 MB     00:00
-(677/678): libsoup-2.72.0-12.el9_7.5.x86_64.rpm                                                                                                                                                                      2.8 MB/s | 411 kB     00:00
-(678/678): firefox-140.7.0-1.el9_7.x86_64.rpm                                                                                                                                                                        112 MB/s | 115 MB     00:01
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Total                                                                                                                                                                                                                 66 MB/s | 1.6 GB     00:24
-Extra Packages for Enterprise Linux 8 - x86_64                                                                                                                                                                       0.0  B/s |   0  B     00:00
-Curl error (37): Couldn't read a file:// file for file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8 [Couldn't open file /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8]
-The downloaded packages were saved in cache until the next successful transaction.
-You can remove cached packages by executing 'dnf clean packages'.
-[root@pln-ipamaster yum.repos.d]#
+Deploy Red Hat Satellite Capsule Server to DMZ
+
+Assignee: Haj Suma
+Priority: High
+Component: Infrastructure
+Status: In Progress
+Description
+
+Deploy and configure a Red Hat Satellite 6.15 Capsule Server (pln-capsule-dmz01.caal.dev) to serve as a content proxy and registration point for DMZ-hosted systems. The capsule is built on RHEL 8.10 and validated on the internal network prior to migration to the DMZ subnet.
 
 
+Acceptance criteria
+
+✓
+RHEL 8.10 VM provisioned with correct LVM partition layout
+✓
+Hostname set to pln-capsule-dmz01.caal.dev with DNS A and PTR records
+✓
+System registered to Satellite 6.15 and IPA
+✓
+satellite-capsule packages installed and satellite-installer completed successfully
+✓
+SSL certificates generated and deployed
+✓
+Capsule communication status green in Satellite UI
+✓
+Content sync completed — RHEL7, RHEL8, RHEL9, Rocky Linux, EPEL, Grafana repos
+✓
+Host registration validated through capsule
+✓
+Package updates serving from capsule validated
+○
+Network migration to DMZ subnet completed
+○
+DNS records updated to DMZ IP
+○
+Firewall rules opened — DMZ hosts→Capsule:443, Capsule→Satellite:443/5646
+
+
+
+Technical notes
+
+Pulp workers reduced to 2 (from default 6) due to 16GB RAM constraint — OOM kills observed during initial content sync with default worker count. Tune upward if RAM is increased to 32GB.
+
+DNS zone used: caal.dev — AD DNS replication for calix.local zone was unreliable during build. PTR record created in caal.dev zone to match Satellite server naming convention.
+
+Capsule firewall: only port 443/https open. Port 9090 handled internally by satellite-installer. No additional ports required on capsule host-based firewall.
+
+
+
+Remaining tasks
+
+1. Coordinate with network team for DMZ IP assignment
+2. Update capsule NIC via nmtui to DMZ IP
+3. Update A and PTR records in caal.dev DNS zone
+4. Request firewall rules from network team
+5. Post-migration validation — Satellite UI green, sync, host registration
 
 Step 1 — Update networking on the capsule
 
