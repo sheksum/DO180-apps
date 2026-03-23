@@ -1,0 +1,151 @@
+[hsuma@cpeg-ipareplica /]$
+[hsuma@cpeg-ipareplica /]$ sudo su -
+Last login: Mon Mar 23 09:06:03 UTC 2026 on pts/0
+[root@cpeg-ipareplica ~]# kinit hsuma
+Password for hsuma@IPA.CALIX.LOCAL:
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa config-show | grep "CA renewal"
+  IPA CA renewal master: cpeg-ipareplica.ipa.calix.local
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa-crlgen-manage status
+CRL generation: enabled
+Last CRL update: 2026-03-23 13:00:00
+Last CRL Number: 16830
+The ipa-crlgen-manage command was successful
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa server-role-find
+-----------------------
+30 server roles matched
+-----------------------
+  Server name: cpeg-ipareplica.ipa.calix.local
+  Role name: AD trust agent
+  Role status: absent
+
+  Server name: nan-ipareplica01.ipa.calix.local
+  Role name: AD trust agent
+  Role status: absent
+
+  Server name: pln-petipareplica.ipa.calix.local
+  Role name: AD trust agent
+  Role status: absent
+
+  Server name: ric-ipareplica.ipa.calix.local
+  Role name: AD trust agent
+  Role status: absent
+
+  Server name: ric-ipareplica01.ipa.calix.local
+  Role name: AD trust agent
+  Role status: absent
+
+  Server name: sjc-ipareplica01.ipa.calix.local
+  Role name: AD trust agent
+  Role status: absent
+
+  Server name: cpeg-ipareplica.ipa.calix.local
+  Role name: AD trust controller
+  Role status: absent
+
+  Server name: nan-ipareplica01.ipa.calix.local
+  Role name: AD trust controller
+  Role status: absent
+
+  Server name: pln-petipareplica.ipa.calix.local
+  Role name: AD trust controller
+  Role status: absent
+
+  Server name: ric-ipareplica.ipa.calix.local
+  Role name: AD trust controller
+  Role status: absent
+
+  Server name: ric-ipareplica01.ipa.calix.local
+  Role name: AD trust controller
+  Role status: absent
+
+  Server name: sjc-ipareplica01.ipa.calix.local
+  Role name: AD trust controller
+  Role status: absent
+
+  Server name: cpeg-ipareplica.ipa.calix.local
+  Role name: CA server
+  Role status: enabled
+
+  Server name: nan-ipareplica01.ipa.calix.local
+  Role name: CA server
+  Role status: absent
+
+  Server name: pln-petipareplica.ipa.calix.local
+  Role name: CA server
+  Role status: absent
+
+  Server name: ric-ipareplica.ipa.calix.local
+  Role name: CA server
+  Role status: absent
+
+  Server name: ric-ipareplica01.ipa.calix.local
+  Role name: CA server
+  Role status: absent
+
+  Server name: sjc-ipareplica01.ipa.calix.local
+  Role name: CA server
+  Role status: absent
+
+  Server name: cpeg-ipareplica.ipa.calix.local
+  Role name: DNS server
+  Role status: enabled
+
+  Server name: nan-ipareplica01.ipa.calix.local
+  Role name: DNS server
+  Role status: enabled
+
+  Server name: pln-petipareplica.ipa.calix.local
+  Role name: DNS server
+  Role status: absent
+
+  Server name: ric-ipareplica.ipa.calix.local
+  Role name: DNS server
+  Role status: enabled
+
+  Server name: ric-ipareplica01.ipa.calix.local
+  Role name: DNS server
+  Role status: enabled
+
+  Server name: sjc-ipareplica01.ipa.calix.local
+  Role name: DNS server
+  Role status: enabled
+
+  Server name: cpeg-ipareplica.ipa.calix.local
+  Role name: KRA server
+  Role status: absent
+
+  Server name: nan-ipareplica01.ipa.calix.local
+  Role name: KRA server
+  Role status: absent
+
+  Server name: pln-petipareplica.ipa.calix.local
+  Role name: KRA server
+  Role status: absent
+
+  Server name: ric-ipareplica.ipa.calix.local
+  Role name: KRA server
+  Role status: absent
+
+  Server name: ric-ipareplica01.ipa.calix.local
+  Role name: KRA server
+  Role status: absent
+
+  Server name: sjc-ipareplica01.ipa.calix.local
+  Role name: KRA server
+  Role status: absent
+-----------------------------
+Number of entries returned 30
+-----------------------------
+[root@cpeg-ipareplica ~]# ipa topologysegment-find
+Suffix name:
+ipa: ERROR: 'topologysuffix' is required
+[root@cpeg-ipareplica ~]#
