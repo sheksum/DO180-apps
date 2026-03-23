@@ -15,22 +15,42 @@ Successfully retrieved CA cert
     Valid From:  2018-06-30 07:39:50+00:00
     Valid Until: 2038-06-30 07:39:50+00:00
 
-Joining realm failed: Host is already joined.
+Enrolled in IPA realm IPA.CALIX.LOCAL
+Created /etc/ipa/default.conf
+Configured /etc/sssd/sssd.conf
+Systemwide CA database updated.
+Adding SSH public key from /etc/ssh/ssh_host_ed25519_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
+SSSD enabled
+Configured /etc/openldap/ldap.conf
+Configured /etc/ssh/ssh_config
+Configured /etc/ssh/sshd_config.d/04-ipa.conf
+Configuring ipa.calix.local as NIS domain.
+Configured /etc/krb5.conf for IPA realm IPA.CALIX.LOCAL
+Client configuration complete.
+The ipa-client-install command was successful
 
-Use --force-join option to override the host entry on the server and force client enrollment.
-Installation failed. Rolling back changes.
+Removing client side components
+Unenrolling client from IPA server
+Unenrolling host failed: No permission to join this host to the IPA domain.
+
+Removing Kerberos service principals from /etc/krb5.keytab
 Disabling client Kerberos and LDAP configurations
+Redundant SSSD configuration file /etc/sssd/sssd.conf was moved to /etc/sssd/sssd.conf.deleted
+Restoring client configuration files
+Restoring ipa.calix.local as NIS domain.
 nscd daemon is not installed, skip configuration
 nslcd daemon is not installed, skip configuration
+Systemwide CA database updated.
 Client uninstall complete.
-The ipa-client-install command failed. See /var/log/ipaclient-install.log for more information
-Removing client side components
-IPA client is not configured on this system.
-The ipa-client-install command failed.
+The ipa-client-install command was successful
 
 Your system may be partly configured.
 Run /usr/sbin/ipa-server-install --uninstall to clean up.
 
-Configuration of client side components failed!
+A replication agreement for this host already exists. It needs to be removed.
+Run this command on any working server:
+    %% ipa server-del pln-ipamaster.ipa.calix.local --force
 The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
 [root@pln-ipamaster yum.repos.d]#
