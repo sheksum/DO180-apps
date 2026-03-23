@@ -12,9 +12,6 @@ ldapsearch -H ldap://pln-ipamaster.ipa.calix.local:389 \
   -x -D "cn=Directory Manager" -W \
   -b "" -s base
 
-
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# dsctl IPA-CALIX-LOCAL root-dn-pwd-change
-usage: dsctl [-h] [-v] [-j] [-l] [instance] {restart,start,stop,status,remove,db2index,db2bak,db2ldif,dbverify,bak2db,ldif2db,backups,ldifs,tls,healthcheck,get-nsstate,ldifgen,dsrc,cockpit,dblib} ...
-dsctl: error: argument {restart,start,stop,status,remove,db2index,db2bak,db2ldif,dbverify,bak2db,ldif2db,backups,ldifs,tls,healthcheck,get-nsstate,ldifgen,dsrc,cockpit,dblib}: invalid choice: 'root-dn-pwd-change' (choose from 'restart', 'start', 'stop', 'status', 'remove', 'db2index', 'db2bak', 'db2ldif', 'dbverify', 'bak2db', 'ldif2db', 'backups', 'ldifs', 'tls', 'healthcheck', 'get-nsstate', 'ldifgen', 'dsrc', 'cockpit', 'dblib')
-[root@pln-ipamaster ~]#
+ldappasswd -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -Y EXTERNAL \
+  -S "cn=Directory Manager"
