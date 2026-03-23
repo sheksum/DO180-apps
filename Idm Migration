@@ -1,42 +1,22 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa server-show pln-petipareplica.ipa.calix.local
-  Server name: pln-petipareplica.ipa.calix.local
-  Managed suffixes: domain
-  Min domain level: 1
-  Max domain level: 1
-  Enabled server roles: IPA master
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa host-show pln-petipareplica.ipa.calix.local
-  Host name: pln-petipareplica.ipa.calix.local
-  Principal name: host/pln-petipareplica.ipa.calix.local@IPA.CALIX.LOCAL
-  Principal alias: host/pln-petipareplica.ipa.calix.local@IPA.CALIX.LOCAL
-  SSH public key fingerprint: SHA256:O02Ame1MdRf8Yj9lFHKlnFk9Z5QXieTkgPecSu6Cy/k (ecdsa-sha2-nistp256), SHA256:yuMrtc+YsgpO4eYSWo/k4+kvX78q+uPF1HD2eSuM8tU (ssh-ed25519), SHA256:xInEV1YNPwtU1nA111SaLIIQUTSiMuo0f1mUk3VJPBQ (ssh-rsa)
-  Password: False
-  Member of host-groups: ipaservers
-  Keytab: True
-  Managed by: pln-petipareplica.ipa.calix.local
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa topologysegment-show ca \
->   "cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local"
-  Segment name: cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local
-  Left node: cpeg-ipareplica.ipa.calix.local
-  Right node: pln-petipareplica.ipa.calix.local
-  Connectivity: left-right
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa topologysegment-show domain \
->   "pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local"
-  Segment name: pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local
-  Left node: pln-petipareplica.ipa.calix.local
-  Right node: nan-ipareplica01.ipa.calix.local
-  Connectivity: both
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa-replica-manage list
-sjc-ipareplica01.ipa.calix.local: master
-nan-ipareplica01.ipa.calix.local: master
-ric-ipareplica01.ipa.calix.local: master
-ric-ipareplica.ipa.calix.local: master
-cpeg-ipareplica.ipa.calix.local: master
-pln-petipareplica.ipa.calix.local: master
-[root@cpeg-ipareplica ~]#
+# 1. Remove the stale domain topology segment
+ipa topologysegment-del domain \
+  "pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local"
+
+# 2. Remove the stale CA topology segment
+ipa topologysegment-del ca \
+  "cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local"
+
+# 3. Remove the replication agreement
+ipa-replica-manage del pln-petipareplica.ipa.calix.local --force
+
+# 4. Remove the server entry
+ipa server-del pln-petipareplica.ipa.calix.local --force
+
+# 5. Remove the host entry last
+ipa host-del pln-petipareplica.ipa.calix.local
+
+
+ipa topologysegment-find domain
+ipa topologysegment-find ca
+ipa-replica-manage list
+ipa server-role-find
