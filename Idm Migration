@@ -1,40 +1,24 @@
-Enrolled in IPA realm IPA.CALIX.LOCAL
-Created /etc/ipa/default.conf
-Configured /etc/sssd/sssd.conf
-Systemwide CA database updated.
-Adding SSH public key from /etc/ssh/ssh_host_ed25519_key.pub
-Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
-Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
-SSSD enabled
-Configured /etc/openldap/ldap.conf
-Configured /etc/ssh/ssh_config
-Configured /etc/ssh/sshd_config.d/04-ipa.conf
-Configuring ipa.calix.local as NIS domain.
-Configured /etc/krb5.conf for IPA realm IPA.CALIX.LOCAL
-Client configuration complete.
-The ipa-client-install command was successful
+Done configuring the web interface (httpd).
+Configuring ipa-otpd
+  [1/2]: starting ipa-otpd
+  [2/2]: configuring ipa-otpd to start on boot
+Done configuring ipa-otpd.
+Custodia uses 'cpeg-ipareplica.ipa.calix.local' as master peer.
+Configuring ipa-custodia
+  [1/4]: Generating ipa-custodia config file
+  [2/4]: Generating ipa-custodia keys
+  [3/4]: starting ipa-custodia
+  [4/4]: configuring ipa-custodia to start on boot
+Done configuring ipa-custodia.
+Configuring certificate server (pki-tomcatd). Estimated time: 3 minutes
+  [1/33]: creating certificate server db
+  [2/33]: ignore time skew for initial replication
+  [3/33]: setting up initial replication
+Starting replication, please wait until this has completed.
+Update in progress, 1345 seconds elapsed
+Update succeeded
 
-Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide DNS.
-Reverse DNS resolution of address 172.23.49.10 (cpeg-ipareplica.ipa.calix.local) failed. Clients may not function properly. Please check your DNS setup. (Note that this check queries IPA DNS directly and ignores /etc/hosts.)
-Continue? [no]: yes
-Checking DNS forwarders, please wait ...
-DNS server 172.23.49.10: query '. SOA': All nameservers failed to answer the query . IN SOA: Server Do53:172.23.49.10@53 answered REFUSED
-Removing client side components
-Unenrolling client from IPA server
-Removing Kerberos service principals from /etc/krb5.keytab
-Disabling client Kerberos and LDAP configurations
-Redundant SSSD configuration file /etc/sssd/sssd.conf was moved to /etc/sssd/sssd.conf.deleted
-Restoring client configuration files
-Restoring ipa.calix.local as NIS domain.
-nscd daemon is not installed, skip configuration
-nslcd daemon is not installed, skip configuration
-Systemwide CA database updated.
-Client uninstall complete.
-The ipa-client-install command was successful
-
-Your system may be partly configured.
-Run /usr/sbin/ipa-server-install --uninstall to clean up.
-
-DNS server 172.23.49.10: query '. SOA': All nameservers failed to answer the query . IN SOA: Server Do53:172.23.49.10@53 answered REFUSED
-The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
-[root@pln-ipamaster ~]#
+  [4/33]: revert time skew after initial replication
+  [5/33]: creating ACIs for admin
+  [6/33]: creating installation admin user
+  [7/33]: configuring certificate server instance
