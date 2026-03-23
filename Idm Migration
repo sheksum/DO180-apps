@@ -1,7 +1,7 @@
-[root@pln-ipamaster yum.repos.d]# sleep 120 && systemctl status pki-tomcatd@pki-tomcat --no-pager | tail -5
-Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: arguments used: start
-Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
-Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: WARNING: A command line option has enabled the Security Manager
-Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: WARNING: The Security Manager is deprecated and will be removed in a future release
-Mar 23 20:42:53 pln-ipamaster.ipa.calix.local server[31608]: WARNING: Tomcat interprets the [protocols] attribute in a manner consistent with the latest OpenSSL development branch. Some of the specified [protocols] are not supported by the configured SSL engine for this connector (which may use JSSE or an older OpenSSL version) and have been skipped: [[TLSv1, TLSv1.1]]
-[root@pln-ipamaster yum.repos.d]#
+# On pln-ipamaster
+certutil -L -d /etc/dirsrv/slapd-IPA-CALIX-LOCAL/ | grep -i "IPA\|CA"
+
+# Also check if pki-tomcat NSS db trusts the DS cert
+certutil -L -d /var/lib/pki/pki-tomcat/conf/alias/ | grep -i "IPA\|CA"
+
+systemctl status pki-tomcatd@pki-tomcat --no-pager | grep -E "Active|SEVERE|failed"
