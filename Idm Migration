@@ -1,8 +1,4 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapdelete -H ldap://cpeg-ipareplica.ipa.calix.local \
->   -x -D "cn=Directory Manager" -W \
->   "cn=pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=domain,cn=ipa,cn=topology,cn=etc,dc=ipa,dc=calix,dc=local"
-Enter LDAP Password:
-ldap_delete: No such object (32)
-	matched DN: cn=etc,dc=ipa,dc=calix,dc=local
-[root@cpeg-ipareplica ~]#
+ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
+  -x -D "cn=Directory Manager" -W \
+  -b "cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+  "(cn=pln-petipareplica*)" dn
