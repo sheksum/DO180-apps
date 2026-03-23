@@ -1,8 +1,4 @@
-# Terminal 1 - CA debug log
-tail -f /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log | grep -iE "error|severe|fail|warn"
-
-# Terminal 2 - Catalina log
-tail -f /var/log/pki/pki-tomcat/catalina.2026-03-23.log
-
-# Terminal 3 - Check if CA is still processing
-tail -f /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log | grep -iE "LDAPPagedSearch|Searching|Repository|serial"
+[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log | grep -iE "LDAPPagedSearch|Searching|Repository|serial"
+2026-03-23 20:50:05 [main] INFO: Repository: Getting last serial number in range 49970001..49980000
+2026-03-23 20:50:05 [main] INFO: LDAPPagedSearch: Searching ou=ca, ou=requests,o=ipaca
+2026-03-23 20:50:05 [main] INFO: LDAPPagedSearch: filter: (&(requestId<=0849980000)(requestState=*))
