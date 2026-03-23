@@ -1,7 +1,37 @@
-grep ^server /etc/chrony.conf
-dig -x 10.172.248.55
-hostname -f
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# grep ^server /etc/chrony.conf
+[root@pln-ipamaster ~]# dig -x 10.172.248.55
 
+; <<>> DiG 9.16.23-RH <<>> -x 10.172.248.55
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 42260
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4000
+;; QUESTION SECTION:
+;55.248.172.10.in-addr.arpa.	IN	PTR
+
+;; AUTHORITY SECTION:
+248.172.10.in-addr.arpa. 3600	IN	SOA	caalwdc15.caal.dev. hostmaster.caal.dev. 109 900 600 86400 3600
+
+;; Query time: 1 msec
+;; SERVER: 10.172.248.31#53(10.172.248.31)
+;; WHEN: Mon Mar 23 14:17:50 UTC 2026
+;; MSG SIZE  rcvd: 143
+
+[root@pln-ipamaster ~]# hostname -f
+pln-ipamaster.ipa.calix.local
+[root@pln-ipamaster ~]# grep time /etc/chrony.conf
+pool time1.calix.local iburst
+pool time2.calix.local iburst
+# Record the rate at which the system clock gains/losses time.
+# Enable kernel synchronization of the real-time clock (RTC).
+# Enable hardware timestamping on all interfaces that support it.
+#hwtimestamp *
+# Serve time even if not synchronized to a time source.
+[root@pln-ipamaster ~]#
 
 
 # 1. Remove stale domain segment
