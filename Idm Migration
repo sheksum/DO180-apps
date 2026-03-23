@@ -1,9 +1,8 @@
-[root@cpeg-ipareplica ~]# nc -zv pln-ipamaster.ipa.calix.local 389
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Could not resolve hostname "pln-ipamaster.ipa.calix.local": Name or service not known. QUITTING.
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# nc -zv 10.172.248.55 389
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Connection refused.
-[root@cpeg-ipareplica ~]#
+# On cpeg-ipareplica
+ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+
+# Verify
+ipa dnsrecord-find ipa.calix.local pln-ipamaster
+
+
+dig pln-ipamaster.ipa.calix.local
