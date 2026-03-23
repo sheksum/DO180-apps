@@ -1,5 +1,4 @@
-sed -i '48s/.*/nsslapd-rootpw: {PBKDF2-SHA512}100000$pJ8k6iWYnAADrJS1W5Bvo2N9xlG4lqSA$cFZMLSFuG+6vfNSYgdMOgDh6P5xaJ6tiAY0coEgBNK7RK0jXG1NRfGLR8CIL2LVwDRm2kr01q9pH+vinaMmeQA==/' \
-  /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
-
-# Verify
-grep -n "nsslapd-rootpw" /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# grep -n "nsslapd-rootpw" /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
+48:nsslapd-rootpw: {PBKDF2-SHA512}100000$pJ8k6iWYnAADrJS1W5Bvo2N9xlG4lqSA$cFZMLSFuG+6vfNSYgdMOgDh6P5xaJ6tiAY0coEgBNK7RK0jXG1NRfGLR8CIL2LVwDRm2kr01q9pH+vinaMmeQA==
+[root@pln-ipamaster ~]#
