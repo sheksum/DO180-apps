@@ -1,7 +1,5 @@
-modifying entry "cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config"
-
-modifying entry "cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config"
-
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-
+# On pln-ipamaster
+systemctl stop dirsrv@IPA-CALIX-LOCAL
+systemctl stop dirsrv.target
+kill $(lsof -t -i:389) 2>/dev/null
+ss -tlnp | grep 389
