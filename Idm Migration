@@ -1,20 +1,111 @@
-  Cleanup          : ipa-server-4.12.2-22.el9_7.1.x86_64                                                                                                                                                                                         4/4
-  Running scriptlet: ipa-server-4.12.2-22.el9_7.1.x86_64                                                                                                                                                                                         4/4
-  Verifying        : ipa-server-4.12.2-22.el9_7.1.x86_64                                                                                                                                                                                         1/4
-  Verifying        : ipa-server-4.12.2-22.el9_7.1.x86_64                                                                                                                                                                                         2/4
-  Verifying        : ipa-server-dns-4.12.2-22.el9_7.1.noarch                                                                                                                                                                                     3/4
-  Verifying        : ipa-server-dns-4.12.2-22.el9_7.1.noarch                                                                                                                                                                                     4/4
-Installed products updated.
-
-Reinstalled:
-  ipa-server-4.12.2-22.el9_7.1.x86_64                                                                                     ipa-server-dns-4.12.2-22.el9_7.1.noarch
-
-Complete!
-[root@pln-ipamaster ~]# ipa-replica-install   --setup-ca   --setup-dns   --no-forwarders   --no-ntp   --server cpeg-ipareplica.ipa.calix.local   --domain ipa.calix.local   --realm IPA.CALIX.LOCAL   --principal admin   --admin-password <redacted> --skip-conncheck --force-join
+[root@pln-ipamaster ~]# mkdir -p /var/lib/ipa/sysrestore/
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# mkdir -p /var/lib/ipa/sysrestore
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# chmod -R 700 /var/lib/ipa/sysrestore
+[root@pln-ipamaster ~]# ipa-replica-install   --setup-ca   --setup-dns   --no-forwarders   --no-ntp   --server cpeg-ipareplica.ipa.calix.local   --domain ipa.calix.local   --realm IPA.CALIX.LOCAL   --principal admin   --admin-password vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU= --skip-conncheck --force-join
 IPA client is already configured on this system, ignoring the --domain, --server, --realm, --hostname, --password and --keytab options.
 Your system may be partly configured.
 Run /usr/sbin/ipa-server-install --uninstall to clean up.
 
 NTP configuration cannot be updated during promotion
 The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
-[root@pln-ipamaster ~]# history ^C
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa-client-install --uninstall
+Unenrolling client from IPA server
+Removing Kerberos service principals from /etc/krb5.keytab
+Disabling client Kerberos and LDAP configurations
+Redundant SSSD configuration file /etc/sssd/sssd.conf was moved to /etc/sssd/sssd.conf.deleted
+Restoring client configuration files
+Restoring ipa.calix.local as NIS domain.
+nscd daemon is not installed, skip configuration
+nslcd daemon is not installed, skip configuration
+Systemwide CA database updated.
+Client uninstall complete.
+The original nsswitch.conf configuration has been restored.
+You may need to restart services or reboot the machine.
+Do you want to reboot the machine? [no]:
+The ipa-client-install command was successful
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa-replica-install   --setup-ca   --setup-dns   --no-forwarders   --no-ntp   --server cpeg-ipareplica.ipa.calix.local   --domain ipa.calix.local   --realm IPA.CALIX.LOCAL   --principal admin   --admin-password vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU= --skip-conncheck --force-join --mkhomedir
+Configuring client side components
+This program will set up IPA client.
+Version 4.12.2
+
+Client hostname: pln-ipamaster.ipa.calix.local
+Realm: IPA.CALIX.LOCAL
+DNS Domain: ipa.calix.local
+IPA Server: cpeg-ipareplica.ipa.calix.local
+BaseDN: dc=ipa,dc=calix,dc=local
+
+Skipping chrony configuration
+Successfully retrieved CA cert
+    Subject:     CN=Certificate Authority,O=IPA.CALIX.LOCAL
+    Issuer:      CN=Certificate Authority,O=IPA.CALIX.LOCAL
+    Valid From:  2018-06-30 07:39:50+00:00
+    Valid Until: 2038-06-30 07:39:50+00:00
+
+Enrolled in IPA realm IPA.CALIX.LOCAL
+Created /etc/ipa/default.conf
+Configured /etc/sssd/sssd.conf
+Systemwide CA database updated.
+Adding SSH public key from /etc/ssh/ssh_host_ed25519_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
+SSSD enabled
+Configured /etc/openldap/ldap.conf
+Configured /etc/ssh/ssh_config
+Configured /etc/ssh/sshd_config.d/04-ipa.conf
+Configuring ipa.calix.local as NIS domain.
+Configured /etc/krb5.conf for IPA realm IPA.CALIX.LOCAL
+Client configuration complete.
+The ipa-client-install command was successful
+
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide DNS.
+Reverse DNS resolution of address 172.23.49.10 (cpeg-ipareplica.ipa.calix.local) failed. Clients may not function properly. Please check your DNS setup. (Note that this check queries IPA DNS directly and ignores /etc/hosts.)
+Continue? [no]: yes
+
+WARNING: 1353 existing users or groups do not have a SID identifier assigned.
+Installer can run a task to have ipa-sidgen Directory Server plugin generate
+the SID identifier for all these users. Please note, in case of a high
+number of users and groups, the operation might lead to high replication
+traffic and performance degradation. Refer to ipa-adtrust-install(1) man page
+for details.
+
+Do you want to run the ipa-sidgen task? [no]:
+Disabled p11-kit-proxy
+Configuring directory server (dirsrv). Estimated time: 30 seconds
+  [1/40]: creating directory server instance
+Validate installation settings ...
+Create file system structures ...
+Perform SELinux labeling ...
+Create database backend: dc=ipa,dc=calix,dc=local ...
+Perform post-installation tasks ...
+  [2/40]: tune ldbm plugin
+  [3/40]: adding default schema
+  [4/40]: enabling memberof plugin
+  [5/40]: enabling winsync plugin
+  [6/40]: configure password logging
+  [7/40]: configuring replication version plugin
+  [8/40]: enabling IPA enrollment plugin
+  [9/40]: configuring uniqueness plugin
+  [10/40]: configuring uuid plugin
+  [11/40]: configuring modrdn plugin
+  [12/40]: configuring DNS plugin
+  [13/40]: enabling entryUSN plugin
+  [14/40]: configuring lockout plugin
+  [15/40]: configuring graceperiod plugin
+  [16/40]: configuring topology plugin
+  [17/40]: creating indices
+  [18/40]: enabling referential integrity plugin
+  [19/40]: configuring certmap.conf
+  [error] FileNotFoundError: [Errno 2] No such file or directory: '/var/lib/ipa/sysupgrade/sysupgrade.state'
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
+
+[Errno 2] No such file or directory: '/var/lib/ipa/sysupgrade/sysupgrade.state'
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster ~]#
