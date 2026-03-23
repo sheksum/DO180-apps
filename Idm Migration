@@ -1,5 +1,4 @@
 [root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
 [root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
 Directory Manager password:
 
@@ -10,6 +9,55 @@ Replica Update Vectors:
 	nan-ipareplica01.ipa.calix.local:389: 10
 	pln-petipareplica.ipa.calix.local:389: 25
 	pln-petipareplica.ipa.calix.local:389: 31
+Certificate Server Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 21
+[root@cpeg-ipareplica ~]# ipa-replica-manage clean-ruv 25
+Directory Manager password:
+
+Clean the Replication Update Vector for pln-petipareplica.ipa.calix.local:389
+
+Cleaning the wrong replica ID will cause that server to no
+longer replicate so it may miss updates while the process
+is running. It would need to be re-initialized to maintain
+consistency. Be very careful.
+Continue to clean? [no]: yes
+Background task created to clean replication data. This may take a while.
+This may be safely interrupted with Ctrl+C
+Cleanup task created
+[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
+Directory Manager password:
+
+Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 20
+	ric-ipareplica.ipa.calix.local:389: 12
+	ric-ipareplica01.ipa.calix.local:389: 11
+	nan-ipareplica01.ipa.calix.local:389: 10
+	pln-petipareplica.ipa.calix.local:389: 31
+Certificate Server Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 21
+[root@cpeg-ipareplica ~]# ipa-replica-manage clean-ruv 31
+Directory Manager password:
+
+Clean the Replication Update Vector for pln-petipareplica.ipa.calix.local:389
+
+Cleaning the wrong replica ID will cause that server to no
+longer replicate so it may miss updates while the process
+is running. It would need to be re-initialized to maintain
+consistency. Be very careful.
+Continue to clean? [no]: yes
+Background task created to clean replication data. This may take a while.
+This may be safely interrupted with Ctrl+C
+Cleanup task created
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
+Directory Manager password:
+
+Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 20
+	ric-ipareplica.ipa.calix.local:389: 12
+	ric-ipareplica01.ipa.calix.local:389: 11
+	nan-ipareplica01.ipa.calix.local:389: 10
 Certificate Server Replica Update Vectors:
 	cpeg-ipareplica.ipa.calix.local:389: 21
 [root@cpeg-ipareplica ~]#
