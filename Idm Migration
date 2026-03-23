@@ -1,26 +1,9 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL \
-  -b "cn=config" -s base "(objectclass=*)" nsslapd-rootdn
-SASL/EXTERNAL authentication started
-SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-SASL SSF: 0
-# extended LDIF
-#
-# LDAPv3
-# base <cn=config> with scope baseObject
-# filter: (objectclass=*)
-# requesting: nsslapd-rootdn
-#
+NEW_PWD="<cpeg-dm-password>"
 
-# config
-dn: cn=config
-nsslapd-rootdn: cn=Directory Manager
-
-# search result
-search: 2
-result: 0 Success
-
-# numResponses: 2
-# numEntries: 1
-[root@pln-ipamaster ~]#
+ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -Y EXTERNAL <<EOF
+dn: cn=Directory Manager
+changetype: modify
+replace: userPassword
+userPassword: ${NEW_PWD}
+EOF
