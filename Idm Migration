@@ -34,13 +34,11 @@ Leap status     : Normal
 Reference ID    : 00000000 ()
 System time     : 0.000000000 seconds fast of NTP time
 Leap status     : Not synchronised
-[root@pln-ipamaster ~]# systemctl restart chronyd
 [root@pln-ipamaster ~]# chronyc tracking | grep -E "(Reference|System time|Leap)"
-Reference ID    : 00000000 ()
-System time     : 0.000000000 seconds fast of NTP time
-Leap status     : Not synchronised
+Reference ID    : 0AA81502 (time2.caal.dev)
+System time     : 0.000022903 seconds slow of NTP time
+Leap status     : Normal
 [root@pln-ipamaster ~]#
-
 
 
 
