@@ -1,2 +1,12 @@
-grep "internaldb.ldapauth" /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
-grep "internaldb.ldapconn" /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
+[root@pln-ipamaster yum.repos.d]# grep "internaldb.ldapauth" /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
+internaldb.ldapauth.authtype=BasicAuth
+internaldb.ldapauth.bindDN=cn=Directory Manager
+internaldb.ldapauth.bindPWPrompt=internaldb
+internaldb.ldapauth.clientCertNickname=
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# grep "internaldb.ldapconn" /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
+internaldb.ldapconn.host=pln-ipamaster.ipa.calix.local
+internaldb.ldapconn.port=636
+internaldb.ldapconn.secureConn=true
+[root@pln-ipamaster yum.repos.d]#
