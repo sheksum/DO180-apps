@@ -1,4 +1,56 @@
-tail -50 /var/log/pki/pki-ca-spawn.20260323181407.log
-
-
-tail -50 /var/log/pki/pki-tomcat/ca/system
+root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# tail -50 /var/log/pki/pki-ca-spawn.20260323181407.log
+2026-03-23 20:17:58 INFO: Granting database access to uid=pkidbuser,ou=people,o=ipaca
+2026-03-23 20:17:58 DEBUG: Command: /usr/sbin/runuser -u pkiuser -- /usr/lib/jvm/jre-17-openjdk/bin/java -classpath /usr/share/tomcat/bin/tomcat-juli.jar:/usr/share/java/tomcat-servlet-api.jar:/usr/share/pki/ca/webapps/ca/WEB-INF/lib/*:/var/lib/pki/pki-tomcat/common/lib/*:/usr/share/pki/lib/* -Djavax.sql.DataSource.Factory=org.apache.commons.dbcp.BasicDataSourceFactory -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.file=/var/lib/pki/pki-tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dcom.redhat.fips=false org.dogtagpki.server.cli.PKIServerCLI ca-db-access-grant --debug uid=pkidbuser,ou=people,o=ipaca
+2026-03-23 20:17:59 INFO: Enabling CRL
+2026-03-23 20:17:59 INFO: Setting ca.crl.MasterCRL.enable to true
+2026-03-23 20:17:59 INFO: Disabling CRL caching and generation on clone
+2026-03-23 20:17:59 INFO: Setting ca.certStatusUpdateInterval to 0
+2026-03-23 20:17:59 INFO: Setting ca.listenToCloneModifications to false
+2026-03-23 20:17:59 INFO: Setting ca.crl.MasterCRL.enableCRLCache to false
+2026-03-23 20:17:59 INFO: Setting ca.crl.MasterCRL.enableCRLUpdates to false
+2026-03-23 20:17:59 INFO: Setting master.ca.agent.host to cpeg-ipareplica.ipa.calix.local
+2026-03-23 20:17:59 INFO: Setting master.ca.agent.port to 443
+2026-03-23 20:17:59 INFO: Starting CRL number: 0
+2026-03-23 20:17:59 INFO: Setting ca.crl.MasterCRL.startingCrlNumber to 0
+2026-03-23 20:17:59 INFO: Enabling profile subsystem
+2026-03-23 20:17:59 INFO: Setting subsystem.1.enabled to true
+2026-03-23 20:17:59 INFO: Setting jss.ssl.sslserver.ectype to ECDHE
+2026-03-23 20:17:59 INFO: Setting cs.state to 1
+2026-03-23 20:17:59 INFO: Storing subsystem config: /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
+2026-03-23 20:17:59 INFO: Storing registry config: /var/lib/pki/pki-tomcat/conf/ca/registry.cfg
+2026-03-23 20:17:59 INFO: CA configuration complete
+2026-03-23 20:17:59 INFO: Stopping PKI server
+2026-03-23 20:17:59 DEBUG: Command: systemctl stop pki-tomcatd@pki-tomcat.service
+2026-03-23 20:18:00 INFO: Waiting for PKI server to stop
+2026-03-23 20:18:01 INFO: PKI server stopped
+2026-03-23 20:18:01 INFO: Removing temp SSL server cert: temp Server-Cert cert-pki-ca
+2026-03-23 20:18:01 DEBUG: Command: pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/password.conf nss-cert-del temp Server-Cert cert-pki-ca --remove-key
+2026-03-23 20:18:02 INFO: Updating /var/lib/pki/pki-tomcat/conf/serverCertNick.conf
+2026-03-23 20:18:02 INFO: Updating serverCertNickFile in server.xml
+2026-03-23 20:18:02 INFO: Finalizing subsystem creation
+2026-03-23 20:18:02 INFO: Loading instance: pki-tomcat
+2026-03-23 20:18:02 INFO: Loading global Tomcat config: /etc/tomcat/tomcat.conf
+2026-03-23 20:18:02 INFO: Loading PKI Tomcat config: /usr/share/pki/etc/tomcat.conf
+2026-03-23 20:18:02 INFO: Loading instance Tomcat config: /var/lib/pki/pki-tomcat/conf/tomcat.conf
+2026-03-23 20:18:02 INFO: Loading password config: /var/lib/pki/pki-tomcat/conf/password.conf
+2026-03-23 20:18:02 INFO: Loading subsystem config: /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
+2026-03-23 20:18:02 INFO: Loading subsystem registry: /var/lib/pki/pki-tomcat/conf/ca/registry.cfg
+2026-03-23 20:18:02 INFO: Loading instance registry: /etc/sysconfig/pki/tomcat/pki-tomcat/pki-tomcat
+2026-03-23 20:18:02 DEBUG: - user: pkiuser
+2026-03-23 20:18:02 DEBUG: - group: pkiuser
+2026-03-23 20:18:02 INFO: Backing up keys into /var/lib/pki/pki-tomcat/conf/alias/ca_backup_keys.p12
+2026-03-23 20:18:02 DEBUG: Command: pki-server subsystem-cert-export ca -i pki-tomcat --pkcs12-file /var/lib/pki/pki-tomcat/conf/alias/ca_backup_keys.p12 --pkcs12-password-file /tmp/tmpbdzg9hzl/password.txt
+2026-03-23 20:18:05 DEBUG: Command: systemctl enable pki-tomcatd@pki-tomcat.service
+2026-03-23 20:18:05 INFO: Starting PKI server
+2026-03-23 20:18:05 DEBUG: Command: systemctl start pki-tomcatd@pki-tomcat.service
+2026-03-23 20:18:07 INFO: Waiting for PKI server to start
+2026-03-23 20:18:23 INFO: Waiting for PKI server to start (16s)
+2026-03-23 20:18:39 INFO: Waiting for PKI server to start (32s)
+2026-03-23 20:18:55 INFO: Waiting for PKI server to start (48s)
+2026-03-23 20:19:11 INFO: Waiting for PKI server to start (64s)
+2026-03-23 20:19:27 INFO: Waiting for PKI server to start (80s)
+[root@pln-ipamaster yum.repos.d]# tail -50 /var/log/pki/pki-tomcat/ca/system
+tail: cannot open '/var/log/pki/pki-tomcat/ca/system' for reading: No such file or directory
+[root@pln-ipamaster yum.repos.d]#
