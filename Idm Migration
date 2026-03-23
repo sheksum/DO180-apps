@@ -1,19 +1,4 @@
-date succeeded
-
-  [4/33]: revert time skew after initial replication
-  [5/33]: creating ACIs for admin
-  [6/33]: creating installation admin user
-  [7/33]: configuring certificate server instance
+tail -50 /var/log/pki/pki-ca-spawn.20260323181407.log
 
 
-
-
-Failed to configure CA instance
-See the installation logs and the following files/directories for more information:
-  /var/log/pki/pki-tomcat
-  [error] RuntimeError: CA configuration failed.
-Your system may be partly configured.
-Run /usr/sbin/ipa-server-install --uninstall to clean up.
-
-CA configuration failed.
-The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+tail -50 /var/log/pki/pki-tomcat/ca/system
