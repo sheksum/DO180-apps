@@ -1,44 +1,6 @@
-[root@pln-ipamaster ~]# dig pln-ipamaster.ipa.calix.local
-
-; <<>> DiG 9.16.23-RH <<>> pln-ipamaster.ipa.calix.local
-;; global options: +cmd
-;; Got answer:
-;; WARNING: .local is reserved for Multicast DNS
-;; You are currently testing what happens when an mDNS query is leaked to DNS
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 35608
-;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
-
-;; OPT PSEUDOSECTION:
-; EDNS: version: 0, flags:; udp: 4000
-;; QUESTION SECTION:
-;pln-ipamaster.ipa.calix.local.	IN	A
-
-;; ANSWER SECTION:
-pln-ipamaster.ipa.calix.local. 3593 IN	A	10.172.248.55
-
-;; Query time: 3 msec
-;; SERVER: 10.172.248.31#53(10.172.248.31)
-;; WHEN: Mon Mar 23 14:08:48 UTC 2026
-;; MSG SIZE  rcvd: 74
-
-[root@pln-ipamaster ~]# chronyc tracking | grep -E "(Reference|System time|Leap)"
-Reference ID    : 05FE4DBF (c540ab0ef3.dorkhost.com)
-System time     : 0.000254844 seconds slow of NTP time
-Leap status     : Normal
-[root@pln-ipamaster ~]# vi /etc/chrony.conf
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl restart chronyd
-[root@pln-ipamaster ~]# chronyc tracking | grep -E "(Reference|System time|Leap)"
-Reference ID    : 00000000 ()
-System time     : 0.000000000 seconds fast of NTP time
-Leap status     : Not synchronised
-[root@pln-ipamaster ~]# chronyc tracking | grep -E "(Reference|System time|Leap)"
-Reference ID    : 0AA81502 (time2.caal.dev)
-System time     : 0.000022903 seconds slow of NTP time
-Leap status     : Normal
-[root@pln-ipamaster ~]#
+grep ^server /etc/chrony.conf
+dig -x 10.172.248.55
+hostname -f
 
 
 
