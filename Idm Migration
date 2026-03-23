@@ -1,16 +1,47 @@
 [root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
-Directory Manager password:
+[root@cpeg-ipareplica ~]# free -h
+              total        used        free      shared  buff/cache   available
+Mem:           15Gi       5.9Gi       310Mi       1.3Gi       9.2Gi       8.0Gi
+Swap:         7.9Gi       1.0Gi       6.9Gi
+[root@cpeg-ipareplica ~]# systemctl status pki-tomcatd@pki-tomcat.service
+● pki-tomcatd@pki-tomcat.service - PKI Tomcat Server pki-tomcat
+   Loaded: loaded (/lib/systemd/system/pki-tomcatd@.service; enabled; vendor preset: disabled)
+  Drop-In: /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d
+           └─ipa.conf
+   Active: active (running) since Mon 2026-03-23 09:06:35 UTC; 9h ago
+  Process: 2181736 ExecStartPost=/usr/libexec/ipa/ipa-pki-wait-running (code=exited, status=0/SUCCESS)
+  Process: 2181723 ExecStartPre=/usr/bin/pkidaemon start pki-tomcat (code=exited, status=0/SUCCESS)
+  Process: 2181664 ExecStartPre=/usr/sbin/pki-server migrate pki-tomcat (code=exited, status=0/SUCCESS)
+  Process: 2181658 ExecStartPre=/usr/sbin/pki-server upgrade pki-tomcat (code=exited, status=0/SUCCESS)
+ Main PID: 2181735 (java)
+    Tasks: 124 (limit: 100500)
+   Memory: 1.0G
+   CGroup: /system.slice/system-pki\x2dtomcatd.slice/pki-tomcatd@pki-tomcat.service
+           └─2181735 /usr/lib/jvm/jre-1.8.0-openjdk/bin/java -Dcom.redhat.fips=false -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat>
 
-Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 20
-	ric-ipareplica.ipa.calix.local:389: 12
-	ric-ipareplica01.ipa.calix.local:389: 11
-	nan-ipareplica01.ipa.calix.local:389: 10
-	pln-ipamaster.ipa.calix.local:389: 38
-	pln-ipamaster.ipa.calix.local:389: 40
-Certificate Server Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 21
-	pln-ipamaster.ipa.calix.local:389: 41
+Mar 23 09:06:29 cpeg-ipareplica.ipa.calix.local server[2181735]: arguments used: start
+Mar 23 09:06:29 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: pki.client: /usr/libexec/ipa/ipa-pki-wait-running:64: The subsystem in PKIConnection.__init__() has been deprecated (https://www.dogtagpki.org/wiki/PKI_10.8_Python_C>
+Mar 23 09:06:29 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Created connection http://cpeg-ipareplica.ipa.calix.local:8080/ca
+Mar 23 09:06:29 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='cpeg-ipareplica.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus>
+Mar 23 09:06:30 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='cpeg-ipareplica.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus>
+Mar 23 09:06:30 cpeg-ipareplica.ipa.calix.local server[2181735]: WARNING: Tomcat interprets the [protocols] attribute in a manner consistent with the latest OpenSSL development branch. Some of the specified [protocols] are not supported by the >
+Mar 23 09:06:32 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='cpeg-ipareplica.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 23 09:06:34 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='cpeg-ipareplica.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 23 09:06:35 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Success, subsystem ca is running!
+Mar 23 09:06:35 cpeg-ipareplica.ipa.calix.local systemd[1]: Started PKI Tomcat Server pki-tomcat.
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# date
+Mon Mar 23 18:40:14 UTC 2026
+[root@cpeg-ipareplica ~]# ipactl status
+Directory Service: RUNNING
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+named Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+pki-tomcatd Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa-dnskeysyncd Service: RUNNING
+ipa: INFO: The ipactl command was successful
 [root@cpeg-ipareplica ~]#
