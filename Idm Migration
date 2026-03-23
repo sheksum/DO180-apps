@@ -1,7 +1,19 @@
-# On pln-ipamaster
-certutil -L -d /etc/dirsrv/slapd-IPA-CALIX-LOCAL/ | grep -i "IPA\|CA"
-
-# Also check if pki-tomcat NSS db trusts the DS cert
-certutil -L -d /var/lib/pki/pki-tomcat/conf/alias/ | grep -i "IPA\|CA"
-
-systemctl status pki-tomcatd@pki-tomcat --no-pager | grep -E "Active|SEVERE|failed"
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# certutil -L -d /etc/dirsrv/slapd-IPA-CALIX-LOCAL/ | grep -i "IPA\|CA"
+Certificate Nickname                                         Trust Attributes
+IPA.CALIX.LOCAL IPA CA                                       CT,C,C
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# certutil -L -d /var/lib/pki/pki-tomcat/conf/alias/ | grep -i "IPA\|CA"
+Certificate Nickname                                         Trust Attributes
+caSigningCert cert-pki-ca                                    CTu,Cu,Cu
+ocspSigningCert cert-pki-ca                                  u,u,u
+auditSigningCert cert-pki-ca                                 u,u,Pu
+subsystemCert cert-pki-ca                                    u,u,u
+Server-Cert cert-pki-ca                                      u,u,u
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# systemctl status pki-tomcatd@pki-tomcat --no-pager | grep -E "Active|SEVERE|failed"
+     Active: active (running) since Mon 2026-03-23 20:42:52 UTC; 6min ago
+[root@pln-ipamaster yum.repos.d]#
