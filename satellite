@@ -1,82 +1,20 @@
-Deploy Red Hat Satellite Capsule Server to DMZ
+FIREWALL RULES - Satellite Capsule DMZ Migration
+=================================================
 
-Assignee: Haj Suma
-Priority: High
-Component: Infrastructure
-Status: In Progress
-Description
+Rule 1: DMZ hosts to Capsule
+  Source:      10.172.16.0/28
+  Destination: 10.172.16.10
+  Port:        443/tcp
+  Purpose:     DMZ host registration and content
 
-Deploy and configure a Red Hat Satellite 6.15 Capsule Server (pln-capsule-dmz01.caal.dev) to serve as a content proxy and registration point for DMZ-hosted systems. The capsule is built on RHEL 8.10 and validated on the internal network prior to migration to the DMZ subnet.
+Rule 2: Capsule to Satellite (HTTPS)
+  Source:      10.172.16.10
+  Destination: 10.172.249.103
+  Port:        443/tcp
+  Purpose:     Content sync
 
-
-Acceptance criteria
-
-✓
-RHEL 8.10 VM provisioned with correct LVM partition layout
-✓
-Hostname set to pln-capsule-dmz01.caal.dev with DNS A and PTR records
-✓
-System registered to Satellite 6.15 and IPA
-✓
-satellite-capsule packages installed and satellite-installer completed successfully
-✓
-SSL certificates generated and deployed
-✓
-Capsule communication status green in Satellite UI
-✓
-Content sync completed — RHEL7, RHEL8, RHEL9, Rocky Linux, EPEL, Grafana repos
-✓
-Host registration validated through capsule
-✓
-Package updates serving from capsule validated
-○
-Network migration to DMZ subnet completed
-○
-DNS records updated to DMZ IP
-○
-Firewall rules opened — DMZ hosts→Capsule:443, Capsule→Satellite:443/5646
-
-
-
-Technical notes
-
-Pulp workers reduced to 2 (from default 6) due to 16GB RAM constraint — OOM kills observed during initial content sync with default worker count. Tune upward if RAM is increased to 32GB.
-
-DNS zone used: caal.dev — AD DNS replication for calix.local zone was unreliable during build. PTR record created in caal.dev zone to match Satellite server naming convention.
-
-Capsule firewall: only port 443/https open. Port 9090 handled internally by satellite-installer. No additional ports required on capsule host-based firewall.
-
-
-
-Remaining tasks
-
-1. Coordinate with network team for DMZ IP assignment
-2. Update capsule NIC via nmtui to DMZ IP
-3. Update A and PTR records in caal.dev DNS zone
-4. Request firewall rules from network team
-5. Post-migration validation — Satellite UI green, sync, host registration
-
-Step 1 — Update networking on the capsule
-
-satellite-maintain service stop
-Update IP via nmtui to DMZ IP
-satellite-maintain service start
-
-Step 2 — Update DNS
-
-Update A record in caal.dev zone to new DMZ IP
-Update PTR record to new DMZ IP
-
-Step 3 — Request firewall rules from network team
-
-DMZ hosts → Capsule DMZ IP — port 443
-Capsule DMZ IP → Satellite Server — port 443
-Capsule DMZ IP → Satellite Server — port 5646
-
-Step 4 — Validate
-
-Verify capsule shows green in Satellite UI
-Verify content sync still works
-Register a DMZ test host through the capsule
-
-That's it. The FQDN pln-capsule-dmz01.caal.dev never changes — just the IP. So once DNS and firewall are updated everything should come back up cleanly.
+Rule 3: Capsule to Satellite (Qpid)
+  Source:      10.172.16.10
+  Destination: 10.172.249.103
+  Port:        5646/tcp
+  Purpose:     Qpid messaging
