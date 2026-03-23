@@ -1,20 +1,16 @@
-need to be reinitialized.
-[23/Mar/2026:19:42:03.661771891 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:19:42:04.467832274 +0000] - INFO - NSMMReplicationPlugin - bind_and_check_pwp - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Replication bind with GSSAPI auth resumed
-[23/Mar/2026:19:42:04.876548297 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:19:42:04.930063126 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid 65f2b581-26e411f1-a022c5a1-f0f13da2, CSN 69c1efb7000000150000): Server is unwilling to perform (53). Will retry later.
-[23/Mar/2026:19:42:04.931799218 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid 65f2b582-26e411f1-a022c5a1-f0f13da2, CSN 69c1efb7000200150000): Server is unwilling to perform(53). Will retry later.
-[23/Mar/2026:19:42:04.932498983 +0000] - WARN - NSMMReplicationPlugin - send_updates - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Failed to send update operation to consumer (uniqueid 65f2b58b-26e411f1-a022c5a1-f0f13da2, CSN 69c1efbe000200150000): Server is unwilling to perform. Will retry later.
-[23/Mar/2026:19:42:04.933081107 +0000] - ERR - NSMMReplicationPlugin - release_replica - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Unable to send endReplication extended operation (Server is unwilling to perform)
-[23/Mar/2026:19:42:05.133416888 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:19:42:07.102732106 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:19:42:07.120249642 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:19:42:07.506010939 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:19:42:08.011957919 +0000] - INFO - NSMMReplicationPlugin - bind_and_check_pwp - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Replication bind with GSSAPI auth resumed
-[23/Mar/2026:19:42:08.274488998 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid 65f2b581-26e411f1-a022c5a1-f0f13da2, CSN 69c1efb7000000150000): Server is unwilling to perform (53). Will retry later.
-[23/Mar/2026:19:42:08.275601887 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid 65f2b582-26e411f1-a022c5a1-f0f13da2, CSN 69c1efb7000200150000): Server is unwilling to perform(53). Will retry later.
-[23/Mar/2026:19:42:08.276421675 +0000] - WARN - NSMMReplicationPlugin - send_updates - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Failed to send update operation to consumer (uniqueid 65f2b58b-26e411f1-a022c5a1-f0f13da2, CSN 69c1efbe000000150000): Server is unwilling to perform. Will retry later.
-[23/Mar/2026:19:42:08.277656541 +0000] - ERR - NSMMReplicationPlugin - release_replica - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Unable to send endReplication extended operation (Server is unwilling to perform)
-[23/Mar/2026:19:42:09.363319877 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:19:42:09.874908036 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:19:42:10.183234484 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# free -h
+              total        used        free      shared  buff/cache   available
+Mem:           15Gi       5.9Gi       284Mi       1.3Gi       9.2Gi       7.9Gi
+Swap:         7.9Gi       1.1Gi       6.8Gi
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# vmstat 1 3
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 4  0 1104980 297120    248 9699120    0    1   252   431    8    9  6  2 91  0  0
+ 0  0 1104980 296796    248 9699140    0    0     4   280 1797 1902  6  2 93  0  0
+ 3  0 1104980 299236    248 9699168    0    0     8   424 2691 2813  7  3 90  0  0
+[root@cpeg-ipareplica ~]#
