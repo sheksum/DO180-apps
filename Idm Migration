@@ -1,8 +1,22 @@
-# On pln-ipamaster
-tail -f /var/log/pki/pki-tomcat/ca/system
+[root@pln-ipamaster ~]# tail -20 /var/log/ipareplica-install.log
+pki_sslserver_nickname = Server-Cert cert-pki-ca
+pki_sslserver_subject_dn = cn=pln-ipamaster.ipa.calix.local,O=IPA.CALIX.LOCAL
+pki_sslserver_token = internal
+pki_status_request_timeout = 15
+pki_subordinate = False
+pki_subordinate_create_new_security_domain = False
+pki_subsystem = CA
+pki_subsystem_key_algorithm = SHA256withRSA
+pki_subsystem_key_size = 2048
+pki_subsystem_key_type = rsa
+pki_subsystem_nickname = subsystemCert cert-pki-ca
+pki_subsystem_subject_dn = cn=CA Subsystem,O=IPA.CALIX.LOCAL
+pki_subsystem_token = internal
+pki_subsystem_type = ca
+pki_token_name = internal
+pki_user = pkiuser
 
 
-tail -f /var/log/pki/pki-tomcat/ca/debug
-
-
-tail -20 /var/log/ipareplica-install.log
+2026-03-23T18:14:07Z DEBUG Starting external process
+2026-03-23T18:14:07Z DEBUG args=['/usr/sbin/pkispawn', '-s', 'CA', '-f', '/tmp/tmp5ihvo_0k', '--debug', '--log-file', '/var/log/pki/pki-ca-spawn.20260323181407.log']
+[root@pln-ipamaster ~]#
