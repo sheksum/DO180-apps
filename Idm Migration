@@ -1,59 +1,7 @@
-[root@pln-ipamaster yum.repos.d]#
-[root@pln-ipamaster yum.repos.d]#
-[root@pln-ipamaster yum.repos.d]# ss -tlnp | grep 636
-LISTEN 0      128                     *:636             *:*    users:(("ns-slapd",pid=31232,fd=9))
-[root@pln-ipamaster yum.repos.d]#
-[root@pln-ipamaster yum.repos.d]#
-[root@pln-ipamaster yum.repos.d]# systemctl status dirsrv@IPA-CALIX-LOCAL
-● dirsrv@IPA-CALIX-LOCAL.service - 389 Directory Server IPA-CALIX-LOCAL.
-     Loaded: loaded (/usr/lib/systemd/system/dirsrv@.service; enabled; preset: disabled)
-    Drop-In: /usr/lib/systemd/system/dirsrv@.service.d
-             └─custom.conf
-             /etc/systemd/system/dirsrv@IPA-CALIX-LOCAL.service.d
-             └─ipa-env.conf
-     Active: active (running) since Mon 2026-03-23 20:22:43 UTC; 9min ago
-    Process: 31222 ExecStartPre=/usr/libexec/dirsrv/ds_systemd_ask_password_acl /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
-    Process: 31227 ExecStartPre=/usr/libexec/dirsrv/ds_selinux_restorecon.sh /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
-   Main PID: 31232 (ns-slapd)
-     Status: "slapd started: Ready to process requests"
-      Tasks: 34 (limit: 48745)
-     Memory: 710.8M (peak: 713.8M)
-        CPU: 13.334s
-     CGroup: /system.slice/system-dirsrv.slice/dirsrv@IPA-CALIX-LOCAL.service
-             └─31232 /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+# On pln-ipamaster
+certutil -L -d /etc/dirsrv/slapd-IPA-CALIX-LOCAL/
 
-Mar 23 20:31:35 pln-ipamaster.ipa.calix.local ns-slapd[31232]: [23/Mar/2026:20:31:35.363867965 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
-Mar 23 20:31:37 pln-ipamaster.ipa.calix.local ns-slapd[31232]: [23/Mar/2026:20:31:37.989053703 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023b9c2000000140000 in t>
-Mar 23 20:31:37 pln-ipamaster.ipa.calix.local ns-slapd[31232]: [23/Mar/2026:20:31:37.990219801 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389):>
-Mar 23 20:31:37 pln-ipamaster.ipa.calix.local ns-slapd[31232]: [23/Mar/2026:20:31:37.991409780 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
-Mar 23 20:31:40 pln-ipamaster.ipa.calix.local ns-slapd[31232]: [23/Mar/2026:20:31:40.998957056 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023b9c2000000140000 in t>
-Mar 23 20:31:41 pln-ipamaster.ipa.calix.local ns-slapd[31232]: [23/Mar/2026:20:31:41.000972418 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389):>
-Mar 23 20:31:41 pln-ipamaster.ipa.calix.local ns-slapd[31232]: [23/Mar/2026:20:31:41.002241884 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
-Mar 23 20:31:44 pln-ipamaster.ipa.calix.local ns-slapd[31232]: [23/Mar/2026:20:31:44.132767529 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023b9c2000000140000 in t>
-Mar 23 20:31:44 pln-ipamaster.ipa.calix.local ns-slapd[31232]: [23/Mar/2026:20:31:44.134150976 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389):>
-Mar 23 20:31:44 pln-ipamaster.ipa.calix.local ns-slapd[31232]: [23/Mar/2026:20:31:44.135338656 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
-[root@pln-ipamaster yum.repos.d]#
-[root@pln-ipamaster yum.repos.d]#
-[root@pln-ipamaster yum.repos.d]#
-[root@pln-ipamaster yum.repos.d]# tail -20 /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors
-[23/Mar/2026:20:31:35.362840398 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023b9c2000000140000 not found, we aren't as up to date, or we purged
-[23/Mar/2026:20:31:35.363889517 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[23/Mar/2026:20:31:37.989091425 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023b9c2000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:20:31:37.990239610 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023b9c2000000140000 not found, we aren't as up to date, or we purged
-[23/Mar/2026:20:31:37.991433168 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[23/Mar/2026:20:31:40.998988818 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023b9c2000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:20:31:41.001002581 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023b9c2000000140000 not found, we aren't as up to date, or we purged
-[23/Mar/2026:20:31:41.002269298 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[23/Mar/2026:20:31:44.132819257 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023b9c2000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:20:31:44.134175921 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023b9c2000000140000 not found, we aren't as up to date, or we purged
-[23/Mar/2026:20:31:44.135361527 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[23/Mar/2026:20:31:47.334348230 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023b9d5000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:20:31:47.335867477 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023b9d5000000140000 not found, we aren't as up to date, or we purged
-[23/Mar/2026:20:31:47.336770868 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[23/Mar/2026:20:31:50.085661577 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023b9d7000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:20:31:50.087150351 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023b9d7000000140000 not found, we aren't as up to date, or we purged
-[23/Mar/2026:20:31:50.088136244 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[23/Mar/2026:20:31:52.631578874 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023b9dc000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-[23/Mar/2026:20:31:52.632706518 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023b9dc000000140000 not found, we aren't as up to date, or we purged
-[23/Mar/2026:20:31:52.633591846 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[root@pln-ipamaster yum.repos.d]#
+
+ldapsearch -H ldaps://pln-ipamaster.ipa.calix.local:636 \
+  -x -D "cn=Directory Manager" -W \
+  -b "" -s base
