@@ -1,6 +1,10 @@
-# Restore all IPA-owned directories
-rpm -qf /var/lib/ipa/ 2>/dev/null
-dnf reinstall ipa-server ipa-client ipa-server-dns -y --nogpgcheck
+[root@pln-ipamaster ~]# ipa-replica-install   --setup-ca   --setup-dns   --no-forwarders   --no-ntp   --server cpeg-ipareplica.ipa.calix.local   --domain ipa.calix.local   --realm IPA.CALIX.LOCAL   --principal admin   --admin-password <> --skip-conncheck --force-join --mkhomedir
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
 
-# Verify directories exist
-ls /var/lib/ipa/
+IPA requires ports 389 and 636 for the Directory Server.
+These are currently in use:
+	389
+
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster ~]#
