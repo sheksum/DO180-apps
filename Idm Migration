@@ -1,11 +1,2 @@
-[root@pln-ipamaster yum.repos.d]# certutil -L -d /var/lib/pki/pki-tomcat/conf/alias/
-
-Certificate Nickname                                         Trust Attributes
-                                                             SSL,S/MIME,JAR/XPI
-
-caSigningCert cert-pki-ca                                    CTu,Cu,Cu
-ocspSigningCert cert-pki-ca                                  u,u,u
-auditSigningCert cert-pki-ca                                 u,u,Pu
-subsystemCert cert-pki-ca                                    u,u,u
-Server-Cert cert-pki-ca                                      u,u,u
-[root@pln-ipamaster yum.repos.d]#
+grep "internaldb.ldapauth" /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
+grep "internaldb.ldapconn" /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
