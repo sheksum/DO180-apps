@@ -1,14 +1,83 @@
-ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
-  -x -D "cn=Directory Manager" -W \
-  -b "cn=config" \
-  "(cn=*pln-ipamaster*)" dn nsds5replicaTimeout nsds5replicaConnectionTimeout
+# numResponses: 1
+[root@cpeg-ipareplica ~]# ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
+>   -x -D "cn=Directory Manager" -W \
+>   -b "cn=config" \
+>   "(cn=*pln-ipamaster*)" dn nsds5replicaTimeout nsds5replicaConnectionTimeout
+Enter LDAP Password:
+# extended LDIF
+#
+# LDAPv3
+# base <cn=config> with scope subtree
+# filter: (cn=*pln-ipamaster*)
+# requesting: dn nsds5replicaTimeout nsds5replicaConnectionTimeout
+#
 
-# Also check o=ipaca replication agreements
-ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
-  -x -D "cn=Directory Manager" -W \
-  -b "cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config" \
-  "(objectclass=nsds5replicationagreement)" dn nsds5replicaTimeout
+# meTopln-ipamaster.ipa.calix.local, replica, dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dloca
+ l, mapping tree, config
+dn: cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2
+ Cdc\3Dlocal,cn=mapping tree,cn=config
+nsds5replicaTimeout: 120
 
+# caTopln-ipamaster.ipa.calix.local, replica, o\3Dipaca, mapping tree, config
+dn: cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tr
+ ee,cn=config
+nsds5replicaTimeout: 120
 
-systemctl status pki-tomcatd@pki-tomcat
-ss -tlnp | grep 36389
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 3
+# numEntries: 2
+[root@cpeg-ipareplica ~]# ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
+>   -x -D "cn=Directory Manager" -W \
+>   -b "cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config" \
+>   "(objectclass=nsds5replicationagreement)" dn nsds5replicaTimeout
+Enter LDAP Password:
+# extended LDIF
+#
+# LDAPv3
+# base <cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config> with scope subtree
+# filter: (objectclass=nsds5replicationagreement)
+# requesting: dn nsds5replicaTimeout
+#
+
+# caTopln-ipamaster.ipa.calix.local, replica, o\3Dipaca, mapping tree, config
+dn: cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tr
+ ee,cn=config
+nsds5replicaTimeout: 120
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+[root@cpeg-ipareplica ~]# systemctl status pki-tomcatd@pki-tomcat
+● pki-tomcatd@pki-tomcat.service - PKI Tomcat Server pki-tomcat
+   Loaded: loaded (/lib/systemd/system/pki-tomcatd@.service; enabled; vendor preset: disabled)
+  Drop-In: /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d
+           └─ipa.conf
+   Active: active (running) since Mon 2026-03-23 09:06:35 UTC; 8h ago
+  Process: 2181736 ExecStartPost=/usr/libexec/ipa/ipa-pki-wait-running (code=exited, status=0/SUCCESS)
+  Process: 2181723 ExecStartPre=/usr/bin/pkidaemon start pki-tomcat (code=exited, status=0/SUCCESS)
+  Process: 2181664 ExecStartPre=/usr/sbin/pki-server migrate pki-tomcat (code=exited, status=0/SUCCESS)
+  Process: 2181658 ExecStartPre=/usr/sbin/pki-server upgrade pki-tomcat (code=exited, status=0/SUCCESS)
+ Main PID: 2181735 (java)
+    Tasks: 122 (limit: 100500)
+   Memory: 1.1G
+   CGroup: /system.slice/system-pki\x2dtomcatd.slice/pki-tomcatd@pki-tomcat.service
+           └─2181735 /usr/lib/jvm/jre-1.8.0-openjdk/bin/java -Dcom.redhat.fips=false -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat>
+
+Mar 23 09:06:29 cpeg-ipareplica.ipa.calix.local server[2181735]: arguments used: start
+Mar 23 09:06:29 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: pki.client: /usr/libexec/ipa/ipa-pki-wait-running:64: The subsystem in PKIConnection.__init__() has been deprecated (https://www.dogtagpki.org/wiki/PKI_10.8_Python_C>
+Mar 23 09:06:29 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Created connection http://cpeg-ipareplica.ipa.calix.local:8080/ca
+Mar 23 09:06:29 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='cpeg-ipareplica.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus>
+Mar 23 09:06:30 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='cpeg-ipareplica.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus>
+Mar 23 09:06:30 cpeg-ipareplica.ipa.calix.local server[2181735]: WARNING: Tomcat interprets the [protocols] attribute in a manner consistent with the latest OpenSSL development branch. Some of the specified [protocols] are not supported by the >
+Mar 23 09:06:32 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='cpeg-ipareplica.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 23 09:06:34 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='cpeg-ipareplica.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 23 09:06:35 cpeg-ipareplica.ipa.calix.local ipa-pki-wait-running[2181736]: ipa-pki-wait-running: Success, subsystem ca is running!
+Mar 23 09:06:35 cpeg-ipareplica.ipa.calix.local systemd[1]: Started PKI Tomcat Server pki-tomcat.
+[root@cpeg-ipareplica ~]# ss -tlnp | grep 36389
+[root@cpeg-ipareplica ~]#
