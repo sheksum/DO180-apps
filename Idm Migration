@@ -1,14 +1,7 @@
-Total                                                                                                                                                                                                                7.9 MB/s | 113 MB     00:14
-EPEL9_x86_64                                                                                                                                                                                                          37 kB/s | 1.7 kB     00:00
-Importing GPG key 0x217521F6:
- Userid     : "Fedora EPEL <epel@fedoraproject.org>"
- Fingerprint: B940 BE07 7D71 0A28 7D7F 2DD1 119C C036 2175 21F6
- From       : https://pln-satellite01.caal.dev/katello/api/v2/repositories/12/gpg_key_content
-Key imported successfully
-Import of key(s) didn't help, wrong key(s)?
-Public key for tomcat-native-1.3.5-1.el9.x86_64.rpm is not installed. Failing package is: tomcat-native-1:1.3.5-1.el9.x86_64
- GPG Keys are configured as: https://pln-satellite01.caal.dev/katello/api/v2/repositories/12/gpg_key_content
-The downloaded packages were saved in cache until the next successful transaction.
-You can remove cached packages by executing 'dnf clean packages'.
-Error: GPG check FAILED
-[root@pln-ipamaster ~]# ls -ltr
+rpm -q ipa-server ipa-server-dns
+```
+
+Should return something like:
+```
+ipa-server-4.10.x-x.el9.x86_64
+ipa-server-dns-4.10.x-x.el9.x86_64
