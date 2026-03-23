@@ -1,9 +1,2 @@
-dsconf -D "cn=Directory Manager" \
-  ldap://pln-ipamaster.ipa.calix.local \
-  backend suffix set --cache-memsize=2147483648 ipaca
-
-
-ldapsearch -H ldaps://pln-ipamaster.ipa.calix.local:636 \
-  -x -D "cn=Directory Manager" -W \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s base "(objectclass=*)" numsubordinates
+tail -5 /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log
+date
