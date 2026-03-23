@@ -1,13 +1,6 @@
-# Fix /etc/hosts
-cat > /etc/hosts << 'EOF'
-127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-10.172.248.55 pln-ipamaster.ipa.calix.local pln-ipamaster
-172.23.49.10  cpeg-ipareplica.ipa.calix.local cpeg-ipareplica
-EOF
-
-# Enable IPv6 on loopback
-sysctl -w net.ipv6.conf.lo.disable_ipv6=0
-
-# Verify ::1 is now on lo
-ip addr show lo | grep ::1
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# sysctl -w net.ipv6.conf.lo.disable_ipv6=0
+net.ipv6.conf.lo.disable_ipv6 = 0
+[root@pln-ipamaster yum.repos.d]# ip addr show lo | grep ::1
+    inet6 ::1/128 scope host
+[root@pln-ipamaster yum.repos.d]#
