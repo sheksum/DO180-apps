@@ -1,0 +1,1 @@
+for i in $(seq 1 14); do ping -c1 -W1 10.172.16.$i &>/dev/null && echo "10.172.16.$i - IN USE" || echo "10.172.16.$i - FREE"; done
