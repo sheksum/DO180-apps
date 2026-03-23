@@ -1,46 +1,6 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa topologysegment-find domain
-\------------------
-5 segments matched
-------------------
-  Segment name: cpeg-to-nan-ipareplica01
-  Left node: cpeg-ipareplica.ipa.calix.local
-  Right node: nan-ipareplica01.ipa.calix.local
-  Connectivity: both
-
-  Segment name: ric-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local
-  Left node: ric-ipareplica01.ipa.calix.local
-  Right node: cpeg-ipareplica.ipa.calix.local
-  Connectivity: both
-
-  Segment name: ric-ipareplica01.ipa.calix.local-to-ric-ipareplica.ipa.calix.local
-  Left node: ric-ipareplica01.ipa.calix.local
-  Right node: ric-ipareplica.ipa.calix.local
-  Connectivity: both
-
-  Segment name: sjc-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local
-  Left node: sjc-ipareplica01.ipa.calix.local
-  Right node: cpeg-ipareplica.ipa.calix.local
-  Connectivity: both
-
-  Segment name: sjc-ipareplica01.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local
-  Left node: sjc-ipareplica01.ipa.calix.local
-  Right node: nan-ipareplica01.ipa.calix.local
-  Connectivity: both
-----------------------------
-Number of entries returned 5
-----------------------------
-[root@cpeg-ipareplica ~]# ipa topologysegment-find ca
-------------------
-0 segments matched
-------------------
-----------------------------
-Number of entries returned 0
-----------------------------
-[root@cpeg-ipareplica ~]# ipa-replica-manage list
-sjc-ipareplica01.ipa.calix.local: master
-nan-ipareplica01.ipa.calix.local: master
-ric-ipareplica01.ipa.calix.local: master
-ric-ipareplica.ipa.calix.local: master
-cpeg-ipareplica.ipa.calix.local: master
-[root@cpeg-ipareplica ~]#
+ipa-replica-install \
+  --setup-ca \
+  --setup-dns \
+  --no-ntp \
+  --principal admin \
+  --admin-password '<password>'
