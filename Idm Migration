@@ -1,11 +1,6 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl start dirsrv@IPA-CALIX-LOCAL
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# sleep 10
-[root@pln-ipamaster ~]# ldapsearch -H ldap://pln-ipamaster.ipa.calix.local:389   -x -D "cn=Directory Manager" -W   -b "" -s base
-Enter LDAP Password:
-ldap_bind: Invalid credentials (49)
-[root@pln-ipamaster ~]# ldapsearch -H ldap://pln-ipamaster.ipa.calix.local:389   -x -D "cn=Directory Manager" -W   -b "" -s base
-Enter LDAP Password:
-ldap_bind: Invalid credentials (49)
-[root@pln-ipamaster ~]#
+ipactl status
+ipa topologysegment-find domain
+ipa topologysegment-find ca
+ipa-replica-manage list
+ipa-replica-manage list-ruv
+ipa-healthcheck --failures-only
