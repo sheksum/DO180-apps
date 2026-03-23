@@ -1,11 +1,26 @@
-# Check current firewall
-firewall-cmd --list-all
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa-replica-manage del pln-ipamaster.ipa.calix.local --force
+Updating DNS system records
+pln-ipamaster.ipa.calix.local: server not found
+[root@cpeg-ipareplica ~]#
 
-# Add missing services
-firewall-cmd --permanent --add-service={ldap,ldaps,kerberos,kpasswd,http,https,dns}
-firewall-cmd --permanent --add-port={389/tcp,636/tcp,88/tcp,88/udp,464/tcp,464/udp,80/tcp,443/tcp}
-firewall-cmd --reload
-firewall-cmd --list-all
 
-# On cpeg-ipareplica
-ipa-replica-manage del pln-ipamaster.ipa.calix.local --force
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# firewall-cmd --permanent --add-service={ldap,ldaps,kerberos,kpasswd,http,https,dns}
+Warning: ALREADY_ENABLED: ldap
+Warning: ALREADY_ENABLED: ldaps
+Warning: ALREADY_ENABLED: kerberos
+Warning: ALREADY_ENABLED: kpasswd
+Warning: ALREADY_ENABLED: http
+Warning: ALREADY_ENABLED: https
+Warning: ALREADY_ENABLED: dns
+success
+[root@pln-ipamaster yum.repos.d]# firewall-cmd --permanent --add-port={389/tcp,636/tcp,88/tcp,88/udp,464/tcp,464/udp,80/tcp,443/tcp}
+success
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# firewall-cmd --reload
+success
+[root@pln-ipamaster yum.repos.d]#
