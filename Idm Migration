@@ -1,2 +1,45 @@
-sed -i '/disable_ipv6/d' /etc/sysctl.conf
-sysctl -p
+[root@pln-ipamaster yum.repos.d]# sed -i '/disable_ipv6/d' /etc/sysctl.conf
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# sysctl -p
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# ipa-replica-install   --setup-ca   --setup-dns   --no-forwarders   --no-ntp   --server cpeg-ipareplica.ipa.calix.local   --domain ipa.calix.local   --realm IPA.CALIX.LOCAL   --principal admin   --admin-password vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU= --skip-conncheck
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
+
+IPv6 stack is enabled in the kernel but there is no interface that has ::1 address assigned. Add ::1 address resolution to 'lo' interface. You might need to enable IPv6 on the interface 'lo' in sysctl.conf.
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster yum.repos.d]# /usr/sbin/ipa-server-install --uninstall
+WARNING:
+IPA server is not configured on this system. If you want to install the
+IPA server, please install it using 'ipa-server-install'.
+
+This is a NON REVERSIBLE operation and will delete all data and configuration!
+It is highly recommended to take a backup of existing data and configuration using ipa-backup utility before proceeding.
+
+Are you sure you want to continue with the uninstall procedure? [no]: yes
+
+WARNING: Failed to connect to Directory Server to find information about
+replication agreements. Uninstallation will continue despite the possible
+existing replication agreements.
+
+If this server is the last instance of CA,
+KRA, or DNSSEC master, uninstallation may result in data loss.
+Are you sure you want to continue with the uninstall procedure? [no]: yes
+failed to uninstall ACME instance CalledProcessError(Command ['/usr/sbin/pkidestroy', '-i', 'pki-tomcat', '--force', '-s', 'ACME', '--log-file', '/var/log/pki/pki-acme-destroy.20260323155500.log', '--remove-conf', '--remove-logs'] returned non-zero exit status 1: 'ERROR: No such instance: pki-tomcat\n')
+Shutting down all IPA services
+Failed to remove DS instance. No serverid present in sysrestore file.
+Removing IPA client configuration
+The ipa-client-install command was successful
+The ipa-server-install command was successful
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# ipa-replica-install   --setup-ca   --setup-dns   --no-forwarders   --no-ntp   --server cpeg-ipareplica.ipa.calix.local   --domain ipa.calix.local   --realm IPA.CALIX.LOCAL   --principal admin   --admin-password vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU= --skip-conncheck
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
+
+IPv6 stack is enabled in the kernel but there is no interface that has ::1 address assigned. Add ::1 address resolution to 'lo' interface. You might need to enable IPv6 on the interface 'lo' in sysctl.conf.
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster yum.repos.d]#
