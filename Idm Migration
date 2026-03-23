@@ -1,2 +1,14 @@
-# On cpeg-ipareplica — watch replication progress
-tail -f /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | grep -i "pln-ipamaster\|ipaca\|repl"
+  [4/4]: configuring ipa-custodia to start on boot
+Done configuring ipa-custodia.
+Configuring certificate server (pki-tomcatd). Estimated time: 3 minutes
+  [1/33]: creating certificate server db
+  [2/33]: ignore time skew for initial replication
+  [3/33]: setting up initial replication
+Starting replication, please wait until this has completed.
+Update in progress, 1342 seconds elapsed
+Update succeeded
+
+  [4/33]: revert time skew after initial replication
+  [5/33]: creating ACIs for admin
+  [6/33]: creating installation admin user
+  [7/33]: configuring certificate server instance
