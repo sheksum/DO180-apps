@@ -12,6 +12,17 @@ ldapsearch -H ldap://pln-ipamaster.ipa.calix.local:389 \
   -x -D "cn=Directory Manager" -W \
   -b "" -s base
 
-ldappasswd -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]# ldappasswd -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -Y EXTERNAL \
   -S "cn=Directory Manager"
+New password:
+Re-enter new password:
+ldap_sasl_interactive_bind: Can't contact LDAP server (-1)
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldappasswd -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket   -Y EXTERNAL   -S "cn=Directory Manager"
+New password:
+Re-enter new password:
+ldap_sasl_interactive_bind: Can't contact LDAP server (-1)
+[root@pln-ipamaster ~]#
+
