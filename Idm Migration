@@ -44,3 +44,19 @@ The ipa-client-install command was successful
 Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide DNS.
 Reverse DNS resolution of address 172.23.49.10 (cpeg-ipareplica.ipa.calix.local) failed. Clients may not function properly. Please check your DNS setup. (Note that this check queries IPA DNS directly and ignores /etc/hosts.)
 Continue? [no]:
+
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide DNS.
+Reverse DNS resolution of address 172.23.49.10 (cpeg-ipareplica.ipa.calix.local) failed. Clients may not function properly. Please check your DNS setup. (Note that this check queries IPA DNS directly and ignores /etc/hosts.)
+Continue? [no]: yes
+No network interface matches the IP address 10.172.249.77
+WARNING: No network interface matches the IP address 10.172.249.77
+
+WARNING: 1353 existing users or groups do not have a SID identifier assigned.
+Installer can run a task to have ipa-sidgen Directory Server plugin generate
+the SID identifier for all these users. Please note, in case of a high
+number of users and groups, the operation might lead to high replication
+traffic and performance degradation. Refer to ipa-adtrust-install(1) man page
+for details.
+
+Do you want to run the ipa-sidgen task? [no]:
+
