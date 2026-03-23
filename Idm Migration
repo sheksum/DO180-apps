@@ -5,3 +5,17 @@ ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
 ipa service-add HTTP/pln-ipamaster.ipa.calix.local
 ipa service-add ldap/pln-ipamaster.ipa.calix.local
 ipa service-find pln-ipamaster.ipa.calix.local
+
+
+ipa-replica-install \
+  --setup-ca \
+  --setup-dns \
+  --forwarder 172.23.49.10 \
+  --no-ntp \
+  --server cpeg-ipareplica.ipa.calix.local \
+  --domain ipa.calix.local \
+  --realm IPA.CALIX.LOCAL \
+  --principal admin \
+  --admin-password '<password>' \
+  --skip-conncheck \
+  --force-join
