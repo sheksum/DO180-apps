@@ -1,6 +1,32 @@
 # On pln-ipamaster
 ipa-server-install --uninstall
 
+[root@pln-ipamaster yum.repos.d]# ipa-server-install --uninstall
+WARNING:
+IPA server is not configured on this system. If you want to install the
+IPA server, please install it using 'ipa-server-install'.
+
+This is a NON REVERSIBLE operation and will delete all data and configuration!
+It is highly recommended to take a backup of existing data and configuration using ipa-backup utility before proceeding.
+
+Are you sure you want to continue with the uninstall procedure? [no]: yes
+Server removal aborted:
+
+Replication topology in suffix 'domain' is disconnected:
+Topology does not allow server cpeg-ipareplica.ipa.calix.local to replicate with servers:
+    pln-ipamaster.ipa.calix.local
+Topology does not allow server nan-ipareplica01.ipa.calix.local to replicate with servers:
+    pln-ipamaster.ipa.calix.local
+Topology does not allow server ric-ipareplica.ipa.calix.local to replicate with servers:
+    pln-ipamaster.ipa.calix.local
+Topology does not allow server ric-ipareplica01.ipa.calix.local to replicate with servers:
+    pln-ipamaster.ipa.calix.local
+Topology does not allow server sjc-ipareplica01.ipa.calix.local to replicate with servers:
+    pln-ipamaster.ipa.calix.local.
+The ipa-server-install command failed. See /var/log/ipaserver-uninstall.log for more information
+[root@pln-ipamaster yum.repos.d]#
+
+
 # On cpeg-ipareplica
 ipa-replica-manage del pln-ipamaster.ipa.calix.local --force
 ipa topologysegment-find domain
