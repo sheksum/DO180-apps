@@ -1,25 +1,4 @@
-[root@pln-ipamaster yum.repos.d]# nc -zv cpeg-ipareplica.ipa.calix.local 389
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Connected to 172.23.49.10:389.
-Ncat: 0 bytes sent, 0 bytes received in 0.06 seconds.
-[root@pln-ipamaster yum.repos.d]#
-[root@pln-ipamaster yum.repos.d]# nc -zv 172.23.49.10 389
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Connected to 172.23.49.10:389.
-Ncat: 0 bytes sent, 0 bytes received in 0.06 seconds.
-[root@pln-ipamaster yum.repos.d]#
+grep -i "error\|fail\|ldap" /var/log/ipareplica-install.log | tail -30
 
 
-
-[root@cpeg-ipareplica ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-named Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa-dnskeysyncd Service: RUNNING
-ipa: INFO: The ipactl command was successful
-[root@cpeg-ipareplica ~]#
+ipa-server-install --uninstall
