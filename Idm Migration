@@ -36,7 +36,7 @@ The ipa-server-install command was successful
 [root@pln-ipamaster yum.repos.d]#
 [root@pln-ipamaster yum.repos.d]#
 [root@pln-ipamaster yum.repos.d]#
-[root@pln-ipamaster yum.repos.d]# ipa-replica-install   --setup-ca   --setup-dns   --no-forwarders   --no-ntp   --server cpeg-ipareplica.ipa.calix.local   --domain ipa.calix.local   --realm IPA.CALIX.LOCAL   --principal admin   --admin-password vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU= --skip-conncheck
+[root@pln-ipamaster yum.repos.d]# ipa-replica-install   --setup-ca   --setup-dns   --no-forwarders   --no-ntp   --server cpeg-ipareplica.ipa.calix.local   --domain ipa.calix.local   --realm IPA.CALIX.LOCAL   --principal admin   --admin-password <> --skip-conncheck
 Your system may be partly configured.
 Run /usr/sbin/ipa-server-install --uninstall to clean up.
 
