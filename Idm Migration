@@ -1,4 +1,11 @@
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# grep -n "nsslapd-rootpw" /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
-48:nsslapd-rootpw: {PBKDF2-SHA512}100000$pJ8k6iWYnAADrJS1W5Bvo2N9xlG4lqSA$cFZMLSFuG+6vfNSYgdMOgDh6P5xaJ6tiAY0coEgBNK7RK0jXG1NRfGLR8CIL2LVwDRm2kr01q9pH+vinaMmeQA==
+[root@pln-ipamaster ~]# systemctl start dirsrv@IPA-CALIX-LOCAL
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# sleep 10
+[root@pln-ipamaster ~]# ldapsearch -H ldap://pln-ipamaster.ipa.calix.local:389   -x -D "cn=Directory Manager" -W   -b "" -s base
+Enter LDAP Password:
+ldap_bind: Invalid credentials (49)
+[root@pln-ipamaster ~]# ldapsearch -H ldap://pln-ipamaster.ipa.calix.local:389   -x -D "cn=Directory Manager" -W   -b "" -s base
+Enter LDAP Password:
+ldap_bind: Invalid credentials (49)
 [root@pln-ipamaster ~]#
