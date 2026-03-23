@@ -1,8 +1,13 @@
-# Increase replication timeout on cpeg
-ldapmodify -H ldap://cpeg-ipareplica.ipa.calix.local \
-  -x -D "cn=Directory Manager" -W <<EOF
-dn: cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-changetype: modify
-replace: nsds5replicaTimeout
-nsds5replicaTimeout: 300
-EOF
+[root@cpeg-ipareplica ~]# ldapmodify -H ldap://cpeg-ipareplica.ipa.calix.local \
+>   -x -D "cn=Directory Manager" -W <<EOF
+> dn: cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+> changetype: modify
+> replace: nsds5replicaTimeout
+> nsds5replicaTimeout: 300
+> EOF
+Enter LDAP Password:
+modifying entry "cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config"
+ldap_modify: Server is unwilling to perform (53)
+	additional info: Modification of attribute nsds5replicaTimeout is not allowed in replica entry
+
+[root@cpeg-ipareplica ~]#
