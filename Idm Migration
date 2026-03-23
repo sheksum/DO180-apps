@@ -1,11 +1,8 @@
-Starting replication, please wait until this has completed.
-Update in progress, 339 seconds elapsed
-[ldap://cpeg-ipareplica.ipa.calix.local:389] reports: Update failed! Status: [Error (-1) connection error: Unknown connection error (-1) - Total update aborted]
+# On cpeg-ipareplica
+grep -i timeout /etc/pki/pki-tomcat/ca/CS.cfg | head -20
 
-  [error] RuntimeError: Failed to start replication
-Your system may be partly configured.
-Run /usr/sbin/ipa-server-install --uninstall to clean up.
-
-Failed to start replication
-The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
-[root@pln-ipamaster yum.repos.d]#
+# Also check the CA DS replication agreement timeout
+ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
+  -x -D "cn=Directory Manager" -W \
+  -b "cn=mapping tree,cn=config" \
+  "(cn=*pki*)" nsds5replicaTimeout nsds5replicaConnectionTimeout
