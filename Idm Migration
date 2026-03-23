@@ -1,1 +1,8 @@
-sleep 300 && curl -sk https://pln-ipamaster.ipa.calix.local:8443/ca/admin/ca/getStatus
+# Terminal 1 - CA debug log
+tail -f /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log | grep -iE "error|severe|fail|warn"
+
+# Terminal 2 - Catalina log
+tail -f /var/log/pki/pki-tomcat/catalina.2026-03-23.log
+
+# Terminal 3 - Check if CA is still processing
+tail -f /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log | grep -iE "LDAPPagedSearch|Searching|Repository|serial"
