@@ -1,4 +1,25 @@
-ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
-  -x -D "cn=Directory Manager" -W \
-  -b "cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
-  "(cn=pln-petipareplica*)" dn
+[root@cpeg-ipareplica ~]# ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
+>   -x -D "cn=Directory Manager" -W \
+>   -b "cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+>   "(cn=pln-petipareplica*)" dn
+Enter LDAP Password:
+# extended LDIF
+#
+# LDAPv3
+# base <cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
+# filter: (cn=pln-petipareplica*)
+# requesting: dn
+#
+
+# pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local, domain
+ , topology, ipa, etc, ipa.calix.local
+dn: cn=pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,c
+ n=domain,cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+[root@cpeg-ipareplica ~]#
