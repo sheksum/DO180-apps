@@ -1,5 +1,7 @@
-Complete!
-[root@pln-ipamaster yum.repos.d]# rpm -q ipa-server ipa-server-dns
-ipa-server-4.12.2-22.el9_7.1.x86_64
-ipa-server-dns-4.12.2-22.el9_7.1.noarch
-[root@pln-ipamaster yum.repos.d]#
+ipa-client-install \
+  --domain=ipa.calix.local \
+  --realm=IPA.CALIX.LOCAL \
+  --server=cpeg-ipareplica.ipa.calix.local \
+  --no-ntp \
+  --no-reverse \
+  --mkhomedir
