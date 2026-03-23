@@ -1,7 +1,11 @@
-ldapmodify -H ldap://cpeg-ipareplica.ipa.calix.local \
-  -x -D "cn=Directory Manager" -W <<EOF
-dn: cn=config
-changetype: modify
-replace: nsslapd-ioblocktimeout
-nsslapd-ioblocktimeout: 300000
-EOF
+[root@cpeg-ipareplica ~]# ldapmodify -H ldap://cpeg-ipareplica.ipa.calix.local \
+>   -x -D "cn=Directory Manager" -W <<EOF
+> dn: cn=config
+> changetype: modify
+> replace: nsslapd-ioblocktimeout
+> nsslapd-ioblocktimeout: 300000
+> EOF
+Enter LDAP Password:
+modifying entry "cn=config"
+
+[root@cpeg-ipareplica ~]#
