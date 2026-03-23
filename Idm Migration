@@ -1,20 +1,14 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
->   -x -D "cn=Directory Manager" -W \
->   -b "cn=mapping tree,cn=config" \
->   "(cn=*pki*)" nsds5replicaTimeout nsds5replicaConnectionTimeout
-Enter LDAP Password:
-# extended LDIF
-#
-# LDAPv3
-# base <cn=mapping tree,cn=config> with scope subtree
-# filter: (cn=*pki*)
-# requesting: nsds5replicaTimeout nsds5replicaConnectionTimeout
-#
+ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
+  -x -D "cn=Directory Manager" -W \
+  -b "cn=config" \
+  "(cn=*pln-ipamaster*)" dn nsds5replicaTimeout nsds5replicaConnectionTimeout
 
-# search result
-search: 2
-result: 0 Success
+# Also check o=ipaca replication agreements
+ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
+  -x -D "cn=Directory Manager" -W \
+  -b "cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config" \
+  "(objectclass=nsds5replicationagreement)" dn nsds5replicaTimeout
 
-# numResponses: 1
-[root@cpeg-ipareplica ~]#
+
+systemctl status pki-tomcatd@pki-tomcat
+ss -tlnp | grep 36389
