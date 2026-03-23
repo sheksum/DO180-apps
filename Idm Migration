@@ -1,7 +1,4 @@
-# On pln-ipamaster
-ipa-server-install --uninstall
-
-[root@pln-ipamaster yum.repos.d]# ipa-server-install --uninstall
+[root@pln-ipamaster yum.repos.d]# ipa-server-install --uninstall --ignore-topology-disconnect
 WARNING:
 IPA server is not configured on this system. If you want to install the
 IPA server, please install it using 'ipa-server-install'.
@@ -10,39 +7,31 @@ This is a NON REVERSIBLE operation and will delete all data and configuration!
 It is highly recommended to take a backup of existing data and configuration using ipa-backup utility before proceeding.
 
 Are you sure you want to continue with the uninstall procedure? [no]: yes
-Server removal aborted:
-
-Replication topology in suffix 'domain' is disconnected:
-Topology does not allow server cpeg-ipareplica.ipa.calix.local to replicate with servers:
-    pln-ipamaster.ipa.calix.local
-Topology does not allow server nan-ipareplica01.ipa.calix.local to replicate with servers:
-    pln-ipamaster.ipa.calix.local
-Topology does not allow server ric-ipareplica.ipa.calix.local to replicate with servers:
-    pln-ipamaster.ipa.calix.local
-Topology does not allow server ric-ipareplica01.ipa.calix.local to replicate with servers:
-    pln-ipamaster.ipa.calix.local
-Topology does not allow server sjc-ipareplica01.ipa.calix.local to replicate with servers:
-    pln-ipamaster.ipa.calix.local.
-The ipa-server-install command failed. See /var/log/ipaserver-uninstall.log for more information
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
+Updating DNS system records
+Forcing removal of pln-ipamaster.ipa.calix.local
+Ignoring topology connectivity errors.
+Failed to remove server from security domain: cannot connect to 'https://cpeg-ipareplica.ipa.calix.local:443/ca/rest/account/login': [Errno 2] No such file or directory
+Failed to cleanup pln-ipamaster.ipa.calix.local DNS entries: no matching entry found
+You may need to manually remove them from the tree
+--------------------------------------------------
+Deleted IPA server "pln-ipamaster.ipa.calix.local"
+--------------------------------------------------
+failed to uninstall ACME instance CalledProcessError(Command ['/usr/sbin/pkidestroy', '-i', 'pki-tomcat', '--force', '-s', 'ACME', '--log-file', '/var/log/pki/pki-acme-destroy.20260323164359.log', '--remove-conf', '--remove-logs'] returned non-zero exit status 1: 'ERROR: No such instance: pki-tomcat\n')
+Shutting down all IPA services
+Unconfiguring web server
+Unconfiguring krb5kdc
+Unconfiguring kadmin
+Unconfiguring directory server
+Removing IPA client configuration
+Disabling client Kerberos and LDAP configurations
+Redundant SSSD configuration file /etc/sssd/sssd.conf was moved to /etc/sssd/sssd.conf.deleted
+Restoring client configuration files
+Restoring ipa.calix.local as NIS domain.
+nscd daemon is not installed, skip configuration
+nslcd daemon is not installed, skip configuration
+Systemwide CA database updated.
+Client uninstall complete.
+The ipa-client-install command was successful
+The ipa-server-install command was successful
 [root@pln-ipamaster yum.repos.d]#
-
-
-# On cpeg-ipareplica
-ipa-replica-manage del pln-ipamaster.ipa.calix.local --force
-ipa topologysegment-find domain
-ipa-replica-manage list
-
-
-# On pln-ipamaster
-ipa-replica-install \
-  --setup-ca \
-  --setup-dns \
-  --no-forwarders \
-  --no-ntp \
-  --server cpeg-ipareplica.ipa.calix.local \
-  --domain ipa.calix.local \
-  --realm IPA.CALIX.LOCAL \
-  --principal admin \
-  --admin-password '<password>' \
-  --skip-conncheck \
-  --timeout 300
