@@ -1,49 +1,15 @@
-[root@pln-ipamaster yum.repos.d]# ipa-server-install --uninstall --ignore-topology-disconnect
-WARNING:
-IPA server is not configured on this system. If you want to install the
-IPA server, please install it using 'ipa-server-install'.
-
-This is a NON REVERSIBLE operation and will delete all data and configuration!
-It is highly recommended to take a backup of existing data and configuration using ipa-backup utility before proceeding.
-
-Are you sure you want to continue with the uninstall procedure? [no]: yes
-
-Replication agreements with the following IPA masters found: cpeg-
-ipareplica.ipa.calix.local. Removing any replication agreements before
-uninstalling the server is strongly recommended. You can remove replication
-agreements by running the following command on any other IPA master:
-$ ipa-replica-manage del pln-ipamaster.ipa.calix.local
-
-Are you sure you want to continue with the uninstall procedure? [no]: yes
-failed to uninstall ACME instance CalledProcessError(Command ['/usr/sbin/pkidestroy', '-i', 'pki-tomcat', '--force', '-s', 'ACME', '--log-file', '/var/log/pki/pki-acme-destroy.20260323170243.log', '--remove-conf', '--remove-logs'] returned non-zero exit status 1: 'ERROR: No such instance: pki-tomcat\n')
-Shutting down all IPA services
-Unconfiguring directory server
-Removing IPA client configuration
-Disabling client Kerberos and LDAP configurations
-Redundant SSSD configuration file /etc/sssd/sssd.conf was moved to /etc/sssd/sssd.conf.deleted
-Restoring client configuration files
-Restoring ipa.calix.local as NIS domain.
-nscd daemon is not installed, skip configuration
-nslcd daemon is not installed, skip configuration
-Systemwide CA database updated.
-Client uninstall complete.
-The ipa-client-install command was successful
-The ipa-server-install command was successful
-[root@pln-ipamaster yum.repos.d]#
-
-
 [root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa-replica-manage del pln-ipamaster.ipa.calix.local
-Updating DNS system records
-pln-ipamaster.ipa.calix.local: server not found
-[root@cpeg-ipareplica ~]# ipa-replica-manage list -v
-sjc-ipareplica01.ipa.calix.local: master
-nan-ipareplica01.ipa.calix.local: master
-ric-ipareplica01.ipa.calix.local: master
-ric-ipareplica.ipa.calix.local: master
-cpeg-ipareplica.ipa.calix.local: master
-[root@cpeg-ipareplica ~]# ipa-replica-manage csn cpeg-ipareplica.ipa.calix.local
-Usage: ipa-replica-manage [options]
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
+Directory Manager password:
 
-ipa-replica-manage: error: must provide a command [list | list-ruv | connect | disconnect | del | re-initialize | force-sync | clean-ruv | abort-clean-ruv | list-clean-ruv | clean-dangling-ruv | dnarange-show | dnanextrange-show | dnarange-set | dnanextrange-set]
+Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 20
+	ric-ipareplica.ipa.calix.local:389: 12
+	ric-ipareplica01.ipa.calix.local:389: 11
+	nan-ipareplica01.ipa.calix.local:389: 10
+	pln-petipareplica.ipa.calix.local:389: 25
+	pln-petipareplica.ipa.calix.local:389: 31
+Certificate Server Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 21
 [root@cpeg-ipareplica ~]#
