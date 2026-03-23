@@ -1,5 +1,29 @@
-[root@cpeg-ipareplica ~]# ipa-csreplica-manage clean-ruv 41
-Usage: ipa-csreplica-manage [options]
+[root@cpeg-ipareplica ~]# ipa-replica-manage clean-ruv 41
+Directory Manager password:
 
-ipa-csreplica-manage: error: must provide a command [list | connect | disconnect | del | re-initialize | force-sync | set-renewal-master]
+Replica ID 41 not found
+[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
+Directory Manager password:
+
+Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 20
+	ric-ipareplica.ipa.calix.local:389: 12
+	ric-ipareplica01.ipa.calix.local:389: 11
+	nan-ipareplica01.ipa.calix.local:389: 10
+Certificate Server Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 21
+[root@cpeg-ipareplica ~]#[root@cpeg-ipareplica ~]# ipa-replica-manage clean-ruv 41
+Directory Manager password:
+
+Replica ID 41 not found
+[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
+Directory Manager password:
+
+Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 20
+	ric-ipareplica.ipa.calix.local:389: 12
+	ric-ipareplica01.ipa.calix.local:389: 11
+	nan-ipareplica01.ipa.calix.local:389: 10
+Certificate Server Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 21
 [root@cpeg-ipareplica ~]#
