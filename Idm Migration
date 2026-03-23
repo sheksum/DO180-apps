@@ -1,10 +1,260 @@
-ipactl status
-ipa topologysegment-find domain
-ipa topologysegment-find ca
-ipa-replica-manage list
-ipa-replica-manage list-ruv
-ipa-healthcheck --failures-only
+[root@pln-ipamaster ~]# ls /var/lib/pki/pki-tomcat/webapps/
+[root@pln-ipamaster ~]# tail -5 /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log
 
-ls /var/lib/pki/pki-tomcat/webapps/
+2026-03-23 21:13:31 [main] INFO: Shutting down CA subsystem
+2026-03-23 21:13:31 [main] INFO: Destroying LogFile(/var/lib/pki/pki-tomcat/logs/ca/selftests.log)
+2026-03-23 21:13:31 [main] INFO: RequestSubsystem: Request subsystem stopped
+2026-03-23 21:13:31 [main] INFO: Destroying LogFile(/var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit)
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log | grep -iE "LDAPPagedSearch|Searching|Repository|serial"
+2026-03-23 20:50:05 [main] INFO: Repository: Getting last serial number in range 49970001..49980000
+2026-03-23 20:50:05 [main] INFO: LDAPPagedSearch: Searching ou=ca, ou=requests,o=ipaca
+2026-03-23 20:50:05 [main] INFO: LDAPPagedSearch: filter: (&(requestId<=0849980000)(requestState=*))
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: CAEngine: Updating serial number counter
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: CertificateRepository: Storing config into /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: CAEngine: Checking serial number ranges
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: Repository: Reading next range from ou=certificateRepository, ou=ca,o=ipaca
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: Repository: Updating next range in ou=certificateRepository, ou=ca,o=ipaca
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: Repository: - nextRange: 845306369 -> 1113741825
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: Repository: Adding entry cn=845306369,ou=certificateRepository,ou=ranges,o=ipaca
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: Repository: Storing config into /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: Repository: Searching for conflicting entries
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: CAEngine: Checking request ID ranges
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: Repository: Getting last serial number in range 49970001..49980000
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: LDAPPagedSearch: Searching ou=ca, ou=requests,o=ipaca
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: LDAPPagedSearch: filter: (&(requestId<=0849980000)(requestState=*))
+2026-03-23 21:13:31 [SerialNumberUpdateTask] SEVERE: PKISocketFactory: Unable to create socket: Unable to connect: (-5961) TCP connection reset by peer.
+	at netscape.ldap.LDAPConnSetupMgr.openSerial(LDAPConnSetupMgr.java:451)
+	at com.netscape.cmscore.dbs.LDAPPagedSearch.getPage(LDAPPagedSearch.java:139)
+	at com.netscape.cmscore.dbs.LDAPPagedSearch.getPage(LDAPPagedSearch.java:95)
+	at com.netscape.cmscore.request.RequestRepository.getPagedRequestsByFilter(RequestRepository.java:602)
+	at com.netscape.cmscore.request.RequestRepository.getPagedRequestsByFilter(RequestRepository.java:584)
+	at com.netscape.cmscore.request.RequestRepository.getLastSerialNumberInRange(RequestRepository.java:699)
+	at com.netscape.cmscore.dbs.Repository.initCache(Repository.java:226)
+	at com.netscape.cmscore.dbs.Repository.checkRanges(Repository.java:639)
+	at org.dogtagpki.server.ca.CAEngine.updateSerialNumbers(CAEngine.java:966)
+	at com.netscape.cmscore.dbs.SerialNumberUpdateTask.run(SerialNumberUpdateTask.java:55)
+	at netscape.ldap.LDAPConnSetupMgr.openSerial(LDAPConnSetupMgr.java:451)
+	at netscape.ldap.LDAPConnSetupMgr.openSerial(LDAPConnSetupMgr.java:451)
+	at netscape.ldap.LDAPConnSetupMgr.openSerial(LDAPConnSetupMgr.java:451)
+	at com.netscape.cmscore.dbs.LDAPPagedSearch.getPage(LDAPPagedSearch.java:139)
+	at com.netscape.cmscore.dbs.LDAPPagedSearch.getPage(LDAPPagedSearch.java:95)
+	at com.netscape.cmscore.request.RequestRepository.getPagedRequestsByFilter(RequestRepository.java:602)
+	at com.netscape.cmscore.request.RequestRepository.getPagedRequestsByFilter(RequestRepository.java:584)
+	at com.netscape.cmscore.request.RequestRepository.getLastSerialNumberInRange(RequestRepository.java:699)
+	at com.netscape.cmscore.dbs.Repository.initCache(Repository.java:226)
+	at com.netscape.cmscore.dbs.Repository.checkRanges(Repository.java:639)
+	at netscape.ldap.LDAPConnSetupMgr.openSerial(LDAPConnSetupMgr.java:451)
+	at netscape.ldap.LDAPConnSetupMgr.openSerial(LDAPConnSetupMgr.java:451)
+	at netscape.ldap.LDAPConnSetupMgr.openSerial(LDAPConnSetupMgr.java:451)
+	at com.netscape.cmscore.request.RequestRepository.getPagedRequestsByFilter(RequestRepository.java:602)
+	at com.netscape.cmscore.request.RequestRepository.getPagedRequestsByFilter(RequestRepository.java:584)
+	at com.netscape.cmscore.request.RequestRepository.getLastSerialNumberInRange(RequestRepository.java:699)
+	at com.netscape.cmscore.dbs.Repository.initCache(Repository.java:226)
+	at com.netscape.cmscore.dbs.Repository.checkRanges(Repository.java:639)
+	at com.netscape.cmscore.dbs.LDAPPagedSearch.getPage(LDAPPagedSearch.java:148)
 
-tail -5 /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log
+
+
+=====
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipactl status
+Directory Service: RUNNING
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+named Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+pki-tomcatd Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa-dnskeysyncd Service: RUNNING
+ipa: INFO: The ipactl command was successful
+[root@cpeg-ipareplica ~]# ipa topologysegment-find domain
+------------------
+6 segments matched
+------------------
+  Segment name: cpeg-ipareplica.ipa.calix.local-to-pln-ipamaster.ipa.calix.local
+  Left node: cpeg-ipareplica.ipa.calix.local
+  Right node: pln-ipamaster.ipa.calix.local
+  Connectivity: left-right
+
+  Segment name: cpeg-to-nan-ipareplica01
+  Left node: cpeg-ipareplica.ipa.calix.local
+  Right node: nan-ipareplica01.ipa.calix.local
+  Connectivity: both
+
+  Segment name: ric-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local
+  Left node: ric-ipareplica01.ipa.calix.local
+  Right node: cpeg-ipareplica.ipa.calix.local
+  Connectivity: both
+
+  Segment name: ric-ipareplica01.ipa.calix.local-to-ric-ipareplica.ipa.calix.local
+  Left node: ric-ipareplica01.ipa.calix.local
+  Right node: ric-ipareplica.ipa.calix.local
+  Connectivity: both
+
+  Segment name: sjc-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local
+  Left node: sjc-ipareplica01.ipa.calix.local
+  Right node: cpeg-ipareplica.ipa.calix.local
+  Connectivity: both
+
+  Segment name: sjc-ipareplica01.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local
+  Left node: sjc-ipareplica01.ipa.calix.local
+  Right node: nan-ipareplica01.ipa.calix.local
+  Connectivity: both
+----------------------------
+Number of entries returned 6
+----------------------------
+[root@cpeg-ipareplica ~]# ipa topologysegment-find ca
+------------------
+0 segments matched
+------------------
+----------------------------
+Number of entries returned 0
+----------------------------
+[root@cpeg-ipareplica ~]# ipa-replica-manage list
+sjc-ipareplica01.ipa.calix.local: master
+nan-ipareplica01.ipa.calix.local: master
+ric-ipareplica01.ipa.calix.local: master
+ric-ipareplica.ipa.calix.local: master
+cpeg-ipareplica.ipa.calix.local: master
+pln-ipamaster.ipa.calix.local: master
+[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
+Directory Manager password:
+
+Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 20
+	ric-ipareplica.ipa.calix.local:389: 12
+	ric-ipareplica01.ipa.calix.local:389: 11
+	nan-ipareplica01.ipa.calix.local:389: 10
+	pln-ipamaster.ipa.calix.local:389: 38
+	pln-ipamaster.ipa.calix.local:389: 40
+Certificate Server Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 21
+	pln-ipamaster.ipa.calix.local:389: 41
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa-healthcheck --failures-only
+Internal server error HTTPSConnectionPool(host='nan-ipareplica.ipa.calix.local', port=443): Max retries exceeded with url: /ca/rest/certs/search?size=3 (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x7fd9ef8cbc88>: Failed to establish a new connection: [Errno -2] Name or service not known',))
+[
+  {
+    "source": "pki.server.healthcheck.clones.connectivity_and_data",
+    "check": "ClonesConnectivyAndDataCheck",
+    "result": "ERROR",
+    "uuid": "510e7881-3dec-4893-ab91-fcce113d88bd",
+    "when": "20260323213353Z",
+    "duration": "0.065723",
+    "kw": {
+      "status": "ERROR:  pki-tomcat : Internal error testing CA clone. Host: nan-ipareplica.ipa.calix.local Port: 443"
+    }
+  },
+  {
+    "source": "ipahealthcheck.ds.dse",
+    "check": "DSECheck",
+    "result": "CRITICAL",
+    "uuid": "ce5e3343-75ad-4e1f-8a02-78be38922809",
+    "when": "20260323213354Z",
+    "duration": "0.011071",
+    "kw": {
+      "key": "DSSKEWLE0003",
+      "items": [
+        "Replication",
+        "dc=ipa,dc=calix,dc=local",
+        "Time Skew",
+        "Skew: 29201 days, 12 hours, 18 minutes, 44 seconds"
+      ],
+      "msg": "The time skew is over 24 hours.  Setting nsslapd-ignore-time-skew\nto \"on\" on each replica will allow replication to continue, but if the\ntime skew continues to increase other serious replication problems can\noccur."
+    }
+  },
+  {
+    "source": "ipahealthcheck.ds.dse",
+    "check": "DSECheck",
+    "result": "WARNING",
+    "uuid": "621dddc0-22c3-46bf-82e2-3351595452da",
+    "when": "20260323213354Z",
+    "duration": "0.011078",
+    "kw": {
+      "key": "DSSKEWLE0001",
+      "items": [
+        "Replication",
+        "o=ipaca",
+        "Time Skew",
+        "Skew: 7 hours, 41 minutes, 51 seconds"
+      ],
+      "msg": "The time skew is over 6 hours.  If this time skew continues to increase\nto 24 hours then replication can potentially stop working.  Please continue to\nmonitor the time skew offsets for increasing values."
+    }
+  },
+  {
+    "source": "ipahealthcheck.ds.replication",
+    "check": "ReplicationCheck",
+    "result": "CRITICAL",
+    "uuid": "be39c2ea-f47d-4c4f-82c9-fe7bf39fcd3f",
+    "when": "20260323213356Z",
+    "duration": "1.783653",
+    "kw": {
+      "key": "DSREPLLE0001",
+      "items": [
+        "Replication",
+        "Agreement"
+      ],
+      "msg": "The replication agreement (cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local) under \"dc=ipa,dc=calix,dc=local\" is not in synchronization."
+    }
+  },
+  {
+    "source": "ipahealthcheck.ds.replication",
+    "check": "ReplicationCheck",
+    "result": "WARNING",
+    "uuid": "c3c7c4c3-e8e0-4f36-8c38-e5cb2050cf0c",
+    "when": "20260323213356Z",
+    "duration": "1.783676",
+    "kw": {
+      "key": "DSREPLLE0002",
+      "items": [
+        "Replication",
+        "Conflict Entries"
+      ],
+      "msg": "There were 4 conflict entries found under the replication suffix \"dc=ipa,dc=calix,dc=local\"."
+    }
+  },
+  {
+    "source": "ipahealthcheck.ipa.certs",
+    "check": "IPACertDNSSAN",
+    "result": "ERROR",
+    "uuid": "d2b40236-35da-4701-a2c1-3fb8f95d9349",
+    "when": "20260323213358Z",
+    "duration": "0.519625",
+    "kw": {
+      "key": "20240701143457",
+      "hostname": "ipa-ca.ipa.calix.local",
+      "san": [
+        "cpeg-ipareplica.ipa.calix.local"
+      ],
+      "ca": "IPA",
+      "profile": "caIPAserviceCert",
+      "msg": "Certificate request id {key} with profile {profile} for CA {ca} does not have a DNS SAN {san} matching name {hostname}"
+    }
+  },
+  {
+    "source": "ipahealthcheck.ipa.topology",
+    "check": "IPATopologyDomainCheck",
+    "result": "ERROR",
+    "uuid": "019959f9-f910-4251-a28d-bff389d81222",
+    "when": "20260323213401Z",
+    "duration": "0.024995",
+    "kw": {
+      "key": "pln-ipamaster.ipa.calix.local",
+      "replicas": [
+        "nan-ipareplica01.ipa.calix.local",
+        "ric-ipareplica.ipa.calix.local",
+        "sjc-ipareplica01.ipa.calix.local",
+        "ric-ipareplica01.ipa.calix.local",
+        "cpeg-ipareplica.ipa.calix.local"
+      ],
+      "suffix": "domain",
+      "type": "connect",
+      "msg": "Server pln-ipamaster.ipa.calix.local can't contact servers: pln-ipamaster.ipa.calix.local"
+    }
+  }
+]
+[root@cpeg-ipareplica ~]#
