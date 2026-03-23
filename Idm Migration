@@ -1,89 +1,10 @@
-Configuring client side components
-This program will set up IPA client.
-Version 4.12.2
-
-Client hostname: pln-ipamaster.ipa.calix.local
-Realm: IPA.CALIX.LOCAL
-DNS Domain: ipa.calix.local
-IPA Server: cpeg-ipareplica.ipa.calix.local
-BaseDN: dc=ipa,dc=calix,dc=local
-
-Skipping chrony configuration
-Successfully retrieved CA cert
-    Subject:     CN=Certificate Authority,O=IPA.CALIX.LOCAL
-    Issuer:      CN=Certificate Authority,O=IPA.CALIX.LOCAL
-    Valid From:  2018-06-30 07:39:50+00:00
-    Valid Until: 2038-06-30 07:39:50+00:00
-
-Enrolled in IPA realm IPA.CALIX.LOCAL
-Created /etc/ipa/default.conf
-Configured /etc/sssd/sssd.conf
-Systemwide CA database updated.
-Adding SSH public key from /etc/ssh/ssh_host_ed25519_key.pub
-Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
-Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
-SSSD enabled
-Configured /etc/openldap/ldap.conf
-Configured /etc/ssh/ssh_config
-Configured /etc/ssh/sshd_config.d/04-ipa.conf
-Configuring ipa.calix.local as NIS domain.
-Configured /etc/krb5.conf for IPA realm IPA.CALIX.LOCAL
-Client configuration complete.
-The ipa-client-install command was successful
-
-Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide DNS.
-Could not resolve hostname cpeg-ipareplica.ipa.calix.local using DNS. Clients may not function properly. Please check your DNS setup. (Note that this check queries IPA DNS directly and ignores /etc/hosts.)
-Continue? [no]: yes
-
-WARNING: 1353 existing users or groups do not have a SID identifier assigned.
-Installer can run a task to have ipa-sidgen Directory Server plugin generate
-the SID identifier for all these users. Please note, in case of a high
-number of users and groups, the operation might lead to high replication
-traffic and performance degradation. Refer to ipa-adtrust-install(1) man page
-for details.
-
-Do you want to run the ipa-sidgen task? [no]:
-Disabled p11-kit-proxy
-Configuring directory server (dirsrv). Estimated time: 30 seconds
-  [1/40]: creating directory server instance
-Validate installation settings ...
-Create file system structures ...
-Perform SELinux labeling ...
-Create database backend: dc=ipa,dc=calix,dc=local ...
-Perform post-installation tasks ...
-  [2/40]: tune ldbm plugin
-  [3/40]: adding default schema
-  [4/40]: enabling memberof plugin
-  [5/40]: enabling winsync plugin
-  [6/40]: configure password logging
-  [7/40]: configuring replication version plugin
-  [8/40]: enabling IPA enrollment plugin
-  [9/40]: configuring uniqueness plugin
-  [10/40]: configuring uuid plugin
-  [11/40]: configuring modrdn plugin
-  [12/40]: configuring DNS plugin
-  [13/40]: enabling entryUSN plugin
-  [14/40]: configuring lockout plugin
-  [15/40]: configuring graceperiod plugin
-  [16/40]: configuring topology plugin
-  [17/40]: creating indices
-  [18/40]: enabling referential integrity plugin
-  [19/40]: configuring certmap.conf
-  [20/40]: configure new location for managed entries
-  [21/40]: configure dirsrv ccache and keytab
-  [22/40]: enabling SASL mapping fallback
-  [23/40]: restarting directory server
-  [24/40]: creating DS keytab
-  [25/40]: ignore time skew for initial replication
-  [26/40]: setting up initial replication
-Starting replication, please wait until this has completed.
-Update in progress, 14 seconds elapsed
-[ldap://cpeg-ipareplica.ipa.calix.local:389] reports: Update failed! Status: [Error (-1) - LDAP error: Can't contact LDAP server - no response received]
-
-  [error] RuntimeError: Failed to start replication
-Your system may be partly configured.
-Run /usr/sbin/ipa-server-install --uninstall to clean up.
-
-Failed to start replication
-The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster yum.repos.d]# ss -tlnp | grep 389
+LISTEN 0      128                *:389             *:*    users:(("ns-slapd",pid=21761,fd=8))
 [root@pln-ipamaster yum.repos.d]#
+
+[root@cpeg-ipareplica ~]# nc -zv 10.172.248.55  389
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Connected to 10.172.248.55:389.
+Ncat: 0 bytes sent, 0 bytes received in 0.06 seconds.
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
