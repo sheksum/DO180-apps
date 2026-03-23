@@ -1,3 +1,7 @@
-ps aux | grep java | grep -v grep
-
-date
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ps aux | grep java | grep -v grep
+root       29828  0.0  0.0 249964  6780 pts/0    S+   18:16   0:00 /usr/sbin/runuser -u pkiuser -- /usr/lib/jvm/jre-17-openjdk/bin/java -classpath /usr/share/tomcat/bin/tomcat-juli.jar:/usr/share/java/tomcat-servlet-api.jar:/usr/share/pki/ca/webapps/ca/WEB-INF/lib/*:/var/lib/pki/pki-tomcat/common/lib/*:/usr/share/pki/lib/* -Djavax.sql.DataSource.Factory=org.apache.commons.dbcp.BasicDataSourceFactory -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.file=/var/lib/pki/pki-tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dcom.redhat.fips=false org.dogtagpki.server.cli.PKIServerCLI ca-db-index-rebuild --debug
+pkiuser    29829  0.2  2.2 5409524 174792 pts/0  Sl+  18:16   0:11 /usr/lib/jvm/jre-17-openjdk/bin/java -classpath /usr/share/tomcat/bin/tomcat-juli.jar:/usr/share/java/tomcat-servlet-api.jar:/usr/share/pki/ca/webapps/ca/WEB-INF/lib/*:/var/lib/pki/pki-tomcat/common/lib/*:/usr/share/pki/lib/* -Djavax.sql.DataSource.Factory=org.apache.commons.dbcp.BasicDataSourceFactory -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.file=/var/lib/pki/pki-tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dcom.redhat.fips=false org.dogtagpki.server.cli.PKIServerCLI ca-db-index-rebuild --debug
+[root@pln-ipamaster ~]# date
+Mon Mar 23 07:41:10 PM UTC 2026
+[root@pln-ipamaster ~]#
