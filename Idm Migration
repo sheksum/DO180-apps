@@ -1,3 +1,8 @@
-# Test SSL handshake directly
-openssl s_client -connect pln-ipamaster.ipa.calix.local:636 \
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# openssl s_client -connect pln-ipamaster.ipa.calix.local:636 \
   -CAfile /etc/ipa/ca.crt </dev/null 2>&1 | grep -E "(Verify|error|OK|subject|issuer)"
+subject=O=IPA.CALIX.LOCAL, CN=pln-ipamaster.ipa.calix.local
+issuer=O=IPA.CALIX.LOCAL, CN=Certificate Authority
+Verification: OK
+Verify return code: 0 (ok)
+[root@pln-ipamaster yum.repos.d]#
