@@ -1,22 +1,28 @@
-# 1. Remove the stale domain topology segment
+# 1. Remove stale domain segment
 ipa topologysegment-del domain \
   "pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local"
 
-# 2. Remove the stale CA topology segment
+# 2. Remove stale CA segment
 ipa topologysegment-del ca \
   "cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local"
 
-# 3. Remove the replication agreement
+# 3. Remove stale replication agreement
 ipa-replica-manage del pln-petipareplica.ipa.calix.local --force
 
-# 4. Remove the server entry
+# 4. Remove stale server entry
 ipa server-del pln-petipareplica.ipa.calix.local --force
 
-# 5. Remove the host entry last
+# 5. Remove stale host entry
 ipa host-del pln-petipareplica.ipa.calix.local
 
 
-ipa topologysegment-find domain
-ipa topologysegment-find ca
-ipa-replica-manage list
-ipa server-role-find
+# Verify hostname is set correctly
+hostname -f
+# Should return: pln-ipamaster.ipa.calix.local
+
+# Verify DNS resolves both ways
+dig pln-ipamaster.ipa.calix.local
+dig -x <ip-of-pln-ipamaster>
+
+# Verify NTP is actually syncing
+chronyc tracking | grep -E "(Reference|System time|Leap)"
