@@ -5,53 +5,6 @@ ipa-replica-manage list
 ipa-replica-manage list-ruv
 ipa-healthcheck --failures-only
 
+ls /var/lib/pki/pki-tomcat/webapps/
 
-[root@pln-ipamaster yum.repos.d]# curl -vvvsk https://pln-ipamaster.ipa.calix.local:8443/ca/admin/ca/getStatus
-*   Trying 10.172.248.55:8443...
-* Connected to pln-ipamaster.ipa.calix.local (10.172.248.55) port 8443 (#0)
-* ALPN, offering h2
-* ALPN, offering http/1.1
-*  CAfile: /etc/pki/tls/certs/ca-bundle.crt
-* TLSv1.0 (OUT), TLS header, Certificate Status (22):
-* TLSv1.3 (OUT), TLS handshake, Client hello (1):
-* TLSv1.2 (IN), TLS header, Certificate Status (22):
-* TLSv1.3 (IN), TLS handshake, Server hello (2):
-* TLSv1.2 (IN), TLS header, Finished (20):
-* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
-* TLSv1.2 (IN), TLS header, Unknown (23):
-* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
-* TLSv1.3 (IN), TLS handshake, Request CERT (13):
-* TLSv1.3 (IN), TLS handshake, Certificate (11):
-* TLSv1.3 (IN), TLS handshake, CERT verify (15):
-* TLSv1.3 (IN), TLS handshake, Finished (20):
-* TLSv1.2 (OUT), TLS header, Finished (20):
-* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
-* TLSv1.2 (OUT), TLS header, Unknown (23):
-* TLSv1.3 (OUT), TLS handshake, Certificate (11):
-* TLSv1.2 (OUT), TLS header, Unknown (23):
-* TLSv1.3 (OUT), TLS handshake, Finished (20):
-* SSL connection using TLSv1.3 / TLS_AES_128_GCM_SHA256
-* ALPN, server did not agree to a protocol
-* Server certificate:
-*  subject: O=IPA.CALIX.LOCAL; CN=pln-ipamaster.ipa.calix.local
-*  start date: Mar 23 20:17:26 2026 GMT
-*  expire date: Mar 12 20:17:26 2028 GMT
-*  issuer: O=IPA.CALIX.LOCAL; CN=Certificate Authority
-*  SSL certificate verify ok.
-* TLSv1.2 (OUT), TLS header, Unknown (23):
-> GET /ca/admin/ca/getStatus HTTP/1.1
-> Host: pln-ipamaster.ipa.calix.local:8443
-> User-Agent: curl/7.76.1
-> Accept: */*
->
-* TLSv1.2 (IN), TLS header, Unknown (23):
-* Mark bundle as not supporting multiuse
-< HTTP/1.1 404
-< Content-Type: text/html;charset=utf-8
-< Content-Language: en
-< Content-Length: 784
-< Date: Mon, 23 Mar 2026 21:13:32 GMT
-<
-* Connection #0 to host pln-ipamaster.ipa.calix.local left intact
-<!doctype html><html lang="en"><head><title>HTTP Status 404 – Not Found</title><style type="text/css">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 404 – Not Found</h1><hr class="line" /><p><b>Type</b> Status Report</p><p><b>Message</b> The requested resource [&#47;ca&#47;admin&#47;ca&#47;getStatus] is not available</p><p><b>Description</b> The origin server did not find a current representation for the target resource or is not willing to disclose that one exists.</p><hr class="line" /><h3>Apache Tomcat/9.0.87</h3></body></html>[root@pln-ipamaster yum.repos.d]#
-[root@pln-ipamaster yum.repos.d]#
+tail -5 /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log
