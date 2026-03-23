@@ -1,5 +1,8 @@
-# Stop DS
+# Stop DS first
 systemctl stop dirsrv@IPA-CALIX-LOCAL
 
-# Generate hashed password
-pwdhash -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL "<new-password>"
+# Write password to temp file to avoid bash expansion issues
+printf '%s' 'YOUR_ACTUAL_PASSWORD_HERE' > /tmp/newpwd.txt
+
+# Generate hash
+pwdhash -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL "$(cat /tmp/newpwd.txt)"
