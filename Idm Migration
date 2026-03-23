@@ -1,13 +1,2 @@
-[root@pln-ipamaster ~]# grep "internaldb.ldapconn.host" /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
-grep "internaldb.ldapauth.authtype" /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
-internaldb.ldapconn.host=pln-ipamaster.ipa.calix.local
-internaldb.ldapauth.authtype=BasicAuth
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ldapsearch -H ldap://pln-ipamaster.ipa.calix.local:389 \
-  -x -D "cn=Directory Manager" -W \
-  -b "" -s base
-Enter LDAP Password:
-ldap_bind: Invalid credentials (49)
-[root@pln-ipamaster ~]#
+grep -i "dirman\|directory.manager\|dm.password\|ds.password" \
+  /var/log/ipareplica-install.log | tail -10
