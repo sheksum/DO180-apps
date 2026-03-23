@@ -1,66 +1,18 @@
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# tail -f /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access
-[23/Mar/2026:23:20:19.571180475 +0000] conn=401 op=10 ADD dn="cn=1074176839,ou=certificateRepository,ou=ca,o=ipaca"
-[23/Mar/2026:23:20:19.571265706 +0000] conn=401 op=10 RESULT err=53 tag=105 nentries=0 wtime=0.000375934 optime=0.000090309 etime=0.000464372
-[23/Mar/2026:23:20:19.617940699 +0000] conn=401 op=11 MOD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
-[23/Mar/2026:23:20:19.618036983 +0000] conn=401 op=11 RESULT err=53 tag=103 nentries=0 wtime=0.046625004 optime=0.000107536 etime=0.046730331
-[23/Mar/2026:23:20:19.618292301 +0000] conn=401 op=12 MOD dn="ou=ca,ou=requests,o=ipaca"
-[23/Mar/2026:23:20:19.618339823 +0000] conn=401 op=12 RESULT err=53 tag=103 nentries=0 wtime=0.000126092 optime=0.000052274 etime=0.000177194
-[23/Mar/2026:23:20:19.618775903 +0000] conn=401 op=13 ADD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
-[23/Mar/2026:23:20:19.618827114 +0000] conn=401 op=13 fd=134 Disconnect - Server failed to flush response back to Client - B4
-[23/Mar/2026:23:20:20.088765280 +0000] conn=25 op=1528 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
-[23/Mar/2026:23:20:20.089043031 +0000] conn=25 op=1528 RESULT err=0 tag=101 nentries=1 wtime=0.000167317 optime=0.000281968 etime=0.000446306
-[23/Mar/2026:23:20:21.090131706 +0000] conn=25 op=1529 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
-[23/Mar/2026:23:20:21.090428966 +0000] conn=25 op=1529 RESULT err=0 tag=101 nentries=1 wtime=0.000179136 optime=0.000301017 etime=0.000477543
-[23/Mar/2026:23:20:22.091564568 +0000] conn=25 op=1530 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
-[23/Mar/2026:23:20:22.091887623 +0000] conn=25 op=1530 RESULT err=0 tag=101 nentries=1 wtime=0.000181395 optime=0.000327145 etime=0.000505459
-[23/Mar/2026:23:20:22.670735937 +0000] conn=402 fd=134 slot=134 connection from 172.23.49.10 to 10.172.248.55
-[23/Mar/2026:23:20:22.672110353 +0000] conn=402 op=0 BIND dn="" method=sasl version=3 mech=GSSAPI
-[23/Mar/2026:23:20:22.675634469 +0000] conn=402 op=0 RESULT err=14 tag=97 nentries=0 wtime=0.000097589 optime=0.003553293 etime=0.003649463, SASL bind in progress
-[23/Mar/2026:23:20:22.724558243 +0000] conn=402 op=1 BIND dn="" method=sasl version=3 mech=GSSAPI
-[23/Mar/2026:23:20:22.726733893 +0000] conn=402 op=1 RESULT err=14 tag=97 nentries=0 wtime=0.000089844 optime=0.002185272 etime=0.002273505, SASL bind in progress
-[23/Mar/2026:23:20:22.774632521 +0000] conn=402 op=2 BIND dn="" method=sasl version=3 mech=GSSAPI
-[23/Mar/2026:23:20:22.775451359 +0000] conn=402 op=2 RESULT err=0 tag=97 nentries=0 wtime=0.000078744 optime=0.000828224 etime=0.000905659 dn="krbprincipalname=ldap/cpeg-ipareplica.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local"
-[23/Mar/2026:23:20:23.025492881 +0000] conn=402 op=3 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
-[23/Mar/2026:23:20:23.026944879 +0000] conn=402 op=3 RESULT err=0 tag=101 nentries=1 wtime=0.000375810 optime=0.001459109 etime=0.001833237
-[23/Mar/2026:23:20:23.075583936 +0000] conn=402 op=4 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
-[23/Mar/2026:23:20:23.076710469 +0000] conn=402 op=4 RESULT err=0 tag=101 nentries=1 wtime=0.000272755 optime=0.001132851 etime=0.001403875
-[23/Mar/2026:23:20:23.093028628 +0000] conn=25 op=1531 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
-[23/Mar/2026:23:20:23.093493138 +0000] conn=25 op=1531 RESULT err=0 tag=101 nentries=1 wtime=0.000239579 optime=0.000471959 etime=0.000707926
-[23/Mar/2026:23:20:23.125315117 +0000] conn=402 op=5 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multisupplier-extop"
-[23/Mar/2026:23:20:23.126123151 +0000] conn=402 op=5 RESULT err=0 tag=120 nentries=0 wtime=0.000297756 optime=0.000818213 etime=0.001115009
-[23/Mar/2026:23:20:23.189510765 +0000] conn=402 op=6 ADD dn="cn=1074176838,ou=certificateRepository,ou=ca,o=ipaca"
-[23/Mar/2026:23:20:23.189622685 +0000] conn=402 op=6 RESULT err=53 tag=105 nentries=0 wtime=0.000561462 optime=0.000119623 etime=0.000677841
-[23/Mar/2026:23:20:23.190034263 +0000] conn=402 op=7 MOD dn="cn=40490570,ou=ca,ou=requests,o=ipaca"
-[23/Mar/2026:23:20:23.190107228 +0000] conn=402 op=7 RESULT err=53 tag=103 nentries=0 wtime=0.000344475 optime=0.000082181 etime=0.000423686
-[23/Mar/2026:23:20:23.190333011 +0000] conn=402 op=8 MOD dn="ou=ca,ou=requests,o=ipaca"
-[23/Mar/2026:23:20:23.190394654 +0000] conn=402 op=8 RESULT err=53 tag=103 nentries=0 wtime=0.000161587 optime=0.000065655 etime=0.000225660
-[23/Mar/2026:23:20:23.237777640 +0000] conn=402 op=9 ADD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
-[23/Mar/2026:23:20:23.237926105 +0000] conn=402 op=9 RESULT err=53 tag=105 nentries=0 wtime=0.001090110 optime=0.000155872 etime=0.001241675
-[23/Mar/2026:23:20:23.238415530 +0000] conn=402 op=10 ADD dn="cn=1074176839,ou=certificateRepository,ou=ca,o=ipaca"
-[23/Mar/2026:23:20:23.238503645 +0000] conn=402 op=10 RESULT err=53 tag=105 nentries=0 wtime=0.000321236 optime=0.000093228 etime=0.000412512
-[23/Mar/2026:23:20:23.284885783 +0000] conn=402 op=11 MOD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
-[23/Mar/2026:23:20:23.285019113 +0000] conn=402 op=11 RESULT err=53 tag=103 nentries=0 wtime=0.046312511 optime=0.000146340 etime=0.046455581
-[23/Mar/2026:23:20:23.285376527 +0000] conn=402 op=12 MOD dn="ou=ca,ou=requests,o=ipaca"
-[23/Mar/2026:23:20:23.285447754 +0000] conn=402 op=12 RESULT err=53 tag=103 nentries=0 wtime=0.000182898 optime=0.000079039 etime=0.000260012
-[23/Mar/2026:23:20:23.285984784 +0000] conn=402 op=13 ADD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
-[23/Mar/2026:23:20:23.286081520 +0000] conn=402 op=13 fd=134 Disconnect - Server failed to flush response back to Client - B4
-[23/Mar/2026:23:20:24.094567943 +0000] conn=25 op=1533 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
-[23/Mar/2026:23:20:24.094926640 +0000] conn=25 op=1533 RESULT err=0 tag=101 nentries=1 wtime=0.000186255 optime=0.000362764 etime=0.000545486
-[23/Mar/2026:23:20:25.095971396 +0000] conn=25 op=1534 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
-[23/Mar/2026:23:20:25.096295632 +0000] conn=25 op=1534 RESULT err=0 tag=101 nentries=1 wtime=0.000154462 optime=0.000330698 etime=0.000481088
-[23/Mar/2026:23:20:26.097244183 +0000] conn=25 op=1535 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
-[23/Mar/2026:23:20:26.097597549 +0000] conn=25 op=1535 RESULT err=0 tag=101 nentries=1 wtime=0.000143438 optime=0.000359986 etime=0.000500439
-[23/Mar/2026:23:20:26.348826955 +0000] conn=403 fd=134 slot=134 connection from 172.23.49.10 to 10.172.248.55
-[23/Mar/2026:23:20:26.349978895 +0000] conn=403 op=0 BIND dn="" method=sasl version=3 mech=GSSAPI
-[23/Mar/2026:23:20:26.353116192 +0000] conn=403 op=0 RESULT err=14 tag=97 nentries=0 wtime=0.000125945 optime=0.003147742 etime=0.003272597, SASL bind in progress
-[23/Mar/2026:23:20:26.401071164 +0000] conn=403 op=1 BIND dn="" method=sasl version=3 mech=GSSAPI
-[23/Mar/2026:23:20:26.402917388 +0000] conn=403 op=1 RESULT err=14 tag=97 nentries=0 wtime=0.000089585 optime=0.001855319 etime=0.001943793, SASL bind in progress
-[23/Mar/2026:23:20:26.450735018 +0000] conn=403 op=2 BIND dn="" method=sasl version=3 mech=GSSAPI
-[23/Mar/2026:23:20:26.452098798 +0000] conn=403 op=2 RESULT err=0 tag=97 nentries=0 wtime=0.000097757 optime=0.001374837 etime=0.001470432 dn="krbprincipalname=ldap/cpeg-ipareplica.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local"
-[23/Mar/2026:23:20:26.500657694 +0000] conn=403 op=3 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
-[23/Mar/2026:23:20:26.501878788 +0000] conn=403 op=3 RESULT err=0 tag=101 nentries=1 wtime=0.000227287 optime=0.001228530 etime=0.001453869
-[23/Mar/2026:23:20:26.551812386 +0000] conn=403 op=4 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[root@pln-ipamaster ~]# df -h
+Filesystem             Size  Used Avail Use% Mounted on
+devtmpfs               4.0M     0  4.0M   0% /dev
+tmpfs                  3.8G  561M  3.3G  15% /dev/shm
+tmpfs                  1.6G  9.2M  1.5G   1% /run
+efivarfs               256K   58K  194K  23% /sys/firmware/efi/efivars
+/dev/mapper/rhel-root   70G   20G   50G  29% /
+/dev/sda2              960M  416M  545M  44% /boot
+/dev/mapper/rhel-home  171G  1.3G  170G   1% /home
+/dev/sda1              599M  7.4M  592M   2% /boot/efi
+/dev/sdb               250G  2.2G  248G   1% /var/log
+tmpfs                  769M   52K  768M   1% /run/user/42
+tmpfs                  769M   36K  768M   1% /run/user/1001
+[root@pln-ipamaster ~]#[23/Mar/2026:23:20:26.551812386 +0000] conn=403 op=4 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
 [23/Mar/2026:23:20:26.553375432 +0000] conn=403 op=4 RESULT err=0 tag=101 nentries=1 wtime=0.002046596 optime=0.001569204 etime=0.003613420
 [23/Mar/2026:23:20:26.601929003 +0000] conn=403 op=5 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multisupplier-extop"
 [23/Mar/2026:23:20:26.602757502 +0000] conn=403 op=5 RESULT err=0 tag=120 nentries=0 wtime=0.000241300 optime=0.000838407 etime=0.001078359
