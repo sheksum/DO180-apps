@@ -1,15 +1,17 @@
-[root@pln-ipamaster yum.repos.d]# ipa-replica-install \
-  --setup-ca \
-  --setup-dns \
-  --no-ntp \
-  --principal admin \
-  --admin-password
-Usage: ipa-replica-install [options]
+[root@pln-ipamaster yum.repos.d]# ipa-replica-install   --setup-ca   --setup-dns   --no-ntp  --no-forwarders  --principal admin
+Configuring client side components
+This program will set up IPA client.
+Version 4.12.2
 
-ipa-replica-install: error: --admin-password option requires 1 argument
-[root@pln-ipamaster yum.repos.d]# ipa-replica-install   --setup-ca   --setup-dns   --no-ntp   --principal admin
-Usage: ipa-replica-install [options]
+One of password / principal / keytab is required.
+The ipa-client-install command failed. See /var/log/ipaclient-install.log for more information
+Removing client side components
+IPA client is not configured on this system.
+The ipa-client-install command failed.
 
-ipa-replica-install: error: You must specify at least one of --forwarder, --auto-forwarders, --dot-forwarder, or --no-forwarders options
-The ipa-replica-install command failed.
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
+
+Configuration of client side components failed!
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
 [root@pln-ipamaster yum.repos.d]#
