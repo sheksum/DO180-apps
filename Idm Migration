@@ -3,3 +3,48 @@ ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
 ipa service-add HTTP/pln-ipamaster.ipa.calix.local
 ipa service-add ldap/pln-ipamaster.ipa.calix.local
 ipa service-find pln-ipamaster.ipa.calix.local
+
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa host-add pln-ipamaster.ipa.calix.local --force
+------------------------------------------
+Added host "pln-ipamaster.ipa.calix.local"
+------------------------------------------
+  Host name: pln-ipamaster.ipa.calix.local
+  Principal name: host/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Principal alias: host/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Password: False
+  Keytab: False
+  Managed by: pln-ipamaster.ipa.calix.local
+[root@cpeg-ipareplica ~]# ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+  Record name: pln-ipamaster
+  A record: 10.172.248.55
+[root@cpeg-ipareplica ~]# ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+------------------------------------------------------------------
+Added service "HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL"
+------------------------------------------------------------------
+  Principal name: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Principal alias: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Managed by: pln-ipamaster.ipa.calix.local
+[root@cpeg-ipareplica ~]# ipa service-add ldap/pln-ipamaster.ipa.calix.local
+------------------------------------------------------------------
+Added service "ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL"
+------------------------------------------------------------------
+  Principal name: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Principal alias: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Managed by: pln-ipamaster.ipa.calix.local
+[root@cpeg-ipareplica ~]# ipa service-find pln-ipamaster.ipa.calix.local
+------------------
+2 services matched
+------------------
+  Principal name: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Principal alias: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Keytab: False
+
+  Principal name: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Principal alias: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Keytab: False
+----------------------------
+Number of entries returned 2
+----------------------------
+[root@cpeg-ipareplica ~]#
