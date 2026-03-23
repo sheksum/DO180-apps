@@ -1,6 +1,15 @@
-ipa-replica-install \
+[root@pln-ipamaster yum.repos.d]# ipa-replica-install \
   --setup-ca \
   --setup-dns \
   --no-ntp \
   --principal admin \
-  --admin-password '<password>'
+  --admin-password
+Usage: ipa-replica-install [options]
+
+ipa-replica-install: error: --admin-password option requires 1 argument
+[root@pln-ipamaster yum.repos.d]# ipa-replica-install   --setup-ca   --setup-dns   --no-ntp   --principal admin
+Usage: ipa-replica-install [options]
+
+ipa-replica-install: error: You must specify at least one of --forwarder, --auto-forwarders, --dot-forwarder, or --no-forwarders options
+The ipa-replica-install command failed.
+[root@pln-ipamaster yum.repos.d]#
