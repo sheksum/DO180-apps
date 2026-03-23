@@ -1,2 +1,26 @@
-tail -5 /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log
-date
+[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log | grep -iE "error|severe|fail|warn"
+^C
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapsearch -H ldaps://pln-ipamaster.ipa.calix.local:636 \
+  -x -D "cn=Directory Manager" -W \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s base "(objectclass=*)" numsubordinates
+Enter LDAP Password:
+ldap_bind: Invalid credentials (49)
+[root@pln-ipamaster ~]# tail -5 /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: Repository: Searching for conflicting entries
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: CAEngine: Checking request ID ranges
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: Repository: Getting last serial number in range 49970001..49980000
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: LDAPPagedSearch: Searching ou=ca, ou=requests,o=ipaca
+2026-03-23 21:00:04 [SerialNumberUpdateTask] INFO: LDAPPagedSearch: filter: (&(requestId<=0849980000)(requestState=*))
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# date
+Mon Mar 23 09:01:09 PM UTC 2026
+[root@pln-ipamaster ~]# dsconf -D "cn=Directory Manager" \
+  ldap://pln-ipamaster.ipa.calix.local \
+  backend suffix set --cache-memsize=2147483648 ipaca
+Enter password for cn=Directory Manager on ldap://pln-ipamaster.ipa.calix.local:
+Error: Invalid credentials(49)
+[root@pln-ipamaster ~]#
