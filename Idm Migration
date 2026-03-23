@@ -1,36 +1,19 @@
-Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide DNS.
-Reverse DNS resolution of address 172.23.49.10 (cpeg-ipareplica.ipa.calix.local) failed. Clients may not function properly. Please check your DNS setup. (Note that this check queries IPA DNS directly and ignores /etc/hosts.)
-Continue? [no]: yes
-No network interface matches the IP address 10.172.249.77
-WARNING: No network interface matches the IP address 10.172.249.77
+2026-03-23T15:50:44Z DEBUG /usr/sbin/ipa-replica-conncheck was invoked with options: {'master': 'cpeg-ipareplica.ipa.calix.local', 'auto_master_check': True, 'realm': 'IPA.CALIX.LOCAL', 'kdc': None, 'principal': 'admin', 'ca_cert_file': '/etc/ipa/ca.crt', 'replica': None, 'check_ca': False, 'hostname': 'pln-ipamaster.ipa.calix.local', 'debug': False, 'quiet': False, 'log_to_file': True}
+2026-03-23T15:50:44Z DEBUG missing options might be asked for interactively later
 
-WARNING: 1353 existing users or groups do not have a SID identifier assigned.
-Installer can run a task to have ipa-sidgen Directory Server plugin generate
-the SID identifier for all these users. Please note, in case of a high
-number of users and groups, the operation might lead to high replication
-traffic and performance degradation. Refer to ipa-adtrust-install(1) man page
-for details.
-
-Do you want to run the ipa-sidgen task? [no]:
-Run connection check to master
-Removing client side components
-Unenrolling client from IPA server
-Removing Kerberos service principals from /etc/krb5.keytab
-Disabling client Kerberos and LDAP configurations
-Redundant SSSD configuration file /etc/sssd/sssd.conf was moved to /etc/sssd/sssd.conf.deleted
-Restoring client configuration files
-Unconfiguring the NIS domain.
-nscd daemon is not installed, skip configuration
-nslcd daemon is not installed, skip configuration
-Systemwide CA database updated.
-Client uninstall complete.
-The ipa-client-install command was successful
-
-Your system may be partly configured.
-Run /usr/sbin/ipa-server-install --uninstall to clean up.
-
-Connection check failed!
-See /var/log/ipareplica-conncheck.log for more information.
-If the check results are not valid it can be skipped with --skip-conncheck parameter.
-The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
-[root@pln-ipamaster yum.repos.d]#
+2026-03-23T15:50:44Z DEBUG IPA version 4.12.2-22.el9_7.1
+2026-03-23T15:50:44Z INFO Check connection from replica to remote master 'cpeg-ipareplica.ipa.calix.local':
+2026-03-23T15:50:44Z ERROR Failed to connect to port 389 tcp on fe80::250:56ff:fea8:77f4
+2026-03-23T15:50:44Z INFO    Directory Service: Unsecure port (389): FAILED
+2026-03-23T15:50:44Z ERROR Failed to connect to port 636 tcp on fe80::250:56ff:fea8:77f4
+2026-03-23T15:50:44Z INFO    Directory Service: Secure port (636): FAILED
+2026-03-23T15:50:44Z ERROR Failed to connect to port 88 tcp on fe80::250:56ff:fea8:77f4
+2026-03-23T15:50:44Z INFO    Kerberos KDC: TCP (88): FAILED
+2026-03-23T15:50:44Z ERROR Failed to connect to port 464 tcp on fe80::250:56ff:fea8:77f4
+2026-03-23T15:50:44Z INFO    Kerberos Kpasswd: TCP (464): FAILED
+2026-03-23T15:50:44Z ERROR Failed to connect to port 80 tcp on fe80::250:56ff:fea8:77f4
+2026-03-23T15:50:44Z INFO    HTTP Server: Unsecure port (80): FAILED
+2026-03-23T15:50:44Z ERROR Failed to connect to port 443 tcp on fe80::250:56ff:fea8:77f4
+2026-03-23T15:50:44Z INFO    HTTP Server: Secure port (443): FAILED
+2026-03-23T15:50:44Z ERROR ERROR: Port check failed! Inaccessible port(s): 389 (TCP), 636 (TCP), 88 (TCP), 464 (TCP), 80 (TCP), 443 (TCP)
+/var/log/ipareplica-conncheck.log (END)
