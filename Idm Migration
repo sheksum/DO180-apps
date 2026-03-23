@@ -1,25 +1,23 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa dnszone-find | grep -E "(172|248|Zone name)"
-  Zone name: ipa.calix.local.
-[root@cpeg-ipareplica ~]# ipa dnszone-find
-  Zone name: ipa.calix.local.
-  Active zone: True
-  Authoritative nameserver: pet-ipamaster.ipa.calix.local.
-  Administrator e-mail address: hostmaster.ipa.calix.local.
-  SOA serial: 1774256785
-  SOA refresh: 3600
-  SOA retry: 900
-  SOA expire: 1209600
-  SOA minimum: 3600
-  BIND update policy: grant IPA.CALIX.LOCAL krb5-self * A; grant IPA.CALIX.LOCAL krb5-self * AAAA; grant IPA.CALIX.LOCAL krb5-self * SSHFP;
-  Dynamic update: True
-  Allow query: any;
-  Allow transfer: none;
-----------------------------
-Number of entries returned 1
-----------------------------
-[root@cpeg-ipareplica ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# hostname -f
+pln-ipamaster.ipa.calix.local
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# chronyc tracking | grep -E "(Reference|Leap)"
+Reference ID    : 0AA81502 (time2.caal.dev)
+Leap status     : Normal
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ping -c2 cpeg-ipareplica.ipa.calix.local
+PING cpeg-ipareplica.ipa.calix.local (172.23.49.10) 56(84) bytes of data.
+64 bytes from cpeg-ipareplica.ipa.calix.local (172.23.49.10): icmp_seq=1 ttl=56 time=48.7 ms
+64 bytes from cpeg-ipareplica.ipa.calix.local (172.23.49.10): icmp_seq=2 ttl=56 time=49.0 ms
 
+--- cpeg-ipareplica.ipa.calix.local ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1002ms
+rtt min/avg/max/mdev = 48.708/48.868/49.028/0.160 ms
+[root@pln-ipamaster ~]#
 
 # 1. Remove stale domain segment
 ipa topologysegment-del domain \
