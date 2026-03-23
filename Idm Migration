@@ -1,24 +1,22 @@
-[root@pln-ipamaster yum.repos.d]# systemctl status pki-tomcatd@pki-tomcat.service
-● pki-tomcatd@pki-tomcat.service - PKI Tomcat Server pki-tomcat
-     Loaded: loaded (/usr/lib/systemd/system/pki-tomcatd@.service; enabled; preset: disabled)
-     Active: active (running) since Mon 2026-03-23 20:18:07 UTC; 23min ago
-    Process: 30994 ExecStartPre=/usr/sbin/pki-server upgrade pki-tomcat (code=exited, status=0/SUCCESS)
-    Process: 30996 ExecStartPre=/usr/sbin/pki-server migrate pki-tomcat (code=exited, status=0/SUCCESS)
-    Process: 31052 ExecStartPre=/usr/bin/pkidaemon start pki-tomcat (code=exited, status=0/SUCCESS)
-   Main PID: 31072 (java)
-      Tasks: 105 (limit: 48745)
-     Memory: 192.7M (peak: 269.4M)
-        CPU: 19.146s
+[root@pln-ipamaster yum.repos.d]# systemctl status pki-tomcatd@pki-tomcat.service --no-pager | tail -20
+    Process: 31530 ExecStartPre=/usr/sbin/pki-server upgrade pki-tomcat (code=exited, status=0/SUCCESS)
+    Process: 31532 ExecStartPre=/usr/sbin/pki-server migrate pki-tomcat (code=exited, status=0/SUCCESS)
+    Process: 31588 ExecStartPre=/usr/bin/pkidaemon start pki-tomcat (code=exited, status=0/SUCCESS)
+   Main PID: 31608 (java)
+      Tasks: 33 (limit: 48745)
+     Memory: 193.5M (peak: 282.7M)
+        CPU: 16.235s
      CGroup: /system.slice/system-pki\x2dtomcatd.slice/pki-tomcatd@pki-tomcat.service
-             └─31072 /usr/lib/jvm/jre-17-openjdk/bin/java -Dcom.redhat.fips=false -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -D>
+             └─31608 /usr/lib/jvm/jre-17-openjdk/bin/java -Dcom.redhat.fips=false -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.file=/var/lib/pki/pki-tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dsun.io.useCanonCaches=false -Djava.security.manager -Djava.security.policy==/var/lib/pki/pki-tomcat/conf/catalina.policy org.apache.catalina.startup.Bootstrap start
 
-Mar 23 20:20:57 pln-ipamaster.ipa.calix.local server[31072]: SEVERE: Context [/ca] startup failed due to previous errors
-Mar 23 20:20:57 pln-ipamaster.ipa.calix.local server[31072]: WARNING: The web application [ca] appears to have started a thread named [AsyncLoader watchdog] but has failed to stop it. This is very likely to create a memory leak. Stack trace of >
-Mar 23 20:20:57 pln-ipamaster.ipa.calix.local server[31072]:  java.base@17.0.18/java.lang.Object.wait(Native Method)
-Mar 23 20:20:57 pln-ipamaster.ipa.calix.local server[31072]:  java.base@17.0.18/java.lang.Object.wait(Object.java:338)
-Mar 23 20:20:57 pln-ipamaster.ipa.calix.local server[31072]:  java.base@17.0.18/java.util.TimerThread.mainLoop(Timer.java:537)
-Mar 23 20:20:57 pln-ipamaster.ipa.calix.local server[31072]:  java.base@17.0.18/java.util.TimerThread.run(Timer.java:516)
-Mar 23 20:20:57 pln-ipamaster.ipa.calix.local server[31072]: WARNING: The web application [ca] appears to have started a thread named [AuthorityMonitor] but has failed to stop it. This is very likely to create a memory leak. Stack trace of thre>
-Mar 23 20:20:57 pln-ipamaster.ipa.calix.local server[31072]:  java.base@17.0.18/java.lang.Thread.sleep(Native Method)
-Mar 23 20:20:57 pln-ipamaster.ipa.calix.local server[31072]:  com.netscape.ca.AuthorityMonitor.run(AuthorityMonitor.java:218)
-Mar 23 20:20:57 pln-ipamaster.ipa.calix.local server[31072]:  java.base@17.0.18/java.lang.Thread.run(Thread.java:840)
+Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: Java virtual machine used: /usr/lib/jvm/jre-17-openjdk/bin/java
+Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: classpath used: /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar:
+Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: main class used: org.apache.catalina.startup.Bootstrap
+Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: flags used: -Dcom.redhat.fips=false
+Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: options used: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.file=/var/lib/pki/pki-tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dsun.io.useCanonCaches=false     -Djava.security.manager     -Djava.security.policy==/var/lib/pki/pki-tomcat/conf/catalina.policy
+Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: arguments used: start
+Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: WARNING: A command line option has enabled the Security Manager
+Mar 23 20:42:52 pln-ipamaster.ipa.calix.local server[31608]: WARNING: The Security Manager is deprecated and will be removed in a future release
+Mar 23 20:42:53 pln-ipamaster.ipa.calix.local server[31608]: WARNING: Tomcat interprets the [protocols] attribute in a manner consistent with the latest OpenSSL development branch. Some of the specified [protocols] are not supported by the configured SSL engine for this connector (which may use JSSE or an older OpenSSL version) and have been skipped: [[TLSv1, TLSv1.1]]
+[root@pln-ipamaster yum.repos.d]#
