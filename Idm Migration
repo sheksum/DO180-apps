@@ -1,1 +1,1 @@
-curl -sk https://pln-ipamaster.ipa.calix.local:8443/ca/admin/ca/getStatus
+tail -30 /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log
