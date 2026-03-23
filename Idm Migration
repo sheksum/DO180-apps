@@ -1,1 +1,2 @@
-du -sh /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/ipaca/
+# On cpeg-ipareplica — watch replication progress
+tail -f /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | grep -i "pln-ipamaster\|ipaca\|repl"
