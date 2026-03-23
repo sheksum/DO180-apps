@@ -15,20 +15,37 @@ Successfully retrieved CA cert
     Valid From:  2018-06-30 07:39:50+00:00
     Valid Until: 2038-06-30 07:39:50+00:00
 
-cannot write certificate file '/etc/ipa/ca.crt.new': [Errno 2] No such file or directory: '/etc/ipa/ca.crt.new'
-Installation failed. Rolling back changes.
-Disabling client Kerberos and LDAP configurations
-nscd daemon is not installed, skip configuration
-nslcd daemon is not installed, skip configuration
-Client uninstall complete.
-The ipa-client-install command failed. See /var/log/ipaclient-install.log for more information
-Removing client side components
-IPA client is not configured on this system.
-The ipa-client-install command failed.
+Enrolled in IPA realm IPA.CALIX.LOCAL
+Created /etc/ipa/default.conf
+Configured /etc/sssd/sssd.conf
+Systemwide CA database updated.
+Adding SSH public key from /etc/ssh/ssh_host_ed25519_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
+SSSD enabled
+Configured /etc/openldap/ldap.conf
+Configured /etc/ssh/ssh_config
+Configured /etc/ssh/sshd_config.d/04-ipa.conf
+Configuring ipa.calix.local as NIS domain.
+Configured /etc/krb5.conf for IPA realm IPA.CALIX.LOCAL
+Client configuration complete.
+The ipa-client-install command was successful
 
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide DNS.
+Could not resolve hostname cpeg-ipareplica.ipa.calix.local using DNS. Clients may not function properly. Please check your DNS setup. (Note that this check queries IPA DNS directly and ignores /etc/hosts.)
+Continue? [no]: yes
+
+WARNING: 1353 existing users or groups do not have a SID identifier assigned.
+Installer can run a task to have ipa-sidgen Directory Server plugin generate
+the SID identifier for all these users. Please note, in case of a high
+number of users and groups, the operation might lead to high replication
+traffic and performance degradation. Refer to ipa-adtrust-install(1) man page
+for details.
+
+Do you want to run the ipa-sidgen task? [no]:
 Your system may be partly configured.
 Run /usr/sbin/ipa-server-install --uninstall to clean up.
 
-Configuration of client side components failed!
+[Errno 2] No such file or directory: '/var/lib/ipa/sysrestore/sysrestore.state'
 The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
 [root@pln-ipamaster ~]#
