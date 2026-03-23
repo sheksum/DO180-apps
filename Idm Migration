@@ -1,7 +1,5 @@
-rpm -q ipa-server ipa-server-dns
-```
-
-Should return something like:
-```
-ipa-server-4.10.x-x.el9.x86_64
-ipa-server-dns-4.10.x-x.el9.x86_64
+Complete!
+[root@pln-ipamaster yum.repos.d]# rpm -q ipa-server ipa-server-dns
+ipa-server-4.12.2-22.el9_7.1.x86_64
+ipa-server-dns-4.12.2-22.el9_7.1.noarch
+[root@pln-ipamaster yum.repos.d]#
