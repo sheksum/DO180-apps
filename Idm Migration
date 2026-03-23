@@ -1,1 +1,25 @@
-dig pln-ipamaster.ipa.calix.local @127.0.0.1
+[root@cpeg-ipareplica ~]# dig pln-ipamaster.ipa.calix.local @127.0.0.1
+
+; <<>> DiG 9.11.36-RedHat-9.11.36-14.el8_10 <<>> pln-ipamaster.ipa.calix.local @127.0.0.1
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 27783
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 9937400f94d41af229807da769c1737f50e1bc8c81475da8 (good)
+;; QUESTION SECTION:
+;pln-ipamaster.ipa.calix.local.	IN	A
+
+;; AUTHORITY SECTION:
+ipa.calix.local.	3600	IN	SOA	cpeg-ipareplica.ipa.calix.local. hostmaster.ipa.calix.local. 1774285375 3600 900 1209600 3600
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.1#53(127.0.0.1)
+;; WHEN: Mon Mar 23 17:08:15 UTC 2026
+;; MSG SIZE  rcvd: 149
+
+[root@cpeg-ipareplica ~]#
