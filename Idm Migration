@@ -1,9 +1,30 @@
-[root@pln-ipamaster yum.repos.d]# ipa-replica-install   --setup-ca   --setup-dns   --no-ntp  --no-forwarders  --principal admin
+[root@pln-ipamaster yum.repos.d]# ipa-replica-install   --setup-ca   --setup-dns   --no-ntp  --no-forwarders  --principal admin --admin-password vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU=
 Configuring client side components
 This program will set up IPA client.
 Version 4.12.2
 
-One of password / principal / keytab is required.
+Error checking LDAP: Operations error: 000004DC: LdapErr: DSID-0C090D5A, comment: In order to perform this operation a successful bind must be completed on the connection., data 0, v4563
+Discovery was successful!
+Client hostname: pln-ipamaster.ipa.calix.local
+Realm: CALIX.LOCAL
+DNS Domain: calix.local
+IPA Server: sjcwdc19b.calix.local
+BaseDN: dc=calix,dc=local
+
+Skipping chrony configuration
+Please make sure the following ports are opened in the firewall settings:
+     TCP: 80, 88, 389
+     UDP: 88 (at least one of TCP/UDP ports 88 has to be open)
+Also note that following ports are necessary for ipa-client working properly after enrollment:
+     TCP: 464
+     UDP: 464, 123 (if NTP enabled)
+Installation failed. Rolling back changes.
+Disabling client Kerberos and LDAP configurations
+nscd daemon is not installed, skip configuration
+nslcd daemon is not installed, skip configuration
+Client uninstall complete.
+Kerberos authentication failed: kinit: Client 'admin@CALIX.LOCAL' not found in Kerberos database while getting initial credentials
+
 The ipa-client-install command failed. See /var/log/ipaclient-install.log for more information
 Removing client side components
 IPA client is not configured on this system.
@@ -15,8 +36,3 @@ Run /usr/sbin/ipa-server-install --uninstall to clean up.
 Configuration of client side components failed!
 The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
 [root@pln-ipamaster yum.repos.d]#
-
-2026-03-23T15:46:10Z DEBUG The ipa-replica-install command failed, exception: ScriptError: Configuration of client side components failed!
-2026-03-23T15:46:10Z ERROR Configuration of client side components failed!
-2026-03-23T15:46:10Z ERROR The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
-(END)
