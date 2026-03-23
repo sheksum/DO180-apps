@@ -1,24 +1,2 @@
-[root@pln-ipamaster ~]# ipa-server-install --uninstall --ignore-topology-disconnect
-WARNING:
-IPA server is not configured on this system. If you want to install the
-IPA server, please install it using 'ipa-server-install'.
-
-This is a NON REVERSIBLE operation and will delete all data and configuration!
-It is highly recommended to take a backup of existing data and configuration using ipa-backup utility before proceeding.
-
-Are you sure you want to continue with the uninstall procedure? [no]: yes
-
-WARNING: Failed to connect to Directory Server to find information about
-replication agreements. Uninstallation will continue despite the possible
-existing replication agreements.
-
-If this server is the last instance of CA,
-KRA, or DNSSEC master, uninstallation may result in data loss.
-Are you sure you want to continue with the uninstall procedure? [no]: yes
-failed to uninstall ACME instance CalledProcessError(Command ['/usr/sbin/pkidestroy', '-i', 'pki-tomcat', '--force', '-s', 'ACME', '--log-file', '/var/log/pki/pki-acme-destroy.20260323221647.log', '--remove-conf', '--remove-logs'] returned non-zero exit status 1: 'ERROR: No such instance: pki-tomcat\n')
-Shutting down all IPA services
-Failed to remove DS instance. No serverid present in sysrestore file.
-Removing IPA client configuration
-The ipa-client-install command was successful
-The ipa-server-install command was successful
-[root@pln-ipamaster ~]#
+dsctl IPA-CALIX-LOCAL remove --do-it
+ss -tlnp | grep -E "389|636"
