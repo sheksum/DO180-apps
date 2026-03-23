@@ -1,110 +1,16 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa topologysegment-find domain
-------------------
-6 segments matched
-------------------
-  Segment name: cpeg-to-nan-ipareplica01
-  Left node: cpeg-ipareplica.ipa.calix.local
-  Right node: nan-ipareplica01.ipa.calix.local
-  Connectivity: both
+# Confirm pln-petipareplica is truly gone from IPA's perspective
+ipa server-show pln-petipareplica.ipa.calix.local
 
-  Segment name: pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local
-  Left node: pln-petipareplica.ipa.calix.local
-  Right node: nan-ipareplica01.ipa.calix.local
-  Connectivity: both
+# Check if it still has a host entry
+ipa host-show pln-petipareplica.ipa.calix.local
 
-  Segment name: ric-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local
-  Left node: ric-ipareplica01.ipa.calix.local
-  Right node: cpeg-ipareplica.ipa.calix.local
-  Connectivity: both
+# See if the stale CA segment is still there
+ipa topologysegment-show ca \
+  "cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local"
 
-  Segment name: ric-ipareplica01.ipa.calix.local-to-ric-ipareplica.ipa.calix.local
-  Left node: ric-ipareplica01.ipa.calix.local
-  Right node: ric-ipareplica.ipa.calix.local
-  Connectivity: both
+# Same for the domain segment
+ipa topologysegment-show domain \
+  "pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local"
 
-  Segment name: sjc-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local
-  Left node: sjc-ipareplica01.ipa.calix.local
-  Right node: cpeg-ipareplica.ipa.calix.local
-  Connectivity: both
-
-  Segment name: sjc-ipareplica01.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local
-  Left node: sjc-ipareplica01.ipa.calix.local
-  Right node: nan-ipareplica01.ipa.calix.local
-  Connectivity: both
-----------------------------
-Number of entries returned 6
-----------------------------
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa topologysegment-find ca
-------------------
-2 segments matched
-------------------
-  Segment name: cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local
-  Left node: cpeg-ipareplica.ipa.calix.local
-  Right node: pln-petipareplica.ipa.calix.local
-  Connectivity: left-right
-
-  Segment name: min-ipareplica.ipa.calix.local-to-nan-ipareplica.ipa.calix.local
-  Left node: min-ipareplica.ipa.calix.local
-  Right node: nan-ipareplica.ipa.calix.local
-  Connectivity: both
-----------------------------
-Number of entries returned 2
-----------------------------
-[root@cpeg-ipareplica ~]#
-----------------------------
-Number of entries returned 2
-----------------------------
-[root@cpeg-ipareplica ~]# ipa --version
-VERSION: 4.9.13, API_VERSION: 2.251
-[root@cpeg-ipareplica ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-named Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa-dnskeysyncd Service: RUNNING
-ipa: INFO: The ipactl command was successful
-[root@cpeg-ipareplica ~]# getcert list | grep -E "(status|track|ca-error|Request ID)"
-Number of certificates and requests being tracked: 9.
-Request ID '20240701143227':
-	status: MONITORING
-	track: yes
-Request ID '20240701143457':
-	status: MONITORING
-	track: yes
-Request ID '20240701143818':
-	status: MONITORING
-	track: yes
-Request ID '20240701143819':
-	status: MONITORING
-	track: yes
-Request ID '20240701143820':
-	status: MONITORING
-	track: yes
-Request ID '20240701143821':
-	status: MONITORING
-	track: yes
-Request ID '20240701143822':
-	status: MONITORING
-	track: yes
-Request ID '20240701143823':
-	status: MONITORING
-	track: yes
-Request ID '20240701143843':
-	status: MONITORING
-	track: yes
-[root@cpeg-ipareplica ~]# ipa-replica-manage dnarange-show
-sjc-ipareplica01.ipa.calix.local: 62708-75686
-nan-ipareplica01.ipa.calix.local: 162718-187686
-ric-ipareplica01.ipa.calix.local: No range set
-ric-ipareplica.ipa.calix.local: No range set
-cpeg-ipareplica.ipa.calix.local: 87827-112186
-pln-petipareplica.ipa.calix.local: 75688-87686
-[root@cpeg-ipareplica ~]#
+# Check if it still has a replication agreement lurking
+ipa-replica-manage list
