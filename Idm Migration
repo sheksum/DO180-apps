@@ -1,49 +1,15 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# hostname -f
-pln-ipamaster.ipa.calix.local
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# chronyc tracking | grep -E "(Reference|Leap)"
-Reference ID    : 0AA81502 (time2.caal.dev)
-Leap status     : Normal
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ping -c2 cpeg-ipareplica.ipa.calix.local
-PING cpeg-ipareplica.ipa.calix.local (172.23.49.10) 56(84) bytes of data.
-64 bytes from cpeg-ipareplica.ipa.calix.local (172.23.49.10): icmp_seq=1 ttl=56 time=48.7 ms
-64 bytes from cpeg-ipareplica.ipa.calix.local (172.23.49.10): icmp_seq=2 ttl=56 time=49.0 ms
 
---- cpeg-ipareplica.ipa.calix.local ping statistics ---
-2 packets transmitted, 2 received, 0% packet loss, time 1002ms
-rtt min/avg/max/mdev = 48.708/48.868/49.028/0.160 ms
-[root@pln-ipamaster ~]#
-
-# 1. Remove stale domain segment
-ipa topologysegment-del domain \
-  "pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local"
-
-# 2. Remove stale CA segment
-ipa topologysegment-del ca \
-  "cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local"
-
-# 3. Remove stale replication agreement
-ipa-replica-manage del pln-petipareplica.ipa.calix.local --force
-
-# 4. Remove stale server entry
-ipa server-del pln-petipareplica.ipa.calix.local --force
-
-# 5. Remove stale host entry
-ipa host-del pln-petipareplica.ipa.calix.local
+# Test key ports from pln-ipamaster to cpeg
+for port in 88 389 443 464 636; do
+  nc -zv cpeg-ipareplica.ipa.calix.local $port 2>&1 | grep -E "(succeeded|failed|refused)"
+done
 
 
-# Verify hostname is set correctly
-hostname -f
-# Should return: pln-ipamaster.ipa.calix.local
+firewall-cmd --permanent --add-service={freeipa-ldap,freeipa-ldaps,freeipa-replication,dns,ntp,https,kerberos,kpasswd}
+firewall-cmd --reload
+firewall-cmd --list-services
 
-# Verify DNS resolves both ways
-dig pln-ipamaster.ipa.calix.local
-dig -x <ip-of-pln-ipamaster>
 
-# Verify NTP is actually syncing
-chronyc tracking | grep -E "(Reference|System time|Leap)"
+
+dnf module enable idm:DL1 -y
+dnf module install idm:DL1/server -y
