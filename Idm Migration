@@ -1,9 +1,1 @@
-[root@pln-ipamaster yum.repos.d]# curl -sk https://pln-ipamaster.ipa.calix.local/ca/admin/ca/getStatus | python3 -m json.tool 2>/dev/null || curl -sk https://pln-ipamaster.ipa.calix.local/ca/admin/ca/getStatus
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>404 Not Found</title>
-</head><body>
-<h1>Not Found</h1>
-<p>The requested URL was not found on this server.</p>
-</body></html>
-[root@pln-ipamaster yum.repos.d]#
+curl -sk https://pln-ipamaster.ipa.calix.local:8443/ca/admin/ca/getStatus
