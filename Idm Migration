@@ -12,17 +12,16 @@ ldapsearch -H ldap://pln-ipamaster.ipa.calix.local:389 \
   -x -D "cn=Directory Manager" -W \
   -b "" -s base
 
-[root@pln-ipamaster ~]# ldappasswd -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL \
-  -S "cn=Directory Manager"
-New password:
-Re-enter new password:
-ldap_sasl_interactive_bind: Can't contact LDAP server (-1)
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# systemctl start dirsrv@IPA-CALIX-LOCAL
 [root@pln-ipamaster ~]# ldappasswd -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket   -Y EXTERNAL   -S "cn=Directory Manager"
 New password:
 Re-enter new password:
-ldap_sasl_interactive_bind: Can't contact LDAP server (-1)
-[root@pln-ipamaster ~]#
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+Result: No such object (32)
+Additional info: No such Entry exists.
 
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
