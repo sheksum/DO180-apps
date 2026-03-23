@@ -1,20 +1,466 @@
-root@pln-ipamaster ~]# ps aux | grep java | grep -v grep
-root        9447  0.0  0.0 249964  6804 pts/0    S+   22:58   0:00 /usr/sbin/runuser -u pkiuser -- /usr/lib/jvm/jre-17-openjdk/bin/java -classpath /usr/share/tomcat/bin/tomcat-juli.jar:/usr/share/java/tomcat-servlet-api.jar:/usr/share/pki/ca/webapps/ca/WEB-INF/lib/*:/var/lib/pki/pki-tomcat/common/lib/*:/usr/share/pki/lib/* -Djavax.sql.DataSource.Factory=org.apache.commons.dbcp.BasicDataSourceFactory -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.file=/var/lib/pki/pki-tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dcom.redhat.fips=false org.dogtagpki.server.cli.PKIServerCLI ca-db-index-rebuild --debug
-pkiuser     9448  0.7  1.4 5342960 110380 pts/0  Sl+  22:58   0:03 /usr/lib/jvm/jre-17-openjdk/bin/java -classpath /usr/share/tomcat/bin/tomcat-juli.jar:/usr/share/java/tomcat-servlet-api.jar:/usr/share/pki/ca/webapps/ca/WEB-INF/lib/*:/var/lib/pki/pki-tomcat/common/lib/*:/usr/share/pki/lib/* -Djavax.sql.DataSource.Factory=org.apache.commons.dbcp.BasicDataSourceFactory -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.file=/var/lib/pki/pki-tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dcom.redhat.fips=false org.dogtagpki.server.cli.PKIServerCLI ca-db-index-rebuild --debug
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -f /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access
+[23/Mar/2026:23:20:19.571180475 +0000] conn=401 op=10 ADD dn="cn=1074176839,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:19.571265706 +0000] conn=401 op=10 RESULT err=53 tag=105 nentries=0 wtime=0.000375934 optime=0.000090309 etime=0.000464372
+[23/Mar/2026:23:20:19.617940699 +0000] conn=401 op=11 MOD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:19.618036983 +0000] conn=401 op=11 RESULT err=53 tag=103 nentries=0 wtime=0.046625004 optime=0.000107536 etime=0.046730331
+[23/Mar/2026:23:20:19.618292301 +0000] conn=401 op=12 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:19.618339823 +0000] conn=401 op=12 RESULT err=53 tag=103 nentries=0 wtime=0.000126092 optime=0.000052274 etime=0.000177194
+[23/Mar/2026:23:20:19.618775903 +0000] conn=401 op=13 ADD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:19.618827114 +0000] conn=401 op=13 fd=134 Disconnect - Server failed to flush response back to Client - B4
+[23/Mar/2026:23:20:20.088765280 +0000] conn=25 op=1528 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:20.089043031 +0000] conn=25 op=1528 RESULT err=0 tag=101 nentries=1 wtime=0.000167317 optime=0.000281968 etime=0.000446306
+[23/Mar/2026:23:20:21.090131706 +0000] conn=25 op=1529 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:21.090428966 +0000] conn=25 op=1529 RESULT err=0 tag=101 nentries=1 wtime=0.000179136 optime=0.000301017 etime=0.000477543
+[23/Mar/2026:23:20:22.091564568 +0000] conn=25 op=1530 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:22.091887623 +0000] conn=25 op=1530 RESULT err=0 tag=101 nentries=1 wtime=0.000181395 optime=0.000327145 etime=0.000505459
+[23/Mar/2026:23:20:22.670735937 +0000] conn=402 fd=134 slot=134 connection from 172.23.49.10 to 10.172.248.55
+[23/Mar/2026:23:20:22.672110353 +0000] conn=402 op=0 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:22.675634469 +0000] conn=402 op=0 RESULT err=14 tag=97 nentries=0 wtime=0.000097589 optime=0.003553293 etime=0.003649463, SASL bind in progress
+[23/Mar/2026:23:20:22.724558243 +0000] conn=402 op=1 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:22.726733893 +0000] conn=402 op=1 RESULT err=14 tag=97 nentries=0 wtime=0.000089844 optime=0.002185272 etime=0.002273505, SASL bind in progress
+[23/Mar/2026:23:20:22.774632521 +0000] conn=402 op=2 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:22.775451359 +0000] conn=402 op=2 RESULT err=0 tag=97 nentries=0 wtime=0.000078744 optime=0.000828224 etime=0.000905659 dn="krbprincipalname=ldap/cpeg-ipareplica.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:23.025492881 +0000] conn=402 op=3 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:23.026944879 +0000] conn=402 op=3 RESULT err=0 tag=101 nentries=1 wtime=0.000375810 optime=0.001459109 etime=0.001833237
+[23/Mar/2026:23:20:23.075583936 +0000] conn=402 op=4 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:23.076710469 +0000] conn=402 op=4 RESULT err=0 tag=101 nentries=1 wtime=0.000272755 optime=0.001132851 etime=0.001403875
+[23/Mar/2026:23:20:23.093028628 +0000] conn=25 op=1531 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:23.093493138 +0000] conn=25 op=1531 RESULT err=0 tag=101 nentries=1 wtime=0.000239579 optime=0.000471959 etime=0.000707926
+[23/Mar/2026:23:20:23.125315117 +0000] conn=402 op=5 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multisupplier-extop"
+[23/Mar/2026:23:20:23.126123151 +0000] conn=402 op=5 RESULT err=0 tag=120 nentries=0 wtime=0.000297756 optime=0.000818213 etime=0.001115009
+[23/Mar/2026:23:20:23.189510765 +0000] conn=402 op=6 ADD dn="cn=1074176838,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:23.189622685 +0000] conn=402 op=6 RESULT err=53 tag=105 nentries=0 wtime=0.000561462 optime=0.000119623 etime=0.000677841
+[23/Mar/2026:23:20:23.190034263 +0000] conn=402 op=7 MOD dn="cn=40490570,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:23.190107228 +0000] conn=402 op=7 RESULT err=53 tag=103 nentries=0 wtime=0.000344475 optime=0.000082181 etime=0.000423686
+[23/Mar/2026:23:20:23.190333011 +0000] conn=402 op=8 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:23.190394654 +0000] conn=402 op=8 RESULT err=53 tag=103 nentries=0 wtime=0.000161587 optime=0.000065655 etime=0.000225660
+[23/Mar/2026:23:20:23.237777640 +0000] conn=402 op=9 ADD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:23.237926105 +0000] conn=402 op=9 RESULT err=53 tag=105 nentries=0 wtime=0.001090110 optime=0.000155872 etime=0.001241675
+[23/Mar/2026:23:20:23.238415530 +0000] conn=402 op=10 ADD dn="cn=1074176839,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:23.238503645 +0000] conn=402 op=10 RESULT err=53 tag=105 nentries=0 wtime=0.000321236 optime=0.000093228 etime=0.000412512
+[23/Mar/2026:23:20:23.284885783 +0000] conn=402 op=11 MOD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:23.285019113 +0000] conn=402 op=11 RESULT err=53 tag=103 nentries=0 wtime=0.046312511 optime=0.000146340 etime=0.046455581
+[23/Mar/2026:23:20:23.285376527 +0000] conn=402 op=12 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:23.285447754 +0000] conn=402 op=12 RESULT err=53 tag=103 nentries=0 wtime=0.000182898 optime=0.000079039 etime=0.000260012
+[23/Mar/2026:23:20:23.285984784 +0000] conn=402 op=13 ADD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:23.286081520 +0000] conn=402 op=13 fd=134 Disconnect - Server failed to flush response back to Client - B4
+[23/Mar/2026:23:20:24.094567943 +0000] conn=25 op=1533 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:24.094926640 +0000] conn=25 op=1533 RESULT err=0 tag=101 nentries=1 wtime=0.000186255 optime=0.000362764 etime=0.000545486
+[23/Mar/2026:23:20:25.095971396 +0000] conn=25 op=1534 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:25.096295632 +0000] conn=25 op=1534 RESULT err=0 tag=101 nentries=1 wtime=0.000154462 optime=0.000330698 etime=0.000481088
+[23/Mar/2026:23:20:26.097244183 +0000] conn=25 op=1535 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:26.097597549 +0000] conn=25 op=1535 RESULT err=0 tag=101 nentries=1 wtime=0.000143438 optime=0.000359986 etime=0.000500439
+[23/Mar/2026:23:20:26.348826955 +0000] conn=403 fd=134 slot=134 connection from 172.23.49.10 to 10.172.248.55
+[23/Mar/2026:23:20:26.349978895 +0000] conn=403 op=0 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:26.353116192 +0000] conn=403 op=0 RESULT err=14 tag=97 nentries=0 wtime=0.000125945 optime=0.003147742 etime=0.003272597, SASL bind in progress
+[23/Mar/2026:23:20:26.401071164 +0000] conn=403 op=1 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:26.402917388 +0000] conn=403 op=1 RESULT err=14 tag=97 nentries=0 wtime=0.000089585 optime=0.001855319 etime=0.001943793, SASL bind in progress
+[23/Mar/2026:23:20:26.450735018 +0000] conn=403 op=2 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:26.452098798 +0000] conn=403 op=2 RESULT err=0 tag=97 nentries=0 wtime=0.000097757 optime=0.001374837 etime=0.001470432 dn="krbprincipalname=ldap/cpeg-ipareplica.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:26.500657694 +0000] conn=403 op=3 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:26.501878788 +0000] conn=403 op=3 RESULT err=0 tag=101 nentries=1 wtime=0.000227287 optime=0.001228530 etime=0.001453869
+[23/Mar/2026:23:20:26.551812386 +0000] conn=403 op=4 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:26.553375432 +0000] conn=403 op=4 RESULT err=0 tag=101 nentries=1 wtime=0.002046596 optime=0.001569204 etime=0.003613420
+[23/Mar/2026:23:20:26.601929003 +0000] conn=403 op=5 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multisupplier-extop"
+[23/Mar/2026:23:20:26.602757502 +0000] conn=403 op=5 RESULT err=0 tag=120 nentries=0 wtime=0.000241300 optime=0.000838407 etime=0.001078359
+[23/Mar/2026:23:20:26.666840985 +0000] conn=403 op=6 ADD dn="cn=1074176838,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:26.666944382 +0000] conn=403 op=6 RESULT err=53 tag=105 nentries=0 wtime=0.000417909 optime=0.000113082 etime=0.000528576
+[23/Mar/2026:23:20:26.667324873 +0000] conn=403 op=7 MOD dn="cn=40490570,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:26.667388654 +0000] conn=403 op=7 RESULT err=53 tag=103 nentries=0 wtime=0.000307359 optime=0.000070550 etime=0.000376079
+[23/Mar/2026:23:20:26.667608830 +0000] conn=403 op=8 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:26.667693911 +0000] conn=403 op=8 RESULT err=53 tag=103 nentries=0 wtime=0.000152293 optime=0.000091757 etime=0.000241743
+[23/Mar/2026:23:20:26.715063248 +0000] conn=403 op=9 ADD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:26.715158153 +0000] conn=403 op=9 RESULT err=53 tag=105 nentries=0 wtime=0.000987718 optime=0.000102073 etime=0.001087375
+[23/Mar/2026:23:20:26.715608257 +0000] conn=403 op=10 ADD dn="cn=1074176839,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:26.715689322 +0000] conn=403 op=10 RESULT err=53 tag=105 nentries=0 wtime=0.000357274 optime=0.000087565 etime=0.000442879
+[23/Mar/2026:23:20:26.762604447 +0000] conn=403 op=11 MOD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:26.762776717 +0000] conn=403 op=11 RESULT err=53 tag=103 nentries=0 wtime=0.046808366 optime=0.000222090 etime=0.047027092
+[23/Mar/2026:23:20:26.763045818 +0000] conn=403 op=12 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:26.763105132 +0000] conn=403 op=12 RESULT err=53 tag=103 nentries=0 wtime=0.000151396 optime=0.000065024 etime=0.000214740
+[23/Mar/2026:23:20:26.763616195 +0000] conn=403 op=13 ADD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:26.763709735 +0000] conn=403 op=13 RESULT err=53 tag=105 nentries=0 wtime=0.000442666 optime=0.000100872 etime=0.000541577
+[23/Mar/2026:23:20:26.764105261 +0000] conn=403 op=14 ADD dn="cn=1074176840,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:26.764184596 +0000] conn=403 op=14 RESULT err=53 tag=105 nentries=0 wtime=0.000328707 optime=0.000085589 etime=0.000412195
+[23/Mar/2026:23:20:26.810290077 +0000] conn=403 op=15 MOD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:26.810373253 +0000] conn=403 op=15 fd=134 Disconnect - Server failed to flush response back to Client - B4
+[23/Mar/2026:23:20:27.098639997 +0000] conn=25 op=1536 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:27.098966621 +0000] conn=25 op=1536 RESULT err=0 tag=101 nentries=1 wtime=0.000210878 optime=0.000331633 etime=0.000540158
+[23/Mar/2026:23:20:28.099938252 +0000] conn=25 op=1537 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:28.100272158 +0000] conn=25 op=1537 RESULT err=0 tag=101 nentries=1 wtime=0.000158848 optime=0.000338943 etime=0.000494013
+[23/Mar/2026:23:20:29.101277570 +0000] conn=25 op=1538 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:29.101662363 +0000] conn=25 op=1538 RESULT err=0 tag=101 nentries=1 wtime=0.000199328 optime=0.000389760 etime=0.000585780
+[23/Mar/2026:23:20:29.861822371 +0000] conn=404 fd=134 slot=134 connection from 172.23.49.10 to 10.172.248.55
+[23/Mar/2026:23:20:29.862972788 +0000] conn=404 op=0 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:29.866537089 +0000] conn=404 op=0 RESULT err=14 tag=97 nentries=0 wtime=0.000138674 optime=0.003561820 etime=0.003699643, SASL bind in progress
+[23/Mar/2026:23:20:29.915036677 +0000] conn=404 op=1 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:29.917526830 +0000] conn=404 op=1 RESULT err=14 tag=97 nentries=0 wtime=0.000086225 optime=0.002503234 etime=0.002577706, SASL bind in progress
+[23/Mar/2026:23:20:29.965423587 +0000] conn=404 op=2 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:29.966259203 +0000] conn=404 op=2 RESULT err=0 tag=97 nentries=0 wtime=0.000077777 optime=0.000873514 etime=0.000949874 dn="krbprincipalname=ldap/cpeg-ipareplica.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:30.015243616 +0000] conn=404 op=3 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:30.016440431 +0000] conn=404 op=3 RESULT err=0 tag=101 nentries=1 wtime=0.000259437 optime=0.001203236 etime=0.001455657
+[23/Mar/2026:23:20:30.064654015 +0000] conn=404 op=4 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:30.066234061 +0000] conn=404 op=4 RESULT err=0 tag=101 nentries=1 wtime=0.000244443 optime=0.001586703 etime=0.001829711
+[23/Mar/2026:23:20:30.103376677 +0000] conn=25 op=1540 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:30.103691000 +0000] conn=25 op=1540 RESULT err=0 tag=101 nentries=1 wtime=0.000307821 optime=0.000319179 etime=0.000623181
+[23/Mar/2026:23:20:30.114783445 +0000] conn=404 op=5 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multisupplier-extop"
+[23/Mar/2026:23:20:30.115527322 +0000] conn=404 op=5 RESULT err=0 tag=120 nentries=0 wtime=0.000186995 optime=0.000752743 etime=0.000938835
+[23/Mar/2026:23:20:30.179625746 +0000] conn=404 op=6 ADD dn="cn=1074176838,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:30.179725402 +0000] conn=404 op=6 RESULT err=53 tag=105 nentries=0 wtime=0.000610093 optime=0.000107502 etime=0.000714678
+[23/Mar/2026:23:20:30.180142408 +0000] conn=404 op=7 MOD dn="cn=40490570,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:30.180282879 +0000] conn=404 op=7 RESULT err=53 tag=103 nentries=0 wtime=0.000335087 optime=0.000148798 etime=0.000481057
+[23/Mar/2026:23:20:30.180462711 +0000] conn=404 op=8 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:30.180523758 +0000] conn=404 op=8 RESULT err=53 tag=103 nentries=0 wtime=0.000122980 optime=0.000069015 etime=0.000190446
+[23/Mar/2026:23:20:30.227309558 +0000] conn=404 op=9 ADD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:30.227422763 +0000] conn=404 op=9 RESULT err=53 tag=105 nentries=0 wtime=0.000749205 optime=0.000123500 etime=0.000869941
+[23/Mar/2026:23:20:30.227780092 +0000] conn=404 op=10 ADD dn="cn=1074176839,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:30.227853833 +0000] conn=404 op=10 RESULT err=53 tag=105 nentries=0 wtime=0.000265149 optime=0.000079140 etime=0.000342418
+[23/Mar/2026:23:20:30.274681247 +0000] conn=404 op=11 MOD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:30.274776326 +0000] conn=404 op=11 RESULT err=53 tag=103 nentries=0 wtime=0.046774540 optime=0.000103304 etime=0.046874382
+[23/Mar/2026:23:20:30.275124440 +0000] conn=404 op=12 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:30.275294216 +0000] conn=404 op=12 RESULT err=53 tag=103 nentries=0 wtime=0.000242574 optime=0.000177402 etime=0.000417123
+[23/Mar/2026:23:20:30.275741580 +0000] conn=404 op=13 ADD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:30.275809138 +0000] conn=404 op=13 RESULT err=53 tag=105 nentries=0 wtime=0.000394698 optime=0.000075214 etime=0.000467882
+[23/Mar/2026:23:20:30.276097176 +0000] conn=404 op=14 ADD dn="cn=1074176840,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:30.276165622 +0000] conn=404 op=14 RESULT err=53 tag=105 nentries=0 wtime=0.000229048 optime=0.000072546 etime=0.000299609
+[23/Mar/2026:23:20:30.280304399 +0000] conn=404 op=-1 fd=134 Disconnect - Connection reset by peer - TCP connection reset by peer.
+[23/Mar/2026:23:20:31.104668165 +0000] conn=25 op=1541 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:31.105020453 +0000] conn=25 op=1541 RESULT err=0 tag=101 nentries=1 wtime=0.000160044 optime=0.000356736 etime=0.000513227
+[23/Mar/2026:23:20:32.105850392 +0000] conn=25 op=1542 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:32.106139693 +0000] conn=25 op=1542 RESULT err=0 tag=101 nentries=1 wtime=0.000147569 optime=0.000292685 etime=0.000437878
+[23/Mar/2026:23:20:33.107099713 +0000] conn=25 op=1543 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:33.107423124 +0000] conn=25 op=1543 RESULT err=0 tag=101 nentries=1 wtime=0.000136125 optime=0.000328988 etime=0.000461607
+[23/Mar/2026:23:20:33.330971266 +0000] conn=405 fd=134 slot=134 connection from 172.23.49.10 to 10.172.248.55
+[23/Mar/2026:23:20:33.333048532 +0000] conn=405 op=0 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:33.335672451 +0000] conn=405 op=0 RESULT err=14 tag=97 nentries=0 wtime=0.000068149 optime=0.002653301 etime=0.002720474, SASL bind in progress
+[23/Mar/2026:23:20:33.384278540 +0000] conn=405 op=1 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:33.386164792 +0000] conn=405 op=1 RESULT err=14 tag=97 nentries=0 wtime=0.000076581 optime=0.001897833 etime=0.001973105, SASL bind in progress
+[23/Mar/2026:23:20:33.634724437 +0000] conn=405 op=2 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:33.635642093 +0000] conn=405 op=2 RESULT err=0 tag=97 nentries=0 wtime=0.000079672 optime=0.000931436 etime=0.001009893 dn="krbprincipalname=ldap/cpeg-ipareplica.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:33.684659676 +0000] conn=405 op=3 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:33.685769495 +0000] conn=405 op=3 RESULT err=0 tag=101 nentries=1 wtime=0.000256300 optime=0.001117863 etime=0.001372484
+[23/Mar/2026:23:20:33.734102816 +0000] conn=405 op=4 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:33.735457125 +0000] conn=405 op=4 RESULT err=0 tag=101 nentries=1 wtime=0.000237757 optime=0.001360495 etime=0.001596602
+[23/Mar/2026:23:20:33.783553246 +0000] conn=405 op=5 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multisupplier-extop"
+[23/Mar/2026:23:20:33.784322006 +0000] conn=405 op=5 RESULT err=0 tag=120 nentries=0 wtime=0.000178030 optime=0.000776191 etime=0.000953297
+[23/Mar/2026:23:20:33.848968285 +0000] conn=405 op=6 ADD dn="cn=1074176838,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:33.849051195 +0000] conn=405 op=6 RESULT err=53 tag=105 nentries=0 wtime=0.000370153 optime=0.000099148 etime=0.000466446
+[23/Mar/2026:23:20:33.849407629 +0000] conn=405 op=7 MOD dn="cn=40490570,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:33.849464253 +0000] conn=405 op=7 RESULT err=53 tag=103 nentries=0 wtime=0.000298645 optime=0.000062981 etime=0.000360158
+[23/Mar/2026:23:20:33.849614597 +0000] conn=405 op=8 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:33.849657443 +0000] conn=405 op=8 RESULT err=53 tag=103 nentries=0 wtime=0.000089448 optime=0.000047309 etime=0.000135662
+[23/Mar/2026:23:20:33.897313222 +0000] conn=405 op=9 ADD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:33.897489899 +0000] conn=405 op=9 RESULT err=53 tag=105 nentries=0 wtime=0.001091414 optime=0.000194681 etime=0.001282789
+[23/Mar/2026:23:20:33.897830776 +0000] conn=405 op=10 ADD dn="cn=1074176839,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:33.897901106 +0000] conn=405 op=10 RESULT err=53 tag=105 nentries=0 wtime=0.000232134 optime=0.000074620 etime=0.000304593
+[23/Mar/2026:23:20:33.944514379 +0000] conn=405 op=11 MOD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:33.944599846 +0000] conn=405 op=11 RESULT err=53 tag=103 nentries=0 wtime=0.046557630 optime=0.000094322 etime=0.046649360
+[23/Mar/2026:23:20:33.944777308 +0000] conn=405 op=12 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:33.944822095 +0000] conn=405 op=12 RESULT err=53 tag=103 nentries=0 wtime=0.000094018 optime=0.000048585 etime=0.000141165
+[23/Mar/2026:23:20:33.945849765 +0000] conn=405 op=13 ADD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:33.945900512 +0000] conn=405 op=13 fd=134 Disconnect - Server failed to flush response back to Client - B4
+[23/Mar/2026:23:20:34.108387077 +0000] conn=25 op=1544 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:34.108683190 +0000] conn=25 op=1544 RESULT err=0 tag=101 nentries=1 wtime=0.000149430 optime=0.000298545 etime=0.000444067
+[23/Mar/2026:23:20:35.109574770 +0000] conn=25 op=1545 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:35.109853374 +0000] conn=25 op=1545 RESULT err=0 tag=101 nentries=1 wtime=0.000122320 optime=0.000283437 etime=0.000401850
+[23/Mar/2026:23:20:36.110949192 +0000] conn=25 op=1547 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:36.111334605 +0000] conn=25 op=1547 RESULT err=0 tag=101 nentries=1 wtime=0.000195651 optime=0.000389818 etime=0.000581173
+[23/Mar/2026:23:20:36.997627036 +0000] conn=406 fd=134 slot=134 connection from 172.23.49.10 to 10.172.248.55
+[23/Mar/2026:23:20:36.998860250 +0000] conn=406 op=0 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:37.001660376 +0000] conn=406 op=0 RESULT err=14 tag=97 nentries=0 wtime=0.000082783 optime=0.002809732 etime=0.002890986, SASL bind in progress
+[23/Mar/2026:23:20:37.050450116 +0000] conn=406 op=1 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:37.052279487 +0000] conn=406 op=1 RESULT err=14 tag=97 nentries=0 wtime=0.000093946 optime=0.001842906 etime=0.001935157, SASL bind in progress
+[23/Mar/2026:23:20:37.100173716 +0000] conn=406 op=2 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:37.100994314 +0000] conn=406 op=2 RESULT err=0 tag=97 nentries=0 wtime=0.000113377 optime=0.000830392 etime=0.000942773 dn="krbprincipalname=ldap/cpeg-ipareplica.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:37.112240284 +0000] conn=25 op=1548 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:37.112585471 +0000] conn=25 op=1548 RESULT err=0 tag=101 nentries=1 wtime=0.000166814 optime=0.000348952 etime=0.000512280
+[23/Mar/2026:23:20:37.150195607 +0000] conn=406 op=3 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:37.151514074 +0000] conn=406 op=3 RESULT err=0 tag=101 nentries=1 wtime=0.000263195 optime=0.001326305 etime=0.001587491
+[23/Mar/2026:23:20:37.199480881 +0000] conn=406 op=4 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:37.200662597 +0000] conn=406 op=4 RESULT err=0 tag=101 nentries=1 wtime=0.000184360 optime=0.001185677 etime=0.001368713
+[23/Mar/2026:23:20:37.248913676 +0000] conn=406 op=5 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multisupplier-extop"
+[23/Mar/2026:23:20:37.249796139 +0000] conn=406 op=5 RESULT err=0 tag=120 nentries=0 wtime=0.000181883 optime=0.000891455 etime=0.001072166
+[23/Mar/2026:23:20:37.314161580 +0000] conn=406 op=6 ADD dn="cn=1074176838,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:37.314304281 +0000] conn=406 op=6 RESULT err=53 tag=105 nentries=0 wtime=0.000459795 optime=0.000154483 etime=0.000611003
+[23/Mar/2026:23:20:37.314820192 +0000] conn=406 op=7 MOD dn="cn=40490570,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:37.314902138 +0000] conn=406 op=7 RESULT err=53 tag=103 nentries=0 wtime=0.000396831 optime=0.000081812 etime=0.000476362
+[23/Mar/2026:23:20:37.315122300 +0000] conn=406 op=8 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:37.315200308 +0000] conn=406 op=8 RESULT err=53 tag=103 nentries=0 wtime=0.000140363 optime=0.000084303 etime=0.000222437
+[23/Mar/2026:23:20:37.362255119 +0000] conn=406 op=9 ADD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:37.362348533 +0000] conn=406 op=9 RESULT err=53 tag=105 nentries=0 wtime=0.000672367 optime=0.000103057 etime=0.000772888
+[23/Mar/2026:23:20:37.362848009 +0000] conn=406 op=10 ADD dn="cn=1074176839,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:37.362939546 +0000] conn=406 op=10 RESULT err=53 tag=105 nentries=0 wtime=0.000315548 optime=0.000097171 etime=0.000410649
+[23/Mar/2026:23:20:37.409694829 +0000] conn=406 op=11 MOD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:37.409783333 +0000] conn=406 op=11 RESULT err=53 tag=103 nentries=0 wtime=0.046701617 optime=0.000096904 etime=0.046795948
+[23/Mar/2026:23:20:37.410013656 +0000] conn=406 op=12 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:37.410061246 +0000] conn=406 op=12 RESULT err=53 tag=103 nentries=0 wtime=0.000120811 optime=0.000053246 etime=0.000172971
+[23/Mar/2026:23:20:37.410408615 +0000] conn=406 op=13 ADD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:37.410463888 +0000] conn=406 op=13 RESULT err=53 tag=105 nentries=0 wtime=0.000311146 optime=0.000061191 etime=0.000370932
+[23/Mar/2026:23:20:37.410781961 +0000] conn=406 op=14 ADD dn="cn=1074176840,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:37.410824204 +0000] conn=406 op=14 fd=134 Disconnect - Server failed to flush response back to Client - B4
+[23/Mar/2026:23:20:38.113649337 +0000] conn=25 op=1549 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:38.114053657 +0000] conn=25 op=1549 RESULT err=0 tag=101 nentries=1 wtime=0.000172273 optime=0.000408130 etime=0.000576049
+[23/Mar/2026:23:20:39.115148110 +0000] conn=25 op=1550 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:39.115452658 +0000] conn=25 op=1550 RESULT err=0 tag=101 nentries=1 wtime=0.000151246 optime=0.000308805 etime=0.000457780
+[23/Mar/2026:23:20:40.116486589 +0000] conn=25 op=1551 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:40.116761580 +0000] conn=25 op=1551 RESULT err=0 tag=101 nentries=1 wtime=0.000188663 optime=0.000279959 etime=0.000466445
+[23/Mar/2026:23:20:40.462524084 +0000] conn=407 fd=134 slot=134 connection from 172.23.49.10 to 10.172.248.55
+[23/Mar/2026:23:20:40.463856358 +0000] conn=407 op=0 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:40.467526350 +0000] conn=407 op=0 RESULT err=14 tag=97 nentries=0 wtime=0.000095840 optime=0.003683138 etime=0.003777802, SASL bind in progress
+[23/Mar/2026:23:20:40.515782797 +0000] conn=407 op=1 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:40.517674775 +0000] conn=407 op=1 RESULT err=14 tag=97 nentries=0 wtime=0.000078435 optime=0.001902817 etime=0.001980226, SASL bind in progress
+[23/Mar/2026:23:20:40.565626038 +0000] conn=407 op=2 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:40.566423207 +0000] conn=407 op=2 RESULT err=0 tag=97 nentries=0 wtime=0.000120398 optime=0.000805970 etime=0.000925202 dn="krbprincipalname=ldap/cpeg-ipareplica.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:40.615452019 +0000] conn=407 op=3 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:40.616779137 +0000] conn=407 op=3 RESULT err=0 tag=101 nentries=1 wtime=0.000305967 optime=0.001333489 etime=0.001637785
+[23/Mar/2026:23:20:40.664910142 +0000] conn=407 op=4 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:40.666265790 +0000] conn=407 op=4 RESULT err=0 tag=101 nentries=1 wtime=0.000204972 optime=0.001360622 etime=0.001562766
+[23/Mar/2026:23:20:40.714634716 +0000] conn=407 op=5 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multisupplier-extop"
+[23/Mar/2026:23:20:40.715544120 +0000] conn=407 op=5 RESULT err=0 tag=120 nentries=0 wtime=0.000259933 optime=0.000919512 etime=0.001177663
+[23/Mar/2026:23:20:40.780012787 +0000] conn=407 op=6 ADD dn="cn=1074176838,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:40.780171701 +0000] conn=407 op=6 RESULT err=53 tag=105 nentries=0 wtime=0.000575285 optime=0.000168399 etime=0.000740868
+[23/Mar/2026:23:20:40.780850522 +0000] conn=407 op=7 MOD dn="cn=40490570,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:40.780958069 +0000] conn=407 op=7 RESULT err=53 tag=103 nentries=0 wtime=0.000527725 optime=0.000117591 etime=0.000642514
+[23/Mar/2026:23:20:40.781463742 +0000] conn=407 op=8 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:40.781565625 +0000] conn=407 op=8 RESULT err=53 tag=103 nentries=0 wtime=0.000408115 optime=0.000109628 etime=0.000515334
+[23/Mar/2026:23:20:40.828467112 +0000] conn=407 op=9 ADD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:40.828596559 +0000] conn=407 op=9 RESULT err=53 tag=105 nentries=0 wtime=0.000852493 optime=0.000140138 etime=0.000989672
+[23/Mar/2026:23:20:40.828949581 +0000] conn=407 op=10 ADD dn="cn=1074176839,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:40.829013380 +0000] conn=407 op=10 RESULT err=53 tag=105 nentries=0 wtime=0.000230039 optime=0.000067899 etime=0.000295888
+[23/Mar/2026:23:20:40.875821529 +0000] conn=407 op=11 MOD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:40.875929780 +0000] conn=407 op=11 RESULT err=53 tag=103 nentries=0 wtime=0.046757898 optime=0.000116792 etime=0.046871883
+[23/Mar/2026:23:20:40.876364844 +0000] conn=407 op=12 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:40.876450877 +0000] conn=407 op=12 RESULT err=53 tag=103 nentries=0 wtime=0.000344052 optime=0.000091473 etime=0.000433038
+[23/Mar/2026:23:20:40.876889321 +0000] conn=407 op=13 ADD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:40.876972853 +0000] conn=407 op=13 RESULT err=53 tag=105 nentries=0 wtime=0.000399019 optime=0.000090097 etime=0.000487247
+[23/Mar/2026:23:20:40.877248916 +0000] conn=407 op=14 ADD dn="cn=1074176840,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:40.877284544 +0000] conn=407 op=14 fd=134 Disconnect - Server failed to flush response back to Client - B4
+[23/Mar/2026:23:20:41.117855111 +0000] conn=25 op=1552 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:41.118104283 +0000] conn=25 op=1552 RESULT err=0 tag=101 nentries=1 wtime=0.000151901 optime=0.000252449 etime=0.000401701
+[23/Mar/2026:23:20:42.119339354 +0000] conn=25 op=1554 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:42.119616993 +0000] conn=25 op=1554 RESULT err=0 tag=101 nentries=1 wtime=0.000188637 optime=0.000281084 etime=0.000466254
+[23/Mar/2026:23:20:43.120898064 +0000] conn=25 op=1555 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:43.121263620 +0000] conn=25 op=1555 RESULT err=0 tag=101 nentries=1 wtime=0.000229848 optime=0.000368603 etime=0.000594685
+[23/Mar/2026:23:20:43.930103970 +0000] conn=408 fd=134 slot=134 connection from 172.23.49.10 to 10.172.248.55
+[23/Mar/2026:23:20:43.931761288 +0000] conn=408 op=0 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:43.934902773 +0000] conn=408 op=0 RESULT err=14 tag=97 nentries=0 wtime=0.000101225 optime=0.003150605 etime=0.003250692, SASL bind in progress
+[23/Mar/2026:23:20:44.122494303 +0000] conn=408 op=1 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:44.122547016 +0000] conn=25 op=1556 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:44.122906016 +0000] conn=25 op=1556 RESULT err=0 tag=101 nentries=1 wtime=0.000153775 optime=0.000361407 etime=0.000512403
+[23/Mar/2026:23:20:44.124525610 +0000] conn=408 op=1 RESULT err=14 tag=97 nentries=0 wtime=0.000063179 optime=0.002042790 etime=0.002104424, SASL bind in progress
+[23/Mar/2026:23:20:44.172557394 +0000] conn=408 op=2 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:44.173709348 +0000] conn=408 op=2 RESULT err=0 tag=97 nentries=0 wtime=0.000090657 optime=0.001164624 etime=0.001254268 dn="krbprincipalname=ldap/cpeg-ipareplica.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:44.222850559 +0000] conn=408 op=3 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:44.224653147 +0000] conn=408 op=3 RESULT err=0 tag=101 nentries=1 wtime=0.000243275 optime=0.001806678 etime=0.002047281
+[23/Mar/2026:23:20:44.272712399 +0000] conn=408 op=4 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:44.274405079 +0000] conn=408 op=4 RESULT err=0 tag=101 nentries=1 wtime=0.000232223 optime=0.001698862 etime=0.001928579
+[23/Mar/2026:23:20:44.322559958 +0000] conn=408 op=5 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multisupplier-extop"
+[23/Mar/2026:23:20:44.323410956 +0000] conn=408 op=5 RESULT err=0 tag=120 nentries=0 wtime=0.000165739 optime=0.000860200 etime=0.000994002
+[23/Mar/2026:23:20:44.387216157 +0000] conn=408 op=6 ADD dn="cn=1074176838,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:44.387315334 +0000] conn=408 op=6 RESULT err=53 tag=105 nentries=0 wtime=0.000379030 optime=0.000119737 etime=0.000496522
+[23/Mar/2026:23:20:44.387638650 +0000] conn=408 op=7 MOD dn="cn=40490570,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:44.387707229 +0000] conn=408 op=7 RESULT err=53 tag=103 nentries=0 wtime=0.000256646 optime=0.000077296 etime=0.000332414
+[23/Mar/2026:23:20:44.387942420 +0000] conn=408 op=8 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:44.388005533 +0000] conn=408 op=8 RESULT err=53 tag=103 nentries=0 wtime=0.000081358 optime=0.000067359 etime=0.000147398
+[23/Mar/2026:23:20:44.435487403 +0000] conn=408 op=9 ADD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:44.435600498 +0000] conn=408 op=9 RESULT err=53 tag=105 nentries=0 wtime=0.000798248 optime=0.000122855 etime=0.000918148
+[23/Mar/2026:23:20:44.435901264 +0000] conn=408 op=10 ADD dn="cn=1074176839,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:44.435965280 +0000] conn=408 op=10 RESULT err=53 tag=105 nentries=0 wtime=0.000232367 optime=0.000068808 etime=0.000299467
+[23/Mar/2026:23:20:44.482660461 +0000] conn=408 op=11 MOD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:44.482769704 +0000] conn=408 op=11 RESULT err=53 tag=103 nentries=0 wtime=0.046612835 optime=0.000119923 etime=0.046729280
+[23/Mar/2026:23:20:44.483011677 +0000] conn=408 op=12 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:44.483080454 +0000] conn=408 op=12 RESULT err=53 tag=103 nentries=0 wtime=0.000132056 optime=0.000075262 etime=0.000204802
+[23/Mar/2026:23:20:44.483778005 +0000] conn=408 op=13 ADD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:44.483823516 +0000] conn=408 op=13 fd=134 Disconnect - Server failed to flush response back to Client - B4
+[23/Mar/2026:23:20:45.123804496 +0000] conn=25 op=1557 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:45.124068535 +0000] conn=25 op=1557 RESULT err=0 tag=101 nentries=1 wtime=0.000140087 optime=0.000268593 etime=0.000406295
+[23/Mar/2026:23:20:46.125126140 +0000] conn=25 op=1558 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:46.125443756 +0000] conn=25 op=1558 RESULT err=0 tag=101 nentries=1 wtime=0.000140350 optime=0.000321904 etime=0.000459012
+[23/Mar/2026:23:20:47.126606821 +0000] conn=25 op=1559 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:47.126879461 +0000] conn=25 op=1559 RESULT err=0 tag=101 nentries=1 wtime=0.000154300 optime=0.000276823 etime=0.000428089
+[23/Mar/2026:23:20:47.535583471 +0000] conn=409 fd=134 slot=134 connection from 172.23.49.10 to 10.172.248.55
+[23/Mar/2026:23:20:47.537860346 +0000] conn=409 op=0 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:47.542071176 +0000] conn=409 op=0 RESULT err=14 tag=97 nentries=0 wtime=0.000138604 optime=0.004229156 etime=0.004365769, SASL bind in progress
+[23/Mar/2026:23:20:47.788255427 +0000] conn=409 op=1 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:47.791312745 +0000] conn=409 op=1 RESULT err=14 tag=97 nentries=0 wtime=0.000095591 optime=0.003069261 etime=0.003162517, SASL bind in progress
+[23/Mar/2026:23:20:47.799899934 +0000] conn=7 op=9374 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multisupplier-extop"
+[23/Mar/2026:23:20:47.800736755 +0000] conn=7 op=9374 RESULT err=0 tag=120 nentries=0 wtime=0.000164515 optime=0.000844622 etime=0.001008055
+[23/Mar/2026:23:20:47.839348318 +0000] conn=409 op=2 BIND dn="" method=sasl version=3 mech=GSSAPI
+[23/Mar/2026:23:20:47.840076391 +0000] conn=409 op=2 RESULT err=0 tag=97 nentries=0 wtime=0.000079519 optime=0.000730924 etime=0.000809535 dn="krbprincipalname=ldap/cpeg-ipareplica.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:47.863635410 +0000] conn=7 op=9375 DEL dn="ipk11UniqueID=fa8e862c-7e3d-11e8-aad4-005056a85ecb,cn=keys,cn=sec,cn=dns,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:47.863829187 +0000] conn=7 op=9375 RESULT err=32 tag=107 nentries=0 wtime=0.062863824 optime=0.000207603 etime=0.063068960 csn=699f3f63000300140000
+[23/Mar/2026:23:20:47.964467743 +0000] conn=409 op=3 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:47.965785509 +0000] conn=409 op=3 RESULT err=0 tag=101 nentries=1 wtime=0.000232439 optime=0.001323357 etime=0.001553924
+[23/Mar/2026:23:20:48.014144710 +0000] conn=409 op=4 SRCH base="" scope=0 filter="(objectClass=*)" attrs="supportedControl supportedExtension"
+[23/Mar/2026:23:20:48.015648347 +0000] conn=409 op=4 RESULT err=0 tag=101 nentries=1 wtime=0.000208034 optime=0.001508510 etime=0.001714145
+[23/Mar/2026:23:20:48.064266750 +0000] conn=409 op=5 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multisupplier-extop"
+[23/Mar/2026:23:20:48.065280969 +0000] conn=409 op=5 RESULT err=0 tag=120 nentries=0 wtime=0.000512213 optime=0.001022958 etime=0.001533340
+[23/Mar/2026:23:20:48.128136038 +0000] conn=25 op=1561 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:48.128370991 +0000] conn=409 op=6 ADD dn="cn=1074176838,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:48.128477146 +0000] conn=409 op=6 RESULT err=53 tag=105 nentries=0 wtime=0.000423087 optime=0.000113836 etime=0.000533241
+[23/Mar/2026:23:20:48.128482898 +0000] conn=25 op=1561 RESULT err=0 tag=101 nentries=1 wtime=0.000154883 optime=0.000356999 etime=0.000510701
+[23/Mar/2026:23:20:48.128759145 +0000] conn=409 op=7 MOD dn="cn=40490570,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:48.128826930 +0000] conn=409 op=7 RESULT err=53 tag=103 nentries=0 wtime=0.000225687 optime=0.000074178 etime=0.000297993
+[23/Mar/2026:23:20:48.128965173 +0000] conn=409 op=8 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:48.129017516 +0000] conn=409 op=8 RESULT err=53 tag=103 nentries=0 wtime=0.000083403 optime=0.000057459 etime=0.000139067
+[23/Mar/2026:23:20:48.176621451 +0000] conn=409 op=9 ADD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:48.176730116 +0000] conn=409 op=9 RESULT err=53 tag=105 nentries=0 wtime=0.000956789 optime=0.000118856 etime=0.001072949
+[23/Mar/2026:23:20:48.177083191 +0000] conn=409 op=10 ADD dn="cn=1074176839,ou=certificateRepository,ou=ca,o=ipaca"
+[23/Mar/2026:23:20:48.177161971 +0000] conn=409 op=10 RESULT err=53 tag=105 nentries=0 wtime=0.000249454 optime=0.000084125 etime=0.000331690
+[23/Mar/2026:23:20:48.223772146 +0000] conn=409 op=11 MOD dn="cn=40490571,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:48.223905861 +0000] conn=409 op=11 RESULT err=53 tag=103 nentries=0 wtime=0.046556065 optime=0.000145409 etime=0.046697286
+[23/Mar/2026:23:20:48.224165367 +0000] conn=409 op=12 MOD dn="ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:48.224243520 +0000] conn=409 op=12 RESULT err=53 tag=103 nentries=0 wtime=0.000146736 optime=0.000083797 etime=0.000228667
+[23/Mar/2026:23:20:48.224832824 +0000] conn=409 op=13 ADD dn="cn=40490572,ou=ca,ou=requests,o=ipaca"
+[23/Mar/2026:23:20:48.224875116 +0000] conn=409 op=13 fd=134 Disconnect - Server failed to flush response back to Client - B4
+[23/Mar/2026:23:20:49.129413938 +0000] conn=25 op=1562 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:49.129897732 +0000] conn=25 op=1562 RESULT err=0 tag=101 nentries=1 wtime=0.000152905 optime=0.000488809 etime=0.000638614
+[23/Mar/2026:23:20:49.866428171 +0000] conn=7 op=9377 DEL dn="idnsserverid=min-ipareplica01.ipa.calix.local,cn=servers,cn=dns,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:49.866629460 +0000] conn=7 op=9377 RESULT err=32 tag=107 nentries=0 wtime=0.000412178 optime=0.000211199 etime=0.000620437 csn=ffffffff6f0100140000
+[23/Mar/2026:23:20:49.866985850 +0000] conn=7 op=9378 DEL dn="cn=KDC,cn=min-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:49.867135097 +0000] conn=7 op=9378 RESULT err=32 tag=107 nentries=0 wtime=0.000159849 optime=0.000157775 etime=0.000315911 csn=ffffffff6f0200140000
+[23/Mar/2026:23:20:49.867288986 +0000] conn=7 op=9379 DEL dn="cn=KPASSWD,cn=min-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:49.867393280 +0000] conn=7 op=9379 RESULT err=32 tag=107 nentries=0 wtime=0.000080329 optime=0.000110667 etime=0.000189214 csn=ffffffff6f0300140000
+[23/Mar/2026:23:20:49.867555293 +0000] conn=7 op=9380 DEL dn="cn=HTTP,cn=min-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:49.867666011 +0000] conn=7 op=9380 RESULT err=32 tag=107 nentries=0 wtime=0.000101549 optime=0.000116904 etime=0.000216937 csn=ffffffff6f0400140000
+[23/Mar/2026:23:20:49.867800764 +0000] conn=7 op=9381 DEL dn="cn=OTPD,cn=min-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:49.867906452 +0000] conn=7 op=9381 RESULT err=32 tag=107 nentries=0 wtime=0.000073498 optime=0.000111335 etime=0.000183266 csn=ffffffff6f0500140000
+[23/Mar/2026:23:20:49.868040296 +0000] conn=7 op=9382 DEL dn="cn=KEYS,cn=min-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:49.868157513 +0000] conn=7 op=9382 RESULT err=32 tag=107 nentries=0 wtime=0.000073239 optime=0.000122919 etime=0.000194839 csn=ffffffff6f0600140000
+[23/Mar/2026:23:20:49.868336457 +0000] conn=7 op=9383 DEL dn="cn=DNS,cn=min-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:49.868466920 +0000] conn=7 op=9383 RESULT err=32 tag=107 nentries=0 wtime=0.000108606 optime=0.000137480 etime=0.000244412 csn=ffffffff6f0700140000
+[23/Mar/2026:23:20:49.868634028 +0000] conn=7 op=9384 DEL dn="cn=DNSKeySync,cn=min-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:49.868724756 +0000] conn=7 op=9384 RESULT err=32 tag=107 nentries=0 wtime=0.000091467 optime=0.000101024 etime=0.000191344 csn=ffffffff6f0800140000
+[23/Mar/2026:23:20:49.868948622 +0000] conn=7 op=9385 DEL dn="cn=min-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:49.869049090 +0000] conn=7 op=9385 RESULT err=32 tag=107 nentries=0 wtime=0.000079607 optime=0.000106047 etime=0.000184289 csn=ffffffff6f0900140000
+[23/Mar/2026:23:20:49.869185101 +0000] conn=7 op=9386 MOD dn="cn=min-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local,cn=domain,cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:49.869282891 +0000] conn=7 op=9386 RESULT err=32 tag=103 nentries=0 wtime=0.000084054 optime=0.000104210 etime=0.000187087 csn=ffffffff6f0a00140000
+[23/Mar/2026:23:20:49.869410844 +0000] conn=7 op=9387 DEL dn="cn=min-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local,cn=domain,cn=topology,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+[23/Mar/2026:23:20:49.869483484 +0000] conn=7 op=9387 RESULT err=32 tag=107 nentries=0 wtime=0.000064432 optime=0.000076706 etime=0.000140032 csn=ffffffff6f0b00140000
+[23/Mar/2026:23:20:50.105501539 +0000] conn=7 op=9388 EXT oid="2.16.840.1.113730.3.5.5" name="replication-multisupplier-extop"
+[23/Mar/2026:23:20:50.106823581 +0000] conn=7 op=9388 RESULT err=0 tag=120 nentries=0 wtime=0.000160989 optime=0.001330542 etime=0.001488013
+[23/Mar/2026:23:20:50.130926037 +0000] conn=25 op=1563 SRCH base="cn=index1160589770,cn=index,cn=tasks,cn=config" scope=0 filter="(|(objectClass=*)(objectClass=ldapsubentry))" attrs=ALL
+[23/Mar/2026:23:20:50.131192943 +0000] conn=25 op=1563 RESULT err=0 tag=101 nentries=1 wtime=0.000151136 optime=0.000271939 etime=0.000420315
+^C
 [root@pln-ipamaster ~]#
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-ca-spawn.*.log | grep -iE "INFO|ERROR|SEVERE"
-2026-03-23 20:18:05 INFO: Starting PKI server
-2026-03-23 20:18:07 INFO: Waiting for PKI server to start
-2026-03-23 20:18:23 INFO: Waiting for PKI server to start (16s)
-2026-03-23 20:18:39 INFO: Waiting for PKI server to start (32s)
-2026-03-23 20:18:55 INFO: Waiting for PKI server to start (48s)
-2026-03-23 20:19:11 INFO: Waiting for PKI server to start (64s)
-2026-03-23 20:19:27 INFO: Waiting for PKI server to start (80s)
-2026-03-23 22:57:58 INFO: Setting dbs.beginReplicaNumber to 1180
-2026-03-23 22:57:58 INFO: Setting dbs.endReplicaNumber to 1184
-2026-03-23 22:57:58 INFO: Setting dbs.enableSerialManagement to true
-2026-03-23 22:57:58 INFO: Storing subsystem config: /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
-2026-03-23 22:57:58 INFO: Storing registry config: /var/lib/pki/pki-tomcat/conf/ca/registry.cfg
-2026-03-23 22:57:58 INFO: Reusing replicated database
-2026-03-23 22:57:58 INFO: Initializing database
+[root@pln-ipamaster ~]# /var/lib/dirsrv
+-bash: /var/lib/dirsrv: Is a directory
+[root@pln-ipamaster ~]# df -h
+Filesystem             Size  Used Avail Use% Mounted on
+devtmpfs               4.0M     0  4.0M   0% /dev
+tmpfs                  3.8G  561M  3.3G  15% /dev/shm
+tmpfs                  1.6G  9.2M  1.5G   1% /run
+efivarfs               256K   58K  194K  23% /sys/firmware/efi/efivars
+/dev/mapper/rhel-root   70G   20G   51G  29% /
+/dev/sda2              960M  416M  545M  44% /boot
+/dev/mapper/rhel-home  171G  1.3G  170G   1% /home
+/dev/sda1              599M  7.4M  592M   2% /boot/efi
+/dev/sdb               250G  2.2G  248G   1% /var/log
+tmpfs                  769M   52K  768M   1% /run/user/42
+tmpfs                  769M   36K  768M   1% /run/user/1001
+[root@pln-ipamaster ~]# df -h /var/lib/dirsrv
+Filesystem             Size  Used Avail Use% Mounted on
+/dev/mapper/rhel-root   70G   20G   51G  29% /
+[root@pln-ipamaster ~]# tail -n 100 /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors
+[23/Mar/2026:23:20:12.567007020 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:13.541629353 +0000] - INFO - bdb_db2index - ipaca: Indexed 469000 entries (46%).
+[23/Mar/2026:23:20:16.429137918 +0000] - INFO - bdb_db2index - ipaca: Indexed 470000 entries (46%).
+[23/Mar/2026:23:20:18.761868167 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e14f000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:18.767012582 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e14f000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:18.773354168 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:21.909897129 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e14f000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:21.912530413 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e14f000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:21.915254413 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:22.266766135 +0000] - INFO - bdb_db2index - ipaca: Indexed 471000 entries (46%).
+[23/Mar/2026:23:20:25.047294526 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e14f000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:25.048946076 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e14f000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:25.050238251 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:26.889615804 +0000] - INFO - bdb_db2index - ipaca: Indexed 472000 entries (47%).
+[23/Mar/2026:23:20:29.810764775 +0000] - INFO - bdb_db2index - ipaca: Indexed 473000 entries (47%).
+[23/Mar/2026:23:20:31.244139509 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e14f000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:31.245197212 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e14f000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:31.246212874 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:32.867898100 +0000] - INFO - bdb_db2index - ipaca: Indexed 474000 entries (47%).
+[23/Mar/2026:23:20:34.375902625 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e14f000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:34.407460450 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e14f000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:34.409490775 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:35.980039398 +0000] - INFO - bdb_db2index - ipaca: Indexed 475000 entries (47%).
+[23/Mar/2026:23:20:37.540003640 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e14f000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:37.541147821 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e14f000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:37.542393630 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:38.946470885 +0000] - INFO - bdb_db2index - ipaca: Indexed 476000 entries (47%).
+[23/Mar/2026:23:20:40.671978707 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e14f000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:40.673752458 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e14f000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:40.674688461 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:42.004061654 +0000] - INFO - bdb_db2index - ipaca: Indexed 477000 entries (47%).
+[23/Mar/2026:23:20:44.710636908 +0000] - INFO - bdb_db2index - ipaca: Indexed 478000 entries (47%).
+[23/Mar/2026:23:20:46.868818288 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e14f000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:46.871192799 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e14f000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:46.872729918 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:47.334680528 +0000] - INFO - bdb_db2index - ipaca: Indexed 479000 entries (47%).
+[23/Mar/2026:23:20:49.951696631 +0000] - INFO - bdb_db2index - ipaca: Indexed 480000 entries (47%).
+[23/Mar/2026:23:20:50.002295770 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e173000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:50.003307994 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e173000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:50.004248647 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:52.548487056 +0000] - INFO - bdb_db2index - ipaca: Indexed 481000 entries (47%).
+[23/Mar/2026:23:20:53.135704537 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e178000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:53.136807460 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e178000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:53.137703275 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:54.985839526 +0000] - INFO - bdb_db2index - ipaca: Indexed 482000 entries (48%).
+[23/Mar/2026:23:20:56.267009211 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e17b000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:56.268333532 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e17b000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:56.269383546 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:20:58.046751586 +0000] - INFO - bdb_db2index - ipaca: Indexed 483000 entries (48%).
+[23/Mar/2026:23:20:59.398469343 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e17f000100140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:20:59.399490813 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e17f000100140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:20:59.400443712 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:21:00.847791116 +0000] - INFO - bdb_db2index - ipaca: Indexed 484000 entries (48%).
+[23/Mar/2026:23:21:02.530185914 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e181000100140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:21:02.531239785 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e181000100140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:21:02.532342922 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:21:03.332398790 +0000] - INFO - bdb_db2index - ipaca: Indexed 485000 entries (48%).
+[23/Mar/2026:23:21:05.661692347 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e183000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:21:05.662865500 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e183000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:21:05.664030175 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:21:05.864278165 +0000] - INFO - bdb_db2index - ipaca: Indexed 486000 entries (48%).
+[23/Mar/2026:23:21:08.464126545 +0000] - INFO - bdb_db2index - ipaca: Indexed 487000 entries (48%).
+[23/Mar/2026:23:21:10.875120718 +0000] - INFO - bdb_db2index - ipaca: Indexed 488000 entries (48%).
+[23/Mar/2026:23:21:11.858039667 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e188000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:21:11.859705840 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e188000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:21:11.861262482 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:21:13.400068349 +0000] - INFO - bdb_db2index - ipaca: Indexed 489000 entries (48%).
+[23/Mar/2026:23:21:14.990669432 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e18c000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:21:14.992449947 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e18c000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:21:14.994052898 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:21:16.346000887 +0000] - INFO - bdb_db2index - ipaca: Indexed 490000 entries (48%).
+[23/Mar/2026:23:21:18.123706697 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e18c000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:21:18.124787545 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e18c000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:21:18.125813246 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:21:19.163152983 +0000] - INFO - bdb_db2index - ipaca: Indexed 491000 entries (48%).
+[23/Mar/2026:23:21:21.256336124 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e18c000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:21:21.257686957 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e18c000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:21:21.258927964 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:21:22.336184834 +0000] - INFO - bdb_db2index - ipaca: Indexed 492000 entries (49%).
+[23/Mar/2026:23:21:24.392049039 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e197000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:21:24.393236801 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e197000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:21:24.394147389 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:21:24.942278662 +0000] - INFO - bdb_db2index - ipaca: Indexed 493000 entries (49%).
+[23/Mar/2026:23:21:27.523765877 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e19a000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:21:27.808632446 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e19a000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:21:27.811325054 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:21:28.092783119 +0000] - INFO - bdb_db2index - ipaca: Indexed 494000 entries (49%).
+[23/Mar/2026:23:21:31.181496610 +0000] - INFO - bdb_db2index - ipaca: Indexed 495000 entries (49%).
+[23/Mar/2026:23:21:33.914873794 +0000] - INFO - bdb_db2index - ipaca: Indexed 496000 entries (49%).
+[23/Mar/2026:23:21:34.007685854 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e1a1000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:21:34.008818870 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e1a1000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:21:34.010029171 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:21:36.628403209 +0000] - INFO - bdb_db2index - ipaca: Indexed 497000 entries (49%).
+[23/Mar/2026:23:21:37.140715343 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e1a1000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:21:37.142044207 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e1a1000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:21:37.142849269 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[23/Mar/2026:23:21:39.636306083 +0000] - INFO - bdb_db2index - ipaca: Indexed 498000 entries (49%).
+[23/Mar/2026:23:21:40.272813914 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0023e1a1000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[23/Mar/2026:23:21:40.273917303 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0023e1a1000000140000 not found, we aren't as up to date, or we purged
+[23/Mar/2026:23:21:40.274864807 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[root@pln-ipamaster ~]#
