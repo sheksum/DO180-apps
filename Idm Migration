@@ -1,41 +1,6 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa service-find pln-ipamaster.ipa.calix.local
------------------
-1 service matched
------------------
-  Principal name: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Principal alias: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Certificate: MIIE8jCCA9qgAwIBAgIEQAaOlTANBgkqhkiG9w0BAQsFADA6MRgwFgYDVQQKDA9JUEEuQ0FMSVguTE9DQUwxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yNjAzMjMxNzExMTlaFw0yODAzMjMxNzExMTlaMEIxGDAWBgNVBAoMD0lQQS5DQUxJWC5MT0NBTDEmMCQGA1UEAwwdcGxuLWlwYW1hc3Rlci5pcGEuY2FsaXgubG9jYWwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDNKfisb+jcpEVyHxCCMNniNe0VQH5yuKtOu0GS89O8V6fL9a8SQMgYZIopssOQcozGF+wyoUxoLctcGr0Fkm0EtCxJHYOQggdPpGaKXKKLo3obJU25ACabsdxetgqss8X7DWzGJkoqoSTzUTNA5gTzOKu1CDsULUMwZ66JYGBRmUOCqP0zSXskZvKqw8214xsGhFccSIybqxphXJxOPepaqRsRVKSW6Y4QBvc3smAcZ2AuPifGq4m2LQ01Yw+lGj8K68Y2eC1ctv6bYCU5Qld+mCAPXF+1nxcIqA6TBcD2XeWvkqKcY7qejGchrO6C+2yXy/z/N4gwnEbJeEB3XkavAgMBAAGjggH2MIIB8jAfBgNVHSMEGDAWgBQXW9dITSoNenoACqA7Hexxq2iUqjBBBggrBgEFBQcBAQQ1MDMwMQYIKwYBBQUHMAGGJWh0dHA6Ly9pcGEtY2EuaXBhLmNhbGl4LmxvY2FsL2NhL29jc3AwDgYDVR0PAQH/BAQDAgTwMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjB6BgNVHR8EczBxMG+gN6A1hjNodHRwOi8vaXBhLWNhLmlwYS5jYWxpeC5sb2NhbC9pcGEvY3JsL01hc3RlckNSTC5iaW6iNKQyMDAxDjAMBgNVBAoMBWlwYWNhMR4wHAYDVQQDDBVDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHQYDVR0OBBYEFCzNQMdlcTr/0Hlb3lmh2CxmAUFNMIHBBgNVHREEgbkwgbaCHXBsbi1pcGFtYXN0ZXIuaXBhLmNhbGl4LmxvY2FsoEIGCisGAQQBgjcUAgOgNAwybGRhcC9wbG4taXBhbWFzdGVyLmlwYS5jYWxpeC5sb2NhbEBJUEEuQ0FMSVguTE9DQUygUQYGKwYBBQICoEcwRaARGw9JUEEuQ0FMSVguTE9DQUyhMDAuoAMCAQGhJzAlGwRsZGFwGx1wbG4taXBhbWFzdGVyLmlwYS5jYWxpeC5sb2NhbDANBgkqhkiG9w0BAQsFAAOCAQEAXHSTKIs8KMzCy261tBj1/D5dbZ175/dDOcrNoztTk9cgVK/uOE5OooOPCjMPMMhnAjtAkA1Ou0aHx06ZhW55lJyCVR4hbzuoH+SVtgL9rObBt3eOnw5HWe9Mj4/IbV+1s2uIpGVWZF/KAWWrr8xWeBI/zNw/4cvVWtcjMrhOnzKghiBWRszE0aO9mZFH0TZuUO0G2nFycnIgDTyK06Se6CZhTV/YhuLKhnL4lx7s4OAd3IY5MRpQ/RprRNmAGOtw51gtKJa0b18LtGmB3jwI9QcpXUbYSB+kELcmJHPsn+BjRqDU2vTsCXFevVGbw1YklPqa+Cc83To6izmWTAH0/g==
-  Subject: CN=pln-ipamaster.ipa.calix.local,O=IPA.CALIX.LOCAL
-  Serial Number: 1074171541
-  Serial Number (hex): 0x40068E95
-  Issuer: CN=Certificate Authority,O=IPA.CALIX.LOCAL
-  Not Before: Mon Mar 23 17:11:19 2026 UTC
-  Not After: Thu Mar 23 17:11:19 2028 UTC
-  Fingerprint (SHA1): f2:8a:10:e1:e0:bc:67:b1:ea:89:5a:9d:cf:20:35:62:7c:31:49:de
-  Fingerprint (SHA256): 3e:65:31:cc:75:44:1e:f5:4c:3b:7c:55:18:82:20:1f:6a:fc:0d:3c:66:50:ba:b7:cc:41:e3:f1:a8:66:6c:33
-  Keytab: True
-----------------------------
-Number of entries returned 1
-----------------------------
-[root@cpeg-ipareplica ~]#
+ipa-server-install --uninstall --ignore-topology-disconnect
 
-Configuring the web interface (httpd)
-  [1/22]: stopping httpd
-  [2/22]: backing up ssl.conf
-  [3/22]: disabling nss.conf
-  [4/22]: configuring mod_ssl certificate paths
-  [5/22]: setting mod_ssl protocol list
-  [6/22]: configuring mod_ssl log directory
-  [7/22]: disabling mod_ssl OCSP
-  [8/22]: adding URL rewriting rules
-  [9/22]: configuring httpd
-Nothing to do for configure_httpd_wsgi_conf
-  [10/22]: setting up httpd keytab
-  [error] NotFound: wait_for_entry timeout on ldap://cpeg-ipareplica.ipa.calix.local:389 for krbprincipalname=HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local
-Your system may be partly configured.
-Run /usr/sbin/ipa-server-install --uninstall to clean up.
 
-wait_for_entry timeout on ldap://cpeg-ipareplica.ipa.calix.local:389 for krbprincipalname=HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local
-The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
-[root@pln-ipamaster yum.repos.d]#
+kinit admin
+ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+ipa service-find pln-ipamaster.ipa.calix.local
