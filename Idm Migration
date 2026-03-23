@@ -1,7 +1,19 @@
-# On pln-ipamaster
-certutil -L -d /etc/dirsrv/slapd-IPA-CALIX-LOCAL/
+ 
+[root@pln-ipamaster yum.repos.d]# certutil -L -d /etc/dirsrv/slapd-IPA-CALIX-LOCAL/
 
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
 
-ldapsearch -H ldaps://pln-ipamaster.ipa.calix.local:636 \
+IPA.CALIX.LOCAL IPA CA                                       CT,C,C
+Server-Cert                                                  u,u,u
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# ldapsearch -H ldaps://pln-ipamaster.ipa.calix.local:636 \
   -x -D "cn=Directory Manager" -W \
   -b "" -s base
+Enter LDAP Password:
+ldap_bind: Invalid credentials (49)
+[root@pln-ipamaster yum.repos.d]# ldapsearch -H ldaps://pln-ipamaster.ipa.calix.local:636   -x -D "cn=Directory Manager" -W   -b "" -s base
+Enter LDAP Password:
+ldap_bind: Invalid credentials (49)
+[root@pln-ipamaster yum.repos.d]#
