@@ -1,0 +1,12 @@
+# Test key ports from pln-ipamaster to cpeg
+for port in 88 389 443 464 636; do
+  nc -zv cpeg-ipareplica.ipa.calix.local $port 2>&1 | grep -E "(succeeded|failed|refused)"
+done
+
+
+firewall-cmd --permanent --add-service={freeipa-ldap,freeipa-ldaps,freeipa-replication,dns,ntp,https,kerberos,kpasswd}
+firewall-cmd --reload
+firewall-cmd --list-services
+
+dnf module enable idm:DL1 -y
+dnf module install idm:DL1/server -y
