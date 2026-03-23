@@ -1,1 +1,36 @@
-tail -30 /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log
+^C
+[root@pln-ipamaster yum.repos.d]#
+[root@pln-ipamaster yum.repos.d]# tail -30 /var/log/pki/pki-tomcat/ca/debug.2026-03-23.log
+2026-03-23 20:50:04 [ProfileChangeMonitor] INFO: Done Profile Creation - KDCs_PKINIT_Certs
+2026-03-23 20:50:04 [ProfileChangeMonitor] INFO: Done Profile Creation - acmeIPAServerCert
+2026-03-23 20:50:04 [main] INFO: CMSEngine: Initializing selftests subsystem
+2026-03-23 20:50:04 [main] INFO: CMSEngine: Initializing CrossCertPair subsystem
+2026-03-23 20:50:04 [main] INFO: CMSEngine: Initializing stats subsystem
+2026-03-23 20:50:04 [main] INFO: CertificateAuthority: Publisher processor disabled
+2026-03-23 20:50:04 [main] INFO: CAEngine: Initializing certificate issued listener
+2026-03-23 20:50:04 [RequestRecoverThread] INFO: LDAPSession: Searching ou=ca, ou=requests,o=ipaca for (&(requestState=approved)(requestId=*))
+2026-03-23 20:50:04 [main] INFO: CAEngine: Initializing cert revoked listener
+2026-03-23 20:50:04 [main] INFO: CAEngine: Initializing request in queue listener
+2026-03-23 20:50:04 [main] INFO: RequestInQListener: Initializing RequestInQListener
+2026-03-23 20:50:04 [main] INFO: RequestInQListener: - enabled: false
+2026-03-23 20:50:04 [main] INFO: RequestInQListener: - sender email:
+2026-03-23 20:50:04 [main] INFO: RequestInQListener: - recipient email:
+2026-03-23 20:50:04 [main] INFO: RequestInQListener: - email subject: Certificate Request in Queue
+2026-03-23 20:50:04 [main] INFO: RequestInQListener: - email template: /var/lib/pki/pki-tomcat/ca/emails/reqInQueue_CA.html
+2026-03-23 20:50:04 [main] INFO: CMSEngine: Starting ca subsystem
+2026-03-23 20:50:04 [main] INFO: CMSEngine: Starting null subsystem
+2026-03-23 20:50:04 [main] INFO: LDAPProfileSubsystem: startup
+2026-03-23 20:50:04 [main] INFO: CMSEngine: Starting selftests subsystem
+2026-03-23 20:50:04 [main] INFO: CertUtil: Checking cert validity for caSigningCert cert-pki-ca
+2026-03-23 20:50:04 [main] INFO: CertUtil: Checking cert validity for ocspSigningCert cert-pki-ca
+2026-03-23 20:50:04 [main] INFO: CertUtil: Checking cert validity for Server-Cert cert-pki-ca
+2026-03-23 20:50:04 [main] INFO: CertUtil: Checking cert validity for subsystemCert cert-pki-ca
+2026-03-23 20:50:04 [main] INFO: CertUtil: Checking cert validity for auditSigningCert cert-pki-ca
+2026-03-23 20:50:05 [main] INFO: CMSEngine: Starting CrossCertPair subsystem
+2026-03-23 20:50:05 [main] INFO: CMSEngine: Starting stats subsystem
+2026-03-23 20:50:05 [main] INFO: Repository: Getting last serial number in range 49970001..49980000
+2026-03-23 20:50:05 [main] INFO: LDAPPagedSearch: Searching ou=ca, ou=requests,o=ipaca
+2026-03-23 20:50:05 [main] INFO: LDAPPagedSearch: filter: (&(requestId<=0849980000)(requestState=*))
+[root@pln-ipamaster yum.repos.d]# date
+Mon Mar 23 08:52:48 PM UTC 2026
+[root@pln-ipamaster yum.repos.d]#
