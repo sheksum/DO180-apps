@@ -1,2 +1,7 @@
-dsctl IPA-CALIX-LOCAL remove --do-it
-ss -tlnp | grep -E "389|636"
+[root@pln-ipamaster ~]# dsctl IPA-CALIX-LOCAL remove --do-it
+No such instance 'IPA-CALIX-LOCAL'
+Unable to access instance information. Are you running as the correct user? (usually dirsrv or root)
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ss -tlnp | grep -E "389|636"
+[root@pln-ipamaster ~]#
