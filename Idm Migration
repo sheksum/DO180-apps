@@ -1,8 +1,9 @@
+# On pln-ipamaster
+ipa-server-install --uninstall --ignore-topology-disconnect
 
-IPA client is already configured on this system, ignoring the --domain, --server, --realm, --hostname, --password and --keytab options.
-Your system may be partly configured.
-Run /usr/sbin/ipa-server-install --uninstall to clean up.
-
-NTP configuration cannot be updated during promotion
-The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
-[root@pln-ipamaster yum.repos.d]#
+# On cpeg-ipareplica
+ipa server-del pln-ipamaster.ipa.calix.local --force
+ipa host-add pln-ipamaster.ipa.calix.local --force
+ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+ipa service-add ldap/pln-ipamaster.ipa.calix.local
+ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
