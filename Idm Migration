@@ -1,5 +1,8 @@
-# On pln-ipamaster
-systemctl stop dirsrv@IPA-CALIX-LOCAL
-systemctl stop dirsrv.target
-kill $(lsof -t -i:389) 2>/dev/null
-ss -tlnp | grep 389
+
+IPA client is already configured on this system, ignoring the --domain, --server, --realm, --hostname, --password and --keytab options.
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
+
+NTP configuration cannot be updated during promotion
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster yum.repos.d]#
