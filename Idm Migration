@@ -1,5 +1,3 @@
-[root@cpeg-ipareplica ~]# ldapdelete -x -D "cn=Directory Manager" -W \
->   "cn=pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=domain,cn=ipa,cn=topology,cn=etc,dc=ipa,dc=calix,dc=local"
-Enter LDAP Password:
-ldap_sasl_bind(SIMPLE): Can't contact LDAP server (-1)
-[root@cpeg-ipareplica ~]#
+ldapdelete -H ldap://cpeg-ipareplica.ipa.calix.local \
+  -x -D "cn=Directory Manager" -W \
+  "cn=pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=domain,cn=ipa,cn=topology,cn=etc,dc=ipa,dc=calix,dc=local"
