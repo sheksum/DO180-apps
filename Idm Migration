@@ -1,1 +1,63 @@
-watch -n 30 'tail -n 5 /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | grep INFO'
+Every 2.0s: grep INFO /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors                                                                                                                            pln-ipamaster.ipa.calix.local: Mon Mar 23 23:29:03 2026
+
+[23/Mar/2026:22:25:06.142317847 +0000] - INFO - main - 389-Directory/2.7.0 B2025.259.0000 starting up
+[23/Mar/2026:22:25:06.144733033 +0000] - INFO - main - Setting the maximum file descriptor limit to: 524288
+[23/Mar/2026:22:25:07.048890986 +0000] - INFO - PBKDF2_SHA256 - Based on CPU performance, chose 2048 rounds
+[23/Mar/2026:22:25:07.051507081 +0000] - INFO - PBKDF2-SHA1 - Number of iterations set to 100000 from default
+[23/Mar/2026:22:25:07.053614794 +0000] - INFO - PBKDF2-SHA1 - Number of iterations set to 100000 from default
+[23/Mar/2026:22:25:07.056091119 +0000] - INFO - PBKDF2-SHA256 - Number of iterations set to 100000 from default
+[23/Mar/2026:22:25:07.057445876 +0000] - INFO - PBKDF2-SHA512 - Number of iterations set to 100000 from default
+[23/Mar/2026:22:25:07.061499138 +0000] - INFO - bdb_config_upgrade_dse_info - create config entry from old config
+[23/Mar/2026:22:25:07.504924288 +0000] - INFO - connection_table_new - Number of connection sub-tables 1, each containing 63937 slots.
+[23/Mar/2026:22:25:07.539432773 +0000] - INFO - slapd_daemon - slapd started.  Listening on All Interfaces port 389 for LDAP requests
+[23/Mar/2026:22:25:07.540655871 +0000] - INFO - slapd_daemon - Listening on /run/slapd-IPA-CALIX-LOCAL.socket for LDAPI requests
+[23/Mar/2026:22:25:08.060884849 +0000] - INFO - postop_modify_config_dse - The change of nsslapd-securePort will not take effect until the server is restarted
+[23/Mar/2026:22:25:08.458825639 +0000] - INFO - ldbm_instance_config_cachememsize_set - force a minimal value 512000
+[23/Mar/2026:22:25:08.638883000 +0000] - INFO - ct_thread_cleanup - slapd shutting down - signaling connection table threads
+[23/Mar/2026:22:25:08.639930965 +0000] - INFO - op_thread_cleanup - slapd shutting down - signaling operation threads - op stack size 2 max work q size 1 max work q stack size 1
+[23/Mar/2026:22:25:08.647595010 +0000] - INFO - slapd_daemon - slapd shutting down - waiting for 2 threads to terminate
+[23/Mar/2026:22:25:08.706405233 +0000] - INFO - slapd_daemon - slapd shutting down - accept_thread
+[23/Mar/2026:22:25:08.787056517 +0000] - INFO - slapd_daemon - slapd shutting down - closing down internal subsystems and plugins
+[23/Mar/2026:22:25:08.791273249 +0000] - INFO - bdb_pre_close - Waiting for 5 database threads to stop
+[23/Mar/2026:22:25:09.929343588 +0000] - INFO - bdb_pre_close - All database threads now stopped
+[23/Mar/2026:22:25:09.976247645 +0000] - INFO - ldbm_back_instance_set_destructor - Set of instances destroyed
+[23/Mar/2026:22:25:09.979719008 +0000] - INFO - connection_post_shutdown_cleanup - slapd shutting down - freed 1 work q stack objects - freed 2 op stack objects
+[23/Mar/2026:22:25:09.981329453 +0000] - INFO - main - slapd stopped.
+[23/Mar/2026:22:25:11.354261520 +0000] - INFO - main - 389-Directory/2.7.0 B2025.259.0000 starting up
+[23/Mar/2026:22:25:11.355542523 +0000] - INFO - main - Setting the maximum file descriptor limit to: 524288
+[23/Mar/2026:22:25:11.363543539 +0000] - INFO - PBKDF2-SHA1 - Number of iterations set to 100000 from default
+[23/Mar/2026:22:25:11.365189500 +0000] - INFO - PBKDF2-SHA1 - Number of iterations set to 100000 from default
+[23/Mar/2026:22:25:11.367162280 +0000] - INFO - PBKDF2-SHA256 - Number of iterations set to 100000 from default
+[23/Mar/2026:22:25:11.369444434 +0000] - INFO - PBKDF2-SHA512 - Number of iterations set to 100000 from default
+[23/Mar/2026:22:25:12.175305617 +0000] - INFO - PBKDF2_SHA256 - Based on CPU performance, chose 2048 rounds
+[23/Mar/2026:22:25:12.178494451 +0000] - INFO - ldbm_instance_config_cachememsize_set - force a minimal value 512000
+[23/Mar/2026:22:25:12.192254305 +0000] - INFO - slapd_daemon - New referral entries are detected under dc=ipa,dc=calix,dc=local (returned to SRCH req)
+[23/Mar/2026:22:25:12.269156503 +0000] - INFO - connection_table_new - Number of connection sub-tables 1, each containing 63937 slots.
+[23/Mar/2026:22:25:12.299860032 +0000] - INFO - slapd_daemon - slapd started.  Listening on All Interfaces port 389 for LDAP requests
+[23/Mar/2026:22:25:12.300936732 +0000] - INFO - slapd_daemon - Listening on /run/slapd-IPA-CALIX-LOCAL.socket for LDAPI requests
+[23/Mar/2026:22:25:15.019495817 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: accessRuleType
+[23/Mar/2026:22:25:15.025452596 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: altSecurityIdentities
+[23/Mar/2026:22:25:15.027176579 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: automountMapName
+[23/Mar/2026:22:25:15.028878438 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: automountkey
+[23/Mar/2026:22:25:15.030315130 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: carLicense
+[23/Mar/2026:22:25:15.031601156 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: description
+[23/Mar/2026:22:25:15.033215311 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: displayname
+[23/Mar/2026:22:25:15.034828078 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: fqdn
+[23/Mar/2026:22:25:15.036503452 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: gidnumber
+[23/Mar/2026:22:25:15.039466504 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: hostCategory
+[23/Mar/2026:22:25:15.041131526 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: idnsName
+[23/Mar/2026:22:25:15.043074509 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipServicePort
+[23/Mar/2026:22:25:15.044537559 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaAnchorUUID
+[23/Mar/2026:22:25:15.046023991 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaCASubjectDN
+[23/Mar/2026:22:25:15.047667020 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaCertmapData
+[23/Mar/2026:22:25:15.048855057 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaConfigString
+[23/Mar/2026:22:25:15.050100123 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaEnabledFlag
+[23/Mar/2026:22:25:15.052014234 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaExternalMember
+[23/Mar/2026:22:25:15.053160093 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaIdpAuthEndpoint
+[23/Mar/2026:22:25:15.054349304 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaIdpDevAuthEndpoint
+[23/Mar/2026:22:25:15.056125373 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaIdpScope
+[23/Mar/2026:22:25:15.057579041 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaIdpTokenEndpoint
+[23/Mar/2026:22:25:15.059273893 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaKrbAuthzData
+[23/Mar/2026:22:25:15.061439904 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaMemberCa
+[23/Mar/2026:22:25:15.063251170 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaMemberCertProfile
+[23/Mar/2026:22:25:15.065228043 +0000] - INFO - bdb_db2index - userRoot: Indexing attribute: ipaNTSecurityIdentifier
