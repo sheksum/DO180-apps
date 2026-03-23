@@ -1,29 +1,5 @@
-[root@cpeg-ipareplica ~]# ipa-replica-manage clean-ruv 41
-Directory Manager password:
-
-Replica ID 41 not found
-[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
-Directory Manager password:
-
-Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 20
-	ric-ipareplica.ipa.calix.local:389: 12
-	ric-ipareplica01.ipa.calix.local:389: 11
-	nan-ipareplica01.ipa.calix.local:389: 10
-Certificate Server Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 21
-[root@cpeg-ipareplica ~]#[root@cpeg-ipareplica ~]# ipa-replica-manage clean-ruv 41
-Directory Manager password:
-
-Replica ID 41 not found
-[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
-Directory Manager password:
-
-Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 20
-	ric-ipareplica.ipa.calix.local:389: 12
-	ric-ipareplica01.ipa.calix.local:389: 11
-	nan-ipareplica01.ipa.calix.local:389: 10
-Certificate Server Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 21
-[root@cpeg-ipareplica ~]#
+ipa host-add pln-ipamaster.ipa.calix.local --force
+ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+ipa service-add ldap/pln-ipamaster.ipa.calix.local
+ipa service-find pln-ipamaster.ipa.calix.local
