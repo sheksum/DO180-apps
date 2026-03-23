@@ -1,6 +1,1 @@
-[root@pln-ipamaster yum.repos.d]# grep internaldb /var/lib/pki/pki-tomcat/conf/ca/CS.cfg | grep -i password
-cms.passwordlist=internaldb,replicationdb
-[root@pln-ipamaster yum.repos.d]# cat /var/lib/pki/pki-tomcat/conf/password.conf
-internal=<redacted>
-internaldb=<redacted>
-replicationdb=<redacted>
+certutil -L -d /var/lib/pki/pki-tomcat/conf/alias/
