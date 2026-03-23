@@ -1,42 +1,32 @@
-ipa: ERROR: IP address 10.172.248.55 is already assigned in domain ipa.calix.local..
-[root@cpeg-ipareplica ~]# ipa host-add pln-ipamaster.ipa.calix.local --force
-------------------------------------------
-Added host "pln-ipamaster.ipa.calix.local"
-------------------------------------------
-  Host name: pln-ipamaster.ipa.calix.local
-  Principal name: host/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Principal alias: host/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Password: False
-  Keytab: False
-  Managed by: pln-ipamaster.ipa.calix.local
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa service-add ldap/pln-ipamaster.ipa.calix.local
-------------------------------------------------------------------
-Added service "ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL"
-------------------------------------------------------------------
-  Principal name: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Principal alias: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Managed by: pln-ipamaster.ipa.calix.local
-[root@cpeg-ipareplica ~]# ipa service-add HTTP/pln-ipamaster.ipa.calix.local
-------------------------------------------------------------------
-Added service "HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL"
-------------------------------------------------------------------
-  Principal name: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Principal alias: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Managed by: pln-ipamaster.ipa.calix.local
-[root@cpeg-ipareplica ~]# ipa service-find pln-ipamaster.ipa.calix.local
-------------------
-2 services matched
-------------------
-  Principal name: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Principal alias: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Keytab: False
-
-  Principal name: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Principal alias: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Keytab: False
-----------------------------
-Number of entries returned 2
-----------------------------
-[root@cpeg-ipareplica ~]#
+Nothing to do for configure_httpd_wsgi_conf
+  [10/22]: setting up httpd keytab
+  [11/22]: configuring Gssproxy
+  [12/22]: setting up ssl
+  [13/22]: configure certmonger for renewals
+  [14/22]: publish CA cert
+  [15/22]: clean up any existing httpd ccaches
+  [16/22]: enable ccache sweep
+  [17/22]: configuring SELinux for httpd
+  [18/22]: create KDC proxy config
+  [19/22]: enable KDC proxy
+  [20/22]: starting httpd
+  [21/22]: configuring httpd to start on boot
+  [22/22]: enabling oddjobd
+Done configuring the web interface (httpd).
+Configuring ipa-otpd
+  [1/2]: starting ipa-otpd
+  [2/2]: configuring ipa-otpd to start on boot
+Done configuring ipa-otpd.
+Custodia uses 'cpeg-ipareplica.ipa.calix.local' as master peer.
+Configuring ipa-custodia
+  [1/4]: Generating ipa-custodia config file
+  [2/4]: Generating ipa-custodia keys
+  [3/4]: starting ipa-custodia
+  [4/4]: configuring ipa-custodia to start on boot
+Done configuring ipa-custodia.
+Configuring certificate server (pki-tomcatd). Estimated time: 3 minutes
+  [1/33]: creating certificate server db
+  [2/33]: ignore time skew for initial replication
+  [3/33]: setting up initial replication
+Starting replication, please wait until this has completed.
+Update in progress, 238 seconds elapsed
