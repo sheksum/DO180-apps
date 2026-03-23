@@ -1,11 +1,12 @@
-rm -rf /var/lib/pki/pki-tomcat
-rm -rf /var/log/pki/pki-tomcat
-rm -rf /etc/pki/pki-tomcat
-rm -rf /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL
-rm -rf /etc/dirsrv/slapd-IPA-CALIX-LOCAL
-rm -rf /var/log/dirsrv/slapd-IPA-CALIX-LOCAL
-rm -rf /etc/ipa
-rm -rf /var/lib/ipa
-
-# Verify ports are free
-ss -tlnp | grep -E "389|636|443|88"
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# rm -rf /var/lib/pki/pki-tomcat
+[root@pln-ipamaster ~]# rm -rf /var/log/pki/pki-tomcat
+[root@pln-ipamaster ~]# rm -rf /etc/pki/pki-tomcat
+[root@pln-ipamaster ~]# rm -rf /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL
+[root@pln-ipamaster ~]# rm -rf /etc/dirsrv/slapd-IPA-CALIX-LOCAL
+[root@pln-ipamaster ~]# rm -rf /var/log/dirsrv/slapd-IPA-CALIX-LOCAL
+[root@pln-ipamaster ~]# rm -rf /etc/ipa
+[root@pln-ipamaster ~]# rm -rf /var/lib/ipa
+[root@pln-ipamaster ~]# ss -tlnp | grep -E "389|636|443|88"
+LISTEN 0      511          0.0.0.0:443       0.0.0.0:*    users:(("httpd",pid=32511,fd=7),("httpd",pid=32510,fd=7),("httpd",pid=32509,fd=7),("httpd",pid=32507,fd=7))
+[root@pln-ipamaster ~]#
