@@ -1,8 +1,52 @@
-# On cpeg-ipareplica
-ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+  Record name: pln-ipamaster
+  A record: 10.172.248.55
+[root@cpeg-ipareplica ~]# ipa dnsrecord-find ipa.calix.local pln-ipamaster
 
-# Verify
-ipa dnsrecord-find ipa.calix.local pln-ipamaster
+  Record name: pln-ipamaster
+  A record: 10.172.248.55
+----------------------------
+Number of entries returned 1
+----------------------------
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# dig pln-ipamaster.ipa.calix.local
 
+; <<>> DiG 9.11.36-RedHat-9.11.36-14.el8_10 <<>> pln-ipamaster.ipa.calix.local
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 1101
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 5, ADDITIONAL: 6
 
-dig pln-ipamaster.ipa.calix.local
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 518742804cb39aba8a420ac869c167df1702c74a4f2b69db (good)
+;; QUESTION SECTION:
+;pln-ipamaster.ipa.calix.local.	IN	A
+
+;; ANSWER SECTION:
+pln-ipamaster.ipa.calix.local. 86400 IN	A	10.172.248.55
+
+;; AUTHORITY SECTION:
+ipa.calix.local.	86400	IN	NS	ric-ipareplica01.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	cpeg-ipareplica.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	ric-ipareplica.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	nan-ipareplica01.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	sjc-ipareplica01.ipa.calix.local.
+
+;; ADDITIONAL SECTION:
+sjc-ipareplica01.ipa.calix.local. 86400	IN A	192.168.99.34
+nan-ipareplica01.ipa.calix.local. 86400	IN A	192.168.33.198
+ric-ipareplica01.ipa.calix.local. 86400	IN A	192.168.49.62
+ric-ipareplica.ipa.calix.local.	86400 IN A	192.168.49.63
+cpeg-ipareplica.ipa.calix.local. 1200 IN A	172.23.49.10
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.1#53(127.0.0.1)
+;; WHEN: Mon Mar 23 16:18:39 UTC 2026
+;; MSG SIZE  rcvd: 334
+
+[root@cpeg-ipareplica ~]#
