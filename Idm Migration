@@ -15,3 +15,8 @@ Run /usr/sbin/ipa-server-install --uninstall to clean up.
 Configuration of client side components failed!
 The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
 [root@pln-ipamaster yum.repos.d]#
+
+2026-03-23T15:46:10Z DEBUG The ipa-replica-install command failed, exception: ScriptError: Configuration of client side components failed!
+2026-03-23T15:46:10Z ERROR Configuration of client side components failed!
+2026-03-23T15:46:10Z ERROR The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+(END)
