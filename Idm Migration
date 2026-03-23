@@ -1,7 +1,7 @@
-[root@pln-ipamaster ~]# dsctl IPA-CALIX-LOCAL remove --do-it
-No such instance 'IPA-CALIX-LOCAL'
-Unable to access instance information. Are you running as the correct user? (usually dirsrv or root)
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ss -tlnp | grep -E "389|636"
-[root@pln-ipamaster ~]#
+# On cpeg-ipareplica
+ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
+ipa host-add pln-ipamaster.ipa.calix.local --force
+ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+ipa service-add ldap/pln-ipamaster.ipa.calix.local
+ipa service-find pln-ipamaster.ipa.calix.local
