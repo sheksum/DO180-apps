@@ -1,5 +1,4 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+root@cpeg-ipareplica ~]# ipa service-add HTTP/pln-ipamaster.ipa.calix.local
 ipa: ERROR: The host 'pln-ipamaster.ipa.calix.local' does not exist to add a service to.
 [root@cpeg-ipareplica ~]# ipa service-add ldap/pln-ipamaster.ipa.calix.local
 ipa: ERROR: The host 'pln-ipamaster.ipa.calix.local' does not exist to add a service to.
@@ -13,4 +12,8 @@ ipa: ERROR: The host 'pln-ipamaster.ipa.calix.local' does not exist to add a ser
 ----------------------------
 Number of entries returned 0
 ----------------------------
+[root@cpeg-ipareplica ~]# ipa service-add ldap/pln-ipamaster.ipa.calix.local
+ipa: ERROR: The host 'pln-ipamaster.ipa.calix.local' does not exist to add a service to.
+[root@cpeg-ipareplica ~]# ipa host-add pln-ipamaster.ipa.calix.local --ip-address 10.172.248.55
+ipa: ERROR: IP address 10.172.248.55 is already assigned in domain ipa.calix.local..
 [root@cpeg-ipareplica ~]#
