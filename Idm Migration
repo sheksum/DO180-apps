@@ -1,7 +1,17 @@
-ipa-client-install \
-  --domain=ipa.calix.local \
-  --realm=IPA.CALIX.LOCAL \
-  --server=cpeg-ipareplica.ipa.calix.local \
-  --no-ntp \
-  --no-reverse \
-  --mkhomedir
+# domain segment
+ipa topologysegment-del domain \
+  "pln-petipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local"
+
+# CA segments
+ipa topologysegment-del ca \
+  "cpeg-ipareplica.ipa.calix.local-to-pln-petipareplica.ipa.calix.local"
+
+ipa topologysegment-del ca \
+  "min-ipareplica.ipa.calix.local-to-nan-ipareplica.ipa.calix.local"
+
+# replication agreement
+ipa-replica-manage del pln-petipareplica.ipa.calix.local --force
+
+# server and host entries
+ipa server-del pln-petipareplica.ipa.calix.local --force
+ipa host-del pln-petipareplica.ipa.calix.local
