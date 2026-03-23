@@ -1,9 +1,24 @@
-NEW_PWD="<cpeg-dm-password>"
-
-ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]# NEW_PWD="!Fr33z3!"
+-bash: !Fr33z3!: event not found
+[root@pln-ipamaster ~]# export NEW_PWD="!Fr33z3!"
+-bash: !Fr33z3!: event not found
+[root@pln-ipamaster ~]# env | grep NEW
+[root@pln-ipamaster ~]# NEW_PWD="Fr33z3"
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -Y EXTERNAL <<EOF
 dn: cn=Directory Manager
 changetype: modify
 replace: userPassword
 userPassword: ${NEW_PWD}
 EOF
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+modifying entry "cn=Directory Manager"
+ldap_modify: No such object (32)
+
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
