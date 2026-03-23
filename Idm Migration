@@ -1,12 +1,9 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# rm -rf /var/lib/pki/pki-tomcat
-[root@pln-ipamaster ~]# rm -rf /var/log/pki/pki-tomcat
-[root@pln-ipamaster ~]# rm -rf /etc/pki/pki-tomcat
-[root@pln-ipamaster ~]# rm -rf /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL
-[root@pln-ipamaster ~]# rm -rf /etc/dirsrv/slapd-IPA-CALIX-LOCAL
-[root@pln-ipamaster ~]# rm -rf /var/log/dirsrv/slapd-IPA-CALIX-LOCAL
-[root@pln-ipamaster ~]# rm -rf /etc/ipa
-[root@pln-ipamaster ~]# rm -rf /var/lib/ipa
-[root@pln-ipamaster ~]# ss -tlnp | grep -E "389|636|443|88"
-LISTEN 0      511          0.0.0.0:443       0.0.0.0:*    users:(("httpd",pid=32511,fd=7),("httpd",pid=32510,fd=7),("httpd",pid=32509,fd=7),("httpd",pid=32507,fd=7))
-[root@pln-ipamaster ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa host-show pln-ipamaster.ipa.calix.local
+  Host name: pln-ipamaster.ipa.calix.local
+  Principal name: host/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Principal alias: host/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Password: False
+  Keytab: False
+  Managed by: pln-ipamaster.ipa.calix.local
+[root@cpeg-ipareplica ~]#
