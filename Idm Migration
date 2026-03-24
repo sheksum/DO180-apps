@@ -1,1 +1,1 @@
-ps aux | grep java | grep -v grep | tr ' ' '\n' | grep -E "Xmx|Xms|G1GC"
+systemctl show pki-tomcatd@pki-tomcat | grep -i "environment\|java"
