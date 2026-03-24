@@ -1,41 +1,8 @@
-[root@cpeg-ipareplica ~]# ipa-healthcheck --source ipahealthcheck.ds.dse 2>/dev/null
-[
-  {
-    "source": "ipahealthcheck.ds.dse",
-    "check": "DSECheck",
-    "result": "CRITICAL",
-    "uuid": "c53d4265-c229-46d7-9ff6-1dd36f35c4d8",
-    "when": "20260324214635Z",
-    "duration": "0.018167",
-    "kw": {
-      "key": "DSSKEWLE0003",
-      "items": [
-        "Replication",
-        "dc=ipa,dc=calix,dc=local",
-        "Time Skew",
-        "Skew: 29201 days, 12 hours, 18 minutes, 44 seconds"
-      ],
-      "msg": "The time skew is over 24 hours.  Setting nsslapd-ignore-time-skew\nto \"on\" on each replica will allow replication to continue, but if the\ntime skew continues to increase other serious replication problems can\noccur."
-    }
-  },
-  {
-    "source": "ipahealthcheck.ds.dse",
-    "check": "DSECheck",
-    "result": "WARNING",
-    "uuid": "f0c33554-c184-4c9c-8fd6-a66de5c4c486",
-    "when": "20260324214635Z",
-    "duration": "0.018178",
-    "kw": {
-      "key": "DSSKEWLE0001",
-      "items": [
-        "Replication",
-        "o=ipaca",
-        "Time Skew",
-        "Skew: 7 hours, 41 minutes, 51 seconds"
-      ],
-      "msg": "The time skew is over 6 hours.  If this time skew continues to increase\nto 24 hours then replication can potentially stop working.  Please continue to\nmonitor the time skew offsets for increasing values."
-    }
-  }
-]
-[root@cpeg-ipareplica ~]#
-
+ipa-replica-manage list-ruv 2>/dev/null
+# Already clean - so check the actual replication agreements
+ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -Y EXTERNAL \
+  -b "cn=config" \
+  "(objectclass=nsds5replicationagreement)" \
+  nsds5replicaLastUpdateStatus nsds5replicaHost 2>/dev/null | \
+  grep -E "nsds5replica|dn:"
