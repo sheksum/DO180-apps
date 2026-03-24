@@ -1,6 +1,4 @@
-[root@pln-ipamaster pki-tomcat]#
-[root@pln-ipamaster pki-tomcat]# grep -n "PKISPAWN_STARTUP_TIMEOUT\|startup_timeout" \
-  /usr/lib/python3.9/site-packages/ipaserver/install/dogtaginstance.py | head -20
-199:        timeout = str(api.env.startup_timeout)
-200:        spawn_env["PKISPAWN_STARTUP_TIMEOUT_SECONDS"] = timeout
-[root@pln-ipamaster pki-tomcat]#
+grep -n "startup_timeout" \
+  /usr/lib/python3.9/site-packages/ipalib/config.py \
+  /etc/ipa/default.conf \
+  /etc/ipa/installer.conf 2>/dev/null
