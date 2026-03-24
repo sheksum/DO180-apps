@@ -1,2 +1,12 @@
-grep -r "wait.*pki\|pki.*wait\|300\|timeout" \
+[root@pln-ipamaster ~]# grep -r "wait.*pki\|pki.*wait\|300\|timeout" \
   /usr/lib/python3.9/site-packages/ipaserver/install/dogtaginstance.py | head -20
+        timeout = str(api.env.startup_timeout)
+        spawn_env["PKISPAWN_STARTUP_TIMEOUT_SECONDS"] = timeout
+                    timeout=CA_DBUS_TIMEOUT)
+                        "This timeout can be tuned using "
+                        "certmonger_wait_timeout in /etc/ipa/installer.conf.",
+            api.env.replication_wait_timeout, self.admin_dn, master_conn
+        deadline = time.time() + api.env.replication_wait_timeout
+                "[hint] tune with replication_wait_timeout"
+                timeout=api.env.replication_wait_timeout,
+[root@pln-ipamaster ~]#
