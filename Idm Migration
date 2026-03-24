@@ -1,10 +1,1 @@
-root@pln-ipamaster pki-tomcat]#
-[root@pln-ipamaster pki-tomcat]# tail -3 /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log
-2026-03-24 15:18:10 [main] INFO: Shutting down CA subsystem
-2026-03-24 15:18:10 [main] INFO: Destroying LogFile(/var/lib/pki/pki-tomcat/logs/ca/selftests.log)
-2026-03-24 15:18:10 [main] INFO: RequestSubsystem: Request subsystem stopped
-[root@pln-ipamaster pki-tomcat]#
-[root@pln-ipamaster pki-tomcat]#
-[root@pln-ipamaster pki-tomcat]# date
-Tue Mar 24 03:55:32 PM UTC 2026
-[root@pln-ipamaster pki-tomcat]#
+ls -lt /var/log/pki/pki-tomcat/ca/
