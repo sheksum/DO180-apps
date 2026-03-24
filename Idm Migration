@@ -1,4 +1,12 @@
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ps aux | grep ipa-server-upgrade | grep -v grep
-root       11794  0.7  0.4 378204 138504 pts/0   S+   17:06   0:07 /usr/bin/python3 -I /usr/sbin/ipa-server-upgrade
-[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -f /var/log/ipaupgrade.log
+2026-03-24T17:06:55Z DEBUG 	ipasubgidnumber
+2026-03-24T17:06:55Z DEBUG objectClass:
+2026-03-24T17:06:55Z DEBUG 	top
+2026-03-24T17:06:55Z DEBUG 	extensibleObject
+2026-03-24T17:06:55Z DEBUG aci:
+2026-03-24T17:06:55Z DEBUG 	(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)
+2026-03-24T17:06:55Z DEBUG 	(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)
+2026-03-24T17:06:55Z DEBUG [(2, 'aci', ['(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', '(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
+2026-03-24T17:06:55Z DEBUG Updated 1
+2026-03-24T17:06:55Z DEBUG update_entry modlist [(2, 'aci', [b'(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', b'(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
