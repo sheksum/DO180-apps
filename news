@@ -19,7 +19,38 @@ EOF
 
 systemctl daemon-reload
 
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# cat /etc/ipa/installer.conf
+grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
+cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
+[global]
+startup_timeout=7200
+replication_wait_timeout=3600
+    ('startup_timeout', 7200),
+[Service]
+TimeoutStartSec=7200
+Environment="JAVA_OPTS=-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"
+[root@pln-ipamaster ~]#
+
+
 # 4. Verify all
 cat /etc/ipa/installer.conf
 grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
 cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
+Directory Manager password:
+
+Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 20
+	ric-ipareplica.ipa.calix.local:389: 12
+	ric-ipareplica01.ipa.calix.local:389: 11
+	nan-ipareplica01.ipa.calix.local:389: 10
+	pln-ipamaster.ipa.calix.local:389: 46
+Certificate Server Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 21
+	pln-ipamaster.ipa.calix.local:389: 45
+	pln-ipamaster.ipa.calix.local:389: 47
+[root@cpeg-ipareplica ~]#
