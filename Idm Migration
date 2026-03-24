@@ -1,12 +1,4 @@
-Hey Sulabh, I can update the DNS record for agentmesh-dev-ai.calix.local to point to the new OCP-AI environment. Just need to know when you want to do the cutover since it will redirect traffic away from the old server (pln-aidev01). Once I make the change, anyone hitting that URL will land on OCP-AI instead.
+Krunal Patil  [9:54 AM]
+Agree @haj.suma!
 
-Is the team ready for that now, or do you want to coordinate a specific time?
-
-
-Hey Awanish, I can grant admin access to pai-prod for your team. Just want to be clear on a few things before I do.
-
-The platform is stable and running, but with manual Helm deploys directly to prod, you're bypassing the GitOps workflow which means no audit trail, no automatic rollback, and no drift protection. If something goes sideways — a bad deploy, a pod disruption during node maintenance, a reboot — that's on the application side to recover. The infra team won't be on the hook for application-level issues resulting from manual deployments.
-
-Also worth noting — you already have full admin in dev and edit in test. That should have given you enough runway to validate your deployments and work out how to integrate your Helm charts into ArgoCD for the prod workflow. The onboarding templates and ArgoCD documentation are on Confluence.
-
-If you want to proceed with manual deploys for now, just confirm and I'll update the RBAC.
+@awanish.kumar @sulabh.sinha - I'd like to see our plan for doing these deployments via gitops workflow in near future.
