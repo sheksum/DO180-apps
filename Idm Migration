@@ -1,3 +1,7 @@
-@gene.siepka per our convo. All that is needed is update the DNS record and httproutes - if there are any issues let me know. I'm in the middle of migrating our ipa master system to plano datacenter (edited) 
-Gene Siepka  [12:15 PM]
-yeah trying some other things, even updating httproute with additional hostname, gateway blocks it because hostname doesn't match.
+Update on DNS Server
+ 
+https://agentmesh-dev-ai.calix.local/
+https://agentmesh-ai.calix.local/
+ 
+New DNS entry - to be done later
+https://agentmesh-test-ai.calix.local/ 
