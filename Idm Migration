@@ -1,8 +1,2 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ls /etc/ipa/
-ca.crt  custodia  default.conf  default.conf.ipabkp  dnssec  html  installer.conf  kdcproxy  nssdb
-[root@pln-ipamaster ~]# ls /var/lib/ipa/
-backup  certs  gssproxy  passwds  pki-ca  private  ra-agent.key  ra-agent.pem  sysrestore  sysupgrade
-[root@pln-ipamaster ~]# ipactl status 2>&1
-IPA is not configured (see man pages of ipa-server-install for help)
-[root@pln-ipamaster ~]#
+ls /var/lib/ipa/sysrestore/
+cat /var/lib/ipa/sysrestore/sysrestore.state 2>/dev/null | head -20
