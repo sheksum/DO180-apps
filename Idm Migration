@@ -1,3 +1,2 @@
-dsconf -D "cn=Directory Manager" \
-  ldap://pln-ipamaster.ipa.calix.local \
-  backend config set --lookthroughlimit -1
+grep -i "dirman\|directory_manager\|ds.password\|dm_password" \
+  /var/log/ipareplica-install.log | grep -v DEBUG | head -10
