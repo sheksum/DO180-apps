@@ -1,16 +1,8 @@
-Option 1: The "Resume" (Best first step)
-Just run your ipa-replica-install command again exactly as you did before.
-The installer will detect the existing LDAP data and the running CA.
-Because the indexing is finished, it will fly through the "configuring certificate server" step that failed last time.
-Option 2: The "Force" Resume (If Option 1 tells you to uninstall)
-If the installer refuses to run because it sees a failed state, you can often "trick" it into continuing by telling it the server is configured:
-Create the missing state file:
-bash
-touch /var/lib/ipa/sysrestore/sysrestore.state
-Use code with caution.
+# Is pki-tomcatd still running?
+systemctl status pki-tomcatd@pki-tomcat --no-pager | grep Active
 
-Run the install again.
-Important: Verify the CA one last time
-Before you run the installer, make sure that curl command actually returns the "Running" XML:
-bash
-curl -sk https://pln-ipamaster.ipa.calix.local
+# Is CA responding?
+curl -sk https://pln-ipamaster.ipa.calix.local:8443/ca/admin/ca/getStatus
+
+# Check CA debug log
+ls /var/log/pki/pki-tomcat/ca/
