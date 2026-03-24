@@ -1,3 +1,1 @@
-[root@pln-ipamaster ca]#
-[root@pln-ipamaster ca]# grep replication_wait_timeout /etc/ipa/installer.conf
-[root@pln-ipamaster ca]#
+ipa-replica-manage force-sync --from pln-ipamaster.ipa.calix.local
