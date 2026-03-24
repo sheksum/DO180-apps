@@ -1,102 +1,43 @@
-kinit admin
-ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
-ipa host-add pln-ipamaster.ipa.calix.local --force
-ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
-ipa service-add HTTP/pln-ipamaster.ipa.calix.local
-ipa service-add ldap/pln-ipamaster.ipa.calix.local
 
+Do you want to run the ipa-sidgen task? [no]:
+Disabled p11-kit-proxy
+Configuring directory server (dirsrv). Estimated time: 30 seconds
+  [1/40]: creating directory server instance
+Validate installation settings ...
+Create file system structures ...
+Perform SELinux labeling ...
+Create database backend: dc=ipa,dc=calix,dc=local ...
+Perform post-installation tasks ...
+  [2/40]: tune ldbm plugin
+  [3/40]: adding default schema
+  [4/40]: enabling memberof plugin
+  [5/40]: enabling winsync plugin
+  [6/40]: configure password logging
+  [7/40]: configuring replication version plugin
+  [8/40]: enabling IPA enrollment plugin
+  [9/40]: configuring uniqueness plugin
+  [10/40]: configuring uuid plugin
+  [11/40]: configuring modrdn plugin
+  [12/40]: configuring DNS plugin
+  [13/40]: enabling entryUSN plugin
+  [14/40]: configuring lockout plugin
+  [15/40]: configuring graceperiod plugin
+  [16/40]: configuring topology plugin
+  [17/40]: creating indices
+  [18/40]: enabling referential integrity plugin
+  [19/40]: configuring certmap.conf
+  [20/40]: configure new location for managed entries
+  [21/40]: configure dirsrv ccache and keytab
+  [22/40]: enabling SASL mapping fallback
+  [23/40]: restarting directory server
+  [24/40]: creating DS keytab
+  [25/40]: ignore time skew for initial replication
+  [26/40]: setting up initial replication
+Starting replication, please wait until this has completed.
+  [error] SERVER_DOWN: {'result': -1, 'desc': "Can't contact LDAP server", 'ctrls': []}
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
 
-ipa-replica-install \
-  --setup-ca \
-  --setup-dns \
-  --no-forwarders \
-  --no-ntp \
-  --server cpeg-ipareplica.ipa.calix.local \
-  --domain ipa.calix.local \
-  --realm IPA.CALIX.LOCAL \
-  --principal admin \
-  --admin-password 'vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU=' \
-  --skip-conncheck \
-  --force-join
-```
-
----
-
-## Step 3 — CRITICAL: After step 3/33 completes (second terminal on pln)
-
-Watch for:
-```
-Update succeeded
-[4/33]: revert time skew after initial replication
-
-
-ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL << EOF
-dn: cn=config
-changetype: modify
-replace: nsslapd-sizelimit
-nsslapd-sizelimit: -1
-
-dn: cn=config,cn=ldbm database,cn=plugins,cn=config
-changetype: modify
-replace: nsslapd-lookthroughlimit
-nsslapd-lookthroughlimit: -1
-EOF
-```
-
-Expected:
-```
-modifying entry "cn=config"
-modifying entry "cn=config,cn=ldbm database,cn=plugins,cn=config"
-
-
-grep JAVA_OPTS /var/lib/pki/pki-tomcat/conf/tomcat.conf
-
-
-sed -i 's/JAVA_OPTS="-Dcom.redhat.fips=false"/JAVA_OPTS="-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"/' \
-  /var/lib/pki/pki-tomcat/conf/tomcat.conf
-
-
-watch -n 30 'grep "bdb_db2index.*ipaca.*Indexed" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -1'
-
-
-
-# Reapply DS limits then restart
-ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket -Y EXTERNAL << EOF
-dn: cn=config
-changetype: modify
-replace: nsslapd-sizelimit
-nsslapd-sizelimit: -1
-
-dn: cn=config,cn=ldbm database,cn=plugins,cn=config
-changetype: modify
-replace: nsslapd-lookthroughlimit
-nsslapd-lookthroughlimit: -1
-EOF
-systemctl restart pki-tomcatd@pki-tomcat
-
-
-# Verify all services
-ipactl status
-
-# Test CA
-curl -sk https://pln-ipamaster.ipa.calix.local/ca/admin/ca/getStatus
-
-# Transfer CA renewal master
-ipa config-mod --ca-renewal-master-server=pln-ipamaster.ipa.calix.local
-
-# Transfer CRL generation
-# On cpeg:
-ipa-crlgen-manage disable
-# On pln-ipamaster:
-ipa-crlgen-manage enable
-
-# Verify topology
-ipa-replica-manage list
-
-
-# On cpeg:
-ipa-server-install --uninstall
-
-# On pln-ipamaster after cpeg uninstall:
-ipa server-del cpeg-ipareplica.ipa.calix.local --force
+{'result': -1, 'desc': "Can't contact LDAP server", 'ctrls': []}
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster ~]#
