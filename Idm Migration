@@ -1,11 +1,1 @@
-[root@pln-ipamaster ~]# journalctl -u pki-tomcatd@pki-tomcat -f
-Mar 24 12:48:06 pln-ipamaster.ipa.calix.local server[8011]: Java virtual machine used: /usr/lib/jvm/jre-17-openjdk/bin/java
-Mar 24 12:48:06 pln-ipamaster.ipa.calix.local server[8011]: classpath used: /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar:
-Mar 24 12:48:06 pln-ipamaster.ipa.calix.local server[8011]: main class used: org.apache.catalina.startup.Bootstrap
-Mar 24 12:48:06 pln-ipamaster.ipa.calix.local server[8011]: flags used: -Dcom.redhat.fips=false
-Mar 24 12:48:06 pln-ipamaster.ipa.calix.local server[8011]: options used: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.file=/var/lib/pki/pki-tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dsun.io.useCanonCaches=false     -Djava.security.manager     -Djava.security.policy==/var/lib/pki/pki-tomcat/conf/catalina.policy
-Mar 24 12:48:06 pln-ipamaster.ipa.calix.local server[8011]: arguments used: start
-Mar 24 12:48:06 pln-ipamaster.ipa.calix.local server[8011]: NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
-Mar 24 12:48:06 pln-ipamaster.ipa.calix.local server[8011]: WARNING: A command line option has enabled the Security Manager
-Mar 24 12:48:06 pln-ipamaster.ipa.calix.local server[8011]: WARNING: The Security Manager is deprecated and will be removed in a future release
-Mar 24 12:48:07 pln-ipamaster.ipa.calix.local server[8011]: WARNING: Tomcat interprets the [protocols] attribute in a manner consistent with the latest OpenSSL development branch. Some of the specified [protocols] are not supported by the configured SSL engine for this connector (which may use JSSE or an older OpenSSL version) and have been skipped: [[TLSv1, TLSv1.1]]
+ps aux | grep java | grep -v grep | grep -o "Xmx[^ ]*"
