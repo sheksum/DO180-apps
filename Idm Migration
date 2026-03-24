@@ -1,15 +1,32 @@
+[root@pln-ipamaster ~]# tail -30 /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log
+2026-03-24 12:56:37 [ProfileChangeMonitor] INFO: Done Profile Creation - KDCs_PKINIT_Certs
+2026-03-24 12:56:37 [ProfileChangeMonitor] INFO: Done Profile Creation - acmeIPAServerCert
+2026-03-24 12:56:37 [main] INFO: CMSEngine: Initializing selftests subsystem
+2026-03-24 12:56:37 [main] INFO: CMSEngine: Initializing CrossCertPair subsystem
+2026-03-24 12:56:37 [main] INFO: CMSEngine: Initializing stats subsystem
+2026-03-24 12:56:37 [main] INFO: CertificateAuthority: Publisher processor disabled
+2026-03-24 12:56:37 [main] INFO: CAEngine: Initializing certificate issued listener
+2026-03-24 12:56:37 [RequestRecoverThread] INFO: LDAPSession: Searching ou=ca, ou=requests,o=ipaca for (&(requestState=approved)(requestId=*))
+2026-03-24 12:56:37 [main] INFO: CAEngine: Initializing cert revoked listener
+2026-03-24 12:56:37 [main] INFO: CAEngine: Initializing request in queue listener
+2026-03-24 12:56:37 [main] INFO: RequestInQListener: Initializing RequestInQListener
+2026-03-24 12:56:37 [main] INFO: RequestInQListener: - enabled: false
+2026-03-24 12:56:37 [main] INFO: RequestInQListener: - sender email:
+2026-03-24 12:56:37 [main] INFO: RequestInQListener: - recipient email:
+2026-03-24 12:56:37 [main] INFO: RequestInQListener: - email subject: Certificate Request in Queue
+2026-03-24 12:56:37 [main] INFO: RequestInQListener: - email template: /var/lib/pki/pki-tomcat/ca/emails/reqInQueue_CA.html
+2026-03-24 12:56:37 [main] INFO: CMSEngine: Starting ca subsystem
+2026-03-24 12:56:37 [main] INFO: CMSEngine: Starting null subsystem
+2026-03-24 12:56:37 [main] INFO: LDAPProfileSubsystem: startup
+2026-03-24 12:56:37 [main] INFO: CMSEngine: Starting selftests subsystem
+2026-03-24 12:56:37 [main] INFO: CertUtil: Checking cert validity for caSigningCert cert-pki-ca
+2026-03-24 12:56:37 [main] INFO: CertUtil: Checking cert validity for ocspSigningCert cert-pki-ca
+2026-03-24 12:56:37 [main] INFO: CertUtil: Checking cert validity for Server-Cert cert-pki-ca
+2026-03-24 12:56:37 [main] INFO: CertUtil: Checking cert validity for subsystemCert cert-pki-ca
+2026-03-24 12:56:37 [main] INFO: CertUtil: Checking cert validity for auditSigningCert cert-pki-ca
+2026-03-24 12:56:37 [main] INFO: CMSEngine: Starting CrossCertPair subsystem
+2026-03-24 12:56:37 [main] INFO: CMSEngine: Starting stats subsystem
+2026-03-24 12:56:37 [main] INFO: Repository: Getting last serial number in range 49940001..49950000
+2026-03-24 12:56:37 [main] INFO: LDAPPagedSearch: Searching ou=ca, ou=requests,o=ipaca
+2026-03-24 12:56:37 [main] INFO: LDAPPagedSearch: filter: (&(requestId<=0849950000)(requestState=*))
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ps aux | grep java | grep -v grep | grep -c "Xmx"
-0
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-ca-spawn.20260324103417.log | grep -iE "INFO|ERROR|SEVERE"
-2026-03-24 12:55:00 INFO: Waiting for PKI server to start
-2026-03-24 12:55:16 INFO: Waiting for PKI server to start (16s)
-2026-03-24 12:55:32 INFO: Waiting for PKI server to start (32s)
-2026-03-24 12:55:48 INFO: Waiting for PKI server to start (48s)
-2026-03-24 12:56:04 INFO: Waiting for PKI server to start (64s)
-2026-03-24 12:56:20 INFO: Waiting for PKI server to start (80s)
-2026-03-24 12:56:36 INFO: Waiting for PKI server to start (96s)
-2026-03-24 12:56:52 INFO: Waiting for PKI server to start (112s)
-2026-03-24 12:57:08 INFO: Waiting for PKI server to start (128s)
