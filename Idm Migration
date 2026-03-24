@@ -1,57 +1,8 @@
-
-2026-03-24T15:17:40Z DEBUG Retrieving keytab
-2026-03-24T15:17:40Z DEBUG Starting external process
-2026-03-24T15:17:40Z DEBUG args=['/usr/sbin/kadmin.local', '-q', 'ktadd -k /etc/pki/pki-tomcat/dogtag.keytab dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL', '-x', 'ipa-setup-override-restrictions']
-2026-03-24T15:17:40Z DEBUG Process finished, return code=0
-2026-03-24T15:17:40Z DEBUG stdout=Authenticating as principal host/admin@IPA.CALIX.LOCAL with password.
-Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type aes256-cts-hmac-sha1-96 added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
-Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type aes128-cts-hmac-sha1-96 added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
-Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type arcfour-hmac added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
-Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type camellia128-cts-cmac added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
-Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type camellia256-cts-cmac added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
-Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type aes128-cts-hmac-sha256-128 added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
-Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type aes256-cts-hmac-sha384-192 added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
-
-2026-03-24T15:17:40Z DEBUG stderr=
-2026-03-24T15:17:40Z DEBUG Creating Custodia keys
-2026-03-24T15:17:41Z DEBUG Configuring key retriever
-2026-03-24T15:17:41Z DEBUG Loading StateFile from '/var/lib/ipa/sysupgrade/sysupgrade.state'
-2026-03-24T15:17:41Z DEBUG Saving StateFile to '/var/lib/ipa/sysupgrade/sysupgrade.state'
-2026-03-24T15:17:41Z DEBUG Destroyed connection context.ldap2_140397695866048
-2026-03-24T15:17:41Z DEBUG Starting external process
-2026-03-24T15:17:41Z DEBUG args=['/bin/systemctl', 'restart', 'dirsrv@IPA-CALIX-LOCAL.service']
-2026-03-24T15:18:02Z DEBUG Process finished, return code=0
-2026-03-24T15:18:02Z DEBUG stdout=
-2026-03-24T15:18:02Z DEBUG stderr=
-2026-03-24T15:18:02Z DEBUG Restart of dirsrv@IPA-CALIX-LOCAL.service complete
-2026-03-24T15:18:02Z DEBUG Created connection context.ldap2_140397695866048
-2026-03-24T15:18:02Z DEBUG Starting external process
-2026-03-24T15:18:02Z DEBUG args=['/bin/systemctl', 'start', 'pki-tomcatd@pki-tomcat.service']
-2026-03-24T16:28:06Z DEBUG Process finished, return code=0
-2026-03-24T16:28:06Z DEBUG stdout=
-2026-03-24T16:28:06Z DEBUG stderr=
-2026-03-24T16:28:06Z DEBUG Starting external process
-2026-03-24T16:28:06Z DEBUG args=['/bin/systemctl', 'is-active', 'pki-tomcatd@pki-tomcat.service']
-2026-03-24T16:28:06Z DEBUG Process finished, return code=0
-2026-03-24T16:28:06Z DEBUG stdout=active
-
-2026-03-24T16:28:06Z DEBUG stderr=
-2026-03-24T16:28:06Z DEBUG wait_for_open_ports: localhost [8080, 8443] timeout 7200
-2026-03-24T16:28:06Z DEBUG waiting for port: 8080
-2026-03-24T16:28:06Z DEBUG SUCCESS: port: 8080
-2026-03-24T16:28:06Z DEBUG waiting for port: 8443
-2026-03-24T16:28:06Z DEBUG SUCCESS: port: 8443
-2026-03-24T16:28:06Z DEBUG Start of pki-tomcatd@pki-tomcat.service complete
-2026-03-24T16:28:06Z DEBUG Starting external process
-2026-03-24T16:28:06Z DEBUG args=['/bin/systemctl', 'restart', 'httpd.service']
-2026-03-24T16:28:08Z DEBUG Process finished, return code=0
-2026-03-24T16:28:08Z DEBUG stdout=
-2026-03-24T16:28:08Z DEBUG stderr=
-2026-03-24T16:28:08Z DEBUG Starting external process
-2026-03-24T16:28:08Z DEBUG args=['/bin/systemctl', 'is-active', 'httpd.service']
-2026-03-24T16:28:08Z DEBUG Process finished, return code=0
-2026-03-24T16:28:08Z DEBUG stdout=active
-
 2026-03-24T16:28:08Z DEBUG stderr=
 2026-03-24T16:28:08Z DEBUG Restart of httpd.service complete
 2026-03-24T16:28:09Z DEBUG Waiting up to 300 seconds for replication (ldap://cpeg-ipareplica.ipa.calix.local:389) cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local (objectclass=*)
+2026-03-24T16:28:18Z DEBUG Still waiting for replication of cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-24T16:28:29Z DEBUG Still waiting for replication of cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-24T16:28:39Z DEBUG Still waiting for replication of cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-24T16:28:50Z DEBUG Still waiting for replication of cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-24T16:29:00Z DEBUG Still waiting for replication of cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
