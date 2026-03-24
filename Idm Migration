@@ -1,7 +1,5 @@
-[root@pln-ipamaster ca]#
-[root@pln-ipamaster ca]#
-[root@pln-ipamaster ca]#
-[root@pln-ipamaster ca]# cat /etc/ipa/installer.conf
+cat > /etc/ipa/installer.conf << 'EOF'
 [global]
 startup_timeout=7200
-[root@pln-ipamaster ca]#
+replication_wait_timeout=3600
+EOF
