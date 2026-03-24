@@ -1,29 +1,102 @@
-[root@ric-ipareplica ~]# systemctl status pki-tomcatd-nuxwdog.target
-● pki-tomcatd-nuxwdog.target - PKI Tomcat Server Started by Nuxwdog
-   Loaded: loaded (/usr/lib/systemd/system/pki-tomcatd-nuxwdog.target; disabled; vendor preset: disabled)
-   Active: inactive (dead)
-[root@ric-ipareplica ~]# systemctl status pki-tomcatd.target
-● pki-tomcatd.target - PKI Tomcat Server
-   Loaded: loaded (/usr/lib/systemd/system/pki-tomcatd.target; disabled; vendor preset: disabled)
-   Active: inactive (dead)
-[root@ric-ipareplica ~]#
+kinit admin
+ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
+ipa host-add pln-ipamaster.ipa.calix.local --force
+ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+ipa service-add ldap/pln-ipamaster.ipa.calix.local
 
 
-[root@ric-ipareplica ~]# cat /etc/os-release
-NAME="CentOS Linux"
-VERSION="7 (Core)"
-ID="centos"
-ID_LIKE="rhel fedora"
-VERSION_ID="7"
-PRETTY_NAME="CentOS Linux 7 (Core)"
-ANSI_COLOR="0;31"
-CPE_NAME="cpe:/o:centos:centos:7"
-HOME_URL="https://www.centos.org/"
-BUG_REPORT_URL="https://bugs.centos.org/"
+ipa-replica-install \
+  --setup-ca \
+  --setup-dns \
+  --no-forwarders \
+  --no-ntp \
+  --server cpeg-ipareplica.ipa.calix.local \
+  --domain ipa.calix.local \
+  --realm IPA.CALIX.LOCAL \
+  --principal admin \
+  --admin-password 'vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU=' \
+  --skip-conncheck \
+  --force-join
+```
 
-CENTOS_MANTISBT_PROJECT="CentOS-7"
-CENTOS_MANTISBT_PROJECT_VERSION="7"
-REDHAT_SUPPORT_PRODUCT="centos"
-REDHAT_SUPPORT_PRODUCT_VERSION="7"
+---
 
-[root@ric-ipareplica ~]#
+## Step 3 — CRITICAL: After step 3/33 completes (second terminal on pln)
+
+Watch for:
+```
+Update succeeded
+[4/33]: revert time skew after initial replication
+
+
+ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -Y EXTERNAL << EOF
+dn: cn=config
+changetype: modify
+replace: nsslapd-sizelimit
+nsslapd-sizelimit: -1
+
+dn: cn=config,cn=ldbm database,cn=plugins,cn=config
+changetype: modify
+replace: nsslapd-lookthroughlimit
+nsslapd-lookthroughlimit: -1
+EOF
+```
+
+Expected:
+```
+modifying entry "cn=config"
+modifying entry "cn=config,cn=ldbm database,cn=plugins,cn=config"
+
+
+grep JAVA_OPTS /var/lib/pki/pki-tomcat/conf/tomcat.conf
+
+
+sed -i 's/JAVA_OPTS="-Dcom.redhat.fips=false"/JAVA_OPTS="-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"/' \
+  /var/lib/pki/pki-tomcat/conf/tomcat.conf
+
+
+watch -n 30 'grep "bdb_db2index.*ipaca.*Indexed" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -1'
+
+
+
+# Reapply DS limits then restart
+ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket -Y EXTERNAL << EOF
+dn: cn=config
+changetype: modify
+replace: nsslapd-sizelimit
+nsslapd-sizelimit: -1
+
+dn: cn=config,cn=ldbm database,cn=plugins,cn=config
+changetype: modify
+replace: nsslapd-lookthroughlimit
+nsslapd-lookthroughlimit: -1
+EOF
+systemctl restart pki-tomcatd@pki-tomcat
+
+
+# Verify all services
+ipactl status
+
+# Test CA
+curl -sk https://pln-ipamaster.ipa.calix.local/ca/admin/ca/getStatus
+
+# Transfer CA renewal master
+ipa config-mod --ca-renewal-master-server=pln-ipamaster.ipa.calix.local
+
+# Transfer CRL generation
+# On cpeg:
+ipa-crlgen-manage disable
+# On pln-ipamaster:
+ipa-crlgen-manage enable
+
+# Verify topology
+ipa-replica-manage list
+
+
+# On cpeg:
+ipa-server-install --uninstall
+
+# On pln-ipamaster after cpeg uninstall:
+ipa server-del cpeg-ipareplica.ipa.calix.local --force
