@@ -1,14 +1,60 @@
-ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
-ipa host-add pln-ipamaster.ipa.calix.local --force
-ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
-ipa service-add HTTP/pln-ipamaster.ipa.calix.local
-ipa service-add ldap/pln-ipamaster.ipa.calix.local
-
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# grep "LDAPPagedSearch.*requests" /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log | tail -3
-2026-03-24 01:13:43 [main] INFO: LDAPPagedSearch: Searching ou=ca, ou=requests,o=ipaca
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# date
-Tue Mar 24 01:20:53 AM UTC 2026
+[root@pln-ipamaster ~]# curl -vvvsk https://pln-ipamaster.ipa.calix.local:443/ca/admin/ca/getStatus
+*   Trying 10.172.248.55:443...
+* Connected to pln-ipamaster.ipa.calix.local (10.172.248.55) port 443 (#0)
+* ALPN, offering h2
+* ALPN, offering http/1.1
+*  CAfile: /etc/pki/tls/certs/ca-bundle.crt
+* TLSv1.0 (OUT), TLS header, Certificate Status (22):
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+* TLSv1.2 (IN), TLS header, Certificate Status (22):
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+* TLSv1.2 (IN), TLS header, Finished (20):
+* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
+* TLSv1.2 (IN), TLS header, Unknown (23):
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+* TLSv1.2 (IN), TLS header, Unknown (23):
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+* TLSv1.2 (IN), TLS header, Unknown (23):
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+* TLSv1.2 (IN), TLS header, Unknown (23):
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+* TLSv1.2 (OUT), TLS header, Finished (20):
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+* TLSv1.2 (OUT), TLS header, Unknown (23):
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+* ALPN, server accepted to use http/1.1
+* Server certificate:
+*  subject: O=IPA.CALIX.LOCAL; CN=pln-ipamaster.ipa.calix.local
+*  start date: Mar 24 01:44:02 2026 GMT
+*  expire date: Mar 24 01:44:02 2028 GMT
+*  issuer: O=IPA.CALIX.LOCAL; CN=Certificate Authority
+*  SSL certificate verify ok.
+* TLSv1.2 (OUT), TLS header, Unknown (23):
+> GET /ca/admin/ca/getStatus HTTP/1.1
+> Host: pln-ipamaster.ipa.calix.local
+> User-Agent: curl/7.76.1
+> Accept: */*
+>
+* TLSv1.2 (IN), TLS header, Unknown (23):
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* TLSv1.2 (IN), TLS header, Unknown (23):
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* old SSL session ID is stale, removing
+* TLSv1.2 (IN), TLS header, Unknown (23):
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 404 Not Found
+< Date: Tue, 24 Mar 2026 02:10:34 GMT
+< Server: Apache/2.4.62 (Red Hat Enterprise Linux) OpenSSL/3.5.1 mod_auth_gssapi/1.6.3 mod_wsgi/4.7.1 Python/3.9
+< Content-Length: 196
+< Content-Type: text/html; charset=iso-8859-1
+<
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>404 Not Found</title>
+</head><body>
+<h1>Not Found</h1>
+<p>The requested URL was not found on this server.</p>
+</body></html>
+* Connection #0 to host pln-ipamaster.ipa.calix.local left intact
 [root@pln-ipamaster ~]#
