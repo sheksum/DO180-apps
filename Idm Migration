@@ -293,3 +293,10 @@ RuntimeError: CA configuration failed.
 2026-03-24T04:36:04Z ERROR The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
 (END)q
 
+[root@pln-ipamaster pki-tomcat]# tail -5 /var/log/pki/pki-ca-spawn.20260324021129.log
+2026-03-24 04:34:44 INFO: Waiting for PKI server to start (17s)
+2026-03-24 04:35:00 INFO: Waiting for PKI server to start (33s)
+2026-03-24 04:35:16 INFO: Waiting for PKI server to start (49s)
+2026-03-24 04:35:32 INFO: Waiting for PKI server to start (65s)
+2026-03-24 04:35:48 INFO: Waiting for PKI server to start (81s)
+[root@pln-ipamaster pki-tomcat]#
