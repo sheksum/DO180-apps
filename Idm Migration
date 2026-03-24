@@ -1,1 +1,34 @@
-tail -f /var/log/pki/pki-ca-spawn.20260324103417.log | grep -iE "INFO|ERROR|SEVERE|waiting"
+  [4/33]: revert time skew after initial replication
+  [5/33]: creating ACIs for admin
+  [6/33]: creating installation admin user
+  [7/33]: configuring certificate server instance
+  [8/33]: stopping certificate server instance to update CS.cfg
+  [9/33]: backing up CS.cfg
+  [10/33]: Add ipa-pki-wait-running
+Set start up timeout of pki-tomcatd service to 7200 seconds
+  [11/33]: secure AJP connector
+  [12/33]: reindex attributes
+  [13/33]: exporting Dogtag certificate store pin
+  [14/33]: disabling nonces
+  [15/33]: set up CRL publishing
+  [16/33]: enable PKIX certificate path discovery and validation
+  [17/33]: authorizing RA to modify profiles
+  [18/33]: authorizing RA to manage lightweight CAs
+  [19/33]: Ensure lightweight CAs container exists
+  [20/33]: Enable lightweight CA monitor
+  [21/33]: Ensuring backward compatibility
+  [22/33]: destroying installation admin user
+  [23/33]: updating IPA configuration
+  [24/33]: starting certificate server instance
+  [25/33]: Finalize replication settings
+  [26/33]: configure certmonger for renewals
+  [27/33]: Importing RA key
+  [28/33]: configure certificate renewals
+  [29/33]: Configure HTTP to proxy connections
+  [30/33]: enabling CA instance
+  [31/33]: importing IPA certificate profiles
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
+  [32/33]: configuring certmonger renewal for lightweight CAs
+  [33/33]: deploying ACME service
+Done configuring certificate server (pki-tomcatd).
