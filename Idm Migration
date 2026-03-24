@@ -1,6 +1,23 @@
-# On cpeg-ipareplica
-ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
-ipa host-add pln-ipamaster.ipa.calix.local --force
-ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
-ipa service-add HTTP/pln-ipamaster.ipa.calix.local
-ipa service-add ldap/pln-ipamaster.ipa.calix.local
+# 1. Recreate systemd timeout and heap override
+mkdir -p /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/
+cat > /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf << 'EOF'
+[Service]
+TimeoutStartSec=7200
+Environment="JAVA_OPTS=-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"
+EOF
+
+# 2. Fix startup_timeout in constants.py
+sed -i "s/('startup_timeout', 90)/('startup_timeout', 7200)/" \
+  /usr/lib/python3.9/site-packages/ipalib/constants.py
+
+# 3. Verify installer.conf
+cat /etc/ipa/installer.conf
+
+# 4. Reload systemd
+systemctl daemon-reload
+
+# 5. Verify
+cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
+grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
+free -h
+nproc
