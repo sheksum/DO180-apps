@@ -1,3 +1,7 @@
-ipa-replica-manage re-initialize \
-  --from=cpeg-ipareplica.ipa.calix.local \
-  --host=pln-ipamaster.ipa.calix.local
+[root@cpeg-ipareplica ~]# kinit admin
+Password for admin@IPA.CALIX.LOCAL:
+[root@cpeg-ipareplica ~]# ipa-replica-manage re-initialize   --from=cpeg-ipareplica.ipa.calix.local   --host=pln-ipamaster.ipa.calix.local
+Update in progress, 21 seconds elapsed
+Update succeeded
+
+[root@cpeg-ipareplica ~]#
