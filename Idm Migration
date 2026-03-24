@@ -1,12 +1,24 @@
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-ca-spawn.20260324103417.log
-2026-03-24 13:00:33 DEBUG: Command: rm -rf /root/.dogtag/pki-tomcat/ca
-2026-03-24 13:00:33 INFO: END spawning CA subsystem in pki-tomcat instance
-2026-03-24 13:00:33 INFO: Creating /etc/sysconfig/pki/tomcat/pki-tomcat/ca/deployment.cfg
-2026-03-24 13:00:33 INFO: Creating /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_deployment.cfg.20260324103418
-2026-03-24 13:00:33 INFO: Copying /etc/sysconfig/pki/tomcat/pki-tomcat/ca/deployment.cfg to /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_deployment.cfg.20260324103418
-2026-03-24 13:00:33 DEBUG: Command: cp /etc/sysconfig/pki/tomcat/pki-tomcat/ca/deployment.cfg /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_deployment.cfg.20260324103418
-2026-03-24 13:00:33 INFO: Creating /etc/sysconfig/pki/tomcat/pki-tomcat/ca/manifest
-2026-03-24 13:00:33 INFO: Creating /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_manifest.20260324103418
-2026-03-24 13:00:33 INFO: Copying /etc/sysconfig/pki/tomcat/pki-tomcat/ca/manifest to /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_manifest.20260324103418
-2026-03-24 13:00:33 DEBUG: Command: cp /etc/sysconfig/pki/tomcat/pki-tomcat/ca/manifest /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_manifest.20260324103418
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -20 /var/log/ipareplica-install.log
+
+2026-03-24T13:00:34Z DEBUG Starting external process
+2026-03-24T13:00:34Z DEBUG args=['/usr/sbin/tomcat', 'version']
+2026-03-24T13:00:34Z DEBUG Process finished, return code=0
+2026-03-24T13:00:34Z DEBUG stdout=Server version: Apache Tomcat/9.0.87
+Server built:   Dec 20 1969 01:54:01 UTC
+Server number:  9.0.87.0
+OS Name:        Linux
+OS Version:     5.14.0-611.30.1.el9_7.x86_64
+Architecture:   amd64
+JVM Version:    17.0.18+8-LTS
+JVM Vendor:     Red Hat, Inc.
+
+2026-03-24T13:00:34Z DEBUG stderr=NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+
+2026-03-24T13:00:34Z DEBUG step duration: pki-tomcatd secure_ajp_connector 0.18 sec
+2026-03-24T13:00:34Z DEBUG   [12/33]: reindex attributes
+2026-03-24T13:00:34Z DEBUG Loading StateFile from '/var/lib/ipa/sysupgrade/sysupgrade.state'
+2026-03-24T13:00:34Z DEBUG Creating ipaca reindex task cn=indextask_ipaca_1774357234,cn=index,cn=tasks,cn=config
+2026-03-24T13:00:34Z DEBUG Waiting for task...
+[root@pln-ipamaster ~]#
