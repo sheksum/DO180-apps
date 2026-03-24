@@ -1,8 +1,2 @@
-[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log | grep -v "SerialNumber\|INFO"
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
-	at org.apache.catalina.startup.Bootstrap.start(Bootstrap.java:345)
-	at org.apache.catalina.startup.Bootstrap.main(Bootstrap.java:473)
-
+tail -20 /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log
+date
