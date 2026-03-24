@@ -1,21 +1,12 @@
-[24/Mar/2026:22:33:42.179568159 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[24/Mar/2026:22:33:42.372629211 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[24/Mar/2026:22:33:43.568429575 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[24/Mar/2026:22:33:44.453857261 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[24/Mar/2026:22:33:45.261662953 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
-^C
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-named Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa-dnskeysyncd Service: RUNNING
-ipa: INFO: The ipactl command was
+kinit admin
+ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
+ipa host-add pln-ipamaster.ipa.calix.local --force
+ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+ipa service-add ldap/pln-ipamaster.ipa.calix.local
+
+
+# On pln
+cat /etc/ipa/installer.conf
+grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
+cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
