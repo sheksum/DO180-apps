@@ -1,6 +1,1 @@
-[root@pln-ipamaster pki-tomcat]#
-[root@pln-ipamaster pki-tomcat]# grep -rn "startup_timeout" /usr/lib/python3.9/site-packages/ipalib/ | head -10
-grep: /usr/lib/python3.9/site-packages/ipalib/__pycache__/constants.cpython-39.opt-1.pyc: binary file matches
-grep: /usr/lib/python3.9/site-packages/ipalib/__pycache__/constants.cpython-39.pyc: binary file matches
-/usr/lib/python3.9/site-packages/ipalib/constants.py:194:    ('startup_timeout', 90),
-[root@pln-ipamaster pki-tomcat]#
+sed -n '185,205p' /usr/lib/python3.9/site-packages/ipalib/constants.py
