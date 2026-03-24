@@ -1,3 +1,25 @@
-oc get httproute internal-agentmesh-ui-service -n pai-dev -o jsonpath='{.spec.hostnames}'
+# 1. Recreate installer.conf
+cat > /etc/ipa/installer.conf << 'EOF'
+[global]
+startup_timeout=7200
+replication_wait_timeout=3600
+EOF
 
-oc get httproute internal-agentmesh-ui-service -n pai-dev -o jsonpath='{.status.parents[*].conditions[*].type}'
+# 2. Fix constants.py
+sed -i "s/('startup_timeout', 90)/('startup_timeout', 7200)/" \
+  /usr/lib/python3.9/site-packages/ipalib/constants.py
+
+# 3. Recreate systemd override
+mkdir -p /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/
+cat > /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf << 'EOF'
+[Service]
+TimeoutStartSec=7200
+Environment="JAVA_OPTS=-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"
+EOF
+
+systemctl daemon-reload
+
+# 4. Verify all
+cat /etc/ipa/installer.conf
+grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
+cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
