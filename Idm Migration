@@ -1,3 +1,98 @@
+Tue Mar 24 03:55:32 PM UTC 2026
+[root@pln-ipamaster pki-tomcat]# ls -lt /var/log/pki/pki-tomcat/ca/
+total 340
+-rw-r--r--. 1 pkiuser pkiuser 344007 Mar 24 15:18 debug.2026-03-24.log
+-rw-r-----. 1 pkiuser pkiuser   3552 Mar 24 15:18 selftests.log
+drwxrwx---. 2 pkiuser pkiuser     86 Mar 24 13:00 archive
+drwxrwx---. 2 pkiuser pkiuser     22 Mar 24 12:48 signedAudit
+[root@pln-ipamaster pki-tomcat]# less debug.2026-03-24.log
+debug.2026-03-24.log: No such file or directory
+[root@pln-ipamaster pki-tomcat]# less debug.2026-03-24.log^C
+[root@pln-ipamaster pki-tomcat]# cd /var/log/pki/pki-tomcat/ca/
+[root@pln-ipamaster ca]# less debug.2026-03-24.log
+[root@pln-ipamaster ca]#
+[root@pln-ipamaster ca]#
+
+2026-03-24 15:18:09 [SerialNumberUpdateTask] INFO: CertificateRepository: Storing config into /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
+2026-03-24 15:18:09 [SerialNumberUpdateTask] INFO: CAEngine: Checking serial number ranges
+2026-03-24 15:18:09 [SerialNumberUpdateTask] WARNING: Repository: Server not completely started.  Returning ..
+2026-03-24 15:18:09 [SerialNumberUpdateTask] INFO: CAEngine: Checking request ID ranges
+2026-03-24 15:18:09 [SerialNumberUpdateTask] WARNING: Repository: Server not completely started.  Returning ..
+2026-03-24 15:18:09 [main] INFO: CertificateAuthority: Initializing CRL signing unit for authority null
+2026-03-24 15:18:09 [main] INFO: CertificateAuthority: Initializing OCSP signing unit for authority null
+2026-03-24 15:18:09 [main] INFO: CASigningUnit: Loading cert ocspSigningCert cert-pki-ca
+2026-03-24 15:18:09 [main] INFO: CASigningUnit: Loading private key for ocspSigningCert cert-pki-ca
+2026-03-24 15:18:09 [main] INFO: CertificateAuthority: Checking new CA cert for authority null
+2026-03-24 15:18:09 [main] INFO: CAEngine: Initializing CRL issuing points
+2026-03-24 15:18:09 [main] INFO: CRLIssuingPoint: Initializing MasterCRL
+2026-03-24 15:18:09 [main] INFO: CAEngine: Initializing CA issuance protection cert
+2026-03-24 15:18:09 [main] INFO: CAEngine: - cert.issuance_protection.nickname: null
+2026-03-24 15:18:09 [main] INFO: CAEngine: - cert.subsystem.nickname: subsystemCert cert-pki-ca
+2026-03-24 15:18:09 [main] INFO: CAEngine: Loading public and private keys for subsystemCert cert-pki-ca
+2026-03-24 15:18:09 [main] INFO: AuthorityMonitor: Waiting for authorities to load
+2026-03-24 15:18:09 [AuthorityMonitor] INFO: AuthorityMonitor: Loading authority record cn=7acefe44-df0f-4fa5-8142-d67d42cc18b2,ou=authorities,ou=ca,o=ipaca
+2026-03-24 15:18:09 [AuthorityMonitor] INFO: AuthorityRepository: Loading cn=7acefe44-df0f-4fa5-8142-d67d42cc18b2,ou=authorities,ou=ca,o=ipaca
+2026-03-24 15:18:09 [AuthorityMonitor] INFO: AuthorityMonitor: Updating host CA
+2026-03-24 15:18:09 [AuthorityMonitor] INFO: AuthorityMonitor: - ID: 7acefe44-df0f-4fa5-8142-d67d42cc18b2
+2026-03-24 15:18:09 [AuthorityMonitor] INFO: AuthorityMonitor: - description: Host authority
+2026-03-24 15:18:09 [main] INFO: CMSEngine: Initializing ca subsystem
+2026-03-24 15:18:09 [main] INFO: CMSEngine: Initializing profile subsystem
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Profile change monitor: starting.
+
+
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caUUIDdeviceCert
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caSSLClientSelfRenewal
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caDirUserRenewal
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caManualRenewal
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caTokenMSLoginEnrollment
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caTokenUserSigningKeyRenewal
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caTokenUserEncryptionKeyRenewal
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caTokenUserAuthKeyRenewal
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caJarSigningCert
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caIPAserviceCert
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caEncUserCert
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caSigningUserCert
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caSigningECUserCert
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caEncECUserCert
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caTokenUserDelegateAuthKeyEnrollment
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - caTokenUserDelegateSigningKeyEnrollment
+2026-03-24 15:18:09 [ProfileChangeMonitor] WARNING: attempt to add duplicate Policy userExtensionDefaultImpl:noConstraintImpl Contact System Administrator.
+2026-03-24 15:18:09 [ProfileChangeMonitor] WARNING: attempt to add duplicate Policy userExtensionDefaultImpl:noConstraintImpl Contact System Administrator.
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - IECUserRoles
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - KDCs_PKINIT_Certs
+2026-03-24 15:18:09 [ProfileChangeMonitor] INFO: Done Profile Creation - acmeIPAServerCert
+2026-03-24 15:18:09 [main] INFO: CMSEngine: Initializing selftests subsystem
+2026-03-24 15:18:09 [main] INFO: CMSEngine: Initializing CrossCertPair subsystem
+2026-03-24 15:18:09 [main] INFO: CMSEngine: Initializing stats subsystem
+2026-03-24 15:18:09 [main] INFO: CertificateAuthority: Publisher processor disabled
+2026-03-24 15:18:09 [main] INFO: CAEngine: Initializing certificate issued listener
+2026-03-24 15:18:09 [RequestRecoverThread] INFO: LDAPSession: Searching ou=ca, ou=requests,o=ipaca for (&(requestState=approved)(requestId=*))
+2026-03-24 15:18:09 [main] INFO: CAEngine: Initializing cert revoked listener
+2026-03-24 15:18:09 [main] INFO: CAEngine: Initializing request in queue listener
+2026-03-24 15:18:09 [main] INFO: RequestInQListener: Initializing RequestInQListener
+2026-03-24 15:18:09 [main] INFO: RequestInQListener: - enabled: false
+2026-03-24 15:18:09 [main] INFO: RequestInQListener: - sender email:
+2026-03-24 15:18:09 [main] INFO: RequestInQListener: - recipient email:
+2026-03-24 15:18:09 [main] INFO: RequestInQListener: - email subject: Certificate Request in Queue
+2026-03-24 15:18:09 [main] INFO: RequestInQListener: - email template: /var/lib/pki/pki-tomcat/ca/emails/reqInQueue_CA.html
+2026-03-24 15:18:09 [main] INFO: CMSEngine: Starting ca subsystem
+2026-03-24 15:18:09 [main] INFO: CMSEngine: Starting null subsystem
+2026-03-24 15:18:09 [main] INFO: LDAPProfileSubsystem: startup
+2026-03-24 15:18:09 [main] INFO: CMSEngine: Starting selftests subsystem
+2026-03-24 15:18:09 [main] INFO: CertUtil: Checking cert validity for caSigningCert cert-pki-ca
+2026-03-24 15:18:09 [main] INFO: CertUtil: Checking cert validity for ocspSigningCert cert-pki-ca
+2026-03-24 15:18:09 [main] INFO: CertUtil: Checking cert validity for Server-Cert cert-pki-ca
+2026-03-24 15:18:09 [main] INFO: CertUtil: Checking cert validity for subsystemCert cert-pki-ca
+2026-03-24 15:18:09 [main] INFO: CertUtil: Checking cert validity for auditSigningCert cert-pki-ca
+2026-03-24 15:18:09 [main] INFO: CMSEngine: Starting CrossCertPair subsystem
+2026-03-24 15:18:09 [main] INFO: CMSEngine: Starting stats subsystem
+2026-03-24 15:18:09 [main] INFO: Repository: Getting last serial number in range 49940001..49950000
+2026-03-24 15:18:09 [main] INFO: LDAPPagedSearch: Searching ou=ca, ou=requests,o=ipaca
+2026-03-24 15:18:09 [main] INFO: LDAPPagedSearch: filter: (&(requestId<=0849950000)(requestState=*))
+2026-03-24 15:18:10 [main] WARNING: DBSearchResults: Administrative limit exceeded
+netscape.ldap.LDAPException: Administrative limit exceeded (11); Sort Response Control
+
+
 [root@pln-ipamaster pki-tomcat]#
 [root@pln-ipamaster pki-tomcat]#
 [root@pln-ipamaster pki-tomcat]#
