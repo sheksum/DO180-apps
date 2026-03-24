@@ -1,2 +1,12 @@
-# On cpeg
-ipa-replica-manage status pln-ipamaster.ipa.calix.local
+root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa-replica-manage status pln-ipamaster.ipa.calix.local
+Usage: ipa-replica-manage [options]
+
+ipa-replica-manage: error: must provide a command [list | list-ruv | connect | disconnect | del | re-initialize | force-sync | clean-ruv | abort-clean-ruv | list-clean-ruv | clean-dangling-ruv | dnarange-show | dnanextrange-show | dnarange-set | dnanextrange-set]
+[root@cpeg-ipareplica ~]# ipa-replica-manage list
+sjc-ipareplica01.ipa.calix.local: master
+nan-ipareplica01.ipa.calix.local: master
+ric-ipareplica01.ipa.calix.local: master
+ric-ipareplica.ipa.calix.local: master
+cpeg-ipareplica.ipa.calix.local: master
+[root@cpeg-ipareplica ~]#
