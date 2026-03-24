@@ -1,2 +1,9 @@
-grep -n "8443\|getStatus\|wait.*start\|did not start" \
+[root@pln-ipamaster pki-tomcat]# grep -n "8443\|getStatus\|wait.*start\|did not start" \
   /usr/lib/python3.9/site-packages/pki/server/__init__.py | head -20
+482:                    raise Exception('Server did not start after %ds' %
+1230:                    '%s web application did not start after %ds' % (webapp_id, max_wait))
+1655:    def setup_password_authentication(username, password, subsystem_name='ca', secure_port='8443',
+1671:            client_nssdb, tmpdir, subsystem_name=None, secure_port='8443'):
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]#
