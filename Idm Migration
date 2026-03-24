@@ -1,3 +1,15 @@
-ps aux | grep java | grep -v grep | grep -c "Xmx"
-
-tail -f /var/log/pki/pki-ca-spawn.20260324103417.log | grep -iE "INFO|ERROR|SEVERE"
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ps aux | grep java | grep -v grep | grep -c "Xmx"
+0
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-ca-spawn.20260324103417.log | grep -iE "INFO|ERROR|SEVERE"
+2026-03-24 12:55:00 INFO: Waiting for PKI server to start
+2026-03-24 12:55:16 INFO: Waiting for PKI server to start (16s)
+2026-03-24 12:55:32 INFO: Waiting for PKI server to start (32s)
+2026-03-24 12:55:48 INFO: Waiting for PKI server to start (48s)
+2026-03-24 12:56:04 INFO: Waiting for PKI server to start (64s)
+2026-03-24 12:56:20 INFO: Waiting for PKI server to start (80s)
+2026-03-24 12:56:36 INFO: Waiting for PKI server to start (96s)
+2026-03-24 12:56:52 INFO: Waiting for PKI server to start (112s)
+2026-03-24 12:57:08 INFO: Waiting for PKI server to start (128s)
