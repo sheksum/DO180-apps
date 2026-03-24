@@ -1,28 +1,6 @@
-root@pln-ipamaster ~]# ls /var/lib/ipa/sysrestore
-035eaca33fde537167c2864b0f692acf5045e3066b6ce26c4a1ed5a4a66a863e-krb5.conf     823618044ccefc1ecc1480d4517ab3510872a05f8b8ca866274093857085be11-krb5.ini      fedd11140312309ae229eb01ab83d3d07197bfa57a22893de8919c6fac77dc10-krbrealm.con
-23a1baded23c85dd0837653d574232047b60772a9f42632e87e08aebe9785077-kdc.conf      c12f09eda85f55cc678d02b74d448b3768d3492c79fe7c93130b36da3c525e11-ssl.conf      sysrestore.index
-250b9ce0d2879c9052634727c71258781362cb6d4f290327a5450f3e8675dae8-krb.con       ccf344214d983370937cf44f73fcb3f9c544068b9408193f744dcd7f82927bd6-default.conf  sysrestore.state
-31817ac94683cd32a5b9c300cdb2bf18e748fc42b7f22d72eb0ce402a8834279-default.conf  ddcafd0fa8f657b8057508ceaaea2f1c509f84e1ed64876d50dd2f2860498ad9-default.conf
-475fbab9e854489eee0963f49f700cfc2da856e3976dc8cb36ccae8b773d1a8f-freeipa       edf95267244d57b6c953ea3ad197c12e2e342e237d2b31d2d75e5aeac3e06e03-krb5kdc
-[root@pln-ipamaster ~]# cat /var/lib/ipa/sysrestore/sysrestore.state 2>/dev/null | head -20
-[installation]
-complete = False
+sed -i 's/complete = False/complete = True/' \
+  /var/lib/ipa/sysrestore/sysrestore.state
 
-[dirsrv]
-serverid = IPA-CALIX-LOCAL
-enabled = True
+grep complete /var/lib/ipa/sysrestore/sysrestore.state
 
-[krb5kdc]
-running = False
-enabled = False
-
-[kadmin]
-running = False
-enabled = False
-
-[httpd]
-running = False
-certmonger_ipa_helper = /usr/libexec/certmonger/ipa-submit
-httpd_can_network_connect = off
-httpd_manage_ipa = off
-[root@pln-ipamaster ~]#
+ipactl start 2>&1
