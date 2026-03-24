@@ -1,7 +1,6 @@
-[root@pln-ipamaster ~]# cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
-[Service]
-TimeoutStartSec=7200
-Environment="JAVA_OPTS=-Dcom.redhat.fips=false -Xms4g -Xmx8g -XX:+UseG1GC"
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl daemon-reload
-[root@pln-ipamaster ~]#
+# On cpeg-ipareplica
+ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
+ipa host-add pln-ipamaster.ipa.calix.local --force
+ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+ipa service-add ldap/pln-ipamaster.ipa.calix.local
