@@ -1,58 +1,6 @@
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.276523131 +0000] - INFO - Security Initialization - SSL info:         TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.277144835 +0000] - INFO - Security Initialization - SSL info:         TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.277646558 +0000] - INFO - Security Initialization - SSL info:         TLS_DHE_RSA_WITH_AES_128_GCM_SHA256: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.278145282 +0000] - INFO - Security Initialization - SSL info:         TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.278634881 +0000] - INFO - Security Initialization - SSL info:         TLS_DHE_RSA_WITH_AES_256_GCM_SHA384: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.279122643 +0000] - INFO - Security Initialization - SSL info:         TLS_DHE_RSA_WITH_AES_128_CBC_SHA: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.279616169 +0000] - INFO - Security Initialization - SSL info:         TLS_DHE_RSA_WITH_AES_128_CBC_SHA256: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.280088479 +0000] - INFO - Security Initialization - SSL info:         TLS_DHE_RSA_WITH_AES_256_CBC_SHA: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.280717853 +0000] - INFO - Security Initialization - SSL info:         TLS_DHE_RSA_WITH_AES_256_CBC_SHA256: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.281228474 +0000] - INFO - Security Initialization - SSL info:         TLS_RSA_WITH_AES_128_GCM_SHA256: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.281831212 +0000] - INFO - Security Initialization - SSL info:         TLS_RSA_WITH_AES_256_GCM_SHA384: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.282310396 +0000] - INFO - Security Initialization - SSL info:         TLS_RSA_WITH_AES_128_CBC_SHA: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.282805807 +0000] - INFO - Security Initialization - SSL info:         TLS_RSA_WITH_AES_128_CBC_SHA256: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.283290089 +0000] - INFO - Security Initialization - SSL info:         TLS_RSA_WITH_AES_256_CBC_SHA: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.283804334 +0000] - INFO - Security Initialization - SSL info:         TLS_RSA_WITH_AES_256_CBC_SHA256: enabled
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.290127705 +0000] - INFO - Security Initialization - slapd_ssl_init2 - Configured SSL version range: min: TLS1.2, max: TLS1.3
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.290715915 +0000] - INFO - Security Initialization - slapd_ssl_init2 - NSS adjusted SSL version range: min: TLS1.2, max: TLS1.3
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.291472760 +0000] - INFO - main - 389-Directory/1.4.3.39 B2024.078.2313 starting up
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.292140612 +0000] - INFO - main - Setting the maximum file descriptor limit to: 262144
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.449974159 +0000] - INFO - PBKDF2_SHA256 - Based on CPU performance, chose 2048 rounds
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.453305165 +0000] - INFO - ldbm_instance_config_cachememsize_set - force a minimal value 512000
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.457581649 +0000] - INFO - ldbm_instance_config_cachememsize_set - force a minimal value 512000
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.461334121 +0000] - INFO - ldbm_instance_config_cachememsize_set - force a minimal value 512000
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.464329179 +0000] - NOTICE - ldbm_back_start - found 16138888k physical memory
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.464856026 +0000] - NOTICE - ldbm_back_start - found 11779984k available
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.465533736 +0000] - NOTICE - ldbm_back_start - cache autosizing: db cache: 1008680k
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.466015406 +0000] - NOTICE - ldbm_back_start - cache autosizing: userRoot entry cache (3 total): 917504k
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.466577428 +0000] - NOTICE - ldbm_back_start - cache autosizing: userRoot dn cache (3 total): 131072k
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.467168899 +0000] - NOTICE - ldbm_back_start - cache autosizing: ipaca entry cache (3 total): 917504k
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.467720452 +0000] - NOTICE - ldbm_back_start - cache autosizing: ipaca dn cache (3 total): 131072k
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.468369607 +0000] - NOTICE - ldbm_back_start - ipaca: entry cache size 939524096 B is less than db size 12862709760 B; We recommend to increase the entry cache size nsslapd-cachememsize.
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.468859811 +0000] - NOTICE - ldbm_back_start - cache autosizing: changelog entry cache (3 total): 917504k
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.469365066 +0000] - NOTICE - ldbm_back_start - cache autosizing: changelog dn cache (3 total): 131072k
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.469883480 +0000] - NOTICE - ldbm_back_start - total cache size: 4254114304 B;
-Mar 24 22:26:19 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:19.470920027 +0000] - NOTICE - bdb_start - Detected Disorderly Shutdown last time Directory Server was running, recovering database.
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.032955720 +0000] - ERR - schema-compat-plugin - scheduled schema-compat-plugin tree scan in about 5 seconds after the server startup!
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.055778869 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=groups,cn=compat,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.056663415 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=computers,cn=compat,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.057330330 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=ng,cn=compat,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.058111040 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target ou=sudoers,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.058773518 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=users,cn=compat,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.059373711 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=vaults,cn=kra,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.059910653 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=vaults,cn=kra,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.060449328 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=vaults,cn=kra,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.061118244 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=vaults,cn=kra,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.061672622 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=vaults,cn=kra,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.062164518 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=vaults,cn=kra,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.062669980 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=vaults,cn=kra,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.063162777 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=vaults,cn=kra,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.063686891 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=vaults,cn=kra,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.064188174 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=vaults,cn=kra,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.064693969 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=vaults,cn=kra,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.200089750 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=casigningcert cert-pki-ca,cn=ca_renewal,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.201008573 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=casigningcert cert-pki-ca,cn=ca_renewal,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.319509004 +0000] - WARN - NSACLPlugin - acl_parse - The ACL target cn=automember rebuild membership,cn=tasks,cn=config does not exist
-Mar 24 22:26:20 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:20.323924517 +0000] - INFO - slapi_vattrspi_regattr - Because krbPwdPolicyReference is a new registered virtual attribute , nsslapd-ignore-virtual-attrs was set to 'off'
-Mar 24 22:26:39 cpeg-ipareplica.ipa.calix.local ns-slapd[2456492]: [24/Mar/2026:22:26:39.609423389 +0000] - NOTICE - NSMMReplicationPlugin - changelog program - _cl5ConstructRUV - Rebuilding the replication changelog RUV, this may take several minutes...
-[root@cpeg-ipareplica ~]#
+ssh cpeg-ipareplica.ipa.calix.local "tail -f /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors"
+```
+
+Wait for:
+```
+_cl5ConstructRUV - Finished rebuilding the replication changelog RUV
