@@ -1,1 +1,129 @@
-ls -lt /var/log/pki/pki-tomcat/ca/
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]#
+2026-03-24 12:48:10 [main] INFO: OS name: Linux
+2026-03-24 12:48:10 [main] INFO: OS version: 5.14.0-611.30.1.el9_7.x86_64
+2026-03-24 12:48:10 [main] INFO: OS arch: amd64
+2026-03-24 12:48:10 [main] INFO: Java vendor: Red Hat, Inc.
+2026-03-24 12:48:10 [main] INFO: Java version: 17.0.18
+2026-03-24 12:48:10 [main] INFO: Java home: /usr/lib/jvm/java-17-openjdk-17.0.18.0.8-1.el9.x86_64
+2026-03-24 12:48:10 [main] INFO: Catalina base: /var/lib/pki/pki-tomcat
+2026-03-24 12:48:10 [main] INFO: CMSEngine: Initializing subsystem listeners
+2026-03-24 12:48:10 [main] INFO: CMSEngine: security providers:
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - Mozilla-JSS version: 5.7.0
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - SUN version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - SunRsaSign version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - SunEC version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - SunJSSE version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - SunJCE version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - SunJGSS version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - SunSASL version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - XMLDSig version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - SunPCSC version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - JdkLDAP version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - JdkSASL version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - SunPKCS11 version 17
+2026-03-24 12:48:10 [main] INFO: CMSEngine: - CMS version 1.0
+2026-03-24 12:48:10 [main] INFO: PluginRegistry: Loading plugin registry from /var/lib/pki/pki-tomcat/conf/ca/registry.cfg
+2026-03-24 12:48:11 [main] INFO: DBSubsystem: Configuring excluded LDAP attributes
+2026-03-24 12:48:11 [main] INFO: RequestSubsystem: Request subsystem started
+2026-03-24 12:48:11 [main] INFO: CAEngine: Initializing authority repository
+2026-03-24 12:48:11 [main] INFO: CAEngine: Initializing cert repository
+2026-03-24 12:48:11 [main] INFO: CAEngine: - increment: 20
+2026-03-24 12:48:11 [main] INFO: CAEngine: Initializing CRL repository
+2026-03-24 12:48:11 [main] INFO: CRLRepository: Initializing CRL repository
+2026-03-24 12:48:11 [main] INFO: CRLRepository: - base DN: ou=crlIssuingPoints,ou=ca,o=ipaca
+2026-03-24 12:48:11 [main] INFO: CRLRepository: - range DN: ou=requests,ou=ranges,o=ipaca
+2026-03-24 12:48:11 [main] INFO: CRLRepository: - min serial: 49940001
+2026-03-24 12:48:11 [main] INFO: CRLRepository: - max serial: 49950000
+2026-03-24 12:48:11 [main] INFO: CRLRepository: - next min serial: null
+2026-03-24 12:48:11 [main] INFO: CRLRepository: - next max serial: null
+2026-03-24 12:48:11 [main] INFO: CAEngine: Initializing replica ID repository
+2026-03-24 12:48:11 [main] INFO: ReplicaIDRepository: Initializing replica ID repository
+2026-03-24 12:48:11 [main] INFO: ReplicaIDRepository: - base DN: ou=replica,o=ipaca
+2026-03-24 12:48:11 [main] INFO: ReplicaIDRepository: - range DN: ou=replica, ou=ranges,o=ipaca
+2026-03-24 12:48:11 [main] INFO: ReplicaIDRepository: - min serial: 1170
+2026-03-24 12:48:11 [main] INFO: ReplicaIDRepository: - max serial: 1174
+2026-03-24 12:48:11 [main] INFO: ReplicaIDRepository: - next min serial: null
+2026-03-24 12:48:11 [main] INFO: ReplicaIDRepository: - next max serial: null
+2026-03-24 12:48:11 [main] INFO: Initializing CA subsystem
+2026-03-24 12:48:11 [main] INFO: CMSEngine: Loading ca subsystem
+2026-03-24 12:48:11 [main] INFO: CMSEngine: Loading profile subsystem
+2026-03-24 12:48:11 [main] INFO: CMSEngine: Loading selftests subsystem
+2026-03-24 12:48:11 [main] INFO: CMSEngine: Loading CrossCertPair subsystem
+2026-03-24 12:48:11 [main] INFO: CMSEngine: Loading stats subsystem
+2026-03-24 12:48:11 [main] INFO: CAEngine: Loading CA configuration
+2026-03-24 12:48:11 [main] INFO: CAEngine: - default cert version: Version: V2
+2026-03-24 12:48:11 [main] INFO: CAEngine: - default cert validity (days): 730
+2026-03-24 12:48:11 [main] INFO: CAEngine: - enable past CA time: false
+2026-03-24 12:48:11 [main] INFO: CAEngine: - enable past CA time for CA certs: false
+2026-03-24 12:48:11 [main] INFO: CAEngine: - fast signing:
+2026-03-24 12:48:11 [main] INFO: CAEngine: - allowExtCASignedAgentCerts: false
+2026-03-24 12:48:11 [main] INFO: CAEngine: - enable nonces: true
+2026-03-24 12:48:11 [main] INFO: CAEngine: - max nonces: 100
+2026-03-24 12:48:11 [main] INFO: CAEngine: Configuring OCSP responder
+2026-03-24 12:48:11 [main] INFO: CAEngine: - by name: false
+...skipping...
+        at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+        at org.apache.catalina.startup.Bootstrap.start(Bootstrap.java:345)
+        at org.apache.catalina.startup.Bootstrap.main(Bootstrap.java:473)
+
+2026-03-24 15:18:10 [main] SEVERE: Unable to start CA engine: Cannot invoke "com.netscape.cmscore.request.RequestRecord.toRequest()" because "recReq" is null
+java.lang.NullPointerException: Cannot invoke "com.netscape.cmscore.request.RequestRecord.toRequest()" because "recReq" is null
+        at com.netscape.cmscore.request.RequestRepository.getLastSerialNumberInRange(RequestRepository.java:708)
+        at com.netscape.cmscore.dbs.Repository.initCache(Repository.java:226)
+        at com.netscape.cmscore.dbs.Repository.checkRanges(Repository.java:639)
+        at org.dogtagpki.server.ca.CAEngine.startupSubsystems(CAEngine.java:1171)
+        at com.netscape.cmscore.apps.CMSEngine.initSequence(CMSEngine.java:1283)
+        at com.netscape.cmscore.apps.CMSEngine.start(CMSEngine.java:1233)
+        at com.netscape.cmscore.apps.CMSWebListener.contextInitialized(CMSWebListener.java:43)
+        at org.apache.catalina.core.StandardContext.listenerStart(StandardContext.java:4462)
+        at org.apache.catalina.core.StandardContext.startInternal(StandardContext.java:4914)
+        at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:171)
+        at org.apache.catalina.core.ContainerBase.addChildInternal(ContainerBase.java:683)
+        at org.apache.catalina.core.ContainerBase.access$000(ContainerBase.java:124)
+        at org.apache.catalina.core.ContainerBase$PrivilegedAddChild.run(ContainerBase.java:142)
+        at org.apache.catalina.core.ContainerBase$PrivilegedAddChild.run(ContainerBase.java:132)
+        at java.base/java.security.AccessController.doPrivileged(AccessController.java:318)
+        at org.apache.catalina.core.ContainerBase.addChild(ContainerBase.java:656)
+        at org.apache.catalina.core.StandardHost.addChild(StandardHost.java:661)
+        at org.apache.catalina.startup.HostConfig.deployDescriptor(HostConfig.java:680)
+        at org.apache.catalina.startup.HostConfig$DeployDescriptor.run(HostConfig.java:1844)
+        at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+        at org.apache.tomcat.util.threads.InlineExecutorService.execute(InlineExecutorService.java:75)
+        at java.base/java.util.concurrent.AbstractExecutorService.submit(AbstractExecutorService.java:123)
+        at org.apache.catalina.startup.HostConfig.deployDescriptors(HostConfig.java:575)
+        at org.apache.catalina.startup.HostConfig.deployApps(HostConfig.java:466)
+        at org.apache.catalina.startup.HostConfig.start(HostConfig.java:1584)
+        at org.apache.catalina.startup.HostConfig.lifecycleEvent(HostConfig.java:312)
+        at org.apache.catalina.util.LifecycleBase.fireLifecycleEvent(LifecycleBase.java:114)
+        at org.apache.catalina.util.LifecycleBase.setStateInternal(LifecycleBase.java:402)
+        at org.apache.catalina.util.LifecycleBase.setState(LifecycleBase.java:345)
+        at org.apache.catalina.core.ContainerBase.startInternal(ContainerBase.java:893)
+        at org.apache.catalina.core.StandardHost.startInternal(StandardHost.java:794)
+        at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:171)
+        at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1332)
+        at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1322)
+        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+        at org.apache.tomcat.util.threads.InlineExecutorService.execute(InlineExecutorService.java:75)
+        at java.base/java.util.concurrent.AbstractExecutorService.submit(AbstractExecutorService.java:145)
+        at org.apache.catalina.core.ContainerBase.startInternal(ContainerBase.java:866)
+        at org.apache.catalina.core.StandardEngine.startInternal(StandardEngine.java:248)
+        at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:171)
+        at org.apache.catalina.core.StandardService.startInternal(StandardService.java:433)
+        at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:171)
+        at org.apache.catalina.core.StandardServer.startInternal(StandardServer.java:925)
+        at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:171)
+        at org.apache.catalina.startup.Catalina.start(Catalina.java:735)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+        at org.apache.catalina.startup.Bootstrap.start(Bootstrap.java:345)
+        at org.apache.catalina.startup.Bootstrap.main(Bootstrap.java:473)
+
+2026-03-24 15:18:10 [main] INFO: Shutting down CA subsystem
+2026-03-24 15:18:10 [main] INFO: Destroying LogFile(/var/lib/pki/pki-tomcat/logs/ca/selftests.log)
+2026-03-24 15:18:10 [main] INFO: RequestSubsystem: Request subsystem stopped
+(END)
