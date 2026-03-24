@@ -1,40 +1,29 @@
-[root@cpeg-ipareplica ~]# ipa-healthcheck --source ipahealthcheck.ds.dse 2>/dev/null
-[
-  {
-    "source": "ipahealthcheck.ds.dse",
-    "check": "DSECheck",
-    "result": "CRITICAL",
-    "uuid": "6822da07-f260-4881-b6dd-53a3f2622d03",
-    "when": "20260324215242Z",
-    "duration": "0.016155",
-    "kw": {
-      "key": "DSSKEWLE0003",
-      "items": [
-        "Replication",
-        "dc=ipa,dc=calix,dc=local",
-        "Time Skew",
-        "Skew: 29201 days, 12 hours, 18 minutes, 44 seconds"
-      ],
-      "msg": "The time skew is over 24 hours.  Setting nsslapd-ignore-time-skew\nto \"on\" on each replica will allow replication to continue, but if the\ntime skew continues to increase other serious replication problems can\noccur."
-    }
-  },
-  {
-    "source": "ipahealthcheck.ds.dse",
-    "check": "DSECheck",
-    "result": "WARNING",
-    "uuid": "784dbb56-ae5d-46f0-8971-22574a4cbbe7",
-    "when": "20260324215242Z",
-    "duration": "0.016164",
-    "kw": {
-      "key": "DSSKEWLE0001",
-      "items": [
-        "Replication",
-        "o=ipaca",
-        "Time Skew",
-        "Skew: 7 hours, 41 minutes, 51 seconds"
-      ],
-      "msg": "The time skew is over 6 hours.  If this time skew continues to increase\nto 24 hours then replication can potentially stop working.  Please continue to\nmonitor the time skew offsets for increasing values."
-    }
-  }
-]
-[root@cpeg-ipareplica ~]#
+# On pln-ipamaster — check current crypto policy
+update-crypto-policies --show
+
+# Set to DEFAULT:SHA1 to allow the older PKCS12 format custodia will send
+update-crypto-policies --set DEFAULT:SHA1
+
+
+# On cpeg
+openssl pkcs12 -in /var/lib/ipa/ra-agent.pem -info -noout 2>&1 | head -5
+
+
+
+# On pln-ipamaster
+curl -sk https://ric-ipareplica.ipa.calix.local/ca/admin/ca/getStatus
+nc -zv ric-ipareplica.ipa.calix.local 443
+nc -zv ric-ipareplica.ipa.calix.local 8443
+
+
+# On pln-ipamaster — do this NOW before starting
+update-crypto-policies --set DEFAULT:SHA1
+# Verify
+update-crypto-policies --show
+
+# Check connectivity to ALL CA replicas from pln-ipamaster
+for host in cpeg-ipareplica.ipa.calix.local ric-ipareplica.ipa.calix.local; do
+  echo "=== $host ==="
+  nc -zv $host 443 2>&1
+  nc -zv $host 8443 2>&1
+done
