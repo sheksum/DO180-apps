@@ -1,6 +1,14 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa-replica-manage force-sync --from pln-ipamaster.ipa.calix.local
-ipa: ERROR: Unable to find replication agreement for cpeg-ipareplica.ipa.calix.local
-Unable to proceed
+[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
+Directory Manager password:
+
+Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 20
+	ric-ipareplica.ipa.calix.local:389: 12
+	ric-ipareplica01.ipa.calix.local:389: 11
+	nan-ipareplica01.ipa.calix.local:389: 10
+	pln-ipamaster.ipa.calix.local:389: 46
+Certificate Server Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 21
+	pln-ipamaster.ipa.calix.local:389: 45
+	pln-ipamaster.ipa.calix.local:389: 47
 [root@cpeg-ipareplica ~]#
