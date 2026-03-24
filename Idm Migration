@@ -1,1 +1,1 @@
-watch -n 10 'tail -3 /var/log/ipareplica-install.log'
+tail -f /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | grep -i "index\|task\|ipaca"
