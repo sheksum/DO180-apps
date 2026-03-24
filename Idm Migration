@@ -1,2 +1,6 @@
-dsconf -D "cn=Directory Manager" ldap://pln-ipamaster.ipa.calix.local \
-  backend suffix list
+cat >> /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf << 'EOF'
+Environment="JAVA_OPTS=-Dcom.redhat.fips=false -Xms4g -Xmx8g -XX:+UseG1GC"
+EOF
+
+cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
+systemctl daemon-reload
