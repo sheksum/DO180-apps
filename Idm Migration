@@ -1,4 +1,6 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# cat /etc/ipa/installer.conf
-startup_timeout=7200
-[root@pln-ipamaster ~]#
+ini
+[global]
+startup_timeout=1200
+replication_wait_timeout=600
+certmonger_wait_timeout=600
+Use code with caution.
