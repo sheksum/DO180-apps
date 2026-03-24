@@ -1,1 +1,5 @@
-tail -3 /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log
+[root@pln-ipamaster ~]# tail -3 /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log
+2026-03-24 16:23:52 [main] INFO: Repository: Getting last serial number in range 49940001..49950000
+2026-03-24 16:23:52 [main] INFO: LDAPPagedSearch: Searching ou=ca, ou=requests,o=ipaca
+2026-03-24 16:23:52 [main] INFO: LDAPPagedSearch: filter: (&(requestId<=0849950000)(requestState=*))
+[root@pln-ipamaster ~]#
