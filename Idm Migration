@@ -1,3 +1,1 @@
-[root@cpeg-ipareplica ~]# ipa-replica-manage re-initialize   --from=cpeg-ipareplica.ipa.calix.local   --host=pln-ipamaster.ipa.calix.local
-'pln-ipamaster.ipa.calix.local' has no replication agreement for 'cpeg-ipareplica.ipa.calix.local'
-[root@cpeg-ipareplica ~]#
+cat /etc/ipa/installer.conf
