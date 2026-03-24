@@ -1,5 +1,4 @@
-cat >> /etc/ipa/installer.conf << 'EOF'
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# cat /etc/ipa/installer.conf
 startup_timeout=7200
-EOF
-
-cat /etc/ipa/installer.conf
+[root@pln-ipamaster ~]#
