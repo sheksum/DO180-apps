@@ -1,3 +1,11 @@
-strace -p 11794 -e trace=network,read,write -c 2>&1 &
-sleep 5
-kill %1
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# strace -p 11794 -e trace=network,read,write -c 2>&1 &
+[1] 11886
+[root@pln-ipamaster ~]# strace: Process 11794 attached
+
+[root@pln-ipamaster ~]# sleep 5
+[root@pln-ipamaster ~]# kill %1
+[root@pln-ipamaster ~]# strace: Process 11794 detached
+
+[1]+  Terminated              strace -p 11794 -e trace=network,read,write -c 2>&1
+[root@pln-ipamaster ~]#
