@@ -1,1 +1,23 @@
-tail -20 /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -20 /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log
+2026-03-24 00:57:20 [main] INFO: CertificateAuthority: Checking new CA cert for authority null
+2026-03-24 00:57:20 [main] INFO: CAEngine: Initializing CRL issuing points
+2026-03-24 00:57:20 [main] INFO: CRLIssuingPoint: Initializing MasterCRL
+2026-03-24 00:57:20 [main] INFO: CAEngine: Initializing CA issuance protection cert
+2026-03-24 00:57:20 [main] INFO: CAEngine: - cert.issuance_protection.nickname: null
+2026-03-24 00:57:20 [main] INFO: CAEngine: - cert.subsystem.nickname: subsystemCert cert-pki-ca
+2026-03-24 00:57:20 [main] INFO: CAEngine: Loading public and private keys for subsystemCert cert-pki-ca
+2026-03-24 01:03:06 [main] INFO: AuthorityMonitor: Waiting for authorities to load
+2026-03-24 01:03:06 [SerialNumberUpdateTask] INFO: CertificateRepository: Storing config into /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
+2026-03-24 01:03:06 [AuthorityMonitor] INFO: AuthorityMonitor: Loading authority record cn=7acefe44-df0f-4fa5-8142-d67d42cc18b2,ou=authorities,ou=ca,o=ipaca
+2026-03-24 01:03:06 [AuthorityMonitor] INFO: AuthorityRepository: Loading cn=7acefe44-df0f-4fa5-8142-d67d42cc18b2,ou=authorities,ou=ca,o=ipaca
+2026-03-24 01:03:06 [AuthorityMonitor] INFO: AuthorityMonitor: Updating host CA
+2026-03-24 01:03:06 [AuthorityMonitor] INFO: AuthorityMonitor: - ID: 7acefe44-df0f-4fa5-8142-d67d42cc18b2
+2026-03-24 01:03:06 [AuthorityMonitor] INFO: AuthorityMonitor: - description: Host authority
+2026-03-24 01:03:06 [SerialNumberUpdateTask] INFO: LDAPPagedSearch: Searching ou=certificateRepository, ou=ca,o=ipaca
+2026-03-24 01:03:06 [SerialNumberUpdateTask] INFO: LDAPPagedSearch: filter: (&(certStatus=*)(serialno<=101341980672))
+2026-03-24 01:03:16 [main] WARNING: AuthorityMonitor: Caught InterruptedException while waiting for initial load of authorities.
+2026-03-24 01:03:16 [main] WARNING: AuthorityMonitor: You may have replication conflict entries or extraneous data under ou=authorities,ou=ca,o=ipaca
+2026-03-24 01:03:16 [main] INFO: CMSEngine: Initializing ca subsystem
+2026-03-24 01:03:16 [main] INFO: CMSEngine: Initializing profile subsystem
+[root@pln-ipamaster ~]#
