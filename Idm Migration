@@ -1,5 +1,4 @@
-ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
-ipa host-add pln-ipamaster.ipa.calix.local --force
-ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
-ipa service-add HTTP/pln-ipamaster.ipa.calix.local
-ipa service-add ldap/pln-ipamaster.ipa.calix.local
+grep -i "xmx\|xms\|heap\|java_opts\|jvm" \
+  /usr/share/pki/etc/tomcat.conf \
+  /var/lib/pki/pki-tomcat/conf/tomcat.conf \
+  /etc/sysconfig/pki/tomcat/pki-tomcat/pki-tomcat 2>/dev/null
