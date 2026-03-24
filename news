@@ -1,9 +1,40 @@
-# Remove domain replication agreement
-ldapdelete -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL \
-  "cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config" 2>/dev/null
-
-# Remove CA replication agreement
-ldapdelete -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL \
-  "cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config" 2>/dev/null
+[root@cpeg-ipareplica ~]# ipa-healthcheck --source ipahealthcheck.ds.dse 2>/dev/null
+[
+  {
+    "source": "ipahealthcheck.ds.dse",
+    "check": "DSECheck",
+    "result": "CRITICAL",
+    "uuid": "6822da07-f260-4881-b6dd-53a3f2622d03",
+    "when": "20260324215242Z",
+    "duration": "0.016155",
+    "kw": {
+      "key": "DSSKEWLE0003",
+      "items": [
+        "Replication",
+        "dc=ipa,dc=calix,dc=local",
+        "Time Skew",
+        "Skew: 29201 days, 12 hours, 18 minutes, 44 seconds"
+      ],
+      "msg": "The time skew is over 24 hours.  Setting nsslapd-ignore-time-skew\nto \"on\" on each replica will allow replication to continue, but if the\ntime skew continues to increase other serious replication problems can\noccur."
+    }
+  },
+  {
+    "source": "ipahealthcheck.ds.dse",
+    "check": "DSECheck",
+    "result": "WARNING",
+    "uuid": "784dbb56-ae5d-46f0-8971-22574a4cbbe7",
+    "when": "20260324215242Z",
+    "duration": "0.016164",
+    "kw": {
+      "key": "DSSKEWLE0001",
+      "items": [
+        "Replication",
+        "o=ipaca",
+        "Time Skew",
+        "Skew: 7 hours, 41 minutes, 51 seconds"
+      ],
+      "msg": "The time skew is over 6 hours.  If this time skew continues to increase\nto 24 hours then replication can potentially stop working.  Please continue to\nmonitor the time skew offsets for increasing values."
+    }
+  }
+]
+[root@cpeg-ipareplica ~]#
