@@ -1,13 +1,35 @@
-# Verify Dogtag is actually listening on 8443 on cpeg
-ssh cpeg-ipareplica.ipa.calix.local "ss -tlnp | grep 8443"
 
-# Check firewall on cpeg
-ssh cpeg-ipareplica.ipa.calix.local "firewall-cmd --list-all"
+[root@pln-ipamaster ~]# traceroute -T -p 8443 cpeg-ipareplica.ipa.calix.local
+traceroute to cpeg-ipareplica.ipa.calix.local (172.23.49.10), 30 hops max, 60 byte packets
+ 1  _gateway (10.172.248.1)  0.530 ms  0.467 ms  0.449 ms
+ 2  10.159.254.65 (10.159.254.65)  0.808 ms  0.795 ms  1.016 ms
+ 3  10.159.254.66 (10.159.254.66)  0.377 ms  0.324 ms  0.343 ms
+ 4  10.159.254.17 (10.159.254.17)  0.857 ms  0.710 ms  0.836 ms
+ 5  10.159.254.19 (10.159.254.19)  0.549 ms  0.371 ms  0.634 ms
+ 6  10.159.254.9 (10.159.254.9)  0.986 ms * *
+ 7  10.255.255.169 (10.255.255.169)  47.815 ms  47.899 ms  47.709 ms
+ 8  10.255.52.18 (10.255.52.18)  48.707 ms  48.576 ms  48.563 ms
+ 9  cpeg-ipareplica.ipa.calix.local (172.23.49.10)  48.549 ms !X  48.024 ms !X  47.978 ms !X
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
 
-# Check if it's a network ACL between Plano and Petaluma
-# (Petaluma is 172.23.x.x, Plano is 10.172.x.x)
-traceroute -T -p 8443 cpeg-ipareplica.ipa.calix.local
-
-# On cpeg — open 8443 temporarily for the install
-firewall-cmd --add-port=8443/tcp
-# (no --permanent, just for the duration of the install)
+[root@cpeg-ipareplica ~]# ss -tlnp | grep 8443
+LISTEN 0      100                     *:8443             *:*    users:(("java",pid=2358400,fd=93))
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# firewall-cmd --list-all
+public (active)
+  target: default
+  icmp-block-inversion: no
+  interfaces: ens192
+  sources:
+  services: cockpit dhcpv6-client dns http https kadmin kerberos kpasswd ldap ldaps nfs ntp ssh
+  ports: 514/tcp 1517/tcp
+  protocols:
+  forward: no
+  masquerade: no
+  forward-ports:
+  source-ports:
+  icmp-blocks:
+  rich rules:
+[root@cpeg-ipareplica ~]#
