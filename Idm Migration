@@ -1,6 +1,5 @@
-ini
-[global]
-startup_timeout=1200
-replication_wait_timeout=600
-certmonger_wait_timeout=600
-Use code with caution.
+ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
+ipa host-add pln-ipamaster.ipa.calix.local --force
+ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+ipa service-add ldap/pln-ipamaster.ipa.calix.local
