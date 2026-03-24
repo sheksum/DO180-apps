@@ -1,2 +1,6 @@
-grep -n "startup_timeout" \
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]# grep -n "startup_timeout" \
   /usr/lib/python3.9/site-packages/ipalib/config.py | head -10
+[root@pln-ipamaster pki-tomcat]# grep -n "startup_timeout"   /usr/lib/python3.9/site-packages/ipalib/config.py
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]#
