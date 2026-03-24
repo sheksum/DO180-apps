@@ -1,15 +1,1 @@
-[root@pln-ipamaster ca]#
-[root@pln-ipamaster ca]# ps aux | grep ipa | grep -v grep
-avahi        987  0.0  0.0  35448  7548 ?        Ss   09:59   0:00 avahi-daemon: running [pln-ipamaster.local]
-root        2569  0.0  0.0 325968 27888 ?        S    10:05   0:00 /usr/libexec/sssd/sssd_be --domain ipa.calix.local --uid 0 --gid 0 --logger=files
-root        4245  0.0  0.1 277324 48200 ?        Ss   10:07   0:03 /usr/bin/python3 -I /usr/libexec/ipa/ipa-custodia /etc/ipa/custodia/custodia.conf
-ipaapi     11209  0.0  0.2 442892 94492 ?        Sl   16:28   0:01 (wsgi:ipa)      -DFOREGROUND
-ipaapi     11210  0.0  0.2 442896 94492 ?        Sl   16:28   0:01 (wsgi:ipa)      -DFOREGROUND
-ipaapi     11211  0.0  0.2 442896 94496 ?        Sl   16:28   0:01 (wsgi:ipa)      -DFOREGROUND
-ipaapi     11212  0.0  0.2 442896 94496 ?        Sl   16:28   0:01 (wsgi:ipa)      -DFOREGROUND
-root       11792  0.4  0.2 328064 95256 pts/0    S+   17:06   0:01 /usr/bin/python3 -I /usr/sbin/ipactl start
-root       11794  1.9  0.4 378204 138504 pts/0   S+   17:06   0:07 /usr/bin/python3 -I /usr/sbin/ipa-server-upgrade
-root       11858  0.0  0.0 220996  2052 pts/2    S+   17:07   0:00 tail -f /var/log/ipaupgrade.log
-[root@pln-ipamaster ca]#
-[root@pln-ipamaster ca]#
-[root@pln-ipamaster ca]#
+tail -f /var/log/ipaupgrade.log | grep -v DEBUG
