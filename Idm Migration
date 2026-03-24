@@ -1,6 +1,1 @@
-[root@pln-ipamaster ca]#
-[root@pln-ipamaster ca]# cat /etc/ipa/installer.conf
-[global]
-startup_timeout=7200
-replication_wait_timeout=3600
-[root@pln-ipamaster ca]#
+ipa-server-install --uninstall --ignore-topology-disconnect
