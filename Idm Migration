@@ -1,1 +1,2 @@
-curl -sk https://pln-ipamaster.ipa.calix.local:8443/ca/admin/ca/getStatus
+grep -r "wait.*pki\|pki.*wait\|300\|timeout" \
+  /usr/lib/python3.9/site-packages/ipaserver/install/dogtaginstance.py | head -20
