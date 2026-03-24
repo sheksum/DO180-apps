@@ -1,18 +1,1 @@
-ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL << EOF
-dn: cn=config
-changetype: modify
-replace: nsslapd-sizelimit
-nsslapd-sizelimit: -1
-
-dn: cn=config,cn=ldbm database,cn=plugins,cn=config
-changetype: modify
-replace: nsslapd-lookthroughlimit
-nsslapd-lookthroughlimit: -1
-EOF
-```
-
-Expected output:
-```
-modifying entry "cn=config"
-modifying entry "cn=config,cn=ldbm database,cn=plugins,cn=config"
+watch -n 30 'grep "bdb_db2index.*ipaca.*Indexed" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -1'
