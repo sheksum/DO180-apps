@@ -1,8 +1,19 @@
-Sulabh Sinha  [3:25 AM]
-Hi @haj.suma - I have created a request to redirect the DNS entry for https://agentmesh-dev-ai.calix.local/ to point to new AI infra dev namespace which means redirect to this URL  https://agentmesh.dev.ocp-ai.calix.local/ or IP address of the same.
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# nslookup agentmesh-dev-ai
+Server:		10.172.248.31
+Address:	10.172.248.31#53
 
-Ticket - EOSM-53633
-[3:25 AM]cc @awanish.kumar
-Awanish Kumar  [4:59 AM]
-Hi @haj.suma, create an EOSM ticket to enable the manual deployment to pai-prod as we yet not setup the argoCD and gitops. - https://calix.atlassian.net/servicedesk/customer/portal/7/EOSM-53639?created=true. FYI: We are planning to deploy services on pai-prod on this Thursday during India working hours.
-cc: @sulabh.sinhaEOSM-53639 Request to Enable Manual Helm Deployment to pai-prod (ArgoCD Not …Status: Waiting for supportType: [System] Service requestAssignee: Unassigned
+Non-authoritative answer:
+agentmesh-dev-ai.calix.local	canonical name = pln-aidev01.calix.local.
+Name:	pln-aidev01.calix.local
+Address: 10.172.249.100
+
+[root@pln-ipamaster ~]# nslookup agent.dev.ocp-ai.calix.local
+Server:		10.172.248.31
+Address:	10.172.248.31#53
+
+Non-authoritative answer:
+Name:	agent.dev.ocp-ai.calix.local
+Address: 10.172.248.175
+
+[root@pln-ipamaster ~]#
