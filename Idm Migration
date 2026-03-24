@@ -1,7 +1,18 @@
-[root@cpeg-ipareplica ~]# kinit admin
-Password for admin@IPA.CALIX.LOCAL:
-[root@cpeg-ipareplica ~]# ipa-replica-manage re-initialize   --from=cpeg-ipareplica.ipa.calix.local   --host=pln-ipamaster.ipa.calix.local
-Update in progress, 21 seconds elapsed
-Update succeeded
-
 [root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local   -Y GSSAPI -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"   "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
+# filter: (cn=pln-ipamaster.ipa.calix.local)
+# requesting: dn
+#
+
+# search result
+search: 4
+result: 0 Success
+
+# numResponses: 1
+[root@cpeg-ipareplica ~]#
+
