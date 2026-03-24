@@ -1,1 +1,22 @@
-Going forward, all systems within the DMZ can point to this capsule for package management and OS updates. This removes the need for DMZ hosts to reach out directly to Satellite or the internet for content — everything will be served locally through the capsule.
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ps -aux --sort=%mem | head -19
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           2  0.0  0.0      0     0 ?        S    09:59   0:00 [kthreadd]
+root           3  0.0  0.0      0     0 ?        S    09:59   0:00 [pool_workqueue_]
+root           4  0.0  0.0      0     0 ?        I<   09:59   0:00 [kworker/R-rcu_g]
+root           5  0.0  0.0      0     0 ?        I<   09:59   0:00 [kworker/R-sync_]
+root           6  0.0  0.0      0     0 ?        I<   09:59   0:00 [kworker/R-slub_]
+root           7  0.0  0.0      0     0 ?        I<   09:59   0:00 [kworker/R-netns]
+root           9  0.0  0.0      0     0 ?        I<   09:59   0:00 [kworker/0:0H-events_highpri]
+root          11  0.0  0.0      0     0 ?        I<   09:59   0:00 [kworker/R-mm_pe]
+root          13  0.0  0.0      0     0 ?        I    09:59   0:00 [rcu_tasks_kthre]
+root          14  0.0  0.0      0     0 ?        I    09:59   0:00 [rcu_tasks_rude_]
+root          15  0.0  0.0      0     0 ?        I    09:59   0:00 [rcu_tasks_trace]
+root          16  0.0  0.0      0     0 ?        S    09:59   0:00 [ksoftirqd/0]
+root          17  0.0  0.0      0     0 ?        I    09:59   0:00 [rcu_preempt]
+root          18  0.0  0.0      0     0 ?        S    09:59   0:00 [rcu_exp_par_gp_]
+root          19  0.0  0.0      0     0 ?        S    09:59   0:00 [rcu_exp_gp_kthr]
+root          20  0.0  0.0      0     0 ?        S    09:59   0:00 [migration/0]
+root          21  0.0  0.0      0     0 ?        S    09:59   0:00 [idle_inject/0]
+root          23  0.0  0.0      0     0 ?        S    09:59   0:00 [cpuhp/0]
+[root@pln-ipamaster ~]# ps -aux --sort=%mem | head -19
