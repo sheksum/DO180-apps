@@ -1,8 +1,18 @@
-# Fix lookthroughlimit via EXTERNAL auth
-ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -Y EXTERNAL << EOF
 dn: cn=config,cn=ldbm database,cn=plugins,cn=config
 changetype: modify
 replace: nsslapd-lookthroughlimit
 nsslapd-lookthroughlimit: -1
 EOF
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+modifying entry "cn=config,cn=ldbm database,cn=plugins,cn=config"
+
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
