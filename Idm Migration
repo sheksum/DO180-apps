@@ -1,14 +1,18 @@
-cat /etc/ipa/installer.conf
-
-mkdir -p /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/
+[root@pln-ipamaster pki-tomcat]# cat /etc/ipa/installer.conf
+[global]
+startup_timeout=7200
+[root@pln-ipamaster pki-tomcat]# mkdir -p /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/
 cat > /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf << 'EOF'
 [Service]
 TimeoutStartSec=7200
 EOF
-
-systemctl daemon-reload
-
-sed -i "s/('startup_timeout', 90)/('startup_timeout', 7200)/" \
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]# systemctl daemon-reload
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]# sed -i "s/('startup_timeout', 90)/('startup_timeout', 7200)/" \
   /usr/lib/python3.9/site-packages/ipalib/constants.py
-
-grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]# grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
+    ('startup_timeout', 7200),
+[root@pln-ipamaster pki-tomcat]#
