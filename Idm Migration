@@ -1,6 +1,11 @@
-sed -i 's/complete = False/complete = True/' \
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# sed -i 's/complete = False/complete = True/' \
   /var/lib/ipa/sysrestore/sysrestore.state
-
-grep complete /var/lib/ipa/sysrestore/sysrestore.state
-
-ipactl start 2>&1
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# grep complete /var/lib/ipa/sysrestore/sysrestore.state
+complete = True
+[root@pln-ipamaster ~]# ipactl start 2>&1
+IPA version error: no platform stored
+Automatically running upgrade, for details see /var/log/ipaupgrade.log
+Be patient, this may take a few minutes.
