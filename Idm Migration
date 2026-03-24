@@ -1,12 +1,1 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl status pki-tomcatd@pki-tomcat --no-pager | grep Active
-     Active: activating (start-post) since Tue 2026-03-24 16:22:02 UTC; 1min 38s ago
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# curl -sk https://pln-ipamaster.ipa.calix.local/ca/admin/ca/getStatus | head -5
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>404 Not Found</title>
-</head><body>
-<h1>Not Found</h1>
-[root@pln-ipamaster ~]#
+tail -3 /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log
