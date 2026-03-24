@@ -1,18 +1,5 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local   -Y GSSAPI -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"   "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
-# extended LDIF
-#
-# LDAPv3
-# base <cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
-# filter: (cn=pln-ipamaster.ipa.calix.local)
-# requesting: dn
-#
-
-# search result
-search: 4
-result: 0 Success
-
-# numResponses: 1
-[root@cpeg-ipareplica ~]#
-
+# On pln-ipamaster
+ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -Y EXTERNAL \
+  -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+  "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
