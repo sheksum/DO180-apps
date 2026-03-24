@@ -1,9 +1,4 @@
-[root@pln-ipamaster ~]# ps aux | grep java | grep -v grep | tr ' ' '\n' | grep -E "Xmx|Xms|G1GC"
-[root@pln-ipamaster ~]# systemctl show pki-tomcatd@pki-tomcat | grep -i "environment\|java"
-Environment=NAME=pki-tomcat "JAVA_OPTS=-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"
-EnvironmentFiles=/usr/share/pki/etc/tomcat.conf (ignore_errors=no)
-EnvironmentFiles=/etc/tomcat/tomcat.conf (ignore_errors=no)
-EnvironmentFiles=/etc/sysconfig/pki-tomcat (ignore_errors=yes)
-EnvironmentFiles=/usr/share/pki/etc/pki.conf (ignore_errors=no)
-EnvironmentFiles=/etc/pki/pki.conf (ignore_errors=no)
-[root@pln-ipamaster ~]#
+grep -i "JAVA_OPTS" \
+  /usr/share/pki/etc/tomcat.conf \
+  /etc/tomcat/tomcat.conf \
+  /var/lib/pki/pki-tomcat/conf/tomcat.conf 2>/dev/null
