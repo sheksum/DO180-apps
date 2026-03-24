@@ -1,20 +1,3 @@
-[root@pln-ipamaster ca]#
-[root@pln-ipamaster ca]#
-[root@pln-ipamaster ca]# ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL \
-  -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
-  "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
-# extended LDIF
-#
-# LDAPv3
-# base <cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
-# filter: (cn=pln-ipamaster.ipa.calix.local)
-# requesting: dn
-#
-
-# search result
-search: 2
-result: 0 Success
-
-# numResponses: 1
+[root@pln-ipamaster ca]# ipactl status
+IPA is not configured (see man pages of ipa-server-install for help)
 [root@pln-ipamaster ca]#
