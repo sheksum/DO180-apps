@@ -1,1 +1,39 @@
-tail -f /var/log/pki/pki-ca-spawn.*.log | grep -iE "INFO|ERROR|SEVERE|waiting"
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-ca-spawn.*.log | grep -iE "INFO|ERROR|SEVERE|waiting"
+2026-03-23 20:18:05 INFO: Starting PKI server
+2026-03-23 20:18:07 INFO: Waiting for PKI server to start
+2026-03-23 20:18:23 INFO: Waiting for PKI server to start (16s)
+2026-03-23 20:18:39 INFO: Waiting for PKI server to start (32s)
+2026-03-23 20:18:55 INFO: Waiting for PKI server to start (48s)
+2026-03-23 20:19:11 INFO: Waiting for PKI server to start (64s)
+2026-03-23 20:19:27 INFO: Waiting for PKI server to start (80s)
+2026-03-24 00:57:12 INFO: Starting PKI server
+2026-03-24 00:57:14 INFO: Waiting for PKI server to start
+2026-03-24 00:57:15 INFO: Waiting for PKI server to start (1s)
+2026-03-24 00:57:31 INFO: Waiting for PKI server to start (17s)
+2026-03-24 00:57:47 INFO: Waiting for PKI server to start (33s)
+2026-03-24 00:58:03 INFO: Waiting for PKI server to start (49s)
+2026-03-24 00:58:19 INFO: Waiting for PKI server to start (65s)
+2026-03-24 00:58:35 INFO: Waiting for PKI server to start (81s)
+2026-03-24 04:34:25 INFO: Starting PKI server
+2026-03-24 04:34:27 INFO: Waiting for PKI server to start
+2026-03-24 04:34:28 INFO: Waiting for PKI server to start (1s)
+2026-03-24 04:34:44 INFO: Waiting for PKI server to start (17s)
+2026-03-24 04:35:00 INFO: Waiting for PKI server to start (33s)
+2026-03-24 04:35:16 INFO: Waiting for PKI server to start (49s)
+2026-03-24 04:35:32 INFO: Waiting for PKI server to start (65s)
+2026-03-24 04:35:48 INFO: Waiting for PKI server to start (81s)
+2026-03-24 13:00:33 INFO: END spawning CA subsystem in pki-tomcat instance
+2026-03-24 13:00:33 INFO: Creating /etc/sysconfig/pki/tomcat/pki-tomcat/ca/deployment.cfg
+2026-03-24 13:00:33 INFO: Creating /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_deployment.cfg.20260324103418
+2026-03-24 13:00:33 INFO: Copying /etc/sysconfig/pki/tomcat/pki-tomcat/ca/deployment.cfg to /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_deployment.cfg.20260324103418
+2026-03-24 13:00:33 INFO: Creating /etc/sysconfig/pki/tomcat/pki-tomcat/ca/manifest
+2026-03-24 13:00:33 INFO: Creating /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_manifest.20260324103418
+2026-03-24 13:00:33 INFO: Copying /etc/sysconfig/pki/tomcat/pki-tomcat/ca/manifest to /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_manifest.20260324103418
+2026-03-24 23:07:51 INFO: Setting dbs.beginReplicaNumber to 1165
+2026-03-24 23:07:51 INFO: Setting dbs.endReplicaNumber to 1169
+2026-03-24 23:07:51 INFO: Setting dbs.enableSerialManagement to true
+2026-03-24 23:07:51 INFO: Storing subsystem config: /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
+2026-03-24 23:07:51 INFO: Storing registry config: /var/lib/pki/pki-tomcat/conf/ca/registry.cfg
+2026-03-24 23:07:51 INFO: Reusing replicated database
+2026-03-24 23:07:51 INFO: Initializing database
