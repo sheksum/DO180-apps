@@ -4,27 +4,5 @@ ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
 ipa service-add HTTP/pln-ipamaster.ipa.calix.local
 ipa service-add ldap/pln-ipamaster.ipa.calix.local
 
-
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# tail -20 /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log
-2026-03-24 01:13:43 [main] INFO: RequestInQListener: Initializing RequestInQListener
-2026-03-24 01:13:43 [main] INFO: RequestInQListener: - enabled: false
-2026-03-24 01:13:43 [main] INFO: RequestInQListener: - sender email:
-2026-03-24 01:13:43 [main] INFO: RequestInQListener: - recipient email:
-2026-03-24 01:13:43 [main] INFO: RequestInQListener: - email subject: Certificate Request in Queue
-2026-03-24 01:13:43 [main] INFO: RequestInQListener: - email template: /var/lib/pki/pki-tomcat/ca/emails/reqInQueue_CA.html
-2026-03-24 01:13:43 [main] INFO: CMSEngine: Starting ca subsystem
-2026-03-24 01:13:43 [main] INFO: CMSEngine: Starting null subsystem
-2026-03-24 01:13:43 [main] INFO: LDAPProfileSubsystem: startup
-2026-03-24 01:13:43 [main] INFO: CMSEngine: Starting selftests subsystem
-2026-03-24 01:13:43 [main] INFO: CertUtil: Checking cert validity for caSigningCert cert-pki-ca
-2026-03-24 01:13:43 [main] INFO: CertUtil: Checking cert validity for ocspSigningCert cert-pki-ca
-2026-03-24 01:13:43 [main] INFO: CertUtil: Checking cert validity for Server-Cert cert-pki-ca
-2026-03-24 01:13:43 [main] INFO: CertUtil: Checking cert validity for subsystemCert cert-pki-ca
-2026-03-24 01:13:43 [main] INFO: CertUtil: Checking cert validity for auditSigningCert cert-pki-ca
-2026-03-24 01:13:43 [main] INFO: CMSEngine: Starting CrossCertPair subsystem
-2026-03-24 01:13:43 [main] INFO: CMSEngine: Starting stats subsystem
-2026-03-24 01:13:43 [main] INFO: Repository: Getting last serial number in range 49960001..49970000
-2026-03-24 01:13:43 [main] INFO: LDAPPagedSearch: Searching ou=ca, ou=requests,o=ipaca
-2026-03-24 01:13:43 [main] INFO: LDAPPagedSearch: filter: (&(requestId<=0849970000)(requestState=*))
-[root@pln-ipamaster ~]#
+grep "LDAPPagedSearch.*requests" /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log | tail -3
+date
