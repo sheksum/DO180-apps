@@ -1,7 +1,13 @@
-Update on DNS Server
- 
-https://agentmesh-dev-ai.calix.local/
-https://agentmesh-ai.calix.local/
- 
-New DNS entry - to be done later
-https://agentmesh-test-ai.calix.local/ 
+- name: https-legacy
+  hostname: agentmesh-dev-ai.calix.local
+  port: 443
+  protocol: HTTPS
+  tls:
+    mode: Terminate
+    certificateRefs:
+    - name: dev-ocp-ai-tls
+      group: ""
+      kind: Secret
+  allowedRoutes:
+    namespaces:
+      from: All
