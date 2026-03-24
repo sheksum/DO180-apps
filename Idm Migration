@@ -1,27 +1,5 @@
-[root@pln-ipamaster ca]# systemctl status pki-tomcatd@pki-tomcat
-● pki-tomcatd@pki-tomcat.service - PKI Tomcat Server pki-tomcat
-     Loaded: loaded (/usr/lib/systemd/system/pki-tomcatd@.service; enabled; preset: disabled)
-    Drop-In: /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d
-             └─ipa.conf, timeout.conf
-     Active: active (running) since Tue 2026-03-24 16:28:06 UTC; 2min 33s ago
-    Process: 10879 ExecStartPre=/usr/sbin/pki-server upgrade pki-tomcat (code=exited, status=0/SUCCESS)
-    Process: 10883 ExecStartPre=/usr/sbin/pki-server migrate pki-tomcat (code=exited, status=0/SUCCESS)
-    Process: 10935 ExecStartPre=/usr/bin/pkidaemon start pki-tomcat (code=exited, status=0/SUCCESS)
-    Process: 10947 ExecStartPost=/usr/libexec/ipa/ipa-pki-wait-running (code=exited, status=0/SUCCESS)
-   Main PID: 10946 (java)
-      Tasks: 132 (limit: 203337)
-     Memory: 335.5M (peak: 511.7M)
-        CPU: 25.954s
-     CGroup: /system.slice/system-pki\x2dtomcatd.slice/pki-tomcatd@pki-tomcat.service
-             └─10946 /usr/lib/jvm/jre-17-openjdk/bin/java -Dcom.redhat.fips=false -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -D>
+ipa-replica-manage list -v pln-ipamaster.ipa.calix.local
 
-Mar 24 16:27:51 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[10947]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 24 16:27:53 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[10947]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 24 16:27:55 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[10947]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 24 16:27:57 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[10947]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 24 16:27:59 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[10947]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 24 16:28:01 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[10947]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 24 16:28:03 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[10947]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 24 16:28:05 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[10947]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 24 16:28:06 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[10947]: ipa-pki-wait-running: Success, subsystem ca is running!
-Mar 24 16:28:06 pln-ipamaster.ipa.calix.local systemd[1]: Started PKI Tomcat Server pki-tomcat.
+
+# On cpeg-ipareplica
+ipa-replica-manage status pln-ipamaster.ipa.calix.local
