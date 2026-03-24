@@ -1,12 +1,18 @@
-kinit admin
-ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
-ipa host-add pln-ipamaster.ipa.calix.local --force
-ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
-ipa service-add HTTP/pln-ipamaster.ipa.calix.local
-ipa service-add ldap/pln-ipamaster.ipa.calix.local
+ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -Y EXTERNAL << EOF
+dn: cn=config
+changetype: modify
+replace: nsslapd-sizelimit
+nsslapd-sizelimit: -1
 
+dn: cn=config,cn=ldbm database,cn=plugins,cn=config
+changetype: modify
+replace: nsslapd-lookthroughlimit
+nsslapd-lookthroughlimit: -1
+EOF
+```
 
-# On pln
-cat /etc/ipa/installer.conf
-grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
-cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
+Expected output:
+```
+modifying entry "cn=config"
+modifying entry "cn=config,cn=ldbm database,cn=plugins,cn=config"
