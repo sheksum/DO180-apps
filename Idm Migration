@@ -1,2 +1,8 @@
-grep -i "dirman\|directory_manager\|ds.password\|dm_password" \
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# grep -i "dirman\|directory_manager\|ds.password\|dm_password" \
   /var/log/ipareplica-install.log | grep -v DEBUG | head -10
+pki_ds_password = XXXXXXXX
+    'pki_ds_password': 'XXXXXXXX',
+                            'pki_ds_password\n'
+[root@pln-ipamaster ~]#
