@@ -1,1 +1,10 @@
-tail -f /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | grep -i "index\|task\|ipaca"
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -f /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | grep -i "index\|task\|ipaca"
+[24/Mar/2026:13:18:34.172000268 +0000] - INFO - bdb_db2index - ipaca: Indexed 369000 entries (35%).
+[24/Mar/2026:13:18:36.956093835 +0000] - INFO - bdb_db2index - ipaca: Indexed 370000 entries (35%).
+[24/Mar/2026:13:18:39.682764409 +0000] - INFO - bdb_db2index - ipaca: Indexed 371000 entries (36%).
+[24/Mar/2026:13:18:42.420118962 +0000] - INFO - bdb_db2index - ipaca: Indexed 372000 entries (36%).
+[24/Mar/2026:13:18:45.384525344 +0000] - INFO - bdb_db2index - ipaca: Indexed 373000 entries (36%).
+[24/Mar/2026:13:18:48.098050103 +0000] - INFO - bdb_db2index - ipaca: Indexed 374000 entries (36%).
+[24/Mar/2026:13:18:51.132750852 +0000] - INFO - bdb_db2index - ipaca: Indexed 375000 entries (36%).
+[24/Mar/2026:13:18:53.931678984 +0000] - INFO - bdb_db2index - ipaca: Indexed 376000 entries (36%).
