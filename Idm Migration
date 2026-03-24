@@ -1,35 +1,8 @@
-[root@pln-ipamaster ~]# grep -B 50 "Shutting down CA subsystem" /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log | grep -Ei "fail|error|exception|invalid"
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# tail -n 100 /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors
-[24/Mar/2026:16:17:00.773025426 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[24/Mar/2026:16:17:03.785359530 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0024cf9b000200140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-[24/Mar/2026:16:17:03.787005030 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0024cf9b000200140000 not found, we aren't as up to date, or we purged
-[24/Mar/2026:16:17:03.788892699 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[24/Mar/2026:16:17:06.919866504 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0024cfa4000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-[24/Mar/2026:16:17:06.922598090 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0024cfa4000000140000 not found, we aren't as up to date, or we purged
-[24/Mar/2026:16:17:06.924183314 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[24/Mar/2026:16:17:13.118956783 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0024cfab000300140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-[24/Mar/2026:16:17:13.120881788 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0024cfab000300140000 not found, we aren't as up to date, or we purged
-
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# grep -B 50 "Shutting down CA subsystem" /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log | grep -Ei "fail|error|exception|invalid"
-[root@pln-ipamaster ~]#
-
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# df -h
-ls -ld /var/lib/pki/pki-tomcat
-Filesystem             Size  Used Avail Use% Mounted on
-devtmpfs               4.0M     0  4.0M   0% /dev
-tmpfs                   16G  1.7G   14G  11% /dev/shm
-tmpfs                  6.3G   26M  6.2G   1% /run
-efivarfs               256K   58K  194K  23% /sys/firmware/efi/efivars
-/dev/mapper/rhel-root   70G   21G   50G  30% /
-/dev/sda2              960M  416M  545M  44% /boot
-/dev/mapper/rhel-home  171G  1.3G  170G   1% /home
-/dev/sdb               250G  2.2G  248G   1% /var/log
-/dev/sda1              599M  7.4M  592M   2% /boot/efi
-tmpfs                  3.2G   52K  3.2G   1% /run/user/42
-tmpfs                  3.2G   36K  3.2G   1% /run/user/1001
-drwxrwx---. 8 pkiuser pkiuser 140 Mar 24 15:17 /var/lib/pki/pki-tomcat
-[root@pln-ipamaster ~]#
+# Fix lookthroughlimit via EXTERNAL auth
+ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -Y EXTERNAL << EOF
+dn: cn=config,cn=ldbm database,cn=plugins,cn=config
+changetype: modify
+replace: nsslapd-lookthroughlimit
+nsslapd-lookthroughlimit: -1
+EOF
