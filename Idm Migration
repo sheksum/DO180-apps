@@ -1,6 +1,5 @@
-cat > /etc/ipa/installer.conf << 'EOF'
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]# cat /etc/ipa/installer.conf
 [global]
 startup_timeout=7200
-EOF
-
-cat /etc/ipa/installer.conf
+[root@pln-ipamaster pki-tomcat]#
