@@ -1,7 +1,12 @@
 [root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa-replica-manage del pln-ipamaster.ipa.calix.local --force 2>/dev/null
-Updating DNS system records
-[root@cpeg-ipareplica ~]# ipa-csreplica-manage del pln-ipamaster.ipa.calix.local --force 2>/dev/null
+[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
 Directory Manager password:
 
+Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 20
+	ric-ipareplica.ipa.calix.local:389: 12
+	ric-ipareplica01.ipa.calix.local:389: 11
+	nan-ipareplica01.ipa.calix.local:389: 10
+Certificate Server Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 21
 [root@cpeg-ipareplica ~]#
