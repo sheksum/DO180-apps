@@ -1,3 +1,22 @@
-ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL -b "cn=config" -s base \
-  "(objectclass=*)" nsslapd-ignore-time-skew 2>/dev/null
+[root@cpeg-ipareplica ~]# ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -Y EXTERNAL -b "cn=config" -s base \
+>   "(objectclass=*)" nsslapd-ignore-time-skew 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=config> with scope baseObject
+# filter: (objectclass=*)
+# requesting: nsslapd-ignore-time-skew
+#
+
+# config
+dn: cn=config
+nsslapd-ignore-time-skew: on
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+[root@cpeg-ipareplica ~]#
