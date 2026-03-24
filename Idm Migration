@@ -1,3 +1,2 @@
-[root@pln-ipamaster ca]# ipactl status
-IPA is not configured (see man pages of ipa-server-install for help)
-[root@pln-ipamaster ca]#
+# On cpeg
+ipa-replica-manage status pln-ipamaster.ipa.calix.local
