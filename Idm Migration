@@ -1,1 +1,22 @@
-lsof -p 11794 | grep -iE "TCP|389|636|88"
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# lsof -p 11794 | grep -iE "TCP|389|636|88"
+ipa-serve 11794 root  mem    REG              253,0    488664 201457338 /usr/lib64/libpcre.so.1.2.12
+ipa-serve 11794 root  mem    REG              253,0    281688 201378176 /usr/lib64/libxslt.so.1.1.34
+ipa-serve 11794 root  mem    REG              253,0    195088 201330157 /usr/lib64/libtinfo.so.6.2
+ipa-serve 11794 root  mem    REG              253,0   1644712 201375882 /usr/lib64/libxml2.so.2.9.13
+ipa-serve 11794 root  mem    REG              253,0     50088 202392546 /usr/lib64/python3.9/lib-dynload/_json.cpython-39-x86_64-linux-gnu.so
+ipa-serve 11794 root  mem    REG              253,0     36296 202438801 /usr/lib64/libcap.so.2.48
+ipa-serve 11794 root  mem    REG              253,0     38992 135509468 /usr/lib64/python3.9/site-packages/gssapi/raw/ext_set_cred_opt.cpython-39-x86_64-linux-gnu.so
+ipa-serve 11794 root  mem    REG              253,0     43824 135509462 /usr/lib64/python3.9/site-packages/gssapi/raw/ext_rfc5588.cpython-39-x86_64-linux-gnu.so
+ipa-serve 11794 root  mem    REG              253,0    316368 202392537 /usr/lib64/python3.9/lib-dynload/_decimal.cpython-39-x86_64-linux-gnu.so
+ipa-serve 11794 root  mem    REG              253,0    134488 202392532 /usr/lib64/python3.9/lib-dynload/_ctypes.cpython-39-x86_64-linux-gnu.so
+ipa-serve 11794 root  mem    REG              253,0    636848 202438825 /usr/lib64/libpcre2-8.so.0.11.0
+ipa-serve 11794 root  mem    REG              253,0     23760 202438807 /usr/lib64/libcom_err.so.2.1
+ipa-serve 11794 root  mem    REG              253,0     36328 202438808 /usr/lib64/libuuid.so.1.3.0
+ipa-serve 11794 root  mem    REG              253,0     78848 202387494 /usr/lib64/python3.9/lib-dynload/_blake2.cpython-39-x86_64-linux-gnu.so
+ipa-serve 11794 root  mem    REG              253,0    202096 202438819 /usr/lib64/libexpat.so.1.8.10
+ipa-serve 11794 root  mem    REG              253,0     76280 202438806 /usr/lib64/libbz2.so.1.0.8
+ipa-serve 11794 root  mem    REG              253,0     27888 202392553 /usr/lib64/python3.9/lib-dynload/_posixsubprocess.cpython-39-x86_64-linux-gnu.so
+ipa-serve 11794 root  mem    REG              253,0     26988 134419149 /usr/lib64/gconv/gconv-modules.cache
+ipa-serve 11794 root    8u  unix 0xffff89ec8d800a00       0t0    116880 type=STREAM (CONNECTED)
+[root@pln-ipamaster ~]#
