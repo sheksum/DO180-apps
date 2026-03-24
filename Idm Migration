@@ -1,1 +1,29 @@
-tail -f /var/log/ipaupgrade.log | grep -v DEBUG
+It looks like you are attempting to force the system to recognize the installation as complete by editing sysrestore.state, but FreeIPA is now failing because the platform and version metadata are missing or mismatched, triggering an ipaupgrade.
+Since the previous ipa-replica-install failed and ports 389/636 are currently in use, you are in a "half-configured" state where the underlying Directory Server is running but the IPA management layer is not.
+Warning on the "Manual Fix"
+Manually setting complete = True usually won't work because the installer didn't finish writing the LDAP schema or the local configuration files. Running ipaupgrade on a broken install can lead to a corrupted database.
+Recommended Recovery Steps
+Stop the rogue processes
+Kill the LDAP processes that are blocking the installer:
+bash
+systemctl stop dirsrv@IPA-CALIX-LOCAL.service
+# If it fails to stop:
+killall -9 ns-slapd
+Use code with caution.
+
+Verify your Host Role
+You are running ipa-replica-install on pln-ipamaster.
+If this is your first/only server: You should be running ipa-server-install.
+If this is a new replica: You must run ipa-server-install --uninstall first to clean up the failed attempt before retrying.
+Clean Re-attempt
+Since ipactl status says "IPA is not configured," the safest path is to wipe the partial config and start clean:
+bash
+ipa-server-install --uninstall -U
+# Then retry the installation
+ipa-replica-install --setup-ca --setup-dns ... (your arguments)
+Use code with caution.
+
+Why it likely failed the first time
+The error wait_for_entry timeout on ldap://cpeg-ipareplica... suggests that the host pln-ipamaster is trying to look up its own replication entry on the other server (cpeg-ipareplica), but it can't find it. This usually happens if:
+The firewall (port 389/636) is closed between the two servers.
+DNS is not resolving cpeg-ipareplica correctly from the master.
