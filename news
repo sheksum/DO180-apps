@@ -1,10 +1,11 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# grep JAVA_OPTS /var/lib/pki/pki-tomcat/conf/tomcat.conf
-# NOTE: JAVA_OPTS is now only read once.  All desired settings must be concatenated
-JAVA_OPTS="-Dcom.redhat.fips=false"
-[root@pln-ipamaster ~]# sed -i 's/JAVA_OPTS="-Dcom.redhat.fips=false"/JAVA_OPTS="-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"/' \
-  /var/lib/pki/pki-tomcat/conf/tomcat.conf
-[root@pln-ipamaster ~]# grep JAVA_OPTS /var/lib/pki/pki-tomcat/conf/tomcat.conf
-# NOTE: JAVA_OPTS is now only read once.  All desired settings must be concatenated
-JAVA_OPTS="-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"
-[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -f /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors
+[24/Mar/2026:23:06:29.689709505 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 00252f93000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[24/Mar/2026:23:06:29.691342849 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 00252f93000000140000 not found, we aren't as up to date, or we purged
+[24/Mar/2026:23:06:29.692940372 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[24/Mar/2026:23:06:32.822810996 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 00252f9c000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[24/Mar/2026:23:06:32.824758547 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 00252f9c000000140000 not found, we aren't as up to date, or we purged
+[24/Mar/2026:23:06:32.825751754 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[24/Mar/2026:23:06:35.955652306 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 00252f9c000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+[24/Mar/2026:23:06:35.956774541 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 00252f9c000000140000 not found, we aren't as up to date, or we purged
+[24/Mar/2026:23:06:35.958969341 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+[24/Mar/2026:23:07:52.252399536 +0000] - NOTICE - dse_modify - A plugin has been enabled or disabled, but nsslapd-dynamic-plugins is off. A server restart is required to change this plugin state.
