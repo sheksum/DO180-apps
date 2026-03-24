@@ -1,32 +1,13 @@
-[root@pln-ipamaster ~]# for host in cpeg-ipareplica.ipa.calix.local ric-ipareplica.ipa.calix.local; do
-  echo "=== $host ==="
-  nc -zv $host 443 2>&1
-  nc -zv $host 8443 2>&1
-done
-=== cpeg-ipareplica.ipa.calix.local ===
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Connected to 172.23.49.10:443.
-Ncat: 0 bytes sent, 0 bytes received in 0.06 seconds.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: No route to host.
-=== ric-ipareplica.ipa.calix.local ===
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Connected to 192.168.49.63:443.
-Ncat: 0 bytes sent, 0 bytes received in 0.02 seconds.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Connection refused.
-[root@pln-ipamaster ~]#
+# Verify Dogtag is actually listening on 8443 on cpeg
+ssh cpeg-ipareplica.ipa.calix.local "ss -tlnp | grep 8443"
 
-[root@pln-ipamaster ~]# update-crypto-policies --show
-DEFAULT
-[root@pln-ipamaster ~]#
+# Check firewall on cpeg
+ssh cpeg-ipareplica.ipa.calix.local "firewall-cmd --list-all"
 
+# Check if it's a network ACL between Plano and Petaluma
+# (Petaluma is 172.23.x.x, Plano is 10.172.x.x)
+traceroute -T -p 8443 cpeg-ipareplica.ipa.calix.local
 
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# update-crypto-policies --show
-DEFAULT
-[root@cpeg-ipareplica ~]# openssl pkcs12 -in /var/lib/ipa/ra-agent.pem -info -noout 2>&1 | head -5
-139812915496768:error:0D0680A8:asn1 encoding routines:asn1_check_tlen:wrong tag:crypto/asn1/tasn_dec.c:1149:
-139812915496768:error:0D07803A:asn1 encoding routines:asn1_item_embed_d2i:nested asn1 error:crypto/asn1/tasn_dec.c:309:Type=PKCS12
-[root@cpeg-ipareplica ~]#
+# On cpeg — open 8443 temporarily for the install
+firewall-cmd --add-port=8443/tcp
+# (no --permanent, just for the duration of the install)
