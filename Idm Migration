@@ -1,4 +1,3 @@
-[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-tomcat/ca/debug.2026-03-24.log | grep -v "SerialNumber\|INFO"
-2026-03-24 16:22:19 [main] WARNING: AuthorityMonitor: Caught InterruptedException while waiting for initial load of authorities.
-2026-03-24 16:22:19 [main] WARNING: AuthorityMonitor: You may have replication conflict entries or extraneous data under ou=authorities,ou=ca,o=ipaca
+systemctl status pki-tomcatd@pki-tomcat --no-pager | grep Active
 
+curl -sk https://pln-ipamaster.ipa.calix.local/ca/admin/ca/getStatus | head -5
