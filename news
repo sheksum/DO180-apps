@@ -1,8 +1,10 @@
-24/Mar/2026:22:53:48.915318248 +0000] - INFO - bdb_import_monitor_threads - import ipaca: Processed 449596 entries (pass 2) -- average rate 1600.0/sec, recent rate 2438.8/sec, hit ratio 97%
-[24/Mar/2026:22:53:51.443974542 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 00252c9e000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-[24/Mar/2026:22:53:51.445104888 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 00252c9e000000140000 not found, we aren't as up to date, or we purged
-[24/Mar/2026:22:53:51.446531239 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[24/Mar/2026:22:53:54.576151211 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 00252ca6000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-[24/Mar/2026:22:53:54.577424137 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 00252ca6000000140000 not found, we aren't as up to date, or we purged
-[24/Mar/2026:22:53:54.578665370 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-[24/Mar/2026:22:53:57.708690014 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 00252ca6000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer
+[24/Mar/2026:22:57:09.288457031 +0000] - INFO - bdb_import_monitor_threads - import ipaca: Processed 697076 entries (pass 2) -- average rate 1449.2/sec, recent rate 473.0/sec, hit ratio 97%
+[24/Mar/2026:22:57:09.289938440 +0000] - INFO - bdb_import_throw_in_towel - import ipaca: Decided to end this pass because the progress rate has dropped below the 50% threshold.
+[24/Mar/2026:22:57:09.291332409 +0000] - INFO - bdb_import_monitor_threads - import ipaca: Ending pass number 2 ...
+[24/Mar/2026:22:57:09.397190919 +0000] - INFO - bdb_import_monitor_threads - import ipaca: Foreman is done; waiting for workers to finish...
+[24/Mar/2026:22:57:09.398968886 +0000] - INFO - bdb_import_monitor_threads - import ipaca: Workers finished; cleaning up...
+[24/Mar/2026:22:57:09.600487223 +0000] - INFO - bdb_import_monitor_threads - import ipaca: Workers cleaned up.
+[24/Mar/2026:22:57:09.601701691 +0000] - INFO - bdb_import_sweep_after_pass - import ipaca: Sweeping files for merging later...
+[24/Mar/2026:22:57:09.894197594 +0000] - INFO - bdb_instance_start - Import is running with nsslapd-db-private-import-mem on; No other process is allowed to access the database
+[24/Mar/2026:22:57:09.896166978 +0000] - INFO - bdb_import_sweep_after_pass - import ipaca: Sweep done.
+[24/Mar/2026:22:57:09.897099424 +0000] - INFO - bdb_public_bdb_import_main - import ipaca: Beginning pass number 3
