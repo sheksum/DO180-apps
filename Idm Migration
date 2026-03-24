@@ -1,14 +1,17 @@
-Starting replication, please wait until this has completed.
-Update in progress, 1212 seconds elapsed
-Update succeeded
+[root@pln-ipamaster ~]# systemctl status pki-tomcatd@pki-tomcat
+○ pki-tomcatd@pki-tomcat.service - PKI Tomcat Server pki-tomcat
+     Loaded: loaded (/usr/lib/systemd/system/pki-tomcatd@.service; enabled; preset: disabled)
+    Drop-In: /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d
+             └─ipa.conf, timeout.conf
+     Active: inactive (dead)
 
-  [4/33]: revert time skew after initial replication
-  [5/33]: creating ACIs for admin
-  [6/33]: creating installation admin user
-  [7/33]: configuring certificate server instance
-  [8/33]: stopping certificate server instance to update CS.cfg
-  [9/33]: backing up CS.cfg
-  [10/33]: Add ipa-pki-wait-running
-Set start up timeout of pki-tomcatd service to 7200 seconds
-  [11/33]: secure AJP connector
-  [12/33]: reindex attributes
+Mar 24 13:00:33 pln-ipamaster.ipa.calix.local server[9434]: Java virtual machine used: /usr/lib/jvm/jre-17-openjdk/bin/java
+Mar 24 13:00:33 pln-ipamaster.ipa.calix.local server[9434]: classpath used: /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar:
+Mar 24 13:00:33 pln-ipamaster.ipa.calix.local server[9434]: main class used: org.apache.catalina.startup.Bootstrap
+Mar 24 13:00:33 pln-ipamaster.ipa.calix.local server[9434]: flags used: -Dcom.redhat.fips=false
+Mar 24 13:00:33 pln-ipamaster.ipa.calix.local server[9434]: options used: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.f>
+Mar 24 13:00:33 pln-ipamaster.ipa.calix.local server[9434]: arguments used: stop
+Mar 24 13:00:33 pln-ipamaster.ipa.calix.local server[9434]: NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.ba>
+Mar 24 13:00:34 pln-ipamaster.ipa.calix.local systemd[1]: pki-tomcatd@pki-tomcat.service: Deactivated successfully.
+Mar 24 13:00:34 pln-ipamaster.ipa.calix.local systemd[1]: Stopped PKI Tomcat Server pki-tomcat.
+Mar 24 13:00:34 pln-ipamaster.ipa.calix.local systemd[1]: pki-tomcatd@pki-tomcat.service: Consumed 22.950s CPU time.
