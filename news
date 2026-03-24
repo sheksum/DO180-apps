@@ -1,34 +1,9 @@
-[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv 2>/dev/null
-Directory Manager password:
+# Remove domain replication agreement
+ldapdelete -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -Y EXTERNAL \
+  "cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config" 2>/dev/null
 
-Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 20
-	ric-ipareplica.ipa.calix.local:389: 12
-	ric-ipareplica01.ipa.calix.local:389: 11
-	nan-ipareplica01.ipa.calix.local:389: 10
-Certificate Server Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 21
-[root@cpeg-ipareplica ~]# ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -Y EXTERNAL \
->   -b "cn=config" \
->   "(objectclass=nsds5replicationagreement)" \
->   nsds5replicaLastUpdateStatus nsds5replicaHost 2>/dev/null | \
->   grep -E "nsds5replica|dn:"
-# filter: (objectclass=nsds5replicationagreement)
-# requesting: nsds5replicaLastUpdateStatus nsds5replicaHost
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=
-nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
-nsds5replicaHost: nan-ipareplica01.ipa.calix.local
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=
-nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
-nsds5replicaHost: ric-ipareplica01.ipa.calix.local
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=
-nsds5replicaLastUpdateStatus: Error (6) Replication error acquiring replica: U
-nsds5replicaHost: sjc-ipareplica01.ipa.calix.local
-dn: cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2
-nsds5replicaLastUpdateStatus: Error (-1) Problem connecting to replica - LDAP
-nsds5replicaHost: pln-ipamaster.ipa.calix.local
-dn: cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tr
-nsds5replicaLastUpdateStatus: Error (-1) Problem connecting to replica - LDAP
-nsds5replicaHost: pln-ipamaster.ipa.calix.local
-[root@cpeg-ipareplica ~]#
+# Remove CA replication agreement
+ldapdelete -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -Y EXTERNAL \
+  "cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config" 2>/dev/null
