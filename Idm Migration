@@ -1,1 +1,1 @@
-ps aux | grep java | grep -v grep | grep -o "Xmx[^ ]*"
+ps aux | grep java | grep -v grep | tr ' ' '\n' | grep -E "Xmx|Xms|G1GC"
