@@ -1,12 +1,4 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# grep -i "JAVA_OPTS" \
-  /usr/share/pki/etc/tomcat.conf \
-  /etc/tomcat/tomcat.conf \
-  /var/lib/pki/pki-tomcat/conf/tomcat.conf 2>/dev/null
-/etc/tomcat/tomcat.conf:#JAVA_OPTS="-Xminf0.1 -Xmaxf0.3"
-/etc/tomcat/tomcat.conf:# Use JAVA_OPTS to set java.library.path for libtcnative.so
-/etc/tomcat/tomcat.conf:#JAVA_OPTS="-Djava.library.path=/usr/lib"
-/etc/tomcat/tomcat.conf:JAVA_OPTS="-Djavax.sql.DataSource.Factory=org.apache.commons.dbcp.BasicDataSourceFactory"
-/var/lib/pki/pki-tomcat/conf/tomcat.conf:# NOTE: JAVA_OPTS is now only read once.  All desired settings must be concatenated
-/var/lib/pki/pki-tomcat/conf/tomcat.conf:JAVA_OPTS="-Dcom.redhat.fips=false"
-[root@pln-ipamaster ~]#
+sed -i 's/JAVA_OPTS="-Dcom.redhat.fips=false"/JAVA_OPTS="-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"/' \
+  /var/lib/pki/pki-tomcat/conf/tomcat.conf
+
+grep JAVA_OPTS /var/lib/pki/pki-tomcat/conf/tomcat.conf
