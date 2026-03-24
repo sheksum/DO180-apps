@@ -1,1 +1,9 @@
-watch -n 10 'grep "bdb_db2index.*ipaca.*Indexed" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -3'
+Failed to configure CA instance
+See the installation logs and the following files/directories for more information:
+  /var/log/pki/pki-tomcat
+  [error] RuntimeError: CA configuration failed.
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
+
+CA configuration failed.
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
