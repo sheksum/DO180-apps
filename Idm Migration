@@ -1,4 +1,7 @@
-grep -n "startup_timeout" \
+[root@pln-ipamaster pki-tomcat]#
+[root@pln-ipamaster pki-tomcat]# grep -n "startup_timeout" \
   /usr/lib/python3.9/site-packages/ipalib/config.py \
   /etc/ipa/default.conf \
   /etc/ipa/installer.conf 2>/dev/null
+/etc/ipa/installer.conf:1:startup_timeout=7200
+[root@pln-ipamaster pki-tomcat]#
