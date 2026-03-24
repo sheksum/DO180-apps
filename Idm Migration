@@ -1,4 +1,1 @@
-Krunal Patil  [9:54 AM]
-Agree @haj.suma!
-
-@awanish.kumar @sulabh.sinha - I'd like to see our plan for doing these deployments via gitops workflow in near future.
+tail -f /var/log/pki/pki-ca-spawn.20260324103417.log | grep -iE "INFO|ERROR|SEVERE|waiting"
