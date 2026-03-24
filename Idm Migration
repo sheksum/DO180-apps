@@ -3,3 +3,106 @@ ipa-replica-manage list -v pln-ipamaster.ipa.calix.local
 
 # On cpeg-ipareplica
 ipa-replica-manage status pln-ipamaster.ipa.calix.local
+
+
+
+2026-03-24T16:32:20Z DEBUG Still waiting for replication of cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-24T16:32:30Z DEBUG Still waiting for replication of cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-24T16:32:41Z DEBUG Still waiting for replication of cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-24T16:32:51Z DEBUG Still waiting for replication of cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-24T16:33:02Z DEBUG Still waiting for replication of cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-24T16:33:09Z DEBUG   File "/usr/lib/python3.9/site-packages/ipapython/admintool.py", line 219, in execute
+    return_value = self.run()
+  File "/usr/lib/python3.9/site-packages/ipapython/install/cli.py", line 343, in run
+    return cfgr.run()
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 360, in run
+    return self.execute()
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 386, in execute
+    for rval in self._executor():
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 435, in __runner
+    exc_handler(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 468, in _handle_execute_exception
+    self._handle_exception(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 458, in _handle_exception
+    six.reraise(*exc_info)
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 425, in __runner
+    step()
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 419, in step_next
+    return next(self.__gen)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/util.py", line 81, in run_generator_with_yield_from
+    six.reraise(*exc_info)
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/util.py", line 59, in run_generator_with_yield_from
+    value = gen.send(prev_value)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 663, in _configure
+    next(executor)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 435, in __runner
+    exc_handler(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 468, in _handle_execute_exception
+    self._handle_exception(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 526, in _handle_exception
+    self.__parent._handle_exception(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 458, in _handle_exception
+    six.reraise(*exc_info)
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 523, in _handle_exception
+    super(ComponentBase, self)._handle_exception(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 458, in _handle_exception
+    six.reraise(*exc_info)
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 425, in __runner
+    step()
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 419, in step_next
+    return next(self.__gen)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/util.py", line 81, in run_generator_with_yield_from
+    six.reraise(*exc_info)
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/util.py", line 59, in run_generator_with_yield_from
+    value = gen.send(prev_value)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/common.py", line 65, in _install
+    for unused in self._installer(self.parent):
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/server/__init__.py", line 687, in main
+    replica_install(self)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/server/replicainstall.py", line 387, in decorated
+    func(installer)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/server/replicainstall.py", line 1449, in install
+    krb.enable_ssl()
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/krbinstance.py", line 593, in enable_ssl
+    self._wait_for_replica_kdc_entry()
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/krbinstance.py", line 447, in _wait_for_replica_kdc_entry
+    replication.wait_for_entry(
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/replication.py", line 209, in wait_for_entry
+    raise errors.NotFound(
+
+2026-03-24T16:33:09Z DEBUG The ipa-replica-install command failed, exception: NotFound: wait_for_entry timeout on ldap://cpeg-ipareplica.ipa.calix.local:389 for cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-24T16:33:09Z ERROR wait_for_entry timeout on ldap://cpeg-ipareplica.ipa.calix.local:389 for cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-24T16:33:09Z ERROR The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+
+
+  [22/33]: destroying installation admin user
+  [23/33]: updating IPA configuration
+  [24/33]: starting certificate server instance
+  [25/33]: Finalize replication settings
+  [26/33]: configure certmonger for renewals
+  [27/33]: Importing RA key
+  [28/33]: configure certificate renewals
+  [29/33]: Configure HTTP to proxy connections
+  [30/33]: enabling CA instance
+  [31/33]: importing IPA certificate profiles
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
+  [32/33]: configuring certmonger renewal for lightweight CAs
+  [33/33]: deploying ACME service
+Done configuring certificate server (pki-tomcatd).
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
+
+wait_for_entry timeout on ldap://cpeg-ipareplica.ipa.calix.local:389 for cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster ~]#
