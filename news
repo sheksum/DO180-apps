@@ -1,56 +1,142 @@
-# 1. Recreate installer.conf
-cat > /etc/ipa/installer.conf << 'EOF'
-[global]
-startup_timeout=7200
-replication_wait_timeout=3600
-EOF
+[root@cpeg-ipareplica ~]# ipa-healthcheck
+Internal server error HTTPSConnectionPool(host='nan-ipareplica.ipa.calix.local', port=443): Max retries exceeded with url: /ca/rest/certs/search?size=3 (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x7f7fa7fecbe0>: Failed to establish a new connection: [Errno -2] Name or service not known',))
+[
+  {
+    "source": "pki.server.healthcheck.clones.connectivity_and_data",
+    "check": "ClonesConnectivyAndDataCheck",
+    "result": "ERROR",
+    "uuid": "9f6c8d76-80f0-4206-9785-e80845df1955",
+    "when": "20260324213140Z",
+    "duration": "0.132680",
+    "kw": {
+      "status": "ERROR:  pki-tomcat : Internal error testing CA clone. Host: nan-ipareplica.ipa.calix.local Port: 443"
+    }
+  },
+  {
+    "source": "ipahealthcheck.ds.dse",
+    "check": "DSECheck",
+    "result": "CRITICAL",
+    "uuid": "cb69eaf9-4f5b-4534-bb77-6a93799e8025",
+    "when": "20260324213142Z",
+    "duration": "0.013243",
+    "kw": {
+      "key": "DSSKEWLE0003",
+      "items": [
+        "Replication",
+        "dc=ipa,dc=calix,dc=local",
+        "Time Skew",
+        "Skew: 29201 days, 12 hours, 18 minutes, 44 seconds"
+      ],
+      "msg": "The time skew is over 24 hours.  Setting nsslapd-ignore-time-skew\nto \"on\" on each replica will allow replication to continue, but if the\ntime skew continues to increase other serious replication problems can\noccur."
+    }
+  },
+  {
+    "source": "ipahealthcheck.ds.dse",
+    "check": "DSECheck",
+    "result": "WARNING",
+    "uuid": "f5eeb3f3-5c9e-4fe1-9839-c72d61660600",
+    "when": "20260324213142Z",
+    "duration": "0.013255",
+    "kw": {
+      "key": "DSSKEWLE0001",
+      "items": [
+        "Replication",
+        "o=ipaca",
+        "Time Skew",
+        "Skew: 7 hours, 41 minutes, 51 seconds"
+      ],
+      "msg": "The time skew is over 6 hours.  If this time skew continues to increase\nto 24 hours then replication can potentially stop working.  Please continue to\nmonitor the time skew offsets for increasing values."
+    }
+  },
+  {
+    "source": "ipahealthcheck.ds.replication",
+    "check": "ReplicationCheck",
+    "result": "CRITICAL",
+    "uuid": "d2117663-c50d-4434-b05c-5e5b7a41ad5a",
+    "when": "20260324213145Z",
+    "duration": "2.511009",
+    "kw": {
+      "key": "DSREPLLE0001",
+      "items": [
+        "Replication",
+        "Agreement"
+      ],
+      "msg": "The replication agreement (cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local) under \"dc=ipa,dc=calix,dc=local\" is not in synchronization."
+    }
+  },
+  {
+    "source": "ipahealthcheck.ds.replication",
+    "check": "ReplicationCheck",
+    "result": "ERROR",
+    "uuid": "b5481bd7-a613-4159-866f-a6f814268c4a",
+    "when": "20260324213145Z",
+    "duration": "2.511029",
+    "kw": {
+      "key": "DSREPLLE0005",
+      "items": [
+        "Replication",
+        "Agreement"
+      ],
+      "msg": "The replication agreement (metopln-ipamaster.ipa.calix.local) under \"dc=ipa,dc=calix,dc=local\" is not in synchronization,\nbecause the consumer server is not reachable."
+    }
+  },
+  {
+    "source": "ipahealthcheck.ds.replication",
+    "check": "ReplicationCheck",
+    "result": "ERROR",
+    "uuid": "8dacd18a-c109-47cc-93dd-a6ea2757c62f",
+    "when": "20260324213145Z",
+    "duration": "2.511032",
+    "kw": {
+      "key": "DSREPLLE0005",
+      "items": [
+        "Replication",
+        "Agreement"
+      ],
+      "msg": "The replication agreement (catopln-ipamaster.ipa.calix.local) under \"o=ipaca\" is not in synchronization,\nbecause the consumer server is not reachable."
+    }
+  },
+  {
+    "source": "ipahealthcheck.ds.replication",
+    "check": "ReplicationCheck",
+    "result": "WARNING",
+    "uuid": "7b5d1247-7273-4c7c-ae90-436b49376551",
+    "when": "20260324213145Z",
+    "duration": "2.511034",
+    "kw": {
+      "key": "DSREPLLE0002",
+      "items": [
+        "Replication",
+        "Conflict Entries"
+      ],
+      "msg": "There were 4 conflict entries found under the replication suffix \"dc=ipa,dc=calix,dc=local\"."
+    }
+  },
+  {
+    "source": "ipahealthcheck.ipa.certs",
+    "check": "IPACertDNSSAN",
+    "result": "ERROR",
+    "uuid": "8967b65c-5345-4c7c-8eff-84d4ae3089f5",
+    "when": "20260324213146Z",
+    "duration": "0.507412",
+    "kw": {
+      "key": "20240701143457",
+      "hostname": "ipa-ca.ipa.calix.local",
+      "san": [
+        "cpeg-ipareplica.ipa.calix.local"
+      ],
+      "ca": "IPA",
+      "profile": "caIPAserviceCert",
+      "msg": "Certificate request id {key} with profile {profile} for CA {ca} does not have a DNS SAN {san} matching name {hostname}"
+    }
+  }
+]
+[root@cpeg-ipareplic
 
-# 2. Fix constants.py
-sed -i "s/('startup_timeout', 90)/('startup_timeout', 7200)/" \
-  /usr/lib/python3.9/site-packages/ipalib/constants.py
-
-# 3. Recreate systemd override
-mkdir -p /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/
-cat > /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf << 'EOF'
-[Service]
-TimeoutStartSec=7200
-Environment="JAVA_OPTS=-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"
-EOF
-
-systemctl daemon-reload
-
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# cat /etc/ipa/installer.conf
-grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
-cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
-[global]
-startup_timeout=7200
-replication_wait_timeout=3600
-    ('startup_timeout', 7200),
-[Service]
-TimeoutStartSec=7200
-Environment="JAVA_OPTS=-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"
-[root@pln-ipamaster ~]#
-
-
-# 4. Verify all
-cat /etc/ipa/installer.conf
-grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
-cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
-
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
-Directory Manager password:
-
-Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 20
-	ric-ipareplica.ipa.calix.local:389: 12
-	ric-ipareplica01.ipa.calix.local:389: 11
-	nan-ipareplica01.ipa.calix.local:389: 10
-	pln-ipamaster.ipa.calix.local:389: 46
-Certificate Server Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 21
-	pln-ipamaster.ipa.calix.local:389: 45
-	pln-ipamaster.ipa.calix.local:389: 47
+[root@cpeg-ipareplica ~]# ipa-replica-manage list -v
+sjc-ipareplica01.ipa.calix.local: master
+nan-ipareplica01.ipa.calix.local: master
+ric-ipareplica01.ipa.calix.local: master
+ric-ipareplica.ipa.calix.local: master
+cpeg-ipareplica.ipa.calix.local: master
 [root@cpeg-ipareplica ~]#
