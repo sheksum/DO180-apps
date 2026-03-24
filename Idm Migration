@@ -1,7 +1,2 @@
-[root@pln-ipamaster pki-tomcat]# grep -n "max_wait\|wait_for_startup\|\.start(" \
-  /usr/lib/python3.9/site-packages/pki/server/deployment/__init__.py | grep -i "max_wait\|startup" | head -20
-174:        # status request in wait_for_startup().
-5405:                max_wait=self.startup_timeout,
-5519:            max_wait=self.startup_timeout,
-5559:                max_wait=self.startup_timeout,
-[root@pln-ipamaster pki-tomcat]#
+grep -n "startup_timeout" \
+  /usr/lib/python3.9/site-packages/pki/server/deployment/__init__.py | head -20
