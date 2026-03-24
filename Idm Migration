@@ -1,4 +1,4 @@
-# On cpeg-ipareplica
-ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
-  -Y GSSAPI -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
-  "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
+[root@cpeg-ipareplica ~]# ldapsearch -H ldap://cpeg-ipareplica.ipa.calix.local \
+>   -Y GSSAPI -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+>   "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
+[root@cpeg-ipareplica ~]#
