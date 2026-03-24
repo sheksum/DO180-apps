@@ -1,34 +1,63 @@
-  [4/33]: revert time skew after initial replication
-  [5/33]: creating ACIs for admin
-  [6/33]: creating installation admin user
-  [7/33]: configuring certificate server instance
-  [8/33]: stopping certificate server instance to update CS.cfg
-  [9/33]: backing up CS.cfg
-  [10/33]: Add ipa-pki-wait-running
-Set start up timeout of pki-tomcatd service to 7200 seconds
-  [11/33]: secure AJP connector
-  [12/33]: reindex attributes
-  [13/33]: exporting Dogtag certificate store pin
-  [14/33]: disabling nonces
-  [15/33]: set up CRL publishing
-  [16/33]: enable PKIX certificate path discovery and validation
-  [17/33]: authorizing RA to modify profiles
-  [18/33]: authorizing RA to manage lightweight CAs
-  [19/33]: Ensure lightweight CAs container exists
-  [20/33]: Enable lightweight CA monitor
-  [21/33]: Ensuring backward compatibility
-  [22/33]: destroying installation admin user
-  [23/33]: updating IPA configuration
-  [24/33]: starting certificate server instance
-  [25/33]: Finalize replication settings
-  [26/33]: configure certmonger for renewals
-  [27/33]: Importing RA key
-  [28/33]: configure certificate renewals
-  [29/33]: Configure HTTP to proxy connections
-  [30/33]: enabling CA instance
-  [31/33]: importing IPA certificate profiles
-Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
-Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
-  [32/33]: configuring certmonger renewal for lightweight CAs
-  [33/33]: deploying ACME service
-Done configuring certificate server (pki-tomcatd).
+2026-03-24T15:17:38Z DEBUG stdout=
+2026-03-24T15:17:38Z DEBUG stderr=
+2026-03-24T15:17:38Z DEBUG step duration: pki-tomcatd setup_acme 1.58 sec
+2026-03-24T15:17:38Z DEBUG Done configuring certificate server (pki-tomcatd).
+2026-03-24T15:17:38Z DEBUG service duration: pki-tomcatd 18570.53 sec
+2026-03-24T15:17:38Z DEBUG Removing /root/.dogtag/pki-tomcat/ca
+2026-03-24T15:17:38Z DEBUG Loading StateFile from '/var/lib/ipa/sysrestore/sysrestore.state'
+2026-03-24T15:17:38Z DEBUG Loading Index file from '/var/lib/ipa/sysrestore/sysrestore.index'
+2026-03-24T15:17:38Z DEBUG Starting external process
+2026-03-24T15:17:38Z DEBUG args=['/bin/systemctl', 'stop', 'pki-tomcatd@pki-tomcat.service']
+2026-03-24T15:17:39Z DEBUG Process finished, return code=0
+2026-03-24T15:17:39Z DEBUG stdout=
+2026-03-24T15:17:39Z DEBUG stderr=
+2026-03-24T15:17:39Z DEBUG Stop of pki-tomcatd@pki-tomcat.service complete
+2026-03-24T15:17:39Z DEBUG Loading StateFile from '/var/lib/ipa/sysrestore/sysrestore.state'
+2026-03-24T15:17:39Z DEBUG Ensuring that service pki-tomcatd@pki-tomcat is not running while the next set of commands is being executed.
+2026-03-24T15:17:39Z DEBUG Starting external process
+2026-03-24T15:17:39Z DEBUG args=['/bin/systemctl', 'is-active', 'pki-tomcatd@pki-tomcat.service']
+2026-03-24T15:17:39Z DEBUG Process finished, return code=3
+2026-03-24T15:17:39Z DEBUG stdout=inactive
+
+2026-03-24T15:17:39Z DEBUG stderr=
+2026-03-24T15:17:39Z DEBUG Service pki-tomcatd@pki-tomcat is not running, continue.
+2026-03-24T15:17:39Z DEBUG Loading StateFile from '/var/lib/ipa/sysupgrade/sysupgrade.state'
+2026-03-24T15:17:39Z DEBUG Set up lightweight CA key retrieval
+2026-03-24T15:17:39Z DEBUG Creating principal
+2026-03-24T15:17:39Z DEBUG Starting external process
+2026-03-24T15:17:39Z DEBUG args=['/usr/sbin/kadmin.local', '-q', 'addprinc -randkey dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL', '-x', 'ipa-setup-override-restrictions']
+2026-03-24T15:17:39Z DEBUG Process finished, return code=0
+2026-03-24T15:17:39Z DEBUG stdout=Authenticating as principal host/admin@IPA.CALIX.LOCAL with password.
+Principal "dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL" created.
+
+2026-03-24T15:17:39Z DEBUG stderr=No policy specified for dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL; defaulting to no policy
+
+2026-03-24T15:17:40Z DEBUG Retrieving keytab
+2026-03-24T15:17:40Z DEBUG Starting external process
+2026-03-24T15:17:40Z DEBUG args=['/usr/sbin/kadmin.local', '-q', 'ktadd -k /etc/pki/pki-tomcat/dogtag.keytab dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL', '-x', 'ipa-setup-override-restrictions']
+2026-03-24T15:17:40Z DEBUG Process finished, return code=0
+2026-03-24T15:17:40Z DEBUG stdout=Authenticating as principal host/admin@IPA.CALIX.LOCAL with password.
+Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type aes256-cts-hmac-sha1-96 added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
+Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type aes128-cts-hmac-sha1-96 added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
+Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type arcfour-hmac added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
+Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type camellia128-cts-cmac added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
+Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type camellia256-cts-cmac added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
+Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type aes128-cts-hmac-sha256-128 added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
+Entry for principal dogtag/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL with kvno 2, encryption type aes256-cts-hmac-sha384-192 added to keytab WRFILE:/etc/pki/pki-tomcat/dogtag.keytab.
+
+2026-03-24T15:17:40Z DEBUG stderr=
+2026-03-24T15:17:40Z DEBUG Creating Custodia keys
+2026-03-24T15:17:41Z DEBUG Configuring key retriever
+2026-03-24T15:17:41Z DEBUG Loading StateFile from '/var/lib/ipa/sysupgrade/sysupgrade.state'
+2026-03-24T15:17:41Z DEBUG Saving StateFile to '/var/lib/ipa/sysupgrade/sysupgrade.state'
+2026-03-24T15:17:41Z DEBUG Destroyed connection context.ldap2_140397695866048
+2026-03-24T15:17:41Z DEBUG Starting external process
+2026-03-24T15:17:41Z DEBUG args=['/bin/systemctl', 'restart', 'dirsrv@IPA-CALIX-LOCAL.service']
+2026-03-24T15:18:02Z DEBUG Process finished, return code=0
+2026-03-24T15:18:02Z DEBUG stdout=
+2026-03-24T15:18:02Z DEBUG stderr=
+2026-03-24T15:18:02Z DEBUG Restart of dirsrv@IPA-CALIX-LOCAL.service complete
+2026-03-24T15:18:02Z DEBUG Created connection context.ldap2_140397695866048
+2026-03-24T15:18:02Z DEBUG Starting external process
+2026-03-24T15:18:02Z DEBUG args=['/bin/systemctl', 'start', 'pki-tomcatd@pki-tomcat.service']
+(END)
