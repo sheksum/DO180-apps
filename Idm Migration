@@ -1,13 +1,5 @@
-- name: https-legacy
-  hostname: agentmesh-dev-ai.calix.local
-  port: 443
-  protocol: HTTPS
-  tls:
-    mode: Terminate
-    certificateRefs:
-    - name: dev-ocp-ai-tls
-      group: ""
-      kind: Secret
-  allowedRoutes:
-    namespaces:
-      from: All
++@Rich Rios for awareness
+ 
+Thank you Haj. The maintenance window has been scheduled by facilities, the building maintenance company has some power related work required. They have requested only a 30min outage but in abundance of caution we are planning to shut the infrastructure down and power it back up once power is brought back on.
+ 
+Could you please give us a status update by Thursday end of day to see if you are on target for Friday completion, otherwise Rich will need to reach out to the building maintenance company to reschedule.  
