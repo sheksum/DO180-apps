@@ -1,7 +1,55 @@
-# On cpeg
-ldapsearch -Y GSSAPI -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
-  "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y GSSAPI -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+>   "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
 
 
-# On pln
+[root@pln-ipamaster ~]# # On pln
 cat /var/lib/ipa/sysrestore/sysrestore.state | head -50
+[installation]
+complete = False
+
+[dirsrv]
+serverid = IPA-CALIX-LOCAL
+enabled = True
+
+[krb5kdc]
+running = False
+enabled = False
+
+[kadmin]
+running = False
+enabled = False
+
+[httpd]
+running = True
+certmonger_ipa_helper = /usr/libexec/certmonger/ipa-submit
+httpd_can_network_connect = off
+httpd_manage_ipa = off
+httpd_run_ipa = off
+httpd_dbus_sssd = off
+enabled = False
+
+[oddjobd]
+running = False
+enabled = False
+
+[ipa-otpd]
+running = False
+enabled = False
+
+[ipa-custodia]
+running = False
+enabled = False
+
+[pki_hsm]
+enabled = False
+token_name = internal
+
+[pki-tomcatd]
+installed = True
+
+[root@pln-ipamaster ~]#
+
