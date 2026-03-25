@@ -1,5 +1,126 @@
-# Check what secret the Gateway listener is using
-oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -A10 "https-legacy-dev"
-
-# Check the cert details
-oc get secret agentmesh-dev-ai-tls -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout | grep -E "Issuer|Subject|Not After|DNS"
+hsuma@plnx-admin:~$ oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -A10 "https"
+      {"apiVersion":"gateway.networking.k8s.io/v1","kind":"Gateway","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"gateway-api:gateway.networking.k8s.io/Gateway:openshift-ingress/pai-gateway"},"name":"pai-gateway","namespace":"openshift-ingress"},"spec":{"gatewayClassName":"openshift-default","listeners":[{"allowedRoutes":{"namespaces":{"from":"Same"}},"name":"http","port":80,"protocol":"HTTP"},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"dev"}}}},"hostname":"*.dev.ocp-ai.calix.local","name":"https-dev","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"wildcard-dev-tls-secret"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"dev"}}}},"hostname":"agentmesh-dev-ai.calix.local","name":"https-agentmesh-dev","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"agent-dev-tls-secret"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"test"}}}},"hostname":"*.test.ocp-ai.calix.local","name":"https-test","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"wildcard-test-tls-secret"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"prod"}}}},"hostname":"*.prod.ocp-ai.calix.local","name":"https-prod","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"wildcard-prod-tls-secret"}],"mode":"Terminate"}}]}}
+  creationTimestamp: "2026-02-26T04:51:26Z"
+  generation: 7
+  labels:
+    istio.io/rev: openshift-gateway
+  name: pai-gateway
+  namespace: openshift-ingress
+  resourceVersion: "24433327"
+  uid: b344b01c-c35a-460a-b732-e94a192d1763
+spec:
+  gatewayClassName: openshift-default
+--
+    name: https-dev
+    port: 443
+    protocol: HTTPS
+    tls:
+      certificateRefs:
+      - group: ""
+        kind: Secret
+        name: wildcard-dev-tls-secret
+      mode: Terminate
+  - allowedRoutes:
+      namespaces:
+--
+    name: https-agentmesh-dev
+    port: 443
+    protocol: HTTPS
+    tls:
+      certificateRefs:
+      - group: ""
+        kind: Secret
+        name: agent-dev-tls-secret
+      mode: Terminate
+  - allowedRoutes:
+      namespaces:
+--
+    name: https-test
+    port: 443
+    protocol: HTTPS
+    tls:
+      certificateRefs:
+      - group: ""
+        kind: Secret
+        name: wildcard-test-tls-secret
+      mode: Terminate
+  - allowedRoutes:
+      namespaces:
+--
+    name: https-prod
+    port: 443
+    protocol: HTTPS
+    tls:
+      certificateRefs:
+      - group: ""
+        kind: Secret
+        name: wildcard-prod-tls-secret
+      mode: Terminate
+status:
+  addresses:
+--
+    name: https-dev
+    supportedKinds:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+    - group: gateway.networking.k8s.io
+      kind: GRPCRoute
+  - attachedRoutes: 1
+    conditions:
+    - lastTransitionTime: "2026-03-01T00:10:17Z"
+      message: No errors found
+      observedGeneration: 7
+--
+    name: https-agentmesh-dev
+    supportedKinds:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+    - group: gateway.networking.k8s.io
+      kind: GRPCRoute
+  - attachedRoutes: 1
+    conditions:
+    - lastTransitionTime: "2026-03-01T00:10:17Z"
+      message: No errors found
+      observedGeneration: 7
+--
+    name: https-test
+    supportedKinds:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+    - group: gateway.networking.k8s.io
+      kind: GRPCRoute
+  - attachedRoutes: 1
+    conditions:
+    - lastTransitionTime: "2026-03-24T18:47:12Z"
+      message: No errors found
+      observedGeneration: 7
+--
+    name: https-prod
+    supportedKinds:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+    - group: gateway.networking.k8s.io
+      kind: GRPCRoute
+hsuma@plnx-admin:~$ oc get secret agentmesh-dev-ai-tls -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout | grep -E "Issuer|Subject|Not After|DNS"
+Error from server (NotFound): secrets "agentmesh-dev-ai-tls" not found
+Could not read certificate from <stdin>
+Unable to load certificate
+hsuma@plnx-admin:~$ oc get secret -n openshift-ingress
+NAME                                               TYPE                      DATA   AGE
+agent-dev-tls-secret                               kubernetes.io/tls         2      26h
+apps-wildcard-tls                                  kubernetes.io/tls         3      29d
+builder-dockercfg-lns65                            kubernetes.io/dockercfg   1      34d
+default-dockercfg-w8fz6                            kubernetes.io/dockercfg   1      34d
+deployer-dockercfg-rxxlp                           kubernetes.io/dockercfg   1      34d
+istio-ca-secret                                    istio.io/ca-root          5      27d
+istiod-openshift-gateway-dockercfg-6rffc           kubernetes.io/dockercfg   1      27d
+pai-gateway-openshift-default-dockercfg-z449v      kubernetes.io/dockercfg   1      27d
+router-dockercfg-8rr6t                             kubernetes.io/dockercfg   1      34d
+router-metrics-certs-default                       kubernetes.io/tls         2      37d
+router-stats-default                               Opaque                    2      37d
+sh.helm.release.v1.openshift-gateway-istiod.v789   helm.sh/release.v1        1      28m
+sh.helm.release.v1.openshift-gateway-istiod.v790   helm.sh/release.v1        1      28m
+wildcard-dev-tls-secret                            kubernetes.io/tls         3      24d
+wildcard-prod-tls-secret                           kubernetes.io/tls         3      24d
+wildcard-test-tls-secret                           kubernetes.io/tls         3      24d
+hsuma@plnx-admin:~$
