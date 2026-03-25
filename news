@@ -1,4 +1,48 @@
 
+@Haj Suma I can help with DNS reverse zones if needed.  Let’s avoid using CAAL at all costs.  We have an active plan to retire that.  Please let me know what you need in calix.local to use that instead.
+Thanks
+Brian
+ 
+From: Haj Suma <haj.suma@calix.com>
+Sent: Tuesday, March 24, 2026 5:24 AM
+To: Brian Wing <Brian.Wing@calix.com>
+Cc: Engineering Operations - Infrastructure <EngineeringOperations-Infrastructure@calix.com>
+Subject: DMZ Satellite Capsule Build Complete - pln-capsule-dmz01.caal.dev
+ 
+Hi Brian,
+ 
+Quick update - the Satellite Capsule server is built, validated, and now moved into the DMZ subnet.
+ 
+I’ve tested end-to-end:
+Capsule is registered and communicating with Satellite
+Content is syncing (RHEL7/8/9, Rocky, EPEL, Grafana)
+Host registration through the capsule is working
+Package installs are being served from the capsule
+ 
+One note - I built this in the caal.dev DNS zone due to PTR replication issues I was hitting with calix.local during setup. I’ll open a ticket for @Deonna Thornton to help take a look at this
+ 
+@Manoja Kumar Barik  - can we get the following firewall rules opened to finish this out:
+ 
+DMZ → Capsule (443)
+10.172.16.0/28 → 10.172.16.10
+For host registration and package access
+ 
+Capsule → Satellite (443)
+10.172.16.10 → 10.172.249.103
+For content sync
+ 
+Capsule → Satellite (5646)
+10.172.16.10 → 10.172.249.103
+For messaging
+ 
+Going forward, all RHEL or RHEL like systems within the DMZ can point to this capsule for package management and OS updates. This removes the need for DMZ hosts to reach out directly to Satellite for content - everything will be served locally through the capsule.
+ 
+Thanks,
+Ha
+
+
+
+
 Subject: RE: Petaluma Site Shutdown: Saturday, March 28 - IPA Critical Risk
 
 Hi all,
