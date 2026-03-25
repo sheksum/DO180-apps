@@ -17,3 +17,30 @@ Configuring certificate server (pki-tomcatd). Estimated time: 3 minutes
   [3/33]: setting up initial replication
 Starting replication, please wait until this has completed.
 Update in progress, 135 seconds elapsed
+
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh deploy@pln-ipamaster
+Last login: Wed Mar 25 22:38:41 2026 from 10.172.248.105
+[deploy@pln-ipamaster ~]$ sudo su -
+Last login: Wed Mar 25 22:38:44 UTC 2026 on pts/0
+[root@pln-ipamaster ~]# ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -Y EXTERNAL << EOF
+dn: cn=config
+changetype: modify
+replace: nsslapd-sizelimit
+nsslapd-sizelimit: -1
+
+dn: cn=config,cn=ldbm database,cn=plugins,cn=config
+changetype: modify
+replace: nsslapd-lookthroughlimit
+nsslapd-lookthroughlimit: -1
+EOF
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+modifying entry "cn=config"
+
+modifying entry "cn=config,cn=ldbm database,cn=plugins,cn=config"
+
+[root@pln-ipamaster ~]#
