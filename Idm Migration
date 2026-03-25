@@ -1,10 +1,11 @@
-Hi Cesar,
-Critical update — we have discovered that cpeg-ipareplica (RHEL 8, 389-Directory Server 1.4.3.39) is crashing with a segfault during the replica install process. The crash occurs at the initial replication step when pln connects to cpeg.
-The crash signature is:
-ERR - slapi_sdn_copy - NULL param: from (0x(nil)) to (0x0x7efeca29a5f0)
-dirsrv@IPA-CALIX-LOCAL.service: Main process exited, code=killed, status=11/SEGV
-This appears to be triggered by the combination of incoming replication from pln and the pre-existing CSN purge errors on the ric and nan replication agreements. This is crashing our only IPA master repeatedly.
-We need urgent guidance on:
+ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+changetype: modify
+replace: nsds5ReplicaEnabled
+nsds5ReplicaEnabled: off
 
-Is there a known bug/patch for this slapi_sdn_copy NULL pointer segfault in 389-ds 1.4.3.x?
-Can we safely disable the ric and nan replication agreements on cpeg temporarily to prevent the crash trigger during the install?
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+changetype: modify
+replace: nsds5ReplicaEnabled
+nsds5ReplicaEnabled: off
+EOF
