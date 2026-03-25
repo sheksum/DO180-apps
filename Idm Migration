@@ -1,13 +1,5 @@
-Hi Cesar,
-Thank you for the response. I want to address the intermediate replica suggestion directly — it is not feasible for two reasons:
-First, our hard deadline is March 28. The Petaluma DC where cpeg resides is being powered off that morning. A new replica install from cpeg involves replicating a 14GB o=ipaca database with ~1 million certificate entries — that process alone takes 5+ hours, and we have already burned multiple attempts getting to where we are today.
-Second, and more importantly, any new replica install against cpeg would fail for the same reason our current install nearly failed — cpeg has deep pre-existing replication health issues including a 29,000+ day CSN time skew on dc=ipa,dc=calix,dc=local and chronic changelog purge errors. These are not version compatibility issues. A new RHEL 8 intermediate would hit the exact same replication problems.
-To be clear about our current state: this is not a failed install. The RHEL 8 to RHEL 9 replica install completed successfully through all 33 steps including full CA database replication, CA startup, KDC, and httpd. The only failure was at the very last step — a replication timeout waiting for cn=KDC to appear on cpeg, caused by an Error 18 transient replication warning on the pln to cpeg agreement. All services on pln are running right now.
-What we need is specific guidance on one of two things:
+# Check what secret the Gateway listener is using
+oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -A10 "https-legacy-dev"
 
-How to resolve the Error 18 incremental replication issue so the cn=KDC entry replicates from pln to cpeg and the install can complete
-How to manually complete or finalize the replica install given that all services are running and only sysrestore.state shows complete=False
-
-SOS reports from both servers are attached. Given the March 28 deadline this is a Severity 1 situation for us.
-Thanks,
-Haj
+# Check the cert details
+oc get secret agentmesh-dev-ai-tls -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout | grep -E "Issuer|Subject|Not After|DNS"
