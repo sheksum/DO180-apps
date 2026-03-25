@@ -1,8 +1,22 @@
-# On pln
-ls /etc/ipa/
-ls /var/lib/ipa/
-
-cat /etc/ipa/installer.conf
-grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
-cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
-cat /usr/share/ipa/replica-prevent-time-skew.ldif
+[root@pln-ipamaster ~]# ls /etc/ipa/
+ca.crt  custodia  default.conf  default.conf.ipabkp  dnssec  html  installer.conf  kdcproxy  nssdb
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ls /var/lib/ipa/
+backup  certs  gssproxy  passwds  pki-ca  private  sysrestore  sysupgrade
+[root@pln-ipamaster ~]# cat /etc/ipa/installer.conf
+[global]
+startup_timeout=7200
+replication_wait_timeout=3600
+[root@pln-ipamaster ~]# grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
+    ('startup_timeout', 7200),
+[root@pln-ipamaster ~]# cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
+[Service]
+TimeoutStartSec=7200
+Environment="JAVA_OPTS=-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"
+[root@pln-ipamaster ~]# cat /usr/share/ipa/replica-prevent-time-skew.ldif
+dn: cn=config
+changetype: modify
+replace: nsslapd-ignore-time-skew
+nsslapd-ignore-time-skew: on
+[root@pln-ipamaster ~]#
