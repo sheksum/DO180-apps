@@ -1,4 +1,6 @@
 
+
+https://access.redhat.com/support/cases/#/case/new
 Summary: ipa-replica-install fails with wait_for_entry timeout on cn=KDC — cannot complete RHEL 8 to RHEL 9 IPA migration before critical deadline
 Environment:
 
