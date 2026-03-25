@@ -1,32 +1,52 @@
-oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -A15 "https-agentmesh-dev"
-
-
-
-oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -A15 "https-agentmesh-dev"
-
-
-- name: https-agentmesh-dev
-    hostname: agentmesh-dev-ai.calix.local
+hsuma@plnx-admin:~$ oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -A15 "https-agentmesh-dev"
+      {"apiVersion":"gateway.networking.k8s.io/v1","kind":"Gateway","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"gateway-api:gateway.networking.k8s.io/Gateway:openshift-ingress/pai-gateway"},"name":"pai-gateway","namespace":"openshift-ingress"},"spec":{"gatewayClassName":"openshift-default","listeners":[{"allowedRoutes":{"namespaces":{"from":"Same"}},"name":"http","port":80,"protocol":"HTTP"},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"dev"}}}},"hostname":"*.dev.ocp-ai.calix.local","name":"https-dev","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"wildcard-dev-calixca-tls-secret"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"dev"}}}},"hostname":"agentmesh-dev-ai.calix.local","name":"https-agentmesh-dev","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"agent-dev-tls-secret"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"test"}}}},"hostname":"*.test.ocp-ai.calix.local","name":"https-test","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"wildcard-test-tls-secret"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"prod"}}}},"hostname":"*.prod.ocp-ai.calix.local","name":"https-prod","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"wildcard-prod-tls-secret"}],"mode":"Terminate"}}]}}
+  creationTimestamp: "2026-02-26T04:51:26Z"
+  generation: 8
+  labels:
+    istio.io/rev: openshift-gateway
+  name: pai-gateway
+  namespace: openshift-ingress
+  resourceVersion: "25237677"
+  uid: b344b01c-c35a-460a-b732-e94a192d1763
+spec:
+  gatewayClassName: openshift-default
+  listeners:
+  - allowedRoutes:
+      namespaces:
+        from: Same
+    name: http
+--
+    name: https-agentmesh-dev
     port: 443
     protocol: HTTPS
     tls:
-      mode: Terminate
       certificateRefs:
-      - kind: Secret
+      - group: ""
+        kind: Secret
         name: agent-dev-tls-secret
-    allowedRoutes:
+      mode: Terminate
+  - allowedRoutes:
       namespaces:
         from: Selector
         selector:
           matchLabels:
-            env: dev
-
-cd ~/ocp-ai-config
-
-# 1. Update gateway.yaml with the legacy listener
-# 2. Remove the wildcard-dev cert-manager Certificate if present
-# 3. Commit
-
-git add gateway-api/
-git commit -m "Add legacy listener for agentmesh-dev-ai.calix.local with corporate cert"
-git push
+            env: test
+    hostname: '*.test.ocp-ai.calix.local'
+--
+    name: https-agentmesh-dev
+    supportedKinds:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+    - group: gateway.networking.k8s.io
+      kind: GRPCRoute
+  - attachedRoutes: 1
+    conditions:
+    - lastTransitionTime: "2026-03-01T00:10:17Z"
+      message: No errors found
+      observedGeneration: 8
+      reason: Accepted
+      status: "True"
+      type: Accepted
+    - lastTransitionTime: "2026-03-01T00:10:17Z"
+      message: No errors found
+hsuma@plnx-admin:~$
