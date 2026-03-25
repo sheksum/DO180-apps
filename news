@@ -1,9 +1,15 @@
 
+
+
 Subject: RE: DMZ Satellite Capsule Build Complete - pln-capsule-dmz01.caal.dev
 
 Hi Brian,
 
-Thanks for offering to help with the DNS. That would be great — here is what I need in calix.local:
+Thanks for jumping in on this — really appreciate it.
+
+Just to give you some context on why I ended up in caal.dev — that was never the intent. When I created the PTR record in calix.local via AD DNS, name resolution worked fine from the command prompt but wasn't resolving on client systems. I tried reloading and refreshing the zone, waited a couple of hours for replication — nothing worked. Given the urgency to get the capsule up in the DMZ and get the proxy systems patched, I made the call to switch to caal.dev to unblock the build.
+
+Happy to move back to calix.local now that you can help sort the PTR replication side. Here's what I need:
 
 A record:
   Name:    pln-capsule-dmz01.calix.local
@@ -14,56 +20,11 @@ PTR record:
   IP:      10.172.16.10
   Points to: pln-capsule-dmz01.calix.local
 
-Once those are in place I'll need to rebuild the capsule certificates with the calix.local FQDN and re-run the installer since the hostname is currently bound to caal.dev. I can take care of that once the DNS records are confirmed.
+Once those are confirmed and resolving on client systems I'll update the hostname and rebuild the capsule certs with the calix.local FQDN — shouldn't take long.
 
-Let me know if you need anything else from my end.
+Thanks again Brian, let me know when it's done.
 
-Thanks,
 Haj
-
-
-
-@Haj Suma I can help with DNS reverse zones if needed.  Let’s avoid using CAAL at all costs.  We have an active plan to retire that.  Please let me know what you need in calix.local to use that instead.
-Thanks
-Brian
- 
-From: Haj Suma <haj.suma@calix.com>
-Sent: Tuesday, March 24, 2026 5:24 AM
-To: Brian Wing <Brian.Wing@calix.com>
-Cc: Engineering Operations - Infrastructure <EngineeringOperations-Infrastructure@calix.com>
-Subject: DMZ Satellite Capsule Build Complete - pln-capsule-dmz01.caal.dev
- 
-Hi Brian,
- 
-Quick update - the Satellite Capsule server is built, validated, and now moved into the DMZ subnet.
- 
-I’ve tested end-to-end:
-Capsule is registered and communicating with Satellite
-Content is syncing (RHEL7/8/9, Rocky, EPEL, Grafana)
-Host registration through the capsule is working
-Package installs are being served from the capsule
- 
-One note - I built this in the caal.dev DNS zone due to PTR replication issues I was hitting with calix.local during setup. I’ll open a ticket for @Deonna Thornton to help take a look at this
- 
-@Manoja Kumar Barik  - can we get the following firewall rules opened to finish this out:
- 
-DMZ → Capsule (443)
-10.172.16.0/28 → 10.172.16.10
-For host registration and package access
- 
-Capsule → Satellite (443)
-10.172.16.10 → 10.172.249.103
-For content sync
- 
-Capsule → Satellite (5646)
-10.172.16.10 → 10.172.249.103
-For messaging
- 
-Going forward, all RHEL or RHEL like systems within the DMZ can point to this capsule for package management and OS updates. This removes the need for DMZ hosts to reach out directly to Satellite for content - everything will be served locally through the capsule.
- 
-Thanks,
-Ha
-
 
 
 
