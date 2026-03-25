@@ -5,3 +5,12 @@ ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   "(objectclass=nsds5replicationagreement)" \
   nsds5replicaHost nsds5replicaLastUpdateStatus 2>/dev/null | \
   grep -E "dn:|nsds5replica"
+
+
+# On cpeg
+ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -Y EXTERNAL \
+  -b "cn=config" \
+  "(objectclass=nsds5replicationagreement)" \
+  nsds5replicaHost nsds5replicaLastUpdateStatus 2>/dev/null | \
+  grep -E "dn:|nsds5replica"
