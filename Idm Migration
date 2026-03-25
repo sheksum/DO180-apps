@@ -1,5 +1,5 @@
-oc create secret tls wildcard-dev-tls-secret \
-  -n openshift-ingress \
-  --cert=signed-cert-with-chain.crt \
-  --key=wildcard-dev-ocp-ai.key \
-  --dry-run=client -o yaml | oc replace -f -
+openssl req -new -newkey rsa:4096 -nodes \
+  -keyout wildcard-dev-ocp-ai.key \
+  -out wildcard-dev-ocp-ai.csr \
+  -subj "/C=US/ST=Texas/L=Plano/O=Calix/OU=EngOps/CN=*.dev.ocp-ai.calix.local" \
+  -addext "subjectAltName=DNS:*.dev.ocp-ai.calix.local,DNS:*.test.ocp-ai.calix.local,DNS:*.prod.ocp-ai.calix.local"
