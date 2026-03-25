@@ -1,12 +1,19 @@
-ldapmodify -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL << EOF
-dn: cn=config
-changetype: modify
-replace: nsslapd-sizelimit
-nsslapd-sizelimit: -1
-
-dn: cn=config,cn=ldbm database,cn=plugins,cn=config
-changetype: modify
-replace: nsslapd-lookthroughlimit
-nsslapd-lookthroughlimit: -1
-EOF
+  [22/22]: enabling oddjobd
+Done configuring the web interface (httpd).
+Configuring ipa-otpd
+  [1/2]: starting ipa-otpd
+  [2/2]: configuring ipa-otpd to start on boot
+Done configuring ipa-otpd.
+Custodia uses 'cpeg-ipareplica.ipa.calix.local' as master peer.
+Configuring ipa-custodia
+  [1/4]: Generating ipa-custodia config file
+  [2/4]: Generating ipa-custodia keys
+  [3/4]: starting ipa-custodia
+  [4/4]: configuring ipa-custodia to start on boot
+Done configuring ipa-custodia.
+Configuring certificate server (pki-tomcatd). Estimated time: 3 minutes
+  [1/33]: creating certificate server db
+  [2/33]: ignore time skew for initial replication
+  [3/33]: setting up initial replication
+Starting replication, please wait until this has completed.
+Update in progress, 135 seconds elapsed
