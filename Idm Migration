@@ -1,32 +1,13 @@
-Hello,
+Hi Cesar,
+Thank you for the response. I want to address the intermediate replica suggestion directly — it is not feasible for two reasons:
+First, our hard deadline is March 28. The Petaluma DC where cpeg resides is being powered off that morning. A new replica install from cpeg involves replicating a 14GB o=ipaca database with ~1 million certificate entries — that process alone takes 5+ hours, and we have already burned multiple attempts getting to where we are today.
+Second, and more importantly, any new replica install against cpeg would fail for the same reason our current install nearly failed — cpeg has deep pre-existing replication health issues including a 29,000+ day CSN time skew on dc=ipa,dc=calix,dc=local and chronic changelog purge errors. These are not version compatibility issues. A new RHEL 8 intermediate would hit the exact same replication problems.
+To be clear about our current state: this is not a failed install. The RHEL 8 to RHEL 9 replica install completed successfully through all 33 steps including full CA database replication, CA startup, KDC, and httpd. The only failure was at the very last step — a replication timeout waiting for cn=KDC to appear on cpeg, caused by an Error 18 transient replication warning on the pln to cpeg agreement. All services on pln are running right now.
+What we need is specific guidance on one of two things:
 
-Thanks for the update.
+How to resolve the Error 18 incremental replication issue so the cn=KDC entry replicates from pln to cpeg and the install can complete
+How to manually complete or finalize the replica install given that all services are running and only sysrestore.state shows complete=False
 
-Right so I talked with some engineers and SMEs in the background, and this kind of setup you're going for is not exactly
-recommended, and not supported as well.
-
-Assuming these were rhel-7s, the recommendation would still be to deploy and replace all rhel-7s in the topology with
-rhel-8s, and only after decommissioning the rhel-7s, starting the migration to rhel-9.
-
-Some points about this so you can have an idea:
-
-1. RHEL 8 supports SPAKE and IdP pre-authentication, while RHEL 7 (or CentOS 7) does not, and that having RHEL 8 servers with those enabled in a RHEL (or CentOS) 7 deployment can cause problems such as users being unable to log in.
- - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/8/html/migrating_to_identity_management_on_rhel_8/migrate-7-to-8_migrating
-
-2. In a mixed environment with RHEL 7, RHEL 8, and RHEL 9 servers, you can enforce the additional password policy settings only on servers running on RHEL 8.4 and later. If a user is logged in to an IdM client and the IdM client is communicating with an IdM server running on RHEL 8.3 or earlier, then the new password policy requirements set by the system administrator are not applied. To ensure consistent behavior, upgrade or update all servers to RHEL 8.4 and later.
- - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/defining-idm-password-policies_managing-users-groups-hosts
-
-Beyond the above points, a myriad of risks are taken within a mixed environment such as this.
-
-I also see there are some replication errors between your centOS 7 servers which in this case are unsupported.
-
-Our suggestion at this point is:
-
-1. Deploy another rhel-8, point to cpeg, and try installing the replica.
-If that still fails, then share another sosreport from *both* the machines. I'll need the sosreport from cpeg as well so I can see
-what cpeg (rhel-8) says during the install attempt.
-
-But the gist of it is - having CentOS 7 + rhel-8 + rhel-9 is not 100% supported.
-
-Kr,
--Cesar Goslawski
+SOS reports from both servers are attached. Given the March 28 deadline this is a Severity 1 situation for us.
+Thanks,
+Haj
