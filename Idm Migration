@@ -1,3 +1,14 @@
-oc get secret agent-dev-tls-secret -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl crl2pkcs7 -nocrl -certfile /dev/stdin | openssl pkcs7 -print_certs -noout | grep "subject\|issuer"
-
-oc get secret agent-dev-tls-secret -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | grep -c "BEGIN CERTIFICATE"
+hsuma@plnx-admin:~$ oc get secret agent-dev-tls-secret -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl crl2pkcs7 -nocrl -certfile /dev/stdin | openssl pkcs7 -print_certs -noout | grep "subject\|issuer"
+subject=C = US, ST = Texas, L = Plano, O = Calix, OU = EngOps, CN = agentmesh-dev-ai.calix.local
+issuer=DC = local, DC = calix, CN = CalixEntCA
+subject=DC = local, DC = calix, CN = CalixEntCA
+issuer=DC = local, DC = calix, CN = CalixInterCA
+subject=DC = local, DC = calix, CN = CalixInterCA
+issuer=CN = CalixRootCA
+subject=CN = CalixRootCA
+issuer=CN = CalixRootCA
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get secret agent-dev-tls-secret -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | grep -c "BEGIN CERTIFICATE"
+4
+hsuma@plnx-admin:~$
