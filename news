@@ -1,3 +1,15 @@
+Hostname
+
+Hostname is private. Red Hat does not have access to view hostnames unless you
+Describe the impact to you or the business *
+
+0 / 4000
+In what environment are you experiencing this behavior?
+
+0 / 3000
+How frequently does this behavior occur? Does it occur repeatedly or at certain times?
+
+
 
 Summary: ipa-replica-install fails with wait_for_entry timeout on cn=KDC — cannot complete RHEL 8 to RHEL 9 IPA migration before critical deadline
 Environment:
