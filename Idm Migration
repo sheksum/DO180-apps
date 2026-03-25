@@ -1,13 +1,5 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ nslookup agentmesh-dev-ai.calix.local
-Server:		127.0.0.53
-Address:	127.0.0.53#53
-
-Non-authoritative answer:
-agentmesh-dev-ai.calix.local	canonical name = agentmesh.dev.ocp-ai.calix.local.
-Name:	agentmesh.dev.ocp-ai.calix.local
-Address: 10.172.248.175
-
-hsuma@plnx-admin:~$
+oc create secret tls wildcard-dev-tls-secret \
+  -n openshift-ingress \
+  --cert=signed-cert-with-chain.crt \
+  --key=wildcard-dev-ocp-ai.key \
+  --dry-run=client -o yaml | oc replace -f -
