@@ -1,12 +1,18 @@
-Every 30.0s: grep "bdb_db2index.*ipaca.*Indexed" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -10                                                                                      pln-ipamaster.ipa.calix.local: Tue Mar 24 23:14:35 2026
-
-[24/Mar/2026:23:14:09.769467196 +0000] - INFO - bdb_db2index - ipaca: Indexed 37000 entries (3%).
-[24/Mar/2026:23:14:12.742882460 +0000] - INFO - bdb_db2index - ipaca: Indexed 38000 entries (3%).
-[24/Mar/2026:23:14:15.359788277 +0000] - INFO - bdb_db2index - ipaca: Indexed 39000 entries (3%).
-[24/Mar/2026:23:14:17.946872494 +0000] - INFO - bdb_db2index - ipaca: Indexed 40000 entries (3%).
-[24/Mar/2026:23:14:20.617434423 +0000] - INFO - bdb_db2index - ipaca: Indexed 41000 entries (3%).
-[24/Mar/2026:23:14:23.405348539 +0000] - INFO - bdb_db2index - ipaca: Indexed 42000 entries (4%).
-[24/Mar/2026:23:14:25.997564188 +0000] - INFO - bdb_db2index - ipaca: Indexed 43000 entries (4%).
-[24/Mar/2026:23:14:28.402995056 +0000] - INFO - bdb_db2index - ipaca: Indexed 44000 entries (4%).
-[24/Mar/2026:23:14:31.205805033 +0000] - INFO - bdb_db2index - ipaca: Indexed 45000 entries (4%).
-[24/Mar/2026:23:14:33.832207260 +0000] - INFO - bdb_db2index - ipaca: Indexed 46000 entries (4%).
+==> /var/log/pki/pki-ca-spawn.20260324230608.log <==
+2026-03-25 01:25:30 DEBUG: - group: pkiuser
+2026-03-25 01:25:30 INFO: Backing up keys into /var/lib/pki/pki-tomcat/conf/alias/ca_backup_keys.p12
+2026-03-25 01:25:30 DEBUG: Command: pki-server subsystem-cert-export ca -i pki-tomcat --pkcs12-file /var/lib/pki/pki-tomcat/conf/alias/ca_backup_keys.p12 --pkcs12-password-file /tmp/tmp1vxijx41/password.txt
+2026-03-25 01:25:33 DEBUG: Command: systemctl enable pki-tomcatd@pki-tomcat.service
+2026-03-25 01:25:33 INFO: Starting PKI server
+2026-03-25 01:25:33 DEBUG: Command: systemctl start pki-tomcatd@pki-tomcat.service
+2026-03-25 01:25:35 INFO: Waiting for PKI server to start
+2026-03-25 01:25:51 INFO: Waiting for PKI server to start (16s)
+2026-03-25 01:26:08 INFO: Waiting for PKI server to start (32s)
+2026-03-25 01:26:24 INFO: Waiting for PKI server to start (48s)
+2026-03-25 01:26:40 INFO: Waiting for PKI server to start (64s)
+2026-03-25 01:26:56 INFO: Waiting for PKI server to start (80s)
+2026-03-25 01:27:12 INFO: Waiting for PKI server to start (96s)
+2026-03-25 01:27:28 INFO: Waiting for PKI server to start (112s)
+2026-03-25 01:27:44 INFO: Waiting for PKI server to start (128s)
+2026-03-25 01:28:00 INFO: Waiting for PKI server to start (144s)
+2026-03-25 01:28:16 INFO: Waiting for PKI server to start (160s)
