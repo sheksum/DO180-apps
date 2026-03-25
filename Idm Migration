@@ -1,11 +1,29 @@
-oc edit httproute internal-agentmesh-auth-service -n pai-dev
-
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: agentmesh.dev.ocp-ai.calix.local
+    meta.helm.sh/release-name: internal-agentmesh-auth-service
+    meta.helm.sh/release-namespace: pai-dev
+  creationTimestamp: "2026-03-17T11:57:46Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: internal-agentmesh-auth-service
+  namespace: pai-dev
+  resourceVersion: "20328549"
+  uid: 3b7de3d5-5ba5-4e0e-9d7c-d5df3b8d4436
 spec:
   hostnames:
   - agentmesh.dev.ocp-ai.calix.local
   - agentmesh-dev-ai.calix.local
-
-parentRefs:
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: pai-gateway
+    namespace: openshift-ingress
+    sectionName: https-dev
+  parentRefs:
   - group: gateway.networking.k8s.io
     kind: Gateway
     name: pai-gateway
@@ -16,5 +34,16 @@ parentRefs:
     name: pai-gateway
     namespace: openshift-ingress
     sectionName: https-agentmesh-dev
-
-oc get httproute internal-agentmesh-agent-gateway-service -n pai-dev -o jsonpath='{.spec.hostnames}'
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: internal-agentmesh-auth-service
+      namespace: pai-dev
+      port: 8280
+      weight: 1
+    matches:
+    - path:
+        type: PathPrefix
+        value: /oauth
+status:
