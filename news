@@ -1,18 +1,1 @@
-==> /var/log/pki/pki-ca-spawn.20260324230608.log <==
-2026-03-25 01:25:30 DEBUG: - group: pkiuser
-2026-03-25 01:25:30 INFO: Backing up keys into /var/lib/pki/pki-tomcat/conf/alias/ca_backup_keys.p12
-2026-03-25 01:25:30 DEBUG: Command: pki-server subsystem-cert-export ca -i pki-tomcat --pkcs12-file /var/lib/pki/pki-tomcat/conf/alias/ca_backup_keys.p12 --pkcs12-password-file /tmp/tmp1vxijx41/password.txt
-2026-03-25 01:25:33 DEBUG: Command: systemctl enable pki-tomcatd@pki-tomcat.service
-2026-03-25 01:25:33 INFO: Starting PKI server
-2026-03-25 01:25:33 DEBUG: Command: systemctl start pki-tomcatd@pki-tomcat.service
-2026-03-25 01:25:35 INFO: Waiting for PKI server to start
-2026-03-25 01:25:51 INFO: Waiting for PKI server to start (16s)
-2026-03-25 01:26:08 INFO: Waiting for PKI server to start (32s)
-2026-03-25 01:26:24 INFO: Waiting for PKI server to start (48s)
-2026-03-25 01:26:40 INFO: Waiting for PKI server to start (64s)
-2026-03-25 01:26:56 INFO: Waiting for PKI server to start (80s)
-2026-03-25 01:27:12 INFO: Waiting for PKI server to start (96s)
-2026-03-25 01:27:28 INFO: Waiting for PKI server to start (112s)
-2026-03-25 01:27:44 INFO: Waiting for PKI server to start (128s)
-2026-03-25 01:28:00 INFO: Waiting for PKI server to start (144s)
-2026-03-25 01:28:16 INFO: Waiting for PKI server to start (160s)
+tail -3 /var/log/pki/pki-tomcat/ca/debug.2026-03-25.log
