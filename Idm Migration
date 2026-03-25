@@ -18,3 +18,13 @@ TimeoutStartSec=7200
 Environment="JAVA_OPTS=-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"
 EOF
 systemctl daemon-reload
+
+  [26/40]: setting up initial replication
+Starting replication, please wait until this has completed.
+  [error] SERVER_DOWN: {'result': -1, 'desc': "Can't contact LDAP server", 'ctrls': []}
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
+
+{'result': -1, 'desc': "Can't contact LDAP server", 'ctrls': []}
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster ~]#
