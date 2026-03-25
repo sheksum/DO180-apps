@@ -1,4 +1,29 @@
 
+Subject: RE: Petaluma Site Shutdown: Saturday, March 28 - IPA Critical Risk
+
+Hi all,
+
+I need to flag a critical risk with the March 28 Petaluma shutdown as it relates to our IPA (Identity Management) system.
+
+cpeg-ipareplica is currently our sole live IPA master and is the only IPA server that our Plano datacenter systems point to. Our replica IPA system has not been stable for some time and was removed from the topology agreement — which is precisely why this migration has been a priority.
+
+If cpeg goes down before the migration is complete, the impact will be significant:
+
+- Authentication failures on all IPA-joined systems — SSH logins, sudo, and all LDAP-dependent services will stop working across thousands of systems
+- CA completely offline — no certificate issuance or renewal
+
+The migration has been underway since Monday March 23rd. I have been working through technical issues as they arise and I am targeting completion before end of day Friday March 27. I am confident this can be done.
+
+However, I am requesting that if the migration is not confirmed complete by end of day Friday March 27, we extend the Petaluma maintenance window by one week to allow sufficient time to complete the migration safely. Bringing cpeg down before pln-ipamaster is fully operational would result in a widespread authentication outage across the environment.
+
+I will send a confirmation email once the Plano IPA master is fully operational and cpeg is safely decommissioned.
+
+Thanks,
+Haj
+
+
+
+
 FYI Team,
 This will impact Petaluma services.
 @Haj Suma will the Petaluma IPA system be relocated to Plano ahead of this time?
