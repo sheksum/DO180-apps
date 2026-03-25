@@ -1,3 +1,40 @@
+
+[root@pln-ipamaster ~]# tail -n 30 /var/log/ipareplica-install.log
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 425, in __runner
+    step()
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 419, in step_next
+    return next(self.__gen)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/util.py", line 81, in run_generator_with_yield_from
+    six.reraise(*exc_info)
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/util.py", line 59, in run_generator_with_yield_from
+    value = gen.send(prev_value)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/common.py", line 65, in _install
+    for unused in self._installer(self.parent):
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/server/__init__.py", line 687, in main
+    replica_install(self)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/server/replicainstall.py", line 387, in decorated
+    func(installer)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/server/replicainstall.py", line 1449, in install
+    krb.enable_ssl()
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/krbinstance.py", line 593, in enable_ssl
+    self._wait_for_replica_kdc_entry()
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/krbinstance.py", line 447, in _wait_for_replica_kdc_entry
+    replication.wait_for_entry(
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/replication.py", line 209, in wait_for_entry
+    raise errors.NotFound(
+
+2026-03-25T05:20:10Z DEBUG The ipa-replica-install command failed, exception: NotFound: wait_for_entry timeout on ldap://cpeg-ipareplica.ipa.calix.local:389 for cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-25T05:20:10Z ERROR wait_for_entry timeout on ldap://cpeg-ipareplica.ipa.calix.local:389 for cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-25T05:20:10Z ERROR The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+
+
+
 [root@cpeg-ipareplica ~]#
 [root@cpeg-ipareplica ~]#
 [root@cpeg-ipareplica ~]# ldapsearch -Y GSSAPI -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
