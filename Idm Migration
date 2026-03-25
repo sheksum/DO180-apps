@@ -21,3 +21,11 @@ modifying entry "cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.cali
 [root@cpeg-ipareplica tmp]#
 [root@cpeg-ipareplica tmp]#
 [root@cpeg-ipareplica tmp]#
+
+
+ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+changetype: modify
+replace: nsds5ReplicaEnabled
+nsds5ReplicaEnabled: off
+EOF
