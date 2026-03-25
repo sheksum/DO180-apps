@@ -1,28 +1,27 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+# Full replication status
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config" \
-  -s base "(objectclass=*)" nsds5replicaLastUpdateStatus 2>/dev/null
-# extended LDIF
-#
-# LDAPv3
-# base <cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config> with scope baseObject
-# filter: (objectclass=*)
-# requesting: nsds5replicaLastUpdateStatus
-#
+  -s base "(objectclass=*)" 2>/dev/null > /tmp/pln-repl-agreement.txt
 
-# meTocpeg-ipareplica.ipa.calix.local, replica, dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlo
- cal, mapping tree, config
-dn: cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix
- \2Cdc\3Dlocal,cn=mapping tree,cn=config
-nsds5replicaLastUpdateStatus: Error (18) Can't acquire replica (Incremental up
- date transient warning.  Backing off, will retry update later.)
+# Last 500 lines of install log
+tail -500 /var/log/ipareplica-install.log > /tmp/pln-install-log.txt
 
-# search result
-search: 2
-result: 0 Success
+# DS errors log
+tail -1000 /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors > /tmp/pln-ds-errors.txt
 
-# numResponses: 2
-# numEntries: 1
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
+# sysrestore state
+cp /var/lib/ipa/sysrestore/sysrestore.state /tmp/pln-sysrestore.txt
+
+# IPA version
+ipa --version > /tmp/pln-ipa-version.txt
+
+
+# Full replication agreements
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=config" "(objectclass=nsds5replicationagreement)" 2>/dev/null > /tmp/cpeg-repl-agreements.txt
+
+# DS errors log
+tail -1000 /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors > /tmp/cpeg-ds-errors.txt
+
+# IPA version
+ipa --version > /tmp/cpeg-ipa-version.txt
