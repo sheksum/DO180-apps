@@ -1,2 +1,26 @@
-# On pln-ipamaster
-tail -20 /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | grep -v "clcache\|CSN\|changelog"
+
+FYI Team,
+This will impact Petaluma services.
+@Haj Suma will the Petaluma IPA system be relocated to Plano ahead of this time?
+@Mahesh Gautam or @Kaushik Bhattacharjee Are there any bamboo agents that you need to shut down and/or validate afterward?    
+@Javier Perez Suggesting you shut down your linux PC ahead of time on this.
+ 
+Thank
+
+
+Petaluma Site Shutdown: Saturday, March 28 (5:00 AM–12:00 PM PT)
+ 
+Due to power maintenance at the Petaluma site, IT will shut down systems on Saturday, March 28 from 5:00 AM–12:00 PM PT. During this time, VMs and lab systems will be unavailable for all Calix employees and contractors.
+ 
+What to Know
+
+·         Outage window: 5:00 AM–12:00 PM PT (3/28)
+·         Impact: Petaluma VMs and lab environments offline
+·         No action needed after—systems will be brought back online once power is restored.
+Where do I Request Additional Assistance?
+If you have any questions, please contact the Service Desk.
+
+Web: Service Desk Portal
+Email: servicedesk@calix.com
+Phone: (707) 766-3411
+ 
