@@ -1,5 +1,16 @@
+oc get secret wildcard-dev-tls-secret -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout | grep -E "Issuer|Subject|Not After|DNS"
+
+curl -v https://minio.dev.ocp-ai.calix.local 2>&1 | grep -E "issuer|subject|expire"
 oc create secret tls wildcard-dev-tls-secret \
   -n openshift-ingress \
   --cert=signed-cert-with-chain.crt \
   --key=wildcard-dev-ocp-ai.key \
   --dry-run=client -o yaml | oc replace -f -
+
+oc delete secret wildcard-dev-tls-secret -n openshift-ingress
+oc create secret tls wildcard-dev-tls-secret \
+  -n openshift-ingress \
+  --cert=signed-cert-with-chain.crt \
+  --key=ocp-ai-wildcard.key
+
+oc get certificates -n openshift-ingress
