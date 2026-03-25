@@ -1,6 +1,18 @@
-ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -Y EXTERNAL \
   -b "cn=config" \
   "(objectclass=nsds5replicationagreement)" \
   nsds5replicaHost nsds5replicaLastUpdateStatus 2>/dev/null | \
   grep -E "dn:|nsds5replica"
+# filter: (objectclass=nsds5replicationagreement)
+# requesting: nsds5replicaHost nsds5replicaLastUpdateStatus
+dn: cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix
+nsds5replicaHost: cpeg-ipareplica.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (18) Can't acquire replica (Incremental up
+dn: cn=caTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping
+nsds5replicaHost: cpeg-ipareplica.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
+[root@pln-ipamaster ~]#
