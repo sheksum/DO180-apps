@@ -1,16 +1,27 @@
-# On cpeg
-ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL \
-  -b "cn=config" \
-  "(objectclass=nsds5replicationagreement)" \
-  nsds5replicaHost nsds5replicaLastUpdateStatus 2>/dev/null | \
-  grep -E "dn:|nsds5replica"
-
-
-# On cpeg
-ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL \
-  -b "cn=config" \
-  "(objectclass=nsds5replicationagreement)" \
-  nsds5replicaHost nsds5replicaLastUpdateStatus 2>/dev/null | \
-  grep -E "dn:|nsds5replica"
+[root@cpeg-ipareplica ~]# ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -Y EXTERNAL \
+>   -b "cn=config" \
+>   "(objectclass=nsds5replicationagreement)" \
+>   nsds5replicaHost nsds5replicaLastUpdateStatus 2>/dev/null | \
+>   grep -E "dn:|nsds5replica"
+# filter: (objectclass=nsds5replicationagreement)
+# requesting: nsds5replicaHost nsds5replicaLastUpdateStatus
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=
+nsds5replicaHost: nan-ipareplica01.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=
+nsds5replicaHost: ric-ipareplica01.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=
+nsds5replicaHost: sjc-ipareplica01.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (6) Replication error acquiring replica: U
+dn: cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2
+nsds5replicaHost: pln-ipamaster.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
+dn: cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tr
+nsds5replicaHost: pln-ipamaster.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
