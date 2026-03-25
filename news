@@ -1,5 +1,96 @@
-# On pln-ipamaster
-ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -Y EXTERNAL \
   -b "cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
   -s sub "(objectclass=*)" 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+
+# pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,
+ dc=local
+objectClass: top
+objectClass: nsContainer
+objectClass: ipaReplTopoManagedServer
+objectClass: ipaConfigObject
+objectClass: ipaSupportedDomainLevelConfig
+cn: pln-ipamaster.ipa.calix.local
+ipaReplTopoManagedSuffix: dc=ipa,dc=calix,dc=local
+ipaReplTopoManagedSuffix: o=ipaca
+ipaMinDomainLevel: 1
+ipaMaxDomainLevel: 1
+
+# KDC, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc
+ =calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: KDC
+ipaConfigString: configuredService
+ipaConfigString: startOrder 10
+ipaConfigString: pacTktSignSupported
+ipaConfigString: kdcProxyEnabled
+
+# KPASSWD, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KPASSWD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: KPASSWD
+ipaConfigString: configuredService
+ipaConfigString: startOrder 20
+
+# HTTP, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=HTTP,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
+ c=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: HTTP
+ipaConfigString: configuredService
+ipaConfigString: startOrder 40
+
+# OTPD, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=OTPD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
+ c=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: OTPD
+ipaConfigString: configuredService
+ipaConfigString: startOrder 80
+
+# KEYS, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KEYS,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
+ c=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: KEYS
+ipaConfigString: configuredService
+ipaConfigString: startOrder 41
+
+# CA, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=CA,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=
+ calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: CA
+ipaConfigString: configuredService
+ipaConfigString: startOrder 50
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 8
+# numEntries: 7
+[root@pln-ipamaster ~]#
