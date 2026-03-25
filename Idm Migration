@@ -1,11 +1,3 @@
-hsuma@plnx-admin:~$ oc get secret agent-dev-tls-secret -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout | grep -E "Issuer|Subject|Not After|DNS"
-        Issuer: DC = local, DC = calix, CN = CalixEntCA
-            Not After : Jun 18 16:03:21 2027 GMT
-        Subject: C = US, ST = Texas, L = Plano, O = Calix, OU = EngOps, CN = agentmesh-dev-ai.calix.local
-        Subject Public Key Info:
-            X509v3 Subject Alternative Name:
-                DNS:agentmesh-dev-ai.calix.local
-            X509v3 Subject Key Identifier:
-                CA Issuers - URI:http://Corp_pki.calix.local/CertEnroll/sjcw-ca02.calix.local_CalixEntCA(1).crt
-                CA Issuers - URI:ldap:///CN=CalixEntCA,CN=AIA,CN=Public%20Key%20Services,CN=Services,CN=Configuration,DC=calix,DC=local?cACertificate?base?objectClass=certificationAuthority
-hsuma@plnx-admin:~$
+oc get secret agent-dev-tls-secret -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl crl2pkcs7 -nocrl -certfile /dev/stdin | openssl pkcs7 -print_certs -noout | grep "subject\|issuer"
+
+oc get secret agent-dev-tls-secret -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | grep -c "BEGIN CERTIFICATE"
