@@ -10,3 +10,45 @@ cat /etc/ipa/installer.conf
 grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
 cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
 cat /usr/share/ipa/replica-prevent-time-skew.ldif
+
+
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa-server-install --uninstall --ignore-topology-disconnect
+WARNING:
+IPA server is not configured on this system. If you want to install the
+IPA server, please install it using 'ipa-server-install'.
+
+This is a NON REVERSIBLE operation and will delete all data and configuration!
+It is highly recommended to take a backup of existing data and configuration using ipa-backup utility before proceeding.
+
+Are you sure you want to continue with the uninstall procedure? [no]: yes
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
+Updating DNS system records
+Forcing removal of pln-ipamaster.ipa.calix.local
+Ignoring topology connectivity errors.
+Failed to remove server from security domain: Request failed with status 403: Non-2xx response from CA REST API: 403. Authorization Error
+Failed to cleanup pln-ipamaster.ipa.calix.local DNS entries: no matching entry found
+You may need to manually remove them from the tree
+--------------------------------------------------
+Deleted IPA server "pln-ipamaster.ipa.calix.local"
+--------------------------------------------------
+Unconfiguring ACME
+Unconfiguring CA
+Shutting down all IPA services
+Unconfiguring web server
+Unconfiguring krb5kdc
+Unconfiguring kadmin
+Unconfiguring directory server
+Unconfiguring ipa-custodia
+Unconfiguring ipa-otpd
+Removing IPA client configuration
+Disabling client Kerberos and LDAP configurations
+Redundant SSSD configuration file /etc/sssd/sssd.conf was moved to /etc/sssd/sssd.conf.deleted
+Restoring client configuration files
+Restoring ipa.calix.local as NIS domain.
+nscd daemon is not installed, skip configuration
+nslcd daemon is not installed, skip configuration
+Systemwide CA database updated.
+Client uninstall complete.
+The ipa-client-install command was successful
+The ipa-server-install command was successful
