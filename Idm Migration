@@ -11,50 +11,48 @@ grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
 cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
 cat /usr/share/ipa/replica-prevent-time-skew.ldif
 
-
-[root@cpeg-ipareplica sos.imb0ecrg]# ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
-Removing pln-ipamaster.ipa.calix.local from replication topology, please wait...
---------------------------------------------------
-Deleted IPA server "pln-ipamaster.ipa.calix.local"
---------------------------------------------------
 [root@cpeg-ipareplica sos.imb0ecrg]#
 [root@cpeg-ipareplica sos.imb0ecrg]#
-[root@cpeg-ipareplica sos.imb0ecrg]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket   -b "cn=config" "(nsds5replicaHost=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
-# extended LDIF
-#
-# LDAPv3
-# base <cn=config> with scope subtree
-# filter: (nsds5replicaHost=pln-ipamaster.ipa.calix.local)
-# requesting: dn
-#
-
-# meTopln-ipamaster.ipa.calix.local, replica, dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dloca
- l, mapping tree, config
-dn: cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2
- Cdc\3Dlocal,cn=mapping tree,cn=config
-
-# caTopln-ipamaster.ipa.calix.local, replica, o\3Dipaca, mapping tree, config
-dn: cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tr
- ee,cn=config
-
-# search result
-search: 2
-result: 0 Success
-
-# numResponses: 3
-# numEntries: 2
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa host-add pln-ipamaster.ipa.calix.local --force
+------------------------------------------
+Added host "pln-ipamaster.ipa.calix.local"
+------------------------------------------
+  Host name: pln-ipamaster.ipa.calix.local
+  Principal name: host/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Principal alias: host/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Password: False
+  Keytab: False
+  Managed by: pln-ipamaster.ipa.calix.local
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+  Record name: pln-ipamaster
+  A record: 10.172.248.55
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+------------------------------------------------------------------
+Added service "HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL"
+------------------------------------------------------------------
+  Principal name: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Principal alias: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Managed by: pln-ipamaster.ipa.calix.local
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa service-add ldap/pln-ipamaster.ipa.calix.local
+------------------------------------------------------------------
+Added service "ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL"
+------------------------------------------------------------------
+  Principal name: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Principal alias: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+  Managed by: pln-ipamaster.ipa.calix.local
 [root@cpeg-ipareplica sos.imb0ecrg]#
 
-[root@cpeg-ipareplica sos.imb0ecrg]# ipa-replica-manage list-ruv
-Directory Manager password:
-
-Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 20
-	ric-ipareplica.ipa.calix.local:389: 12
-	ric-ipareplica01.ipa.calix.local:389: 11
-	nan-ipareplica01.ipa.calix.local:389: 10
-Certificate Server Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 21
-[root@cpeg-ipareplica sos.imb0ecrg]# ipa topologysegment-find dc=ipa,dc=calix,dc=local 2>/dev/null | grep pln
-[root@cpeg-ipareplica sos.imb0ecrg]# ipa topologysegment-find o=ipaca 2>/dev/null | grep pln
-[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@pln-ipamaster ~]# cat /etc/ipa/installer.conf
+[global]
+startup_timeout=7200
+replication_wait_timeout=3600
+[root@pln-ipamaster ~]# grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
+    ('startup_timeout', 7200),
+[root@pln-ipamaster ~]# cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
+cat: /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf: No such file or directory
+[root@pln-ipamaster ~]# cat /usr/share/ipa/replica-prevent-time-skew.ldif
+dn: cn=config
+changetype: modify
+replace: nsslapd-ignore-time-skew
+nsslapd-ignore-time-skew: on
+[root@pln-ipamaster ~]#
