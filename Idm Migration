@@ -45,6 +45,16 @@ result: 0 Success
 # numEntries: 2
 [root@cpeg-ipareplica sos.imb0ecrg]#
 
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa-replica-manage list-ruv
+Directory Manager password:
 
-ipa topologysegment-find dc=ipa,dc=calix,dc=local 2>/dev/null | grep pln
-ipa topologysegment-find o=ipaca 2>/dev/null | grep pln
+Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 20
+	ric-ipareplica.ipa.calix.local:389: 12
+	ric-ipareplica01.ipa.calix.local:389: 11
+	nan-ipareplica01.ipa.calix.local:389: 10
+Certificate Server Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 21
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa topologysegment-find dc=ipa,dc=calix,dc=local 2>/dev/null | grep pln
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa topologysegment-find o=ipaca 2>/dev/null | grep pln
+[root@cpeg-ipareplica sos.imb0ecrg]#
