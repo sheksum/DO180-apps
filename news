@@ -1,5 +1,25 @@
 
 
+The issue you're facing is related to a failed IPA replica installation from RHEL 8 to RHEL 9, specifically with the 'ipa-replica-install' command timing out while waiting for the 'cn=KDC' entry to replicate from the target server (pln-ipamaster.ipa.calix.local) to the source server (cpeg-ipareplica.ipa.calix.local).
+Here's a summary of the problem and a suggested solution:
+Problem Summary:
+You're trying to migrate from RHEL 8 (IPA 4.9.13) to RHEL 9 (IPA 4.12.2).
+The 'ipa-replica-install' process successfully sets up the CA but fails at the final step due to a timeout waiting for the 'cn=KDC' entry to replicate.
+The root cause is an Error (18) Can't acquire replica (Incremental update) due to a pre-existing CSN purge issue on the changelog, which prevents the 'cn=KDC' entry from replicating from pln to cpeg.
+Suggested Solution:
+Manually Inject Missing Entries:
+You can manually inject the missing 'cn=masters' entries into cpeg. This involves directly editing the LDAP database. Be extremely careful while doing this as incorrect changes can lead to severe issues.
+Use a tool like ldapvi or ldapsearch to locate and modify the necessary entries.
+Fix Incremental Replication Error:
+Resolve the Error (18) by fixing the pre-existing CSN purge issue on the changelog. This might involve cleaning up or re-initializing the changelog on the target server (pln-ipamaster.ipa.calix.local).
+You may need to follow Red Hat's official documentation or seek assistance from Red Hat Support for detailed steps on how to resolve this issue.
+Alternative: Mark Replica Installation as Complete:
+If manual injection or fixing the replication error seems too risky or complex, you might consider marking the replica installation as complete despite the failure. This is not recommended as it leaves your setup in an inconsistent state, but it could be a temporary workaround if time is critical.
+To do this, you would need to manually update the status in the IPA database, which again requires careful handling to avoid further issues.
+Remember, these are advanced procedures and should be performed with caution. If possible, consider reaching out to Red Hat Support for direct assistance, especially given the critical deadline you're facing. They can provide guidance tailored to your specific environment and situation.
+1 source
+Environment: ipa1.example.com (RHEL6.5 Master) ipa2.example.com (RHEL7) client.example.com (RHEL6.5) 1) Prepare replica on RHEL6.5 master 2) Attempt to run replica install on RHEL7 without necessary schema. Notice the error. ~~~ [root@ipa2 ~]# ipa-re
+
 https://access.redhat.com/support/cases/#/case/new
 Summary: ipa-replica-install fails with wait_for_entry timeout on cn=KDC — cannot complete RHEL 8 to RHEL 9 IPA migration before critical deadline
 Environment:
