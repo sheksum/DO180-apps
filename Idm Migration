@@ -12,6 +12,33 @@ cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
 cat /usr/share/ipa/replica-prevent-time-skew.ldif
 
 
-kinit admin
-ipa topologysegment-del dc=ipa,dc=calix,dc=local cpeg-ipareplica.ipa.calix.local-to-pln-ipamaster.ipa.calix.local 2>/dev/null
-ipa topologysegment-del o=ipaca cpeg-ipareplica.ipa.calix.local-to-pln-ipamaster.ipa.calix.local 2>/dev/null
+[root@cpeg-ipareplica sos.imb0ecrg]# kinit admin
+Password for admin@IPA.CALIX.LOCAL:
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa topologysegment-del dc=ipa,dc=calix,dc=local cpeg-ipareplica.ipa.calix.local-to-pln-ipamaster.ipa.calix.local 2>/dev/null
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa topologysegment-del o=ipaca cpeg-ipareplica.ipa.calix.local-to-pln-ipamaster.ipa.calix.local 2>/dev/null
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket   -b "cn=config" "(nsds5replicaHost=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=config> with scope subtree
+# filter: (nsds5replicaHost=pln-ipamaster.ipa.calix.local)
+# requesting: dn
+#
+
+# meTopln-ipamaster.ipa.calix.local, replica, dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dloca
+ l, mapping tree, config
+dn: cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2
+ Cdc\3Dlocal,cn=mapping tree,cn=config
+
+# caTopln-ipamaster.ipa.calix.local, replica, o\3Dipaca, mapping tree, config
+dn: cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tr
+ ee,cn=config
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 3
+# numEntries: 2
+[root@cpeg-ipareplica sos.imb0ecrg]#
