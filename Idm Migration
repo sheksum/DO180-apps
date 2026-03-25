@@ -1,5 +1,18 @@
+cat > /usr/share/ipa/replica-prevent-time-skew.ldif << 'EOF'
+dn: cn=config
+changetype: modify
+replace: nsslapd-ignore-time-skew
+nsslapd-ignore-time-skew: on
+EOF
+
+
+ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
+dn: cn=config
+changetype: modify
+replace: nsslapd-ignore-time-skew
+nsslapd-ignore-time-skew: on
+EOF
+
+
 ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=config" -s base "(objectclass=*)" nsslapd-ignore-time-skew 2>/dev/null | grep skew
-
-
-cat /usr/share/ipa/replica-prevent-time-skew.ldif
