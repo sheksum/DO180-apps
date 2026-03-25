@@ -1,3 +1,28 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config" \
   -s base "(objectclass=*)" nsds5replicaLastUpdateStatus 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config> with scope baseObject
+# filter: (objectclass=*)
+# requesting: nsds5replicaLastUpdateStatus
+#
+
+# meTocpeg-ipareplica.ipa.calix.local, replica, dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlo
+ cal, mapping tree, config
+dn: cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix
+ \2Cdc\3Dlocal,cn=mapping tree,cn=config
+nsds5replicaLastUpdateStatus: Error (18) Can't acquire replica (Incremental up
+ date transient warning.  Backing off, will retry update later.)
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
