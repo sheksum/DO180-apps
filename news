@@ -1,15 +1,1 @@
-2026-03-25 01:31:12 INFO: Waiting for PKI server to start (337s)
-2026-03-25 01:31:28 INFO: Waiting for PKI server to start (353s)
-2026-03-25 01:31:33 INFO: PKI server started
-2026-03-25 01:31:33 INFO: Waiting for CA subsystem
-2026-03-25 01:31:34 INFO: Subsystem status: running
-2026-03-25 01:31:34 DEBUG: Command: rm -rf /root/.dogtag/pki-tomcat/ca
-2026-03-25 01:31:34 INFO: END spawning CA subsystem in pki-tomcat instance
-2026-03-25 01:31:34 INFO: Creating /etc/sysconfig/pki/tomcat/pki-tomcat/ca/deployment.cfg
-2026-03-25 01:31:34 INFO: Creating /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_deployment.cfg.20260324230609
-2026-03-25 01:31:34 INFO: Copying /etc/sysconfig/pki/tomcat/pki-tomcat/ca/deployment.cfg to /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_deployment.cfg.20260324230609
-2026-03-25 01:31:34 DEBUG: Command: cp /etc/sysconfig/pki/tomcat/pki-tomcat/ca/deployment.cfg /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_deployment.cfg.20260324230609
-2026-03-25 01:31:34 INFO: Creating /etc/sysconfig/pki/tomcat/pki-tomcat/ca/manifest
-2026-03-25 01:31:34 INFO: Creating /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_manifest.20260324230609
-2026-03-25 01:31:34 INFO: Copying /etc/sysconfig/pki/tomcat/pki-tomcat/ca/manifest to /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_manifest.20260324230609
-2026-03-25 01:31:34 DEBUG: Command: cp /etc/sysconfig/pki/tomcat/pki-tomcat/ca/manifest /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_manifest.20260324230609
+watch -n 30 'grep "bdb_db2index.*ipaca.*Indexed" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -1'
