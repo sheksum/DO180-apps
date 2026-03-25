@@ -1,145 +1,182 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -Y EXTERNAL \
->   -b "cn=config" \
->   "(objectclass=nsds5replicationagreement)" \
->   nsds5replicaHost nsds5replicaLastUpdateStatus 2>/dev/null | \
->   grep -E "dn:|nsds5replica"
-# filter: (objectclass=nsds5replicationagreement)
-# requesting: nsds5replicaHost nsds5replicaLastUpdateStatus
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=
-nsds5replicaHost: nan-ipareplica01.ipa.calix.local
-nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=
-nsds5replicaHost: ric-ipareplica01.ipa.calix.local
-nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=
-nsds5replicaHost: sjc-ipareplica01.ipa.calix.local
-nsds5replicaLastUpdateStatus: Error (6) Replication error acquiring replica: U
-dn: cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2
-nsds5replicaHost: pln-ipamaster.ipa.calix.local
-nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
-dn: cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tr
-nsds5replicaHost: pln-ipamaster.ipa.calix.local
-nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+hsuma@slcx-p7960:~$
+hsuma@slcx-p7960:~$ id kkothava
+id: ‘kkothava’: no such user
+hsuma@slcx-p7960:~$
+hsuma@slcx-p7960:~$
+hsuma@slcx-p7960:~$ sudo systemctl status sssd
+● sssd.service - System Security Services Daemon
+     Loaded: loaded (/lib/systemd/system/sssd.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2026-03-25 02:50:17 MDT; 2h 45min ago
+   Main PID: 2421579 (sssd)
+      Tasks: 7 (limit: 617580)
+     Memory: 64.9M
+        CPU: 3.221s
+     CGroup: /system.slice/sssd.service
+             ├─2421579 /usr/sbin/sssd -i --logger=files
+             ├─2421582 /usr/libexec/sssd/sssd_be --domain ipa.calix.local --uid 0 --gid 0 --logger=files
+             ├─2421583 /usr/libexec/sssd/sssd_nss --uid 0 --gid 0 --logger=files
+             ├─2421584 /usr/libexec/sssd/sssd_pam --uid 0 --gid 0 --logger=files
+             ├─2421585 /usr/libexec/sssd/sssd_ssh --uid 0 --gid 0 --logger=files
+             ├─2421586 /usr/libexec/sssd/sssd_sudo --uid 0 --gid 0 --logger=files
+             └─2421587 /usr/libexec/sssd/sssd_pac --uid 0 --gid 0 --logger=files
 
-==========
+Mar 25 05:05:27 slcx-p7960.calix.local sssd_be[2421582]: GSSAPI client step 1
+Mar 25 05:05:27 slcx-p7960.calix.local sssd_be[2421582]: GSSAPI client step 2
+Mar 25 05:20:27 slcx-p7960.calix.local sssd_be[2421582]: GSSAPI client step 1
+Mar 25 05:20:27 slcx-p7960.calix.local sssd_be[2421582]: GSSAPI client step 1
+Mar 25 05:20:27 slcx-p7960.calix.local sssd_be[2421582]: GSSAPI client step 1
+Mar 25 05:20:27 slcx-p7960.calix.local sssd_be[2421582]: GSSAPI client step 2
+Mar 25 05:35:27 slcx-p7960.calix.local sssd_be[2421582]: GSSAPI client step 1
+Mar 25 05:35:27 slcx-p7960.calix.local sssd_be[2421582]: GSSAPI client step 1
+Mar 25 05:35:27 slcx-p7960.calix.local sssd_be[2421582]: GSSAPI client step 1
+Mar 25 05:35:27 slcx-p7960.calix.local sssd_be[2421582]: GSSAPI client step 2
+hsuma@slcx-p7960:~$
+hsuma@slcx-p7960:~$
+hsuma@slcx-p7960:~$ sudo rm -rf /var/lib/sss/
+db/          deskprofile/ gpo_cache/   keytabs/     mc/          pipes/       pubconf/     secrets/
+hsuma@slcx-p7960:~$ #sudo rm -rf /var/lib/sss/db/*
 
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL \
-  -b "cn=config" \
-  "(objectclass=nsds5replicationagreement)" \
-  nsds5replicaHost nsds5replicaLastUpdateStatus 2>/dev/null | \
-  grep -E "dn:|nsds5replica"
-# filter: (objectclass=nsds5replicationagreement)
-# requesting: nsds5replicaHost nsds5replicaLastUpdateStatus
-dn: cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix
-nsds5replicaHost: cpeg-ipareplica.ipa.calix.local
-nsds5replicaLastUpdateStatus: Error (18) Can't acquire replica (Incremental up
-dn: cn=caTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping
-nsds5replicaHost: cpeg-ipareplica.ipa.calix.local
-nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Increme
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ldapsearch -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -Y EXTERNAL \
-  -b "cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
-  -s sub "(objectclass=*)" 2>/dev/null
-# extended LDIF
-#
-# LDAPv3
-# base <cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
-# filter: (objectclass=*)
-# requesting: ALL
-#
 
-# pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
-dn: cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,
- dc=local
-objectClass: top
-objectClass: nsContainer
-objectClass: ipaReplTopoManagedServer
-objectClass: ipaConfigObject
-objectClass: ipaSupportedDomainLevelConfig
-cn: pln-ipamaster.ipa.calix.local
-ipaReplTopoManagedSuffix: dc=ipa,dc=calix,dc=local
-ipaReplTopoManagedSuffix: o=ipaca
-ipaMinDomainLevel: 1
-ipaMaxDomainLevel: 1
+deploy@slcx-p7960:~$ sudo su -
+(base) root@slcx-p7960:~# exit
+logout
+deploy@slcx-p7960:~$ sudo rm -rf /var/lib/sss/db/*
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$ sudo sss
+sss_cache                sssctl                   sssd                     sss_debuglevel           sss_obfuscate            sss_override             sss_seed                 sss_ssh_authorizedkeys   sss_ssh_knownhostsproxy
+deploy@slcx-p7960:~$ sudo sss
+sss_cache                sssctl                   sssd                     sss_debuglevel           sss_obfuscate            sss_override             sss_seed                 sss_ssh_authorizedkeys   sss_ssh_knownhostsproxy
+deploy@slcx-p7960:~$ sudo sss_cache -E
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$ sudo cat /etc/sssd/sssd.conf
+[domain/ipa.calix.local]
 
-# KDC, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
-dn: cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc
- =calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: KDC
-ipaConfigString: configuredService
-ipaConfigString: startOrder 10
-ipaConfigString: pacTktSignSupported
-ipaConfigString: kdcProxyEnabled
+id_provider = ipa
+dns_discovery_domain = ipa.calix.local
+ipa_server = _srv_, cpeg-ipareplica.ipa.calix.local, pln-petipareplica.ipa.calix.local
+ipa_domain = ipa.calix.local
+ipa_hostname = slcx-p7960.calix.local
+auth_provider = ipa
+chpass_provider = ipa
+access_provider = ipa
+cache_credentials = True
+ldap_tls_cacert = /etc/ipa/ca.crt
+krb5_store_password_if_offline = True
+[sssd]
+services = nss, pam, ssh, sudo
 
-# KPASSWD, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
-dn: cn=KPASSWD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
- a,dc=calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: KPASSWD
-ipaConfigString: configuredService
-ipaConfigString: startOrder 20
+domains = ipa.calix.local
+[nss]
+homedir_substring = /home
 
-# HTTP, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
-dn: cn=HTTP,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
- c=calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: HTTP
-ipaConfigString: configuredService
-ipaConfigString: startOrder 40
+[pam]
 
-# OTPD, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
-dn: cn=OTPD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
- c=calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: OTPD
-ipaConfigString: configuredService
-ipaConfigString: startOrder 80
+[sudo]
 
-# KEYS, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
-dn: cn=KEYS,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
- c=calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: KEYS
-ipaConfigString: configuredService
-ipaConfigString: startOrder 41
+[autofs]
 
-# CA, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
-dn: cn=CA,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=
- calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: CA
-ipaConfigString: configuredService
-ipaConfigString: startOrder 50
+[ssh]
 
-# search result
-search: 2
-result: 0 Success
+[pac]
 
-# numResponses: 8
-# numEntries: 7
-[root@pln-ipamaster ~]#
+[ifp]
+
+[session_recording]
+
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$ sudo systemctl restart sssd
+deploy@slcx-p7960:~$ id kkothava
+id: ‘kkothava’: no such user
+deploy@slcx-p7960:~$ id hsuma
+uid=13232(hsuma) gid=2200(sw) groups=2200(sw),998(docker),87748(satellite-admins),1666(sysadmins),14(sysadmin),12187(admins),87717(engops)
+deploy@slcx-p7960:~$    deploy@slcx-p7960:~$ sudo ipa-client-install --uninstall
+Unenrolling client from IPA server
+Unenrolling host failed:
+Removing Kerberos service principals from /etc/krb5.keytab
+Disabling client Kerberos and LDAP configurations
+Redundant SSSD configuration file /etc/sssd/sssd.conf was moved to /etc/sssd/sssd.conf.deleted
+Restoring client configuration files
+Unconfiguring the NIS domain.
+nscd daemon is not installed, skip configuration
+nslcd daemon is not installed, skip configuration
+Systemwide CA database updated.
+Client uninstall complete.
+The original nsswitch.conf configuration has been restored.
+You may need to restart services or reboot the machine.
+Do you want to reboot the machine? [no]:
+The ipa-client-install command was successful
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$
+deploy@slcx-p7960:~$ id hsuma
+id: ‘hsuma’: no such user   deploy@slcx-p7960:~$ sudo /usr/sbin/ipa-client-install --realm="IPA.CALIX.LOCAL" --domain="ipa.calix.local" --principal="ipa-enroll" --password='W0FL2Qhnd9myq7xWbXMWSP7woEbkmfNLMyRN+DsSM=' --hostname="slcx-p7960.calix.local" --server="cpeg-ipareplica.ipa.calix.local" --no-ntp --unattended --force-join
+This program will set up IPA client.
+Version 4.9.8
+
+Skip cpeg-ipareplica.ipa.calix.local: LDAP server is not responding, unable to verify if this is an IPA server
+Failed to verify that cpeg-ipareplica.ipa.calix.local is an IPA Server.
+This may mean that the remote server is not up or is not reachable due to network or firewall settings.
+Please make sure the following ports are opened in the firewall settings:
+     TCP: 80, 88, 389
+     UDP: 88 (at least one of TCP/UDP ports 88 has to be open)
+Also note that following ports are necessary for ipa-client working properly after enrollment:
+     TCP: 464   deploy@slcx-p7960:~$ nc -zv cpeg-ipareplica.ipa.calix.local 464
+nc: connect to cpeg-ipareplica.ipa.calix.local (172.23.49.10) port 464 (tcp) failed: No route to host
+deploy@slcx-p7960:~$ nc -zv cpeg-ipareplica.ipa.calix.local 443
+nc: connect to cpeg-ipareplica.ipa.calix.local (172.23.49.10) port 443 (tcp) failed: No route to host
+deploy@slcx-p7960:~$ nc -zv cpeg-ipareplica.ipa.calix.local 80
+nc: connect to cpeg-ipareplica.ipa.calix.local (172.23.49.10) port 80 (tcp) failed: No route to host
+deploy@slcx-p7960:~$   [root@pln-ipamaster ~]# nc -zv cpeg-ipareplica.ipa.calix.local 80
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Connected to 172.23.49.10:80.
+Ncat: 0 bytes sent, 0 bytes received in 0.06 seconds.
+[root@pln-ipamaster ~]# nc -zv cpeg-ipareplica.ipa.calix.local 389
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Connected to 172.23.49.10:389.
+Ncat: 0 bytes sent, 0 bytes received in 0.06 seconds.  deploy@slcx-p7960:~$ ip route get 172.23.49.10
+172.23.49.10 dev br-154bafe7b012 src 172.23.0.1 uid 1002
+    cache  
+[root@pln-ipamaster ~]# ip route get 172.23.49.10
+172.23.49.10 via 10.172.248.1 dev ens33 src 10.172.248.55 uid 0
+    cache expires 379sec mtu 1446
+[root@pln-ipamaster ~]#   deploy@slcx-p7960:~$ ip route | grep default
+default via 10.172.249.1 dev enp0s31f6 proto static metric 100   sudo ip route add 172.23.49.0/24 via 10.172.249.1 dev enp0s31f6   deploy@slcx-p7960:~$ sudo /usr/sbin/ipa-client-install --realm="IPA.CALIX.LOCAL" --domain="ipa.calix.local" --principal="ipa-enroll" --password='W0FL2Qhnd9myq7xWbXMWSP7woEbkmfNLMyRN+DsSM=' --hostname="slcx-p7960.calix.local" --server="cpeg-ipareplica.ipa.calix.local" --no-ntp --unattended --force-join
+This program will set up IPA client.
+Version 4.9.8
+
+Client hostname: slcx-p7960.calix.local
+Realm: IPA.CALIX.LOCAL
+DNS Domain: ipa.calix.local
+IPA Server: cpeg-ipareplica.ipa.calix.local
+BaseDN: dc=ipa,dc=calix,dc=local
+
+Skipping chrony configuration
+Successfully retrieved CA cert
+    Subject:     CN=Certificate Authority,O=IPA.CALIX.LOCAL
+    Issuer:      CN=Certificate Authority,O=IPA.CALIX.LOCAL
+    Valid From:  2018-06-30 07:39:50
+    Valid Until: 2038-06-30 07:39:50
+
+Enrolled in IPA realm IPA.CALIX.LOCAL
+Created /etc/ipa/default.conf
+Configured /etc/sssd/sssd.conf
+Configured /etc/krb5.conf for IPA realm IPA.CALIX.LOCAL
+Systemwide CA database updated.
+Adding SSH public key from /etc/ssh/ssh_host_ed25519_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
+SSSD enabled
+Configured /etc/openldap/ldap.conf
+Configured /etc/ssh/ssh_config
+Configured /etc/ssh/sshd_config.d/04-ipa.conf
+Configuring ipa.calix.local as NIS domain.
+Client configuration complete.
+The ipa-client-install command was successful
+deploy@slcx-p7960:~$ id kkothava
+uid=87808(kkothava) gid=2200(sw) groups=2200(sw),87736(product-ai)  
