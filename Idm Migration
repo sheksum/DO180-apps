@@ -1,1 +1,22 @@
 oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -A15 "https-agentmesh-dev"
+
+
+
+oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -A15 "https-agentmesh-dev"
+
+
+- name: https-agentmesh-dev
+    hostname: agentmesh-dev-ai.calix.local
+    port: 443
+    protocol: HTTPS
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: agent-dev-tls-secret
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            env: dev
