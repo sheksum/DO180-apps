@@ -1,9 +1,12 @@
-Hi Cesar,
-Thank you — this is very helpful and we have already acted on your suggestion.
-Regarding nsslapd-ignore-time-skew — you were correct, it was not set on pln-ipamaster. We have now applied the fix both to /usr/share/ipa/replica-prevent-time-skew.ldif and to the live DS instance. It is now confirmed on on pln. It was already set on cpeg prior to the install.
-Regarding the PKINIT point — understood and appreciated. That clarifies why we should not attempt to manually mark the install complete.
-Regarding the ~1M certificates — these appear organic, accumulated over many years. We would appreciate the JIRA reference to investigate post-migration.
-Regarding the LDIF migration path — we will keep this in mind as a last resort, but our primary concern is whether it preserves the existing CA chain. Losing the CA would be a significant problem.
-March 28 remains our hard deadline. We appreciate your continued support.
-Thanks,
-Haj
+kinit admin
+ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
+ipa host-add pln-ipamaster.ipa.calix.local --force
+ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
+ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+ipa service-add ldap/pln-ipamaster.ipa.calix.local
+
+
+cat /etc/ipa/installer.conf
+grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
+cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
+cat /usr/share/ipa/replica-prevent-time-skew.ldif
