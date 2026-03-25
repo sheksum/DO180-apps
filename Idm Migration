@@ -20,3 +20,13 @@ oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -A15 "https-agent
         selector:
           matchLabels:
             env: dev
+
+cd ~/ocp-ai-config
+
+# 1. Update gateway.yaml with the legacy listener
+# 2. Remove the wildcard-dev cert-manager Certificate if present
+# 3. Commit
+
+git add gateway-api/
+git commit -m "Add legacy listener for agentmesh-dev-ai.calix.local with corporate cert"
+git push
