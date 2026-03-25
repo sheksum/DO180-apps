@@ -1,74 +1,36 @@
-...skipping...
-SSSD enabled
-Configured /etc/openldap/ldap.conf
-Configured /etc/ssh/ssh_config
-Configured /etc/ssh/sshd_config.d/04-ipa.conf
-Configuring ipa.calix.local as NIS domain.
-Configured /etc/krb5.conf for IPA realm IPA.CALIX.LOCAL
-Client configuration complete.
-The ipa-client-install command was successful
-
-Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide DNS.
-Reverse DNS resolution of address 172.23.49.10 (cpeg-ipareplica.ipa.calix.local) failed. Clients may not function properly. Please check your DNS setup. (Note that this check queries IPA DNS directly and ignores /etc/hosts.)
-Continue? [no]: yes
-
-WARNING: 1353 existing users or groups do not have a SID identifier assigned.
-Installer can run a task to have ipa-sidgen Directory Server plugin generate
-the SID identifier for all these users. Please note, in case of a high
-number of users and groups, the operation might lead to high replication
-traffic and performance degradation. Refer to ipa-adtrust-install(1) man page
-for details.
-
-Do you want to run the ipa-sidgen task? [no]:
-Disabled p11-kit-proxy
-Configuring directory server (dirsrv). Estimated time: 30 seconds
-  [1/40]: creating directory server instance
-Validate installation settings ...
-Create file system structures ...
-Perform SELinux labeling ...
-Create database backend: dc=ipa,dc=calix,dc=local ...
-Perform post-installation tasks ...
-  [2/40]: tune ldbm plugin
-  [3/40]: adding default schema
-  [4/40]: enabling memberof plugin
-  [5/40]: enabling winsync plugin
-  [6/40]: configure password logging
-  [7/40]: configuring replication version plugin
-  [8/40]: enabling IPA enrollment plugin
-  [9/40]: configuring uniqueness plugin
-  [10/40]: configuring uuid plugin
-  [11/40]: configuring modrdn plugin
-  [12/40]: configuring DNS plugin
-  [13/40]: enabling entryUSN plugin
-  [14/40]: configuring lockout plugin
-  [15/40]: configuring graceperiod plugin
-  [16/40]: configuring topology plugin
-  [17/40]: creating indices
-  [18/40]: enabling referential integrity plugin
-  [19/40]: configuring certmap.conf
-  [20/40]: configure new location for managed entries
-  [21/40]: configure dirsrv ccache and keytab
-  [22/40]: enabling SASL mapping fallback
-  [23/40]: restarting directory server
-  [24/40]: creating DS keytab
-  [25/40]: ignore time skew for initial replication
-  [26/40]: setting up initial replication
-Starting replication, please wait until this has completed.
-  [error] SERVER_DOWN: {'result': -1, 'desc': "Can't contact LDAP server", 'ctrls': []}
-Your system may be partly configured.
-Run /usr/sbin/ipa-server-install --uninstall to clean up.
-
-{'result': -1, 'desc': "Can't contact LDAP server", 'ctrls': []}
-The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
-[root@pln-ipamaster ~]# less /var/log/ipareplica-install.log
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ls /etc/ipa/
-ca.crt  custodia  default.conf  default.conf.ipabkp  dnssec  html  installer.conf  kdcproxy  nssdb
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ls /var/lib/ipa/
-backup  certs  gssproxy  passwds  pki-ca  private  sysrestore  sysupgrade
-[root@pln-ipamaster ~]# cat /etc/ipa/installer.conf
-[global]
+h GSSAPI auth resumed
+Mar 25 23:43:00 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:00.932915804 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:07 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:07.303276387 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:27 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:27.187714109 +0000] - WARN - NSMMReplicationPlugin - acquire_replica - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Unable to receive the response for a startReplication extended operation to consumer (Can't contact LDAP server). Will retry later.
+Mar 25 23:43:30 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: GSSAPI client step 1
+Mar 25 23:43:30 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: GSSAPI client step 1
+Mar 25 23:43:30 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: GSSAPI client step 1
+Mar 25 23:43:30 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: GSSAPI client step 1
+Mar 25 23:43:30 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: GSSAPI client step 2
+Mar 25 23:43:30 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:30.394936552 +0000] - INFO - NSMMReplicationPlugin - bind_and_check_pwp - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Replication bind with GSSAPI auth resumed
+Mar 25 23:43:30 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:30.563229222 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:30 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:30.946712132 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:31 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:31.205752844 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:31 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:31.741067853 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:33 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:33.805390384 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:34 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:34.084787266 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:34 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:34.341169672 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:34 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:34.609761238 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:39 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:39.044479073 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:49 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:49.677732865 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:51 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:51.927706944 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:52 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:52.184320950 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:52 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: GSSAPI client step 1
+Mar 25 23:43:52 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: GSSAPI client step 1
+Mar 25 23:43:52 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: GSSAPI client step 1
+Mar 25 23:43:52 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: GSSAPI client step 1
+Mar 25 23:43:52 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: GSSAPI client step 2
+Mar 25 23:43:54 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:54.014941539 +0000] - INFO - NSMMReplicationPlugin - repl5_tot_run - Beginning total update of replica "agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389)".
+Mar 25 23:43:56 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:56.433292909 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:43:56 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:43:56.864047958 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:44:02 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:44:02.778564794 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:44:05 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:44:05.137997768 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:44:07 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:44:07.244171845 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:44:09 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:44:09.494463512 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:44:10 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:44:10.014374177 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+Mar 25 23:44:11 cpeg-ipareplica.ipa.calix.local ns-slapd[2710565]: [25/Mar/2026:23:44:11.782088825 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
