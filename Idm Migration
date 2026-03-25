@@ -1,16 +1,12 @@
-oc get secret wildcard-dev-tls-secret -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout | grep -E "Issuer|Subject|Not After|DNS"
-
-curl -v https://minio.dev.ocp-ai.calix.local 2>&1 | grep -E "issuer|subject|expire"
-oc create secret tls wildcard-dev-tls-secret \
-  -n openshift-ingress \
-  --cert=signed-cert-with-chain.crt \
-  --key=wildcard-dev-ocp-ai.key \
-  --dry-run=client -o yaml | oc replace -f -
-
-oc delete secret wildcard-dev-tls-secret -n openshift-ingress
-oc create secret tls wildcard-dev-tls-secret \
-  -n openshift-ingress \
-  --cert=signed-cert-with-chain.crt \
-  --key=ocp-ai-wildcard.key
-
-oc get certificates -n openshift-ingress
+hsuma@plnx-admin:~$ oc get secret wildcard-dev-tls-secret -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout | grep -E "Issuer|Subject|Not After|DNS"
+        Issuer: DC = local, DC = calix, CN = CalixEntCA
+            Not After : Mar 24 21:11:31 2028 GMT
+        Subject: C = US, ST = California, L = San Jose, O = Calix, OU = Engineering Operations, CN = *.dev.ocp-ai.calix.local
+        Subject Public Key Info:
+            X509v3 Subject Alternative Name:
+                DNS:*.dev.ocp-ai.calix.local, email:EngineeringOperations-Infrastructure@calix.com
+            X509v3 Subject Key Identifier:
+                CA Issuers - URI:http://Corp_pki.calix.local/CertEnroll/sjcw-ca02.calix.local_CalixEntCA(1).crt
+                CA Issuers - URI:ldap:///CN=CalixEntCA,CN=AIA,CN=Public%20Key%20Services,CN=Services,CN=Configuration,DC=calix,DC=local?cACertificate?base?objectClass=certificationAuthority
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
