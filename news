@@ -1,27 +1,244 @@
-  [27/33]: Importing RA key
-  [28/33]: configure certificate renewals
-  [29/33]: Configure HTTP to proxy connections
-  [30/33]: enabling CA instance
-  [31/33]: importing IPA certificate profiles
-Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
-Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
-  [32/33]: configuring certmonger renewal for lightweight CAs
-  [33/33]: deploying ACME service
-Done configuring certificate server (pki-tomcatd).
-Your system may be partly configured.
-Run /usr/sbin/ipa-server-install --uninstall to clean up.
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipactl status
+IPA is not configured (see man pages of ipa-server-install for help)
+[root@pln-ipamaster ~]# systemctl status dirsrv@IPA-CALIX-LOCAL.service
+● dirsrv@IPA-CALIX-LOCAL.service - 389 Directory Server IPA-CALIX-LOCAL.
+     Loaded: loaded (/usr/lib/systemd/system/dirsrv@.service; enabled; preset: disabled)
+    Drop-In: /usr/lib/systemd/system/dirsrv@.service.d
+             └─custom.conf
+             /etc/systemd/system/dirsrv@IPA-CALIX-LOCAL.service.d
+             └─ipa-env.conf
+     Active: active (running) since Wed 2026-03-25 04:13:58 UTC; 6h ago
+    Process: 23605 ExecStartPre=/usr/libexec/dirsrv/ds_systemd_ask_password_acl /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
+    Process: 23611 ExecStartPre=/usr/libexec/dirsrv/ds_selinux_restorecon.sh /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
+   Main PID: 23616 (ns-slapd)
+     Status: "slapd started: Ready to process requests"
+      Tasks: 36 (limit: 203337)
+     Memory: 6.5G (peak: 6.5G)
+        CPU: 1h 22min 34.328s
+     CGroup: /system.slice/system-dirsrv.slice/dirsrv@IPA-CALIX-LOCAL.service
+             └─23616 /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
 
-wait_for_entry timeout on ldap://cpeg-ipareplica.ipa.calix.local:389 for cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+Mar 25 10:26:36 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:36.766446086 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
+Mar 25 10:26:39 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:39.778248538 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0025ceff000100140000 in t>
+Mar 25 10:26:39 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:39.779664636 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389):>
+Mar 25 10:26:39 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:39.781164771 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
+Mar 25 10:26:42 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:42.911452087 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0025ceff000100140000 in t>
+Mar 25 10:26:42 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:42.913226941 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389):>
+Mar 25 10:26:42 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:42.914316187 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
+Mar 25 10:26:46 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:46.043938463 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0025ceff000100140000 in t>
+Mar 25 10:26:46 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:46.045417137 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389):>
+Mar 25 10:26:46 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:46.046660222 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
+ ESCOC
 
 
 
-[25/Mar/2026:03:46:58.589973946 +0000] - INFO - bdb_db2index - ipaca: Indexed 1042000 entries (99%).
-[25/Mar/2026:03:47:10.062852576 +0000] - INFO - bdb_db2index - ipaca: Indexed 1043000 entries (99%).
-[25/Mar/2026:03:47:22.288431219 +0000] - INFO - bdb_db2index - ipaca: Indexed 1044000 entries (99%).
-[25/Mar/2026:03:47:33.637118597 +0000] - INFO - bdb_db2index - ipaca: Indexed 1045000 entries (99%).
-[25/Mar/2026:03:47:42.505117385 +0000] - INFO - bdb_db2index - ipaca: Indexed 1046000 entries (99%).
-[25/Mar/2026:03:47:50.521341989 +0000] - INFO - bdb_db2index - ipaca: Indexed 1047000 entries (99%).
-[25/Mar/2026:03:47:58.215428445 +0000] - INFO - bdb_db2index - ipaca: Indexed 1048000 entries (99%).
-[25/Mar/2026:03:48:05.067940923 +0000] - INFO - bdb_db2index - ipaca: Indexed 1049000 entries (99%).
-[25/Mar/2026:03:48:12.417334781 +0000] - INFO - bdb_db2index - ipaca: Indexed 1050000 entries (99%).
+
+
+
+
+ (code=exited, status=0/SUCCESS)
+ode=exited, status=0/SUCCESS)
+
+
+
+
+
+
+
+
+ionPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+ocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0025ceff000100140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+ionPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0025ceff000100140000 not found, we aren't as up to date, or we purged
+ionPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+ocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0025ceff000100140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+ionPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0025ceff000100140000 not found, we aren't as up to date, or we purged
+ionPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+ocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0025ceff000100140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
+ionPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0025ceff000100140000 not found, we aren't as up to date, or we purged
+ionPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+ ESCOD
+● dirsrv@IPA-CALIX-LOCAL.service - 389 Directory Server IPA-CALIX-LOCAL.
+     Loaded: loaded (/usr/lib/systemd/system/dirsrv@.service; enabled; preset: disabled)
+    Drop-In: /usr/lib/systemd/system/dirsrv@.service.d
+             └─custom.conf
+             /etc/systemd/system/dirsrv@IPA-CALIX-LOCAL.service.d
+             └─ipa-env.conf
+     Active: active (running) since Wed 2026-03-25 04:13:58 UTC; 6h ago
+    Process: 23605 ExecStartPre=/usr/libexec/dirsrv/ds_systemd_ask_password_acl /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
+    Process: 23611 ExecStartPre=/usr/libexec/dirsrv/ds_selinux_restorecon.sh /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
+   Main PID: 23616 (ns-slapd)
+     Status: "slapd started: Ready to process requests"
+      Tasks: 36 (limit: 203337)
+     Memory: 6.5G (peak: 6.5G)
+        CPU: 1h 22min 34.328s
+     CGroup: /system.slice/system-dirsrv.slice/dirsrv@IPA-CALIX-LOCAL.service
+             └─23616 /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+
+Mar 25 10:26:36 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:36.766446086 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
+Mar 25 10:26:39 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:39.778248538 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0025ceff000100140000 in t>
+Mar 25 10:26:39 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:39.779664636 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389):>
+Mar 25 10:26:39 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:39.781164771 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
+Mar 25 10:26:42 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:42.911452087 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0025ceff000100140000 in t>
+Mar 25 10:26:42 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:42.913226941 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389):>
+Mar 25 10:26:42 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:42.914316187 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
+Mar 25 10:26:46 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:46.043938463 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0025ceff000100140000 in t>
+Mar 25 10:26:46 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:46.045417137 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389):>
+Mar 25 10:26:46 pln-ipamaster.ipa.calix.local ns-slapd[23616]: [25/Mar/2026:10:26:46.046660222 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update re>
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# systemctl status pki-tomcatd@pki-tomcat.service
+● pki-tomcatd@pki-tomcat.service - PKI Tomcat Server pki-tomcat
+     Loaded: loaded (/usr/lib/systemd/system/pki-tomcatd@.service; enabled; preset: disabled)
+    Drop-In: /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d
+             └─ipa.conf, timeout.conf
+     Active: active (running) since Wed 2026-03-25 04:20:07 UTC; 6h ago
+    Process: 23652 ExecStartPre=/usr/sbin/pki-server upgrade pki-tomcat (code=exited, status=0/SUCCESS)
+    Process: 23654 ExecStartPre=/usr/sbin/pki-server migrate pki-tomcat (code=exited, status=0/SUCCESS)
+    Process: 23707 ExecStartPre=/usr/bin/pkidaemon start pki-tomcat (code=exited, status=0/SUCCESS)
+    Process: 23728 ExecStartPost=/usr/libexec/ipa/ipa-pki-wait-running (code=exited, status=0/SUCCESS)
+   Main PID: 23727 (java)
+      Tasks: 127 (limit: 203337)
+     Memory: 399.3M (peak: 513.8M)
+        CPU: 1min 3.261s
+     CGroup: /system.slice/system-pki\x2dtomcatd.slice/pki-tomcatd@pki-tomcat.service
+             └─23727 /usr/lib/jvm/jre-17-openjdk/bin/java -Dcom.redhat.fips=false -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -D>
+
+Mar 25 04:19:52 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[23728]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
+Mar 25 04:19:54 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[23728]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
+Mar 25 04:19:56 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[23728]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
+Mar 25 04:19:58 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[23728]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
+Mar 25 04:20:00 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[23728]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
+Mar 25 04:20:02 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[23728]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
+Mar 25 04:20:04 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[23728]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
+Mar 25 04:20:06 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[23728]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
+Mar 25 04:20:07 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[23728]: ipa-pki-wait-running: Success, subsystem ca is running!
+Mar 25 04:20:07 pln-ipamaster.ipa.calix.local systemd[1]: Started PKI Tomcat Server pki-tomcat.
+[root@pln-ipamaster ~]# systemctl status krb5kdc
+● krb5kdc.service - Kerberos 5 KDC
+     Loaded: loaded (/usr/lib/systemd/system/krb5kdc.service; disabled; preset: disabled)
+     Active: active (running) since Tue 2026-03-24 22:43:15 UTC; 11h ago
+   Main PID: 15619 (krb5kdc)
+      Tasks: 9 (limit: 203337)
+     Memory: 10.9M (peak: 11.6M)
+        CPU: 182ms
+     CGroup: /system.slice/krb5kdc.service
+             ├─15619 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─15620 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─15621 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─15622 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─15623 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─15624 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─15625 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─15626 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             └─15627 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+
+Mar 24 22:43:15 pln-ipamaster.ipa.calix.local systemd[1]: Starting Kerberos 5 KDC...
+Mar 24 22:43:15 pln-ipamaster.ipa.calix.local systemd[1]: krb5kdc.service: Can't open PID file /run/krb5kdc.pid (yet?) after start: Operation not permitted
+Mar 24 22:43:15 pln-ipamaster.ipa.calix.local systemd[1]: Started Kerberos 5 KDC.
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# systemctl status httpd
+● httpd.service - The Apache HTTP Server
+     Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled; preset: disabled)
+    Drop-In: /etc/systemd/system/httpd.service.d
+             └─ipa.conf
+     Active: active (running) since Wed 2026-03-25 04:20:09 UTC; 6h ago
+       Docs: man:httpd.service(8)
+    Process: 24030 ExecStartPre=/usr/libexec/ipa/ipa-httpd-kdcproxy (code=exited, status=0/SUCCESS)
+   Main PID: 24033 (httpd)
+     Status: "Total requests: 0; Idle/Busy workers 100/0;Requests/sec: 0; Bytes served/sec:   0 B/sec"
+      Tasks: 229 (limit: 203337)
+     Memory: 329.5M (peak: 331.5M)
+        CPU: 27.763s
+     CGroup: /system.slice/httpd.service
+             ├─24033 /usr/sbin/httpd -DFOREGROUND
+             ├─24035 /usr/sbin/httpd -DFOREGROUND
+             ├─24036 "(wsgi:kdcproxy)" -DFOREGROUND
+             ├─24037 "(wsgi:kdcproxy)" -DFOREGROUND
+             ├─24038 "(wsgi:ipa)     " -DFOREGROUND
+             ├─24039 "(wsgi:ipa)     " -DFOREGROUND
+             ├─24040 "(wsgi:ipa)     " -DFOREGROUND
+             ├─24041 "(wsgi:ipa)     " -DFOREGROUND
+             ├─24043 /usr/sbin/httpd -DFOREGROUND
+             ├─24044 /usr/sbin/httpd -DFOREGROUND
+             └─24045 /usr/sbin/httpd -DFOREGROUND
+
+Mar 25 04:20:08 pln-ipamaster.ipa.calix.local systemd[1]: Starting The Apache HTTP Server...
+Mar 25 04:20:09 pln-ipamaster.ipa.calix.local ipa-httpd-kdcproxy[24030]: ipa: INFO: KDC proxy enabled
+Mar 25 04:20:09 pln-ipamaster.ipa.calix.local ipa-httpd-kdcproxy[24030]: ipa-httpd-kdcproxy: INFO     KDC proxy enabled
+Mar 25 04:20:09 pln-ipamaster.ipa.calix.local httpd[24033]: Server configured, listening on: port 443, port 80
+Mar 25 04:20:09 pln-ipamaster.ipa.calix.local systemd[1]: Started The Apache HTTP Server.
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
