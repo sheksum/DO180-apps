@@ -1,4 +1,28 @@
 
+Subject: RE: DMZ Satellite Capsule Build Complete - pln-capsule-dmz01.caal.dev
+
+Hi Brian,
+
+Thanks for offering to help with the DNS. That would be great — here is what I need in calix.local:
+
+A record:
+  Name:    pln-capsule-dmz01.calix.local
+  Type:    A
+  Value:   10.172.16.10
+
+PTR record:
+  IP:      10.172.16.10
+  Points to: pln-capsule-dmz01.calix.local
+
+Once those are in place I'll need to rebuild the capsule certificates with the calix.local FQDN and re-run the installer since the hostname is currently bound to caal.dev. I can take care of that once the DNS records are confirmed.
+
+Let me know if you need anything else from my end.
+
+Thanks,
+Haj
+
+
+
 @Haj Suma I can help with DNS reverse zones if needed.  Let’s avoid using CAAL at all costs.  We have an active plan to retire that.  Please let me know what you need in calix.local to use that instead.
 Thanks
 Brian
