@@ -12,10 +12,12 @@ cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
 cat /usr/share/ipa/replica-prevent-time-skew.ldif
 
 
-[root@cpeg-ipareplica sos.imb0ecrg]# kinit admin
-Password for admin@IPA.CALIX.LOCAL:
-[root@cpeg-ipareplica sos.imb0ecrg]# ipa topologysegment-del dc=ipa,dc=calix,dc=local cpeg-ipareplica.ipa.calix.local-to-pln-ipamaster.ipa.calix.local 2>/dev/null
-[root@cpeg-ipareplica sos.imb0ecrg]# ipa topologysegment-del o=ipaca cpeg-ipareplica.ipa.calix.local-to-pln-ipamaster.ipa.calix.local 2>/dev/null
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
+Removing pln-ipamaster.ipa.calix.local from replication topology, please wait...
+--------------------------------------------------
+Deleted IPA server "pln-ipamaster.ipa.calix.local"
+--------------------------------------------------
+[root@cpeg-ipareplica sos.imb0ecrg]#
 [root@cpeg-ipareplica sos.imb0ecrg]#
 [root@cpeg-ipareplica sos.imb0ecrg]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket   -b "cn=config" "(nsds5replicaHost=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
 # extended LDIF
