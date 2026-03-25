@@ -1,9 +1,27 @@
-[root@pln-ipamaster ~]# systemctl status pki-tomcatd-nuxwdog.target
-○ pki-tomcatd-nuxwdog.target - PKI Tomcat Server Started by Nuxwdog
-     Loaded: loaded (/usr/lib/systemd/system/pki-tomcatd-nuxwdog.target; disabled; preset: disabled)
-     Active: inactive (dead)
-[root@pln-ipamaster ~]# systemctl status pki-tomcatd.target
-○ pki-tomcatd.target - PKI Tomcat Server
-     Loaded: loaded (/usr/lib/systemd/system/pki-tomcatd.target; disabled; preset: disabled)
-     Active: inactive (dead)
-[root@pln-ipamaster ~]#
+  [27/33]: Importing RA key
+  [28/33]: configure certificate renewals
+  [29/33]: Configure HTTP to proxy connections
+  [30/33]: enabling CA instance
+  [31/33]: importing IPA certificate profiles
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
+  [32/33]: configuring certmonger renewal for lightweight CAs
+  [33/33]: deploying ACME service
+Done configuring certificate server (pki-tomcatd).
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
+
+wait_for_entry timeout on ldap://cpeg-ipareplica.ipa.calix.local:389 for cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+
+
+
+[25/Mar/2026:03:46:58.589973946 +0000] - INFO - bdb_db2index - ipaca: Indexed 1042000 entries (99%).
+[25/Mar/2026:03:47:10.062852576 +0000] - INFO - bdb_db2index - ipaca: Indexed 1043000 entries (99%).
+[25/Mar/2026:03:47:22.288431219 +0000] - INFO - bdb_db2index - ipaca: Indexed 1044000 entries (99%).
+[25/Mar/2026:03:47:33.637118597 +0000] - INFO - bdb_db2index - ipaca: Indexed 1045000 entries (99%).
+[25/Mar/2026:03:47:42.505117385 +0000] - INFO - bdb_db2index - ipaca: Indexed 1046000 entries (99%).
+[25/Mar/2026:03:47:50.521341989 +0000] - INFO - bdb_db2index - ipaca: Indexed 1047000 entries (99%).
+[25/Mar/2026:03:47:58.215428445 +0000] - INFO - bdb_db2index - ipaca: Indexed 1048000 entries (99%).
+[25/Mar/2026:03:48:05.067940923 +0000] - INFO - bdb_db2index - ipaca: Indexed 1049000 entries (99%).
+[25/Mar/2026:03:48:12.417334781 +0000] - INFO - bdb_db2index - ipaca: Indexed 1050000 entries (99%).
