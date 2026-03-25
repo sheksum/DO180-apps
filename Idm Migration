@@ -1,30 +1,65 @@
-kinit admin
-ipa server-del pln-ipamaster.ipa.calix.local --force --ignore-topology-disconnect 2>/dev/null
-ipa host-add pln-ipamaster.ipa.calix.local --force
-ipa dnsrecord-add ipa.calix.local pln-ipamaster --a-rec 10.172.248.55
-ipa service-add HTTP/pln-ipamaster.ipa.calix.local
-ipa service-add ldap/pln-ipamaster.ipa.calix.local
+[root@cpeg-ipareplica sos.imb0ecrg]# ipactl status
+Directory Service: RUNNING
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+named Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+pki-tomcatd Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa-dnskeysyncd Service: RUNNING
+ipa: INFO: The ipactl command was successful
+[root@cpeg-ipareplica sos.imb0ecrg]# systemctl status dirsrv@IPA-CALIX-LOCAL.service
+● dirsrv@IPA-CALIX-LOCAL.service - 389 Directory Server IPA-CALIX-LOCAL.
+   Loaded: loaded (/usr/lib/systemd/system/dirsrv@.service; enabled; vendor preset: disabled)
+  Drop-In: /usr/lib/systemd/system/dirsrv@.service.d
+           └─custom.conf
+           /etc/systemd/system/dirsrv@IPA-CALIX-LOCAL.service.d
+           └─ipa-env.conf
+   Active: failed (Result: signal) since Wed 2026-03-25 23:24:34 UTC; 1min 13s ago
+  Process: 2665310 ExecStart=/usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid (code=killed, signal=SEGV)
+  Process: 2665304 ExecStartPre=/usr/libexec/dirsrv/ds_selinux_restorecon.sh /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
+  Process: 2665297 ExecStartPre=/usr/libexec/dirsrv/ds_systemd_ask_password_acl /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
+ Main PID: 2665310 (code=killed, signal=SEGV)
+   Status: "slapd started: Ready to process requests"
 
+Mar 25 23:24:28 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:28.246801577 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't>
+Mar 25 23:24:28 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:28.502014681 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't>
+Mar 25 23:24:28 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:28.855553441 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't>
+Mar 25 23:24:31 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:31.929634748 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't>
+Mar 25 23:24:33 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:33.125479750 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't>
+Mar 25 23:24:33 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:33.662361254 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't>
+Mar 25 23:24:33 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:33.920597709 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't>
+Mar 25 23:24:34 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:34.577908739 +0000] - ERR - slapi_sdn_copy - NULL param: from (0x(nil)) to (0x0x7efeca29a5f0)
+Mar 25 23:24:34 cpeg-ipareplica.ipa.calix.local systemd[1]: dirsrv@IPA-CALIX-LOCAL.service: Main process exited, code=killed, status=11/SEGV
+Mar 25 23:24:34 cpeg-ipareplica.ipa.calix.local systemd[1]: dirsrv@IPA-CALIX-LOCAL.service: Failed with result 'signal'.
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]# systemctl status dirsrv@IPA-CALIX-LOCAL.service  --no-pager
+● dirsrv@IPA-CALIX-LOCAL.service - 389 Directory Server IPA-CALIX-LOCAL.
+   Loaded: loaded (/usr/lib/systemd/system/dirsrv@.service; enabled; vendor preset: disabled)
+  Drop-In: /usr/lib/systemd/system/dirsrv@.service.d
+           └─custom.conf
+           /etc/systemd/system/dirsrv@IPA-CALIX-LOCAL.service.d
+           └─ipa-env.conf
+   Active: failed (Result: signal) since Wed 2026-03-25 23:24:34 UTC; 1min 48s ago
+  Process: 2665310 ExecStart=/usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid (code=killed, signal=SEGV)
+  Process: 2665304 ExecStartPre=/usr/libexec/dirsrv/ds_selinux_restorecon.sh /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
+  Process: 2665297 ExecStartPre=/usr/libexec/dirsrv/ds_systemd_ask_password_acl /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
+ Main PID: 2665310 (code=killed, signal=SEGV)
+   Status: "slapd started: Ready to process requests"
 
-cat /etc/ipa/installer.conf
-grep startup_timeout /usr/lib/python3.9/site-packages/ipalib/constants.py
-cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
-cat /usr/share/ipa/replica-prevent-time-skew.ldif
-
-mkdir -p /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/
-cat > /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf << 'EOF'
-[Service]
-TimeoutStartSec=7200
-Environment="JAVA_OPTS=-Dcom.redhat.fips=false -Xms8g -Xmx16g -XX:+UseG1GC -XX:ParallelGCThreads=8"
-EOF
-systemctl daemon-reload
-
-  [26/40]: setting up initial replication
-Starting replication, please wait until this has completed.
-  [error] SERVER_DOWN: {'result': -1, 'desc': "Can't contact LDAP server", 'ctrls': []}
-Your system may be partly configured.
-Run /usr/sbin/ipa-server-install --uninstall to clean up.
-
-{'result': -1, 'desc': "Can't contact LDAP server", 'ctrls': []}
-The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
-[root@pln-ipamaster ~]#
+Mar 25 23:24:28 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:28.246801577 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't…
+Mar 25 23:24:28 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:28.502014681 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't…
+Mar 25 23:24:28 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:28.855553441 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't…
+Mar 25 23:24:31 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:31.929634748 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't…
+Mar 25 23:24:33 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:33.125479750 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't…
+Mar 25 23:24:33 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:33.662361254 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't…
+Mar 25 23:24:33 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:33.920597709 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't…
+Mar 25 23:24:34 cpeg-ipareplica.ipa.calix.local ns-slapd[2665310]: [25/Mar/2026:23:24:34.577908739 +0000] - ERR - slapi_sdn_copy - NULL param: from (0x(nil)) to (0x0x7efeca29a5f0)
+Mar 25 23:24:34 cpeg-ipareplica.ipa.calix.local systemd[1]: dirsrv@IPA-CALIX-LOCAL.service: Main process exited, code=killed, status=11/SEGV
+Mar 25 23:24:34 cpeg-ipareplica.ipa.calix.local systemd[1]: dirsrv@IPA-CALIX-LOCAL.service: Failed with result 'signal'.
+Hint: Some lines were ellipsized, use -l to show in full.
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]# systemctl start dirsrv@IPA-CALIX-LOCAL.service
