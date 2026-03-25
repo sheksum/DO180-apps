@@ -1,22 +1,20 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get httproutes -n pai-dev -o yaml | grep -B5 "agentmesh-dev-ai"
-        sectionName: https-dev
-- apiVersion: gateway.networking.k8s.io/v1
-  kind: HTTPRoute
-  metadata:
-    annotations:
-      external-dns.alpha.kubernetes.io/hostname: agentmesh-dev-ai.calix.local
-      freelens.app/resource-version: v1
-      kubectl.kubernetes.io/last-applied-configuration: |
-        {"apiVersion":"gateway.networking.k8s.io/v1","kind":"HTTPRoute","metadata":{"annotations":{"external-dns.alpha.kubernetes.io/hostname":"agentmesh-dev-ai.calix.local","meta.helm.sh/release-name":"internal-agentmesh-ui-service","meta.helm.sh/release-namespace":"pai-dev"},"labels":{"app.kubernetes.io/managed-by":"Helm"},"name":"internal-agentmesh-ui-service-1","namespace":"pai-dev"},"spec":{"hostnames":["agentmesh-dev-ai.calix.local"],"parentRefs":[{"group":"gateway.networking.k8s.io","kind":"Gateway","name":"pai-gateway","namespace":"openshift-ingress","sectionName":"https-legacy"}],"rules":[{"backendRefs":[{"group":"","kind":"Service","name":"internal-agentmesh-ui-service","namespace":"pai-dev","port":80,"weight":1}],"matches":[{"path":{"type":"PathPrefix","value":"/"}}]}]}}
---
-    namespace: pai-dev
-    resourceVersion: "24433326"
-    uid: bcbab071-460f-4adc-92a1-e3ff43898908
-  spec:
-    hostnames:
-    - agentmesh-dev-ai.calix.local
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get httproute internal-agentmesh-auth-service -n pai-dev -o jsonpath='{.spec.hostnames}'
-["agentmesh.dev.ocp-ai.calix.local"]hsuma@plnx-admin:~$
+oc edit httproute internal-agentmesh-auth-service -n pai-dev
+
+spec:
+  hostnames:
+  - agentmesh.dev.ocp-ai.calix.local
+  - agentmesh-dev-ai.calix.local
+
+parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: pai-gateway
+    namespace: openshift-ingress
+    sectionName: https-dev
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: pai-gateway
+    namespace: openshift-ingress
+    sectionName: https-agentmesh-dev
+
+oc get httproute internal-agentmesh-agent-gateway-service -n pai-dev -o jsonpath='{.spec.hostnames}'
