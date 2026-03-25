@@ -1,4 +1,48 @@
-oc patch application gateway-api -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}}}'
+Hello,
 
+Thanks for your patience.
 
-oc patch application gateway-api -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":{"selfHeal":true}}}}'
+I completely understand you're points/requirements, but some of them cannot be met as-is from the standpoint of our support scope.
+Firstly, for IPA I cannot address this:
+>>How to manually complete or finalize the replica install given that all services are running and only sysrestore.state shows complete=False
+Because even though it looks like it was the last step in the replica install, it probably wasn't. 
+E.g., you have the installation called with
+~~~
+DEBUG ipa-replica-install was invoked with arguments [] and options: {'unattended': False, 'ip_addresses': None, 'domain_name': 'ipa.calix.local', 'servers': ['cpeg-ipareplica.ipa.calix.local'], 'realm_name': 'IPA.CALIX.LOCAL', 'host_name': None, 'p
+rincipal': 'admin', 'hidden_replica': False, 'setup_adtrust': False, 'setup_ca': True, 'setup_kra': False, 'setup_dns': True, 'no_pkinit': False,
+~~~
+no_pkinit :false, means that the PKINIT setup still needs to run for the KDC, and I don't see the task being executed in the replica install logs.
+
+So the installation script still has more steps to go. So I cannot really provide you with a 'workaround' in this scenario because we cannot attest
+it will work *at all*.
+
+One thing in addition that I can suggest, is to do a quick workaround for the directory server in 'pln' during the install which involves:
+
+1. Modifying this file:
+/usr/share/ipa/replica-prevent-time-skew.ldif
+
+to contain:
+~~~
+dn: cn=config
+changetype: modify
+replace: nsslapd-ignore-time-skew
+nsslapd-ignore-time-skew: on
+~~~
+
+And then attempt the installation. This should make 'nsslapd-ignore-time-skew' be set to on even after dirsrv restarts and it *should* work.
+But *ideally* - these repl errors should be taken care of.
+
+Two additional points for thought.
+
+2. You have ~1mi cert entries in your o=ipaca. Are these organic? Or is certmonger in a renewing spiral? (there's a jira about that...) because ~1mi
+certs is a lot.
+3. Have you considered migrating with ldif, if your environment allows:
+---
+Migrating Your IDM Environment To a New Environment in RHEL 7
+https://access.redhat.com/articles/2949931
+---
+
+This is the *closest* it can get to your requirements as it would not be tied to the installation script, but it has additional requirements.
+
+Kr,
+-Cesar
