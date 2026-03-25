@@ -44,3 +44,7 @@ result: 0 Success
 # numResponses: 3
 # numEntries: 2
 [root@cpeg-ipareplica sos.imb0ecrg]#
+
+
+ipa topologysegment-find dc=ipa,dc=calix,dc=local 2>/dev/null | grep pln
+ipa topologysegment-find o=ipaca 2>/dev/null | grep pln
