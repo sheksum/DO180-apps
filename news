@@ -1,51 +1,14 @@
-
-9:33 AM
-Hostname: pln-ipamaster.ipa.calix.local
-
-Describe the impact to you or the business:
-
-Critical production risk. We are migrating our sole IPA CA master from RHEL 8 (cpeg-ipareplica.ipa.calix.local, IPA 4.9.13) to RHEL 9 (pln-ipamaster.ipa.calix.local, IPA 4.12.2) ahead of a mandatory datacenter shutdown on March 28, 2026. The source server cpeg will be powered off at that time. If the migration is not complete before then, we will experience a complete authentication outage across thousands of IPA-joined systems — SSH logins, sudo, LDAP, and certificate services will all stop working.
-
-The ipa-replica-install command completed all CA steps successfully but failed at the final step with: wait_for_entry timeout on ldap://cpeg-ipareplica.ipa.calix.local:389 for cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-
-All services on pln (DS, pki-tomcatd, krb5kdc, httpd) are running. sysrestore.state shows complete=False. We cannot uninstall and retry as the CA database replication takes 5+ hours. We need to complete this installation without a full reinstall.
-
-In what environment:
-
-Production. Single IPA realm IPA.CALIX.LOCAL. Source: cpeg-ipareplica.ipa.calix.local RHEL 8.x IPA 4.9.13, sole CA master and CRL generator. Target: pln-ipamaster.ipa.calix.local RHEL 9.3 IPA 4.12.2. Pre-existing CSN purge issues on the changelog. Replication from pln to cpeg shows Error 18 transient warning — incremental update backing off. Replication from cpeg to pln works fine.
-
-How frequently:
-
-Occurs every install attempt. We have attempted the replica install multiple times over several days. The failure point is always the same — the cn=KDC entry written to pln's LDAP does not replicate to cpeg within the timeout window due to the Error 18 replication issue on the pln to cpeg agreement.
-
-Summary: ipa-replica-install fails with wait_for_entry timeout on cn=KDC — cannot complete RHEL 8 to RHEL 9 IPA migration before critical deadline
-Environment:
-
-Source: cpeg-ipareplica.ipa.calix.local — RHEL 8, IPA 4.9.13, sole CA master
-Target: pln-ipamaster.ipa.calix.local — RHEL 9.3, IPA 4.12.2
-Hard deadline: March 28 Petaluma DC shutdown — cpeg goes offline
-
-What happened:
-
-ipa-replica-install --setup-ca got through all CA steps successfully (steps 1-33 complete including CA startup)
-Failed at final step: wait_for_entry timeout on ldap://cpeg-ipareplica.ipa.calix.local:389 for cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-The cn=KDC entry exists on pln but never replicates to cpeg
-Root cause: pln → cpeg replication agreement shows Error (18) Can't acquire replica (Incremental update) due to pre-existing CSN purge issue on the changelog
-cpeg → pln replication works fine (Error 0)
-
-Current state:
-
-pln has DS, CA (pki-tomcatd), KDC, httpd all running
-sysrestore.state shows complete = False
-Cannot uninstall pln — CA database took 5+ hours to replicate
-Cannot re-initialize cpeg from pln — cpeg is the only working IPA master
-
-What we need:
-
-How to manually complete the replica install or mark it complete after manually injecting the missing cn=masters entries into cpeg
-Or how to fix the Error (18) incremental replication from pln to cpeg so the KDC entry pushes over
-
-Severity: Urgent — production IPA outage if not resolved before March 28
++@Rich Rios for awareness
+ 
+Thank you Haj. The maintenance window has been scheduled by facilities, the building maintenance company has some power related work required. They have requested only a 30min outage but in abundance of caution we are planning to shut the infrastructure down and power it back up once power is brought back on.
+ 
+Could you please give us a status update by Thursday end of day to see if you are on target for Friday completion, otherwise Rich will need to reach out to the building maintenance company to reschedule.  
+ 
+Umair Kazim
+Director IT Infrastructure
+E umair.kazim@calix.com
+P: 437-328-7869
+P: 647-680-8017
 
 
 
