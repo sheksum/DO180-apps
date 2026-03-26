@@ -1,3 +1,8 @@
-systemd-tmpfiles --create /usr/lib/tmpfiles.d/ipa.conf
-
-systemctl restart gssproxy httpd
+systemctl enable dirsrv@IPA-CALIX-LOCAL
+systemctl enable krb5kdc
+systemctl enable kadmin
+systemctl enable httpd
+systemctl enable pki-tomcatd@pki-tomcat
+systemctl enable ipa-custodia
+systemctl enable ipa-otpd
+systemctl enable gssproxy
