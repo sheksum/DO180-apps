@@ -1,28 +1,4 @@
-[root@pln-ipamaster dnssec]# ipa config-mod --ca-renewal-master-server=pln-ipamaster.ipa.calix.local
-  Maximum username length: 32
-  Maximum hostname length: 64
-  Home directory base: /home
-  Default shell: /bin/bash
-  Default users group: sw
-  Default e-mail domain: calix.com
-  Search time limit: 2
-  Search size limit: 5000
-  User search fields: uid,givenname,sn,telephonenumber,ou,title
-  Group search fields: cn,description
-  Enable migration mode: False
-  Certificate Subject base: O=IPA.CALIX.LOCAL
-  Password Expiration Notification (days): 4
-  Password plugin features: AllowNThash, KDC:Disable Last Success
-  SELinux user map order: guest_u:s0$xguest_u:s0$user_u:s0$staff_u:s0-s0:c0.c1023$unconfined_u:s0-s0:c0.c1023
-  Default SELinux user: unconfined_u:s0-s0:c0.c1023
-  Default PAC types: MS-PAC, nfs:NONE
-  IPA masters: cpeg-ipareplica.ipa.calix.local, nan-ipareplica01.ipa.calix.local, pln-ipamaster.ipa.calix.local, ric-ipareplica.ipa.calix.local, ric-ipareplica01.ipa.calix.local, sjc-ipareplica01.ipa.calix.local
-  IPA master capable of PKINIT: cpeg-ipareplica.ipa.calix.local, nan-ipareplica01.ipa.calix.local, pln-ipamaster.ipa.calix.local, ric-ipareplica.ipa.calix.local, ric-ipareplica01.ipa.calix.local, sjc-ipareplica01.ipa.calix.local
-  IPA CA servers: cpeg-ipareplica.ipa.calix.local, pln-ipamaster.ipa.calix.local
-  IPA CA renewal master: pln-ipamaster.ipa.calix.local
-  IPA DNS servers: cpeg-ipareplica.ipa.calix.local, nan-ipareplica01.ipa.calix.local, ric-ipareplica.ipa.calix.local, ric-ipareplica01.ipa.calix.local, sjc-ipareplica01.ipa.calix.local
-[root@pln-ipamaster dnssec]#
-[root@pln-ipamaster dnssec]#
-[root@pln-ipamaster dnssec]# ipa config-show | grep "CA renewal"
-  IPA CA renewal master: pln-ipamaster.ipa.calix.local
-[root@pln-ipamaster dnssec]#
+ipa-crlgen-manage disable
+
+# On pln
+ipa-crlgen-manage enable
