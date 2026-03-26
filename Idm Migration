@@ -1,10 +1,4 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ls -la /proc/38436/fd 2>/dev/null | wc -l
-15
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# cat /proc/38436/wchan 2>/dev/null
-poll_schedule_timeout.constprop.0[root@pln-ipamaster ~]#
+ls -la /proc/38436/fd 2>/dev/null
+
+cat /proc/38436/net/tcp 2>/dev/null | head -20
+lsof -p 38436 2>/dev/null | grep -E "ESTABLISHED|LISTEN|WAIT"
