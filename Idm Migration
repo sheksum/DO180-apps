@@ -1,5 +1,3 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# cat /proc/sys/kernel/random/entropy_avail
-256
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
+dnf install -y rng-tools
+systemctl start rngd
+cat /proc/sys/kernel/random/entropy_avail
