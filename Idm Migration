@@ -1,40 +1,14 @@
-2026-03-26T07:42:40Z DEBUG stderr=
-2026-03-26T07:42:40Z INFO [Setup kpasswd_server]
-2026-03-26T07:42:40Z DEBUG service KDC: config string pacTktSignSupported already set
-2026-03-26T07:42:40Z DEBUG service KDC has already enabled config values ['pacTktSignSupported']
-2026-03-26T07:42:40Z INFO [Adding ipa-ca alias to HTTP certificate]
-2026-03-26T07:42:40Z INFO Resubmitting HTTP cert tracking request
-2026-03-26T07:42:40Z DEBUG raw: server_role_find(None, server_server='pln-ipamaster.ipa.calix.local', role_servrole='IPA master', status='hidden', version='2.254')
-2026-03-26T07:42:40Z DEBUG server_role_find(None, server_server='pln-ipamaster.ipa.calix.local', role_servrole='IPA master', status='hidden', include_master=False, all=False, raw=False, version='2.254')
-2026-03-26T07:42:40Z DEBUG update_entry modlist [(1, 'ipaconfigstring', [b'configuredService']), (0, 'ipaconfigstring', [b'enabledService'])]
-2026-03-26T07:42:40Z DEBUG Set service ['KDC'] for pln-ipamaster.ipa.calix.local to enabledService
-2026-03-26T07:42:40Z DEBUG update_entry modlist [(1, 'ipaconfigstring', [b'configuredService']), (0, 'ipaconfigstring', [b'enabledService'])]
-2026-03-26T07:42:40Z DEBUG Set service ['KPASSWD'] for pln-ipamaster.ipa.calix.local to enabledService
-2026-03-26T07:42:40Z DEBUG update_entry modlist [(1, 'ipaconfigstring', [b'configuredService']), (0, 'ipaconfigstring', [b'enabledService'])]
-2026-03-26T07:42:40Z DEBUG Set service ['HTTP'] for pln-ipamaster.ipa.calix.local to enabledService
-2026-03-26T07:42:40Z DEBUG update_entry modlist [(1, 'ipaconfigstring', [b'configuredService']), (0, 'ipaconfigstring', [b'enabledService'])]
-2026-03-26T07:42:40Z DEBUG Set service ['OTPD'] for pln-ipamaster.ipa.calix.local to enabledService
-2026-03-26T07:42:40Z DEBUG update_entry modlist [(1, 'ipaconfigstring', [b'configuredService']), (0, 'ipaconfigstring', [b'enabledService'])]
-2026-03-26T07:42:40Z DEBUG Set service ['KEYS'] for pln-ipamaster.ipa.calix.local to enabledService
-2026-03-26T07:42:40Z DEBUG update_entry modlist [(1, 'ipaconfigstring', [b'configuredService']), (0, 'ipaconfigstring', [b'enabledService'])]
-2026-03-26T07:42:40Z DEBUG Set service ['CA'] for pln-ipamaster.ipa.calix.local to enabledService
-2026-03-26T07:42:40Z DEBUG request POST http://pln-ipamaster.ipa.calix.local:8080/ca/admin/ca/getStatus
-2026-03-26T07:42:40Z DEBUG request body ''
-2026-03-26T07:42:40Z DEBUG response status 200
-2026-03-26T07:42:40Z DEBUG response headers Content-Type: application/json
-Content-Length: 122
-Date: Thu, 26 Mar 2026 07:42:40 GMT
-
-
-2026-03-26T07:42:40Z DEBUG response body (decoded): b'{\n  "Response" : {\n    "State" : "1",\n    "Type" : "CA",\n    "Status" : "running",\n    "Version" : "11.7.0-SNAPSHOT"\n  }\n}'
-2026-03-26T07:42:40Z INFO The IPA services were upgraded
-2026-03-26T07:42:40Z DEBUG Loading StateFile from '/var/lib/ipa/sysupgrade/sysupgrade.state'
-2026-03-26T07:42:40Z DEBUG Saving StateFile to '/var/lib/ipa/sysupgrade/sysupgrade.state'
-2026-03-26T07:42:40Z DEBUG Loading StateFile from '/var/lib/ipa/sysupgrade/sysupgrade.state'
-2026-03-26T07:42:40Z DEBUG Saving StateFile to '/var/lib/ipa/sysupgrade/sysupgrade.state'
-2026-03-26T07:42:40Z INFO The ipa-server-upgrade command was successful
-
-
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipactl status
+Directory Service: RUNNING
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+pki-tomcatd Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa: INFO: The ipactl command was successful
+[root@pln-ipamaster ~]#
 [root@pln-ipamaster ~]# ipactl start
 IPA version error: no platform stored
 Automatically running upgrade, for details see /var/log/ipaupgrade.log
