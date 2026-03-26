@@ -1,4 +1,1 @@
-ipa-crlgen-manage disable
-
-# On pln
-ipa-crlgen-manage enable
+cat /var/lib/ipa/sysrestore/sysrestore.state
