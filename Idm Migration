@@ -1,2 +1,5 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=config" -s base "(objectclass=*)" nsslapd-readonly 2>/dev/null | grep readonly
+# requesting: nsslapd-readonly
+nsslapd-readonly: off
+[root@pln-ipamaster ~]#
