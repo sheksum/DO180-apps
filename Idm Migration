@@ -1,7 +1,18 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "ou=ca,ou=requests,o=ipaca" "(objectclass=*)" \
   -s one dn 2>/dev/null | grep "^dn:" | tail -5
-
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+dn: cn=40550076,ou=ca,ou=requests,o=ipaca
+dn: cn=40550077,ou=ca,ou=requests,o=ipaca
+dn: cn=40550078,ou=ca,ou=requests,o=ipaca
+dn: cn=40550079,ou=ca,ou=requests,o=ipaca
+dn: cn=40550080,ou=ca,ou=requests,o=ipaca
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "ou=ca,ou=requests,o=ipaca" "(objectclass=*)" \
   -s one requestType requestState requestCreatedAt 2>/dev/null | grep -E "requestType|requestState|requestCreatedAt" | sort | uniq -c | sort -rn | head -20
+ 560552 requestState: complete
+ 560136 requestType: enrollment
+    416 requestType: revocation
+      1 # requesting: requestType requestState requestCreatedAt
+[root@pln-ipamaster ~]#
