@@ -1,4 +1,11 @@
-ls -la /etc/httpd/conf/ipa.keytab
-ls -la /var/lib/ipa/gssproxy/http.keytab
-
-cat /etc/gssproxy/10-ipa.conf | grep keytab
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ls -la /etc/httpd/conf/ipa.keytab -Z
+-rw-------. 1 root root unconfined_u:object_r:etc_t:s0 406 Mar 26 07:57 /etc/httpd/conf/ipa.keytab
+[root@pln-ipamaster ~]# ls -la /var/lib/ipa/gssproxy/http.keytab -Z
+-rw-------. 1 root root unconfined_u:object_r:ipa_http_keytab_t:s0 204 Mar 25 23:43 /var/lib/ipa/gssproxy/http.keytab
+[root@pln-ipamaster ~]# cat /etc/gssproxy/10-ipa.conf | grep keytab
+  cred_store = keytab:/var/lib/ipa/gssproxy/http.keytab
+  cred_store = client_keytab:/var/lib/ipa/gssproxy/http.keytab
+  cred_store = keytab:/var/lib/ipa/gssproxy/http.keytab
+  cred_store = keytab:/var/lib/ipa/gssproxy/http.keytab
+[root@pln-ipamaster ~]#
