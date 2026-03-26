@@ -1,65 +1,66 @@
-debug3: authmethod_lookup publickey
-debug3: remaining preferred: keyboard-interactive,password
-debug3: authmethod_is_enabled publickey
-debug1: Next authentication method: publickey
-debug3: ssh_get_authentication_socket_path: path '/private/tmp/com.apple.launchd.nHUCDUUljk/Listeners'
-debug1: get_agent_identities: bound agent to hostkey
-debug1: get_agent_identities: ssh_fetch_identitylist: agent contains no identities
-debug1: Will attempt key: /Users/haj.suma/.ssh/id_rsa
-debug1: Will attempt key: /Users/haj.suma/.ssh/id_ecdsa
-debug1: Will attempt key: /Users/haj.suma/.ssh/id_ecdsa_sk
-debug1: Will attempt key: /Users/haj.suma/.ssh/id_ed25519
-debug1: Will attempt key: /Users/haj.suma/.ssh/id_ed25519_sk
-debug2: pubkey_prepare: done
-debug1: Trying private key: /Users/haj.suma/.ssh/id_rsa
-debug3: no such identity: /Users/haj.suma/.ssh/id_rsa: No such file or directory
-debug1: Trying private key: /Users/haj.suma/.ssh/id_ecdsa
-debug3: no such identity: /Users/haj.suma/.ssh/id_ecdsa: No such file or directory
-debug1: Trying private key: /Users/haj.suma/.ssh/id_ecdsa_sk
-debug3: no such identity: /Users/haj.suma/.ssh/id_ecdsa_sk: No such file or directory
-debug1: Trying private key: /Users/haj.suma/.ssh/id_ed25519
-debug3: no such identity: /Users/haj.suma/.ssh/id_ed25519: No such file or directory
-debug1: Trying private key: /Users/haj.suma/.ssh/id_ed25519_sk
-debug3: no such identity: /Users/haj.suma/.ssh/id_ed25519_sk: No such file or directory
-debug2: we did not send a packet, disable method
-debug3: authmethod_lookup keyboard-interactive
-debug3: remaining preferred: password
-debug3: authmethod_is_enabled keyboard-interactive
-debug1: Next authentication method: keyboard-interactive
-debug2: userauth_kbdint
-debug3: send packet: type 50
-debug2: we sent a keyboard-interactive packet, wait for reply
-debug3: receive packet: type 60
-debug2: input_userauth_info_req: entering
-debug2: input_userauth_info_req: num_prompts 1
-(hsuma@10.172.248.105) Password:
-debug3: send packet: type 61
-debug3: receive packet: type 51
-debug1: Authentications that can continue: publickey,gssapi-keyex,gssapi-with-mic,password,keyboard-interactive
-debug2: userauth_kbdint
-debug3: send packet: type 50
-debug2: we sent a keyboard-interactive packet, wait for reply
-debug3: receive packet: type 60
-debug2: input_userauth_info_req: entering
-debug2: input_userauth_info_req: num_prompts 1
-(hsuma@10.172.248.105) Password:Mar 26 12:58:09 plnx-admin.calix.local krb5_child[2405287]: Disk quota exceeded
-Mar 26 12:58:36 plnx-admin.calix.local krb5_child[2405352]: Disk quota exceeded
-Mar 26 12:58:36 plnx-admin.calix.local krb5_child[2405352]: Disk quota exceeded
-Mar 26 13:00:21 plnx-admin.calix.local krb5_child[2406120]: Disk quota exceeded
-Mar 26 13:00:21 plnx-admin.calix.local krb5_child[2406120]: Disk quota exceeded
-Mar 26 13:01:54 plnx-admin.calix.local krb5_child[2406500]: Disk quota exceeded
-Mar 26 13:01:54 plnx-admin.calix.local krb5_child[2406500]: Disk quota exceeded
-Mar 26 13:07:41 plnx-admin.calix.local krb5_child[2408011]: Disk quota exceeded
-Mar 26 13:07:41 plnx-admin.calix.local krb5_child[2408011]: Disk quota exceeded
-Mar 26 13:07:42 plnx-admin.calix.local sssd_be[2504199]: GSSAPI client step 1
-Mar 26 13:07:42 plnx-admin.calix.local sssd_be[2504199]: GSSAPI client step 1
-Mar 26 13:07:42 plnx-admin.calix.local sssd_be[2504199]: GSSAPI client step 1
-Mar 26 13:07:42 plnx-admin.calix.local sssd_be[2504199]: GSSAPI client step 2
-Mar 26 13:07:55 plnx-admin.calix.local krb5_child[2408059]: Preauthentication failed
-Mar 26 13:07:55 plnx-admin.calix.local krb5_child[2408059]: Preauthentication failed
-Mar 26 13:09:50 plnx-admin.calix.local systemd[1]: Stopping System Security Services Daemon...
-Mar 26 13:09:50 plnx-admin.calix.local sssd_pam[2504202]: Shutting down (status = 0)
-Mar 26 13:09:50 plnx-admin.calix.local sssd_nss[2504201]: Shutting down (status = 0)
+?
+Return-Path: <root@plnx-admin.calix.local>
+X-Original-To: root
+Delivered-To: root@plnx-admin.calix.local
+Received: by plnx-admin.calix.local (Postfix, from userid 0)
+	id 7B164260678; Thu, 26 Mar 2026 13:17:24 -0500 (CDT)
+To: root@plnx-admin.calix.local
+From: root@plnx-admin.calix.local
+Auto-Submitted: auto-generated
+Subject: *** SECURITY information for plnx-admin ***
+Message-Id: <20260326181724.7B164260678@plnx-admin.calix.local>
+Date: Thu, 26 Mar 2026 13:17:24 -0500 (CDT)
+
+plnx-admin : Mar 26 13:17:24 : root : problem with defaults entries ; TTY=pts/111 ; PWD=/root ; USER=root ;
+
+
+?
+Return-Path: <root@plnx-admin.calix.local>
+X-Original-To: root
+Delivered-To: root@plnx-admin.calix.local
+Received: by plnx-admin.calix.local (Postfix, from userid 0)
+	id 703922605A1; Thu, 26 Mar 2026 13:18:07 -0500 (CDT)
+To: root@plnx-admin.calix.local
+From: root@plnx-admin.calix.local
+Auto-Submitted: auto-generated
+Subject: *** SECURITY information for plnx-admin ***
+Message-Id: <20260326181807.703922605A1@plnx-admin.calix.local>
+Date: Thu, 26 Mar 2026 13:18:07 -0500 (CDT)
+
+plnx-admin : Mar 26 13:18:07 : root : problem with defaults entries ; TTY=pts/111 ; PWD=/root ; USER=root ;
+
+
+?
+Return-Path: <root@plnx-admin.calix.local>
+X-Original-To: root
+Delivered-To: root@plnx-admin.calix.local
+Received: by plnx-admin.calix.local (Postfix, from userid 0)
+	id B96D02605A1; Thu, 26 Mar 2026 13:18:27 -0500 (CDT)
+To: root@plnx-admin.calix.local
+From: root@plnx-admin.calix.local
+Auto-Submitted: auto-generated
+Subject: *** SECURITY information for plnx-admin ***
+Message-Id: <20260326181827.B96D02605A1@plnx-admin.calix.local>
+Date: Thu, 26 Mar 2026 13:18:27 -0500 (CDT)
+
+plnx-admin : Mar 26 13:18:27 : root : problem with defaults entries ; TTY=pts/111 ; PWD=/root ; USER=root ;
+
+
+?
+Return-Path: <root@plnx-admin.calix.local>
+X-Original-To: root
+Delivered-To: root@plnx-admin.calix.local
+Received: by plnx-admin.calix.local (Postfix, from userid 0)
+	id 9B413260659; Thu, 26 Mar 2026 13:18:39 -0500 (CDT)
+To: root@plnx-admin.calix.local
+From: root@plnx-admin.calix.local
+Auto-Submitted: auto-generated
+Subject: *** SECURITY information for plnx-admin ***
+Message-Id: <20260326181839.9B413260659@plnx-admin.calix.local>
+Date: Thu, 26 Mar 2026 13:18:39 -0500 (CDT)
+
+plnx-admin : Mar 26 13:18:39 : root : problem with defaults entries ; TTY=pts/111 ; PWD=/root ; USER=root ;
+
 Mar 26 13:09:50 plnx-admin.calix.local sssd_be[2504199]: Shutting down (status = 0)
 Mar 26 13:09:50 plnx-admin.calix.local sssd_ssh[2504203]: Shutting down (status = 0)
 Mar 26 13:09:50 plnx-admin.calix.local sssd_sudo[2504204]: Shutting down (status = 0)
