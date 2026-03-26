@@ -15,3 +15,8 @@ Update succeeded
   [5/33]: creating ACIs for admin
   [6/33]: creating installation admin user
   [7/33]: configuring certificate server instance
+
+
+[26/Mar/2026:00:07:11.833368574 +0000] - INFO - NSMMReplicationPlugin - repl5_tot_run - Finished total update of replica "agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389)". Sent 1089773 entries.
+[26/Mar/2026:00:07:11.834415643 +0000] - ERR - NSMMReplicationPlugin - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Total update flow control triggered 261 times
+You may increase nsds5ReplicaFlowControlPause and/or decrease nsds5ReplicaFlowControlWindow in the replica agreement configuration
