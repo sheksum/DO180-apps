@@ -1,24 +1,9 @@
-[root@pln-ipamaster ~]# systemctl status named
-● named.service - Berkeley Internet Name Domain (DNS)
-     Loaded: loaded (/usr/lib/systemd/system/named.service; disabled; preset: disabled)
-     Active: active (running) since Thu 2026-03-26 06:00:55 UTC; 4s ago
-    Process: 48410 ExecStartPre=/bin/bash -c if [ ! "$DISABLE_ZONE_CHECKING" == "yes" ]; then /usr/sbin/named-checkconf -z "$NAMEDCONF"; else echo "Checking of zone files is disabled"; fi (code=exited, status=0/SUCCESS)
-    Process: 48413 ExecStart=/usr/sbin/named -u named -c ${NAMEDCONF} $OPTIONS (code=exited, status=0/SUCCESS)
-   Main PID: 48414 (named)
-      Tasks: 26 (limit: 203337)
-     Memory: 116.1M (peak: 117.5M)
-        CPU: 147ms
-     CGroup: /system.slice/named.service
-             └─48414 /usr/sbin/named -u named -c /etc/named.conf
+# On cpeg
+ldapsearch -Y GSSAPI \
+  -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+  "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
 
-Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: command channel listening on ::1#953
-Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: loaded serial 0
-Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: zone 0.in-addr.arpa/IN: loaded serial 0
-Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: zone 1.0.0.127.in-addr.arpa/IN: loaded serial 0
-Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: zone 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa/IN: loaded serial 0
-Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: zone localhost/IN: loaded serial 0
-Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: zone localhost.localdomain/IN: loaded serial 0
-Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: all zones loaded
-Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: running
-Mar 26 06:00:55 pln-ipamaster.ipa.calix.local systemd[1]: Started Berkeley Internet Name Domain (DNS).
-[root@pln-ipamaster ~]#
+
+ldapsearch -Y GSSAPI \
+  -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+  "(cn=pln-ipamaster.ipa.calix.local)" 2>/dev/null
