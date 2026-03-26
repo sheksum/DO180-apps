@@ -1,2 +1,21 @@
-# On cpeg
-ipa dnszone-find --all | grep -i dnssec
+[root@cpeg-ipareplica dnssec]# ipa dnszone-find --all
+  dn: idnsname=ipa.calix.local.,cn=dns,dc=ipa,dc=calix,dc=local
+  Zone name: ipa.calix.local.
+  Active zone: True
+  Authoritative nameserver: pet-ipamaster.ipa.calix.local.
+  Administrator e-mail address: hostmaster.ipa.calix.local.
+  SOA serial: 1774516006
+  SOA refresh: 3600
+  SOA retry: 900
+  SOA expire: 1209600
+  SOA minimum: 3600
+  BIND update policy: grant IPA.CALIX.LOCAL krb5-self * A; grant IPA.CALIX.LOCAL krb5-self * AAAA; grant IPA.CALIX.LOCAL krb5-self * SSHFP;
+  Dynamic update: True
+  Allow query: any;
+  Allow transfer: none;
+  nsrecord: sjc-ipareplica01.ipa.calix.local., nan-ipareplica01.ipa.calix.local., ric-ipareplica01.ipa.calix.local., ric-ipareplica.ipa.calix.local., cpeg-ipareplica.ipa.calix.local.
+  objectclass: top, idnsrecord, idnszone
+----------------------------
+Number of entries returned 1
+----------------------------
+[root@cpeg-ipareplica dnssec]#
