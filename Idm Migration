@@ -1,2 +1,6 @@
- ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#  ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=encryption,cn=config" -s base "(objectclass=*)" nsSSL3 nsTLS1 2>/dev/null | grep -E "nsSSL|nsTLS"
+# requesting: nsSSL3 nsTLS1
+[root@pln-ipamaster ~]#
