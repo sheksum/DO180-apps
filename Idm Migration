@@ -1,1 +1,10 @@
-cat /usr/lib/systemd/system/ipa.service | grep -E "ExecStart|After|Wants"
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# cat /usr/lib/systemd/system/ipa.service | grep -E "ExecStart|After|Wants"
+Wants=network.target
+Wants=gssproxy.service
+After=network.target
+ExecStart=/usr/sbin/ipactl start
+RemainAfterExit=yes
+[root@pln-ipamaster ~]#cat /usr/lib/systemd/system/ipa.service | grep -E "ExecStart|After|Wants"
