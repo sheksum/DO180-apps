@@ -1,39 +1,23 @@
-[root@pln-ipamaster ~]# systemctl enable named
-Created symlink /etc/systemd/system/multi-user.target.wants/named.service → /usr/lib/systemd/system/named.service.
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl status named
-● named.service - Berkeley Internet Name Domain (DNS)
-     Loaded: loaded (/usr/lib/systemd/system/named.service; enabled; preset: disabled)
-     Active: active (running) since Thu 2026-03-26 06:00:55 UTC; 7h ago
-   Main PID: 48414 (named)
-      Tasks: 34 (limit: 203337)
-     Memory: 117.5M (peak: 119.5M)
-        CPU: 1.292s
-     CGroup: /system.slice/named.service
-             └─48414 /usr/sbin/named -u named -c /etc/named.conf
-
-Mar 26 09:01:35 pln-ipamaster.ipa.calix.local named[48414]: resolver priming query complete
-Mar 26 09:01:35 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: Unable to fetch DNSKEY set '.': timed out
-Mar 26 10:01:45 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: Unable to fetch DNSKEY set '.': timed out
-Mar 26 10:01:45 pln-ipamaster.ipa.calix.local named[48414]: resolver priming query complete
-Mar 26 11:01:55 pln-ipamaster.ipa.calix.local named[48414]: resolver priming query complete
-Mar 26 11:01:55 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: Unable to fetch DNSKEY set '.': timed out
-Mar 26 12:02:05 pln-ipamaster.ipa.calix.local named[48414]: resolver priming query complete
-Mar 26 12:02:05 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: Unable to fetch DNSKEY set '.': timed out
-Mar 26 13:02:15 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: Unable to fetch DNSKEY set '.': timed out
-Mar 26 13:02:15 pln-ipamaster.ipa.calix.local named[48414]: resolver priming query complete
-[root@pln-ipamaster ~]# systemctl enable ipa-dnskeysyncd.service
-Created symlink /etc/systemd/system/multi-user.target.wants/ipa-dnskeysyncd.service → /usr/lib/systemd/system/ipa-dnskeysyncd.service.
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl status ipa-dnskeysyncd.service
-○ ipa-dnskeysyncd.service - IPA key daemon
-     Loaded: loaded (/usr/lib/systemd/system/ipa-dnskeysyncd.service; enabled; preset: disabled)
-     Active: inactive (dead)
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl start ipa-dnskeysyncd.service
+[root@pln-ipamaster ~]# journalctl -fu ipa-dnskeysyncd.service
+Mar 26 14:00:56 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 2.092s CPU time.
+Mar 26 14:01:56 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Scheduled restart job, restart counter is at 4.
+Mar 26 14:01:56 pln-ipamaster.ipa.calix.local systemd[1]: Stopped IPA key daemon.
+Mar 26 14:01:56 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 2.092s CPU time.
+Mar 26 14:01:56 pln-ipamaster.ipa.calix.local systemd[1]: Started IPA key daemon.
+Mar 26 14:01:57 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55158]: ipa-dnskeysyncd: INFO     To increase debugging set debug=True in dns.conf See default.conf(5) for details
+Mar 26 14:01:58 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55158]: ipa-dnskeysyncd: CRITICAL Kerberos authentication failed: Major (458752): No credentials were supplied, or the credentials were unavailable or inaccessible, Minor (2529639107): No credentials cache found
+Mar 26 14:01:58 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Main process exited, code=exited, status=1/FAILURE
+Mar 26 14:01:58 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Failed with result 'exit-code'.
+Mar 26 14:01:58 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 2.007s CPU time.
+Mar 26 14:02:59 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Scheduled restart job, restart counter is at 5.
+Mar 26 14:02:59 pln-ipamaster.ipa.calix.local systemd[1]: Stopped IPA key daemon.
+Mar 26 14:02:59 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 2.007s CPU time.
+Mar 26 14:02:59 pln-ipamaster.ipa.calix.local systemd[1]: Started IPA key daemon.
+Mar 26 14:02:59 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55165]: ipa-dnskeysyncd: INFO     To increase debugging set debug=True in dns.conf See default.conf(5) for details
+Mar 26 14:03:00 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55165]: ipa-dnskeysyncd: CRITICAL Kerberos authentication failed: Major (458752): No credentials were supplied, or the credentials were unavailable or inaccessible, Minor (2529639107): No credentials cache found
+Mar 26 14:03:00 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Main process exited, code=exited, status=1/FAILURE
+Mar 26 14:03:00 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Failed with result 'exit-code'.
+Mar 26 14:03:00 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 1.940s CPU time.
 [root@pln-ipamaster ~]# systemctl status ipa-dnskeysyncd.service
 ● ipa-dnskeysyncd.service - IPA key daemon
      Loaded: loaded (/usr/lib/systemd/system/ipa-dnskeysyncd.service; enabled; preset: disabled)
