@@ -1,11 +1,2 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ps aux | grep ipa | grep -v grep
-avahi        987  0.0  0.0  35448  7548 ?        Ss   Mar24   0:00 avahi-daemon: running [pln-ipamaster.local]
-root       38436  0.1  0.5 440964 188684 pts/0   S+   Mar25   0:23 /usr/bin/python3 -I /usr/sbin/ipa-replica-install --setup-ca --setup-dns --no-forwarders --no-ntp --server cpeg-ipareplica.ipa.calix.local --domain ipa.calix.local --realm IPA.CALIX.LOCAL --principal admin --admin-password XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX --skip-conncheck --force-join
-root       38540  0.0  0.0 325968 26896 ?        S    Mar25   0:00 /usr/libexec/sssd/sssd_be --domain ipa.calix.local --uid 0 --gid 0 --logger=files
-root       40207  0.0  0.1 277324 48408 ?        Ss   Mar25   0:03 /usr/bin/python3 -I /usr/libexec/ipa/ipa-custodia /etc/ipa/custodia/custodia.conf
-ipaapi     47892  0.1  0.2 442892 94512 ?        Sl   05:26   0:01 (wsgi:ipa)      -DFOREGROUND
-ipaapi     47893  0.1  0.2 442892 94520 ?        Sl   05:26   0:01 (wsgi:ipa)      -DFOREGROUND
-ipaapi     47894  0.1  0.2 442896 94568 ?        Sl   05:26   0:01 (wsgi:ipa)      -DFOREGROUND
-ipaapi     47896  0.1  0.2 442892 94560 ?        Sl   05:26   0:01 (wsgi:ipa)      -DFOREGROUND
-[root@pln-ipamaster ~]#
+ls -la /proc/38436/fd 2>/dev/null | wc -l
+cat /proc/38436/wchan 2>/dev/null
