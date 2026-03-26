@@ -1,19 +1,17 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
-  "(objectclass=*)" 2>/dev/null
-# extended LDIF
-#
-# LDAPv3
-# base <cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
-# filter: (objectclass=*)
-# requesting: ALL
-#
+ldapadd -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
+dn: cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: top
+objectClass: nsContainer
+objectClass: ipaReplTopoManagedServer
+objectClass: ipaConfigObject
+objectClass: ipaSupportedDomainLevelConfig
+cn: pln-ipamaster.ipa.calix.local
+ipaReplTopoManagedSuffix: dc=ipa,dc=calix,dc=local
+ipaReplTopoManagedSuffix: o=ipaca
+ipaMinDomainLevel: 1
+ipaMaxDomainLevel: 1
 
-# KDC, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
-dn: cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc
- =calix,dc=local
+dn: cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
 objectClass: nsContainer
 objectClass: ipaConfigObject
 objectClass: top
@@ -22,11 +20,4 @@ ipaConfigString: configuredService
 ipaConfigString: startOrder 10
 ipaConfigString: pacTktSignSupported
 ipaConfigString: kdcProxyEnabled
-
-# search result
-search: 2
-result: 0 Success
-
-# numResponses: 2
-# numEntries: 1
-[root@pln-ipamaster ~]#
+EOF
