@@ -1,14 +1,32 @@
-# On pln
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
-  "(objectclass=*)" dn 2>/dev/null
-
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=config" "(nsds5replicaHost=cpeg-ipareplica.ipa.calix.local)" \
-  nsds5replicaLastUpdateStatus 2>/dev/null | grep Status
-
-
-
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
   "(objectclass=*)" 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+
+# KDC, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc
+ =calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: KDC
+ipaConfigString: configuredService
+ipaConfigString: startOrder 10
+ipaConfigString: pacTktSignSupported
+ipaConfigString: kdcProxyEnabled
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+[root@pln-ipamaster ~]#
