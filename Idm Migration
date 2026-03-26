@@ -1,1 +1,5 @@
-grep DAEMONNAME /usr/libexec/ipa/ipa-dnskeysyncd
+[root@pln-ipamaster dnssec]#
+[root@pln-ipamaster dnssec]# grep DAEMONNAME /usr/libexec/ipa/ipa-dnskeysyncd
+DAEMONNAME = 'ipa-dnskeysyncd'
+PRINCIPAL = str('%s/%s' % (DAEMONNAME, api.env.host))
+[root@pln-ipamaster dnssec]#
