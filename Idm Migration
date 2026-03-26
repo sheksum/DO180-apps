@@ -1,4 +1,51 @@
-Mar 26 05:19:17 pln-ipamaster.ipa.calix.local server[47482]: NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
-Mar 26 05:19:17 pln-ipamaster.ipa.calix.local systemd[1]: pki-tomcatd@pki-tomcat.service: Deactivated successfully.
-Mar 26 05:19:17 pln-ipamaster.ipa.calix.local systemd[1]: Stopped PKI Tomcat Server pki-tomcat.
-Mar 26 05:19:17 pln-ipamaster.ipa.calix.local systemd[1]: pki-tomcatd@pki-tomcat.service: Consumed 30.381s CPU time.
+Mar 26 05:19:42 pln-ipamaster.ipa.calix.local systemd[1]: Starting PKI Tomcat Server pki-tomcat...
+Mar 26 05:19:43 pln-ipamaster.ipa.calix.local pki-server[47600]: NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+Mar 26 05:19:43 pln-ipamaster.ipa.calix.local pki-server[47575]: AJP connector requiredSecret: None
+Mar 26 05:19:43 pln-ipamaster.ipa.calix.local pki-server[47575]: AJP connector requiredSecret: None
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local server[47647]: Java virtual machine used: /usr/lib/jvm/jre-17-openjdk/bin/java
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local server[47647]: classpath used: /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar:
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local server[47647]: main class used: org.apache.catalina.startup.Bootstrap
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local server[47647]: flags used: -Dcom.redhat.fips=false
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local server[47647]: options used: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.file=/var/lib/pki/pki-tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dsun.io.useCanonCaches=false     -Djava.security.manager     -Djava.security.policy==/var/lib/pki/pki-tomcat/conf/catalina.policy
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local server[47647]: arguments used: start
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local server[47647]: NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local server[47647]: WARNING: A command line option has enabled the Security Manager
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local server[47647]: WARNING: The Security Manager is deprecated and will be removed in a future release
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: pki.client: /usr/libexec/ipa/ipa-pki-wait-running:61: The subsystem in PKIConnection.__init__() has been deprecated (https://github.com/dogtagpki/pki/wiki/PKI-10.8-Python-Changes).
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Created connection http://pln-ipamaster.ipa.calix.local:8080/ca
+Mar 26 05:19:44 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f02a632f1f0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+Mar 26 05:19:45 pln-ipamaster.ipa.calix.local server[47647]: WARNING: Tomcat interprets the [protocols] attribute in a manner consistent with the latest OpenSSL development branch. Some of the specified [protocols] are not supported by the configured SSL engine for this connector (which may use JSSE or an older OpenSSL version) and have been skipped: [[TLSv1, TLSv1.1]]
+Mar 26 05:19:46 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:19:48 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:19:50 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:19:52 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:19:54 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:19:56 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:19:58 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:20:00 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:20:02 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:20:04 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:20:06 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:20:08 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:20:10 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 05:20:12 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47648]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+^C
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-tomcat/ca/debug.$(date +%Y-%m-%d).log | grep -v "SerialNumber\|INFO"
+2026-03-26 05:19:59 [main] WARNING: AuthorityMonitor: Caught InterruptedException while waiting for initial load of authorities.
+2026-03-26 05:19:59 [main] WARNING: AuthorityMonitor: You may have replication conflict entries or extraneous data under ou=authorities,ou=ca,o=ipaca
+
+
+[root@pln-ipamaster ~]# tail -f /var/log/pki/pki-tomcat/ca/debug.$(date +%Y-%m-%d).log
+2026-03-26 05:19:49 [main] INFO: AuthorityMonitor: Waiting for authorities to load
+2026-03-26 05:19:49 [AuthorityMonitor] INFO: AuthorityMonitor: Loading authority record cn=7acefe44-df0f-4fa5-8142-d67d42cc18b2,ou=authorities,ou=ca,o=ipaca
+2026-03-26 05:19:49 [AuthorityMonitor] INFO: AuthorityRepository: Loading cn=7acefe44-df0f-4fa5-8142-d67d42cc18b2,ou=authorities,ou=ca,o=ipaca
+2026-03-26 05:19:49 [AuthorityMonitor] INFO: AuthorityMonitor: Updating host CA
+2026-03-26 05:19:49 [AuthorityMonitor] INFO: AuthorityMonitor: - ID: 7acefe44-df0f-4fa5-8142-d67d42cc18b2
+2026-03-26 05:19:49 [AuthorityMonitor] INFO: AuthorityMonitor: - description: Host authority
+2026-03-26 05:19:59 [main] WARNING: AuthorityMonitor: Caught InterruptedException while waiting for initial load of authorities.
+2026-03-26 05:19:59 [main] WARNING: AuthorityMonitor: You may have replication conflict entries or extraneous data under ou=authorities,ou=ca,o=ipaca
+2026-03-26 05:19:59 [main] INFO: CMSEngine: Initializing ca subsystem
+2026-03-26 05:19:59 [main] INFO: CMSEngine: Initializing profile subsystem
