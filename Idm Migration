@@ -1,7 +1,26 @@
-chown root:apache /run/ipa/ccaches
-chmod 770 /run/ipa/ccaches
-ls -la /run/ipa/ccaches/
-
-rm -f /run/ipa/ccaches/*
-kinit admin
-ipa user-show admin
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# chown root:apache /run/ipa/ccaches
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# chmod 770 /run/ipa/ccaches
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ls -la /run/ipa/ccaches/
+total 40
+drwsrws---+ 2 root   apache   120 Mar 26 08:10 .
+drwx--x--x. 3 root   root     100 Mar 26 07:42 ..
+-rwxrwx---. 1 root   apache  9900 Mar 26 07:46 admin@IPA.CALIX.LOCAL-gLHJBi
+-rw-rw----. 1 apache apache  5708 Mar 26 08:10 admin@IPA.CALIX.LOCAL-mx04Bj
+-rwxrwx---. 1 root   apache 11256 Mar 26 07:42 host~pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL-VsLcIT
+-rw-rw----. 1 apache apache  5708 Mar 26 08:10 hsuma@IPA.CALIX.LOCAL-3Clbh5
+[root@pln-ipamaster ~]# rm -f /run/ipa/ccaches/*
+[root@pln-ipamaster ~]# kinit admin
+Password for admin@IPA.CALIX.LOCAL:
+[root@pln-ipamaster ~]# ipa user-show admin
+ipa: ERROR: Major (458752): No credentials were supplied, or the credentials were unavailable or inaccessible, Minor (2598845122): Credentials cache permissions incorrect (filename: /run/ipa/ccaches/admin@IPA.CALIX.LOCAL-9XoRYq)
+[root@pln-ipamaster ~]# ls -la /run/ipa/ccaches/
+total 8
+drwsrws---+ 2 root   apache   60 Mar 26 08:12 .
+drwx--x--x. 3 root   root    100 Mar 26 07:42 ..
+-rw-rw----. 1 apache apache 5708 Mar 26 08:12 admin@IPA.CALIX.LOCAL-9XoRYq
+[root@pln-ipamaster ~]#
