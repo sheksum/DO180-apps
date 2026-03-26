@@ -1,29 +1,46 @@
-Done configuring Kerberos KDC (krb5kdc).
-Applying LDAP updates
-Upgrading IPA:. Estimated time: 1 minute 30 seconds
-  [1/10]: stopping directory server
-  [2/10]: saving configuration
-  [3/10]: disabling listeners
-  [4/10]: enabling DS global lock
-  [5/10]: disabling Schema Compat
-  [6/10]: starting directory server
-  [7/10]: upgrading server
-Upgrade failed with cannot connect to 'ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket':
-  [error] RuntimeError: cannot connect to 'ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket':
-  [cleanup]: stopping directory server
-  [cleanup]: restoring configuration
-Your system may be partly configured.
-Run /usr/sbin/ipa-server-install --uninstall to clean up.
+sysrestore/ sysupgrade/
+[root@pln-ipamaster ~]# cat /var/lib/ipa/sysrestore/sysrestore.state
+[installation]
+complete = False
 
-Update failed: cannot connect to 'ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket':
-The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
-[root@pln-ipamaster ~]#
+[dirsrv]
+serverid = IPA-CALIX-LOCAL
+enabled = True
 
+[krb5kdc]
+running = False
+enabled = False
 
-[root@pln-ipamaster ~]# systemctl restart dirsrv
-dirsrv@IPA-CALIX-LOCAL.service  dirsrv.target
-[root@pln-ipamaster ~]# systemctl restart dirsrv
-dirsrv@IPA-CALIX-LOCAL.service  dirsrv.target
-[root@pln-ipamaster ~]# systemctl restart dirsrv@IPA-CALIX-LOCAL.service
-Job for dirsrv@IPA-CALIX-LOCAL.service canceled.
+[kadmin]
+running = False
+enabled = False
+
+[httpd]
+running = True
+certmonger_ipa_helper = /usr/libexec/certmonger/ipa-submit
+httpd_can_network_connect = off
+httpd_manage_ipa = off
+httpd_run_ipa = off
+httpd_dbus_sssd = off
+enabled = False
+
+[oddjobd]
+running = False
+enabled = False
+
+[ipa-otpd]
+running = False
+enabled = False
+
+[ipa-custodia]
+running = False
+enabled = False
+
+[pki_hsm]
+enabled = False
+token_name = internal
+
+[pki-tomcatd]
+installed = True
+
 [root@pln-ipamaster ~]#
