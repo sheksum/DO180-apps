@@ -1,6 +1,13 @@
-# On pln
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
   "(objectclass=*)" dn 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
+# filter: (objectclass=*)
+# requesting: dn
+#
 
-grep -v DEBUG /var/log/ipareplica-install.log | tail -20
+
+
