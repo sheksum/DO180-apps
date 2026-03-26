@@ -1,36 +1,9 @@
-[root@cpeg-ipareplica ~]# cat /etc/ipa/default.conf | grep -E "keytab|ccache|dnskeysyncd"
-[root@cpeg-ipareplica ~]# cat /etc/ipa/dns.conf 2>/dev/null || echo "not found"
-not found
-[root@cpeg-ipareplica ~]# ls -la /etc/ipa/dnssec/
-total 12
-drwxr-xr-x. 2 root root  79 Jan 23  2025 .
-drwxr-xr-x. 8 root root 190 Jan 12 15:10 ..
--r--r-----. 1 root ods  792 Jul  1  2024 ipa-dnskeysyncd.keytab
--rw-r--r--. 1 root root 145 Jul  1  2024 softhsm2.conf
--r--------. 1 root root  30 Jul  1  2024 softhsm_pin_so
-[root@cpeg-ipareplica ~]#
+# On cpeg
+scp /etc/ipa/dnssec/softhsm2.conf root@pln-ipamaster.ipa.calix.local:/etc/ipa/dnssec/
+scp /etc/ipa/dnssec/softhsm_pin_so root@pln-ipamaster.ipa.calix.local:/etc/ipa/dnssec/
 
+# On pln
+chown root:ods /etc/ipa/dnssec/ipa-dnskeysyncd.keytab
+chmod 440 /etc/ipa/dnssec/ipa-dnskeysyncd.keytab
 
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl status ipa-dnskeysyncd.service
-● ipa-dnskeysyncd.service - IPA key daemon
-     Loaded: loaded (/usr/lib/systemd/system/ipa-dnskeysyncd.service; enabled; preset: disabled)
-     Active: activating (auto-restart) (Result: exit-code) since Thu 2026-03-26 14:13:17 UTC; 22s ago
-    Process: 55245 ExecStart=/usr/libexec/ipa/ipa-dnskeysyncd (code=exited, status=1/FAILURE)
-   Main PID: 55245 (code=exited, status=1/FAILURE)
-        CPU: 2.152s
-[root@pln-ipamaster ~]# ^C
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# cat /etc/ipa/dns.conf 2>/dev/null || echo "not found"
-not found
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# cat /etc/ipa/default.conf | grep -E "keytab|ccache|dnskeysyncd"
-[root@pln-ipamaster ~]# ls -la /etc/ipa/dnssec/
-total 4
-drwxr-xr-x. 2 root root   36 Mar 26 14:06 .
-drwxr-xr-x. 7 root root  160 Mar 25 23:43 ..
--rw-r-----. 1 ods  named 202 Mar 26 14:06 ipa-dnskeysyncd.keytab
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
+systemctl restart ipa-dnskeysyncd
