@@ -21,3 +21,18 @@ ipaConfigString: startOrder 10
 ipaConfigString: pacTktSignSupported
 ipaConfigString: kdcProxyEnabled
 EOF
+
+
+Done configuring certificate server (pki-tomcatd).
+Configuring Kerberos KDC (krb5kdc)
+  [1/1]: installing X509 Certificate for PKINIT
+Done configuring Kerberos KDC (krb5kdc).
+Applying LDAP updates
+Upgrading IPA:. Estimated time: 1 minute 30 seconds
+  [1/10]: stopping directory server
+  [2/10]: saving configuration
+  [3/10]: disabling listeners
+  [4/10]: enabling DS global lock
+  [5/10]: disabling Schema Compat
+  [6/10]: starting directory server
+  [7/10]: upgrading server
