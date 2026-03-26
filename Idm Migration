@@ -1,55 +1,87 @@
-2026-03-26T07:24:02Z DEBUG stdout=inactive
+2026-03-26T07:34:22Z DEBUG stderr=ERROR: No kra subsystem in instance pki-tomcat.
 
-2026-03-26T07:24:02Z DEBUG stderr=
-2026-03-26T07:24:02Z INFO [Migrate CRL publish directory]
-2026-03-26T07:24:02Z DEBUG Loading StateFile from '/var/lib/ipa/sysupgrade/sysupgrade.state'
-2026-03-26T07:24:02Z DEBUG Starting external process
-2026-03-26T07:24:02Z DEBUG args=['/usr/sbin/selinuxenabled']
-2026-03-26T07:24:02Z DEBUG Process finished, return code=0
-2026-03-26T07:24:02Z DEBUG stdout=
-2026-03-26T07:24:02Z DEBUG stderr=
-2026-03-26T07:24:02Z DEBUG Starting external process
-2026-03-26T07:24:02Z DEBUG args=['/sbin/restorecon', '/var/lib/ipa/pki-ca/publish']
-2026-03-26T07:24:02Z DEBUG Process finished, return code=0
-2026-03-26T07:24:02Z DEBUG stdout=
-2026-03-26T07:24:02Z DEBUG stderr=
-2026-03-26T07:24:02Z INFO Publish directory already set to new location
-2026-03-26T07:24:02Z DEBUG Loading StateFile from '/var/lib/ipa/sysupgrade/sysupgrade.state'
-2026-03-26T07:24:02Z DEBUG Saving StateFile to '/var/lib/ipa/sysupgrade/sysupgrade.state'
-2026-03-26T07:24:02Z DEBUG Starting external process
-2026-03-26T07:24:02Z DEBUG args=['/usr/sbin/tomcat', 'version']
-2026-03-26T07:24:02Z DEBUG Process finished, return code=0
-2026-03-26T07:24:02Z DEBUG stdout=Server version: Apache Tomcat/9.0.87
-Server built:   Dec 20 1969 01:54:01 UTC
-Server number:  9.0.87.0
-OS Name:        Linux
-OS Version:     5.14.0-611.30.1.el9_7.x86_64
-Architecture:   amd64
-JVM Version:    17.0.18+8-LTS
-JVM Vendor:     Red Hat, Inc.
+2026-03-26T07:34:22Z DEBUG Loading Index file from '/var/lib/ipa/sysrestore/sysrestore.index'
+2026-03-26T07:34:22Z DEBUG Starting external process
+2026-03-26T07:34:22Z DEBUG args=['/usr/bin/certutil', '-d', 'sql:/etc/dirsrv/slapd-IPA-CALIX-LOCAL', '-L', '-n', 'Server-Cert', '-a', '-f', '/etc/dirsrv/slapd-IPA-CALIX-LOCAL/pwdfile.txt']
+2026-03-26T07:34:22Z DEBUG Process finished, return code=0
+2026-03-26T07:34:22Z DEBUG stdout=-----BEGIN CERTIFICATE-----
+MIIE8jCCA9qgAwIBAgIEQAdMtzANBgkqhkiG9w0BAQsFADA6MRgwFgYDVQQKDA9J
+UEEuQ0FMSVguTE9DQUwxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAe
+Fw0yNjAzMjUyMzQzMDZaFw0yODAzMjUyMzQzMDZaMEIxGDAWBgNVBAoMD0lQQS5D
+QUxJWC5MT0NBTDEmMCQGA1UEAwwdcGxuLWlwYW1hc3Rlci5pcGEuY2FsaXgubG9j
+YWwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDLh7jbhnAwjDDroHCm
+HoHXNigcDQ4NYdXVu90nEeDvbF+92ieepCLTXYUYtBm2zMmufC40S2IoY6wT14A+
+wsOC/dDK8mFESvYOiOoRDJJ5Y/SS0VLbSttA9Qy5VgK2v5htnsuW+5w7J+NmarIh
+fMtgGe2CQVeMmcvyaRO/UQvA4Gi8U7fVxrmrSs7b+tEfK+3CTKIniluXWxBhzb/7
+c6HFg8MKHxUua0ZOGrXJ/jCyA+ciiTz8e2CuiF2+oa8I2gc1bhCL4L/2w3QPxRxz
+13FNkssYWiMdutbyDAYfWElK3gP6T+T6o8jRwjmi3UX+BcehZ05EDXqXzw/rVJj1
+vcvZAgMBAAGjggH2MIIB8jAfBgNVHSMEGDAWgBQXW9dITSoNenoACqA7Hexxq2iU
+qjBBBggrBgEFBQcBAQQ1MDMwMQYIKwYBBQUHMAGGJWh0dHA6Ly9pcGEtY2EuaXBh
+LmNhbGl4LmxvY2FsL2NhL29jc3AwDgYDVR0PAQH/BAQDAgTwMB0GA1UdJQQWMBQG
+CCsGAQUFBwMBBggrBgEFBQcDAjB6BgNVHR8EczBxMG+gN6A1hjNodHRwOi8vaXBh
+LWNhLmlwYS5jYWxpeC5sb2NhbC9pcGEvY3JsL01hc3RlckNSTC5iaW6iNKQyMDAx
+DjAMBgNVBAoMBWlwYWNhMR4wHAYDVQQDDBVDZXJ0aWZpY2F0ZSBBdXRob3JpdHkw
+HQYDVR0OBBYEFKAbUz6IpjNXIB5zmHEM3ppFJqQKMIHBBgNVHREEgbkwgbaCHXBs
+bi1pcGFtYXN0ZXIuaXBhLmNhbGl4LmxvY2FsoEIGCisGAQQBgjcUAgOgNAwybGRh
+cC9wbG4taXBhbWFzdGVyLmlwYS5jYWxpeC5sb2NhbEBJUEEuQ0FMSVguTE9DQUyg
+UQYGKwYBBQICoEcwRaARGw9JUEEuQ0FMSVguTE9DQUyhMDAuoAMCAQGhJzAlGwRs
+ZGFwGx1wbG4taXBhbWFzdGVyLmlwYS5jYWxpeC5sb2NhbDANBgkqhkiG9w0BAQsF
+AAOCAQEAKdlv3k/ZVaFRUcs8cTgqAZFryaR69hi+xNBH3kLZjy1yxa9Qwpziz3cw
+VUXd/Qzgx86nSUq1f9aecjyTBU+hsV/I75gHxm40x0ohEPmIZqJmvUuwgJyZCzLg
+nwNc7z68m26yseU0/nY/+Wr0J3r20pksPrskaMrmmn46GB+TO0oiIhvIyaK0mZbn
+NCIWZ/DVF2TAL9F3PfhG8bjZ8oFFPV055jAfFWDA2jYMAcfRQTGxwceN+g8whGin
+V6Bu12e06x0L27vUk4awvDAIub01mBtw6ZA6HwZLe4u4t8g/f+VCeJt9w3XUMelS
+KP6ibwg3Lh6MEsIlif1RSB/TUX1rBg==
+-----END CERTIFICATE-----
 
-2026-03-26T07:24:02Z DEBUG stderr=NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+2026-03-26T07:34:22Z DEBUG stderr=
+2026-03-26T07:34:22Z DEBUG start tracking {'TRACK': True, 'CERT_STORAGE': 'NSSDB', 'KEY_STORAGE': 'NSSDB', 'CERT_LOCATION': '/etc/dirsrv/slapd-IPA-CALIX-LOCAL', 'KEY_LOCATION': '/etc/dirsrv/slapd-IPA-CALIX-LOCAL', 'CA': dbus.ObjectPath('/org/fedorahosted/certmonger/cas/CA2'), 'CERT_NICKNAME': 'Server-Cert', 'KEY_NICKNAME': 'Server-Cert', 'KEY_PIN_FILE': '/etc/dirsrv/slapd-IPA-CALIX-LOCAL/pwdfile.txt', 'cert-postsave-command': '/usr/libexec/ipa/certmonger/restart_dirsrv IPA-CALIX-LOCAL', 'ca-profile': 'caIPAserviceCert'}
+2026-03-26T07:34:23Z DEBUG Starting external process
+2026-03-26T07:34:23Z DEBUG args=['/usr/bin/certutil', '-d', 'sql:/etc/dirsrv/slapd-IPA-CALIX-LOCAL', '-L', '-n', 'Server-Cert', '-a', '-f', '/etc/dirsrv/slapd-IPA-CALIX-LOCAL/pwdfile.txt']
+2026-03-26T07:34:23Z DEBUG Process finished, return code=0
+2026-03-26T07:34:23Z DEBUG stdout=-----BEGIN CERTIFICATE-----
+MIIE8jCCA9qgAwIBAgIEQAdMtzANBgkqhkiG9w0BAQsFADA6MRgwFgYDVQQKDA9J
+UEEuQ0FMSVguTE9DQUwxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAe
+Fw0yNjAzMjUyMzQzMDZaFw0yODAzMjUyMzQzMDZaMEIxGDAWBgNVBAoMD0lQQS5D
+QUxJWC5MT0NBTDEmMCQGA1UEAwwdcGxuLWlwYW1hc3Rlci5pcGEuY2FsaXgubG9j
+YWwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDLh7jbhnAwjDDroHCm
+HoHXNigcDQ4NYdXVu90nEeDvbF+92ieepCLTXYUYtBm2zMmufC40S2IoY6wT14A+
+wsOC/dDK8mFESvYOiOoRDJJ5Y/SS0VLbSttA9Qy5VgK2v5htnsuW+5w7J+NmarIh
+fMtgGe2CQVeMmcvyaRO/UQvA4Gi8U7fVxrmrSs7b+tEfK+3CTKIniluXWxBhzb/7
+c6HFg8MKHxUua0ZOGrXJ/jCyA+ciiTz8e2CuiF2+oa8I2gc1bhCL4L/2w3QPxRxz
+13FNkssYWiMdutbyDAYfWElK3gP6T+T6o8jRwjmi3UX+BcehZ05EDXqXzw/rVJj1
+vcvZAgMBAAGjggH2MIIB8jAfBgNVHSMEGDAWgBQXW9dITSoNenoACqA7Hexxq2iU
+qjBBBggrBgEFBQcBAQQ1MDMwMQYIKwYBBQUHMAGGJWh0dHA6Ly9pcGEtY2EuaXBh
+LmNhbGl4LmxvY2FsL2NhL29jc3AwDgYDVR0PAQH/BAQDAgTwMB0GA1UdJQQWMBQG
+CCsGAQUFBwMBBggrBgEFBQcDAjB6BgNVHR8EczBxMG+gN6A1hjNodHRwOi8vaXBh
+LWNhLmlwYS5jYWxpeC5sb2NhbC9pcGEvY3JsL01hc3RlckNSTC5iaW6iNKQyMDAx
+DjAMBgNVBAoMBWlwYWNhMR4wHAYDVQQDDBVDZXJ0aWZpY2F0ZSBBdXRob3JpdHkw
+HQYDVR0OBBYEFKAbUz6IpjNXIB5zmHEM3ppFJqQKMIHBBgNVHREEgbkwgbaCHXBs
+bi1pcGFtYXN0ZXIuaXBhLmNhbGl4LmxvY2FsoEIGCisGAQQBgjcUAgOgNAwybGRh
+cC9wbG4taXBhbWFzdGVyLmlwYS5jYWxpeC5sb2NhbEBJUEEuQ0FMSVguTE9DQUyg
+UQYGKwYBBQICoEcwRaARGw9JUEEuQ0FMSVguTE9DQUyhMDAuoAMCAQGhJzAlGwRs
+ZGFwGx1wbG4taXBhbWFzdGVyLmlwYS5jYWxpeC5sb2NhbDANBgkqhkiG9w0BAQsF
+AAOCAQEAKdlv3k/ZVaFRUcs8cTgqAZFryaR69hi+xNBH3kLZjy1yxa9Qwpziz3cw
+VUXd/Qzgx86nSUq1f9aecjyTBU+hsV/I75gHxm40x0ohEPmIZqJmvUuwgJyZCzLg
+nwNc7z68m26yseU0/nY/+Wr0J3r20pksPrskaMrmmn46GB+TO0oiIhvIyaK0mZbn
+NCIWZ/DVF2TAL9F3PfhG8bjZ8oFFPV055jAfFWDA2jYMAcfRQTGxwceN+g8whGin
+V6Bu12e06x0L27vUk4awvDAIub01mBtw6ZA6HwZLe4u4t8g/f+VCeJt9w3XUMelS
+KP6ibwg3Lh6MEsIlif1RSB/TUX1rBg==
+-----END CERTIFICATE-----
 
-2026-03-26T07:24:02Z DEBUG Starting external process
-2026-03-26T07:24:02Z DEBUG args=['/usr/sbin/tomcat', 'version']
-2026-03-26T07:24:02Z DEBUG Process finished, return code=0
-2026-03-26T07:24:02Z DEBUG stdout=Server version: Apache Tomcat/9.0.87
-Server built:   Dec 20 1969 01:54:01 UTC
-Server number:  9.0.87.0
-OS Name:        Linux
-OS Version:     5.14.0-611.30.1.el9_7.x86_64
-Architecture:   amd64
-JVM Version:    17.0.18+8-LTS
-JVM Vendor:     Red Hat, Inc.
-
-2026-03-26T07:24:02Z DEBUG stderr=NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
-
-2026-03-26T07:24:02Z DEBUG Starting external process
-2026-03-26T07:24:02Z DEBUG args=['pki-server', 'subsystem-show', 'kra']
-2026-03-26T07:24:03Z DEBUG Process finished, return code=1
-2026-03-26T07:24:03Z DEBUG stdout=
-2026-03-26T07:24:03Z DEBUG stderr=ERROR: No kra subsystem in instance pki-tomcat.
-
-2026-03-26T07:24:03Z DEBUG Starting pki-tomcatd@pki-tomcat.
-2026-03-26T07:24:03Z DEBUG Starting external process
-2026-03-26T07:24:03Z DEBUG args=['/bin/systemctl', 'start', 'pki-tomcatd@pki-tomcat.service']
+2026-03-26T07:34:23Z DEBUG stderr=
+2026-03-26T07:34:24Z DEBUG start tracking {'TRACK': True, 'CERT_STORAGE': 'FILE', 'KEY_STORAGE': 'FILE', 'CERT_LOCATION': '/var/lib/ipa/certs/httpd.crt', 'KEY_LOCATION': '/var/lib/ipa/private/httpd.key', 'CA': dbus.ObjectPath('/org/fedorahosted/certmonger/cas/CA2'), 'KEY_PIN_FILE': '/var/lib/ipa/passwds/pln-ipamaster.ipa.calix.local-443-RSA', 'cert-postsave-command': '/usr/libexec/ipa/certmonger/restart_httpd', 'ca-profile': 'caIPAserviceCert', 'DNS': ['pln-ipamaster.ipa.calix.local', 'ipa-ca.ipa.calix.local']}
+2026-03-26T07:34:24Z INFO Certmonger certificate renewal configuration updated
+2026-03-26T07:34:24Z INFO [Enable PKIX certificate path discovery and validation]
+2026-03-26T07:34:24Z DEBUG Loading StateFile from '/var/lib/ipa/sysupgrade/sysupgrade.state'
+2026-03-26T07:34:24Z DEBUG Loading StateFile from '/var/lib/ipa/sysupgrade/sysupgrade.state'
+2026-03-26T07:34:24Z DEBUG Saving StateFile to '/var/lib/ipa/sysupgrade/sysupgrade.state'
+2026-03-26T07:34:24Z INFO [Authorizing RA Agent to modify profiles]
+2026-03-26T07:34:24Z INFO [Authorizing RA Agent to manage lightweight CAs]
+2026-03-26T07:34:24Z INFO [Ensuring Lightweight CAs container exists in Dogtag database]
+2026-03-26T07:34:24Z INFO [Enabling LWCA monitor]
+2026-03-26T07:34:24Z INFO [Adding default OCSP URI configuration]
+2026-03-26T07:34:24Z INFO [Disabling cert publishing]
+2026-03-26T07:34:24Z INFO pki-tomcat configuration changed, restart pki-tomcat
+2026-03-26T07:34:24Z DEBUG Starting external process
+2026-03-26T07:34:24Z DEBUG args=['/bin/systemctl', 'restart', 'pki-tomcatd@pki-tomcat.service']
