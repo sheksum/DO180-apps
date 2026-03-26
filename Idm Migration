@@ -1,1 +1,5 @@
-grep JAVA_OPTS /var/lib/pki/pki-tomcat/conf/tomcat.conf
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# grep JAVA_OPTS /var/lib/pki/pki-tomcat/conf/tomcat.conf
+# NOTE: JAVA_OPTS is now only read once.  All desired settings must be concatenated
+JAVA_OPTS="-Dcom.redhat.fips=false"
+[root@pln-ipamaster ~]#
