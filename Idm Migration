@@ -1,2 +1,3 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=etc,dc=ipa,dc=calix,dc=local" -s base "(objectclass=*)" dn 2>/dev/null
+[root@pln-ipamaster ~]# tail -1 /var/log/ipareplica-install.log
+2026-03-26T05:33:39Z DEBUG update_entry modlist [(2, 'aci', [b'(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', b'(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
+[root@pln-ipamaster ~]#
