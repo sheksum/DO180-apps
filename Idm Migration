@@ -1,7 +1,7 @@
-# Quick check - how many certs are there per subject
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "ou=requests,o=ipaca" "(objectclass=*)" \
   requestIssuerDN 2>/dev/null | grep "requestIssuerDN" | sort | uniq -c | sort -rn | head -20
+      1 # requesting: requestIssuerDN
 
 
 [root@pln-ipamaster ~]#
