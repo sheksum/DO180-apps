@@ -1,2 +1,38 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=index,cn=tasks,cn=config" "(objectclass=*)" dn 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=index,cn=tasks,cn=config> with scope subtree
+# filter: (objectclass=*)
+# requesting: dn
+#
+
+# index, tasks, config
+dn: cn=index,cn=tasks,cn=config
+
+# indextask_139937960058085960_7875, index, tasks, config
+dn: cn=indextask_139937960058085960_7875,cn=index,cn=tasks,cn=config
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 3
+# numEntries: 2
+[root@pln-ipamaster ~]#
+
+[root@pln-ipamaster ~]# ls -la /var/log/ipaupgrade.log
+-rw-------. 1 root root 12166718 Mar 24 18:42 /var/log/ipaupgrade.log
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -5 /var/log/ipaupgrade.log
+    raise admintool.ScriptError(str(e))
+
+2026-03-24T18:42:05Z DEBUG The ipa-server-upgrade command failed, exception: ScriptError: ('IPA upgrade failed.', 1)
+2026-03-24T18:42:05Z ERROR ('IPA upgrade failed.', 1)
+2026-03-24T18:42:05Z ERROR The ipa-server-upgrade command failed. See /var/log/ipaupgrade.log for more information
+[root@pln-ipamaster ~]#
