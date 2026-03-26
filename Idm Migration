@@ -1,20 +1,5 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipactl start
-Starting Directory Service
-Starting krb5kdc Service
-Starting kadmin Service
-Starting httpd Service
-Starting ipa-custodia Service
-Starting pki-tomcatd Service
-Starting ipa-otpd Service
-ipa: INFO: The ipactl command was successful
-[root@pln-ipamaster ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa: INFO: The ipactl command was successful
+[root@pln-ipamaster ~]# systemctl status ipa
+○ ipa.service - Identity, Policy, Audit
+     Loaded: loaded (/usr/lib/systemd/system/ipa.service; enabled; preset: disabled)
+     Active: inactive (dead)
 [root@pln-ipamaster ~]#
