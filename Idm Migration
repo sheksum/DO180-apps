@@ -1,4 +1,4 @@
-# On cpeg
-ldapsearch -Y GSSAPI \
-  -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
-  "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa-replica-manage force-sync --from pln-ipamaster.ipa.calix.local
+Re-run /usr/sbin/ipa-replica-manage with --verbose option to get more information
+Unexpected error: cannot connect to 'ldaps://pln-ipamaster.ipa.calix.local:636': Transport endpoint is not connected
+[root@cpeg-ipareplica sos.imb0ecrg]#
