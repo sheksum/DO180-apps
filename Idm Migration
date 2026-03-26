@@ -1,47 +1,9 @@
 [root@cpeg-ipareplica sos.imb0ecrg]#
-[root@cpeg-ipareplica sos.imb0ecrg]#
 [root@cpeg-ipareplica sos.imb0ecrg]# ldapsearch -Y GSSAPI \
 >   -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
 >   "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
+[root@cpeg-ipareplica sos.imb0ecrg]# kinit admin
+Password for admin@IPA.CALIX.LOCAL:
+[root@cpeg-ipareplica sos.imb0ecrg]# ipa-replica-manage force-sync --from pln-ipamaster.ipa.calix.local
+[root@cpeg-ipareplica sos.imb0ecrg]# ldapsearch -Y GSSAPI   -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"   "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
 [root@cpeg-ipareplica sos.imb0ecrg]#
-
-
-2026-03-26 05:26:10 [main] INFO: RequestInQueueJob: - receiver email:
-2026-03-26 05:26:10 [main] INFO: JobsScheduler: - serialNumberUpdate
-2026-03-26 05:26:10 [main] INFO: Job: Initializing job serialNumberUpdate
-2026-03-26 05:26:10 [main] INFO: Job: - plugin: SerialNumberUpdateJob
-2026-03-26 05:26:10 [main] INFO: Job: - cron: null
-2026-03-26 05:26:10 [main] INFO: JobsScheduler: - unpublishExpiredCerts
-2026-03-26 05:26:10 [main] INFO: Job: Initializing job unpublishExpiredCerts
-2026-03-26 05:26:10 [main] INFO: Job: - plugin: UnpublishExpiredJob
-2026-03-26 05:26:10 [main] INFO: Job: - cron: 0 0 * * 6
-2026-03-26 05:26:10 [main] INFO: CMSEngine: Configuring auto shutdown
-2026-03-26 05:26:10 [main] INFO: CMSEngine: auto-shutdown crumb file: /var/lib/pki/pki-tomcat/logs/autoShutdown.crumb
-2026-03-26 05:26:10 [main] INFO: CMSEngine: Configuring servlet certificate nickname
-2026-03-26 05:26:10 [main] INFO: CA engine started
-2026-03-26 05:26:10 [main] INFO: CMSEngine: Threads:
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - Signal Dispatcher
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - FileHandlerLogFilesCleaner-1
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - SerialNumberUpdateTask
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - AuthorityMonitor
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - Common-Cleaner
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - LDAPConnThread-4 ldaps://pln-ipamaster.ipa.calix.local:636
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - Finalizer
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - Reference Handler
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit.flush-3
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - LDAPConnThread-3 ldaps://pln-ipamaster.ipa.calix.local:636
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - main
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - LDAPConnThread-6 ldaps://pln-ipamaster.ipa.calix.local:636
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - Timer-0
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit.rollover-4
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - AsyncLoader watchdog
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - /var/lib/pki/pki-tomcat/logs/ca/selftests.log.flush-14
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - LDAPConnThread-2 ldaps://pln-ipamaster.ipa.calix.local:636
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - AsyncLoader watchdog
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - Notification Thread
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - LDAPConnThread-0 ldaps://pln-ipamaster.ipa.calix.local:636
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - /var/lib/pki/pki-tomcat/logs/ca/selftests.log.rollover-15
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - ProfileChangeMonitor
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - LDAPConnThread-1 ldaps://pln-ipamaster.ipa.calix.local:636
-2026-03-26 05:26:10 [main] INFO: CMSEngine: - LDAPConnThread-5 ldaps://pln-ipamaster.ipa.calix.local:636
-2026-03-26 05:26:10 [Timer-0] INFO: SessionTimer: checking security domain sessions
