@@ -1,8 +1,37 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=560011,ou=ca,ou=requests,o=ipaca" \
   "(objectclass=*)" requestType requestState requestCreatedAt 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=560011,ou=ca,ou=requests,o=ipaca> with scope subtree
+# filter: (objectclass=*)
+# requesting: requestType requestState requestCreatedAt
+#
 
+# search result
+search: 2
+result: 32 No such object
+matchedDN: ou=ca,ou=requests,o=ipaca
 
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+# numResponses: 1
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=280000,ou=ca,ou=requests,o=ipaca" \
   "(objectclass=*)" requestType requestState requestCreatedAt 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=280000,ou=ca,ou=requests,o=ipaca> with scope subtree
+# filter: (objectclass=*)
+# requesting: requestType requestState requestCreatedAt
+#
+
+# search result
+search: 2
+result: 32 No such object
+matchedDN: ou=ca,ou=requests,o=ipaca
+
+# numResponses: 1
+[root@pln-ipamaster ~]#
