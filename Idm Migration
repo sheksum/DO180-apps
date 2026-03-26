@@ -1,14 +1,48 @@
-Login failed due to an unknown reason
+[root@pln-ipamaster ~]# curl -sk https://pln-ipamaster.ipa.calix.local/ipa/ui/ | head -20
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Identity Management</title>
 
+    <!--[if IE]>
+    <meta id="ie-detector">
+    <![endif]-->
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="js/libs/loader.js"></script>
+    <script type="text/javascript">
+
+        var dojoConfig = {
+            baseUrl: "js",
+            has: {
+                'dojo-firebug': false,
+                'dojo-debug-messages': true
+            },
 [root@pln-ipamaster ~]#
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# curl -sk https://pln-ipamaster.ipa.calix.local/ipa/ui | head -20
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>301 Moved Permanently</title>
-</head><body>
-<h1>Moved Permanently</h1>
-<p>The document has moved <a href="https://pln-ipamaster.ipa.calix.local/ipa/ui/">here</a>.</p>
-</body></html>
+[root@pln-ipamaster ~]# tail -20 /var/log/httpd/error_log
+[Thu Mar 26 07:19:20.977954 2026] [wsgi:error] [pid 47894:tid 48118] [remote 10.172.248.50:35812] ipa: INFO: 401 Unauthorized: kinit: Password incorrect while getting initial credentials
+[Thu Mar 26 07:19:20.978010 2026] [wsgi:error] [pid 47894:tid 48118] [remote 10.172.248.50:35812]
+[Thu Mar 26 07:19:31.621223 2026] [wsgi:error] [pid 47896:tid 48121] [remote 10.172.248.50:35828] ipa: INFO: 401 Unauthorized: Major (851968): Unspecified GSS failure.  Minor code may provide more information, Minor (2598844942): KDC has no support for encryption type
+[Thu Mar 26 07:19:51.614096 2026] [wsgi:error] [pid 47892:tid 48124] [remote 10.172.248.50:35828] ipa: INFO: 401 Unauthorized: Major (851968): Unspecified GSS failure.  Minor code may provide more information, Minor (2598844942): KDC has no support for encryption type
+[Thu Mar 26 07:32:38.361323 2026] [mpm_event:notice] [pid 47887:tid 47887] AH00492: caught SIGWINCH, shutting down gracefully
+[Thu Mar 26 07:34:10.015786 2026] [core:notice] [pid 51205:tid 51205] SELinux policy enabled; httpd running as context system_u:system_r:httpd_t:s0
+[Thu Mar 26 07:34:10.016599 2026] [suexec:notice] [pid 51205:tid 51205] AH01232: suEXEC mechanism enabled (wrapper: /usr/sbin/suexec)
+[Thu Mar 26 07:34:10.091600 2026] [lbmethod_heartbeat:notice] [pid 51205:tid 51205] AH02282: No slotmem from mod_heartmonitor
+[Thu Mar 26 07:34:10.103486 2026] [mpm_event:notice] [pid 51205:tid 51205] AH00489: Apache/2.4.62 (Red Hat Enterprise Linux) OpenSSL/3.5.1 mod_auth_gssapi/1.6.3 mod_wsgi/4.7.1 Python/3.9 configured -- resuming normal operations
+[Thu Mar 26 07:34:10.103524 2026] [core:notice] [pid 51205:tid 51205] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Thu Mar 26 07:42:42.793426 2026] [wsgi:error] [pid 51213:tid 51433] [remote 10.172.248.55:46122] ipa: INFO: [jsonserver_kerb] host/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL: cert_request('MIIEMzCCAxsCAQAwQjEYMBYGA1UECgwPSVBBLkNBTElYLkxPQ0FMMSYwJAYDVQQDDB1wbG4taXBhbWFzdGVyLmlwYS5jYWxpeC5sb2NhbDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJU73S5WwzjUKIZuomyIcsMQ55IxAwD2wbWHifmciKqGayCZ9LIXLA4FwpLLh3VJ0Eg2MrWhE7kblkWU1eSKQABzbF9MEFNcG6nZcJ5rxh9VS6YUueLoFWrFIviwOLchoCzP2//S7v85mEkGoh4+MfCC8IR8B2B5KspVCOMlaAf+s5JXpN6t6KDJO773T2YRIwNbuYpOIYU+ecK7xBr9ay98xDb/UTy2NSod+PdR9eH12Y6AgGfhGbAHZ953xur9AG10n8cr75yVa6mGKsEfTjkPEUqYBvxsweHUwW0Y+z0yUc0E+EVg8DZMiIDR+Y1Lu7JdvylTC2A/BFaXzZr6vhkCAwEAAaCCAaowKwYJKoZIhvcNAQkUMR4eHAAyADAAMgA2ADAAMwAyADYAMAA3ADMANAAyADQwggF5BgkqhkiG9w0BCQ4xggFqMIIBZjALBgNVHQ8EBAMCBPAwgdkGA1UdEQSB0TCBzoIdcGxuLWlwYW1hc3Rlci5pcGEuY2FsaXgubG9jYWyCFmlwYS1jYS5pcGEuY2FsaXgubG9jYWygQgYKKwYBBAGCNxQCA6A0DDJIVFRQL3Bsbi1pcGFtYXN0ZXIuaXBhLmNhbGl4LmxvY2FsQElQQS5DQUxJWC5MT0NBTKBRBgYrBgEFAgKgRzBFoBEbD0lQQS5DQUxJWC5MT0NBTKEwMC6gAwIBAaEnMCUbBEhUVFAbHXBsbi1pcGFtYXN0ZXIuaXBhLmNhbGl4LmxvY2FsMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBSrMn2TiURTuBseprGhVwLyOkA9nDAvBgkrBgEEAYI3FAIEIh4gAGMAYQBJAFAAQQBzAGUAcgB2AGkAYwBlAEMAZQByAHQwDQYJKoZIhvcNAQELBQADggEBAF5xOJNKKVEwESMk0C002Ay/4B7puSIrhzOH+lXT0NrMgFWucAR9p9+TLwjoJ6NAxsyTlVI4dQWmA4yqVrs+Q8Rno2OGDxz/2FohDJ+64RKW58hSUvxqG0xaxDS+Y59DGbU0b7QWph2Wu2CSF3fmrxaFbzVSsFn5ClEMqxDC0HTX9JI98MYILi/w/QAd0VqpB8X9DC3ueyKhGf4oMPc4gxIR8tjekGGGeBhYta4d5fK9oXsbpe8dUUKxgJdlMYXX4f8iYDpz9s77h33w5/EIQwk5rF6VE5r69s5Q7mplO9+EAMtOd091HtMaFAUIUrvF58pbnIPtR/rIS9ATrqYHOM4=', profile_id='caIPAserviceCert', principal='HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL', add=True): SUCCESS
+[Thu Mar 26 07:42:43.367561 2026] [mpm_event:notice] [pid 51205:tid 51205] AH00492: caught SIGWINCH, shutting down gracefully
+[Thu Mar 26 07:42:45.411022 2026] [core:notice] [pid 52049:tid 52049] SELinux policy enabled; httpd running as context system_u:system_r:httpd_t:s0
+[Thu Mar 26 07:42:45.411828 2026] [suexec:notice] [pid 52049:tid 52049] AH01232: suEXEC mechanism enabled (wrapper: /usr/sbin/suexec)
+[Thu Mar 26 07:42:45.481724 2026] [lbmethod_heartbeat:notice] [pid 52049:tid 52049] AH02282: No slotmem from mod_heartmonitor
+[Thu Mar 26 07:42:45.492851 2026] [mpm_event:notice] [pid 52049:tid 52049] AH00489: Apache/2.4.62 (Red Hat Enterprise Linux) OpenSSL/3.5.1 mod_auth_gssapi/1.6.3 mod_wsgi/4.7.1 Python/3.9 configured -- resuming normal operations
+[Thu Mar 26 07:42:45.492890 2026] [core:notice] [pid 52049:tid 52049] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Thu Mar 26 07:46:41.488185 2026] [wsgi:error] [pid 52056:tid 52278] [remote 10.172.248.55:36150] ipa: INFO: [jsonserver_kerb] admin@IPA.CALIX.LOCAL: schema(known_fingerprints=('c6e4328e',), version='2.170'): SUCCESS
+[Thu Mar 26 07:46:41.875111 2026] [:warn] [pid 52063:tid 52221] [client 10.172.248.55:36154] failed to set perms (3140) on file (/run/ipa/ccaches/admin@IPA.CALIX.LOCAL-gLHJBi)!, referer: https://pln-ipamaster.ipa.calix.local/ipa/xml
+[Thu Mar 26 07:46:41.919224 2026] [wsgi:error] [pid 52058:tid 52281] [remote 10.172.248.55:36154] ipa: INFO: [jsonserver_session] admin@IPA.CALIX.LOCAL: user_find/1('admin', version='2.254'): SUCCESS
+[root@pln-ipamaster ~]# klist -kt /etc/httpd/conf/ipa.keytab
+Keytab name: FILE:/etc/httpd/conf/ipa.keytab
+klist: Key table file '/etc/httpd/conf/ipa.keytab' not found while starting keytab scan
 [root@pln-ipamaster ~]#
