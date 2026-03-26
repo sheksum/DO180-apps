@@ -1,27 +1,5 @@
-
-Hi Cesar,
-Critical update — we have made significant progress but are now stuck at a new point.
-Current status:
-
-The install successfully completed all 33 CA steps including full CA database replication (1,089,773 entries), CA startup, KDC, httpd
-We manually injected the cn=KDC entry into cpeg to get past the replication timeout — this worked and the installer moved forward
-The install is now stuck at "Upgrading IPA" step 7/10 for over 1 hour with no progress
-Install log frozen at 2026-03-26T05:33:39Z
-Directory Server has no listeners (ss -tlnp | grep slapd returns nothing) — DS stopped listeners during the upgrade step and never re-enabled them
-Install process PID 38436 is still alive but not making progress
-poll_schedule_timeout is the wchan — process is polling/waiting for something
-
-What we tried:
-
-Started named (it was inactive)
-Forced sync from pln to cpeg
-Confirmed index task completed successfully
-Confirmed cn=masters entries exist on pln for pln-ipamaster
-
-Environment reminder:
-
-Source: cpeg-ipareplica RHEL 8 IPA 4.9.13
-Target: pln-ipamaster RHEL 9.3 IPA 4.12.2
-March 28 deadline — Petaluma DC shutdown
-
-We need urgent guidance on what is causing the upgrade to hang at step 7/10 and how to recover without uninstalling.
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# cat /proc/sys/kernel/random/entropy_avail
+256
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
