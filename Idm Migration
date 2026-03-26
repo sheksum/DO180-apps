@@ -1,26 +1,33 @@
-Complete!
-[root@pln-ipamaster ~]# systemctl start rngd
-[root@pln-ipamaster ~]# cat /proc/sys/kernel/random/entropy_avail
-256
-[root@pln-ipamaster ~]# systemctl status rngd
-● rngd.service - Hardware RNG Entropy Gatherer Daemon
-     Loaded: loaded (/usr/lib/systemd/system/rngd.service; enabled; preset: enabled)
-     Active: active (running) since Thu 2026-03-26 06:35:12 UTC; 19s ago
-   Main PID: 49142 (rngd)
-      Tasks: 1 (limit: 203337)
-     Memory: 1.3M (peak: 1.5M)
-        CPU: 9ms
-     CGroup: /system.slice/rngd.service
-             └─49142 /usr/sbin/rngd -f --fill-watermark=0 -x pkcs11 -x nist -x qrypt -x namedpipe -x jitter -D daemon:daemon
+If you cannot restart, we must manually break the deadlock by tricking the Directory Server (DS) into accepting the connections it currently has blocked.
+The installer is stuck at [7/10] because it has disabled network listeners (nsslapd-allow-unauthenticated-binds: off or similar "lockdown" settings), but the CA service (Dogtag) must connect to LDAP via the network (Port 636) to finish the upgrade.
+The "Live Fix" to Unstick the Installer
+Perform these steps in a separate terminal while the installer is still sitting at [7/10]:
+Force-Enable Listeners: The installer likely modified the DS configuration to block external access. We need to tell the Directory Server to listen again immediately.
+bash
+ldapmodify -x -h localhost -p 389 -D "cn=directory manager" -W <<EOF
+dn: cn=config
+changetype: modify
+replace: nsslapd-listenhost
+nsslapd-listenhost: 0.0.0.0
+-
+replace: nsslapd-ignore-wait-before-shutdown
+nsslapd-ignore-wait-before-shutdown: on
+EOF
+Use code with caution.
 
-Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Disabling 7: PKCS11 Entropy generator (pkcs11)
-Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Disabling 5: NIST Network Entropy Beacon (nist)
-Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Disabling 9: Qrypt quantum entropy beacon (qrypt)
-Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Disabling 10: Named pipe entropy input (namedpipe)
-Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Disabling 6: JITTER Entropy generator (jitter)
-Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Initializing available sources
-Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: [hwrng ]: Initialization Failed
-Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: [rdrand]: Enabling RDSEED rng support
-Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: [rdrand]: Initialized
-Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Process privileges have been dropped to 2:2
-[root@pln-ipamaster ~]#
+(If it asks for a password, use the Directory Manager password you set at the start of the install).
+Restart the Directory Server Service: Since the installer is waiting on the "Upgrading" task, restarting the service might kick the internal state machine.
+bash
+systemctl restart dirsrv@IPA-CALIX-LOCAL.service
+Use code with caution.
+
+Check the CA (Dogtag) Port: The error you saw earlier was "Connection Refused" on port 636. Check if anything is listening there now:
+bash
+ss -tulpn | grep 636
+Use code with caution.
+
+Watch the Installer Log: Immediately after the restart, run:
+bash
+tail -f /var/log/ipaupgrade.log
+Use code with caution.
+
