@@ -1,1 +1,5 @@
-python3 -c "from ipaplatform.paths import paths; import re; content=open('/usr/libexec/ipa/ipa-dnskeysyncd').read(); print([l for l in content.split('\n') if 'PRINCIPAL' in l])"
+[root@pln-ipamaster dnssec]#
+[root@pln-ipamaster dnssec]# python3 -c "from ipaplatform.paths import paths; import re; content=open('/usr/libexec/ipa/ipa-dnskeysyncd').read(); print([l for l in content.split('\n') if 'PRINCIPAL' in l])"
+['PRINCIPAL = None  # not initialized yet', "PRINCIPAL = str('%s/%s' % (DAEMONNAME, api.env.host))", "logger.debug('Kerberos principal: %s', PRINCIPAL)", '    kinit_keytab(PRINCIPAL, KEYTAB_FB, ccache_filename, attempts=5)']
+[root@pln-ipamaster dnssec]#
+[root@pln-ipamaster dnssec]#
