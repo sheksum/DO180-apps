@@ -1,3 +1,21 @@
-After several days of grinding through this migration, pln-ipamaster is now up and running! 🎉
-Still have some post-migration validations and cleanup to complete tomorrow, but the critical part is done — we should be clear of any risk from the Petaluma shutdown on Saturday.
-Going to log in late tomorrow — will pick up the remaining tasks then.
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# systemctl enable dirsrv@IPA-CALIX-LOCAL
+systemctl enable krb5kdc
+systemctl enable kadmin
+systemctl enable httpd
+systemctl enable pki-tomcatd@pki-tomcat
+systemctl enable ipa-custodia
+systemctl enable ipa-otpd
+systemctl enable gssproxy
+Created symlink /etc/systemd/system/multi-user.target.wants/dirsrv@IPA-CALIX-LOCAL.service → /usr/lib/systemd/system/dirsrv@.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/krb5kdc.service → /usr/lib/systemd/system/krb5kdc.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/kadmin.service → /usr/lib/systemd/system/kadmin.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/httpd.service → /usr/lib/systemd/system/httpd.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/ipa-custodia.service → /usr/lib/systemd/system/ipa-custodia.service.
+Failed to enable unit: Unit file ipa-otpd.service does not exist.
+Created symlink /etc/systemd/system/multi-user.target.wants/gssproxy.service → /usr/lib/systemd/system/gssproxy.service.
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
