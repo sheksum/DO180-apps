@@ -1,16 +1,11 @@
-# Add to [domain/ipa.calix.local] section
-echo "krb5_ccachedir = /tmp" >> /etc/sssd/sssd.conf
-echo "krb5_ccname_template = FILE:/tmp/krb5cc_%U_XXXXXX" >> /etc/sssd/sssd.conf
-systemctl restart sssd
-
-
-plnfile1.caal.dev:/lab_unix_homes/hsuma/.snapshot/hourly.2026-03-26_0905  768G  768G     0 100% /home/hsuma/.snapshot/hourly.2026-03-26_0905
-plnfile1.caal.dev:/lab_unix_homes/hsuma/.snapshot/daily.2026-03-26_0010   768G  768G     0 100% /home/hsuma/.snapshot/daily.2026-03-26_0010
-plnfile1.caal.dev:/lab_unix_homes/hsuma/.snapshot/hourly.2026-03-26_1305  768G  768G     0 100% /home/hsuma/.snapshot/hourly.2026-03-26_1305
-plnfile1.caal.dev:/lab_unix_homes/hsuma/.snapshot/hourly.2026-03-26_0805  768G  768G     0 100% /home/hsuma/.snapshot/hourly.2026-03-26_0805
-plnfile1.caal.dev:/lab_unix_homes/hsuma/.snapshot/hourly.2026-03-26_1105  768G  768G     0 100% /home/hsuma/.snapshot/hourly.2026-03-26_1105
-plnfile1.caal.dev:/lab_unix_homes/hsuma/.snapshot/weekly.2026-03-15_0015  768G  768G     0 100% /home/hsuma/.snapshot/weekly.2026-03-15_0015
-plnfile1.caal.dev:/lab_unix_homes/hsuma/.snapshot/hourly.2026-03-26_1005  768G  768G     0 100% /home/hsuma/.snapshot/hourly.2026-03-26_1005
-plnfile1.caal.dev:/lab_unix_homes/hsuma/.snapshot/hourly.2026-03-26_1205  768G  768G     0 100% /home/hsuma/.snapshot/hourly.2026-03-26_1205
-plnfile1.caal.dev:/lab_unix_homes/hsuma/.snapshot/weekly.2026-03-22_0015  768G  768G     0 100% /home/hsuma/.snapshot/weekly.2026-03-22_0015
-root@plnx-admin:~#
+root@plnx-admin:~# du -sh /home/hsuma/* 2>/dev/null | sort -rh | head -10
+5.3G	/home/hsuma/ubuntu-24.10-desktop-amd64.iso
+2.7G	/home/hsuma/ge
+1.7G	/home/hsuma/Mobile-Security-Framework-MobSF
+1.3G	/home/hsuma/b3090dc3-5b93-4a9b-81df-fbf3c63209bf-discovery.iso
+879M	/home/hsuma/modelsim_dlx-2020.2.aol
+635M	/home/hsuma/debian-12.9.0-amd64-netinst.iso
+382M	/home/hsuma/development
+380M	/home/hsuma/tools
+380M	/home/hsuma/test
+291M	/home/hsuma/haj
