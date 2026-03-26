@@ -1,5 +1,1 @@
-[root@pln-ipamaster ~]# systemctl status ipa
-○ ipa.service - Identity, Policy, Audit
-     Loaded: loaded (/usr/lib/systemd/system/ipa.service; enabled; preset: disabled)
-     Active: inactive (dead)
-[root@pln-ipamaster ~]#
+cat /usr/lib/systemd/system/ipa.service | grep -E "ExecStart|After|Wants"
