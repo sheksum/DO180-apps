@@ -1,66 +1,31 @@
-root@plnx-admin:~# rm /home/hsuma/b3090dc3-5b93-4a9b-81df-fbf3c63209bf-discovery.iso
-root@plnx-admin:~# rm /home/hsuma/ubuntu-24.10-desktop-amd64.iso
-root@plnx-admin:~# rm /home/hsuma/debian-12.9.0-amd64-netinst.iso
-root@plnx-admin:~#
-root@plnx-admin:~#
-root@plnx-admin:~#
-root@plnx-admin:~# systemctl status ssh
-● ssh.service - OpenBSD Secure Shell server
-     Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)
-     Active: active (running) since Wed 2026-01-07 10:34:36 CST; 2 months 17 days ago
-       Docs: man:sshd(8)
-             man:sshd_config(5)
-   Main PID: 1290 (sshd)
-      Tasks: 4 (limit: 9388)
-     Memory: 30.5M
-        CPU: 16min 10.173s
-     CGroup: /system.slice/ssh.service
-             ├─   1290 "sshd: /usr/sbin/sshd -D [listener] 1 of 10-100 startups"
-             ├─2415373 "sshd: hsuma [priv]" "" ""
-             ├─2415374 "sshd: hsuma [net]" "" "" ""
-             └─2415395 "sshd: hsuma [pam]" "" "" ""
+root@plnx-admin:~# su - hsuma
+Agent pid 2415641
+Identity added: /home/hsuma/.ssh/deploy_key (deploy@slc-admin.calix.local)
+hsuma@plnx-admin:~$ exit
+logout
+root@plnx-admin:~# grep -A20 "domain/ipa.calix.local" /etc/sssd/sssd.conf
+[domain/ipa.calix.local]
 
-Mar 26 13:30:15 plnx-admin.calix.local sshd[2415179]: error: kex_exchange_identification: Connection closed by remote host
-Mar 26 13:30:15 plnx-admin.calix.local sshd[2415179]: Connection closed by 192.168.33.191 port 51758
-Mar 26 13:30:20 plnx-admin.calix.local sshd[2415188]: error: kex_exchange_identification: Connection closed by remote host
-Mar 26 13:30:20 plnx-admin.calix.local sshd[2415188]: Connection closed by 172.23.49.149 port 38326
-Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51  user=hsuma
-Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_sss(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51 user=hsuma
-Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_sss(sshd:auth): received for user hsuma: 4 (System error)
-Mar 26 13:31:30 plnx-admin.calix.local sshd[2415390]: error: kex_exchange_identification: Connection closed by remote host
-Mar 26 13:31:30 plnx-admin.calix.local sshd[2415390]: Connection closed by 192.168.102.181 port 43252
-Mar 26 13:31:31 plnx-admin.calix.local sshd[2415373]: error: PAM: Authentication failure for hsuma from 10.172.248.51
-root@plnx-admin:~#
-root@plnx-admin:~# systemctl status sshd
-● ssh.service - OpenBSD Secure Shell server
-     Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)
-     Active: active (running) since Wed 2026-01-07 10:34:36 CST; 2 months 17 days ago
-       Docs: man:sshd(8)
-             man:sshd_config(5)
-   Main PID: 1290 (sshd)
-      Tasks: 4 (limit: 9388)
-     Memory: 30.5M
-        CPU: 16min 10.173s
-     CGroup: /system.slice/ssh.service
-             ├─   1290 "sshd: /usr/sbin/sshd -D [listener] 1 of 10-100 startups"
-             ├─2415373 "sshd: hsuma [priv]" "" ""
-             ├─2415374 "sshd: hsuma [net]" "" "" ""
-             └─2415395 "sshd: hsuma [pam]" "" "" ""
+id_provider = ipa
+dns_discovery_domain = ipa.calix.local
+ipa_server = _srv_, cpeg-ipareplica.ipa.calix.local
+ipa_domain = ipa.calix.local
+ipa_hostname = plnx-admin.calix.local
+auth_provider = ipa
+chpass_provider = ipa
+access_provider = ipa
+cache_credentials = True
+ldap_tls_cacert = /etc/ipa/ca.crt
+krb5_store_password_if_offline = True
+[sssd]
+services = nss, pam, ssh, sudo
 
-Mar 26 13:30:15 plnx-admin.calix.local sshd[2415179]: error: kex_exchange_identification: Connection closed by remote host
-Mar 26 13:30:15 plnx-admin.calix.local sshd[2415179]: Connection closed by 192.168.33.191 port 51758
-Mar 26 13:30:20 plnx-admin.calix.local sshd[2415188]: error: kex_exchange_identification: Connection closed by remote host
-Mar 26 13:30:20 plnx-admin.calix.local sshd[2415188]: Connection closed by 172.23.49.149 port 38326
-Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51  user=hsuma
-Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_sss(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51 user=hsuma
-Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_sss(sshd:auth): received for user hsuma: 4 (System error)
-Mar 26 13:31:30 plnx-admin.calix.local sshd[2415390]: error: kex_exchange_identification: Connection closed by remote host
-Mar 26 13:31:30 plnx-admin.calix.local sshd[2415390]: Connection closed by 192.168.102.181 port 43252
-Mar 26 13:31:31 plnx-admin.calix.local sshd[2415373]: error: PAM: Authentication failure for hsuma from 10.172.248.51
-root@plnx-admin:~# systemctl status sssd
-● sssd.service - System Security Services Daemon
-     Loaded: loaded (/lib/systemd/system/sssd.service; enabled; vendor preset: enabled)
-     Active: active (running) since Thu 2026-03-26 13:25:08 CDT; 6min ago
+domains = ipa.calix.local
+[nss]
+homedir_substring = /home
+
+[pam]
+root@plnx-admin:~#     Active: active (running) since Thu 2026-03-26 13:25:08 CDT; 6min ago
    Main PID: 2413447 (sssd)
       Tasks: 7 (limit: 9388)
      Memory: 41.6M
