@@ -1,46 +1,8 @@
-sysrestore/ sysupgrade/
-[root@pln-ipamaster ~]# cat /var/lib/ipa/sysrestore/sysrestore.state
-[installation]
-complete = False
-
-[dirsrv]
-serverid = IPA-CALIX-LOCAL
-enabled = True
-
-[krb5kdc]
-running = False
-enabled = False
-
-[kadmin]
-running = False
-enabled = False
-
-[httpd]
-running = True
-certmonger_ipa_helper = /usr/libexec/certmonger/ipa-submit
-httpd_can_network_connect = off
-httpd_manage_ipa = off
-httpd_run_ipa = off
-httpd_dbus_sssd = off
-enabled = False
-
-[oddjobd]
-running = False
-enabled = False
-
-[ipa-otpd]
-running = False
-enabled = False
-
-[ipa-custodia]
-running = False
-enabled = False
-
-[pki_hsm]
-enabled = False
-token_name = internal
-
-[pki-tomcatd]
-installed = True
-
+[root@pln-ipamaster ~]# ipactl status
+IPA is not configured (see man pages of ipa-server-install for help)
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ss -tlnp | grep -E "389|636"
+LISTEN 0      128                     *:389             *:*    users:(("ns-slapd",pid=50082,fd=8))
+LISTEN 0      128                     *:636             *:*    users:(("ns-slapd",pid=50082,fd=9))
 [root@pln-ipamaster ~]#
