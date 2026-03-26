@@ -1,8 +1,10 @@
-[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=requests,o=ipaca" "(objectclass=*)" \
-  requestIssuerDN 2>/dev/null | grep "requestIssuerDN" | sort | uniq -c | sort -rn | head -20
-      1 # requesting: requestIssuerDN
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" "(objectclass=*)" dn 2>/dev/null | grep "^dn:" | wc -l
 
+
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" "(requestState=complete)" \
+  requestSubjectDN 2>/dev/null | grep "requestSubjectDN" | sort | uniq -c | sort -rn | head -20
 
 [root@pln-ipamaster ~]#
 [root@pln-ipamaster ~]#
