@@ -1,1 +1,14 @@
-curl -sk https://pln-ipamaster.ipa.calix.local/ipa/ui | head -20
+Login failed due to an unknown reason
+
+
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# curl -sk https://pln-ipamaster.ipa.calix.local/ipa/ui | head -20
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>301 Moved Permanently</title>
+</head><body>
+<h1>Moved Permanently</h1>
+<p>The document has moved <a href="https://pln-ipamaster.ipa.calix.local/ipa/ui/">here</a>.</p>
+</body></html>
+[root@pln-ipamaster ~]#
