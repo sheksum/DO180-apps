@@ -1,15 +1,29 @@
+Done configuring Kerberos KDC (krb5kdc).
+Applying LDAP updates
+Upgrading IPA:. Estimated time: 1 minute 30 seconds
+  [1/10]: stopping directory server
+  [2/10]: saving configuration
+  [3/10]: disabling listeners
+  [4/10]: enabling DS global lock
+  [5/10]: disabling Schema Compat
+  [6/10]: starting directory server
+  [7/10]: upgrading server
+Upgrade failed with cannot connect to 'ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket':
+  [error] RuntimeError: cannot connect to 'ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket':
+  [cleanup]: stopping directory server
+  [cleanup]: restoring configuration
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
+
+Update failed: cannot connect to 'ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket':
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ss -tlnp | grep slapd
-[root@pln-ipamaster ~]# journalctl -fu dirsrv@IPA-CALIX-LOCAL.service
-Mar 26 05:33:35 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:35.843550268 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0026dbc7000000140000 not found, we aren't as up to date, or we purged
-Mar 26 05:33:35 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:35.845582936 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-Mar 26 05:33:38 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:38.975901795 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0026dbd5000000140000 in the changelog (DB rc=-12797). If replication stops, the consumer may need to be reinitialized.
-Mar 26 05:33:38 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:38.977476022 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): CSN 0026dbd5000000140000 not found, we aren't as up to date, or we purged
-Mar 26 05:33:38 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:38.979139557 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data required to update replica has been purged from the changelog. If the error persists the replica must be reinitialized.
-Mar 26 07:00:58 pln-ipamaster.ipa.calix.local systemd[1]: Stopping 389 Directory Server IPA-CALIX-LOCAL....
-Mar 26 07:00:58 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:07:00:58.876516477 +0000] - INFO - ct_thread_cleanup - slapd shutting down - signaling connection table threads
-Mar 26 07:00:58 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:07:00:58.878766916 +0000] - INFO - op_thread_cleanup - slapd shutting down - signaling operation threads - op stack size 2 max work q size 2 max work q stack size 2
-Mar 26 07:00:58 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:07:00:58.888733670 +0000] - INFO - slapd_daemon - slapd shutting down - waiting for 3 threads to terminate
-Mar 26 07:00:58 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:07:00:58.969741400 +0000] - INFO - slapd_daemon - slapd shutting down - accept_thread
-Mar 26 07:06:45 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:07:06:45.075622466 +0000] - WARN - NSMMReplicationPlugin - acquire_replica - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Unable to receive the response for a startReplication extended operation to consumer (Timed out). Will retry later.
-Mar 26 07:06:45 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:07:06:45.085187259 +0000] - INFO - slapd_daemon - slapd shutting down - closing down internal subsystems and plugins
+
+
+[root@pln-ipamaster ~]# systemctl restart dirsrv
+dirsrv@IPA-CALIX-LOCAL.service  dirsrv.target
+[root@pln-ipamaster ~]# systemctl restart dirsrv
+dirsrv@IPA-CALIX-LOCAL.service  dirsrv.target
+[root@pln-ipamaster ~]# systemctl restart dirsrv@IPA-CALIX-LOCAL.service
+Job for dirsrv@IPA-CALIX-LOCAL.service canceled.
+[root@pln-ipamaster ~]#
