@@ -1,3 +1,12 @@
-ls -laZ /etc/ipa/dnssec/ipa-dnskeysyncd.keytab
-
-cat /usr/lib/systemd/system/ipa-dnskeysyncd.service | grep -E "User|Group|Exec"
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ls -laZ /etc/ipa/dnssec/ipa-dnskeysyncd.keytab
+-rw-------. 1 root root unconfined_u:object_r:etc_t:s0 202 Mar 26 14:06 /etc/ipa/dnssec/ipa-dnskeysyncd.keytab
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# cat /usr/lib/systemd/system/ipa-dnskeysyncd.service | grep -E "User|Group|Exec"
+ExecStart=/usr/libexec/ipa/ipa-dnskeysyncd
+User=ods
+Group=named
+SupplementaryGroups=ods
+[root@pln-ipamaster ~]#
