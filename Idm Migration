@@ -1,11 +1,46 @@
-# 1. Verify CA is issuing certs
-ipa cert-show 1
-
-# 2. Check replication status to cpeg
-ipa-replica-manage list
-
-# 3. Verify certmonger tracking
-getcert list | grep -E "status|subject" | head -30
-
-# 4. Check topology
-ipa topologysegment-find dc=ipa,dc=calix,dc=local 2>/dev/null
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa cert-show 1
+  Issuing CA: ipa
+  Certificate: MIIDlzCCAn+gAwIBAgIBATANBgkqhkiG9w0BAQsFADA6MRgwFgYDVQQKDA9JUEEuQ0FMSVguTE9DQUwxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0xODA2MzAwNzM5NTBaFw0zODA2MzAwNzM5NTBaMDoxGDAWBgNVBAoMD0lQQS5DQUxJWC5MT0NBTDEeMBwGA1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnTqn5+E1ZR0aHTJaaodlkIaGWpyF16Yp/d6bL7oWwptOwZHDinphJDNx51yw9QbnRv/wUqiN6FJYLIl2/+WB9mKI5wqnw1jxar+hn0/4oLL+NhE81XdQIcNrq/Rbs/oeCqyo07tmd8qInd+vzwYqsauAGQLFhivxiiGbYZj0KUmfOwOiD/hjP96Vi8/0ZkyEA36Eo9kqIXGINVP7HZpHPHuzHpAcKWopGvKZ4ParpRdsfRoaxrbeattYcOyygLZ8oS72d4Z2IYaHAEXJ639PYyMBb1uir2DZaQIW6pXcLWDvjnpF/UL5wXRqZ3SevrCfHP8Xi4jb3O0tD4CcnXxYIQIDAQABo4GnMIGkMB8GA1UdIwQYMBaAFBdb10hNKg16egAKoDsd7HGraJSqMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgHGMB0GA1UdDgQWBBQXW9dITSoNenoACqA7Hexxq2iUqjBBBggrBgEFBQcBAQQ1MDMwMQYIKwYBBQUHMAGGJWh0dHA6Ly9pcGEtY2EuaXBhLmNhbGl4LmxvY2FsL2NhL29jc3AwDQYJKoZIhvcNAQELBQADggEBAFoy6+56o0MGYejlEvfCaMLb4SvszrYqBa/KZv5KQt1PFrvUKtThSXkY/OmBfDdpEykt1tAvqn29sKpQOY3vnTFjZUdLUKwD/M5L7V5VuUEuTkgS86EIpQ0vtyH8xsP4hhsHo7ajc5kUYv1XIBF1/33LTZlV88Es2CgkMWth7pZQtFgOa/CODKj4COpOkofU0b3VTXd+MQMxgV1RPgEDgZE/3Su9dzEtTxeLQeLwnTp6k0vdBswOyhprwu3QTFdIh1AfT5nMkTPp1z7Ft2TtQ4qmwkR0PHGDpQBlaVhLN3fZRquJgeUm7OcNoeP9py/aWvXxrHFeTFs62AMhKJgvp/U=
+  Subject: CN=Certificate Authority,O=IPA.CALIX.LOCAL
+  Issuer: CN=Certificate Authority,O=IPA.CALIX.LOCAL
+  Not Before: Sat Jun 30 07:39:50 2018 UTC
+  Not After: Wed Jun 30 07:39:50 2038 UTC
+  Serial number: 1
+  Serial number (hex): 0x1
+  Revoked: False
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa-replica-manage list
+sjc-ipareplica01.ipa.calix.local: master
+nan-ipareplica01.ipa.calix.local: master
+ric-ipareplica01.ipa.calix.local: master
+ric-ipareplica.ipa.calix.local: master
+cpeg-ipareplica.ipa.calix.local: master
+pln-ipamaster.ipa.calix.local: master
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# getcert list | grep -E "status|subject" | head -30
+	status: MONITORING
+	subject: CN=pln-ipamaster.ipa.calix.local,O=IPA.CALIX.LOCAL
+	status: MONITORING
+	subject: CN=CA Audit,O=IPA.CALIX.LOCAL
+	status: MONITORING
+	subject: CN=OCSP Subsystem,O=IPA.CALIX.LOCAL
+	status: MONITORING
+	subject: CN=CA Subsystem,O=IPA.CALIX.LOCAL
+	status: MONITORING
+	subject: CN=Certificate Authority,O=IPA.CALIX.LOCAL
+	status: MONITORING
+	subject: CN=pln-ipamaster.ipa.calix.local,O=IPA.CALIX.LOCAL
+	status: MONITORING
+	subject: CN=IPA RA,O=IPA.CALIX.LOCAL
+	status: MONITORING
+	subject: CN=pln-ipamaster.ipa.calix.local,O=IPA.CALIX.LOCAL
+	status: MONITORING
+	subject: CN=pln-ipamaster.ipa.calix.local,O=IPA.CALIX.LOCAL
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa topologysegment-find dc=ipa,dc=calix,dc=local 2>/dev/null
+[root@pln-ipamaster ~]# ipa topologysegment-find
+Suffix name:
+ipa: ERROR: Could not get Suffix name interactively
+[root@pln-ipamaster ~]#
