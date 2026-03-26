@@ -1,1 +1,4 @@
-python3 -c "from ipaplatform.paths import paths; print(paths.IPA_DNSKEYSYNCD_KEYTAB)"
+[root@pln-ipamaster dnssec]# python3 -c "from ipaplatform.paths import paths; print(paths.IPA_DNSKEYSYNCD_KEYTAB)"
+/etc/ipa/dnssec/ipa-dnskeysyncd.keytab
+[root@pln-ipamaster dnssec]#
+[root@pln-ipamaster dnssec]#
