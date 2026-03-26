@@ -1,28 +1,27 @@
-[26/Mar/2026:00:16:29.650637573 +0000] - INFO - NSMMReplicationPlugin - bind_and_check_pwp - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Replication bind with GSSAPI auth resumed
-[26/Mar/2026:00:16:29.915142861 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid ec0b299d-28a711f1-b1c6c5a1-f0f13da2, CSN 69c4e576000000150000): Server is unwilling to perform (53). Will retry later.
-[26/Mar/2026:00:16:29.916770897 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid ec0b299e-28a711f1-b1c6c5a1-f0f13da2, CSN 69c4e576000200150000): Server is unwilling to perform(53). Will retry later.
-[26/Mar/2026:00:16:29.917602237 +0000] - WARN - NSMMReplicationPlugin - send_updates - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Failed to send update operation to consumer (uniqueid 10670604-28a811f1-b1c6c5a1-f0f13da2, CSN 69c4e58c000100150000): Server is unwilling to perform. Will retry later.
-[26/Mar/2026:00:16:29.918674340 +0000] - ERR - NSMMReplicationPlugin - release_replica - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Unable to send endReplication extended operation (Server is unwilling to perform)
-[26/Mar/2026:00:16:33.121292108 +0000] - INFO - NSMMReplicationPlugin - bind_and_check_pwp - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Replication bind with GSSAPI auth resumed
-[26/Mar/2026:00:16:33.522147091 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid ec0b299d-28a711f1-b1c6c5a1-f0f13da2, CSN 69c4e576000000150000): Server is unwilling to perform (53). Will retry later.
-[26/Mar/2026:00:16:33.523186241 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid ec0b299e-28a711f1-b1c6c5a1-f0f13da2, CSN 69c4e576000200150000): Server is unwilling to perform(53). Will retry later.
-[26/Mar/2026:00:16:33.523956922 +0000] - WARN - NSMMReplicationPlugin - send_updates - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Failed to send update operation to consumer (uniqueid 10670604-28a811f1-b1c6c5a1-f0f13da2, CSN 69c4e58c000100150000): Server is unwilling to perform. Will retry later.
-[26/Mar/2026:00:16:33.525078240 +0000] - ERR - NSMMReplicationPlugin - release_replica - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Unable to send endReplication extended operation (Server is unwilling to perform)
-[26/Mar/2026:00:16:34.591862751 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[26/Mar/2026:00:16:36.309473759 +0000] - INFO - NSMMReplicationPlugin - bind_and_check_pwp - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Replication bind with GSSAPI auth resumed
-[26/Mar/2026:00:16:36.578032618 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid ec0b299d-28a711f1-b1c6c5a1-f0f13da2, CSN 69c4e576000000150000): Server is unwilling to perform (53). Will retry later.
-[26/Mar/2026:00:16:36.578966915 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid ec0b299e-28a711f1-b1c6c5a1-f0f13da2, CSN 69c4e576000200150000): Server is unwilling to perform(53). Will retry later.
-[26/Mar/2026:00:16:36.579830384 +0000] - WARN - NSMMReplicationPlugin - send_updates - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Failed to send update operation to consumer (uniqueid 10670603-28a811f1-b1c6c5a1-f0f13da2, CSN 69c4e58c000200150000): Server is unwilling to perform. Will retry later.
-[26/Mar/2026:00:16:36.580495476 +0000] - ERR - NSMMReplicationPlugin - release_replica - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Unable to send endReplication extended operation (Server is unwilling to perform)
-[26/Mar/2026:00:16:36.965804267 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[26/Mar/2026:00:16:39.666006439 +0000] - INFO - NSMMReplicationPlugin - bind_and_check_pwp - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Replication bind with GSSAPI auth resumed
-[26/Mar/2026:00:16:40.080363930 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid ec0b299d-28a711f1-b1c6c5a1-f0f13da2, CSN 69c4e576000000150000): Server is unwilling to perform (53). Will retry later.
-[26/Mar/2026:00:16:40.127027937 +0000] - WARN - NSMMReplicationPlugin - send_updates - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Failed to send update operation to consumer (uniqueid 10670601-28a811f1-b1c6c5a1-f0f13da2, CSN 69c4e586000200150000): Server is unwilling to perform. Will retry later.
-[26/Mar/2026:00:16:40.127759497 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid ec0b299e-28a711f1-b1c6c5a1-f0f13da2, CSN 69c4e576000200150000): Server is unwilling to perform(53). Will retry later.
-[26/Mar/2026:00:16:40.131021930 +0000] - ERR - NSMMReplicationPlugin - release_replica - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Unable to send endReplication extended operation (Server is unwilling to perform)
-[26/Mar/2026:00:16:43.336416750 +0000] - INFO - NSMMReplicationPlugin - bind_and_check_pwp - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Replication bind with GSSAPI auth resumed
-[26/Mar/2026:00:16:43.554106088 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid ec0b299d-28a711f1-b1c6c5a1-f0f13da2, CSN 69c4e576000000150000): Server is unwilling to perform (53). Will retry later.
-[26/Mar/2026:00:16:43.600597836 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid ec0b299e-28a711f1-b1c6c5a1-f0f13da2, CSN 69c4e576000200150000): Server is unwilling to perform(53). Will retry later.
-[26/Mar/2026:00:16:43.602015823 +0000] - WARN - NSMMReplicationPlugin - send_updates - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Failed to send update operation to consumer (uniqueid 10670603-28a811f1-b1c6c5a1-f0f13da2, CSN 69c4e58c000000150000): Server is unwilling to perform. Will retry later.
-[26/Mar/2026:00:16:43.603418728 +0000] - ERR - NSMMReplicationPlugin - release_replica - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Unable to send endReplication extended operation (Server is unwilling to perform)
-[26/Mar/2026:00:16:46.810493838 +0000] - INFO - NSMMReplicationPlugin - bind_and_check_pwp - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Replication bind with GSSAPI auth resumed
+ pki-tomcatd@pki-tomcat.service - PKI Tomcat Server pki-tomcat
+     Loaded: loaded (/usr/lib/systemd/system/pki-tomcatd@.service; enabled; preset: disabled)
+    Drop-In: /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d
+             └─timeout.conf
+     Active: active (running) since Thu 2026-03-26 02:36:03 UTC; 44s ago
+    Process: 45081 ExecStartPre=/usr/sbin/pki-server upgrade pki-tomcat (code=exited, status=0/SUCCESS)
+    Process: 45083 ExecStartPre=/usr/sbin/pki-server migrate pki-tomcat (code=exited, status=0/SUCCESS)
+    Process: 45135 ExecStartPre=/usr/bin/pkidaemon start pki-tomcat (code=exited, status=0/SUCCESS)
+   Main PID: 45155 (java)
+      Tasks: 39 (limit: 203337)
+     Memory: 203.2M (peak: 471.6M)
+        CPU: 21.016s
+     CGroup: /system.slice/system-pki\x2dtomcatd.slice/pki-tomcatd@pki-tomcat.service
+             └─45155 /usr/lib/jvm/jre-17-openjdk/bin/java -Dcom.redhat.fips=false -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -D>
+
+Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: Java virtual machine used: /usr/lib/jvm/jre-17-openjdk/bin/java
+Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: classpath used: /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar:
+Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: main class used: org.apache.catalina.startup.Bootstrap
+Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: flags used: -Dcom.redhat.fips=false
+Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: options used: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.>
+Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: arguments used: start
+Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.b>
+Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: WARNING: A command line option has enabled the Security Manager
+Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: WARNING: The Security Manager is deprecated and will be removed in a future release
+Mar 26 02:36:04 pln-ipamaster.ipa.calix.local server[45155]: WARNING: Tomcat interprets the [protocols] attribute in a manner consistent with the latest OpenSSL development branch. Some of the specified [protocols] are not supported by the conf>
+~
+~
