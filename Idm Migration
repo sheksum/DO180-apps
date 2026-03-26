@@ -1,27 +1,4 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# chown ods:named /etc/ipa/dnssec/ipa-dnskeysyncd.keytab
-[root@pln-ipamaster ~]# chmod 640 /etc/ipa/dnssec/ipa-dnskeysyncd.keytab
-[root@pln-ipamaster ~]# restorecon /etc/ipa/dnssec/ipa-dnskeysyncd.keytab
-[root@pln-ipamaster ~]# systemctl restart ipa-dnskeysyncd
-[root@pln-ipamaster ~]# systemctl status ipa-dnskeysyncd --no-pager | grep Active
-     Active: activating (auto-restart) (Result: exit-code) since Thu 2026-03-26 14:11:13 UTC; 4s ago
-[root@pln-ipamaster ~]# systemctl status ipa-dnskeysyncd --no-pager | grep Active
-     Active: activating (auto-restart) (Result: exit-code) since Thu 2026-03-26 14:11:13 UTC; 8s ago
-[root@pln-ipamaster ~]# systemctl status ipa-dnskeysyncd.service
-● ipa-dnskeysyncd.service - IPA key daemon
-     Loaded: loaded (/usr/lib/systemd/system/ipa-dnskeysyncd.service; enabled; preset: disabled)
-     Active: activating (auto-restart) (Result: exit-code) since Thu 2026-03-26 14:11:13 UTC; 15s ago
-    Process: 55228 ExecStart=/usr/libexec/ipa/ipa-dnskeysyncd (code=exited, status=1/FAILURE)
-   Main PID: 55228 (code=exited, status=1/FAILURE)
-        CPU: 1.917s
-[root@pln-ipamaster ~]# journalctl -fu ipa-dnskeysyncd.service
-Mar 26 14:11:10 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Failed with result 'exit-code'.
-Mar 26 14:11:10 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 1.925s CPU time.
-Mar 26 14:11:11 pln-ipamaster.ipa.calix.local systemd[1]: Stopped IPA key daemon.
-Mar 26 14:11:11 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 1.925s CPU time.
-Mar 26 14:11:11 pln-ipamaster.ipa.calix.local systemd[1]: Started IPA key daemon.
-Mar 26 14:11:11 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55228]: ipa-dnskeysyncd: INFO     To increase debugging set debug=True in dns.conf See default.conf(5) for details
-Mar 26 14:11:12 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55228]: ipa-dnskeysyncd: CRITICAL Kerberos authentication failed: Major (458752): No credentials were supplied, or the credentials were unavailable or inaccessible, Minor (2529639107): No credentials cache found (filename: /tmp/ipa-dnskeysyncd.ccache)
-Mar 26 14:11:13 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Main process exited, code=exited, status=1/FAILURE
-Mar 26 14:11:13 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Failed with result 'exit-code'.
-Mar 26 14:11:13 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 1.917s CPU time.
+cat /etc/ipa/dns.conf 2>/dev/null || echo "not found"
+cat /etc/ipa/default.conf | grep -E "keytab|ccache|dnskeysyncd"
+
+ls -la /etc/ipa/dnssec/
