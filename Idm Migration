@@ -1,27 +1,13 @@
- pki-tomcatd@pki-tomcat.service - PKI Tomcat Server pki-tomcat
-     Loaded: loaded (/usr/lib/systemd/system/pki-tomcatd@.service; enabled; preset: disabled)
-    Drop-In: /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d
-             └─timeout.conf
-     Active: active (running) since Thu 2026-03-26 02:36:03 UTC; 44s ago
-    Process: 45081 ExecStartPre=/usr/sbin/pki-server upgrade pki-tomcat (code=exited, status=0/SUCCESS)
-    Process: 45083 ExecStartPre=/usr/sbin/pki-server migrate pki-tomcat (code=exited, status=0/SUCCESS)
-    Process: 45135 ExecStartPre=/usr/bin/pkidaemon start pki-tomcat (code=exited, status=0/SUCCESS)
-   Main PID: 45155 (java)
-      Tasks: 39 (limit: 203337)
-     Memory: 203.2M (peak: 471.6M)
-        CPU: 21.016s
-     CGroup: /system.slice/system-pki\x2dtomcatd.slice/pki-tomcatd@pki-tomcat.service
-             └─45155 /usr/lib/jvm/jre-17-openjdk/bin/java -Dcom.redhat.fips=false -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -D>
-
-Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: Java virtual machine used: /usr/lib/jvm/jre-17-openjdk/bin/java
-Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: classpath used: /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar:
-Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: main class used: org.apache.catalina.startup.Bootstrap
-Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: flags used: -Dcom.redhat.fips=false
-Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: options used: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.>
-Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: arguments used: start
-Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.b>
-Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: WARNING: A command line option has enabled the Security Manager
-Mar 26 02:36:03 pln-ipamaster.ipa.calix.local server[45155]: WARNING: The Security Manager is deprecated and will be removed in a future release
-Mar 26 02:36:04 pln-ipamaster.ipa.calix.local server[45155]: WARNING: Tomcat interprets the [protocols] attribute in a manner consistent with the latest OpenSSL development branch. Some of the specified [protocols] are not supported by the conf>
-~
-~
+==> /var/log/pki/pki-ca-spawn.20260326000715.log <==
+2026-03-26 02:37:24 INFO: Waiting for PKI server to start (81s)
+2026-03-26 02:37:40 INFO: Waiting for PKI server to start (97s)
+2026-03-26 02:37:56 INFO: Waiting for PKI server to start (113s)
+2026-03-26 02:38:12 INFO: Waiting for PKI server to start (129s)
+2026-03-26 02:38:28 INFO: Waiting for PKI server to start (145s)
+2026-03-26 02:38:44 INFO: Waiting for PKI server to start (161s)
+2026-03-26 02:39:00 INFO: Waiting for PKI server to start (177s)
+2026-03-26 02:39:16 INFO: Waiting for PKI server to start (193s)
+2026-03-26 02:39:32 INFO: Waiting for PKI server to start (209s)
+2026-03-26 02:39:48 INFO: Waiting for PKI server to start (225s)
+2026-03-26 02:40:04 INFO: Waiting for PKI server to start (241s)
+2026-03-26 02:40:20 INFO: Waiting for PKI server to start (258s)
