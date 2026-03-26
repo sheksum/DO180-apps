@@ -1,8 +1,10 @@
-[root@pln-ipamaster ~]# ipactl status
-IPA is not configured (see man pages of ipa-server-install for help)
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ss -tlnp | grep -E "389|636"
-LISTEN 0      128                     *:389             *:*    users:(("ns-slapd",pid=50082,fd=8))
-LISTEN 0      128                     *:636             *:*    users:(("ns-slapd",pid=50082,fd=9))
-[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# curl -sk https://pln-ipamaster.ipa.calix.local/ca/admin/ca/getStatus
+{
+  "Response" : {
+    "State" : "1",
+    "Type" : "CA",
+    "Status" : "running",
+    "Version" : "11.7.0-SNAPSHOT"
+  }
+}[root@pln-ipamaster ~]#
