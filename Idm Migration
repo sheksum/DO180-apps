@@ -1,25 +1,11 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=1,ou=ca,ou=requests,o=ipaca" \
-  "(objectclass=*)" 2>/dev/null | grep -v "^#\|^$\|objectClass\|^dn\|^cn" | head -20
-requestType: enrollment
-requestState: complete
-requestId: 011
-extdata-requestversion: 1.0.0
-extdata-requesttype: enrollment
-extdata-requeststatus: complete
-extdata-requestor--005fphone:
-extdata-requestor--005fname:
-extdata-requestor--005femail:
-extdata-requestnotes:
-extdata-requestid: 1
-extdata-req--005fx509info:: TUlJQjJhQURBZ0VDQWdFQk1BMEdDU3FHU0liM0RRRUJDd1VBTU
- RveEdEQVdCZ05WQkFvTUQwbFFRUzVEUVV4Sg0KV0M1TVQwTkJUREVlTUJ3R0ExVUVBd3dWUTJWeWR
- HbG1hV05oZEdVZ1FYVjBhRzl5YVhSNU1CNFhEVEU0TURZeg0KTURBM016azFNRm9YRFRFNE1EWXpN
- REEzTXprMU1Gb3dPakVZTUJZR0ExVUVDZ3dQU1ZCQkxrTkJURWxZTGt4UA0KUTBGTU1SNHdIQVlEV
- lFRRERCVkRaWEowYVdacFkyRjBaU0JCZFhSb2IzSnBkSGt3Z2dFaU1BMEdDU3FHU0liMw0KRFFFQk
- FRVUFBNElCRHdBd2dnRUtBb0lCQVFDZE9xZm40VFZsSFJvZE1scHFoMldRaG9aYW5JWFhwaW45M3B
- zdg0KdWhiQ20wN0JrY09LZW1Fa00zSG5YTEQxQnVkRy8vQlNxSTNvVWxnc2lYYi81WUgyWW9qbkNx
- ZkRXUEZxdjZHZg0KVC9pZ3N2NDJFVHpWZDFBaHcydXI5RnV6K2g0S3JLalR1MlozeW9pZDM2L1BCa
- XF4cTRBWkFzV0dLL0dLSVp0aA0KbVBRcFNaODdBNklQK0dNLzNwV0x6L1JtVElRRGZvU2oyU29oY1
-[root@pln-ipamaster ~]#
+# 1. Verify CA is issuing certs
+ipa cert-show 1
+
+# 2. Check replication status to cpeg
+ipa-replica-manage list
+
+# 3. Verify certmonger tracking
+getcert list | grep -E "status|subject" | head -30
+
+# 4. Check topology
+ipa topologysegment-find dc=ipa,dc=calix,dc=local 2>/dev/null
