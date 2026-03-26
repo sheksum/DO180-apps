@@ -1,11 +1,87 @@
-root@plnx-admin:~# du -sh /home/hsuma/* 2>/dev/null | sort -rh | head -10
-5.3G	/home/hsuma/ubuntu-24.10-desktop-amd64.iso
-2.7G	/home/hsuma/ge
-1.7G	/home/hsuma/Mobile-Security-Framework-MobSF
-1.3G	/home/hsuma/b3090dc3-5b93-4a9b-81df-fbf3c63209bf-discovery.iso
-879M	/home/hsuma/modelsim_dlx-2020.2.aol
-635M	/home/hsuma/debian-12.9.0-amd64-netinst.iso
-382M	/home/hsuma/development
-380M	/home/hsuma/tools
-380M	/home/hsuma/test
-291M	/home/hsuma/haj
+root@plnx-admin:~# rm /home/hsuma/b3090dc3-5b93-4a9b-81df-fbf3c63209bf-discovery.iso
+root@plnx-admin:~# rm /home/hsuma/ubuntu-24.10-desktop-amd64.iso
+root@plnx-admin:~# rm /home/hsuma/debian-12.9.0-amd64-netinst.iso
+root@plnx-admin:~#
+root@plnx-admin:~#
+root@plnx-admin:~#
+root@plnx-admin:~# systemctl status ssh
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2026-01-07 10:34:36 CST; 2 months 17 days ago
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+   Main PID: 1290 (sshd)
+      Tasks: 4 (limit: 9388)
+     Memory: 30.5M
+        CPU: 16min 10.173s
+     CGroup: /system.slice/ssh.service
+             ├─   1290 "sshd: /usr/sbin/sshd -D [listener] 1 of 10-100 startups"
+             ├─2415373 "sshd: hsuma [priv]" "" ""
+             ├─2415374 "sshd: hsuma [net]" "" "" ""
+             └─2415395 "sshd: hsuma [pam]" "" "" ""
+
+Mar 26 13:30:15 plnx-admin.calix.local sshd[2415179]: error: kex_exchange_identification: Connection closed by remote host
+Mar 26 13:30:15 plnx-admin.calix.local sshd[2415179]: Connection closed by 192.168.33.191 port 51758
+Mar 26 13:30:20 plnx-admin.calix.local sshd[2415188]: error: kex_exchange_identification: Connection closed by remote host
+Mar 26 13:30:20 plnx-admin.calix.local sshd[2415188]: Connection closed by 172.23.49.149 port 38326
+Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51  user=hsuma
+Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_sss(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51 user=hsuma
+Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_sss(sshd:auth): received for user hsuma: 4 (System error)
+Mar 26 13:31:30 plnx-admin.calix.local sshd[2415390]: error: kex_exchange_identification: Connection closed by remote host
+Mar 26 13:31:30 plnx-admin.calix.local sshd[2415390]: Connection closed by 192.168.102.181 port 43252
+Mar 26 13:31:31 plnx-admin.calix.local sshd[2415373]: error: PAM: Authentication failure for hsuma from 10.172.248.51
+root@plnx-admin:~#
+root@plnx-admin:~# systemctl status sshd
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2026-01-07 10:34:36 CST; 2 months 17 days ago
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+   Main PID: 1290 (sshd)
+      Tasks: 4 (limit: 9388)
+     Memory: 30.5M
+        CPU: 16min 10.173s
+     CGroup: /system.slice/ssh.service
+             ├─   1290 "sshd: /usr/sbin/sshd -D [listener] 1 of 10-100 startups"
+             ├─2415373 "sshd: hsuma [priv]" "" ""
+             ├─2415374 "sshd: hsuma [net]" "" "" ""
+             └─2415395 "sshd: hsuma [pam]" "" "" ""
+
+Mar 26 13:30:15 plnx-admin.calix.local sshd[2415179]: error: kex_exchange_identification: Connection closed by remote host
+Mar 26 13:30:15 plnx-admin.calix.local sshd[2415179]: Connection closed by 192.168.33.191 port 51758
+Mar 26 13:30:20 plnx-admin.calix.local sshd[2415188]: error: kex_exchange_identification: Connection closed by remote host
+Mar 26 13:30:20 plnx-admin.calix.local sshd[2415188]: Connection closed by 172.23.49.149 port 38326
+Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51  user=hsuma
+Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_sss(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51 user=hsuma
+Mar 26 13:31:29 plnx-admin.calix.local sshd[2415375]: pam_sss(sshd:auth): received for user hsuma: 4 (System error)
+Mar 26 13:31:30 plnx-admin.calix.local sshd[2415390]: error: kex_exchange_identification: Connection closed by remote host
+Mar 26 13:31:30 plnx-admin.calix.local sshd[2415390]: Connection closed by 192.168.102.181 port 43252
+Mar 26 13:31:31 plnx-admin.calix.local sshd[2415373]: error: PAM: Authentication failure for hsuma from 10.172.248.51
+root@plnx-admin:~# systemctl status sssd
+● sssd.service - System Security Services Daemon
+     Loaded: loaded (/lib/systemd/system/sssd.service; enabled; vendor preset: enabled)
+     Active: active (running) since Thu 2026-03-26 13:25:08 CDT; 6min ago
+   Main PID: 2413447 (sssd)
+      Tasks: 7 (limit: 9388)
+     Memory: 41.6M
+        CPU: 975ms
+     CGroup: /system.slice/sssd.service
+             ├─2413447 /usr/sbin/sssd -i --logger=files
+             ├─2413450 /usr/libexec/sssd/sssd_be --domain ipa.calix.local --uid 0 --gid 0 --logger=files
+             ├─2413451 /usr/libexec/sssd/sssd_nss --uid 0 --gid 0 --logger=files
+             ├─2413452 /usr/libexec/sssd/sssd_pam --uid 0 --gid 0 --logger=files
+             ├─2413453 /usr/libexec/sssd/sssd_ssh --uid 0 --gid 0 --logger=files
+             ├─2413454 /usr/libexec/sssd/sssd_sudo --uid 0 --gid 0 --logger=files
+             └─2413455 /usr/libexec/sssd/sssd_pac --uid 0 --gid 0 --logger=files
+
+Mar 26 13:25:08 plnx-admin.calix.local systemd[1]: Started System Security Services Daemon.
+Mar 26 13:25:08 plnx-admin.calix.local sssd_be[2413450]: GSSAPI client step 1
+Mar 26 13:25:08 plnx-admin.calix.local sssd_be[2413450]: GSSAPI client step 1
+Mar 26 13:25:08 plnx-admin.calix.local sssd_be[2413450]: GSSAPI client step 1
+Mar 26 13:25:08 plnx-admin.calix.local sssd_be[2413450]: GSSAPI client step 2
+Mar 26 13:25:29 plnx-admin.calix.local krb5_child[2413511]: Disk quota exceeded
+Mar 26 13:25:29 plnx-admin.calix.local krb5_child[2413511]: Disk quota exceeded
+Mar 26 13:26:01 plnx-admin.calix.local sssd_nss[2413451]: Enumeration requested but not enabled
+Mar 26 13:31:29 plnx-admin.calix.local krb5_child[2415386]: Disk quota exceeded
+Mar 26 13:31:29 plnx-admin.calix.local krb5_child[2415386]: Disk quota exceeded
+root@plnx-admin:~#
