@@ -1,4 +1,35 @@
-ls -la /proc/38436/fd 2>/dev/null
-
-cat /proc/38436/net/tcp 2>/dev/null | head -20
-lsof -p 38436 2>/dev/null | grep -E "ESTABLISHED|LISTEN|WAIT"
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ls -la /proc/38436/fd 2>/dev/null
+total 0
+dr-x------. 2 root root 12 Mar 26 02:03 .
+dr-xr-xr-x. 9 root root  0 Mar 25 23:41 ..
+lrwx------. 1 root root 64 Mar 26 02:03 0 -> /dev/pts/0
+lrwx------. 1 root root 64 Mar 26 02:03 1 -> /dev/pts/0
+lrwx------. 1 root root 64 Mar 26 02:03 10 -> 'socket:[554923]'
+lrwx------. 1 root root 64 Mar 26 02:03 11 -> 'socket:[557869]'
+lrwx------. 1 root root 64 Mar 26 02:03 2 -> /dev/pts/0
+l-wx------. 1 root root 64 Mar 26 02:03 3 -> /var/log/ipareplica-install.log
+lrwx------. 1 root root 64 Mar 26 02:03 4 -> 'socket:[470374]'
+lrwx------. 1 root root 64 Mar 26 02:03 5 -> 'socket:[461427]'
+lr-x------. 1 root root 64 Mar 26 02:03 6 -> /var/lib/sss/mc/group
+lrwx------. 1 root root 64 Mar 26 02:03 7 -> 'socket:[461431]'
+lrwx------. 1 root root 64 Mar 26 02:03 8 -> 'socket:[553763]'
+lrwx------. 1 root root 64 Mar 26 02:03 9 -> 'socket:[554922]'
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# cat /proc/38436/net/tcp 2>/dev/null | head -20
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
+   0: 0100007F:0277 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 27377 1 ffff89ec8c5e6e00 100 0 0 10 4096
+   1: 00000000:01D0 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 469318 1 ffff89ec84fbb200 100 0 0 10 5
+   2: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 464331 1 ffff89ecabb20a00 100 0 0 10 128
+   3: 00000000:0058 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 560724 1 ffff89eee9a78000 100 0 0 10 5
+   4: 00000000:006F 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 20879 1 ffff89ec84fb9e00 100 0 0 10 0
+   5: 00000000:02ED 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 469322 1 ffff89ec84fbbc00 100 0 0 10 2
+   6: 37F8AC0A:0016 69F8AC0A:9714 01 00000000:00000000 02:00042157 00000000     0        0 440730 2 ffff89eee9a79400 20 4 30 31 -1
+   7: 37F8AC0A:83CA 0A3117AC:0185 01 00000000:00000000 02:0008C07F 00000000   389        0 557852 2 ffff89ec8c5e0000 25 4 30 10 -1
+   8: 37F8AC0A:CCBC 0A3117AC:0185 01 00000000:00000000 02:000ADEC3 00000000     0        0 567229 2 ffff89ecabb20000 25 4 16 10 -1
+   9: 37F8AC0A:0016 69F8AC0A:E752 01 00000000:00000000 02:000A4C7F 00000000     0        0 472311 4 ffff89ecc717b200 20 5 31 22 22
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# lsof -p 38436 2>/dev/null | grep -E "ESTABLISHED|LISTEN|WAIT"
+[root@pln-ipamaster ~]#
