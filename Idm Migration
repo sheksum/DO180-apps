@@ -1,4 +1,1 @@
-[root@pln-ipamaster dnssec]# python3 -c "from ipaplatform.paths import paths; print(paths.IPA_DNSKEYSYNCD_KEYTAB)"
-/etc/ipa/dnssec/ipa-dnskeysyncd.keytab
-[root@pln-ipamaster dnssec]#
-[root@pln-ipamaster dnssec]#
+python3 -c "from ipaplatform.paths import paths; import re; content=open('/usr/libexec/ipa/ipa-dnskeysyncd').read(); print([l for l in content.split('\n') if 'PRINCIPAL' in l])"
