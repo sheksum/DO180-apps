@@ -1,60 +1,24 @@
-[root@pln-ipamaster ~]# systemctl status named --no-pager
-○ named.service - Berkeley Internet Name Domain (DNS)
+[root@pln-ipamaster ~]# systemctl status named
+● named.service - Berkeley Internet Name Domain (DNS)
      Loaded: loaded (/usr/lib/systemd/system/named.service; disabled; preset: disabled)
-     Active: inactive (dead)
-[root@pln-ipamaster ~]# systemctl status named --no-pager
-○ named.service - Berkeley Internet Name Domain (DNS)
-     Loaded: loaded (/usr/lib/systemd/system/named.service; disabled; preset: disabled)
-     Active: inactive (dead)
-[root@pln-ipamaster ~]# tail -50 /var/log/ipareplica-install.log
-2026-03-26T05:33:39Z DEBUG 	dc=ipa,dc=calix,dc=local
-2026-03-26T05:33:39Z DEBUG dnaSharedCfgDN:
-2026-03-26T05:33:39Z DEBUG 	cn=subordinate-ids,cn=dna,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-2026-03-26T05:33:39Z DEBUG dnaThreshold:
-2026-03-26T05:33:39Z DEBUG 	500
-2026-03-26T05:33:39Z DEBUG dnaType:
-2026-03-26T05:33:39Z DEBUG 	ipasubuidnumber
-2026-03-26T05:33:39Z DEBUG 	ipasubgidnumber
-2026-03-26T05:33:39Z DEBUG objectClass:
-2026-03-26T05:33:39Z DEBUG 	top
-2026-03-26T05:33:39Z DEBUG 	extensibleObject
-2026-03-26T05:33:39Z DEBUG add: '(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)' to aci, current value []
-2026-03-26T05:33:39Z DEBUG add: updated value ['(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)']
-2026-03-26T05:33:39Z DEBUG add: '(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)' to aci, current value ['(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)']
-2026-03-26T05:33:39Z DEBUG add: updated value ['(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', '(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)']
-2026-03-26T05:33:39Z DEBUG ---------------------------------------------
-2026-03-26T05:33:39Z DEBUG Final value after applying updates
-2026-03-26T05:33:39Z DEBUG dn: cn=Subordinate IDs,cn=Distributed Numeric Assignment Plugin,cn=plugins,cn=config
-2026-03-26T05:33:39Z DEBUG cn:
-2026-03-26T05:33:39Z DEBUG 	Subordinate IDs
-2026-03-26T05:33:39Z DEBUG dnaExcludeScope:
-2026-03-26T05:33:39Z DEBUG 	cn=provisioning,dc=ipa,dc=calix,dc=local
-2026-03-26T05:33:39Z DEBUG dnaFilter:
-2026-03-26T05:33:39Z DEBUG 	(objectClass=ipaSubordinateId)
-2026-03-26T05:33:39Z DEBUG dnaInterval:
-2026-03-26T05:33:39Z DEBUG 	65536
-2026-03-26T05:33:39Z DEBUG dnaMagicRegen:
-2026-03-26T05:33:39Z DEBUG 	-1
-2026-03-26T05:33:39Z DEBUG dnaMaxValue:
-2026-03-26T05:33:39Z DEBUG 	4294836224
-2026-03-26T05:33:39Z DEBUG dnaNextValue:
-2026-03-26T05:33:39Z DEBUG 	2147483648
-2026-03-26T05:33:39Z DEBUG dnaScope:
-2026-03-26T05:33:39Z DEBUG 	dc=ipa,dc=calix,dc=local
-2026-03-26T05:33:39Z DEBUG dnaSharedCfgDN:
-2026-03-26T05:33:39Z DEBUG 	cn=subordinate-ids,cn=dna,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-2026-03-26T05:33:39Z DEBUG dnaThreshold:
-2026-03-26T05:33:39Z DEBUG 	500
-2026-03-26T05:33:39Z DEBUG dnaType:
-2026-03-26T05:33:39Z DEBUG 	ipasubuidnumber
-2026-03-26T05:33:39Z DEBUG 	ipasubgidnumber
-2026-03-26T05:33:39Z DEBUG objectClass:
-2026-03-26T05:33:39Z DEBUG 	top
-2026-03-26T05:33:39Z DEBUG 	extensibleObject
-2026-03-26T05:33:39Z DEBUG aci:
-2026-03-26T05:33:39Z DEBUG 	(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)
-2026-03-26T05:33:39Z DEBUG 	(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)
-2026-03-26T05:33:39Z DEBUG [(2, 'aci', ['(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', '(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
-2026-03-26T05:33:39Z DEBUG Updated 1
-2026-03-26T05:33:39Z DEBUG update_entry modlist [(2, 'aci', [b'(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', b'(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
+     Active: active (running) since Thu 2026-03-26 06:00:55 UTC; 4s ago
+    Process: 48410 ExecStartPre=/bin/bash -c if [ ! "$DISABLE_ZONE_CHECKING" == "yes" ]; then /usr/sbin/named-checkconf -z "$NAMEDCONF"; else echo "Checking of zone files is disabled"; fi (code=exited, status=0/SUCCESS)
+    Process: 48413 ExecStart=/usr/sbin/named -u named -c ${NAMEDCONF} $OPTIONS (code=exited, status=0/SUCCESS)
+   Main PID: 48414 (named)
+      Tasks: 26 (limit: 203337)
+     Memory: 116.1M (peak: 117.5M)
+        CPU: 147ms
+     CGroup: /system.slice/named.service
+             └─48414 /usr/sbin/named -u named -c /etc/named.conf
+
+Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: command channel listening on ::1#953
+Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: loaded serial 0
+Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: zone 0.in-addr.arpa/IN: loaded serial 0
+Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: zone 1.0.0.127.in-addr.arpa/IN: loaded serial 0
+Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: zone 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa/IN: loaded serial 0
+Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: zone localhost/IN: loaded serial 0
+Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: zone localhost.localdomain/IN: loaded serial 0
+Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: all zones loaded
+Mar 26 06:00:55 pln-ipamaster.ipa.calix.local named[48414]: running
+Mar 26 06:00:55 pln-ipamaster.ipa.calix.local systemd[1]: Started Berkeley Internet Name Domain (DNS).
 [root@pln-ipamaster ~]#
