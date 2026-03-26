@@ -1,38 +1,7 @@
-ldapadd -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
-dn: cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-objectClass: top
-objectClass: nsContainer
-objectClass: ipaReplTopoManagedServer
-objectClass: ipaConfigObject
-objectClass: ipaSupportedDomainLevelConfig
-cn: pln-ipamaster.ipa.calix.local
-ipaReplTopoManagedSuffix: dc=ipa,dc=calix,dc=local
-ipaReplTopoManagedSuffix: o=ipaca
-ipaMinDomainLevel: 1
-ipaMaxDomainLevel: 1
-
-dn: cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: KDC
-ipaConfigString: configuredService
-ipaConfigString: startOrder 10
-ipaConfigString: pacTktSignSupported
-ipaConfigString: kdcProxyEnabled
-EOF
-
-
-Done configuring certificate server (pki-tomcatd).
-Configuring Kerberos KDC (krb5kdc)
-  [1/1]: installing X509 Certificate for PKINIT
-Done configuring Kerberos KDC (krb5kdc).
-Applying LDAP updates
-Upgrading IPA:. Estimated time: 1 minute 30 seconds
-  [1/10]: stopping directory server
-  [2/10]: saving configuration
-  [3/10]: disabling listeners
-  [4/10]: enabling DS global lock
-  [5/10]: disabling Schema Compat
-  [6/10]: starting directory server
-  [7/10]: upgrading server
+[root@pln-ipamaster ~]# tail -5 /var/log/ipareplica-install.log
+2026-03-26T05:33:39Z DEBUG 	(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)
+2026-03-26T05:33:39Z DEBUG 	(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)
+2026-03-26T05:33:39Z DEBUG [(2, 'aci', ['(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', '(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
+2026-03-26T05:33:39Z DEBUG Updated 1
+2026-03-26T05:33:39Z DEBUG update_entry modlist [(2, 'aci', [b'(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', b'(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
+[root@pln-ipamaster ~]#
