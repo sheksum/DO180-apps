@@ -1,1 +1,46 @@
-cat /var/lib/ipa/sysrestore/sysrestore.state
+[root@pln-ipamaster dnssec]#
+[root@pln-ipamaster dnssec]# cat /var/lib/ipa/sysrestore/sysrestore.state
+[installation]
+complete = True
+
+[dirsrv]
+serverid = IPA-CALIX-LOCAL
+enabled = True
+
+[krb5kdc]
+running = False
+enabled = False
+
+[kadmin]
+running = False
+enabled = False
+
+[httpd]
+running = True
+certmonger_ipa_helper = /usr/libexec/certmonger/ipa-submit
+httpd_can_network_connect = on
+httpd_manage_ipa = on
+httpd_run_ipa = on
+httpd_dbus_sssd = on
+enabled = False
+
+[oddjobd]
+running = True
+enabled = True
+
+[ipa-otpd]
+running = False
+enabled = False
+
+[ipa-custodia]
+running = False
+enabled = False
+
+[pki_hsm]
+enabled = False
+token_name = internal
+
+[pki-tomcatd]
+installed = True
+
+[root@pln-ipamaster dnssec]#
