@@ -1,28 +1,4 @@
-[root@pln-ipamaster ~]# systemctl status pki-tomcatd@pki-tomcat.service
-● pki-tomcatd@pki-tomcat.service - PKI Tomcat Server pki-tomcat
-     Loaded: loaded (/usr/lib/systemd/system/pki-tomcatd@.service; enabled; preset: disabled)
-    Drop-In: /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d
-             └─ipa.conf, timeout.conf
-     Active: activating (start-post) since Thu 2026-03-26 05:12:00 UTC; 6min ago
-    Process: 46973 ExecStartPre=/usr/sbin/pki-server upgrade pki-tomcat (code=exited, status=0/SUCCESS)
-    Process: 46976 ExecStartPre=/usr/sbin/pki-server migrate pki-tomcat (code=exited, status=0/SUCCESS)
-    Process: 47028 ExecStartPre=/usr/bin/pkidaemon start pki-tomcat (code=exited, status=0/SUCCESS)
-   Main PID: 47045 (java); Control PID: 47046 (ipa-pki-wait-ru)
-      Tasks: 44 (limit: 203337)
-     Memory: 352.2M (peak: 544.6M)
-        CPU: 25.833s
-     CGroup: /system.slice/system-pki\x2dtomcatd.slice/pki-tomcatd@pki-tomcat.service
-             ├─47045 /usr/lib/jvm/jre-17-openjdk/bin/java -Dcom.redhat.fips=false -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -D>
-             └─47046 /usr/bin/python3 -I /usr/libexec/ipa/ipa-pki-wait-running
-
-Mar 26 05:17:46 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47046]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 26 05:17:48 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47046]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 26 05:17:50 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47046]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 26 05:17:52 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47046]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 26 05:17:54 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47046]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 26 05:17:56 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47046]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 26 05:17:58 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47046]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 26 05:18:00 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47046]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 26 05:18:02 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47046]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-Mar 26 05:18:04 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[47046]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Max retries exceeded with url: /ca/admin/ca/getStatus (Caus>
-lines 1-26/26 (END)
+Mar 26 05:19:17 pln-ipamaster.ipa.calix.local server[47482]: NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+Mar 26 05:19:17 pln-ipamaster.ipa.calix.local systemd[1]: pki-tomcatd@pki-tomcat.service: Deactivated successfully.
+Mar 26 05:19:17 pln-ipamaster.ipa.calix.local systemd[1]: Stopped PKI Tomcat Server pki-tomcat.
+Mar 26 05:19:17 pln-ipamaster.ipa.calix.local systemd[1]: pki-tomcatd@pki-tomcat.service: Consumed 30.381s CPU time.
