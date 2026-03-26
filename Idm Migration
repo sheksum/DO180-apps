@@ -1,5 +1,221 @@
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# tail -1 /var/log/ipareplica-install.log
-2026-03-26T05:33:39Z DEBUG update_entry modlist [(2, 'aci', [b'(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', b'(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
 [root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+  "(objectclass=*)" dn 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope subtree
+# filter: (objectclass=*)
+# requesting: dn
+#
+
+# masters, ipa, etc, ipa.calix.local
+dn: cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+
+# sjc-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=sjc-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=cal
+ ix,dc=local
+
+# nan-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=nan-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=cal
+ ix,dc=local
+
+# ric-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=ric-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=cal
+ ix,dc=local
+
+# ric-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=ric-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix
+ ,dc=local
+
+# cpeg-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=cpeg-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=cali
+ x,dc=local
+
+# KDC, sjc-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KDC,cn=sjc-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa
+ ,dc=calix,dc=local
+
+# KPASSWD, sjc-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KPASSWD,cn=sjc-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc
+ =ipa,dc=calix,dc=local
+
+# HTTP, sjc-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=HTTP,cn=sjc-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+
+# OTPD, sjc-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=OTPD,cn=sjc-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+
+# KEYS, sjc-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KEYS,cn=sjc-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+
+# DNS, sjc-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=DNS,cn=sjc-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa
+ ,dc=calix,dc=local
+
+# DNSKeySync, sjc-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.lo
+ cal
+dn: cn=DNSKeySync,cn=sjc-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc
+ ,dc=ipa,dc=calix,dc=local
+
+# KDC, nan-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KDC,cn=nan-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa
+ ,dc=calix,dc=local
+
+# KPASSWD, nan-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KPASSWD,cn=nan-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc
+ =ipa,dc=calix,dc=local
+
+# HTTP, nan-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=HTTP,cn=nan-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+
+# OTPD, nan-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=OTPD,cn=nan-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+
+# KEYS, nan-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KEYS,cn=nan-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+
+# DNS, nan-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=DNS,cn=nan-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa
+ ,dc=calix,dc=local
+
+# DNSKeySync, nan-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.lo
+ cal
+dn: cn=DNSKeySync,cn=nan-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc
+ ,dc=ipa,dc=calix,dc=local
+
+# KDC, ric-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KDC,cn=ric-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa
+ ,dc=calix,dc=local
+
+# KPASSWD, ric-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KPASSWD,cn=ric-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc
+ =ipa,dc=calix,dc=local
+
+# HTTP, ric-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=HTTP,cn=ric-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+
+# OTPD, ric-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=OTPD,cn=ric-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+
+# KEYS, ric-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KEYS,cn=ric-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+
+# DNS, ric-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=DNS,cn=ric-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa
+ ,dc=calix,dc=local
+
+# DNSKeySync, ric-ipareplica01.ipa.calix.local, masters, ipa, etc, ipa.calix.lo
+ cal
+dn: cn=DNSKeySync,cn=ric-ipareplica01.ipa.calix.local,cn=masters,cn=ipa,cn=etc
+ ,dc=ipa,dc=calix,dc=local
+
+# KDC, ric-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KDC,cn=ric-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
+ c=calix,dc=local
+
+# KPASSWD, ric-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KPASSWD,cn=ric-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=i
+ pa,dc=calix,dc=local
+
+# HTTP, ric-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=HTTP,cn=ric-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,
+ dc=calix,dc=local
+
+# OTPD, ric-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=OTPD,cn=ric-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,
+ dc=calix,dc=local
+
+# KEYS, ric-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KEYS,cn=ric-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,
+ dc=calix,dc=local
+
+# DNS, ric-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=DNS,cn=ric-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
+ c=calix,dc=local
+
+# DNSKeySync, ric-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.loca
+ l
+dn: cn=DNSKeySync,cn=ric-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,d
+ c=ipa,dc=calix,dc=local
+
+# KDC, cpeg-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KDC,cn=cpeg-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,
+ dc=calix,dc=local
+
+# KPASSWD, cpeg-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KPASSWD,cn=cpeg-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=
+ ipa,dc=calix,dc=local
+
+# HTTP, cpeg-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=HTTP,cn=cpeg-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa
+ ,dc=calix,dc=local
+
+# OTPD, cpeg-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=OTPD,cn=cpeg-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa
+ ,dc=calix,dc=local
+
+# KEYS, cpeg-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KEYS,cn=cpeg-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa
+ ,dc=calix,dc=local
+
+# CA, cpeg-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=CA,cn=cpeg-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
+ c=calix,dc=local
+
+# DNS, cpeg-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=DNS,cn=cpeg-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,
+ dc=calix,dc=local
+
+# DNSKeySync, cpeg-ipareplica.ipa.calix.local, masters, ipa, etc, ipa.calix.loc
+ al
+dn: cn=DNSKeySync,cn=cpeg-ipareplica.ipa.calix.local,cn=masters,cn=ipa,cn=etc,
+ dc=ipa,dc=calix,dc=local
+
+# pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,
+ dc=local
+
+# KDC, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc
+ =calix,dc=local
+
+# KPASSWD, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KPASSWD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ip
+ a,dc=calix,dc=local
+
+# HTTP, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=HTTP,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
+ c=calix,dc=local
+
+# OTPD, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=OTPD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
+ c=calix,dc=local
+
+# KEYS, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=KEYS,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,d
+ c=calix,dc=local
+
+# CA, pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=CA,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=
+ calix,dc=local
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 50
+# numEntries: 49
 [root@pln-ipamaster ~]#
