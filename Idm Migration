@@ -1,6 +1,19 @@
-cp /etc/httpd/conf/ipa.keytab /var/lib/ipa/gssproxy/http.keytab
-chown root:root /var/lib/ipa/gssproxy/http.keytab
-chmod 600 /var/lib/ipa/gssproxy/http.keytab
-restorecon /var/lib/ipa/gssproxy/http.keytab
-systemctl restart gssproxy
-systemctl restart httpd
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# cp /etc/httpd/conf/ipa.keytab /var/lib/ipa/gssproxy/http.keytab
+cp: overwrite '/var/lib/ipa/gssproxy/http.keytab'? y
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# chown root:root /var/lib/ipa/gssproxy/http.keytab
+[root@pln-ipamaster ~]# chmod 600 /var/lib/ipa/gssproxy/http.keytab
+[root@pln-ipamaster ~]# restorecon /var/lib/ipa/gssproxy/http.keytab
+[root@pln-ipamaster ~]# systemctl restart gssproxy
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# systemctl restart httpd
+[root@pln-ipamaster ~]# ipa user-show hsuma
+ipa: ERROR: Major (458752): No credentials were supplied, or the credentials were unavailable or inaccessible, Minor (2598845122): Credentials cache permissions incorrect (filename: /run/ipa/ccaches/admin@IPA.CALIX.LOCAL-mx04Bj)
+[root@pln-ipamaster ~]# kinit hsuma
+Password for hsuma@IPA.CALIX.LOCAL:
+[root@pln-ipamaster ~]# ipa user-show hsuma
+ipa: ERROR: Major (458752): No credentials were supplied, or the credentials were unavailable or inaccessible, Minor (2598845122): Credentials cache permissions incorrect (filename: /run/ipa/ccaches/hsuma@IPA.CALIX.LOCAL-3Clbh5)
+[root@pln-ipamaster ~]#
