@@ -1,51 +1,60 @@
-ldapadd -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << 'EOF'
-dn: cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: KDC
-ipaConfigString: configuredService
-ipaConfigString: startOrder 10
-ipaConfigString: pacTktSignSupported
-ipaConfigString: kdcProxyEnabled
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]# ldapadd -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << 'EOF'
+> dn: cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+> objectClass: nsContainer
+> objectClass: ipaConfigObject
+> objectClass: top
+> cn: KDC
+> ipaConfigString: configuredService
+> ipaConfigString: startOrder 10
+> ipaConfigString: pacTktSignSupported
+> ipaConfigString: kdcProxyEnabled
+>
+> dn: cn=KPASSWD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+> objectClass: nsContainer
+> objectClass: ipaConfigObject
+> objectClass: top
+> cn: KPASSWD
+> ipaConfigString: configuredService
+> ipaConfigString: startOrder 20
+>
+> dn: cn=HTTP,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+> objectClass: nsContainer
+> objectClass: ipaConfigObject
+> objectClass: top
+> cn: HTTP
+> ipaConfigString: configuredService
+> ipaConfigString: startOrder 40
+>
+> dn: cn=OTPD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+> objectClass: nsContainer
+> objectClass: ipaConfigObject
+> objectClass: top
+> cn: OTPD
+> ipaConfigString: configuredService
+> ipaConfigString: startOrder 80
+>
+> dn: cn=KEYS,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+> objectClass: nsContainer
+> objectClass: ipaConfigObject
+> objectClass: top
+> cn: KEYS
+> ipaConfigString: configuredService
+> ipaConfigString: startOrder 41
+>
+> dn: cn=CA,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+> objectClass: nsContainer
+> objectClass: ipaConfigObject
+> objectClass: top
+> cn: CA
+> ipaConfigString: configuredService
+> ipaConfigString: startOrder 50
+> EOF
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+adding new entry "cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"
+ldap_add: Already exists (68)
 
-dn: cn=KPASSWD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: KPASSWD
-ipaConfigString: configuredService
-ipaConfigString: startOrder 20
-
-dn: cn=HTTP,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: HTTP
-ipaConfigString: configuredService
-ipaConfigString: startOrder 40
-
-dn: cn=OTPD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: OTPD
-ipaConfigString: configuredService
-ipaConfigString: startOrder 80
-
-dn: cn=KEYS,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: KEYS
-ipaConfigString: configuredService
-ipaConfigString: startOrder 41
-
-dn: cn=CA,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-objectClass: nsContainer
-objectClass: ipaConfigObject
-objectClass: top
-cn: CA
-ipaConfigString: configuredService
-ipaConfigString: startOrder 50
-EOF
+[root@cpeg-ipareplica sos.imb0ecrg]#
