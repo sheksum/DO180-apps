@@ -1,1 +1,5 @@
-sudo -u ods KRB5_KTNAME=/etc/ipa/dnssec/ipa-dnskeysyncd.keytab kinit -kt /etc/ipa/dnssec/ipa-dnskeysyncd.keytab DNS/pln-ipamaster.ipa.calix.local
+cat /usr/libexec/ipa/ipa-dnskeysyncd | head -50
+grep -r "keytab\|ccache\|dnskeysyncd" /etc/ipa/ 2>/dev/null
+
+
+strings /usr/libexec/ipa/ipa-dnskeysyncd | grep -E "keytab|ccache|/etc/ipa"
