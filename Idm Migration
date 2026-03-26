@@ -1,3 +1,15 @@
-ipa-getkeytab -s pln-ipamaster.ipa.calix.local \
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa-getkeytab -s pln-ipamaster.ipa.calix.local \
   -p DNS/pln-ipamaster.ipa.calix.local \
   -k /etc/ipa/dnssec/ipa-dnskeysyncd.keytab
+Failed to parse result: PrincipalName not found.
+Retrying with pre-4.0 keytab retrieval method...
+Failed to parse result: PrincipalName not found.
+
+Failed to get keytab!
+Failed to get keytab
+[root@pln-ipamaster ~]#
