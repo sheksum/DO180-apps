@@ -1,11 +1,6 @@
-[root@cpeg-ipareplica tmp]# tail -f /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors
-[26/Mar/2026:05:32:48.536936644 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[26/Mar/2026:05:32:58.667341727 +0000] - ERR - ipa-topology-plugin - ipa_topo_util_modify: failed to modify entry (cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config): error 20
-[26/Mar/2026:05:32:58.672186498 +0000] - ERR - ipa-topology-plugin - ipa_topo_util_modify: failed to modify entry (cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config): error 20
-[26/Mar/2026:05:33:00.731161832 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[26/Mar/2026:05:33:03.100984415 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[26/Mar/2026:05:33:10.379796962 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid 2f2fc196-28d511f1-b1c6c5a1-f0f13da2, CSN 69c5314c000200150000): Can't contact LDAP server(-1). Will retry later.
-[26/Mar/2026:05:33:10.386748508 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_update_from_op_result - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Consumer failed to replay change (uniqueid f5fe7908-7e3d11e8-86cbc3ed-75c48632, CSN ffffffff6f0100140000): Can't contact LDAP server(-1). Will retry later.
-[26/Mar/2026:05:33:10.405680787 +0000] - ERR - NSMMReplicationPlugin - release_replica - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Unable to send endReplication extended operation (Can't contact LDAP server)
-[26/Mar/2026:05:33:10.427512998 +0000] - ERR - NSMMReplicationPlugin - release_replica - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): Unable to send endReplication extended operation (Can't contact LDAP server)
-[26/Mar/2026:06:06:47.177800930 +0000] - WARN - content-sync-plugin - sync_update_persist_betxn_pre_op - DB retried operation targets "fqdn=cf-u22-dshetty.calix.local,cn=computers,cn=accounts,dc=ipa,dc=calix,dc=local" (op=0x7f461ca83400 idx_pl=0) => op not changed in PL
+ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
+dn: cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+changetype: modify
+replace: nsds5ReplicaEnabled
+nsds5ReplicaEnabled: on
+EOF
