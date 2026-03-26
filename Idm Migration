@@ -1,26 +1,44 @@
+[root@pln-ipamaster ~]# systemctl enable named
+Created symlink /etc/systemd/system/multi-user.target.wants/named.service → /usr/lib/systemd/system/named.service.
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa: INFO: The ipactl command was successful
 [root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# systemctl status named
+● named.service - Berkeley Internet Name Domain (DNS)
+     Loaded: loaded (/usr/lib/systemd/system/named.service; enabled; preset: disabled)
+     Active: active (running) since Thu 2026-03-26 06:00:55 UTC; 7h ago
+   Main PID: 48414 (named)
+      Tasks: 34 (limit: 203337)
+     Memory: 117.5M (peak: 119.5M)
+        CPU: 1.292s
+     CGroup: /system.slice/named.service
+             └─48414 /usr/sbin/named -u named -c /etc/named.conf
 
-
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-named Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa-dnskeysyncd Service: RUNNING
-ipa: INFO: The ipactl command was successful
-[root@cpeg-ipareplica ~]# 
+Mar 26 09:01:35 pln-ipamaster.ipa.calix.local named[48414]: resolver priming query complete
+Mar 26 09:01:35 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: Unable to fetch DNSKEY set '.': timed out
+Mar 26 10:01:45 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: Unable to fetch DNSKEY set '.': timed out
+Mar 26 10:01:45 pln-ipamaster.ipa.calix.local named[48414]: resolver priming query complete
+Mar 26 11:01:55 pln-ipamaster.ipa.calix.local named[48414]: resolver priming query complete
+Mar 26 11:01:55 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: Unable to fetch DNSKEY set '.': timed out
+Mar 26 12:02:05 pln-ipamaster.ipa.calix.local named[48414]: resolver priming query complete
+Mar 26 12:02:05 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: Unable to fetch DNSKEY set '.': timed out
+Mar 26 13:02:15 pln-ipamaster.ipa.calix.local named[48414]: managed-keys-zone: Unable to fetch DNSKEY set '.': timed out
+Mar 26 13:02:15 pln-ipamaster.ipa.calix.local named[48414]: resolver priming query complete
+[root@pln-ipamaster ~]# systemctl enable ipa-dnskeysyncd.service
+Created symlink /etc/systemd/system/multi-user.target.wants/ipa-dnskeysyncd.service → /usr/lib/systemd/system/ipa-dnskeysyncd.service.
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# systemctl status ipa-dnskeysyncd.service
+○ ipa-dnskeysyncd.service - IPA key daemon
+     Loaded: loaded (/usr/lib/systemd/system/ipa-dnskeysyncd.service; enabled; preset: disabled)
+     Active: inactive (dead)
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# systemctl start ipa-dnskeysyncd.service
+[root@pln-ipamaster ~]# systemctl status ipa-dnskeysyncd.service
+● ipa-dnskeysyncd.service - IPA key daemon
+     Loaded: loaded (/usr/lib/systemd/system/ipa-dnskeysyncd.service; enabled; preset: disabled)
+     Active: activating (auto-restart) (Result: exit-code) since Thu 2026-03-26 13:57:50 UTC; 1s ago
+    Process: 55119 ExecStart=/usr/libexec/ipa/ipa-dnskeysyncd (code=exited, status=1/FAILURE)
+   Main PID: 55119 (code=exited, status=1/FAILURE)
+        CPU: 1.881s
+[root@pln-ipamaster ~]#
