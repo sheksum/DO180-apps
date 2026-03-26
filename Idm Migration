@@ -1,3 +1,26 @@
-dnf install -y rng-tools
-systemctl start rngd
-cat /proc/sys/kernel/random/entropy_avail
+Complete!
+[root@pln-ipamaster ~]# systemctl start rngd
+[root@pln-ipamaster ~]# cat /proc/sys/kernel/random/entropy_avail
+256
+[root@pln-ipamaster ~]# systemctl status rngd
+● rngd.service - Hardware RNG Entropy Gatherer Daemon
+     Loaded: loaded (/usr/lib/systemd/system/rngd.service; enabled; preset: enabled)
+     Active: active (running) since Thu 2026-03-26 06:35:12 UTC; 19s ago
+   Main PID: 49142 (rngd)
+      Tasks: 1 (limit: 203337)
+     Memory: 1.3M (peak: 1.5M)
+        CPU: 9ms
+     CGroup: /system.slice/rngd.service
+             └─49142 /usr/sbin/rngd -f --fill-watermark=0 -x pkcs11 -x nist -x qrypt -x namedpipe -x jitter -D daemon:daemon
+
+Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Disabling 7: PKCS11 Entropy generator (pkcs11)
+Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Disabling 5: NIST Network Entropy Beacon (nist)
+Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Disabling 9: Qrypt quantum entropy beacon (qrypt)
+Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Disabling 10: Named pipe entropy input (namedpipe)
+Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Disabling 6: JITTER Entropy generator (jitter)
+Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Initializing available sources
+Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: [hwrng ]: Initialization Failed
+Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: [rdrand]: Enabling RDSEED rng support
+Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: [rdrand]: Initialized
+Mar 26 06:35:12 pln-ipamaster.ipa.calix.local rngd[49142]: Process privileges have been dropped to 2:2
+[root@pln-ipamaster ~]#
