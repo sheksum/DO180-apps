@@ -1,3 +1,104 @@
-export KRB5CCNAME=/tmp/krb5cc_$(id -u)
-kinit hsuma
-ssh pln-ipamaster.ipa.calix.local
+root@plnx-admin:~# systemctl status sssd
+● sssd.service - System Security Services Daemon
+     Loaded: loaded (/lib/systemd/system/sssd.service; enabled; vendor preset: enabled)
+     Active: active (running) since Thu 2026-03-26 13:09:51 CDT; 26s ago
+   Main PID: 2408910 (sssd)
+      Tasks: 7 (limit: 9388)
+     Memory: 51.6M
+        CPU: 392ms
+     CGroup: /system.slice/sssd.service
+             ├─2408910 /usr/sbin/sssd -i --logger=files
+             ├─2408911 /usr/libexec/sssd/sssd_be --domain ipa.calix.local --uid 0 --gid 0 --logger=files
+             ├─2408915 /usr/libexec/sssd/sssd_nss --uid 0 --gid 0 --logger=files
+             ├─2408916 /usr/libexec/sssd/sssd_pam --uid 0 --gid 0 --logger=files
+             ├─2408917 /usr/libexec/sssd/sssd_ssh --uid 0 --gid 0 --logger=files
+             ├─2408918 /usr/libexec/sssd/sssd_sudo --uid 0 --gid 0 --logger=files
+             └─2408919 /usr/libexec/sssd/sssd_pac --uid 0 --gid 0 --logger=files
+
+Mar 26 13:09:51 plnx-admin.calix.local sssd_pam[2408916]: Starting up
+Mar 26 13:09:51 plnx-admin.calix.local sssd_sudo[2408918]: Starting up
+Mar 26 13:09:51 plnx-admin.calix.local sssd_ssh[2408917]: Starting up
+Mar 26 13:09:51 plnx-admin.calix.local systemd[1]: Started System Security Services Daemon.
+Mar 26 13:09:52 plnx-admin.calix.local sssd_be[2408911]: GSSAPI client step 1
+Mar 26 13:09:52 plnx-admin.calix.local sssd_be[2408911]: GSSAPI client step 1
+Mar 26 13:09:52 plnx-admin.calix.local sssd_be[2408911]: GSSAPI client step 1
+Mar 26 13:09:52 plnx-admin.calix.local sssd_be[2408911]: GSSAPI client step 2
+Mar 26 13:10:08 plnx-admin.calix.local krb5_child[2408965]: Disk quota exceeded
+Mar 26 13:10:08 plnx-admin.calix.local krb5_child[2408965]: Disk quota exceeded
+root@plnx-admin:~# systemctl status sshd
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2026-01-07 10:34:36 CST; 2 months 17 days ago
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+   Main PID: 1290 (sshd)
+      Tasks: 4 (limit: 9388)
+     Memory: 31.0M
+        CPU: 16min 9.362s
+     CGroup: /system.slice/ssh.service
+             ├─   1290 "sshd: /usr/sbin/sshd -D [listener] 1 of 10-100 startups"
+             ├─2408952 "sshd: hsuma [priv]" "" ""
+             ├─2408953 "sshd: hsuma [net]" "" "" ""
+             └─2408972 "sshd: hsuma [pam]" "" "" ""
+
+Mar 26 13:08:00 plnx-admin.calix.local sshd[2408069]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51  user=dthornto
+Mar 26 13:08:01 plnx-admin.calix.local sshd[2408069]: pam_sss(sshd:auth): authentication success; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51 user=dthornto
+Mar 26 13:08:01 plnx-admin.calix.local sshd[2408047]: Accepted keyboard-interactive/pam for dthornto from 10.172.248.51 port 49538 ssh2
+Mar 26 13:08:01 plnx-admin.calix.local sshd[2408047]: pam_unix(sshd:session): session opened for user dthornto(uid=13209) by (uid=0)
+Mar 26 13:08:24 plnx-admin.calix.local sshd[2408198]: error: kex_exchange_identification: Connection closed by remote host
+Mar 26 13:08:24 plnx-admin.calix.local sshd[2408198]: Connection closed by 172.23.49.149 port 56982
+Mar 26 13:10:06 plnx-admin.calix.local sshd[2408957]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51  user=hsuma
+Mar 26 13:10:08 plnx-admin.calix.local sshd[2408957]: pam_sss(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.172.248.51 user=hsuma
+Mar 26 13:10:08 plnx-admin.calix.local sshd[2408957]: pam_sss(sshd:auth): received for user hsuma: 4 (System error)
+Mar 26 13:10:10 plnx-admin.calix.local sshd[2408952]: error: PAM: Authentication failure for hsuma from 10.172.248.51
+root@plnx-admin:~# journalctl -eu sssd
+
+Mar 26 12:57:39 plnx-admin.calix.local krb5_child[2405218]: Disk quota exceeded
+Mar 26 12:57:39 plnx-admin.calix.local krb5_child[2405218]: Disk quota exceeded
+Mar 26 12:57:47 plnx-admin.calix.local krb5_child[2405235]: Disk quota exceeded
+Mar 26 12:57:47 plnx-admin.calix.local krb5_child[2405235]: Disk quota exceeded
+Mar 26 12:57:56 plnx-admin.calix.local krb5_child[2405257]: Disk quota exceeded
+Mar 26 12:57:56 plnx-admin.calix.local krb5_child[2405257]: Disk quota exceeded
+Mar 26 12:58:09 plnx-admin.calix.local krb5_child[2405287]: Disk quota exceeded
+Mar 26 12:58:09 plnx-admin.calix.local krb5_child[2405287]: Disk quota exceeded
+Mar 26 12:58:36 plnx-admin.calix.local krb5_child[2405352]: Disk quota exceeded
+Mar 26 12:58:36 plnx-admin.calix.local krb5_child[2405352]: Disk quota exceeded
+Mar 26 13:00:21 plnx-admin.calix.local krb5_child[2406120]: Disk quota exceeded
+Mar 26 13:00:21 plnx-admin.calix.local krb5_child[2406120]: Disk quota exceeded
+Mar 26 13:01:54 plnx-admin.calix.local krb5_child[2406500]: Disk quota exceeded
+Mar 26 13:01:54 plnx-admin.calix.local krb5_child[2406500]: Disk quota exceeded
+Mar 26 13:07:41 plnx-admin.calix.local krb5_child[2408011]: Disk quota exceeded
+Mar 26 13:07:41 plnx-admin.calix.local krb5_child[2408011]: Disk quota exceeded
+Mar 26 13:07:42 plnx-admin.calix.local sssd_be[2504199]: GSSAPI client step 1
+Mar 26 13:07:42 plnx-admin.calix.local sssd_be[2504199]: GSSAPI client step 1
+Mar 26 13:07:42 plnx-admin.calix.local sssd_be[2504199]: GSSAPI client step 1
+Mar 26 13:07:42 plnx-admin.calix.local sssd_be[2504199]: GSSAPI client step 2
+Mar 26 13:07:55 plnx-admin.calix.local krb5_child[2408059]: Preauthentication failed
+Mar 26 13:07:55 plnx-admin.calix.local krb5_child[2408059]: Preauthentication failed
+Mar 26 13:09:50 plnx-admin.calix.local systemd[1]: Stopping System Security Services Daemon...
+Mar 26 13:09:50 plnx-admin.calix.local sssd_pam[2504202]: Shutting down (status = 0)
+Mar 26 13:09:50 plnx-admin.calix.local sssd_nss[2504201]: Shutting down (status = 0)
+Mar 26 13:09:50 plnx-admin.calix.local sssd_be[2504199]: Shutting down (status = 0)
+Mar 26 13:09:50 plnx-admin.calix.local sssd_ssh[2504203]: Shutting down (status = 0)
+Mar 26 13:09:50 plnx-admin.calix.local sssd_sudo[2504204]: Shutting down (status = 0)
+Mar 26 13:09:50 plnx-admin.calix.local sssd_pac[2504205]: Shutting down (status = 0)
+Mar 26 13:09:51 plnx-admin.calix.local systemd[1]: sssd.service: Deactivated successfully.
+Mar 26 13:09:51 plnx-admin.calix.local systemd[1]: Stopped System Security Services Daemon.
+Mar 26 13:09:51 plnx-admin.calix.local systemd[1]: sssd.service: Consumed 18min 25.945s CPU time.
+Mar 26 13:09:51 plnx-admin.calix.local systemd[1]: Starting System Security Services Daemon...
+Mar 26 13:09:51 plnx-admin.calix.local sssd[2408910]: NSCD socket was detected and seems to be configured to cache some of the databases controlled by SSSD [passwd,group,netgroup,services]. It is recommended not to run NSCD in parallel with SSS>
+Mar 26 13:09:51 plnx-admin.calix.local sssd[2408910]: Starting up
+Mar 26 13:09:51 plnx-admin.calix.local sssd_be[2408911]: Starting up
+Mar 26 13:09:51 plnx-admin.calix.local sssd_nss[2408915]: Starting up
+Mar 26 13:09:51 plnx-admin.calix.local sssd_pac[2408919]: Starting up
+Mar 26 13:09:51 plnx-admin.calix.local sssd_pam[2408916]: Starting up
+Mar 26 13:09:51 plnx-admin.calix.local sssd_sudo[2408918]: Starting up
+Mar 26 13:09:51 plnx-admin.calix.local sssd_ssh[2408917]: Starting up
+Mar 26 13:09:51 plnx-admin.calix.local systemd[1]: Started System Security Services Daemon.
+Mar 26 13:09:52 plnx-admin.calix.local sssd_be[2408911]: GSSAPI client step 1
+Mar 26 13:09:52 plnx-admin.calix.local sssd_be[2408911]: GSSAPI client step 1
+Mar 26 13:09:52 plnx-admin.calix.local sssd_be[2408911]: GSSAPI client step 1
+Mar 26 13:09:52 plnx-admin.calix.local sssd_be[2408911]: GSSAPI client step 2
+Mar 26 13:10:08 plnx-admin.calix.local krb5_child[2408965]: Disk quota exceeded
+Mar 26 13:10:08 plnx-admin.calix.local krb5_child[2408965]: Disk quota exceeded
+lines 41-102/102 (END)
