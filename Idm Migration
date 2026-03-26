@@ -1,35 +1,60 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ls -la /proc/38436/fd 2>/dev/null
-total 0
-dr-x------. 2 root root 12 Mar 26 02:03 .
-dr-xr-xr-x. 9 root root  0 Mar 25 23:41 ..
-lrwx------. 1 root root 64 Mar 26 02:03 0 -> /dev/pts/0
-lrwx------. 1 root root 64 Mar 26 02:03 1 -> /dev/pts/0
-lrwx------. 1 root root 64 Mar 26 02:03 10 -> 'socket:[554923]'
-lrwx------. 1 root root 64 Mar 26 02:03 11 -> 'socket:[557869]'
-lrwx------. 1 root root 64 Mar 26 02:03 2 -> /dev/pts/0
-l-wx------. 1 root root 64 Mar 26 02:03 3 -> /var/log/ipareplica-install.log
-lrwx------. 1 root root 64 Mar 26 02:03 4 -> 'socket:[470374]'
-lrwx------. 1 root root 64 Mar 26 02:03 5 -> 'socket:[461427]'
-lr-x------. 1 root root 64 Mar 26 02:03 6 -> /var/lib/sss/mc/group
-lrwx------. 1 root root 64 Mar 26 02:03 7 -> 'socket:[461431]'
-lrwx------. 1 root root 64 Mar 26 02:03 8 -> 'socket:[553763]'
-lrwx------. 1 root root 64 Mar 26 02:03 9 -> 'socket:[554922]'
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# cat /proc/38436/net/tcp 2>/dev/null | head -20
-  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
-   0: 0100007F:0277 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 27377 1 ffff89ec8c5e6e00 100 0 0 10 4096
-   1: 00000000:01D0 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 469318 1 ffff89ec84fbb200 100 0 0 10 5
-   2: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 464331 1 ffff89ecabb20a00 100 0 0 10 128
-   3: 00000000:0058 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 560724 1 ffff89eee9a78000 100 0 0 10 5
-   4: 00000000:006F 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 20879 1 ffff89ec84fb9e00 100 0 0 10 0
-   5: 00000000:02ED 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 469322 1 ffff89ec84fbbc00 100 0 0 10 2
-   6: 37F8AC0A:0016 69F8AC0A:9714 01 00000000:00000000 02:00042157 00000000     0        0 440730 2 ffff89eee9a79400 20 4 30 31 -1
-   7: 37F8AC0A:83CA 0A3117AC:0185 01 00000000:00000000 02:0008C07F 00000000   389        0 557852 2 ffff89ec8c5e0000 25 4 30 10 -1
-   8: 37F8AC0A:CCBC 0A3117AC:0185 01 00000000:00000000 02:000ADEC3 00000000     0        0 567229 2 ffff89ecabb20000 25 4 16 10 -1
-   9: 37F8AC0A:0016 69F8AC0A:E752 01 00000000:00000000 02:000A4C7F 00000000     0        0 472311 4 ffff89ecc717b200 20 5 31 22 22
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# lsof -p 38436 2>/dev/null | grep -E "ESTABLISHED|LISTEN|WAIT"
+[root@pln-ipamaster ~]# systemctl status named --no-pager
+○ named.service - Berkeley Internet Name Domain (DNS)
+     Loaded: loaded (/usr/lib/systemd/system/named.service; disabled; preset: disabled)
+     Active: inactive (dead)
+[root@pln-ipamaster ~]# systemctl status named --no-pager
+○ named.service - Berkeley Internet Name Domain (DNS)
+     Loaded: loaded (/usr/lib/systemd/system/named.service; disabled; preset: disabled)
+     Active: inactive (dead)
+[root@pln-ipamaster ~]# tail -50 /var/log/ipareplica-install.log
+2026-03-26T05:33:39Z DEBUG 	dc=ipa,dc=calix,dc=local
+2026-03-26T05:33:39Z DEBUG dnaSharedCfgDN:
+2026-03-26T05:33:39Z DEBUG 	cn=subordinate-ids,cn=dna,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-26T05:33:39Z DEBUG dnaThreshold:
+2026-03-26T05:33:39Z DEBUG 	500
+2026-03-26T05:33:39Z DEBUG dnaType:
+2026-03-26T05:33:39Z DEBUG 	ipasubuidnumber
+2026-03-26T05:33:39Z DEBUG 	ipasubgidnumber
+2026-03-26T05:33:39Z DEBUG objectClass:
+2026-03-26T05:33:39Z DEBUG 	top
+2026-03-26T05:33:39Z DEBUG 	extensibleObject
+2026-03-26T05:33:39Z DEBUG add: '(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)' to aci, current value []
+2026-03-26T05:33:39Z DEBUG add: updated value ['(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)']
+2026-03-26T05:33:39Z DEBUG add: '(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)' to aci, current value ['(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)']
+2026-03-26T05:33:39Z DEBUG add: updated value ['(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', '(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)']
+2026-03-26T05:33:39Z DEBUG ---------------------------------------------
+2026-03-26T05:33:39Z DEBUG Final value after applying updates
+2026-03-26T05:33:39Z DEBUG dn: cn=Subordinate IDs,cn=Distributed Numeric Assignment Plugin,cn=plugins,cn=config
+2026-03-26T05:33:39Z DEBUG cn:
+2026-03-26T05:33:39Z DEBUG 	Subordinate IDs
+2026-03-26T05:33:39Z DEBUG dnaExcludeScope:
+2026-03-26T05:33:39Z DEBUG 	cn=provisioning,dc=ipa,dc=calix,dc=local
+2026-03-26T05:33:39Z DEBUG dnaFilter:
+2026-03-26T05:33:39Z DEBUG 	(objectClass=ipaSubordinateId)
+2026-03-26T05:33:39Z DEBUG dnaInterval:
+2026-03-26T05:33:39Z DEBUG 	65536
+2026-03-26T05:33:39Z DEBUG dnaMagicRegen:
+2026-03-26T05:33:39Z DEBUG 	-1
+2026-03-26T05:33:39Z DEBUG dnaMaxValue:
+2026-03-26T05:33:39Z DEBUG 	4294836224
+2026-03-26T05:33:39Z DEBUG dnaNextValue:
+2026-03-26T05:33:39Z DEBUG 	2147483648
+2026-03-26T05:33:39Z DEBUG dnaScope:
+2026-03-26T05:33:39Z DEBUG 	dc=ipa,dc=calix,dc=local
+2026-03-26T05:33:39Z DEBUG dnaSharedCfgDN:
+2026-03-26T05:33:39Z DEBUG 	cn=subordinate-ids,cn=dna,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+2026-03-26T05:33:39Z DEBUG dnaThreshold:
+2026-03-26T05:33:39Z DEBUG 	500
+2026-03-26T05:33:39Z DEBUG dnaType:
+2026-03-26T05:33:39Z DEBUG 	ipasubuidnumber
+2026-03-26T05:33:39Z DEBUG 	ipasubgidnumber
+2026-03-26T05:33:39Z DEBUG objectClass:
+2026-03-26T05:33:39Z DEBUG 	top
+2026-03-26T05:33:39Z DEBUG 	extensibleObject
+2026-03-26T05:33:39Z DEBUG aci:
+2026-03-26T05:33:39Z DEBUG 	(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)
+2026-03-26T05:33:39Z DEBUG 	(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)
+2026-03-26T05:33:39Z DEBUG [(2, 'aci', ['(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', '(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
+2026-03-26T05:33:39Z DEBUG Updated 1
+2026-03-26T05:33:39Z DEBUG update_entry modlist [(2, 'aci', [b'(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', b'(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
 [root@pln-ipamaster ~]#
