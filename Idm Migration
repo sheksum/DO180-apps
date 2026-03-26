@@ -1,35 +1,51 @@
-	at com.netscape.cmscore.ldapconn.LdapBoundConnection.<init>(LdapBoundConnection.java:107)
-	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.makeNewConnection(LdapBoundConnFactory.java:226)
-	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.makeConnection(LdapBoundConnFactory.java:212)
-	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.getConn(LdapBoundConnFactory.java:348)
-	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.getConn(LdapBoundConnFactory.java:310)
-	at com.netscape.ca.AuthorityMonitor.run(AuthorityMonitor.java:115)
-	at java.base/java.lang.Thread.run(Thread.java:840)
+[root@pln-ipamaster ~]# systemctl status dirsrv@IPA-CALIX-LOCAL.service  --no-pager
+● dirsrv@IPA-CALIX-LOCAL.service - 389 Directory Server IPA-CALIX-LOCAL.
+     Loaded: loaded (/usr/lib/systemd/system/dirsrv@.service; enabled; preset: disabled)
+    Drop-In: /usr/lib/systemd/system/dirsrv@.service.d
+             └─custom.conf
+             /etc/systemd/system/dirsrv@IPA-CALIX-LOCAL.service.d
+             └─ipa-env.conf
+     Active: active (running) since Thu 2026-03-26 05:33:18 UTC; 11min ago
+    Process: 48200 ExecStartPre=/usr/libexec/dirsrv/ds_systemd_ask_password_acl /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
+    Process: 48205 ExecStartPre=/usr/libexec/dirsrv/ds_selinux_restorecon.sh /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
+   Main PID: 48211 (ns-slapd)
+     Status: "slapd started: Ready to process requests"
+      Tasks: 34 (limit: 203337)
+     Memory: 4.4G (peak: 4.5G)
+        CPU: 13min 25.969s
+     CGroup: /system.slice/system-dirsrv.slice/dirsrv@IPA-CALIX-LOCAL.service
+             └─48211 /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
 
-2026-03-26 05:42:30 [AuthorityMonitor] WARNING: AuthorityMonitor: Failed to get LDAPConnection: LdapBoundConnFactory: Unable to create master connection. LDAP server is unavailable: pln-ipamaster.ipa.calix.local:636
-LdapBoundConnFactory: Unable to create master connection. LDAP server is unavailable: pln-ipamaster.ipa.calix.local:636
-	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.getConn(LdapBoundConnFactory.java:351)
-	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.getConn(LdapBoundConnFactory.java:310)
-	at com.netscape.ca.AuthorityMonitor.run(AuthorityMonitor.java:115)
-	at java.base/java.lang.Thread.run(Thread.java:840)
-Caused by: LDAP server is unavailable: pln-ipamaster.ipa.calix.local:636
-	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.makeNewConnection(LdapBoundConnFactory.java:238)
-	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.makeConnection(LdapBoundConnFactory.java:212)
-	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.getConn(LdapBoundConnFactory.java:348)
-	... 3 more
-Caused by: netscape.ldap.LDAPException: Unable to create socket: Connection refused (52)
-	at com.netscape.cmscore.ldapconn.PKISocketFactory.makeSocket(PKISocketFactory.java:291)
-	at netscape.ldap.LDAPConnSetupMgr.connectServer(LDAPConnSetupMgr.java:525)
-	at netscape.ldap.LDAPConnSetupMgr.openSerial(LDAPConnSetupMgr.java:451)
-	at netscape.ldap.LDAPConnSetupMgr.connect(LDAPConnSetupMgr.java:290)
-	at netscape.ldap.LDAPConnSetupMgr.openConnection(LDAPConnSetupMgr.java:215)
-	at netscape.ldap.LDAPConnThread.connect(LDAPConnThread.java:136)
-	at netscape.ldap.LDAPConnection.connect(LDAPConnection.java:1126)
-	at netscape.ldap.LDAPConnection.connect(LDAPConnection.java:996)
-	at netscape.ldap.LDAPConnection.connect(LDAPConnection.java:817)
-	at com.netscape.cmscore.ldapconn.LdapBoundConnection.<init>(LdapBoundConnection.java:107)
-	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.makeNewConnection(LdapBoundConnFactory.java:226)
-	... 5 more
-
-2026-03-26 05:42:30 [AuthorityMonitor] WARNING: AuthorityMonitor: Retrying in 1 second.
-2026-03-26 05:42:31 [ProfileChangeMonitor] SEVERE: PKISocketFactory: Unable to create socket: Connection refused
+Mar 26 05:33:30 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:30.626573307 +0000] - INFO - memberof-plugin - memberof_fixup_task_thread - Memberof task finished (processed 10 entries in 0 seconds)
+Mar 26 05:33:32 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:32.691364296 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0026dbc… be reinitialized.
+Mar 26 05:33:32 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:32.698290956 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpe…date, or we purged
+Mar 26 05:33:32 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:32.705101519 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data req… be reinitialized.
+Mar 26 05:33:35 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:35.840980958 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0026dbc… be reinitialized.
+Mar 26 05:33:35 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:35.843550268 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpe…date, or we purged
+Mar 26 05:33:35 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:35.845582936 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data req… be reinitialized.
+Mar 26 05:33:38 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:38.975901795 +0000] - ERR - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389) - clcache_load_buffer - Can't locate CSN 0026dbd… be reinitialized.
+Mar 26 05:33:38 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:38.977476022 +0000] - ERR - NSMMReplicationPlugin - changelog program - repl_plugin_name_cl - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpe…date, or we purged
+Mar 26 05:33:38 pln-ipamaster.ipa.calix.local ns-slapd[48211]: [26/Mar/2026:05:33:38.979139557 +0000] - ERR - NSMMReplicationPlugin - send_updates - agmt="cn=meTocpeg-ipareplica.ipa.calix.local" (cpeg-ipareplica:389): Data req… be reinitialized.
+Hint: Some lines were ellipsized, use -l to show in full.
+[root@pln-ipamaster ~]# ss -tlnp | grep LISTEN | grep 636
+[root@pln-ipamaster ~]# ss -tlnp | grep LISTEN
+LISTEN 0      4096            127.0.0.1:631       0.0.0.0:*    users:(("cupsd",pid=1264,fd=9))
+LISTEN 0      5                 0.0.0.0:464       0.0.0.0:*    users:(("kadmind",pid=39411,fd=9))
+LISTEN 0      128               0.0.0.0:22        0.0.0.0:*    users:(("sshd",pid=38581,fd=3))
+LISTEN 0      5                 0.0.0.0:88        0.0.0.0:*    users:(("krb5kdc",pid=48189,fd=9),("krb5kdc",pid=48188,fd=9),("krb5kdc",pid=48187,fd=9),("krb5kdc",pid=48186,fd=9),("krb5kdc",pid=48185,fd=9),("krb5kdc",pid=48184,fd=9),("krb5kdc",pid=48183,fd=9),("krb5kdc",pid=48182,fd=9))
+LISTEN 0      4096              0.0.0.0:111       0.0.0.0:*    users:(("rpcbind",pid=953,fd=4),("systemd",pid=1,fd=111))
+LISTEN 0      2                 0.0.0.0:749       0.0.0.0:*    users:(("kadmind",pid=39411,fd=11))
+LISTEN 0      100                 [::1]:8009         [::]:*    users:(("java",pid=47647,fd=84))
+LISTEN 0      100                     *:8080            *:*    users:(("java",pid=47647,fd=81))
+LISTEN 0      100    [::ffff:127.0.0.1]:8009            *:*    users:(("java",pid=47647,fd=83))
+LISTEN 0      1      [::ffff:127.0.0.1]:8005            *:*    users:(("java",pid=47647,fd=217))
+LISTEN 0      511                     *:443             *:*    users:(("httpd",pid=47899,fd=9),("httpd",pid=47898,fd=9),("httpd",pid=47897,fd=9),("httpd",pid=47887,fd=9))
+LISTEN 0      5                    [::]:464          [::]:*    users:(("kadmind",pid=39411,fd=10))
+LISTEN 0      4096                [::1]:631          [::]:*    users:(("cupsd",pid=1264,fd=8))
+LISTEN 0      128                  [::]:22           [::]:*    users:(("sshd",pid=38581,fd=6))
+LISTEN 0      5                    [::]:88           [::]:*    users:(("krb5kdc",pid=48189,fd=10),("krb5kdc",pid=48188,fd=10),("krb5kdc",pid=48187,fd=10),("krb5kdc",pid=48186,fd=10),("krb5kdc",pid=48185,fd=10),("krb5kdc",pid=48184,fd=10),("krb5kdc",pid=48183,fd=10),("krb5kdc",pid=48182,fd=10))
+LISTEN 0      511                     *:80              *:*    users:(("httpd",pid=47899,fd=4),("httpd",pid=47898,fd=4),("httpd",pid=47897,fd=4),("httpd",pid=47887,fd=4))
+LISTEN 0      4096                 [::]:111          [::]:*    users:(("rpcbind",pid=953,fd=6),("systemd",pid=1,fd=113))
+LISTEN 0      2                    [::]:749          [::]:*    users:(("kadmind",pid=39411,fd=12))
+LISTEN 0      100                     *:8443            *:*    users:(("java",pid=47647,fd=82))
+[root@pln-ipamaster ~]#
