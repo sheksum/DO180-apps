@@ -1,11 +1,35 @@
-[root@pln-ipamaster ~]# tail -f /var/log/ipaupgrade.log
-2026-03-24T18:42:05Z DEBUG step duration: dirsrv __restore_config 0.04 sec
-2026-03-24T18:42:05Z ERROR IPA server upgrade failed: Inspect /var/log/ipaupgrade.log and run command ipa-server-upgrade manually.
-2026-03-24T18:42:05Z DEBUG   File "/usr/lib/python3.9/site-packages/ipapython/admintool.py", line 219, in execute
-    return_value = self.run()
-  File "/usr/lib/python3.9/site-packages/ipaserver/install/ipa_server_upgrade.py", line 56, in run
-    raise admintool.ScriptError(str(e))
+	at com.netscape.cmscore.ldapconn.LdapBoundConnection.<init>(LdapBoundConnection.java:107)
+	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.makeNewConnection(LdapBoundConnFactory.java:226)
+	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.makeConnection(LdapBoundConnFactory.java:212)
+	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.getConn(LdapBoundConnFactory.java:348)
+	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.getConn(LdapBoundConnFactory.java:310)
+	at com.netscape.ca.AuthorityMonitor.run(AuthorityMonitor.java:115)
+	at java.base/java.lang.Thread.run(Thread.java:840)
 
-2026-03-24T18:42:05Z DEBUG The ipa-server-upgrade command failed, exception: ScriptError: ('IPA upgrade failed.', 1)
-2026-03-24T18:42:05Z ERROR ('IPA upgrade failed.', 1)
-2026-03-24T18:42:05Z ERROR The ipa-server-upgrade command failed. See /var/log/ipaupgrade.log for more information
+2026-03-26 05:42:30 [AuthorityMonitor] WARNING: AuthorityMonitor: Failed to get LDAPConnection: LdapBoundConnFactory: Unable to create master connection. LDAP server is unavailable: pln-ipamaster.ipa.calix.local:636
+LdapBoundConnFactory: Unable to create master connection. LDAP server is unavailable: pln-ipamaster.ipa.calix.local:636
+	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.getConn(LdapBoundConnFactory.java:351)
+	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.getConn(LdapBoundConnFactory.java:310)
+	at com.netscape.ca.AuthorityMonitor.run(AuthorityMonitor.java:115)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: LDAP server is unavailable: pln-ipamaster.ipa.calix.local:636
+	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.makeNewConnection(LdapBoundConnFactory.java:238)
+	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.makeConnection(LdapBoundConnFactory.java:212)
+	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.getConn(LdapBoundConnFactory.java:348)
+	... 3 more
+Caused by: netscape.ldap.LDAPException: Unable to create socket: Connection refused (52)
+	at com.netscape.cmscore.ldapconn.PKISocketFactory.makeSocket(PKISocketFactory.java:291)
+	at netscape.ldap.LDAPConnSetupMgr.connectServer(LDAPConnSetupMgr.java:525)
+	at netscape.ldap.LDAPConnSetupMgr.openSerial(LDAPConnSetupMgr.java:451)
+	at netscape.ldap.LDAPConnSetupMgr.connect(LDAPConnSetupMgr.java:290)
+	at netscape.ldap.LDAPConnSetupMgr.openConnection(LDAPConnSetupMgr.java:215)
+	at netscape.ldap.LDAPConnThread.connect(LDAPConnThread.java:136)
+	at netscape.ldap.LDAPConnection.connect(LDAPConnection.java:1126)
+	at netscape.ldap.LDAPConnection.connect(LDAPConnection.java:996)
+	at netscape.ldap.LDAPConnection.connect(LDAPConnection.java:817)
+	at com.netscape.cmscore.ldapconn.LdapBoundConnection.<init>(LdapBoundConnection.java:107)
+	at com.netscape.cmscore.ldapconn.LdapBoundConnFactory.makeNewConnection(LdapBoundConnFactory.java:226)
+	... 5 more
+
+2026-03-26 05:42:30 [AuthorityMonitor] WARNING: AuthorityMonitor: Retrying in 1 second.
+2026-03-26 05:42:31 [ProfileChangeMonitor] SEVERE: PKISocketFactory: Unable to create socket: Connection refused
