@@ -1,10 +1,13 @@
-[root@pln-ipamaster ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa: INFO: The ipactl command was successful
-[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# journalctl -fu pki-tomcatd@pki-tomcat.service
+Mar 26 16:38:04 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 16:38:06 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 16:38:08 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 16:38:10 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 16:38:12 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 16:38:14 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 16:38:16 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 16:38:18 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 16:38:20 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 16:38:22 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 16:38:24 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
+Mar 26 16:38:26 pln-ipamaster.ipa.calix.local ipa-pki-wait-running[3875]: ipa-pki-wait-running: Connection failed: HTTPConnectionPool(host='pln-ipamaster.ipa.calix.local', port=8080): Read timed out. (read timeout=1.0)
