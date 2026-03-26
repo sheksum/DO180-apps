@@ -1,7 +1,11 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=1,ou=ca,ou=requests,o=ipaca" \
   "(objectclass=*)" requestCreatedAt requestNotAfter 2>/dev/null | grep -E "requestCreated|requestNotAfter"
-
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+# requesting: requestCreatedAt requestNotAfter
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=40550080,ou=ca,ou=requests,o=ipaca" \
   "(objectclass=*)" requestCreatedAt requestNotAfter 2>/dev/null | grep -E "requestCreated|requestNotAfter"
+# requesting: requestCreatedAt requestNotAfter
+[root@pln-ipamaster ~]#
