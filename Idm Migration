@@ -1,10 +1,10 @@
+[root@pln-ipamaster ~]# ipactl status
+Directory Service: RUNNING
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+pki-tomcatd Service: STOPPED
+ipa-otpd Service: STOPPED
+1 service(s) are not running
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# cat /usr/lib/systemd/system/ipa.service | grep -E "ExecStart|After|Wants"
-Wants=network.target
-Wants=gssproxy.service
-After=network.target
-ExecStart=/usr/sbin/ipactl start
-RemainAfterExit=yes
-[root@pln-ipamaster ~]#cat /usr/lib/systemd/system/ipa.service | grep -E "ExecStart|After|Wants"
