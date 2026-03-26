@@ -1,42 +1,11 @@
-[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=index,cn=tasks,cn=config" "(objectclass=*)" cn nsTaskStatus nsTaskExitCode 2>/dev/null | grep -E "cn:|nsTask"
-# requesting: cn nsTaskStatus nsTaskExitCode
-cn: index
-cn: indextask_139937960058085960_7875
-nsTaskStatus: userRoot: Finished indexing.
-nsTaskExitCode: 0
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# tail -30 /var/log/ipareplica-install.log
-2026-03-26T05:33:39Z DEBUG dnaExcludeScope:
-2026-03-26T05:33:39Z DEBUG 	cn=provisioning,dc=ipa,dc=calix,dc=local
-2026-03-26T05:33:39Z DEBUG dnaFilter:
-2026-03-26T05:33:39Z DEBUG 	(objectClass=ipaSubordinateId)
-2026-03-26T05:33:39Z DEBUG dnaInterval:
-2026-03-26T05:33:39Z DEBUG 	65536
-2026-03-26T05:33:39Z DEBUG dnaMagicRegen:
-2026-03-26T05:33:39Z DEBUG 	-1
-2026-03-26T05:33:39Z DEBUG dnaMaxValue:
-2026-03-26T05:33:39Z DEBUG 	4294836224
-2026-03-26T05:33:39Z DEBUG dnaNextValue:
-2026-03-26T05:33:39Z DEBUG 	2147483648
-2026-03-26T05:33:39Z DEBUG dnaScope:
-2026-03-26T05:33:39Z DEBUG 	dc=ipa,dc=calix,dc=local
-2026-03-26T05:33:39Z DEBUG dnaSharedCfgDN:
-2026-03-26T05:33:39Z DEBUG 	cn=subordinate-ids,cn=dna,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
-2026-03-26T05:33:39Z DEBUG dnaThreshold:
-2026-03-26T05:33:39Z DEBUG 	500
-2026-03-26T05:33:39Z DEBUG dnaType:
-2026-03-26T05:33:39Z DEBUG 	ipasubuidnumber
-2026-03-26T05:33:39Z DEBUG 	ipasubgidnumber
-2026-03-26T05:33:39Z DEBUG objectClass:
-2026-03-26T05:33:39Z DEBUG 	top
-2026-03-26T05:33:39Z DEBUG 	extensibleObject
-2026-03-26T05:33:39Z DEBUG aci:
-2026-03-26T05:33:39Z DEBUG 	(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)
-2026-03-26T05:33:39Z DEBUG 	(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)
-2026-03-26T05:33:39Z DEBUG [(2, 'aci', ['(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', '(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
-2026-03-26T05:33:39Z DEBUG Updated 1
-2026-03-26T05:33:39Z DEBUG update_entry modlist [(2, 'aci', [b'(targetattr = "dnaNextRange || dnaNextValue || dnaMaxValue")(version 3.0;acl "permission:Modify DNA Range";allow (write) groupdn = "ldap:///cn=Modify DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)', b'(targetattr = "cn || dnaMaxValue || dnaNextRange || dnaNextValue  || dnaThreshold || dnaType || objectclass")(version 3.0;acl "permission:Read DNA Range";allow (read, search, compare) groupdn = "ldap:///cn=Read DNA Range,cn=permissions,cn=pbac,dc=ipa,dc=calix,dc=local";)'])]
+[root@pln-ipamaster ~]# ps aux | grep ipa | grep -v grep
+avahi        987  0.0  0.0  35448  7548 ?        Ss   Mar24   0:00 avahi-daemon: running [pln-ipamaster.local]
+root       38436  0.1  0.5 440964 188684 pts/0   S+   Mar25   0:23 /usr/bin/python3 -I /usr/sbin/ipa-replica-install --setup-ca --setup-dns --no-forwarders --no-ntp --server cpeg-ipareplica.ipa.calix.local --domain ipa.calix.local --realm IPA.CALIX.LOCAL --principal admin --admin-password XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX --skip-conncheck --force-join
+root       38540  0.0  0.0 325968 26896 ?        S    Mar25   0:00 /usr/libexec/sssd/sssd_be --domain ipa.calix.local --uid 0 --gid 0 --logger=files
+root       40207  0.0  0.1 277324 48408 ?        Ss   Mar25   0:03 /usr/bin/python3 -I /usr/libexec/ipa/ipa-custodia /etc/ipa/custodia/custodia.conf
+ipaapi     47892  0.1  0.2 442892 94512 ?        Sl   05:26   0:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     47893  0.1  0.2 442892 94520 ?        Sl   05:26   0:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     47894  0.1  0.2 442896 94568 ?        Sl   05:26   0:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     47896  0.1  0.2 442892 94560 ?        Sl   05:26   0:01 (wsgi:ipa)      -DFOREGROUND
 [root@pln-ipamaster ~]#
