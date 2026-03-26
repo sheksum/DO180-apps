@@ -1,13 +1,1 @@
-==> /var/log/pki/pki-ca-spawn.20260326000715.log <==
-2026-03-26 02:37:24 INFO: Waiting for PKI server to start (81s)
-2026-03-26 02:37:40 INFO: Waiting for PKI server to start (97s)
-2026-03-26 02:37:56 INFO: Waiting for PKI server to start (113s)
-2026-03-26 02:38:12 INFO: Waiting for PKI server to start (129s)
-2026-03-26 02:38:28 INFO: Waiting for PKI server to start (145s)
-2026-03-26 02:38:44 INFO: Waiting for PKI server to start (161s)
-2026-03-26 02:39:00 INFO: Waiting for PKI server to start (177s)
-2026-03-26 02:39:16 INFO: Waiting for PKI server to start (193s)
-2026-03-26 02:39:32 INFO: Waiting for PKI server to start (209s)
-2026-03-26 02:39:48 INFO: Waiting for PKI server to start (225s)
-2026-03-26 02:40:04 INFO: Waiting for PKI server to start (241s)
-2026-03-26 02:40:20 INFO: Waiting for PKI server to start (258s)
+tail -f /var/log/pki/pki-tomcat/ca/debug.$(date +%Y-%m-%d).log | grep -v "SerialNumber\|INFO"
