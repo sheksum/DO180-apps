@@ -1,2 +1,11 @@
-ipa topologysegment-find --suffix "dc=ipa,dc=calix,dc=local"
-ipa topologysegment-find --suffix "o=ipaca"
+[root@pln-ipamaster ~]# ipa topologysegment-find --suffix "dc=ipa,dc=calix,dc=local"
+Usage: ipa [global-options] topologysegment-find TOPOLOGYSUFFIX [CRITERIA] [options]
+
+ipa: error: no such option: --suffix
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa topologysegment-find --suffix "o=ipaca"
+Usage: ipa [global-options] topologysegment-find TOPOLOGYSUFFIX [CRITERIA] [options]
+
+ipa: error: no such option: --suffix
+[root@pln-ipamaster ~]#
