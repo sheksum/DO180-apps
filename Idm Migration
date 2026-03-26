@@ -1,37 +1,16 @@
 [root@pln-ipamaster ~]#
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# klist -kt /var/lib/ipa/gssproxy/http.keytab
-Keytab name: FILE:/var/lib/ipa/gssproxy/http.keytab
-KVNO Timestamp           Principal
----- ------------------- ------------------------------------------------------
-   1 03/25/2026 23:43:24 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-   1 03/25/2026 23:43:24 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
+[root@pln-ipamaster ~]# systemctl restart httpd
+[root@pln-ipamaster ~]# ipa user-show hsuma --all
+ipa: ERROR: No valid Negotiate header in server response
+[root@pln-ipamaster ~]# kinit hsuma
+Password for hsuma@IPA.CALIX.LOCAL:
 [root@pln-ipamaster ~]#
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl status gssproxy
-● gssproxy.service - GSSAPI Proxy Daemon
-     Loaded: loaded (/usr/lib/systemd/system/gssproxy.service; disabled; preset: disabled)
-     Active: active (running) since Thu 2026-03-26 07:34:08 UTC; 27min ago
-   Main PID: 51194 (gssproxy)
-      Tasks: 6 (limit: 203337)
-     Memory: 3.6M (peak: 4.3M)
-        CPU: 41ms
-     CGroup: /system.slice/gssproxy.service
-             └─51194 /usr/sbin/gssproxy -D
-
-Mar 26 07:34:08 pln-ipamaster.ipa.calix.local systemd[1]: Starting GSSAPI Proxy Daemon...
-Mar 26 07:34:08 pln-ipamaster.ipa.calix.local systemd[1]: Started GSSAPI Proxy Daemon.
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# chown -R root:apache /run/ipa/ccaches
-chmod -R 770 /run/ipa/ccaches
-restorecon -Rv /run/ipa
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# restorecon -Rv /run/ipa
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa user-show hsuma
+ipa: ERROR: No valid Negotiate header in server response
+[root@pln-ipamaster ~]# kinit admin
+Password for admin@IPA.CALIX.LOCAL:
+[root@pln-ipamaster ~]# ipa user-show hsuma
+ipa: ERROR: No valid Negotiate header in server response
+[root@pln-ipamaster ~]#[root@pln-ipamaster ~]#
