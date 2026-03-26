@@ -1,3 +1,41 @@
+root@plnx-admin:~#
+root@plnx-admin:~# cat /etc/sssd/sssd.conf
+[domain/ipa.calix.local]
+
+id_provider = ipa
+dns_discovery_domain = ipa.calix.local
+ipa_server = _srv_, cpeg-ipareplica.ipa.calix.local
+ipa_domain = ipa.calix.local
+ipa_hostname = plnx-admin.calix.local
+auth_provider = ipa
+chpass_provider = ipa
+access_provider = ipa
+cache_credentials = True
+ldap_tls_cacert = /etc/ipa/ca.crt
+krb5_store_password_if_offline = True
+[sssd]
+services = nss, pam, ssh, sudo
+
+domains = ipa.calix.local
+[nss]
+homedir_substring = /home
+
+[pam]
+
+[sudo]
+
+[autofs]
+
+[ssh]
+
+[pac]
+
+[ifp]
+
+[session_recording]
+
+
+
 ?
 Return-Path: <root@plnx-admin.calix.local>
 X-Original-To: root
