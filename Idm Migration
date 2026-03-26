@@ -1,9 +1,10 @@
-# On cpeg
-ldapsearch -Y GSSAPI \
-  -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
-  "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
-
-
-ldapsearch -Y GSSAPI \
-  -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
-  "(cn=pln-ipamaster.ipa.calix.local)" 2>/dev/null
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]# ldapsearch -Y GSSAPI \
+>   -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+>   "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]#
+[root@cpeg-ipareplica sos.imb0ecrg]# ldapsearch -Y GSSAPI   -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"   "(cn=pln-ipamaster.ipa.calix.local)" 2>/dev/null
+[root@cpeg-ipareplica sos.imb0ecrg]#
