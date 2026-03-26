@@ -1,4 +1,25 @@
-ipa-getkeytab -s pln-ipamaster.ipa.calix.local \
-  -p HTTP/pln-ipamaster.ipa.calix.local \
-  -k /etc/httpd/conf/ipa.keytab
-systemctl restart httpd
+[Thu Mar 26 07:42:43.367561 2026] [mpm_event:notice] [pid 51205:tid 51205] AH00492: caught SIGWINCH, shutting down gracefully
+[Thu Mar 26 07:42:45.411022 2026] [core:notice] [pid 52049:tid 52049] SELinux policy enabled; httpd running as context system_u:system_r:httpd_t:s0
+[Thu Mar 26 07:42:45.411828 2026] [suexec:notice] [pid 52049:tid 52049] AH01232: suEXEC mechanism enabled (wrapper: /usr/sbin/suexec)
+[Thu Mar 26 07:42:45.481724 2026] [lbmethod_heartbeat:notice] [pid 52049:tid 52049] AH02282: No slotmem from mod_heartmonitor
+[Thu Mar 26 07:42:45.492851 2026] [mpm_event:notice] [pid 52049:tid 52049] AH00489: Apache/2.4.62 (Red Hat Enterprise Linux) OpenSSL/3.5.1 mod_auth_gssapi/1.6.3 mod_wsgi/4.7.1 Python/3.9 configured -- resuming normal operations
+[Thu Mar 26 07:42:45.492890 2026] [core:notice] [pid 52049:tid 52049] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Thu Mar 26 07:46:41.488185 2026] [wsgi:error] [pid 52056:tid 52278] [remote 10.172.248.55:36150] ipa: INFO: [jsonserver_kerb] admin@IPA.CALIX.LOCAL: schema(known_fingerprints=('c6e4328e',), version='2.170'): SUCCESS
+[Thu Mar 26 07:46:41.875111 2026] [:warn] [pid 52063:tid 52221] [client 10.172.248.55:36154] failed to set perms (3140) on file (/run/ipa/ccaches/admin@IPA.CALIX.LOCAL-gLHJBi)!, referer: https://pln-ipamaster.ipa.calix.local/ipa/xml
+[Thu Mar 26 07:46:41.919224 2026] [wsgi:error] [pid 52058:tid 52281] [remote 10.172.248.55:36154] ipa: INFO: [jsonserver_session] admin@IPA.CALIX.LOCAL: user_find/1('admin', version='2.254'): SUCCESS
+[Thu Mar 26 07:54:00.097805 2026] [mpm_event:notice] [pid 52049:tid 52049] AH00492: caught SIGWINCH, shutting down gracefully
+[Thu Mar 26 07:54:02.005021 2026] [core:notice] [pid 52401:tid 52401] SELinux policy enabled; httpd running as context system_u:system_r:httpd_t:s0
+[Thu Mar 26 07:54:02.005999 2026] [suexec:notice] [pid 52401:tid 52401] AH01232: suEXEC mechanism enabled (wrapper: /usr/sbin/suexec)
+[Thu Mar 26 07:54:02.080518 2026] [lbmethod_heartbeat:notice] [pid 52401:tid 52401] AH02282: No slotmem from mod_heartmonitor
+[Thu Mar 26 07:54:02.094283 2026] [mpm_event:notice] [pid 52401:tid 52401] AH00489: Apache/2.4.62 (Red Hat Enterprise Linux) OpenSSL/3.5.1 mod_auth_gssapi/1.6.3 mod_wsgi/4.7.1 Python/3.9 configured -- resuming normal operations
+[Thu Mar 26 07:54:02.094324 2026] [core:notice] [pid 52401:tid 52401] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Thu Mar 26 07:57:49.159535 2026] [mpm_event:notice] [pid 52401:tid 52401] AH00492: caught SIGWINCH, shutting down gracefully
+[Thu Mar 26 07:57:51.192114 2026] [core:notice] [pid 52663:tid 52663] SELinux policy enabled; httpd running as context system_u:system_r:httpd_t:s0
+[Thu Mar 26 07:57:51.192917 2026] [suexec:notice] [pid 52663:tid 52663] AH01232: suEXEC mechanism enabled (wrapper: /usr/sbin/suexec)
+[Thu Mar 26 07:57:51.261086 2026] [lbmethod_heartbeat:notice] [pid 52663:tid 52663] AH02282: No slotmem from mod_heartmonitor
+[Thu Mar 26 07:57:51.271870 2026] [mpm_event:notice] [pid 52663:tid 52663] AH00489: Apache/2.4.62 (Red Hat Enterprise Linux) OpenSSL/3.5.1 mod_auth_gssapi/1.6.3 mod_wsgi/4.7.1 Python/3.9 configured -- resuming normal operations
+[Thu Mar 26 07:57:51.271912 2026] [core:notice] [pid 52663:tid 52663] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Thu Mar 26 07:58:55.705934 2026] [wsgi:error] [pid 52668:tid 52890] [remote 10.172.248.50:43848] ipa: INFO: [jsonserver_i18n_messages] UNKNOWN: i18n_messages(version='2.254'): SUCCESS
+[Thu Mar 26 07:59:01.781525 2026] [auth_gssapi:error] [pid 52901:tid 52941] [client 10.172.248.55:45424] GSS ERROR gss_acquire_cred[_from]() failed to get server creds: [No credentials were supplied, or the credentials were unavailable or inaccessible ( SPNEGO cannot find mechanisms to negotiate)]
+[Thu Mar 26 07:59:01.783637 2026] [wsgi:error] [pid 52670:tid 52893] [remote 10.172.248.50:43818] ipa: INFO: 401 Unauthorized: No session cookie found
+[root@pln-ipamaster ~]#
