@@ -1,1 +1,7 @@
-ps -p 38436 -o pid,pcpu,pmem,stat,etime
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ps -p 38436 -o pid,pcpu,pmem,stat,etime
+    PID %CPU %MEM STAT     ELAPSED
+  38436  0.0  0.5 S+      07:02:43
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
