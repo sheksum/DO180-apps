@@ -1,9 +1,32 @@
-# On cpeg
-scp /etc/ipa/dnssec/softhsm2.conf root@pln-ipamaster.ipa.calix.local:/etc/ipa/dnssec/
-scp /etc/ipa/dnssec/softhsm_pin_so root@pln-ipamaster.ipa.calix.local:/etc/ipa/dnssec/
-
-# On pln
-chown root:ods /etc/ipa/dnssec/ipa-dnskeysyncd.keytab
-chmod 440 /etc/ipa/dnssec/ipa-dnskeysyncd.keytab
-
-systemctl restart ipa-dnskeysyncd
+Mar 26 14:22:34 pln-ipamaster.ipa.calix.local systemd[1]: Started IPA key daemon.
+Mar 26 14:22:34 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55449]: ipa-dnskeysyncd: INFO     To increase debugging set debug=True in dns.conf See default.conf(5) for details
+Mar 26 14:22:35 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55449]: ipa-dnskeysyncd: CRITICAL Kerberos authentication failed: Major (458752): No credentials were supplied, or the credentials were unavailable or inaccessible, Minor (2529639107>
+Mar 26 14:22:36 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Main process exited, code=exited, status=1/FAILURE
+Mar 26 14:22:36 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Failed with result 'exit-code'.
+Mar 26 14:22:36 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 1.905s CPU time.
+Mar 26 14:23:15 pln-ipamaster.ipa.calix.local systemd[1]: Stopped IPA key daemon.
+Mar 26 14:23:15 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 1.905s CPU time.
+Mar 26 14:23:15 pln-ipamaster.ipa.calix.local systemd[1]: Started IPA key daemon.
+Mar 26 14:23:15 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55562]: ipa-dnskeysyncd: INFO     To increase debugging set debug=True in dns.conf See default.conf(5) for details
+Mar 26 14:23:17 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55562]: ipa-dnskeysyncd: CRITICAL Kerberos authentication failed: Major (458752): No credentials were supplied, or the credentials were unavailable or inaccessible, Minor (2529639107>
+Mar 26 14:23:17 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Main process exited, code=exited, status=1/FAILURE
+Mar 26 14:23:17 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Failed with result 'exit-code'.
+Mar 26 14:23:17 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 1.865s CPU time.
+Mar 26 14:24:17 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Scheduled restart job, restart counter is at 24.
+Mar 26 14:24:17 pln-ipamaster.ipa.calix.local systemd[1]: Stopped IPA key daemon.
+Mar 26 14:24:17 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 1.865s CPU time.
+Mar 26 14:24:17 pln-ipamaster.ipa.calix.local systemd[1]: Started IPA key daemon.
+Mar 26 14:24:17 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55575]: ipa-dnskeysyncd: INFO     To increase debugging set debug=True in dns.conf See default.conf(5) for details
+Mar 26 14:24:19 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55575]: ipa-dnskeysyncd: CRITICAL Kerberos authentication failed: Major (458752): No credentials were supplied, or the credentials were unavailable or inaccessible, Minor (2529639107>
+Mar 26 14:24:19 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Main process exited, code=exited, status=1/FAILURE
+Mar 26 14:24:19 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Failed with result 'exit-code'.
+Mar 26 14:24:19 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 1.940s CPU time.
+Mar 26 14:24:34 pln-ipamaster.ipa.calix.local systemd[1]: Stopped IPA key daemon.
+Mar 26 14:24:34 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 1.940s CPU time.
+Mar 26 14:24:39 pln-ipamaster.ipa.calix.local systemd[1]: Started IPA key daemon.
+Mar 26 14:24:40 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55586]: ipa-dnskeysyncd: INFO     To increase debugging set debug=True in dns.conf See default.conf(5) for details
+Mar 26 14:24:41 pln-ipamaster.ipa.calix.local ipa-dnskeysyncd[55586]: ipa-dnskeysyncd: CRITICAL Kerberos authentication failed: Major (458752): No credentials were supplied, or the credentials were unavailable or inaccessible, Minor (2529639107>
+Mar 26 14:24:41 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Main process exited, code=exited, status=1/FAILURE
+Mar 26 14:24:41 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Failed with result 'exit-code'.
+Mar 26 14:24:41 pln-ipamaster.ipa.calix.local systemd[1]: ipa-dnskeysyncd.service: Consumed 1.938s CPU time.
+lines 193-254/254 (END)
