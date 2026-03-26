@@ -1,3 +1,13 @@
-strace -p 38436 -c -e trace=all 2>&1 &
-sleep 10
-kill %1
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# strace -p 38436 -c -e trace=all 2>&1 &
+[1] 49191
+[root@pln-ipamaster ~]# strace: Process 38436 attached
+
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# sleep 10
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# kill %1
+[root@pln-ipamaster ~]# strace: Process 38436 detached
+
+[1]+  Terminated              strace -p 38436 -c -e trace=all 2>&1
+[root@pln-ipamaster ~]#
