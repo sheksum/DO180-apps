@@ -1,43 +1,9 @@
-[root@pln-ipamaster ~]# ipa topologysegment-find --suffix "dc=ipa,dc=calix,dc=local"
-Usage: ipa [global-options] topologysegment-find TOPOLOGYSUFFIX [CRITERIA] [options]
-
-ipa: error: no such option: --suffix
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipa topologysegment-find --suffix "o=ipaca"
-Usage: ipa [global-options] topologysegment-find TOPOLOGYSUFFIX [CRITERIA] [options]
-
-ipa: error: no such option: --suffix
-[root@pln-ipamaster ~]#
-
-
-hsuma@plnx-admin:~$ systemctl status sssd
-● sssd.service - System Security Services Daemon
-     Loaded: loaded (/lib/systemd/system/sssd.service; enabled; vendor preset: enabled)
-     Active: active (running) since Wed 2026-03-11 12:13:18 CDT; 2 weeks 1 day ago
-   Main PID: 2504198 (sssd)
-      Tasks: 8 (limit: 9388)
-     Memory: 70.7M
-        CPU: 18min 25.068s
-     CGroup: /system.slice/sssd.service
-             ├─2406570 /usr/libexec/sssd/krb5_child --debug-microseconds=0 --debug-timestamps=1 --debug-fd=30 --debug-level=0x0070 --chain-id=103606 --canonicalize --fast-principal=host/plnx-admin.calix.local@IPA.CALIX.LOCAL --use-fast=try --re>
-             ├─2504198 /usr/sbin/sssd -i --logger=files
-             ├─2504199 /usr/libexec/sssd/sssd_be --domain ipa.calix.local --uid 0 --gid 0 --logger=files
-             ├─2504201 /usr/libexec/sssd/sssd_nss --uid 0 --gid 0 --logger=files
-             ├─2504202 /usr/libexec/sssd/sssd_pam --uid 0 --gid 0 --logger=files
-             ├─2504203 /usr/libexec/sssd/sssd_ssh --uid 0 --gid 0 --logger=files
-             ├─2504204 /usr/libexec/sssd/sssd_sudo --uid 0 --gid 0 --logger=files
-             └─2504205 /usr/libexec/sssd/sssd_pac --uid 0 --gid 0 --logger=files
-
-Mar 26 12:57:56 plnx-admin.calix.local krb5_child[2405257]: Disk quota exceeded
-Mar 26 12:57:56 plnx-admin.calix.local krb5_child[2405257]: Disk quota exceeded
-Mar 26 12:58:09 plnx-admin.calix.local krb5_child[2405287]: Disk quota exceeded
-Mar 26 12:58:09 plnx-admin.calix.local krb5_child[2405287]: Disk quota exceeded
-Mar 26 12:58:36 plnx-admin.calix.local krb5_child[2405352]: Disk quota exceeded
-Mar 26 12:58:36 plnx-admin.calix.local krb5_child[2405352]: Disk quota exceeded
-Mar 26 13:00:21 plnx-admin.calix.local krb5_child[2406120]: Disk quota exceeded
-Mar 26 13:00:21 plnx-admin.calix.local krb5_child[2406120]: Disk quota exceeded
-Mar 26 13:01:54 plnx-admin.calix.local krb5_child[2406500]: Disk quota exceeded
-Mar 26 13:01:54 plnx-admin.calix.local krb5_child[2406500]: Disk quota exceeded
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ sudo su -
+root@plnx-admin:~#
+root@plnx-admin:~#
+root@plnx-admin:~#
+root@plnx-admin:~#
+root@plnx-admin:~# du -sh /tmp
+3.5M	/tmp
+root@plnx-admin:~# quota -s 2>/dev/null
+root@plnx-admin:~#
