@@ -2,9 +2,24 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "ou=ca,ou=requests,o=ipaca" "(objectclass=*)" dn 2>/dev/null | grep "^dn:" | wc -l
 
 
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" "(objectclass=*)" dn 2>/dev/null | grep "^dn:" | wc -l
+560011
+[root@pln-ipamaster ~]# Connection to 10.172.248.105 closed by remote host.
+
+
 ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "ou=ca,ou=requests,o=ipaca" "(requestState=complete)" \
   requestSubjectDN 2>/dev/null | grep "requestSubjectDN" | sort | uniq -c | sort -rn | head -20
+
+[root@pln-ipamaster ~]#
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" "(requestState=complete)" \
+  requestSubjectDN 2>/dev/null | grep "requestSubjectDN" | sort | uniq -c | sort -rn | head -20
+      1 # requesting: requestSubjectDN
+[root@pln-ipamaster ~]#
+
 
 [root@pln-ipamaster ~]#
 [root@pln-ipamaster ~]#
