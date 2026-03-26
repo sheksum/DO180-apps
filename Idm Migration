@@ -1,1 +1,23 @@
-tail -f /var/log/pki/pki-tomcat/ca/debug.$(date +%Y-%m-%d).log | grep -v "SerialNumber\|INFO"
+==> /var/log/pki/pki-ca-spawn.20260326000715.log <==
+2026-03-26 02:42:22 DEBUG: Command: rm -rf /root/.dogtag/pki-tomcat/ca
+2026-03-26 02:42:22 INFO: END spawning CA subsystem in pki-tomcat instance
+2026-03-26 02:42:22 INFO: Creating /etc/sysconfig/pki/tomcat/pki-tomcat/ca/deployment.cfg
+2026-03-26 02:42:22 INFO: Creating /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_deployment.cfg.20260326000715
+2026-03-26 02:42:22 INFO: Copying /etc/sysconfig/pki/tomcat/pki-tomcat/ca/deployment.cfg to /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_deployment.cfg.20260326000715
+2026-03-26 02:42:22 DEBUG: Command: cp /etc/sysconfig/pki/tomcat/pki-tomcat/ca/deployment.cfg /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_deployment.cfg.20260326000715
+2026-03-26 02:42:22 INFO: Creating /etc/sysconfig/pki/tomcat/pki-tomcat/ca/manifest
+2026-03-26 02:42:22 INFO: Creating /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_manifest.20260326000715
+2026-03-26 02:42:22 INFO: Copying /etc/sysconfig/pki/tomcat/pki-tomcat/ca/manifest to /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_manifest.20260326000715
+2026-03-26 02:42:22 DEBUG: Command: cp /etc/sysconfig/pki/tomcat/pki-tomcat/ca/manifest /var/lib/pki/pki-tomcat/logs/ca/archive/spawn_manifest.20260326000715
+q^C
+[root@pln-ipamaster ~]# journalctl  -fu pki-tomcatd@pki-tomcat.service
+Mar 26 02:42:22 pln-ipamaster.ipa.calix.local server[45344]: Java virtual machine used: /usr/lib/jvm/jre-17-openjdk/bin/java
+Mar 26 02:42:22 pln-ipamaster.ipa.calix.local server[45344]: classpath used: /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar:
+Mar 26 02:42:22 pln-ipamaster.ipa.calix.local server[45344]: main class used: org.apache.catalina.startup.Bootstrap
+Mar 26 02:42:22 pln-ipamaster.ipa.calix.local server[45344]: flags used: -Dcom.redhat.fips=false
+Mar 26 02:42:22 pln-ipamaster.ipa.calix.local server[45344]: options used: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.config.file=/var/lib/pki/pki-tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dsun.io.useCanonCaches=false
+Mar 26 02:42:22 pln-ipamaster.ipa.calix.local server[45344]: arguments used: stop
+Mar 26 02:42:22 pln-ipamaster.ipa.calix.local server[45344]: NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+Mar 26 02:42:22 pln-ipamaster.ipa.calix.local systemd[1]: pki-tomcatd@pki-tomcat.service: Deactivated successfully.
+Mar 26 02:42:22 pln-ipamaster.ipa.calix.local systemd[1]: Stopped PKI Tomcat Server pki-tomcat.
+Mar 26 02:42:22 pln-ipamaster.ipa.calix.local systemd[1]: pki-tomcatd@pki-tomcat.service: Consumed 26.843s CPU time, 471.6M memory peak.
