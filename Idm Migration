@@ -1,26 +1,106 @@
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa: INFO: The ipactl command was successful
+[root@pln-ipamaster ~]# kinit admin
+Password for admin@IPA.CALIX.LOCAL:
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipactl start
-IPA version error: no platform stored
-Automatically running upgrade, for details see /var/log/ipaupgrade.log
-Be patient, this may take a few minutes.
-Existing service file detected!
-Assuming stale, cleaning and proceeding
-Starting Directory Service
-Starting krb5kdc Service
-Starting kadmin Service
-Starting httpd Service
-Starting ipa-custodia Service
-Starting pki-tomcatd Service
-Starting ipa-otpd Service
-ipa: INFO: The ipactl command was successful
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa user-find admin
+---------------
+8 users matched
+---------------
+  User login: admin
+  Last name: Administrator
+  Home directory: /opt/admin
+  Login shell: /bin/bash
+  Principal name: admin@IPA.CALIX.LOCAL
+  Principal alias: admin@IPA.CALIX.LOCAL, root@IPA.CALIX.LOCAL
+  UID: 12187
+  GID: 12187
+  Account disabled: False
+
+  User login: covadmin
+  First name: Coverity
+  Last name: Admin
+  Home directory: /home/covadmin
+  Login shell: /bin/tcsh
+  Principal name: covadmin@IPA.CALIX.LOCAL
+  Principal alias: covadmin@IPA.CALIX.LOCAL
+  Email address: covadmin@calix.com
+  UID: 2455
+  GID: 2200
+  Account disabled: True
+
+  User login: coverity
+  First name: Coverity
+  Last name: Admin
+  Home directory: /home/coverity
+  Login shell: /bin/tcsh
+  Principal name: coverity@IPA.CALIX.LOCAL
+  Principal alias: coverity@IPA.CALIX.LOCAL
+  Email address: coverity@calix.com
+  UID: 1083
+  GID: 2200
+  Account disabled: False
+
+  User login: sxacc-dev
+  First name: SXA
+  Last name: Admin
+  Home directory: /home/sxacc-dev
+  Login shell: /bin/bash
+  Principal name: sxacc-dev@IPA.CALIX.LOCAL
+  Principal alias: sxacc-dev@IPA.CALIX.LOCAL
+  Email address: sxacc-dev@calix.com
+  UID: 1078
+  GID: 2200
+  Account disabled: False
+
+  User login: sysadmin
+  First name: SysAdmin
+  Last name: For CMS
+  Home directory: /home/sysadmin
+  Login shell: /bin/tcsh
+  Principal name: sysadmin@IPA.CALIX.LOCAL
+  Principal alias: sysadmin@IPA.CALIX.LOCAL
+  Email address: sysadmin@calix.com
+  UID: 2263
+  GID: 2200
+  Account disabled: False
+
+  User login: toolslic
+  First name: License
+  Last name: Admin
+  Home directory: /home/toolslic
+  Login shell: /bin/tcsh
+  Principal name: toolslic@IPA.CALIX.LOCAL
+  Principal alias: toolslic@IPA.CALIX.LOCAL
+  Email address: license.admin@calix.com
+  UID: 2201
+  GID: 10
+  Account disabled: False
+
+  User login: vobadmin
+  First name: Vob
+  Last name: Admin
+  Home directory: /home/vobadmin
+  Login shell: /bin/tcsh
+  Principal name: vobadmin@IPA.CALIX.LOCAL
+  Principal alias: vobadmin@IPA.CALIX.LOCAL
+  Email address: vobadmin@calix.com
+  UID: 10001
+  GID: 5001
+  Account disabled: False
+
+  User login: yocto
+  First name: Yocto
+  Last name: Admin
+  Home directory: /home/yocto
+  Login shell: /bin/bash
+  Principal name: yocto@IPA.CALIX.LOCAL
+  Principal alias: yocto@IPA.CALIX.LOCAL
+  Email address: yocto@calix.com
+  UID: 1091
+  GID: 1190
+  Account disabled: False
+----------------------------
+Number of entries returned 8
+----------------------------
 [root@pln-ipamaster ~]#
