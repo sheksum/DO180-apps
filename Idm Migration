@@ -1,10 +1,6 @@
-[root@cpeg-ipareplica sos.imb0ecrg]#
-[root@cpeg-ipareplica sos.imb0ecrg]#
-[root@cpeg-ipareplica sos.imb0ecrg]# ldapsearch -Y GSSAPI \
->   -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
->   "(cn=pln-ipamaster.ipa.calix.local)" dn 2>/dev/null
-[root@cpeg-ipareplica sos.imb0ecrg]#
-[root@cpeg-ipareplica sos.imb0ecrg]#
-[root@cpeg-ipareplica sos.imb0ecrg]#
-[root@cpeg-ipareplica sos.imb0ecrg]# ldapsearch -Y GSSAPI   -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local"   "(cn=pln-ipamaster.ipa.calix.local)" 2>/dev/null
-[root@cpeg-ipareplica sos.imb0ecrg]#
+# On pln
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+  "(objectclass=*)" dn 2>/dev/null
+
+grep -v DEBUG /var/log/ipareplica-install.log | tail -20
