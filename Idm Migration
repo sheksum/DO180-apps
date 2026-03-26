@@ -1,46 +1,8 @@
-[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" "(objectclass=*)" \
-  -s one dn 2>/dev/null | head -20
-# extended LDIF
-#
-# LDAPv3
-# base <ou=ca,ou=requests,o=ipaca> with scope oneLevel
-# filter: (objectclass=*)
-# requesting: dn
-#
-
-# 1, ca, requests, ipaca
-dn: cn=1,ou=ca,ou=requests,o=ipaca
-
-# 2, ca, requests, ipaca
-dn: cn=2,ou=ca,ou=requests,o=ipaca
-
-# 3, ca, requests, ipaca
-dn: cn=3,ou=ca,ou=requests,o=ipaca
-
-# 4, ca, requests, ipaca
-dn: cn=4,ou=ca,ou=requests,o=ipaca
-
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=kra,ou=requests,o=ipaca" "(objectclass=*)" dn 2>/dev/null | grep "^dn:" | wc -l
-0
-[root@pln-ipamaster ~]#
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=560011,ou=ca,ou=requests,o=ipaca" \
+  "(objectclass=*)" requestType requestState requestCreatedAt 2>/dev/null
 
 
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipa-crlgen-manage disable
-Nothing to do, CRL generation already disabled
-CRL generation disabled on the local host. Please make sure to configure CRL generation on another master with ipa-crlgen-manage enable
-The ipa-crlgen-manage command was successful
-[root@pln-ipamaster ~]# ipa-crlgen-manage enable
-Stopping pki-tomcatd
-Editing /var/lib/pki/pki-tomcat/conf/ca/CS.cfg
-Starting pki-tomcatd
-Editing /etc/httpd/conf.d/ipa-pki-proxy.conf
-Restarting httpd
-Forcing CRL update
-CRL generation enabled on the local host. Please make sure to have only a single CRL generation master.
-The ipa-crlgen-manage command was successful
-[root@pln-ipamaster ~]#
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=280000,ou=ca,ou=requests,o=ipaca" \
+  "(objectclass=*)" requestType requestState requestCreatedAt 2>/dev/null
