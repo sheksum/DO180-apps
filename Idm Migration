@@ -1,20 +1,20 @@
-Hi Cesar,
-Update on our situation:
-Good news — pln-ipamaster is now operational. After working through multiple issues we were able to complete the migration using the following approach:
-
-The ipa-replica-install completed all 33 CA steps successfully including full CA database replication (1,089,773 entries)
-We manually injected the cn=masters entries into cpeg to unblock the KDC replication timeout
-The upgrade step 7/10 deadlocked for 1.5+ hours — we resolved it by manually setting complete = True in /var/lib/ipa/sysrestore/sysrestore.state and running ipactl start which triggered ipa-server-upgrade to complete successfully
-All services are now running — DS, krb5kdc, kadmin, httpd, pki-tomcatd, ipa-custodia
-CA renewal master transferred to pln-ipamaster
-UI login working, kinit working, LDAP queries working
-
-Outstanding issues needing guidance:
-
-pki-tomcatd startup time — takes 30-60 minutes on every restart due to ~1M certificate entries in o=ipaca. Our daily backup stops and restarts services which makes this unacceptable in production. We need guidance on how to purge expired certificates from the CA database to reduce startup time.
-ipa-dnskeysyncd failing — fails with CalledProcessError on ipa-dnskeysync-replica. No DNSSEC signing is configured on any zones so this is low priority but would like guidance on proper fix.
-Post-migration cleanup — requesting confirmation of the correct procedure to decommission cpeg-ipareplica before March 28 shutdown.
-
-March 28 deadline is now manageable. Thank you for your assistance.
-Thanks,
-Haj
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipactl start
+Starting Directory Service
+Starting krb5kdc Service
+Starting kadmin Service
+Starting httpd Service
+Starting ipa-custodia Service
+Starting pki-tomcatd Service
+Starting ipa-otpd Service
+ipa: INFO: The ipactl command was successful
+[root@pln-ipamaster ~]# ipactl status
+Directory Service: RUNNING
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+pki-tomcatd Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa: INFO: The ipactl command was successful
+[root@pln-ipamaster ~]#
