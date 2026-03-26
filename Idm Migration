@@ -1,16 +1,4 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl restart httpd
-[root@pln-ipamaster ~]# ipa user-show hsuma --all
-ipa: ERROR: No valid Negotiate header in server response
-[root@pln-ipamaster ~]# kinit hsuma
-Password for hsuma@IPA.CALIX.LOCAL:
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipa user-show hsuma
-ipa: ERROR: No valid Negotiate header in server response
-[root@pln-ipamaster ~]# kinit admin
-Password for admin@IPA.CALIX.LOCAL:
-[root@pln-ipamaster ~]# ipa user-show hsuma
-ipa: ERROR: No valid Negotiate header in server response
-[root@pln-ipamaster ~]#[root@pln-ipamaster ~]#
+ls -la /etc/httpd/conf/ipa.keytab
+ls -la /var/lib/ipa/gssproxy/http.keytab
+
+cat /etc/gssproxy/10-ipa.conf | grep keytab
