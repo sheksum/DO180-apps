@@ -1,53 +1,6 @@
-Mar 29 18:23:53 pln-ipamaster.ipa.calix.local systemd[1]: Starting Identity, Policy, Audit...
-Mar 29 18:23:59 pln-ipamaster.ipa.calix.local ipactl[1232]: Failed to read data from service file: Failed to get list of services to probe status!
-Mar 29 18:23:59 pln-ipamaster.ipa.calix.local ipactl[1232]: Configured hostname 'pln-ipamaster.ipa.calix.local' does not match any master server in LDAP:
-Mar 29 18:23:59 pln-ipamaster.ipa.calix.local ipactl[1232]: sjc-ipareplica01.ipa.calix.local
-Mar 29 18:23:59 pln-ipamaster.ipa.calix.local ipactl[1232]: nan-ipareplica01.ipa.calix.local
-Mar 29 18:23:59 pln-ipamaster.ipa.calix.local ipactl[1232]: ric-ipareplica01.ipa.calix.local
-Mar 29 18:23:59 pln-ipamaster.ipa.calix.local ipactl[1232]: ric-ipareplica.ipa.calix.local
-Mar 29 18:23:59 pln-ipamaster.ipa.calix.local ipactl[1232]: cpeg-ipareplica.ipa.calix.local
-Mar 29 18:23:59 pln-ipamaster.ipa.calix.local ipactl[1232]: pln-ipamaster.ipa.calix.local
-Mar 29 18:23:59 pln-ipamaster.ipa.calix.local ipactl[1232]: Shutting down
-Mar 29 18:24:11 pln-ipamaster.ipa.calix.local ipactl[1232]: Starting Directory Service
-Mar 29 18:24:11 pln-ipamaster.ipa.calix.local systemd[1]: ipa.service: Main process exited, code=exited, status=1/FAILURE
-Mar 29 18:24:11 pln-ipamaster.ipa.calix.local systemd[1]: ipa.service: Failed with result 'exit-code'.
-Mar 29 18:24:11 pln-ipamaster.ipa.calix.local systemd[1]: Failed to start Identity, Policy, Audit.
-Mar 29 18:24:11 pln-ipamaster.ipa.calix.local systemd[1]: ipa.service: Consumed 2.286s CPU time.
-Mar 29 18:32:25 pln-ipamaster.ipa.calix.local systemd[1]: Starting Identity, Policy, Audit...
-Mar 29 18:32:27 pln-ipamaster.ipa.calix.local ipactl[3020]: Existing service file detected!
-Mar 29 18:32:27 pln-ipamaster.ipa.calix.local ipactl[3020]: Assuming stale, cleaning and proceeding
-Mar 29 18:32:27 pln-ipamaster.ipa.calix.local ipactl[3020]: Failed to read data from service file: Failed to get list of services to probe status!
-Mar 29 18:32:27 pln-ipamaster.ipa.calix.local ipactl[3020]: Configured hostname 'pln-ipamaster.ipa.calix.local' does not match any master server in LDAP:
-Mar 29 18:32:27 pln-ipamaster.ipa.calix.local ipactl[3020]: sjc-ipareplica01.ipa.calix.local
-Mar 29 18:32:27 pln-ipamaster.ipa.calix.local ipactl[3020]: nan-ipareplica01.ipa.calix.local
-Mar 29 18:32:27 pln-ipamaster.ipa.calix.local ipactl[3020]: ric-ipareplica01.ipa.calix.local
-Mar 29 18:32:27 pln-ipamaster.ipa.calix.local ipactl[3020]: ric-ipareplica.ipa.calix.local
-Mar 29 18:32:27 pln-ipamaster.ipa.calix.local ipactl[3020]: cpeg-ipareplica.ipa.calix.local
-Mar 29 18:32:27 pln-ipamaster.ipa.calix.local ipactl[3020]: pln-ipamaster.ipa.calix.local
-Mar 29 18:32:27 pln-ipamaster.ipa.calix.local ipactl[3020]: Shutting down
-Mar 29 18:32:35 pln-ipamaster.ipa.calix.local ipactl[3020]: Starting Directory Service
-Mar 29 18:32:36 pln-ipamaster.ipa.calix.local systemd[1]: ipa.service: Main process exited, code=exited, status=1/FAILURE
-Mar 29 18:32:36 pln-ipamaster.ipa.calix.local systemd[1]: ipa.service: Failed with result 'exit-code'.
-Mar 29 18:32:36 pln-ipamaster.ipa.calix.local systemd[1]: Failed to start Identity, Policy, Audit.
-Mar 29 18:32:36 pln-ipamaster.ipa.calix.local systemd[1]: ipa.service: Consumed 2.033s CPU time.
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipactl status
-Directory Service: STOPPED
-Directory Service must be running in order to obtain status of other services
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl start dirsrv@IPA-CALIX-LOCAL.service
-[root@pln-ipamaster ~]# ipactl status
-Failed to get list of services to probe status!
-Configured hostname 'pln-ipamaster.ipa.calix.local' does not match any master server in LDAP:
-sjc-ipareplica01.ipa.calix.local
-nan-ipareplica01.ipa.calix.local
-ric-ipareplica01.ipa.calix.local
-ric-ipareplica.ipa.calix.local
-cpeg-ipareplica.ipa.calix.local
-pln-ipamaster.ipa.calix.local
-[root@pln-ipamaster ~]#
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+  -s base "(objectclass=*)" dn 2>/dev/null
+
+
+systemctl status dirsrv@IPA-CALIX-LOCAL --no-pager | grep Active
