@@ -1,7 +1,2 @@
-[root@pln-ipamaster ~]# kinit admin
-Password for admin@IPA.CALIX.LOCAL:
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipa user-show admin
-ipa: ERROR: No valid Negotiate header in server response
-[root@pln-ipamaster ~]#
+kvno HTTP/pln-ipamaster.ipa.calix.local
+klist -kt /var/lib/ipa/gssproxy/http.keytab | tail -3
