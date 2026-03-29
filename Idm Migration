@@ -1,34 +1,11 @@
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# klist -kt /var/lib/ipa/gssproxy/http.keytab
-Keytab name: FILE:/var/lib/ipa/gssproxy/http.keytab
-KVNO Timestamp           Principal
----- ------------------- ------------------------------------------------------
-   2 03/26/2026 07:53:46 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-   2 03/26/2026 07:53:46 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-   3 03/26/2026 07:57:43 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-   3 03/26/2026 07:57:43 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-   1 03/29/2026 19:11:51 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-   1 03/29/2026 19:11:51 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-   2 03/29/2026 19:12:14 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-   2 03/29/2026 19:12:14 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl status gssproxy --no-pager | tail -5
-     CGroup: /system.slice/gssproxy.service
-             └─5155 /usr/sbin/gssproxy -D
-
-Mar 29 19:15:26 pln-ipamaster.ipa.calix.local systemd[1]: Starting GSSAPI Proxy Daemon...
-Mar 29 19:15:26 pln-ipamaster.ipa.calix.local systemd[1]: Started GSSAPI Proxy Daemon.
-[root@pln-ipamaster ~]# tail -5 /var/log/httpd/error_log
-[Sun Mar 29 19:15:32.833401 2026] [suexec:notice] [pid 5177:tid 5177] AH01232: suEXEC mechanism enabled (wrapper: /usr/sbin/suexec)
-[Sun Mar 29 19:15:32.906027 2026] [lbmethod_heartbeat:notice] [pid 5177:tid 5177] AH02282: No slotmem from mod_heartmonitor
-[Sun Mar 29 19:15:32.918153 2026] [mpm_event:notice] [pid 5177:tid 5177] AH00489: Apache/2.4.62 (Red Hat Enterprise Linux) OpenSSL/3.5.1 mod_auth_gssapi/1.6.3 mod_wsgi/4.7.1 Python/3.9 configured -- resuming normal operations
-[Sun Mar 29 19:15:32.918195 2026] [core:notice] [pid 5177:tid 5177] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
-[Sun Mar 29 19:15:35.960663 2026] [auth_gssapi:error] [pid 5187:tid 5335] [client 10.172.248.55:56416] GSS ERROR gss_acquire_cred[_from]() failed to get server creds: [No credentials were supplied, or the credentials were unavailable or inaccessible ( SPNEGO cannot find mechanisms to negotiate)], referer: https://pln-ipamaster.ipa.calix.local/ipa/xml
-[root@pln-ipamaster ~]# tail -5 /var/log/httpd/error_log
-[Sun Mar 29 19:15:32.918153 2026] [mpm_event:notice] [pid 5177:tid 5177] AH00489: Apache/2.4.62 (Red Hat Enterprise Linux) OpenSSL/3.5.1 mod_auth_gssapi/1.6.3 mod_wsgi/4.7.1 Python/3.9 configured -- resuming normal operations
-[Sun Mar 29 19:15:32.918195 2026] [core:notice] [pid 5177:tid 5177] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
-[Sun Mar 29 19:15:35.960663 2026] [auth_gssapi:error] [pid 5187:tid 5335] [client 10.172.248.55:56416] GSS ERROR gss_acquire_cred[_from]() failed to get server creds: [No credentials were supplied, or the credentials were unavailable or inaccessible ( SPNEGO cannot find mechanisms to negotiate)], referer: https://pln-ipamaster.ipa.calix.local/ipa/xml
-[Sun Mar 29 19:17:23.346810 2026] [auth_gssapi:error] [pid 5187:tid 5322] [client 10.172.248.55:60440] GSS ERROR gss_acquire_cred[_from]() failed to get server creds: [No credentials were supplied, or the credentials were unavailable or inaccessible ( SPNEGO cannot find mechanisms to negotiate)]
-[Sun Mar 29 19:17:23.348618 2026] [wsgi:error] [pid 5185:tid 5404] [remote 10.172.248.51:57066] ipa: INFO: 401 Unauthorized: No session cookie found
+[root@pln-ipamaster ~]# ipactl status
+Directory Service: RUNNING
+kadmin Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+named Service: RUNNING
+pki-tomcatd Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa: INFO: The ipactl command was successful
 [root@pln-ipamaster ~]#
