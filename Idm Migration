@@ -1,3 +1,16 @@
-rpm -q pki-ca
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# rpm -q pki-ca
+package pki-ca is not installed
+[root@cpeg-ipareplica ~]# pki-server ca-config-show | grep -i prune 2>/dev/null
+ERROR: Missing CA configuration parameter name
+[root@cpeg-ipareplica ~]#
+ =====
 
-pki-server ca-config-show | grep -i prune 2>/dev/null
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# rpm -q pki-ca
+package pki-ca is not installed
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# pki-server ca-config-show | grep -i prune 2>/dev/null
+ERROR: Missing parameter name
+[root@pln-ipamaster ~]#
