@@ -1,3 +1,26 @@
-systemctl status krb5kdc --no-pager | grep Active
-
-tail -20 /var/log/krb5kdc.log
+[root@pln-ipamaster ~]# systemctl status krb5kdc --no-pager | grep Active
+     Active: active (running) since Sun 2026-03-29 19:07:10 UTC; 2min 7s ago
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# tail -20 /var/log/krb5kdc.log
+Mar 29 19:08:10 pln-ipamaster.ipa.calix.local krb5kdc[3989](info): TGS_REQ (4 etypes {aes256-cts-hmac-sha384-192(20), aes128-cts-hmac-sha256-128(19), aes256-cts-hmac-sha1-96(18), aes128-cts-hmac-sha1-96(17)}) 10.172.248.55: FINDING_SERVER_KEY: authtime 1774811290,  hsuma@IPA.CALIX.LOCAL for HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL, No matching key in entry
+Mar 29 19:08:10 pln-ipamaster.ipa.calix.local krb5kdc[3989](info): closing down fd 11
+Mar 29 19:08:10 pln-ipamaster.ipa.calix.local krb5kdc[3989](info): TGS_REQ (4 etypes {aes256-cts-hmac-sha384-192(20), aes128-cts-hmac-sha256-128(19), aes256-cts-hmac-sha1-96(18), aes128-cts-hmac-sha1-96(17)}) 10.172.248.55: FINDING_SERVER_KEY: authtime 1774811290,  hsuma@IPA.CALIX.LOCAL for HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL, No matching key in entry
+Mar 29 19:08:10 pln-ipamaster.ipa.calix.local krb5kdc[3989](info): closing down fd 11
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3990](info): AS_REQ (4 etypes {aes256-cts-hmac-sha384-192(20), aes128-cts-hmac-sha256-128(19), aes256-cts-hmac-sha1-96(18), aes128-cts-hmac-sha1-96(17)}) 10.172.248.55: NEEDED_PREAUTH: WELLKNOWN/ANONYMOUS@IPA.CALIX.LOCAL for krbtgt/IPA.CALIX.LOCAL@IPA.CALIX.LOCAL, Additional pre-authentication required
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3990](info): closing down fd 11
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3990](info): AS_REQ (4 etypes {aes256-cts-hmac-sha384-192(20), aes128-cts-hmac-sha256-128(19), aes256-cts-hmac-sha1-96(18), aes128-cts-hmac-sha1-96(17)}) 10.172.248.55: ISSUE: authtime 1774811338, etypes {rep=aes256-cts-hmac-sha384-192(20), tkt=aes256-cts-hmac-sha1-96(18), ses=aes256-cts-hmac-sha1-96(18)}, WELLKNOWN/ANONYMOUS@IPA.CALIX.LOCAL for krbtgt/IPA.CALIX.LOCAL@IPA.CALIX.LOCAL
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3990](info): closing down fd 11
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3990](info): AS_REQ (4 etypes {aes256-cts-hmac-sha384-192(20), aes128-cts-hmac-sha256-128(19), aes256-cts-hmac-sha1-96(18), aes128-cts-hmac-sha1-96(17)}) 10.172.248.55: NEEDED_PREAUTH: hsuma@IPA.CALIX.LOCAL for krbtgt/IPA.CALIX.LOCAL@IPA.CALIX.LOCAL, Additional pre-authentication required
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3990](info): closing down fd 11
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3990](info): AS_REQ (4 etypes {aes256-cts-hmac-sha384-192(20), aes128-cts-hmac-sha256-128(19), aes256-cts-hmac-sha1-96(18), aes128-cts-hmac-sha1-96(17)}) 10.172.248.55: ISSUE: authtime 1774811338, etypes {rep=aes256-cts-hmac-sha1-96(18), tkt=aes256-cts-hmac-sha1-96(18), ses=aes256-cts-hmac-sha1-96(18)}, hsuma@IPA.CALIX.LOCAL for krbtgt/IPA.CALIX.LOCAL@IPA.CALIX.LOCAL
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3990](info): closing down fd 11
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3989](info): TGS_REQ (4 etypes {aes256-cts-hmac-sha384-192(20), aes128-cts-hmac-sha256-128(19), aes256-cts-hmac-sha1-96(18), aes128-cts-hmac-sha1-96(17)}) 10.172.248.55: FINDING_SERVER_KEY: authtime 1774811338,  hsuma@IPA.CALIX.LOCAL for HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL, No matching key in entry
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3989](info): closing down fd 11
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3989](info): TGS_REQ (4 etypes {aes256-cts-hmac-sha384-192(20), aes128-cts-hmac-sha256-128(19), aes256-cts-hmac-sha1-96(18), aes128-cts-hmac-sha1-96(17)}) 10.172.248.55: FINDING_SERVER_KEY: authtime 1774811338,  hsuma@IPA.CALIX.LOCAL for HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL, No matching key in entry
+Mar 29 19:08:58 pln-ipamaster.ipa.calix.local krb5kdc[3989](info): closing down fd 11
+Mar 29 19:09:06 pln-ipamaster.ipa.calix.local krb5kdc[3989](info): AS_REQ (4 etypes {aes256-cts-hmac-sha1-96(18), aes128-cts-hmac-sha1-96(17), aes256-cts-hmac-sha384-192(20), aes128-cts-hmac-sha256-128(19)}) 10.172.248.55: CLIENT_NOT_FOUND: ipa-dnskeysyncd/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL for krbtgt/IPA.CALIX.LOCAL@IPA.CALIX.LOCAL, Client not found in Kerberos database
+Mar 29 19:09:06 pln-ipamaster.ipa.calix.local krb5kdc[3989](info): closing down fd 11
+Mar 29 19:09:06 pln-ipamaster.ipa.calix.local krb5kdc[3990](info): AS_REQ (4 etypes {aes256-cts-hmac-sha1-96(18), aes128-cts-hmac-sha1-96(17), aes256-cts-hmac-sha384-192(20), aes128-cts-hmac-sha256-128(19)}) 10.172.248.55: CLIENT_NOT_FOUND: ipa-dnskeysyncd/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL for krbtgt/IPA.CALIX.LOCAL@IPA.CALIX.LOCAL, Client not found in Kerberos database
+Mar 29 19:09:06 pln-ipamaster.ipa.calix.local krb5kdc[3990](info): closing down fd 11
+[root@pln-ipamaster ~]#
