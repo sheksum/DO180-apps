@@ -1,1 +1,26 @@
-cat /etc/gssproxy/10-ipa.conf
+[root@pln-ipamaster ~]# cat /etc/gssproxy/10-ipa.conf
+#Installed and maintained by ipa update tools, please do not modify
+[service/ipa-httpd]
+  mechs = krb5
+  cred_store = keytab:/var/lib/ipa/gssproxy/http.keytab
+  cred_store = client_keytab:/var/lib/ipa/gssproxy/http.keytab
+  allow_protocol_transition = true
+  allow_client_ccache_sync = true
+  cred_usage = both
+  euid = apache
+
+[service/ipa-api]
+  mechs = krb5
+  cred_store = keytab:/var/lib/ipa/gssproxy/http.keytab
+  allow_constrained_delegation = true
+  allow_client_ccache_sync = true
+  cred_usage = initiate
+  euid = ipaapi
+
+[service/ipa-sweeper]
+  mechs = krb5
+  cred_store = keytab:/var/lib/ipa/gssproxy/http.keytab
+  socket = /var/lib/gssproxy/ipa_ccache_sweeper.sock
+  euid = ipaapi
+  cred_usage = initiate
+[root@pln-ipamaster ~]#
