@@ -1,6 +1,56 @@
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
->   "(objectclass=*)" dn 2>/dev/null | grep "^dn:"
-dn: cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,
-dn: cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc
-[root@cpeg-ipareplica ~]#
+# On cpeg
+ldapadd -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << 'EOF'
+dn: cn=KPASSWD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: KPASSWD
+ipaConfigString: configuredService
+ipaConfigString: startOrder 20
+ipaConfigString: enabledService
+
+dn: cn=HTTP,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: HTTP
+ipaConfigString: configuredService
+ipaConfigString: startOrder 40
+ipaConfigString: enabledService
+
+dn: cn=OTPD,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: OTPD
+ipaConfigString: configuredService
+ipaConfigString: startOrder 80
+ipaConfigString: enabledService
+
+dn: cn=KEYS,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: KEYS
+ipaConfigString: configuredService
+ipaConfigString: startOrder 41
+ipaConfigString: enabledService
+
+dn: cn=CA,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: CA
+ipaConfigString: configuredService
+ipaConfigString: startOrder 50
+ipaConfigString: enabledService
+
+dn: cn=DNS,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local
+objectClass: nsContainer
+objectClass: ipaConfigObject
+objectClass: top
+cn: DNS
+ipaConfigString: configuredService
+ipaConfigString: startOrder 45
+ipaConfigString: enabledService
+EOF
