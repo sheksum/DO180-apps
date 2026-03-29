@@ -1,40 +1,7 @@
+[root@pln-ipamaster ~]# kinit admin
+Password for admin@IPA.CALIX.LOCAL:
 [root@pln-ipamaster ~]#
 [root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipactl status
-Directory Service: RUNNING
-kadmin Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-named Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa: INFO: The ipactl command was successful
-[root@pln-ipamaster ~]# systemctl status krb5kdc.service
-● krb5kdc.service - Kerberos 5 KDC
-     Loaded: loaded (/usr/lib/systemd/system/krb5kdc.service; enabled; preset: disabled)
-     Active: active (running) since Sun 2026-03-29 19:07:10 UTC; 13min ago
-    Process: 3981 ExecStart=/usr/sbin/krb5kdc -P /run/krb5kdc.pid $KRB5KDC_ARGS (code=exited, status=0/SUCCESS)
-   Main PID: 3982 (krb5kdc)
-      Tasks: 9 (limit: 203337)
-     Memory: 12.0M (peak: 14.0M)
-        CPU: 187ms
-     CGroup: /system.slice/krb5kdc.service
-             ├─3982 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
-             ├─3983 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
-             ├─3984 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
-             ├─3985 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
-             ├─3986 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
-             ├─3987 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
-             ├─3988 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
-             ├─3989 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
-             └─3990 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
-
-Mar 29 19:07:10 pln-ipamaster.ipa.calix.local systemd[1]: Starting Kerberos 5 KDC...
-Mar 29 19:07:10 pln-ipamaster.ipa.calix.local systemd[1]: krb5kdc.service: Can't open PID file /run/krb5kdc.pid (yet?) after start: Operation not permitted
-Mar 29 19:07:10 pln-ipamaster.ipa.calix.local systemd[1]: Started Kerberos 5 KDC.
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipactl start krb5kdc
-You must specify one action
+[root@pln-ipamaster ~]# ipa user-show admin
+ipa: ERROR: No valid Negotiate header in server response
 [root@pln-ipamaster ~]#
