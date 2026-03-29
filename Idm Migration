@@ -1,5 +1,15 @@
-kinit admin
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# kinit admin
 ipa-getkeytab -s pln-ipamaster.ipa.calix.local \
   -p HTTP/pln-ipamaster.ipa.calix.local \
   -k /var/lib/ipa/gssproxy/http.keytab
 systemctl restart gssproxy httpd
+Password for admin@IPA.CALIX.LOCAL:
+Keytab successfully retrieved and stored in: /var/lib/ipa/gssproxy/http.keytab
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa user-show hsuma
+ipa: ERROR: No valid Negotiate header in server response
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
