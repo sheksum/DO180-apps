@@ -1,8 +1,5 @@
-[root@pln-ipamaster ~]# systemd-tmpfiles --create /usr/lib/tmpfiles.d/ipa.conf
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl restart gssproxy
-[root@pln-ipamaster ~]# systemctl restart httpd
-[root@pln-ipamaster ~]# ipa user-show hsuma
-ipa: ERROR: No valid Negotiate header in server response
-[root@pln-ipamaster ~]#
+klist -kt /var/lib/ipa/gssproxy/http.keytab
+
+systemctl status gssproxy --no-pager | tail -5
+
+tail -5 /var/log/httpd/error_log
