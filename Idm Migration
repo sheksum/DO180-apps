@@ -1,3 +1,5 @@
-[root@pln-ipamaster ~]# ipa user-show hsuma
-ipa: ERROR: Major (851968): Unspecified GSS failure.  Minor code may provide more information, Minor (2529638972): KDC returned error string: FINDING_SERVER_KEY
-[root@pln-ipamaster ~]#
+kinit admin
+ipa-getkeytab -s pln-ipamaster.ipa.calix.local \
+  -p HTTP/pln-ipamaster.ipa.calix.local \
+  -k /var/lib/ipa/gssproxy/http.keytab
+systemctl restart gssproxy httpd
