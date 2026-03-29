@@ -1,66 +1,60 @@
-● dirsrv@IPA-CALIX-LOCAL.service - 389 Directory Server IPA-CALIX-LOCAL.
-     Loaded: loaded (/usr/lib/systemd/system/dirsrv@.service; enabled; preset: disabled)
-    Drop-In: /usr/lib/systemd/system/dirsrv@.service.d
-             └─custom.conf
-             /etc/systemd/system/dirsrv@IPA-CALIX-LOCAL.service.d
-             └─ipa-env.conf
-     Active: active (running) since Sun 2026-03-29 18:33:30 UTC; 31min ago
-    Process: 3082 ExecStartPre=/usr/libexec/dirsrv/ds_systemd_ask_password_acl /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
-    Process: 3087 ExecStartPre=/usr/libexec/dirsrv/ds_selinux_restorecon.sh /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif (code=exited, status=0/SUCCESS)
-   Main PID: 3092 (ns-slapd)
-     Status: "slapd started: Ready to process requests"
-      Tasks: 36 (limit: 203337)
-     Memory: 19.8G (peak: 19.8G)
-        CPU: 23min 17.917s
-     CGroup: /system.slice/system-dirsrv.slice/dirsrv@IPA-CALIX-LOCAL.service
-             └─3092 /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
-
-Mar 29 18:33:30 pln-ipamaster.ipa.calix.local ns-slapd[3092]: [29/Mar/2026:18:33:30.801400491 +0000] - ERR - schema-compat-plugin - schema-compat-plugin tree scan will start in about 5 seconds!
-Mar 29 18:33:30 pln-ipamaster.ipa.calix.local ns-slapd[3092]: [29/Mar/2026:18:33:30.805939020 +0000] - INFO - validate_num_config_reservedescriptors - reserve descriptors changed from 64 to 227
-Mar 29 18:33:30 pln-ipamaster.ipa.calix.local ns-slapd[3092]: [29/Mar/2026:18:33:30.807091533 +0000] - INFO - connection_table_new - Number of connection sub-tables 1, each containing 63774 slots.
-Mar 29 18:33:30 pln-ipamaster.ipa.calix.local ns-slapd[3092]: [29/Mar/2026:18:33:30.842217540 +0000] - INFO - slapd_daemon - slapd started.  Listening on All Interfaces port 389 for LDAP requests
-Mar 29 18:33:30 pln-ipamaster.ipa.calix.local ns-slapd[3092]: [29/Mar/2026:18:33:30.843650011 +0000] - INFO - slapd_daemon - Listening on All Interfaces port 636 for LDAPS requests
-Mar 29 18:33:30 pln-ipamaster.ipa.calix.local ns-slapd[3092]: [29/Mar/2026:18:33:30.845430207 +0000] - INFO - slapd_daemon - Listening on /run/slapd-IPA-CALIX-LOCAL.socket for LDAPI requests
-Mar 29 18:33:30 pln-ipamaster.ipa.calix.local systemd[1]: Started 389 Directory Server IPA-CALIX-LOCAL..
-Mar 29 18:33:38 pln-ipamaster.ipa.calix.local ns-slapd[3092]: [29/Mar/2026:18:33:38.470018648 +0000] - ERR - schema-compat-plugin - warning: no entries set up under cn=computers, cn=compat,dc=ipa,dc=calix,dc=local
-Mar 29 18:33:38 pln-ipamaster.ipa.calix.local ns-slapd[3092]: [29/Mar/2026:18:33:38.471483231 +0000] - ERR - schema-compat-plugin - Finished plugin initialization.
-Mar 29 19:00:01 pln-ipamaster.ipa.calix.local ns-slapd[3092]: [29/Mar/2026:19:00:01.543407350 +0000] - WARN - content-sync-plugin - sync_update_persist_betxn_pre_op - DB retried operation targets "cn=1074297960,ou=certificateRepository,ou=ca,o=>
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
 [root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# kinit hsuma
+kinit: Cannot contact any KDC for realm 'IPA.CALIX.LOCAL' while getting initial credentials
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipactl status
+Directory Service: RUNNING
+kadmin Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+named Service: RUNNING
+pki-tomcatd Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa: INFO: The ipactl command was successful
+[root@pln-ipamaster ~]# systemctl status krb5kdc.service
+× krb5kdc.service - Kerberos 5 KDC
+     Loaded: loaded (/usr/lib/systemd/system/krb5kdc.service; enabled; preset: disabled)
+     Active: failed (Result: exit-code) since Sun 2026-03-29 18:23:53 UTC; 43min ago
+    Process: 1273 ExecStart=/usr/sbin/krb5kdc -P /run/krb5kdc.pid $KRB5KDC_ARGS (code=exited, status=1/FAILURE)
+        CPU: 33ms
+
+Mar 29 18:23:53 pln-ipamaster.ipa.calix.local systemd[1]: Starting Kerberos 5 KDC...
+Mar 29 18:23:53 pln-ipamaster.ipa.calix.local krb5kdc[1273]: krb5kdc: cannot initialize realm IPA.CALIX.LOCAL - see log file for details
+Mar 29 18:23:53 pln-ipamaster.ipa.calix.local systemd[1]: krb5kdc.service: Control process exited, code=exited, status=1/FAILURE
+Mar 29 18:23:53 pln-ipamaster.ipa.calix.local systemd[1]: krb5kdc.service: Failed with result 'exit-code'.
+Mar 29 18:23:53 pln-ipamaster.ipa.calix.local systemd[1]: Failed to start Kerberos 5 KDC.
+[root@pln-ipamaster ~]# systemctl start krb5kdc
+[root@pln-ipamaster ~]# systemctl status krb5kdc.service
+● krb5kdc.service - Kerberos 5 KDC
+     Loaded: loaded (/usr/lib/systemd/system/krb5kdc.service; enabled; preset: disabled)
+     Active: active (running) since Sun 2026-03-29 19:07:10 UTC; 1s ago
+    Process: 3981 ExecStart=/usr/sbin/krb5kdc -P /run/krb5kdc.pid $KRB5KDC_ARGS (code=exited, status=0/SUCCESS)
+   Main PID: 3982 (krb5kdc)
+      Tasks: 9 (limit: 203337)
+     Memory: 10.7M (peak: 12.0M)
+        CPU: 61ms
+     CGroup: /system.slice/krb5kdc.service
+             ├─3982 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─3983 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─3984 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─3985 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─3986 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─3987 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─3988 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             ├─3989 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+             └─3990 /usr/sbin/krb5kdc -P /run/krb5kdc.pid -w 8
+
+Mar 29 19:07:10 pln-ipamaster.ipa.calix.local systemd[1]: Starting Kerberos 5 KDC...
+Mar 29 19:07:10 pln-ipamaster.ipa.calix.local systemd[1]: krb5kdc.service: Can't open PID file /run/krb5kdc.pid (yet?) after start: Operation not permitted
+Mar 29 19:07:10 pln-ipamaster.ipa.calix.local systemd[1]: Started Kerberos 5 KDC.
+[root@pln-ipamaster ~]# kinit hsuma
+Password for hsuma@IPA.CALIX.LOCAL:
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#[root@pln-ipamaster ~]#
 [root@pln-ipamaster ~]#
 [root@pln-ipamaster ~]#
 [root@pln-ipamaster ~]# kinit hsuma
