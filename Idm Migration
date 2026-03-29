@@ -1,3 +1,6 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
-  "(objectclass=*)" dn 2>/dev/null | grep "^dn:"
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
+>   "(objectclass=*)" dn 2>/dev/null | grep "^dn:"
+dn: cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,
+dn: cn=KDC,cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc
+[root@cpeg-ipareplica ~]#
