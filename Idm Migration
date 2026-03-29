@@ -1,6 +1,24 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+[root@pln-ipamaster ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" \
   -s base "(objectclass=*)" dn 2>/dev/null
+# extended LDIF
+#
+# LDAPv3
+# base <cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local> with scope baseObject
+# filter: (objectclass=*)
+# requesting: dn
+#
 
+# pln-ipamaster.ipa.calix.local, masters, ipa, etc, ipa.calix.local
+dn: cn=pln-ipamaster.ipa.calix.local,cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,
+ dc=local
 
-systemctl status dirsrv@IPA-CALIX-LOCAL --no-pager | grep Active
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+[root@pln-ipamaster ~]# systemctl status dirsrv@IPA-CALIX-LOCAL --no-pager | grep Active
+     Active: active (running) since Sun 2026-03-29 18:33:30 UTC; 3min 11s ago
+[root@pln-ipamaster ~]#
