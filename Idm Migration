@@ -1,11 +1,1 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# kvno HTTP/pln-ipamaster.ipa.calix.local
-HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL: kvno = 2
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# klist -kt /var/lib/ipa/gssproxy/http.keytab | tail -3
-   1 03/29/2026 19:11:51 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-   2 03/29/2026 19:12:14 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-   2 03/29/2026 19:12:14 HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-[root@pln-ipamaster ~]#
+cat /etc/gssproxy/10-ipa.conf
