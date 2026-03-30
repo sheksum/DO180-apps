@@ -1,22 +1,13 @@
-hsuma@plnx-admin:~$ oc get pod $(oc get pods -n metallb-system -l component=speaker -o name | head -1 | cut -d/ -f2) -n metallb-system -o yaml | grep -A3 "capabilities\|NET_RAW\|securityContext" | head -20
-    securityContext:
-      allowPrivilegeEscalation: false
-      capabilities:
-        add:
-        - NET_RAW
-        drop:
-        - ALL
-      readOnlyRootFilesystem: true
---
-  securityContext: {}
-  serviceAccount: speaker
-  serviceAccountName: speaker
-  terminationGracePeriodSeconds: 0
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker 2>&1 | head -50
-{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master02.calix.local)","ts":"2026-03-30T19:21:44Z"}
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://172.30.168.89:9000/minio/health/live"
-200hsuma@plnx-admin:~$
+# Check MetalLB operator version
+oc get csv -n metallb-system | grep metallb
+
+# Check if the MetalLB CR config is correct
+oc get metallb -n metallb-system -o yaml
+
+# Force a full restart of everything MetalLB
+oc delete pods -n metallb-system --all
+sleep 30
+oc get pods -n metallb-system
+
+# Then immediately check fresh speaker logs
+oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker 2>&1
