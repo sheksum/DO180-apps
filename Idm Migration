@@ -1,9 +1,8 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get frrconfiguration -A
-No resources found
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get frrconfigurations.frrk8s.metallb.io -A
-No resources found
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
+# What happened today with MetalLB?
+oc get events -n metallb-system --sort-by='.lastTimestamp' | tail -30
+
+# Check if the operator auto-upgraded
+oc get installplan -n metallb-system
+
+# Check the previous CSV version
+oc get csv -n metallb-system -o yaml | grep -i "replaces\|version\|createdAt"
