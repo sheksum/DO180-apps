@@ -1,5 +1,8 @@
-# Test from a pod on the cluster - does the LB work internally?
-oc run lb-test --rm -it --image=busybox --restart=Never -n pai-dev -- wget -qO- --timeout=3 http://10.172.194.160:9000/minio/health/live
-
-# Test from a master node directly
-ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://10.172.194.160:9000/minio/health/live"
+hsuma@plnx-admin:~$ oc run lb-test --rm -it --image=busybox --restart=Never -n pai-dev -- wget -qO- --timeout=3 http://10.172.194.160:9000/minio/health/live
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "lb-test" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "lb-test" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "lb-test" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "lb-test" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+pod "lb-test" deleted from pai-dev namespace
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://10.172.194.160:9000/minio/health/live"
+000hsuma@plnx-admin:~$
