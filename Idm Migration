@@ -1,17 +1,32 @@
+hsuma@plnx-admin:~$ oc get svc minio-lb -n pai-dev
+NAME       TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)          AGE
+minio-lb   LoadBalancer   172.30.168.89   10.172.194.160   9000:32714/TCP   29d
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n metallb-system
+NAME                                                  READY   STATUS    RESTARTS   AGE
+controller-664ffb8889-v77f4                           2/2     Running   0          4d22h
+metallb-operator-controller-manager-b8577c5fc-kxbf9   1/1     Running   0          4d22h
+metallb-operator-webhook-server-5ffd6c9cc5-mgkvs      1/1     Running   0          4d22h
+speaker-lqdp4                                         2/2     Running   0          4d22h
+speaker-wzdkd                                         2/2     Running   0          4d22h
+speaker-zqftz                                         2/2     Running   0          4d22h
+hsuma@plnx-admin:~$ oc get svc minio-lb -n pai-dev -o yaml | grep -A5 "status:"
+status:
+  loadBalancer:
+    ingress:
+    - ip: 10.172.194.160
+      ipMode: VIP
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ arping -I eth0 10.172.194.160 -c 3
+arping: libnet_init(LIBNET_LINK, eth0): libnet_check_iface() ioctl: No such device
+arping: you may need to run as root
+hsuma@plnx-admin:~$ sudo arping -I eth0 10.172.194.160 -c 3
+arping: libnet_init(LIBNET_LINK, eth0): libnet_check_iface() ioctl: No such device
+hsuma@plnx-admin:~$ ping -c 3 10.172.194.160
+PING 10.172.194.160 (10.172.194.160) 56(84) bytes of data.
+
+--- 10.172.194.160 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2028ms
 
 hsuma@plnx-admin:~$
-
-# Is MinIO's LoadBalancer service still assigned?
-oc get svc minio-lb -n pai-dev
-
-# Check MetalLB speaker pods
-oc get pods -n metallb-system
-
-# Check which node is announcing the VIP
-oc get svc minio-lb -n pai-dev -o yaml | grep -A5 "status:"
-
-# Try reaching the MetalLB VIP directly
-arping -I eth0 10.172.194.160 -c 3
-
-# Check if the VIP responds to ARP
-ping -c 3 10.172.194.160
