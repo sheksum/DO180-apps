@@ -1,17 +1,63 @@
-# List all ServiceL2Status objects
-oc get servicel2statuses.metallb.io -A
-
-# Delete the stale ones
-oc delete servicel2statuses.metallb.io l2-9smz4 -n pai-test
-oc delete servicel2statuses.metallb.io l2-4vfpl -n openshift-ingress
-oc delete servicel2statuses.metallb.io l2-z8xc8 -n pai-prod
-oc delete servicel2statuses.metallb.io l2-l4jkn -n pai-prod
-
-# Restart the speakers to force re-announcement
-oc delete pods -n metallb-system -l component=speaker
-
-# Wait for speakers to come back
-oc get pods -n metallb-system -l component=speaker -w
-
-# Test
-ping -c 3 10.172.194.160
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get servicel2statuses.metallb.io -A
+NAMESPACE        NAME       ALLOCATED NODE                SERVICE NAME                    SERVICE NAMESPACE
+metallb-system   l2-2x6sf   ocp-ai-master01.calix.local   minio-lb                        pai-test
+metallb-system   l2-4vfpl   ocp-ai-master02.calix.local   pai-gateway-openshift-default   openshift-ingress
+metallb-system   l2-9smz4   ocp-ai-master02.calix.local   milvus-lb                       pai-test
+metallb-system   l2-b7snj   ocp-ai-master02.calix.local   milvus-lb                       pai-prod
+metallb-system   l2-j7p5v   ocp-ai-master01.calix.local   minio-lb                        pai-dev
+metallb-system   l2-p2gv9   ocp-ai-master01.calix.local   milvus-lb                       pai-dev
+metallb-system   l2-xl4vf   ocp-ai-master02.calix.local   pg-lb                           pai-dev
+metallb-system   l2-xsnb9   ocp-ai-master02.calix.local   minio-lb                        pai-prod
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc delete servicel2statuses.metallb.io l2-9smz4 -n pai-test
+Error from server (NotFound): servicel2statuses.metallb.io "l2-9smz4" not found
+hsuma@plnx-admin:~$ oc delete servicel2statuses.metallb.io l2-4vfpl -n openshift-ingress
+Error from server (NotFound): servicel2statuses.metallb.io "l2-4vfpl" not found
+hsuma@plnx-admin:~$ oc delete servicel2statuses.metallb.io l2-z8xc8 -n pai-prod
+Error from server (NotFound): servicel2statuses.metallb.io "l2-z8xc8" not found
+hsuma@plnx-admin:~$ oc delete servicel2statuses.metallb.io l2-l4jkn -n pai-prod
+Error from server (NotFound): servicel2statuses.metallb.io "l2-l4jkn" not found
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc delete pods -n metallb-system -l component=speaker
+pod "speaker-lqdp4" deleted from metallb-system namespace
+pod "speaker-wzdkd" deleted from metallb-system namespace
+pod "speaker-zqftz" deleted from metallb-system namespace
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker -w
+NAME            READY   STATUS    RESTARTS     AGE
+speaker-4clmd   1/2     Error     1 (5s ago)   5s
+speaker-sb4df   1/2     Running   0            5s
+speaker-skmqj   1/2     Running   1 (5s ago)   5s
+speaker-4clmd   1/2     CrashLoopBackOff   1 (9s ago)   10s
+speaker-sb4df   2/2     Running            0            12s
+speaker-skmqj   2/2     Running            1 (13s ago)   13s
+^Chsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker
+NAME            READY   STATUS             RESTARTS      AGE
+speaker-4clmd   1/2     CrashLoopBackOff   1 (19s ago)   20s
+speaker-sb4df   2/2     Running            0             20s
+speaker-skmqj   2/2     Running            1 (20s ago)   20s
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker  -o wide
+NAME            READY   STATUS    RESTARTS      AGE   IP               NODE                          NOMINATED NODE   READINESS GATES
+speaker-4clmd   1/2     Running   2 (23s ago)   24s   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
+speaker-sb4df   2/2     Running   0             24s   10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
+speaker-skmqj   2/2     Running   1 (24s ago)   24s   10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker  -o wide
+NAME            READY   STATUS    RESTARTS      AGE   IP               NODE                          NOMINATED NODE   READINESS GATES
+speaker-4clmd   1/2     Running   2 (28s ago)   29s   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
+speaker-sb4df   2/2     Running   0             29s   10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
+speaker-skmqj   2/2     Running   1 (29s ago)   29s   10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker  -o wide
+NAME            READY   STATUS    RESTARTS      AGE   IP               NODE                          NOMINATED NODE   READINESS GATES
+speaker-4clmd   1/2     Running   2 (33s ago)   34s   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
+speaker-sb4df   2/2     Running   0             34s   10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
+speaker-skmqj   2/2     Running   1 (34s ago)   34s   10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker  -o wide
+NAME            READY   STATUS    RESTARTS        AGE     IP               NODE                          NOMINATED NODE   READINESS GATES
+speaker-4clmd   2/2     Running   2 (3m56s ago)   3m57s   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
+speaker-sb4df   2/2     Running   0               3m57s   10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
+speaker-skmqj   2/2     Running   1 (3m57s ago)   3m57s   10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
+hsuma@plnx-admin:~$
