@@ -1,8 +1,7 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc patch metallb metallb -n metallb-system --type merge -p '{"spec":{"logLevel":"debug"}}'
-metallb.metallb.io/metallb patched
-hsuma@plnx-admin:~$ sleep 30
-hsuma@plnx-admin:~$ oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker --tail=50
-hsuma@plnx-admin:~$ nc -zv -w 3 10.172.194.160 9000
-nc: connect to 10.172.194.160 port 9000 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$
+# Force speaker restart
+oc delete pods -n metallb-system -l component=speaker
+sleep 20
+oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker --tail=100
+
+
+oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- ps aux 2>/dev/null || oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- ls /proc/1/cmdline
