@@ -1,8 +1,646 @@
-# What happened today with MetalLB?
-oc get events -n metallb-system --sort-by='.lastTimestamp' | tail -30
-
-# Check if the operator auto-upgraded
-oc get installplan -n metallb-system
-
-# Check the previous CSV version
-oc get csv -n metallb-system -o yaml | grep -i "replaces\|version\|createdAt"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get events -n metallb-system --sort-by='.lastTimestamp' | tail -30
+10m         Normal    Pulled               pod/speaker-mm6hn                                             Container image "registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:f7953a8e77c5bb0efaa670ba2188050740eba0e1f6979248832c05cb886fa5d0" already present on machine
+10m         Normal    Created              pod/speaker-mm6hn                                             Created container: kube-rbac-proxy
+10m         Normal    Started              pod/speaker-mm6hn                                             Started container kube-rbac-proxy
+8m3s        Normal    Killing              pod/speaker-mm6hn                                             Stopping container kube-rbac-proxy
+8m3s        Normal    Pulled               pod/speaker-m5tq6                                             Container image "registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:f7953a8e77c5bb0efaa670ba2188050740eba0e1f6979248832c05cb886fa5d0" already present on machine
+8m3s        Normal    Killing              pod/speaker-mm6hn                                             Stopping container speaker
+8m3s        Normal    SuccessfulCreate     daemonset/speaker                                             (combined from similar events): Created pod: speaker-rfrv9
+8m3s        Normal    SuccessfulCreate     daemonset/speaker                                             Created pod: speaker-wgp99
+8m3s        Normal    Pulled               pod/speaker-rfrv9                                             Container image "registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:f7953a8e77c5bb0efaa670ba2188050740eba0e1f6979248832c05cb886fa5d0" already present on machine
+8m3s        Normal    Killing              pod/speaker-59kr7                                             Stopping container kube-rbac-proxy
+8m3s        Normal    Pulled               pod/speaker-wgp99                                             Container image "registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:f7953a8e77c5bb0efaa670ba2188050740eba0e1f6979248832c05cb886fa5d0" already present on machine
+8m3s        Normal    Killing              pod/speaker-xckgw                                             Stopping container speaker
+8m3s        Normal    Killing              pod/speaker-xckgw                                             Stopping container kube-rbac-proxy
+8m3s        Normal    Killing              pod/speaker-59kr7                                             Stopping container speaker
+8m3s        Normal    Pulled               pod/speaker-m5tq6                                             Container image "registry.redhat.io/openshift4/metallb-rhel9@sha256:a3232aa4d6177e05440d2a517cf7ccda9b059253ab0c0fb5161ff4f2a378f7b2" already present on machine
+8m3s        Normal    Created              pod/speaker-m5tq6                                             Created container: speaker
+8m3s        Normal    Started              pod/speaker-m5tq6                                             Started container speaker
+8m2s        Normal    Created              pod/speaker-wgp99                                             Created container: kube-rbac-proxy
+8m2s        Normal    Created              pod/speaker-m5tq6                                             Created container: kube-rbac-proxy
+8m2s        Normal    Started              pod/speaker-m5tq6                                             Started container kube-rbac-proxy
+8m2s        Normal    Created              pod/speaker-rfrv9                                             Created container: kube-rbac-proxy
+8m2s        Normal    Pulled               pod/speaker-rfrv9                                             Container image "registry.redhat.io/openshift4/metallb-rhel9@sha256:a3232aa4d6177e05440d2a517cf7ccda9b059253ab0c0fb5161ff4f2a378f7b2" already present on machine
+8m2s        Normal    Started              pod/speaker-wgp99                                             Started container kube-rbac-proxy
+8m2s        Normal    Started              pod/speaker-rfrv9                                             Started container kube-rbac-proxy
+8m1s        Normal    Started              pod/speaker-rfrv9                                             Started container speaker
+8m1s        Normal    Created              pod/speaker-rfrv9                                             Created container: speaker
+7m52s       Warning   BackOff              pod/speaker-wgp99                                             Back-off restarting failed container speaker in pod speaker-wgp99_metallb-system(5426b847-b44a-4d1a-97aa-0b904ad1f688)
+7m41s       Normal    Started              pod/speaker-wgp99                                             Started container speaker
+7m41s       Normal    Created              pod/speaker-wgp99                                             Created container: speaker
+7m41s       Normal    Pulled               pod/speaker-wgp99                                             Container image "registry.redhat.io/openshift4/metallb-rhel9@sha256:a3232aa4d6177e05440d2a517cf7ccda9b059253ab0c0fb5161ff4f2a378f7b2" already present on machine
+hsuma@plnx-admin:~$ oc get installplan -n metallb-system
+NAME            CSV                                     APPROVAL    APPROVED
+install-29ckt   metallb-operator.v4.20.0-202602261925   Automatic   true
+install-rccbn   metallb-operator.v4.20.0-202603152019   Automatic   true
+install-vv6sc   metallb-operator.v4.20.0-202602091941   Automatic   true
+hsuma@plnx-admin:~$ oc get csv -n metallb-system -o yaml | grep -i "replaces\|version\|createdAt"
+apiVersion: v1
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: ClusterServiceVersion
+            "apiVersion": "acme.cert-manager.io/v1",
+            "apiVersion": "acme.cert-manager.io/v1",
+            "apiVersion": "cert-manager.io/v1",
+            "apiVersion": "cert-manager.io/v1",
+            "apiVersion": "cert-manager.io/v1",
+            "apiVersion": "cert-manager.io/v1",
+            "apiVersion": "cert-manager.io/v1",
+            "apiVersion": "cert-manager.io/v1",
+            "apiVersion": "operator.openshift.io/v1alpha1",
+            "apiVersion": "operator.openshift.io/v1alpha1",
+      createdAt: 2026-01-27T05:16:46
+      operatorframework.io/properties: '{"properties":[{"type":"olm.gvk","value":{"group":"acme.cert-manager.io","kind":"Challenge","version":"v1"}},{"type":"olm.gvk","value":{"group":"acme.cert-manager.io","kind":"Order","version":"v1"}},{"type":"olm.gvk","value":{"group":"cert-manager.io","kind":"Certificate","version":"v1"}},{"type":"olm.gvk","value":{"group":"cert-manager.io","kind":"CertificateRequest","version":"v1"}},{"type":"olm.gvk","value":{"group":"cert-manager.io","kind":"ClusterIssuer","version":"v1"}},{"type":"olm.gvk","value":{"group":"cert-manager.io","kind":"Issuer","version":"v1"}},{"type":"olm.gvk","value":{"group":"operator.openshift.io","kind":"CertManager","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"operator.openshift.io","kind":"IstioCSR","version":"v1alpha1"}},{"type":"olm.package","value":{"packageName":"openshift-cert-manager-operator","version":"1.18.1"}}]}'
+    resourceVersion: "6659748"
+        version: v1
+        version: v1
+        version: v1alpha1
+        version: v1
+        version: v1
+        version: v1
+        version: v1alpha1
+        version: v1
+                  - name: OPERAND_IMAGE_VERSION
+                  - name: ISTIOCSR_OPERAND_IMAGE_VERSION
+                  - name: OPERATOR_IMAGE_VERSION
+    minKubeVersion: 1.27.0
+    replaces: cert-manager-operator.v1.18.0
+    version: 1.18.1
+      kind: ClusterServiceVersion
+      message: CSV minKubeVersion (1.27.0) less than server version (v1.33.6)
+      version: v1alpha1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+      version: v1
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: ClusterServiceVersion
+            "apiVersion": "postgresql.cnpg.io/v1",
+            "apiVersion": "postgresql.cnpg.io/v1",
+            "apiVersion": "postgresql.cnpg.io/v1",
+            "apiVersion": "postgresql.cnpg.io/v1",
+            "apiVersion": "postgresql.cnpg.io/v1",
+            "apiVersion": "postgresql.cnpg.io/v1",
+            "apiVersion": "postgresql.cnpg.io/v1",
+            "apiVersion": "postgresql.cnpg.io/v1",
+            "apiVersion": "postgresql.cnpg.io/v1",
+      createdAt: "2026-02-05T14:44:54Z"
+      operatorframework.io/properties: '{"properties":[{"type":"olm.gvk","value":{"group":"postgresql.cnpg.io","kind":"Backup","version":"v1"}},{"type":"olm.gvk","value":{"group":"postgresql.cnpg.io","kind":"Cluster","version":"v1"}},{"type":"olm.gvk","value":{"group":"postgresql.cnpg.io","kind":"ClusterImageCatalog","version":"v1"}},{"type":"olm.gvk","value":{"group":"postgresql.cnpg.io","kind":"Database","version":"v1"}},{"type":"olm.gvk","value":{"group":"postgresql.cnpg.io","kind":"FailoverQuorum","version":"v1"}},{"type":"olm.gvk","value":{"group":"postgresql.cnpg.io","kind":"ImageCatalog","version":"v1"}},{"type":"olm.gvk","value":{"group":"postgresql.cnpg.io","kind":"Pooler","version":"v1"}},{"type":"olm.gvk","value":{"group":"postgresql.cnpg.io","kind":"Publication","version":"v1"}},{"type":"olm.gvk","value":{"group":"postgresql.cnpg.io","kind":"ScheduledBackup","version":"v1"}},{"type":"olm.gvk","value":{"group":"postgresql.cnpg.io","kind":"Subscription","version":"v1"}},{"type":"olm.package","value":{"packageName":"cloudnative-pg","version":"1.28.1"}}]}'
+    resourceVersion: "12182469"
+          version: v1
+        version: v1
+          version: v1
+        version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+        version: v1
+          version: v1
+        - description: The version identifier of the collation
+          displayName: Collation version
+          path: collationVersion
+        version: v1
+          version: v1
+        version: v1
+          version: v1
+        version: v1
+          version: v1
+          version: v1
+        version: v1
+          version: v1
+        version: v1
+          version: v1
+        version: v1
+          version: v1
+        version: v1
+          - PostgreSQL minor versions.
+    minKubeVersion: 1.23.0
+    replaces: cloudnative-pg.v1.28.0
+    version: 1.28.1
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+      kind: ClusterServiceVersion
+      message: CSV minKubeVersion (1.23.0) less than server version (v1.33.6)
+      version: v1alpha1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+        version: v1
+        version: v1
+      version: v1
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: ClusterServiceVersion
+            "apiVersion": "frrk8s.metallb.io/v1beta1",
+            "apiVersion": "frrk8s.metallb.io/v1beta1",
+            "apiVersion": "frrk8s.metallb.io/v1beta1",
+            "apiVersion": "frrk8s.metallb.io/v1beta1",
+              "lastConversionResult": "success",
+              "runningConfig": "Building configuration...\n\nCurrent configuration:\n!\nfrr version 9.0.2_git\nfrr defaults traditional\nhostname frr-k8s-worker\nlog file /etc/frr/frr.log informational\nlog timestamp precision 3\nno ipv6 forwarding\nservice integrated-vtysh-config\n!\nip nht resolve-via-default\n!\nipv6 nht resolve-via-default\n!\nend\n"
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta1",
+            "apiVersion": "metallb.io/v1beta2",
+            "apiVersion": "metallb.io/v1beta2",
+            "apiVersion": "metallb.io/v1beta2",
+      createdAt: "2023-06-06T15:25:00Z"
+      operatorframework.io/properties: '{"properties":[{"type":"olm.gvk","value":{"group":"frrk8s.metallb.io","kind":"FRRConfiguration","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"frrk8s.metallb.io","kind":"FRRNodeState","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"metallb.io","kind":"BFDProfile","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"metallb.io","kind":"BGPAdvertisement","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"metallb.io","kind":"BGPPeer","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"metallb.io","kind":"BGPPeer","version":"v1beta2"}},{"type":"olm.gvk","value":{"group":"metallb.io","kind":"Community","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"metallb.io","kind":"IPAddressPool","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"metallb.io","kind":"L2Advertisement","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"metallb.io","kind":"MetalLB","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"metallb.io","kind":"ServiceBGPStatus","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"metallb.io","kind":"ServiceL2Status","version":"v1beta1"}},{"type":"olm.package","value":{"packageName":"metallb-operator","version":"4.20.0-202603152019"}}]}'
+    resourceVersion: "28984097"
+        version: v1beta1
+        version: v1beta1
+        version: v1beta1
+        version: v1beta2
+        version: v1beta1
+        version: v1beta1
+        version: v1beta1
+        version: v1beta1
+        version: v1beta1
+        version: v1beta1
+        version: v1beta1
+        version: v1beta1
+                  - name: CNO_MIN_FRRK8S_VERSION
+    minKubeVersion: 1.26.0
+    replaces: metallb-operator.v4.20.0-202602261925
+    version: 4.20.0-202603152019
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+      conversionCRDs:
+      type: ConversionWebhook
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+    - admissionReviewVersions:
+        apiVersions:
+      kind: ClusterServiceVersion
+      message: CSV minKubeVersion (1.26.0) less than server version (v1.33.6)
+      version: v1alpha1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+      version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+      version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+      version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+      version: v1
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: ClusterServiceVersion
+            "apiVersion": "external-secrets.io/v1",
+            "apiVersion": "external-secrets.io/v1",
+            "apiVersion": "external-secrets.io/v1",
+            "apiVersion": "external-secrets.io/v1",
+            "apiVersion": "external-secrets.io/v1alpha1",
+                    "version": "latest"
+            "apiVersion": "generators.external-secrets.io/v1alpha1",
+            "apiVersion": "operator.openshift.io/v1alpha1",
+            "apiVersion": "operator.openshift.io/v1alpha1",
+      createdAt: 2026-03-24T09:12:43
+      operatorframework.io/properties: '{"properties":[{"type":"olm.gvk","value":{"group":"external-secrets.io","kind":"ClusterExternalSecret","version":"v1"}},{"type":"olm.gvk","value":{"group":"external-secrets.io","kind":"ClusterExternalSecret","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"external-secrets.io","kind":"ClusterPushSecret","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"external-secrets.io","kind":"ClusterSecretStore","version":"v1"}},{"type":"olm.gvk","value":{"group":"external-secrets.io","kind":"ClusterSecretStore","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"external-secrets.io","kind":"ExternalSecret","version":"v1"}},{"type":"olm.gvk","value":{"group":"external-secrets.io","kind":"ExternalSecret","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"external-secrets.io","kind":"PushSecret","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"external-secrets.io","kind":"SecretStore","version":"v1"}},{"type":"olm.gvk","value":{"group":"external-secrets.io","kind":"SecretStore","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"ACRAccessToken","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"CloudsmithAccessToken","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"ClusterGenerator","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"ECRAuthorizationToken","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"GCRAccessToken","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"GeneratorState","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"GithubAccessToken","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"Grafana","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"MFA","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"Password","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"QuayAccessToken","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"SSHKey","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"STSSessionToken","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"UUID","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"VaultDynamicSecret","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"generators.external-secrets.io","kind":"Webhook","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"operator.openshift.io","kind":"ExternalSecretsConfig","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"operator.openshift.io","kind":"ExternalSecretsManager","version":"v1alpha1"}},{"type":"olm.package","value":{"packageName":"openshift-external-secrets-operator","version":"1.1.0"}}]}'
+    resourceVersion: "24243251"
+        version: v1alpha1
+        version: v1alpha1
+        version: v1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1
+        version: v1alpha1
+        version: v1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1
+        version: v1alpha1
+        version: v1alpha1
+      - description: UUID generates a version 1 UUID (for example, 6ba7b810-9dad-11d1-80b4-00c04fd430c8).
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+                  - name: OPERATOR_IMAGE_VERSION
+                  - name: OPERAND_EXTERNAL_SECRETS_IMAGE_VERSION
+                  - name: BITWARDEN_SDK_SERVER_IMAGE_VERSION
+    minKubeVersion: 1.31.0
+    replaces: external-secrets-operator.v1.0.0
+    version: 1.1.0
+      kind: ClusterServiceVersion
+      message: CSV minKubeVersion (1.31.0) less than server version (v1.33.6)
+      version: v1alpha1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+      version: v1
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: ClusterServiceVersion
+            "apiVersion": "argoproj.io/v1alpha1",
+            "apiVersion": "argoproj.io/v1alpha1",
+            "apiVersion": "argoproj.io/v1alpha1",
+            "apiVersion": "argoproj.io/v1alpha1",
+                "template.app-deployed": "email:\n  subject: New version of an application {{.app.metadata.name}} is up and running.\nmessage: |\n  {{if eq .serviceType \"slack\"}}:white_check_mark:{{end}} Application {{.app.metadata.name}} is now running new version of deployments manifests.\nslack:\n  attachments: |\n    [{\n      \"title\": \"{{ .app.metadata.name}}\",\n      \"title_link\":\"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}\",\n      \"color\": \"#18be52\",\n      \"fields\": [\n      {\n        \"title\": \"Sync Status\",\n        \"value\": \"{{.app.status.sync.status}}\",\n        \"short\": true\n      },\n      {\n        \"title\": \"Repository\",\n        \"value\": \"{{.app.spec.source.repoURL}}\",\n        \"short\": true\n      },\n      {\n        \"title\": \"Revision\",\n        \"value\": \"{{.app.status.sync.revision}}\",\n        \"short\": true\n      }\n      {{range $index, $c := .app.status.conditions}}\n      {{if not $index}},{{end}}\n      {{if $index}},{{end}}\n      {\n        \"title\": \"{{$c.type}}\",\n        \"value\": \"{{$c.message}}\",\n        \"short\": true\n      }\n      {{end}}\n      ]\n    }]\n  deliveryPolicy: Post\n  groupingKey: \"\"\n  notifyBroadcast: false\nteams:\n  facts: |\n    [{\n      \"name\": \"Sync Status\",\n      \"value\": \"{{.app.status.sync.status}}\"\n    },\n    {\n      \"name\": \"Repository\",\n      \"value\": \"{{.app.spec.source.repoURL}}\"\n    },\n    {\n      \"name\": \"Revision\",\n      \"value\": \"{{.app.status.sync.revision}}\"\n    }\n    {{range $index, $c := .app.status.conditions}}\n      {{if not $index}},{{end}}\n      {{if $index}},{{end}}\n      {\n        \"name\": \"{{$c.type}}\",\n        \"value\": \"{{$c.message}}\"\n      }\n    {{end}}\n    ]\n  potentialAction: |-\n    [{\n      \"@type\":\"OpenUri\",\n      \"name\":\"Operation Application\",\n      \"targets\":[{\n        \"os\":\"default\",\n        \"uri\":\"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}\"\n      }]\n    },\n    {\n      \"@type\":\"OpenUri\",\n      \"name\":\"Open Repository\",\n      \"targets\":[{\n        \"os\":\"default\",\n        \"uri\":\"{{.app.spec.source.repoURL | call .repo.RepoURLToHTTPS}}\"\n      }]\n    }]\n  themeColor: '#000080'\n  title: New version of an application {{.app.metadata.name}} is up and running.",
+            "apiVersion": "argoproj.io/v1alpha1",
+            "apiVersion": "argoproj.io/v1alpha1",
+            "apiVersion": "argoproj.io/v1beta1",
+            "apiVersion": "pipelines.openshift.io/v1alpha1",
+      createdAt: "2026-03-04T06:59:29Z"
+      operatorframework.io/properties: '{"properties":[{"type":"olm.gvk","value":{"group":"argocd-image-updater.argoproj.io","kind":"ImageUpdater","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"AnalysisRun","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"AnalysisTemplate","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"AppProject","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"Application","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"ApplicationSet","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"ArgoCD","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"ArgoCD","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"ClusterAnalysisTemplate","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"Experiment","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"NamespaceManagement","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"NotificationsConfiguration","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"Rollout","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"argoproj.io","kind":"RolloutManager","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"pipelines.openshift.io","kind":"GitopsService","version":"v1alpha1"}},{"type":"olm.package","value":{"packageName":"openshift-gitops-operator","version":"1.20.0"}}]}'
+    resourceVersion: "25134544"
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+          version: v1beta1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+          version: v1
+        version: v1beta1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1beta1
+        version: v1alpha1
+        version: v1alpha1
+        version: v1alpha1
+      using the `ArgoCD` custom resource within the desired namespaces.\n```yaml\napiVersion:
+            - clusterversions
+            - clusterserviceversions
+                  - name: ENABLE_CONVERSION_WEBHOOK
+    replaces: openshift-gitops-operator.v1.19.2
+    version: 1.20.0
+    - admissionReviewVersions:
+      conversionCRDs:
+      type: ConversionWebhook
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        message: cluster rule:{"verbs":["get","list","watch"],"apiGroups":["config.openshift.io"],"resources":["authentications","clusterversions","ingresses"]}
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        message: cluster rule:{"verbs":["create","get","list","watch"],"apiGroups":["operators.coreos.com"],"resources":["clusterserviceversions","operatorgroups","subscriptions"]}
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+      version: v1
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: ClusterServiceVersion
+            "apiVersion": "sailoperator.io/v1",
+              "version": "v1.27.5"
+            "apiVersion": "sailoperator.io/v1",
+              "version": "v1.27.5"
+            "apiVersion": "sailoperator.io/v1",
+              "version": "v1.27.3"
+      createdAt: "2026-01-27T14:22:23Z"
+      operatorframework.io/properties: '{"properties":[{"type":"olm.gvk","value":{"group":"extensions.istio.io","kind":"WasmPlugin","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"DestinationRule","version":"v1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"DestinationRule","version":"v1alpha3"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"DestinationRule","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"EnvoyFilter","version":"v1alpha3"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"Gateway","version":"v1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"Gateway","version":"v1alpha3"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"Gateway","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"ProxyConfig","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"ServiceEntry","version":"v1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"ServiceEntry","version":"v1alpha3"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"ServiceEntry","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"Sidecar","version":"v1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"Sidecar","version":"v1alpha3"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"Sidecar","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"VirtualService","version":"v1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"VirtualService","version":"v1alpha3"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"VirtualService","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"WorkloadEntry","version":"v1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"WorkloadEntry","version":"v1alpha3"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"WorkloadEntry","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"WorkloadGroup","version":"v1"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"WorkloadGroup","version":"v1alpha3"}},{"type":"olm.gvk","value":{"group":"networking.istio.io","kind":"WorkloadGroup","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"sailoperator.io","kind":"Istio","version":"v1"}},{"type":"olm.gvk","value":{"group":"sailoperator.io","kind":"IstioCNI","version":"v1"}},{"type":"olm.gvk","value":{"group":"sailoperator.io","kind":"IstioRevision","version":"v1"}},{"type":"olm.gvk","value":{"group":"sailoperator.io","kind":"IstioRevisionTag","version":"v1"}},{"type":"olm.gvk","value":{"group":"sailoperator.io","kind":"ZTunnel","version":"v1"}},{"type":"olm.gvk","value":{"group":"sailoperator.io","kind":"ZTunnel","version":"v1alpha1"}},{"type":"olm.gvk","value":{"group":"security.istio.io","kind":"AuthorizationPolicy","version":"v1"}},{"type":"olm.gvk","value":{"group":"security.istio.io","kind":"AuthorizationPolicy","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"security.istio.io","kind":"PeerAuthentication","version":"v1"}},{"type":"olm.gvk","value":{"group":"security.istio.io","kind":"PeerAuthentication","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"security.istio.io","kind":"RequestAuthentication","version":"v1"}},{"type":"olm.gvk","value":{"group":"security.istio.io","kind":"RequestAuthentication","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"telemetry.istio.io","kind":"Telemetry","version":"v1"}},{"type":"olm.gvk","value":{"group":"telemetry.istio.io","kind":"Telemetry","version":"v1alpha1"}},{"type":"olm.package","value":{"packageName":"servicemeshoperator3","version":"3.2.2"}}]}'
+    resourceVersion: "12182726"
+        version: v1alpha1
+        version: v1
+        version: v1alpha3
+        version: v1beta1
+        version: v1alpha3
+        version: v1
+        version: v1alpha3
+        version: v1beta1
+        version: v1beta1
+        version: v1
+        version: v1alpha3
+        version: v1beta1
+        version: v1
+        version: v1alpha3
+        version: v1beta1
+        version: v1
+        version: v1alpha3
+        version: v1beta1
+        version: v1
+        version: v1alpha3
+        version: v1beta1
+        version: v1
+        version: v1alpha3
+        version: v1beta1
+        version: v1alpha1
+        version: v1
+        version: v1beta1
+        version: v1
+        version: v1beta1
+        version: v1
+        version: v1beta1
+        version: v1
+        version: v1alpha1
+            Defines the version of Istio to install.
+          displayName: Istio Version
+          path: version
+        version: v1
+            Defines the version of Istio to install.
+          displayName: Istio Version
+          path: version
+        version: v1
+        version: v1
+          desired Istio version and configuration. The operator then creates
+            to the\nIstio.spec.version field. The old control plane remains in place
+            Defines the version of Istio to install.
+          displayName: Istio Version
+          path: version
+        - description: Defines the update strategy to use when the version in the
+        version: v1
+            Defines the version of Istio to install.
+          displayName: Istio Version
+          path: version
+        version: v1
+    replaces: servicemeshoperator3.v3.1.0
+    version: 3.2.2
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+      version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+        version: v1
+      version: v1
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: ClusterServiceVersion
+            "apiVersion": "trident.netapp.io/v1",
+      createdAt: "2026-03-04"
+      operatorframework.io/properties: '{"properties":[{"type":"olm.gvk","value":{"group":"trident.netapp.io","kind":"TridentOrchestrator","version":"v1"}},{"type":"olm.package","value":{"packageName":"trident-operator","version":"26.2.0"}}]}'
+      operatorhub.io/ui-metadata-max-k8s-version: "1.35"
+    resourceVersion: "21454243"
+        version: v1
+            - tridentversions
+      url: https://mysupport.netapp.com/site/info/version-support
+    replaces: trident-operator.v25.10.0-linux-only
+    version: 26.2.0
+      version: v1
+  resourceVersion: ""
