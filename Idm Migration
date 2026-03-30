@@ -1,8 +1,8 @@
-hsuma@plnx-admin:~$ oc run lb-test --rm -it --image=busybox --restart=Never -n pai-dev -- wget -qO- --timeout=3 http://10.172.194.160:9000/minio/health/live
-Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "lb-test" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "lb-test" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "lb-test" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "lb-test" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
-pod "lb-test" deleted from pai-dev namespace
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://10.172.194.160:9000/minio/health/live"
-000hsuma@plnx-admin:~$
+# Check if the speaker has the right permissions to send ARPs
+oc get pod $(oc get pods -n metallb-system -l component=speaker -o name | head -1 | cut -d/ -f2) -n metallb-system -o yaml | grep -A3 "capabilities\|NET_RAW\|securityContext" | head -20
+
+# Check the speaker's assigned services
+oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker 2>&1 | head -50
+
+# Was this EVER working? Check the MinIO internal ClusterIP
+ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://172.30.168.89:9000/minio/health/live"
