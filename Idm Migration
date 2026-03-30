@@ -1,23 +1,17 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ping -c 3 10.172.194.1
-PING 10.172.194.1 (10.172.194.1) 56(84) bytes of data.
-64 bytes from 10.172.194.1: icmp_seq=1 ttl=255 time=0.532 ms
-64 bytes from 10.172.194.1: icmp_seq=2 ttl=255 time=0.353 ms
-64 bytes from 10.172.194.1: icmp_seq=3 ttl=255 time=0.527 ms
 
---- 10.172.194.1 ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2008ms
-rtt min/avg/max/mdev = 0.353/0.470/0.532/0.083 ms
-hsuma@plnx-admin:~$ ping -c 3 10.172.194.151
-PING 10.172.194.151 (10.172.194.151) 56(84) bytes of data.
-64 bytes from 10.172.194.151: icmp_seq=1 ttl=63 time=0.127 ms
-64 bytes from 10.172.194.151: icmp_seq=2 ttl=63 time=0.108 ms
-64 bytes from 10.172.194.151: icmp_seq=3 ttl=63 time=1.01 ms
-
---- 10.172.194.151 ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2036ms
-rtt min/avg/max/mdev = 0.108/0.414/1.009/0.420 ms
-hsuma@plnx-admin:~$ curl -s -o /dev/null -w "%{http_code}" http://10.172.248.151:9000
-000hsuma@plnx-admin:ip route show | grep 10.172.194
-hsuma@plnx-admin:~$ 
 hsuma@plnx-admin:~$
+
+# Is MinIO's LoadBalancer service still assigned?
+oc get svc minio-lb -n pai-dev
+
+# Check MetalLB speaker pods
+oc get pods -n metallb-system
+
+# Check which node is announcing the VIP
+oc get svc minio-lb -n pai-dev -o yaml | grep -A5 "status:"
+
+# Try reaching the MetalLB VIP directly
+arping -I eth0 10.172.194.160 -c 3
+
+# Check if the VIP responds to ARP
+ping -c 3 10.172.194.160
