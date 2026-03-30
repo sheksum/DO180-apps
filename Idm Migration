@@ -1,72 +1,9 @@
-suma@plnx-admin:~$ oc logs -n pai-dev deployment/internal-agentmesh-generic-agent --tail=50
-Defaulted container "internal-agentmesh-generic-agent" out of: internal-agentmesh-generic-agent, fetch-model (init)
-INFO:     10.129.0.2:59464 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:42590 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.252:50218 - "GET /.well-known/agent.json HTTP/1.1" 200 OK
-INFO:     10.129.0.2:42602 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:50908 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:50924 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:54564 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:54572 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:52204 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:52220 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:51732 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:51746 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:51220 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:51236 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:53530 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:53546 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:60106 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:60112 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:52702 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:52704 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:37840 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:37846 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:60852 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:60866 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:45248 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:45252 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:35888 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:35904 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:40702 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:40706 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:54628 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:54634 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:46286 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:46292 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:37784 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:37786 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:39152 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:39156 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:36364 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:36378 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:34122 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:34126 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:43084 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:43090 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:48898 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:48902 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:35766 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:35772 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:54880 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.129.0.2:54890 - "GET /health HTTP/1.1" 200 OK
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc describe pod -n pai-dev -l app=internal-agentmesh-generic-agent | grep -A10 "Liveness\|Events"
-    Liveness:             http-get http://:9999/health delay=30s timeout=3s period=20s #success=1 #failure=3
-    Readiness:            http-get http://:9999/health delay=30s timeout=3s period=20s #success=1 #failure=3
-    Environment Variables from:
-      internal-agentmesh-generic-agent  ConfigMap  Optional: false
-    Environment:
-      PGSSLMODE:              disable
-      XDG_CACHE_HOME:         /tmp/.cache
-      UV_CACHE_DIR:           /tmp/uv-cache
-      DATABASE_USER:          <set to the key 'username' in secret 'pai-apps-db-app'>  Optional: false
-      DATABASE_PASSWORD:      <set to the key 'password' in secret 'pai-apps-db-app'>  Optional: false
-      POSTGRES_DB_URL:        postgresql+asyncpg://$(DATABASE_USER):$(DATABASE_PASSWORD)@pai-apps-db-rw:5432/agentmesh_sessions_dev
---
-Events:
-  Type     Reason     Age                   From     Message
-  ----     ------     ----                  ----     -------
-  Warning  Unhealthy  97m (x12 over 3d20h)  kubelet  Liveness probe failed: Get "http://10.129.1.31:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-hsuma@plnx-admin:~$
+oc get pods -n pai-dev | grep tts
+oc logs -n pai-dev deployment/internal-agentmesh-tts-service --tail=50
+
+
+oc get pods -n pai-dev | grep employeeengagement
+oc logs -n pai-dev -l app=internal-agentmesh-employeeengagement-agent --tail=30
+
+
+oc get pods -n pai-dev | grep -v Running | grep -v Completed
