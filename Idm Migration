@@ -1,14 +1,11 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master02.calix.local "ip route show table 101"
-default via 10.172.194.1 dev bnd0.1794
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master02.calix.local "ip route show table 102"
-default via 10.172.202.1 dev bnd0.1797
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "ip rule show"
-0:	from all lookup local
-30:	from all fwmark 0x1745ec lookup 7
-32763:	from 10.172.202.150 lookup 102
-32764:	from 10.172.198.150 lookup 100
-32765:	from 10.172.194.150 lookup 101
-32766:	from all lookup main
-32767:	from all lookup default
-hsuma@plnx-admin:~$
+# Can you ping the gateway?
+ping -c 3 10.172.194.1
+
+# Can you ping the node's VLAN IP?
+ping -c 3 10.172.194.151
+
+# Can you reach MinIO internally via the management IP?
+curl -s -o /dev/null -w "%{http_code}" http://10.172.248.151:9000
+
+# Check plnx-admin's routing table
+ip route show | grep 10.172.194
