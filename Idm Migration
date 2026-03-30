@@ -1,2 +1,7 @@
-# Check if the DaemonSet has the host flag hardcoded
-oc get daemonset speaker -n metallb-system -o yaml | grep -A2 "\-\-host"
+hsuma@plnx-admin:~$ oc get daemonset speaker -n metallb-system -o yaml | grep -A2 "\-\-host"
+        - --host=localhost
+        - --frrk8s-namespace=openshift-frr-k8s
+        command:
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
