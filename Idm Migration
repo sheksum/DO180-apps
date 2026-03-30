@@ -1,45 +1,88 @@
-hsuma@plnx-admin:~$ oc get svc minio-lb -n pai-dev
-NAME       TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)          AGE
-minio-lb   LoadBalancer   172.30.168.89   10.172.194.160   9000:32714/TCP   29d
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker --all-containers | grep "10.172.194.160" | tail -10
 hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n metallb-system
-NAME                                                  READY   STATUS    RESTARTS   AGE
-controller-664ffb8889-v77f4                           2/2     Running   0          4d22h
-metallb-operator-controller-manager-b8577c5fc-kxbf9   1/1     Running   0          4d22h
-metallb-operator-webhook-server-5ffd6c9cc5-mgkvs      1/1     Running   0          4d22h
-speaker-lqdp4                                         2/2     Running   0          4d22h
-speaker-wzdkd                                         2/2     Running   0          4d22h
-speaker-zqftz                                         2/2     Running   0          4d22h
-hsuma@plnx-admin:~$ oc get svc minio-lb -n pai-dev -o yaml | grep -A5 "status:"
-status:
-  loadBalancer:
-    ingress:
-    - ip: 10.172.194.160
-      ipMode: VIP
+hsuma@plnx-admin:~$ oc get l2advertisement -n metallb-system -o yaml
+apiVersion: v1
+items:
+- apiVersion: metallb.io/v1beta1
+  kind: L2Advertisement
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1510
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1510"},"name":"l2-vlan1510","namespace":"metallb-system"},"spec":{"ipAddressPools":["reserved-future"]}}
+    creationTimestamp: "2026-02-26T04:36:27Z"
+    generation: 7
+    name: l2-vlan1510
+    namespace: metallb-system
+    resourceVersion: "6645095"
+    uid: e2169b8c-eded-430a-9a67-bda4c55a4f8a
+  spec:
+    ipAddressPools:
+    - reserved-future
+- apiVersion: metallb.io/v1beta1
+  kind: L2Advertisement
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1794-dev
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1794-dev"},"name":"l2-vlan1794-dev","namespace":"metallb-system"},"spec":{"interfaces":["bond0.1794","bnd0.1794"],"ipAddressPools":["pai-services-dev"]}}
+    creationTimestamp: "2026-02-28T20:56:44Z"
+    generation: 1
+    name: l2-vlan1794-dev
+    namespace: metallb-system
+    resourceVersion: "6525414"
+    uid: de697be7-8103-4b7e-873d-75f26d1800fd
+  spec:
+    interfaces:
+    - bond0.1794
+    - bnd0.1794
+    ipAddressPools:
+    - pai-services-dev
+- apiVersion: metallb.io/v1beta1
+  kind: L2Advertisement
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1797-prod
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1797-prod"},"name":"l2-vlan1797-prod","namespace":"metallb-system"},"spec":{"interfaces":["bond0.1797","bnd0.1797"],"ipAddressPools":["pai-services-prod"]}}
+    creationTimestamp: "2026-02-28T20:56:44Z"
+    generation: 1
+    name: l2-vlan1797-prod
+    namespace: metallb-system
+    resourceVersion: "6525407"
+    uid: 7b203a4b-15ed-41a8-af7b-9fded1b38e60
+  spec:
+    interfaces:
+    - bond0.1797
+    - bnd0.1797
+    ipAddressPools:
+    - pai-services-prod
+- apiVersion: metallb.io/v1beta1
+  kind: L2Advertisement
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1798-test
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1798-test"},"name":"l2-vlan1798-test","namespace":"metallb-system"},"spec":{"interfaces":["bond0.1798","bnd0.1798"],"ipAddressPools":["pai-services-test"]}}
+    creationTimestamp: "2026-02-28T20:56:44Z"
+    generation: 1
+    name: l2-vlan1798-test
+    namespace: metallb-system
+    resourceVersion: "6525405"
+    uid: 5607c6b0-28fe-4b61-a9aa-49d37f2c97fd
+  spec:
+    interfaces:
+    - bond0.1798
+    - bnd0.1798
+    ipAddressPools:
+    - pai-services-test
+kind: List
+metadata:
+  resourceVersion: ""
+hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker --all-containers | grep -i "arp\|announce\|interface" | tail -20
+hsuma@plnx-admin:~$ ip route get 10.172.194.160
+10.172.194.160 via 10.172.248.1 dev ens33 src 10.172.248.105 uid 13232
+    cache
 hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ arping -I eth0 10.172.194.160 -c 3
-arping: libnet_init(LIBNET_LINK, eth0): libnet_check_iface() ioctl: No such device
-arping: you may need to run as root
-hsuma@plnx-admin:~$ sudo arping -I eth0 10.172.194.160 -c 3
-arping: libnet_init(LIBNET_LINK, eth0): libnet_check_iface() ioctl: No such device
-hsuma@plnx-admin:~$ ping -c 3 10.172.194.160
-PING 10.172.194.160 (10.172.194.160) 56(84) bytes of data.
-
---- 10.172.194.160 ping statistics ---
-3 packets transmitted, 0 received, 100% packet loss, time 2028ms
-
-hsuma@plnx-admin:~$
-
-
-# Check MetalLB speaker logs for the VIP
-oc logs -n metallb-system -l component=speaker --all-containers | grep "10.172.194.160" | tail -10
-
-# Check L2Advertisement config
-oc get l2advertisement -n metallb-system -o yaml
-
-# Check if the speaker is announcing on the correct interface
-oc logs -n metallb-system -l component=speaker --all-containers | grep -i "arp\|announce\|interface" | tail -20
-
-# Check which interface plnx-admin uses to reach that subnet
-ip route get 10.172.194.160
