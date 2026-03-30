@@ -1,11 +1,48 @@
-# Delete ALL stale status objects
-oc delete servicel2statuses.metallb.io -n metallb-system --all
-
-# Delete speakers so they restart clean
-oc delete pods -n metallb-system -l component=speaker
-
-sleep 30
-
-# Check
-oc get pods -n metallb-system -l component=speaker
-nc -zv -w 3 10.172.194.160 9000
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc delete servicel2statuses.metallb.io -n metallb-system --all
+servicel2status.metallb.io "l2-5sq4p" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-68f8m" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-bc2h7" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-lt55g" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-pdkjd" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-r896l" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-tdgc8" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-wcdjt" deleted from metallb-system namespace
+hsuma@plnx-admin:~$ oc delete pods -n metallb-system -l component=speaker
+pod "speaker-ps68t" deleted from metallb-system namespace
+pod "speaker-pwwhm" deleted from metallb-system namespace
+pod "speaker-xdpx5" deleted from metallb-system namespace
+hsuma@plnx-admin:~$ sleep 30
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker
+NAME            READY   STATUS    RESTARTS     AGE
+speaker-6rhff   1/2     Running   2 (3s ago)   74s
+speaker-vr5zh   1/2     Running   2 (3s ago)   74s
+speaker-xvxgc   1/2     Running   2 (3s ago)   74s
+hsuma@plnx-admin:~$ nc -zv -w 3 10.172.194.160 9000
+nc: connect to 10.172.194.160 port 9000 (tcp) timed out: Operation now in progress
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker
+NAME            READY   STATUS    RESTARTS      AGE
+speaker-6rhff   1/2     Running   2 (13s ago)   84s
+speaker-vr5zh   1/2     Running   2 (13s ago)   84s
+speaker-xvxgc   1/2     Running   2 (13s ago)   84s
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker
+NAME            READY   STATUS    RESTARTS      AGE
+speaker-6rhff   1/2     Running   2 (36s ago)   107s
+speaker-vr5zh   1/2     Running   2 (36s ago)   107s
+speaker-xvxgc   1/2     Running   2 (36s ago)   107s
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker
+NAME            READY   STATUS    RESTARTS      AGE
+speaker-6rhff   1/2     Running   3 (11s ago)   2m2s
+speaker-vr5zh   1/2     Running   3 (11s ago)   2m2s
+speaker-xvxgc   1/2     Running   3 (11s ago)   2m2s
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker
+NAME            READY   STATUS    RESTARTS      AGE
+speaker-6rhff   1/2     Running   3 (30s ago)   2m21s
+speaker-vr5zh   1/2     Running   3 (30s ago)   2m21s
+speaker-xvxgc   1/2     Running   3 (30s ago)   2m21s
+hsuma@plnx-admin:~$
