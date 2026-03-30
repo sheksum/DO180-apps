@@ -1,2 +1,9 @@
-oc get frrconfiguration -A
-oc get frrconfigurations.frrk8s.metallb.io -A
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get frrconfiguration -A
+No resources found
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get frrconfigurations.frrk8s.metallb.io -A
+No resources found
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
