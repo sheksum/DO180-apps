@@ -1,6 +1,5 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get daemonset speaker -n metallb-system -o jsonpath='{.spec.template.spec.containers[0].args}'
-["--port=29150","--log-level=warn","--host=localhost","--frrk8s-namespace=openshift-frr-k8s"]hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
+# Scale down the operator
+oc scale deployment metallb-operator-controller-manager -n metallb-system --replicas=0
+
+# Check what env vars the speaker has for node IP
+oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- env | grep -i METALLB
