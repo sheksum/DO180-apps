@@ -1,13 +1,27 @@
-# Revert the --host arg back to localhost
-oc patch daemonset speaker -n metallb-system --type='json' -p='[{"op":"replace","path":"/spec/template/spec/containers/0/args/2","value":"--host=localhost"}]'
-
-# Delete speakers to pick up the revert
-oc delete pods -n metallb-system -l component=speaker
-
-# Scale operator back up
-oc scale deployment metallb-operator-controller-manager -n metallb-system --replicas=1
-
-# Wait
-sleep 30
-
-oc get pods -n metallb-system
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc patch daemonset speaker -n metallb-system --type='json' -p='[{"op":"replace","path":"/spec/template/spec/containers/0/args/2","value":"--host=localhost"}]'
+daemonset.apps/speaker patched
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc delete pods -n metallb-system -l component=speaker
+pod "speaker-85tq8" deleted from metallb-system namespace
+pod "speaker-nzgr8" deleted from metallb-system namespace
+pod "speaker-tpqvd" deleted from metallb-system namespace
+hsuma@plnx-admin:~$ oc scale deployment metallb-operator-controller-manager -n metallb-system --replicas=1
+deployment.apps/metallb-operator-controller-manager scaled
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ sleep 30
+hsuma@plnx-admin:~$ oc get pods -n metallb-system
+NAME                                                  READY   STATUS    RESTARTS      AGE
+controller-664ffb8889-d8dl9                           2/2     Running   0             47m
+metallb-operator-controller-manager-b8577c5fc-gvpjr   1/1     Running   0             40s
+metallb-operator-webhook-server-5ffd6c9cc5-zzkvl      1/1     Running   0             66m
+speaker-96xwt                                         2/2     Running   0             44s
+speaker-fs45p                                         2/2     Running   1 (44s ago)   44s
+speaker-tjlqv                                         2/2     Running   1 (44s ago)   44s
+hsuma@plnx-admin:~$ nc -zv -w 3 10.172.194.160 9000
+nc: connect to 10.172.194.160 port 9000 (tcp) timed out: Operation now in progress
+hsuma@plnx-admin:~$
