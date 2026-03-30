@@ -38,3 +38,10 @@ __doozer_key=ose-metallb
 __doozer_uuid_tag=metallb-rhel9-v4.20.0-20260315.203959
 SOURCE_GIT_URL=https://github.com/openshift/metallb
 hsuma@plnx-admin:~$
+
+oc patch daemonset speaker -n metallb-system --type='json' -p='[{"op":"replace","path":"/spec/template/spec/containers/0/args/2","value":"--host=$(METALLB_HOST)"}]'
+
+sleep 30
+oc get pods -n metallb-system -l component=speaker
+
+nc -zv -w 3 10.172.194.160 9000
