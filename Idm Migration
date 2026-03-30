@@ -1,6 +1,74 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ curl -k -s -o /dev/null -w "%{http_code}" https://agentmesh.dev.ocp-ai.calix.local
-404hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ curl -k -s -o /dev/null -w "%{http_code}" https://minio.dev.ocp-ai.calix.local
-200hsuma@plnx-admin:~$
+# === 1. SHOW THE OPERATOR UPGRADE ===
+# Previous working version vs current broken version
+oc get csv -n metallb-system | grep metallb
+# Shows: metallb-operator.v4.20.0-202603152019 replaces v4.20.0-202602261925
+
+oc get installplan -n metallb-system
+# Shows three installplans, latest is the broken one
+
+# === 2. SHOW THE --host=localhost BUG ===
+# Speaker process args — --host=localhost is the problem
+oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- cat /proc/1/cmdline | tr '\0' ' '
+# Expected output: /speaker --port=29150 --log-level=warn --host=localhost --frrk8s-namespace=openshift-frr-k8s
+
+# The env var has the CORRECT node IP but --host overrides it
+oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- env | grep METALLB_HOST
+# Shows: METALLB_HOST=10.172.248.x (correct node IP, but unused)
+
+# Memberlist is bound to localhost — speakers can't discover each other
+oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- ss -tlnp | grep 29150
+# Shows: LISTEN 127.0.0.1:29150 (loopback only — should be 0.0.0.0 or node IP)
+
+# === 3. SHOW THE PARTIAL JOIN ERROR ===
+oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker | grep "partial join"
+# Shows: expected 2, joined 1
+
+# === 4. SHOW THE IMMUTABLE ServiceL2Status BUG ===
+oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker | grep "immutable" | head -5
+# Shows: status.node: Invalid value: "string": Value is immutable
+
+# === 5. SHOW VIPs ARE UNREACHABLE ===
+# LoadBalancer services have IPs assigned but can't be reached
+oc get svc -A -o wide | grep LoadBalancer
+
+# MinIO LB — unreachable
+nc -zv -w 3 10.172.194.160 9000
+# Times out
+
+# Milvus LB — unreachable
+nc -zv -w 3 10.172.194.161 19530
+# Times out
+
+# === 6. SHOW ClusterIP AND GATEWAY WORK FINE ===
+# MinIO ClusterIP — healthy
+ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://172.30.168.89:9000/minio/health/live"
+# Returns: 200
+
+# Gateway API routes — healthy
+curl -k -s -o /dev/null -w "%{http_code}" https://minio.dev.ocp-ai.calix.local
+# Returns: 200
+
+# === 7. SHOW INFRASTRUCTURE IS CORRECT ===
+# Speakers can see the VLAN interfaces
+oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- ip link show | grep bnd0.1794
+# Shows: bnd0.1794 UP mtu 9000
+
+# NET_RAW capability is present
+oc get pod $(oc get pods -n metallb-system -l component=speaker -o name | head -1 | cut -d/ -f2) -n metallb-system -o yaml | grep -A4 "capabilities"
+# Shows: NET_RAW
+
+# Policy routing is correct
+ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "ip rule show"
+# Shows source-based routing rules for all app VLANs
+
+# L2Advertisement config is correct
+oc get l2advertisement -n metallb-system -o yaml | grep -A3 "interfaces"
+# Shows: bnd0.1794, bond0.1794
+
+# eno6 is down (not causing ARP conflicts)
+ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "ip link show eno6"
+# Shows: state DOWN
+
+# === 8. SHOW WE PREVENTED FURTHER AUTO-UPGRADES ===
+oc get subscription metallb-operator -n metallb-system -o jsonpath='{.spec.installPlanApproval}'
+# Shows: Manual
