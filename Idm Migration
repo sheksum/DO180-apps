@@ -1,27 +1,5 @@
-hsuma@plnx-admin:~$ kubectl get events -n pai-prod --sort-by=lastTimestamp
-LAST SEEN   TYPE      REASON              OBJECT                                                          MESSAGE
-114m        Normal    Scheduled           pod/internal-agentmesh-ui-service-555b47ddbb-xgbxp              Successfully assigned pai-prod/internal-agentmesh-ui-service-555b47ddbb-xgbxp to ocp-ai-master01.calix.local
-114m        Normal    ScalingReplicaSet   deployment/internal-agentmesh-ui-service                        Scaled up replica set internal-agentmesh-ui-service-555b47ddbb from 0 to 1
-114m        Normal    SuccessfulCreate    replicaset/internal-agentmesh-ui-service-555b47ddbb             Created pod: internal-agentmesh-ui-service-555b47ddbb-xgbxp
-114m        Normal    AddedInterface      pod/internal-agentmesh-ui-service-555b47ddbb-xgbxp              Add eth0 [10.129.1.12/23] from ovn-kubernetes
-114m        Normal    Started             pod/internal-agentmesh-ui-service-555b47ddbb-xgbxp              Started container internal-agentmesh-ui-service
-114m        Normal    Created             pod/internal-agentmesh-ui-service-555b47ddbb-xgbxp              Created container: internal-agentmesh-ui-service
-114m        Normal    Pulled              pod/internal-agentmesh-ui-service-555b47ddbb-xgbxp              Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-ui-service:1.0.0-11rbse10.b9b2c90" already present on machine
-113m        Normal    ScalingReplicaSet   deployment/internal-agentmesh-ui-service                        Scaled down replica set internal-agentmesh-ui-service-ff6dc8f84 from 1 to 0
-113m        Normal    SuccessfulDelete    replicaset/internal-agentmesh-ui-service-ff6dc8f84              Deleted pod: internal-agentmesh-ui-service-ff6dc8f84-t9frv
-113m        Normal    Killing             pod/internal-agentmesh-ui-service-ff6dc8f84-t9frv               Stopping container internal-agentmesh-ui-service
-19m         Warning   Unhealthy           pod/internal-agentmesh-generic-agent-f8478db6f-4pkn8            Liveness probe failed: Get "http://10.129.1.184:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-16m         Normal    Killing             pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Container internal-agentmesh-it-service-desk-agent failed liveness probe, will be restarted
-16m         Warning   Unhealthy           pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Readiness probe failed: Get "http://10.129.0.210:9999/health": dial tcp 10.129.0.210:9999: connect: connection refused
-16m         Normal    Started             pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Started container internal-agentmesh-it-service-desk-agent
-16m         Normal    Created             pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Created container: internal-agentmesh-it-service-desk-agent
-16m         Normal    Pulled              pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-it-service-desk-agent:1.0.0-15rbat2.80573b5" already present on machine
-15m         Warning   Unhealthy           pod/internal-agentmesh-generic-agent-f8478db6f-4pkn8            Readiness probe failed: Get "http://10.129.1.184:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-14m         Warning   Unhealthy           pod/ai-guardrails-service-7f5f758c5-p4hdc                       Liveness probe failed: Get "http://10.128.1.180:8080/guardrails/api/v1/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-14m         Warning   Unhealthy           pod/ai-guardrails-service-7f5f758c5-p4hdc                       Readiness probe failed: Get "http://10.128.1.180:8080/guardrails/api/v1/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-12m         Warning   Unhealthy           pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Liveness probe failed: Get "http://10.129.0.210:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-6m9s        Warning   Unhealthy           pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Readiness probe failed: Get "http://10.129.0.210:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-3m36s       Normal    Valid               secretstore/vault-store                                         store validated
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
+oc get pods -n pai-prod | grep -v Running | grep -v Completed
+
+oc logs -n pai-prod -l app=ai-guardrails-service --tail=50
+oc logs -n pai-prod -l app=internal-agentmesh-generic-agent --tail=50
+oc logs -n pai-prod -l app=internal-agentmesh-it-service-desk-agent --tail=50
