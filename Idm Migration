@@ -30,3 +30,16 @@ PING 10.172.194.160 (10.172.194.160) 56(84) bytes of data.
 3 packets transmitted, 0 received, 100% packet loss, time 2028ms
 
 hsuma@plnx-admin:~$
+
+
+# Check MetalLB speaker logs for the VIP
+oc logs -n metallb-system -l component=speaker --all-containers | grep "10.172.194.160" | tail -10
+
+# Check L2Advertisement config
+oc get l2advertisement -n metallb-system -o yaml
+
+# Check if the speaker is announcing on the correct interface
+oc logs -n metallb-system -l component=speaker --all-containers | grep -i "arp\|announce\|interface" | tail -20
+
+# Check which interface plnx-admin uses to reach that subnet
+ip route get 10.172.194.160
