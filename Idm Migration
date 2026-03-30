@@ -1,13 +1,9 @@
-hsuma@plnx-admin:~$ oc patch daemonset speaker -n metallb-system --type='json' -p='[{"op":"replace","path":"/spec/template/spec/containers/0/args/2","value":"--host=$(METALLB_HOST)"}]'
-daemonset.apps/speaker patched
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ sleep 30
-hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker
-NAME            READY   STATUS    RESTARTS      AGE
-speaker-2lv44   2/2     Running   1 (33m ago)   33m
-speaker-hn6v7   2/2     Running   0             33m
-speaker-nqhv4   1/2     Running   1 (31s ago)   62s
-hsuma@plnx-admin:~$ nc -zv -w 3 10.172.194.160 9000
-nc: connect to 10.172.194.160 port 9000 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$
+oc delete pods -n metallb-system -l component=speaker
+sleep 30
+oc get pods -n metallb-system -l component=speaker
+
+# Verify the new args
+oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- cat /proc/1/cmdline | tr '\0' ' '
+
+# Test
+nc -zv -w 3 10.172.194.160 9000
