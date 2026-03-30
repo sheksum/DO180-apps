@@ -1,8 +1,117 @@
-# Check what ports are open in the speaker container
-oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- ss -tlnp 2>/dev/null || oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- netstat -tlnp 2>/dev/null
-
-# Check the speaker process args again
-oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- cat /proc/1/cmdline | tr '\0' ' '
-
-# Check if there's a NetworkPolicy on the controller blocking speaker-to-speaker
-oc get networkpolicy controller -n metallb-system -o yaml
+hsuma@plnx-admin:~$ oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- ss -tlnp 2>/dev/null || oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- netstat -tlnp 2>/dev/null
+State  Recv-Q Send-Q  Local Address:Port  Peer Address:PortProcess
+LISTEN 0      4096       10.130.0.2:9107       0.0.0.0:*
+LISTEN 0      4096   10.172.248.152:9122       0.0.0.0:*    users:(("speaker",pid=1,fd=7))
+LISTEN 0      4096   10.172.248.152:9100       0.0.0.0:*
+LISTEN 0      4096   10.172.248.152:10250      0.0.0.0:*
+LISTEN 0      128           0.0.0.0:22         0.0.0.0:*
+LISTEN 0      4096          0.0.0.0:111        0.0.0.0:*
+LISTEN 0      4096   10.172.248.152:41943      0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:8798       0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:8797       0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:9100       0.0.0.0:*
+LISTEN 0      4096          0.0.0.0:56693      0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:9537       0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:9743       0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:9977       0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:10248      0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:10357      0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:7572       0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:7573       0.0.0.0:*
+LISTEN 0      3           127.0.0.1:2616       0.0.0.0:*
+LISTEN 0      3           127.0.0.1:2617       0.0.0.0:*
+LISTEN 0      3           127.0.0.1:2601       0.0.0.0:*
+LISTEN 0      3           127.0.0.1:2605       0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:29105      0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:29108      0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:29103      0.0.0.0:*
+LISTEN 0      4096        127.0.0.1:29150      0.0.0.0:*    users:(("speaker",pid=1,fd=21))
+LISTEN 0      64            0.0.0.0:39299      0.0.0.0:*
+LISTEN 0      4096                *:17546            *:*
+LISTEN 0      4096                *:17697            *:*
+LISTEN 0      4096                *:18080            *:*
+LISTEN 0      4096                *:22624            *:*
+LISTEN 0      4096                *:22623            *:*
+LISTEN 0      4096                *:31478            *:*
+LISTEN 0      4096                *:31594            *:*
+LISTEN 0      4096                *:31563            *:*
+LISTEN 0      4096                *:32339            *:*
+LISTEN 0      4096                *:32639            *:*
+LISTEN 0      4096                *:32714            *:*
+LISTEN 0      4096                *:30139            *:*
+LISTEN 0      4096                *:30241            *:*
+LISTEN 0      4096                *:30465            *:*
+LISTEN 0      4096                *:30643            *:*
+LISTEN 0      4096                *:2380             *:*
+LISTEN 0      4096                *:2379             *:*
+LISTEN 0      4096                *:53               *:*
+LISTEN 0      128              [::]:22            [::]:*
+LISTEN 0      4096             [::]:111           [::]:*
+LISTEN 0      511                 *:6385             *:*
+LISTEN 0      4096                *:6443             *:*
+LISTEN 0      4096                *:8080             *:*
+LISTEN 0      4096                *:8089             *:*
+LISTEN 0      4096                *:6080             *:*
+LISTEN 0      4096                *:10257            *:*
+LISTEN 0      4096                *:10256            *:*
+LISTEN 0      4096                *:10259            *:*
+LISTEN 0      4096            [::1]:29445         [::]:*
+LISTEN 0      4096                *:9001             *:*
+LISTEN 0      4096                *:9141             *:*
+LISTEN 0      4096                *:9140             *:*
+LISTEN 0      4096                *:9120             *:*
+LISTEN 0      4096                *:9108             *:*
+LISTEN 0      4096                *:9105             *:*
+LISTEN 0      4096                *:9103             *:*
+LISTEN 0      4096                *:9445             *:*
+LISTEN 0      4096                *:9444             *:*
+LISTEN 0      4096                *:9454             *:*
+LISTEN 0      4096                *:9637             *:*
+LISTEN 0      4096                *:9980             *:*
+LISTEN 0      4096                *:9979             *:*
+LISTEN 0      4096                *:9978             *:*
+LISTEN 0      64               [::]:37059         [::]:*
+LISTEN 0      4096             [::]:45731         [::]:*
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- cat /proc/1/cmdline | tr '\0' ' '
+/speaker --port=29150 --log-level=warn --host=localhost --frrk8s-namespace=openshift-frr-k8s hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get networkpolicy controller -n metallb-system -o yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: "2026-02-26T04:36:27Z"
+  generation: 1
+  name: controller
+  namespace: metallb-system
+  ownerReferences:
+  - apiVersion: metallb.io/v1beta1
+    blockOwnerDeletion: true
+    controller: true
+    kind: MetalLB
+    name: metallb
+    uid: 1fb9e4ea-3556-4127-a735-f0d8f4c3377f
+  resourceVersion: "4585362"
+  uid: 5d4c85f2-611c-4f6b-81bf-bfbeaaa1c9f9
+spec:
+  egress:
+  - ports:
+    - port: 6443
+      protocol: TCP
+  ingress:
+  - ports:
+    - port: metricshttps
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app: metallb
+      component: controller
+  policyTypes:
+  - Egress
+  - Ingress
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
