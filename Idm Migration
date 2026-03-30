@@ -1,14 +1,2 @@
-hsuma@plnx-admin:~$ oc get pods -n openshift-frr-k8s
-NAME                                      READY   STATUS    RESTARTS   AGE
-frr-k8s-9d2sp                             7/7     Running   21         32d
-frr-k8s-chct2                             7/7     Running   21         32d
-frr-k8s-chkgc                             7/7     Running   14         32d
-frr-k8s-dqzmg                             7/7     Running   35         32d
-frr-k8s-jmtvb                             7/7     Running   21         32d
-frr-k8s-webhook-server-576f5b66b8-pr9ms   1/1     Running   0          21d
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get namespace openshift-frr-k8s
-NAME                STATUS   AGE
-openshift-frr-k8s   Active   32d
-hsuma@plnx-admin:~$
+oc get frrconfiguration -A
+oc get frrconfigurations.frrk8s.metallb.io -A
