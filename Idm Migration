@@ -1,5 +1,40 @@
-oc get pods -n pai-prod | grep -v Running | grep -v Completed
-
-oc logs -n pai-prod -l app=ai-guardrails-service --tail=50
-oc logs -n pai-prod -l app=internal-agentmesh-generic-agent --tail=50
-oc logs -n pai-prod -l app=internal-agentmesh-it-service-desk-agent --tail=50
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ kubectl get events -n pai-prod
+LAST SEEN   TYPE      REASON              OBJECT                                                          MESSAGE
+21m         Warning   Unhealthy           pod/ai-guardrails-service-7f5f758c5-p4hdc                       Liveness probe failed: Get "http://10.128.1.180:8080/guardrails/api/v1/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+21m         Warning   Unhealthy           pod/ai-guardrails-service-7f5f758c5-p4hdc                       Readiness probe failed: Get "http://10.128.1.180:8080/guardrails/api/v1/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2m46s       Normal    Scheduled           pod/ai-guardrails-service-c68f754c9-jh2zj                       Successfully assigned pai-prod/ai-guardrails-service-c68f754c9-jh2zj to ocp-ai-master02.calix.local
+2m45s       Normal    AddedInterface      pod/ai-guardrails-service-c68f754c9-jh2zj                       Add eth0 [10.128.0.115/23] from ovn-kubernetes
+2m45s       Normal    Pulling             pod/ai-guardrails-service-c68f754c9-jh2zj                       Pulling image "paidev-nexus.tools.shared.xilac.net/ai-guardrails-service:1.0.0-11rbse4.cf23caa"
+2m37s       Normal    Pulled              pod/ai-guardrails-service-c68f754c9-jh2zj                       Successfully pulled image "paidev-nexus.tools.shared.xilac.net/ai-guardrails-service:1.0.0-11rbse4.cf23caa" in 7.702s (7.702s including waiting). Image size: 5672933342 bytes.
+2m37s       Normal    Created             pod/ai-guardrails-service-c68f754c9-jh2zj                       Created container: copy-app
+2m37s       Normal    Started             pod/ai-guardrails-service-c68f754c9-jh2zj                       Started container copy-app
+80s         Normal    Pulling             pod/ai-guardrails-service-c68f754c9-jh2zj                       Pulling image "minio/mc:latest"
+18s         Warning   Failed              pod/ai-guardrails-service-c68f754c9-jh2zj                       Failed to pull image "minio/mc:latest": unable to pull image or OCI artifact: pull image err: initializing source docker://minio/mc:latest: reading manifest latest in docker.io/minio/mc: toomanyrequests: You have reached your unauthenticated pull rate limit. https://www.docker.com/increase-rate-limit; artifact err: get manifest: build image source: reading manifest latest in docker.io/minio/mc: toomanyrequests: You have reached your unauthenticated pull rate limit. https://www.docker.com/increase-rate-limit
+18s         Warning   Failed              pod/ai-guardrails-service-c68f754c9-jh2zj                       Error: ErrImagePull
+3s          Normal    BackOff             pod/ai-guardrails-service-c68f754c9-jh2zj                       Back-off pulling image "minio/mc:latest"
+3s          Warning   Failed              pod/ai-guardrails-service-c68f754c9-jh2zj                       Error: ImagePullBackOff
+2m46s       Normal    SuccessfulCreate    replicaset/ai-guardrails-service-c68f754c9                      Created pod: ai-guardrails-service-c68f754c9-jh2zj
+2m46s       Normal    ScalingReplicaSet   deployment/ai-guardrails-service                                Scaled up replica set ai-guardrails-service-c68f754c9 from 0 to 1
+25m         Warning   Unhealthy           pod/internal-agentmesh-generic-agent-f8478db6f-4pkn8            Liveness probe failed: Get "http://10.129.1.184:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+21m         Warning   Unhealthy           pod/internal-agentmesh-generic-agent-f8478db6f-4pkn8            Readiness probe failed: Get "http://10.129.1.184:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+22m         Normal    Pulled              pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-it-service-desk-agent:1.0.0-15rbat2.80573b5" already present on machine
+22m         Normal    Created             pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Created container: internal-agentmesh-it-service-desk-agent
+22m         Normal    Started             pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Started container internal-agentmesh-it-service-desk-agent
+18m         Warning   Unhealthy           pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Liveness probe failed: Get "http://10.129.0.210:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+12m         Warning   Unhealthy           pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Readiness probe failed: Get "http://10.129.0.210:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+22m         Normal    Killing             pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Container internal-agentmesh-it-service-desk-agent failed liveness probe, will be restarted
+22m         Warning   Unhealthy           pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Readiness probe failed: Get "http://10.129.0.210:9999/health": dial tcp 10.129.0.210:9999: connect: connection refused
+120m        Normal    Scheduled           pod/internal-agentmesh-ui-service-555b47ddbb-xgbxp              Successfully assigned pai-prod/internal-agentmesh-ui-service-555b47ddbb-xgbxp to ocp-ai-master01.calix.local
+120m        Normal    AddedInterface      pod/internal-agentmesh-ui-service-555b47ddbb-xgbxp              Add eth0 [10.129.1.12/23] from ovn-kubernetes
+120m        Normal    Pulled              pod/internal-agentmesh-ui-service-555b47ddbb-xgbxp              Container image "paidev-nexus.tools.shared.xilac.net/internal-agentmesh-ui-service:1.0.0-11rbse10.b9b2c90" already present on machine
+120m        Normal    Created             pod/internal-agentmesh-ui-service-555b47ddbb-xgbxp              Created container: internal-agentmesh-ui-service
+120m        Normal    Started             pod/internal-agentmesh-ui-service-555b47ddbb-xgbxp              Started container internal-agentmesh-ui-service
+120m        Normal    SuccessfulCreate    replicaset/internal-agentmesh-ui-service-555b47ddbb             Created pod: internal-agentmesh-ui-service-555b47ddbb-xgbxp
+119m        Normal    Killing             pod/internal-agentmesh-ui-service-ff6dc8f84-t9frv               Stopping container internal-agentmesh-ui-service
+119m        Normal    SuccessfulDelete    replicaset/internal-agentmesh-ui-service-ff6dc8f84              Deleted pod: internal-agentmesh-ui-service-ff6dc8f84-t9frv
+120m        Normal    ScalingReplicaSet   deployment/internal-agentmesh-ui-service                        Scaled up replica set internal-agentmesh-ui-service-555b47ddbb from 0 to 1
+119m        Normal    ScalingReplicaSet   deployment/internal-agentmesh-ui-service                        Scaled down replica set internal-agentmesh-ui-service-ff6dc8f84 from 1 to 0
+4m45s       Normal    Valid               secretstore/vault-store                                         store validated
+hsuma@plnx-admin:~$ kubectl get events -n pai-prod
