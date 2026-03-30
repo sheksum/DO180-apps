@@ -5,8 +5,4 @@ oc set image deployment/ai-guardrails-service \
   copy-app=thirdparty-nexus.tools.shared.xilac.net/minio/mc:latest \
   -n pai-prod
 
-
-hsuma@plnx-admin:~$ curl -s https://thirdparty-nexus.tools.shared.xilac.net/v2/minio/mc/tags/list
-{"errors":[{"code":"UNAUTHORIZED","message":"access to the requested resource is not authorized","detail":null}]}hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
+oc debug node/<any-node> -- chroot /host crictl images | grep minio
