@@ -1,22 +1,35 @@
-# Find which node the postgres pod is on
-oc get pod postgresql-78b656858b-jfw6d -n pai-dev -o wide
+hsuma@plnx-admin:~$ nc -zv 10.172.194.160 9000
+^C
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pod postgresql-78b656858b-jfw6d -n pai-dev -o wide
+NAME                          READY   STATUS    RESTARTS   AGE   IP            NODE                          NOMINATED NODE   READINESS GATES
+postgresql-78b656858b-jfw6d   1/1     Running   0          28d   10.128.0.54   ocp-ai-master02.calix.local   <none>           <none>
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master02.calix.local "ip rule show"
+The authenticity of host 'ocp-ai-master02.calix.local (<no hostip for proxy command>)' can't be established.
+ED25519 key fingerprint is SHA256:wpBpDLPEvOQXV6LBHr630B5F8ICMNEkGvl7kdTqJBgs.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'ocp-ai-master02.calix.local' (ED25519) to the list of known hosts.
+0:	from all lookup local
+30:	from all fwmark 0x1745ec lookup 7
+32763:	from 10.172.202.151 lookup 102
+32764:	from 10.172.198.151 lookup 100
+32765:	from 10.172.194.151 lookup 101
+32766:	from all lookup main
+32767:	from all lookup default
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master02.calix.local "ip route show table 100"
+default via 10.172.198.1 dev bnd0.1798
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get mc | grep policy-routes
+99-master-app-vlan-policy-routes                                                               3.5.0             29d
+99-worker-app-vlan-policy-routes                                                               3.5.0             29d
+hsuma@plnx-admin:~$ nc -zv 10.172.194.160 9000
 
-# Check policy routing rules on that node
-ssh -i ~/.ssh/ocp-ai core@<node-ip> "ip rule show"
 
-# Should see rules like:
-# from 10.172.194.x lookup 100
-# from 10.172.198.x lookup 101
-# from 10.172.202.x lookup 102
-
-# Check the route tables
-ssh -i ~/.ssh/ocp-ai core@<node-ip> "ip route show table 100"
-
-# Should see:
-# default via 10.172.194.1 dev bnd0.1794
-
-# Verify the MachineConfigs are applied
-oc get mc | grep policy-routes
-
-# Quick connectivity test from plnx-admin to an existing working service on the same VLAN
-nc -zv 10.172.194.160 9000
