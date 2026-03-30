@@ -1,3 +1,28 @@
-# Can we pin back to the old version?
-oc get installplan -n metallb-system
-oc get subscription metallb-operator -n metallb-system -o yaml | grep -A5 "currentCSV\|startingCSV\|channel"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get installplan -n metallb-system
+NAME            CSV                                     APPROVAL    APPROVED
+install-29ckt   metallb-operator.v4.20.0-202602261925   Automatic   true
+install-rccbn   metallb-operator.v4.20.0-202603152019   Automatic   true
+install-vv6sc   metallb-operator.v4.20.0-202602091941   Automatic   true
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get subscription metallb-operator -n metallb-system -o yaml | grep -A5 "currentCSV\|startingCSV\|channel"
+  channel: stable
+  installPlanApproval: Manual
+  name: metallb-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: metallb-operator.v4.20.0-202602091941
+status:
+  catalogHealth:
+  - catalogSourceRef:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: CatalogSource
+--
+  currentCSV: metallb-operator.v4.20.0-202603152019
+  installPlanGeneration: 3
+  installPlanRef:
+    apiVersion: operators.coreos.com/v1alpha1
+    kind: InstallPlan
+    name: install-rccbn
+hsuma@plnx-admin:~$
