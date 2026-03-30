@@ -1,24 +1,12 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | grep -m1 "") --all-containers | grep -i "10.172.194.160\|minio-lb\|pai-dev\|announce\|arp\|gratuitous" | tail -20
-{"level":"error","ts":"2026-03-30T18:15:18Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-test","name":"minio-lb","reconcileID":"991ff2f6-41ea-4812-860d-21943005eec9","error":"servicel2statuses.metallb.io \"l2-gwj2x\" not found","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ping -c 3 10.172.248.175
-PING 10.172.248.175 (10.172.248.175) 56(84) bytes of data.
+# Check if the Gateway VIP was EVER reachable today
+# Is the agentmesh URL still working from plnx-admin?
+curl -k -s -o /dev/null -w "%{http_code}" https://agentmesh.dev.ocp-ai.calix.local
 
---- 10.172.248.175 ping statistics ---
-3 packets transmitted, 0 received, 100% packet loss, time 2042ms
+# Check speaker errors right now
+oc logs -n metallb-system -l component=speaker --all-containers --tail=20 | grep -i error
 
-hsuma@plnx-admin:~$ ping -c 3 10.172.198.160
-PING 10.172.198.160 (10.172.198.160) 56(84) bytes of data.
+# Check the MetalLB controller
+oc logs -n metallb-system deployment/controller --all-containers --tail=20 | grep -i error
 
---- 10.172.198.160 ping statistics ---
-3 packets transmitted, 0 received, 100% packet loss, time 2056ms
-
-hsuma@plnx-admin:~$ ping -c 3 10.172.202.160
-PING 10.172.202.160 (10.172.202.160) 56(84) bytes of data.
-
---- 10.172.202.160 ping statistics ---
-3 packets transmitted, 0 received, 100% packet loss, time 2051ms
-
-hsuma@plnx-admin:~$
+# Is there a frr-k8s or FRR container issue?
+oc get pods -n metallb-system
