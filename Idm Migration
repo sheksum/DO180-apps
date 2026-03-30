@@ -1,8 +1,11 @@
-# Are there any NetworkPolicies in metallb-system?
-oc get networkpolicy -n metallb-system
-
-# Check if speakers can reach each other on port 7946
-oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- cat /etc/metallb/memberlist-secret 2>/dev/null
-
-# Check full speaker logs for memberlist errors
-oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker --tail=30 | grep -i "member\|join\|peer\|connect"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get networkpolicy -n metallb-system
+NAME         POD-SELECTOR                       AGE
+controller   app=metallb,component=controller   32d
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- cat /etc/metallb/memberlist-secret 2>/dev/null
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker --tail=30 | grep -i "member\|join\|peer\|connect"
+hsuma@plnx-admin:~$
