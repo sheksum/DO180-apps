@@ -1,9 +1,99 @@
-oc get pods -n pai-dev | grep tts
-oc logs -n pai-dev deployment/internal-agentmesh-tts-service --tail=50
+hsuma@plnx-admin:~$ oc get pods -n pai-dev | grep tts
+internal-agentmesh-tts-service-59bb9c9b9d-knn4d                0/1     Running                 349 (5m19s ago)   30h
+internal-agentmesh-tts-service-f75587df6-cdwml                 0/1     Init:ImagePullBackOff   159 (27m ago)     30h
+tts-debug                                                      0/2     Init:ImagePullBackOff   140 (23m ago)     30h
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs -n pai-dev deployment/internal-agentmesh-tts-service --tail=50
+Found 2 pods, using pod/internal-agentmesh-tts-service-59bb9c9b9d-knn4d
+Defaulted container "internal-agentmesh-tts-service" out of: internal-agentmesh-tts-service, verify-app (init), download-model (init), extract-model (init)
+  File "/app/.venv/lib/python3.10/site-packages/huggingface_hub/utils/_http.py", line 685, in _httpx_follow_relative_redirects_with_backoff
+    response = http_backoff(
+  File "/app/.venv/lib/python3.10/site-packages/huggingface_hub/utils/_http.py", line 559, in http_backoff
+    return next(
+  File "/app/.venv/lib/python3.10/site-packages/huggingface_hub/utils/_http.py", line 467, in _http_backoff_base
+    response = client.request(method=method, url=url, **kwargs)
+  File "/app/.venv/lib/python3.10/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+  File "/app/.venv/lib/python3.10/site-packages/observability_lib/client_instrumentation.py", line 207, in patched_sync_send
+    return original_sync_send(self, request, **kwargs)
+  File "/app/.venv/lib/python3.10/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+  File "/app/.venv/lib/python3.10/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+  File "/app/.venv/lib/python3.10/site-packages/httpx/_client.py", line 977, in _send_handling_redirects
+    hook(request)
+  File "/app/.venv/lib/python3.10/site-packages/huggingface_hub/utils/_http.py", line 224, in hf_request_event_hook
+    raise OfflineModeIsEnabled(
+huggingface_hub.errors.OfflineModeIsEnabled: Cannot reach https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/config.json: offline mode is enabled. To disable it, please unset the `HF_HUB_OFFLINE` environment variable.
 
+The above exception was the direct cause of the following exception:
 
-oc get pods -n pai-dev | grep employeeengagement
-oc logs -n pai-dev -l app=internal-agentmesh-employeeengagement-agent --tail=30
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.10/site-packages/starlette/routing.py", line 694, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "/usr/local/lib/python3.10/contextlib.py", line 199, in __aenter__
+    return await anext(self.gen)
+  File "/app/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 212, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/app/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 237, in __aenter__
+    await self._router._startup()
+  File "/app/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 4882, in _startup
+    handler()
+  File "/app/app/main.py", line 69, in startup_event
+    app.state.pipeline = KPipeline(
+  File "/app/.venv/lib/python3.10/site-packages/kokoro/pipeline.py", line 99, in __init__
+    self.model = KModel(repo_id=repo_id).to(device).eval()
+  File "/app/.venv/lib/python3.10/site-packages/kokoro/model.py", line 46, in __init__
+    config = hf_hub_download(repo_id=repo_id, filename='config.json')
+  File "/app/.venv/lib/python3.10/site-packages/huggingface_hub/utils/_validators.py", line 89, in _inner_fn
+    return fn(*args, **kwargs)
+  File "/app/.venv/lib/python3.10/site-packages/huggingface_hub/file_download.py", line 986, in hf_hub_download
+    return _hf_hub_download_to_cache_dir(
+  File "/app/.venv/lib/python3.10/site-packages/huggingface_hub/file_download.py", line 1137, in _hf_hub_download_to_cache_dir
+    _raise_on_head_call_error(head_call_error, force_download, local_files_only)
+  File "/app/.venv/lib/python3.10/site-packages/huggingface_hub/file_download.py", line 1769, in _raise_on_head_call_error
+    raise LocalEntryNotFoundError(
+huggingface_hub.errors.LocalEntryNotFoundError: An error happened while trying to locate the file on the Hub and we cannot find the requested files in the local cache. Please check your connection and try again or make sure your Internet connection is on.
 
-
-oc get pods -n pai-dev | grep -v Running | grep -v Completed
+ERROR:    Application startup failed. Exiting.
+hsuma@plnx-admin:~$ oc get pods -n pai-dev | grep employeeengagement
+internal-agentmesh-employeeengagement-agent-7cd4b77b6f-xs9j7   1/1     Running                 0                 130m
+hsuma@plnx-admin:~$ oc logs -n pai-dev -l app=internal-agentmesh-employeeengagement-agent --tail=30
+INFO:     10.129.0.2:45550 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:45558 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:41152 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:41166 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:41706 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:41714 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:35578 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:35584 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:51814 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:51824 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:60170 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:60172 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:50818 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:50826 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:60226 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:60230 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:37992 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:37994 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:42262 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:42270 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:53910 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:53912 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:36286 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:36302 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:33580 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:33586 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:54614 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:54624 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:40014 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.129.0.2:40024 - "GET /health HTTP/1.1" 200 OK
+hsuma@plnx-admin:~$ oc get pods -n pai-dev | grep -v Running | grep -v Completed
+NAME                                                           READY   STATUS                  RESTARTS         AGE
+cuda-check                                                     0/1     ImagePullBackOff        0                21d
+internal-agentmesh-tts-service-59bb9c9b9d-knn4d                0/1     CrashLoopBackOff        349 (19s ago)    30h
+internal-agentmesh-tts-service-f75587df6-cdwml                 0/1     Init:ImagePullBackOff   159 (27m ago)    30h
+tts-debug                                                      0/2     Init:ImagePullBackOff   140 (24m ago)    30h
+hsuma@plnx-admin:~$
