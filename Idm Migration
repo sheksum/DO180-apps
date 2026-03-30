@@ -1,22 +1,6 @@
-hine
-23m         Normal    Started             pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Started container internal-agentmesh-it-service-desk-agent
-23m         Normal    Created             pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Created container: internal-agentmesh-it-service-desk-agent
-22m         Warning   Unhealthy           pod/internal-agentmesh-generic-agent-f8478db6f-4pkn8            Readiness probe failed: Get "http://10.129.1.184:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-22m         Warning   Unhealthy           pod/ai-guardrails-service-7f5f758c5-p4hdc                       Liveness probe failed: Get "http://10.128.1.180:8080/guardrails/api/v1/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-22m         Warning   Unhealthy           pod/ai-guardrails-service-7f5f758c5-p4hdc                       Readiness probe failed: Get "http://10.128.1.180:8080/guardrails/api/v1/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-20m         Warning   Unhealthy           pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Liveness probe failed: Get "http://10.129.0.210:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-13m         Warning   Unhealthy           pod/internal-agentmesh-it-service-desk-agent-7d84599f95-9gcmg   Readiness probe failed: Get "http://10.129.0.210:9999/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-3m54s       Normal    ScalingReplicaSet   deployment/ai-guardrails-service                                Scaled up replica set ai-guardrails-service-c68f754c9 from 0 to 1
-3m54s       Normal    SuccessfulCreate    replicaset/ai-guardrails-service-c68f754c9                      Created pod: ai-guardrails-service-c68f754c9-jh2zj
-3m53s       Normal    AddedInterface      pod/ai-guardrails-service-c68f754c9-jh2zj                       Add eth0 [10.128.0.115/23] from ovn-kubernetes
-3m53s       Normal    Pulling             pod/ai-guardrails-service-c68f754c9-jh2zj                       Pulling image "paidev-nexus.tools.shared.xilac.net/ai-guardrails-service:1.0.0-11rbse4.cf23caa"
-3m45s       Normal    Pulled              pod/ai-guardrails-service-c68f754c9-jh2zj                       Successfully pulled image "paidev-nexus.tools.shared.xilac.net/ai-guardrails-service:1.0.0-11rbse4.cf23caa" in 7.702s (7.702s including waiting). Image size: 5672933342 bytes.
-3m45s       Normal    Started             pod/ai-guardrails-service-c68f754c9-jh2zj                       Started container copy-app
-3m45s       Normal    Created             pod/ai-guardrails-service-c68f754c9-jh2zj                       Created container: copy-app
-86s         Warning   Failed              pod/ai-guardrails-service-c68f754c9-jh2zj                       Failed to pull image "minio/mc:latest": unable to pull image or OCI artifact: pull image err: initializing source docker://minio/mc:latest: reading manifest latest in docker.io/minio/mc: toomanyrequests: You have reached your unauthenticated pull rate limit. https://www.docker.com/increase-rate-limit; artifact err: get manifest: build image source: reading manifest latest in docker.io/minio/mc: toomanyrequests: You have reached your unauthenticated pull rate limit. https://www.docker.com/increase-rate-limit
-86s         Warning   Failed              pod/ai-guardrails-service-c68f754c9-jh2zj                       Error: ErrImagePull
-71s         Normal    BackOff             pod/ai-guardrails-service-c68f754c9-jh2zj                       Back-off pulling image "minio/mc:latest"
-71s         Warning   Failed              pod/ai-guardrails-service-c68f754c9-jh2zj                       Error: ImagePullBackOff
-58s         Normal    Pulling             pod/ai-guardrails-service-c68f754c9-jh2zj                       Pulling image "minio/mc:latest"
-53s         Normal    Valid               secretstore/vault-store                                         store validated
-hsuma@plnx-admin:~$
+curl -s https://thirdparty-nexus.tools.shared.xilac.net/v2/minio/mc/tags/list
+
+
+oc set image deployment/ai-guardrails-service \
+  copy-app=thirdparty-nexus.tools.shared.xilac.net/minio/mc:latest \
+  -n pai-prod
