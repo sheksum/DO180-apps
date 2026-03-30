@@ -1,32 +1,5 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc delete pods -n metallb-system -l component=speaker
-pod "speaker-4clmd" deleted from metallb-system namespace
-pod "speaker-sb4df" deleted from metallb-system namespace
-pod "speaker-skmqj" deleted from metallb-system namespace
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ sleep 30
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker
-NAME            READY   STATUS    RESTARTS      AGE
-speaker-2kkfs   2/2     Running   0             51s
-speaker-6m5kt   2/2     Running   1 (50s ago)   51s
-speaker-qjjl8   2/2     Running   1 (50s ago)   51s
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker --tail=50
-{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master02.calix.local)","ts":"2026-03-30T19:21:44Z"}
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get servicel2statuses.metallb.io -A
-NAMESPACE        NAME       ALLOCATED NODE                SERVICE NAME                    SERVICE NAMESPACE
-metallb-system   l2-4mc72   ocp-ai-master02.calix.local   milvus-lb                       pai-test
-metallb-system   l2-8hs6m   ocp-ai-master02.calix.local   milvus-lb                       pai-prod
-metallb-system   l2-fdrt6   ocp-ai-master02.calix.local   minio-lb                        pai-test
-metallb-system   l2-hjqcb   ocp-ai-master03.calix.local   pai-gateway-openshift-default   openshift-ingress
-metallb-system   l2-rhj8r   ocp-ai-master01.calix.local   minio-lb                        pai-dev
-metallb-system   l2-t7gkn   ocp-ai-master01.calix.local   milvus-lb                       pai-dev
-metallb-system   l2-thm6g   ocp-ai-master02.calix.local   pg-lb                           pai-dev
-metallb-system   l2-xx92w   ocp-ai-master02.calix.local   minio-lb                        pai-prod
-hsuma@plnx-admin:~$ nc -zv -w 3 10.172.194.160 9000
-nc: connect to 10.172.194.160 port 9000 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$
+# Test from a pod on the cluster - does the LB work internally?
+oc run lb-test --rm -it --image=busybox --restart=Never -n pai-dev -- wget -qO- --timeout=3 http://10.172.194.160:9000/minio/health/live
+
+# Test from a master node directly
+ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://10.172.194.160:9000/minio/health/live"
