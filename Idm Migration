@@ -1,2 +1,6 @@
-# First, check what arg index --host is at
-oc get daemonset speaker -n metallb-system -o jsonpath='{.spec.template.spec.containers[0].args}'
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get daemonset speaker -n metallb-system -o jsonpath='{.spec.template.spec.containers[0].args}'
+["--port=29150","--log-level=warn","--host=localhost","--frrk8s-namespace=openshift-frr-k8s"]hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
