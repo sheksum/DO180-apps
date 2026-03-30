@@ -1,13 +1,67 @@
-# Check MetalLB operator version
-oc get csv -n metallb-system | grep metallb
-
-# Check if the MetalLB CR config is correct
-oc get metallb -n metallb-system -o yaml
-
-# Force a full restart of everything MetalLB
-oc delete pods -n metallb-system --all
-sleep 30
-oc get pods -n metallb-system
-
-# Then immediately check fresh speaker logs
-oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker 2>&1
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get csv -n metallb-system | grep metallb
+metallb-operator.v4.20.0-202603152019        MetalLB Operator                                  4.20.0-202603152019   metallb-operator.v4.20.0-202602261925   Succeeded
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get metallb -n metallb-system -o yaml
+apiVersion: v1
+items:
+- apiVersion: metallb.io/v1beta1
+  kind: MetalLB
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: metallb:metallb.io/MetalLB:metallb-system/metallb
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"metallb.io/v1beta1","kind":"MetalLB","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/MetalLB:metallb-system/metallb"},"name":"metallb","namespace":"metallb-system"},"spec":{"logLevel":"warn"}}
+    creationTimestamp: "2026-02-26T04:36:27Z"
+    generation: 1
+    name: metallb
+    namespace: metallb-system
+    resourceVersion: "28715926"
+    uid: 1fb9e4ea-3556-4127-a735-f0d8f4c3377f
+  spec:
+    logLevel: warn
+  status:
+    conditions:
+    - lastTransitionTime: "2026-03-30T11:06:53Z"
+      message: ""
+      reason: Available
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2026-03-30T11:06:53Z"
+      message: ""
+      reason: Upgradeable
+      status: "True"
+      type: Upgradeable
+    - lastTransitionTime: "2026-03-30T11:06:53Z"
+      message: ""
+      reason: Progressing
+      status: "False"
+      type: Progressing
+    - lastTransitionTime: "2026-03-30T11:06:53Z"
+      message: ""
+      reason: Degraded
+      status: "False"
+      type: Degraded
+kind: List
+metadata:
+  resourceVersion: ""
+hsuma@plnx-admin:~$ oc delete pods -n metallb-system --all
+pod "controller-664ffb8889-v77f4" deleted from metallb-system namespace
+pod "metallb-operator-controller-manager-b8577c5fc-kxbf9" deleted from metallb-system namespace
+pod "metallb-operator-webhook-server-5ffd6c9cc5-mgkvs" deleted from metallb-system namespace
+pod "speaker-2kkfs" deleted from metallb-system namespace
+pod "speaker-6m5kt" deleted from metallb-system namespace
+pod "speaker-qjjl8" deleted from metallb-system namespace
+hsuma@plnx-admin:~$ sleep 30
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n metallb-system
+NAME                                                  READY   STATUS    RESTARTS      AGE
+controller-664ffb8889-2t2tk                           2/2     Running   0             74s
+metallb-operator-controller-manager-b8577c5fc-8p675   1/1     Running   0             74s
+metallb-operator-webhook-server-5ffd6c9cc5-zzkvl      1/1     Running   0             74s
+speaker-59kr7                                         2/2     Running   1 (74s ago)   74s
+speaker-gz6bt                                         2/2     Running   1 (74s ago)   74s
+speaker-xckgw                                         2/2     Running   0             74s
+hsuma@plnx-admin:~$ oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker 2>&1
+hsuma@plnx-admin:~$
