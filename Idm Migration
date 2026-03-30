@@ -1,11 +1,23 @@
-# Can you ping the gateway?
-ping -c 3 10.172.194.1
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ping -c 3 10.172.194.1
+PING 10.172.194.1 (10.172.194.1) 56(84) bytes of data.
+64 bytes from 10.172.194.1: icmp_seq=1 ttl=255 time=0.532 ms
+64 bytes from 10.172.194.1: icmp_seq=2 ttl=255 time=0.353 ms
+64 bytes from 10.172.194.1: icmp_seq=3 ttl=255 time=0.527 ms
 
-# Can you ping the node's VLAN IP?
-ping -c 3 10.172.194.151
+--- 10.172.194.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2008ms
+rtt min/avg/max/mdev = 0.353/0.470/0.532/0.083 ms
+hsuma@plnx-admin:~$ ping -c 3 10.172.194.151
+PING 10.172.194.151 (10.172.194.151) 56(84) bytes of data.
+64 bytes from 10.172.194.151: icmp_seq=1 ttl=63 time=0.127 ms
+64 bytes from 10.172.194.151: icmp_seq=2 ttl=63 time=0.108 ms
+64 bytes from 10.172.194.151: icmp_seq=3 ttl=63 time=1.01 ms
 
-# Can you reach MinIO internally via the management IP?
-curl -s -o /dev/null -w "%{http_code}" http://10.172.248.151:9000
-
-# Check plnx-admin's routing table
-ip route show | grep 10.172.194
+--- 10.172.194.151 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2036ms
+rtt min/avg/max/mdev = 0.108/0.414/1.009/0.420 ms
+hsuma@plnx-admin:~$ curl -s -o /dev/null -w "%{http_code}" http://10.172.248.151:9000
+000hsuma@plnx-admin:ip route show | grep 10.172.194
+hsuma@plnx-admin:~$ 
+hsuma@plnx-admin:~$
