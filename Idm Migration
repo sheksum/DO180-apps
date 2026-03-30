@@ -1,4 +1,31 @@
-oc delete servicel2statuses.metallb.io -n metallb-system --all
-sleep 10
-oc get servicel2statuses.metallb.io -A
-ping -c 3 10.172.194.160
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc delete servicel2statuses.metallb.io -n metallb-system --all
+servicel2status.metallb.io "l2-85qqq" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-cs27l" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-jcq7j" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-lzw29" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-nnp42" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-p2tm2" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-vnbtv" deleted from metallb-system namespace
+servicel2status.metallb.io "l2-wvl88" deleted from metallb-system namespace
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ sleep 10
+hsuma@plnx-admin:~$ oc get servicel2statuses.metallb.io -A
+NAMESPACE        NAME       ALLOCATED NODE                SERVICE NAME                    SERVICE NAMESPACE
+metallb-system   l2-8cxm9   ocp-ai-master01.calix.local   milvus-lb                       pai-test
+metallb-system   l2-g5zxg   ocp-ai-master02.calix.local   milvus-lb                       pai-prod
+metallb-system   l2-m8ddx   ocp-ai-master03.calix.local   pai-gateway-openshift-default   openshift-ingress
+metallb-system   l2-mw8b2   ocp-ai-master01.calix.local   minio-lb                        pai-test
+metallb-system   l2-nrsgw   ocp-ai-master02.calix.local   minio-lb                        pai-prod
+metallb-system   l2-xqtqm   ocp-ai-master01.calix.local   milvus-lb                       pai-dev
+metallb-system   l2-xtw8l   ocp-ai-master02.calix.local   pg-lb                           pai-dev
+metallb-system   l2-zpb5k   ocp-ai-master01.calix.local   minio-lb                        pai-dev
+hsuma@plnx-admin:~$ ping -c 3 10.172.194.160
+PING 10.172.194.160 (10.172.194.160) 56(84) bytes of data.
+
+--- 10.172.194.160 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2028ms
+
+hsuma@plnx-admin:~$
