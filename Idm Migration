@@ -1,47 +1,12 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc delete servicel2statuses.metallb.io -n metallb-system --all
-servicel2status.metallb.io "l2-78vdb" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-9bnhb" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-dw9l9" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-fttzf" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-kg7vr" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-njq7h" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-r5pvn" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-tck2b" deleted from metallb-system namespace
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc delete pod -n metallb-system -l component=controller
-pod "controller-664ffb8889-2t2tk" deleted from metallb-system namespace
-hsuma@plnx-admin:~$ oc delete pods -n metallb-system -l component=speaker
-pod "speaker-m5tq6" deleted from metallb-system namespace
-pod "speaker-rfrv9" deleted from metallb-system namespace
-pod "speaker-wgp99" deleted from metallb-system namespace
-hsuma@plnx-admin:~$ sleep 45
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n metallb-system
-NAME                                                  READY   STATUS    RESTARTS      AGE
-controller-664ffb8889-d8dl9                           2/2     Running   0             76s
-metallb-operator-controller-manager-b8577c5fc-8p675   1/1     Running   0             20m
-metallb-operator-webhook-server-5ffd6c9cc5-zzkvl      1/1     Running   0             20m
-speaker-2lv44                                         2/2     Running   1 (70s ago)   70s
-speaker-cr9nq                                         2/2     Running   2 (69s ago)   70s
-speaker-hn6v7                                         2/2     Running   0             70s
-hsuma@plnx-admin:~$ oc get servicel2statuses.metallb.io -A
-NAMESPACE        NAME       ALLOCATED NODE                SERVICE NAME                    SERVICE NAMESPACE
-metallb-system   l2-2jr49   ocp-ai-master02.calix.local   minio-lb                        pai-prod
-metallb-system   l2-5tndd   ocp-ai-master01.calix.local   milvus-lb                       pai-dev
-metallb-system   l2-75vv8   ocp-ai-master01.calix.local   milvus-lb                       pai-test
-metallb-system   l2-7c2hd   ocp-ai-master01.calix.local   minio-lb                        pai-test
-metallb-system   l2-7v7g7   ocp-ai-master01.calix.local   minio-lb                        pai-dev
-metallb-system   l2-8zlmz   ocp-ai-master03.calix.local   pai-gateway-openshift-default   openshift-ingress
-metallb-system   l2-fhj88   ocp-ai-master02.calix.local   pg-lb                           pai-dev
-metallb-system   l2-knjnw   ocp-ai-master02.calix.local   milvus-lb                       pai-prod
-hsuma@plnx-admin:~$ nc -zv -w 3 10.172.194.160 9000
-nc: connect to 10.172.194.160 port 9000 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$ oc get subscription -n metallb-system -o yaml | grep -A2 installPlanApproval
-    installPlanApproval: Automatic
-    name: metallb-operator
-    source: redhat-operators
-hsuma@plnx-admin:~$
+# Check if speakers see the L2Advertisement config
+oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker 2>&1
+
+# Check controller logs for L2 processing
+oc logs -n metallb-system -l component=controller --all-containers --tail=50 | grep -i "l2\|advertisement\|assign\|error"
+
+# Check if the issue is specific to the interfaces field in L2Advertisement
+# Try removing the interfaces constraint temporarily
+oc get l2advertisement l2-vlan1794-dev -n metallb-system -o yaml
+
+
+oc patch subscription metallb-operator -n metallb-system --type merge -p '{"spec":{"installPlanApproval":"Manual"}}'
