@@ -1,22 +1,25 @@
-hsuma@plnx-admin:~$ curl -k -s -o /dev/null -w "%{http_code}" https://agentmesh.dev.ocp-ai.calix.local
-404hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker --all-containers --tail=20 | grep -i error
-{"caller":"speakerlist.go:269","error":null,"expected":2,"joined":1,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-03-30T18:14:56Z"}
-{"level":"error","ts":"2026-03-30T18:14:56Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-dev","name":"pg-lb","reconcileID":"928302ff-5aa1-4fa1-b761-e46487e28dc0","error":"servicel2statuses.metallb.io \"l2-m4wqz\" not found","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
-{"level":"error","ts":"2026-03-30T18:15:18Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-test","name":"minio-lb","reconcileID":"991ff2f6-41ea-4812-860d-21943005eec9","error":"servicel2statuses.metallb.io \"l2-gwj2x\" not found","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
-{"caller":"speakerlist.go:269","error":null,"expected":2,"joined":1,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-03-30T18:14:56Z"}
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system deployment/controller --all-containers --tail=20 | grep -i error
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n metallb-system
-NAME                                                  READY   STATUS    RESTARTS      AGE
-controller-664ffb8889-v77f4                           2/2     Running   0             4d23h
-metallb-operator-controller-manager-b8577c5fc-kxbf9   1/1     Running   0             4d23h
-metallb-operator-webhook-server-5ffd6c9cc5-mgkvs      1/1     Running   0             4d23h
-speaker-4clmd                                         2/2     Running   2 (29m ago)   29m
-speaker-sb4df                                         2/2     Running   0             29m
-speaker-skmqj                                         2/2     Running   1 (29m ago)   29m
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ curl -k -s -o /dev/null -w "%{http_code}" https://minio.dev.ocp-ai.calix.local
-200hsuma@plnx-admin:~$
+nc -zv -w 3 10.172.194.160 9000
+nc -zv -w 3 10.172.194.161 19530
+
+
+cat <<EOF | oc apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-lb
+  namespace: pai-dev
+  annotations:
+    metallb.universe.tf/address-pool: pai-services-dev
+spec:
+  type: LoadBalancer
+  selector:
+    deployment: postgresql
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+EOF
+
+
+oc get svc postgresql-lb -n pai-dev
+nc -zv -w 3 <assigned-ip> 5432
