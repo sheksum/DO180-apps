@@ -1,2 +1,20 @@
-could use an extra set of eyes on exposing this PG service. As I saw when was testing last week with adding an additional Gateway, I don't think I can reach things on that 10.172.194.x subnet
-[12:35 PM]ping me when you get some time when you're back
+# What's running in pai-dev for postgres
+oc get pods -n pai-dev | grep -i postgres
+
+# Services
+oc get svc -n pai-dev | grep -i postgres
+
+# Check if there's a LoadBalancer service
+oc get svc -n pai-dev -o wide | grep -i postgres
+
+# Check endpoints
+oc get endpoints -n pai-dev | grep -i postgres
+
+# Any new HTTPRoutes
+oc get httproutes -n pai-dev
+
+# Check if Gene created a new Gateway
+oc get gateway -A
+
+# NetworkPolicies in pai-dev
+oc get networkpolicy -n pai-dev
