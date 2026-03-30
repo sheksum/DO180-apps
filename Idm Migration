@@ -1,13 +1,10 @@
-hsuma@plnx-admin:~$ oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker --tail=50
-{"level":"error","ts":"2026-03-30T18:15:18Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-test","name":"minio-lb","reconcileID":"991ff2f6-41ea-4812-860d-21943005eec9","error":"servicel2statuses.metallb.io \"l2-gwj2x\" not found","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c frr-k8s --tail=20 2>/dev/null
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pod $(oc get pods -n metallb-system -l component=speaker -o name | head -1 | cut -d/ -f2) -n metallb-system -o jsonpath='{.spec.containers[*].name}'
-speaker kube-rbac-proxyhsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
+oc delete pods -n metallb-system -l component=speaker
+sleep 30
+oc get pods -n metallb-system -l component=speaker
+
+oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker --tail=50
+
+oc get servicel2statuses.metallb.io -A
+
+nc -zv -w 3 10.172.194.160 9000
+
