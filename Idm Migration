@@ -1,20 +1,29 @@
-# What's running in pai-dev for postgres
-oc get pods -n pai-dev | grep -i postgres
-
-# Services
-oc get svc -n pai-dev | grep -i postgres
-
-# Check if there's a LoadBalancer service
-oc get svc -n pai-dev -o wide | grep -i postgres
-
-# Check endpoints
-oc get endpoints -n pai-dev | grep -i postgres
-
-# Any new HTTPRoutes
-oc get httproutes -n pai-dev
-
-# Check if Gene created a new Gateway
-oc get gateway -A
-
-# NetworkPolicies in pai-dev
-oc get networkpolicy -n pai-dev
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n pai-dev | grep -i postgres
+postgresql-78b656858b-jfw6d                                    1/1     Running                 0                 28d
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get svc -n pai-dev | grep -i postgres
+postgresql                                    ClusterIP      172.30.114.142   <none>           5432/TCP                     31d
+hsuma@plnx-admin:~$ oc get svc -n pai-dev -o wide | grep -i postgres
+postgresql                                    ClusterIP      172.30.114.142   <none>           5432/TCP                     31d     deployment=postgresql
+hsuma@plnx-admin:~$ oc get endpoints -n pai-dev | grep -i postgres
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+postgresql                                    10.128.0.54:5432                                        31d
+hsuma@plnx-admin:~$ oc get httproutes -n pai-dev
+NAME                                       HOSTNAMES                                                   AGE
+ai-guardrails-service                      ["ai-guardrails-service.dev.ocp-ai.calix.local"]            6d4h
+internal-agentmesh-agent-gateway-service   ["agentmesh.dev.ocp-ai.calix.local"]                        13d
+internal-agentmesh-auth-service            ["agentmesh.dev.ocp-ai.calix.local"]                        13d
+internal-agentmesh-tts-service             ["internal-agentmesh-tts-service.dev.ocp-ai.calix.local"]   36h
+internal-agentmesh-ui-service              ["agentmesh-dev-ai.calix.local"]                            24d
+internal-agentmesh-ui-service-1            ["agentmesh-dev-ai.calix.local"]                            5d22h
+minio-console-route                        ["minio.dev.ocp-ai.calix.local"]                            29d
+hsuma@plnx-admin:~$ oc get gateway -A
+NAMESPACE           NAME          CLASS               ADDRESS          PROGRAMMED   AGE
+openshift-ingress   pai-gateway   openshift-default   10.172.248.175   True         32d
+hsuma@plnx-admin:~$ oc get networkpolicy -n pai-dev
+NAME                           POD-SELECTOR                  AGE
+allow-cnpg-operator            cnpg.io/cluster=pai-apps-db   11d
+default-deny-cross-namespace   <none>                        20d
+hsuma@plnx-admin:~$
