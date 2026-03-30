@@ -1,24 +1,13 @@
-Hello,
+i Cesar,
+Thank you for the feedback and guidance.
+We have completed the Petaluma DC shutdown activity and cpeg-ipareplica is back in rotation. We have at least a week before we need to cut over to pln-ipamaster, so we are open to doing a clean fresh install as you recommended if that gives us a healthier and fully supported environment.
+A few questions to help us plan:
 
-Thanks for the update. I'm glad the installation was successful, but I'd like point out that manual changes directly during the
-installation process are not tested. So we cannot guarantee the system is or will remain 100% healthy, and this is not supported.
+What is the recommended procedure for a clean fresh install of pln-ipamaster while preserving our existing user/host/group data and certificates?
+How do we handle the CA database migration — specifically the existing issued certificates that clients depend on?
+Would removing ric-ipareplica (CentOS 7, Dogtag down) from the topology first be a prerequisite before the fresh install?
+We are still experiencing the gssproxy SPNEGO cannot find mechanisms to negotiate issue after service restarts on the current pln-ipamaster. Is this related to the unsupported install method or a separate issue we should address regardless?
 
-I'm reducing the severity and removing the 24x7 flag.
-
-About this:
->>pki-tomcatd startup time — takes 45-60 minutes on every restart due to ~1M certificate entries in o=ipaca. We need guidance on how to purge expired certificates from the CA database to reduce startup time.
-
-I'd strongly suggest you check whether most of these certs are really organic. The JIRA I mentioned is this one both upstream and internal:
----
-https://pagure.io/certmonger/pull-request/303
-https://redhat.atlassian.net/browse/RHEL-159362
----
-
-And may match the behaviour here in case these 1,089,773 entries are really not being used. rhel-9 has a prune feature but that requires rsnv3,
-and your current topology does not support that. You'd need a full fresh install and then migrate the data over.
-
-Considering the 1mi certificates, however, along with the way this replica has been installed in a topology with centOS 7 servers,
-that would be the best way ahead to ensure you have a 100% working environment.
-
-Kr,
--Cesar
+We want to do this right and have a fully supported environment going forward. Please advise on the best path.
+Thanks,
+Haj
