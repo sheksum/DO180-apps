@@ -1,2 +1,6 @@
-curl -k -s -o /dev/null -w "%{http_code}" https://agentmesh.dev.ocp-ai.calix.local
-curl -k -s -o /dev/null -w "%{http_code}" https://minio.dev.ocp-ai.calix.local
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ curl -k -s -o /dev/null -w "%{http_code}" https://agentmesh.dev.ocp-ai.calix.local
+404hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ curl -k -s -o /dev/null -w "%{http_code}" https://minio.dev.ocp-ai.calix.local
+200hsuma@plnx-admin:~$
