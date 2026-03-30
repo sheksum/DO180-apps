@@ -1,13 +1,2 @@
-i Cesar,
-Thank you for the feedback and guidance.
-We have completed the Petaluma DC shutdown activity and cpeg-ipareplica is back in rotation. We have at least a week before we need to cut over to pln-ipamaster, so we are open to doing a clean fresh install as you recommended if that gives us a healthier and fully supported environment.
-A few questions to help us plan:
-
-What is the recommended procedure for a clean fresh install of pln-ipamaster while preserving our existing user/host/group data and certificates?
-How do we handle the CA database migration — specifically the existing issued certificates that clients depend on?
-Would removing ric-ipareplica (CentOS 7, Dogtag down) from the topology first be a prerequisite before the fresh install?
-We are still experiencing the gssproxy SPNEGO cannot find mechanisms to negotiate issue after service restarts on the current pln-ipamaster. Is this related to the unsupported install method or a separate issue we should address regardless?
-
-We want to do this right and have a fully supported environment going forward. Please advise on the best path.
-Thanks,
-Haj
+could use an extra set of eyes on exposing this PG service. As I saw when was testing last week with adding an additional Gateway, I don't think I can reach things on that 10.172.194.x subnet
+[12:35 PM]ping me when you get some time when you're back
