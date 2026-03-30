@@ -1,32 +1,9 @@
-suma@plnx-admin:~$ oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker 2>&1
-{"caller":"speakerlist.go:269","error":null,"expected":2,"joined":1,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-03-30T19:48:22Z"}
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=controller --all-containers --tail=50 | grep -i "l2\|advertisement\|assign\|error"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get l2advertisement l2-vlan1794-dev -n metallb-system -o yaml
-apiVersion: metallb.io/v1beta1
-kind: L2Advertisement
-metadata:
-  annotations:
-    argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1794-dev
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1794-dev"},"name":"l2-vlan1794-dev","namespace":"metallb-system"},"spec":{"interfaces":["bond0.1794","bnd0.1794"],"ipAddressPools":["pai-services-dev"]}}
-  creationTimestamp: "2026-02-28T20:56:44Z"
-  generation: 1
-  name: l2-vlan1794-dev
-  namespace: metallb-system
-  resourceVersion: "6525414"
-  uid: de697be7-8103-4b7e-873d-75f26d1800fd
-spec:
-  interfaces:
-  - bond0.1794
-  - bnd0.1794
-  ipAddressPools:
-  - pai-services-dev
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc patch subscription metallb-operator -n metallb-system --type merge -p '{"spec":{"installPlanApproval":"Manual"}}'
-subscription.operators.coreos.com/metallb-operator patched
-hsuma@plnx-admin:~$
+# Check for memberlist secret
+oc get secret -n metallb-system | grep member
+
+# Check the MetalLB CR for memberlist config
+oc get metallb metallb -n metallb-system -o yaml
+
+# Check if speakers can reach each other directly
+oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- wget -qO- --timeout=2 http://10.172.248.151:7946 2>&1
+oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- wget -qO- --timeout=2 http://10.172.248.152:7946 2>&1
