@@ -1,7 +1,12 @@
-hsuma@plnx-admin:~$ nc -zv -w 3 10.172.194.160 9000
-nc: connect to 10.172.194.160 port 9000 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$ c -zv -w 3 10.172.194.161 19530
-c: command not found
-hsuma@plnx-admin:~$ nc -zv -w 3 10.172.194.161 19530
-nc: connect to 10.172.194.161 port 19530 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$ oc get svc postgresql-lb -n pai-dev
+# Check speaker DaemonSet node selector
+oc get daemonset -n metallb-system speaker -o yaml | grep -A5 "nodeSelector\|tolerations" | head -20
+
+# Check if speakers should be on GPU workers too
+oc get nodes --show-labels | grep -i metallb
+
+
+# Check speaker DaemonSet node selector
+oc get daemonset -n metallb-system speaker -o yaml | grep -A5 "nodeSelector\|tolerations" | head -20
+
+# Check if speakers should be on GPU workers too
+oc get nodes --show-labels | grep -i metallb
