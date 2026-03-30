@@ -1,12 +1,35 @@
-# Check speaker DaemonSet node selector
-oc get daemonset -n metallb-system speaker -o yaml | grep -A5 "nodeSelector\|tolerations" | head -20
-
-# Check if speakers should be on GPU workers too
-oc get nodes --show-labels | grep -i metallb
-
-
-# Check speaker DaemonSet node selector
-oc get daemonset -n metallb-system speaker -o yaml | grep -A5 "nodeSelector\|tolerations" | head -20
-
-# Check if speakers should be on GPU workers too
-oc get nodes --show-labels | grep -i metallb
+hsuma@plnx-admin:~$ oc get daemonset -n metallb-system speaker -o yaml | grep -A5 "nodeSelector\|tolerations" | head -20
+      nodeSelector:
+        kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: speaker
+--
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get nodes --show-labels | grep -i metallb
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get daemonset -n metallb-system speaker -o yaml | grep -A5 "nodeSelector\|tolerations" | head -20
+      nodeSelector:
+        kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: speaker
+--
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get nodes --show-labels | grep -i metallb
+hsuma@plnx-admin:~$
