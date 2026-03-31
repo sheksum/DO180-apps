@@ -1,47 +1,70 @@
-oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
-echo "=== nftables external-ips vmap ==="
-nft list map inet ovn-kubernetes udn-mark-external-ips-v4
+Starting pod/ocp-ai-master02calixlocal-debug-zmwj4 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== nftables external-ips vmap ===
+table inet ovn-kubernetes {
+	map udn-mark-external-ips-v4 {
+		type ipv4_addr . inet_proto . inet_service : verdict
+		comment "UDN services External IPs mark (IPv4)"
+	}
+}
 
-echo ""
-echo "=== MASQUERADE rule on this node? ==="
-iptables -t nat -L POSTROUTING -n -v --line-numbers | head -10
+=== MASQUERADE rule on this node? ===
+Chain POSTROUTING (policy ACCEPT 48M packets, 2864M bytes)
+num   pkts bytes target     prot opt in     out     source               destination
+1        0     0 MASQUERADE  all  --  *      br-ex   0.0.0.0/0            0.0.0.0/0            ctstate DNAT
+2      48M 2864M OVN-KUBE-EGRESS-IP-MULTI-NIC  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+3        0     0 MASQUERADE  all  --  *      br-ex   10.172.194.0/24      172.30.0.0/16
+4        0     0 MASQUERADE  all  --  *      br-ex   10.172.198.0/24      172.30.0.0/16
+5        0     0 MASQUERADE  all  --  *      br-ex   10.172.202.0/24      172.30.0.0/16
 
-echo ""
-echo "=== Stale conntrack entries ==="
-grep -E "194.160|168.89.*dport=9000" /proc/net/nf_conntrack 2>/dev/null | head -10
+=== Stale conntrack entries ===
+ipv4     2 tcp      6 32 SYN_SENT src=10.172.194.151 dst=10.172.194.160 sport=38642 dport=9000 [UNREPLIED] src=172.30.168.89 dst=10.172.194.151 sport=9000 dport=38642 mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=0 use=2
 
-echo ""
-echo "=== Flushing via /proc ==="
-echo 1 > /proc/sys/net/netfilter/nf_conntrack_acct 2>/dev/null
-find /usr -name conntrack -type f 2>/dev/null
-# Flush by dropping all for this dst
-for f in $(grep "dst=10.172.194.160" /proc/net/nf_conntrack 2>/dev/null | grep "dport=9000" | awk "{print NR}"); do echo "found stale entry"; done
+=== Flushing via /proc ===
+found stale entry
 
-echo ""
-echo "=== Route to ClusterIP ==="
-ip route get 172.30.168.89
+=== Route to ClusterIP ===
+172.30.168.89 via 169.254.0.4 dev br-ex src 169.254.0.2 uid 0
+    cache mtu 8900
 
-echo ""  
-echo "=== Wait for stale CT to clear, then test ==="
-sleep 130
-curl -m5 -s -o /dev/null -w "HTTP status: %{http_code}\n" http://10.172.194.160:9000
-'
+=== Wait for stale CT to clear, then test ===
 
 
-oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
-echo "=== nftables external-ips vmap ==="
-nft list map inet ovn-kubernetes udn-mark-external-ips-v4
+Starting pod/ocp-ai-master02calixlocal-debug-76bfr ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== nftables external-ips vmap ===
+table inet ovn-kubernetes {
+	map udn-mark-external-ips-v4 {
+		type ipv4_addr . inet_proto . inet_service : verdict
+		comment "UDN services External IPs mark (IPv4)"
+	}
+}
 
-echo ""
-echo "=== POSTROUTING rules ==="
-iptables -t nat -L POSTROUTING -n -v --line-numbers | head -10
+=== POSTROUTING rules ===
+Chain POSTROUTING (policy ACCEPT 48M packets, 2864M bytes)
+num   pkts bytes target     prot opt in     out     source               destination
+1        0     0 MASQUERADE  all  --  *      br-ex   0.0.0.0/0            0.0.0.0/0            ctstate DNAT
+2      48M 2864M OVN-KUBE-EGRESS-IP-MULTI-NIC  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+3        0     0 MASQUERADE  all  --  *      br-ex   10.172.194.0/24      172.30.0.0/16
+4        0     0 MASQUERADE  all  --  *      br-ex   10.172.198.0/24      172.30.0.0/16
+5        0     0 MASQUERADE  all  --  *      br-ex   10.172.202.0/24      172.30.0.0/16
 
-echo ""
-echo "=== conntrack entries for VIP ==="
-grep "194.160" /proc/net/nf_conntrack 2>/dev/null | head -10
-grep "dport=9000" /proc/net/nf_conntrack 2>/dev/null | head -10
+=== conntrack entries for VIP ===
+ipv4     2 tcp      6 2 SYN_SENT src=10.172.194.151 dst=10.172.194.160 sport=38642 dport=9000 [UNREPLIED] src=172.30.168.89 dst=10.172.194.151 sport=9000 dport=38642 mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=0 use=2
+ipv4     2 tcp      6 96 TIME_WAIT src=10.128.0.2 dst=10.128.1.10 sport=38480 dport=9000 packets=5 bytes=388 src=10.128.1.10 dst=10.128.0.2 sport=9000 dport=38480 packets=6 bytes=709 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=19 use=2
+ipv4     2 tcp      6 92 TIME_WAIT src=10.128.0.2 dst=10.128.0.26 sport=37438 dport=9000 packets=5 bytes=388 src=10.128.0.26 dst=10.128.0.2 sport=9000 dport=37438 packets=5 bytes=657 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=36 use=2
+ipv4     2 tcp      6 32 TIME_WAIT src=10.128.0.2 dst=10.128.0.26 sport=35750 dport=9000 src=10.128.0.26 dst=10.128.0.2 sport=9000 dport=35750 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=19 use=2
+ipv4     2 tcp      6 51 TIME_WAIT src=10.128.0.2 dst=10.128.0.26 sport=52146 dport=9000 src=10.128.0.26 dst=10.128.0.2 sport=9000 dport=52146 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=0 use=2
+ipv4     2 tcp      6 77 TIME_WAIT src=10.128.0.2 dst=10.128.0.26 sport=56948 dport=9000 src=10.128.0.26 dst=10.128.0.2 sport=9000 dport=56948 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=19 use=2
+ipv4     2 tcp      6 113 TIME_WAIT src=10.128.0.2 dst=10.128.1.10 sport=53560 dport=9000 packets=6 bytes=441 src=10.128.1.10 dst=10.128.0.2 sport=9000 dport=53560 packets=5 bytes=657 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=0 use=2
+ipv4     2 tcp      6 111 TIME_WAIT src=10.128.0.2 dst=10.128.0.26 sport=57584 dport=9000 packets=5 bytes=389 src=10.128.0.26 dst=10.128.0.2 sport=9000 dport=57584 packets=5 bytes=657 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=19 use=2
+ipv4     2 tcp      6 36 TIME_WAIT src=10.128.0.2 dst=10.128.1.10 sport=33988 dport=9000 src=10.128.1.10 dst=10.128.0.2 sport=9000 dport=33988 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=19 use=2
+ipv4     2 tcp      6 66 TIME_WAIT src=10.128.0.2 dst=10.128.0.26 sport=37220 dport=9000 src=10.128.0.26 dst=10.128.0.2 sport=9000 dport=37220 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=19 use=2
+ipv4     2 tcp      6 81 TIME_WAIT src=10.129.1.82 dst=10.128.0.26 sport=36376 dport=9000 src=10.128.0.26 dst=10.129.1.82 sport=9000 dport=36376 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=36 use=2
 
-echo ""
-echo "=== route to ClusterIP ==="
-ip route get 172.30.168.89
-'
+=== route to ClusterIP ===
+172.30.168.89 via 169.254.0.4 dev br-ex src 169.254.0.2 uid 0
+    cache mtu 8900
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
