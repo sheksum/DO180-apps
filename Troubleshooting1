@@ -1,43 +1,17 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc delete servicel2status --all -n metallb-system
-servicel2status.metallb.io "l2-57t9h" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-8km49" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-b9lh7" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-cm7js" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-jfw46" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-kf87s" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-q5dbc" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-x7csj" deleted from metallb-system namespace
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc patch l2advertisement l2-vlan1794-dev -n metallb-system --type json -p '[{"op":"remove","path":"/spec/interfaces"}]'
-oc patch l2advertisement l2-vlan1797-prod -n metallb-system --type json -p '[{"op":"remove","path":"/spec/interfaces"}]'
-oc patch l2advertisement l2-vlan1798-test -n metallb-system --type json -p '[{"op":"remove","path":"/spec/interfaces"}]'
-l2advertisement.metallb.io/l2-vlan1794-dev patched
-l2advertisement.metallb.io/l2-vlan1797-prod patched
-l2advertisement.metallb.io/l2-vlan1798-test patched
-hsuma@plnx-admin:~$ oc get l2advertisement -n metallb-system -o jsonpath='{range .items[*]}{.metadata.name}: interfaces={.spec.interfaces}, pools={.spec.ipAddressPools}{"\n"}{end}'
-l2-vlan1510: interfaces=, pools=["reserved-future"]
-l2-vlan1794-dev: interfaces=["bond0.1794","bnd0.1794"], pools=["pai-services-dev"]
-l2-vlan1797-prod: interfaces=, pools=["pai-services-prod"]
-l2-vlan1798-test: interfaces=, pools=["pai-services-test"]
-hsuma@plnx-admin:~$ oc delete pods -n metallb-system -l component=speaker
-pod "speaker-4hjs4" deleted from metallb-system namespace
-pod "speaker-dnvkd" deleted from metallb-system namespace
-pod "speaker-p4rzp" deleted from metallb-system namespace
-hsuma@plnx-admin:~$ sleep 25
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ for node in master01 master02 master03; do
-  echo "=== $node ==="
-  ssh -i .ssh/ocp-ai core@ocp-ai-${node}.calix.local "ip addr show | grep '/32'"
+# From master01 (which has bnd0.1794 with IP 10.172.194.150), arping the VIP
+ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "arping -c 3 -I bnd0.1794 10.172.194.160"
+
+
+# Check ALL errors across ALL speakers right now
+for pod in $(oc get pods -n metallb-system -l component=speaker -o name); do
+  echo "=== $pod ==="
+  oc logs -n metallb-system $pod -c speaker --tail=100 | grep -i "error" | tail -5
 done
-=== master01 ===
-=== master02 ===
-    inet 10.172.248.156/32 scope global vip
-    inet 10.172.248.155/32 scope global vip
-=== master03 ===
-hsuma@plnx-admin:~$ nc -zv -w 3 10.172.194.160 9000
-nc -zv -w 3 10.172.194.161 19530
-nc: connect to 10.172.194.160 port 9000 (tcp) timed out: Operation now in progress
-nc: connect to 10.172.194.161 port 19530 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$
+
+# Check current ServiceL2Status - see if they exist and are clean
+oc get servicel2status -n metallb-system -o custom-columns='NAME:.metadata.name,NODE:.status.node,SVC:.status.serviceName,NS:.status.serviceNamespace'
+
+
+# And check the speaker logs for any ARP socket opening or ARP activity on VLAN interfaces
+SPEAKER01=$(oc get pods -n metallb-system -o wide | grep master01 | awk '{print $1}')
+oc logs -n metallb-system $SPEAKER01 -c speaker --tail=200 | grep -iE "arp|socket|bind|open|listen|bnd0" | head -20
