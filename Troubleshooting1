@@ -1,22 +1,17 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc patch l2advertisement l2-vlan1794-dev -n metallb-system --type json \
-  -p '[{"op":"remove","path":"/spec/interfaces"}]'
-l2advertisement.metallb.io/l2-vlan1794-dev patched
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ sleep 10
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "ip addr show | grep '10.172.194.16'"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ping -c2 10.172.194.160
-PING 10.172.194.160 (10.172.194.160) 56(84) bytes of data.
+# Check if the gateway VIP (10.172.248.175) from the reserved-future pool is bound anywhere
+for node in master01 master02 master03 worker01 worker02; do
+  echo "=== $node ==="
+  ssh core@ocp-ai-${node} "ip addr show | grep 10.172.248.175"
+done
 
---- 10.172.194.160 ping statistics ---
-2 packets transmitted, 0 received, 100% packet loss, time 1027ms
+# Also check ServiceL2Status for the gateway
+oc get servicel2status -A -o wide
 
-hsuma@plnx-admin:~$
+
+oc patch subscription metallb-operator -n metallb-system --type merge -p '{"spec":{"installPlanApproval":"Manual"}}'
+
+
+# Check current subscription and installplan state
+oc get subscription metallb-operator -n metallb-system -o yaml
+oc get installplan -n metallb-system
+oc get csv -n metallb-system
