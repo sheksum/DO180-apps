@@ -1,12 +1,48 @@
-for pod in $(oc get pods -n metallb-system -l component=speaker -o name); do
+hsuma@plnx-admin:~$ for pod in $(oc get pods -n metallb-system -l component=speaker -o name); do
   node=$(oc get $pod -n metallb-system -o jsonpath='{.spec.nodeName}')
   echo "=== $node ==="
   oc logs $pod -n metallb-system --tail=1000 | grep "got ARP request" | sort -u -t'"' -k8,8
   echo ""
 done
+=== ocp-ai-master02.calix.local ===
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+{"caller":"arp.go:110","interface":"bnd0.1794","ip":"10.172.194.163","level":"debug","msg":"got ARP request for service IP, sending response","responseMAC":"00:25:b5:50:0a:67","senderIP":"10.172.194.1","senderMAC":"20:20:00:00:00:aa","ts":"2026-03-31T22:04:23Z"}
+{"caller":"arp.go:110","interface":"bnd0.1797","ip":"10.172.202.160","level":"debug","msg":"got ARP request for service IP, sending response","responseMAC":"00:25:b5:50:0a:67","senderIP":"10.172.202.1","senderMAC":"20:20:00:00:00:aa","ts":"2026-03-31T22:04:23Z"}
 
+=== ocp-ai-master01.calix.local ===
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+{"caller":"arp.go:110","interface":"bnd0.1794","ip":"10.172.194.160","level":"debug","msg":"got ARP request for service IP, sending response","responseMAC":"00:25:b5:50:0a:65","senderIP":"10.172.194.151","senderMAC":"00:25:b5:50:0a:67","ts":"2026-03-31T21:47:27Z"}
+{"caller":"arp.go:110","interface":"bnd0.1798","ip":"10.172.198.160","level":"debug","msg":"got ARP request for service IP, sending response","responseMAC":"00:25:b5:50:0a:65","senderIP":"10.172.198.1","senderMAC":"20:20:00:00:00:aa","ts":"2026-03-31T22:04:23Z"}
 
-for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
+=== ocp-ai-master03.calix.local ===
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+{"caller":"arp.go:110","interface":"br-ex","ip":"10.172.248.175","level":"debug","msg":"got ARP request for service IP, sending response","responseMAC":"00:25:b5:50:0a:68","senderIP":"10.172.248.50","senderMAC":"00:50:56:b5:c2:c4","ts":"2026-03-31T21:45:46Z"}
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
   echo "=== $node ==="
   oc debug node/$node -- chroot /host bash -c 'ip link show | grep -E "bnd0\.[0-9]+" | grep -oP "bnd0\.\d+"' 2>/dev/null
 done
+=== ocp-ai-master01.calix.local ===
+bnd0.1798
+bnd0.1797
+bnd0.1796
+bnd0.1793
+bnd0.1794
+bnd0.1792
+=== ocp-ai-master02.calix.local ===
+bnd0.1792
+bnd0.1793
+bnd0.1798
+bnd0.1794
+bnd0.1796
+bnd0.1797
+=== ocp-ai-master03.calix.local ===
+bnd0.1796
+bnd0.1793
+bnd0.1797
+bnd0.1794
+bnd0.1792
+bnd0.1798
+hsuma@plnx-admin:~$
