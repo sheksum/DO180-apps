@@ -1,23 +1,17 @@
+# Check if MetalLB VIPs are now bound on any node
+for node in master01 master02 master03; do
+  echo "=== $node ==="
+  ssh -i .ssh/ocp-ai core@ocp-ai-${node}.calix.local "ip addr show | grep -E '10.172.194.1(6[0-9]|7[0-9])|10.172.248.175'"
+done
 
-hsuma@plnx-admin:~$ oc get csv -n metallb-system | grep metallb
-metallb-operator.v4.20.0-202602261925        MetalLB Operator                                  4.20.0-202602261925                                          Succeeded
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get csv -n metallb-system | grep metallb
-metallb-operator.v4.20.0-202602261925        MetalLB Operator                                  4.20.0-202602261925                                          Succeeded
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n metallb-system
-NAME                                                   READY   STATUS    RESTARTS      AGE
-controller-78cdfd5849-zv5f9                            2/2     Running   0             40s
-metallb-operator-controller-manager-5964b77555-mlxbk   1/1     Running   0             60s
-metallb-operator-webhook-server-54d799d757-2zfsm       1/1     Running   0             59s
-speaker-45bfw                                          2/2     Running   1 (16s ago)   16s
-speaker-8bvdm                                          2/2     Running   0             28s
-speaker-vcw24                                          2/2     Running   0             40s
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
+
+
+# Quick ping test to MinIO VIP
+ping -c 3 10.172.194.160
+
+
+# Check speaker logs for GARP announcements
+oc logs -n metallb-system -l component=speaker -c speaker --tail=30 | grep -i "announcing\|gratuitous\|arp\|interface"
 hsuma@plnx-admin:~$
 
 
