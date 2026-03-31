@@ -1,22 +1,20 @@
-echo "=== pg-lb (pai-dev) - PostgreSQL 5432 ==="
-curl -m5 -s -o /dev/null -w "HTTP status: %{http_code}\n" http://10.172.194.163:5432 2>&1 || nc -w5 -zv 10.172.194.163 5432
-
-echo ""
-echo "=== milvus-lb (pai-dev) - Milvus 19530 ==="
-nc -w5 -zv 10.172.194.161 19530
-
-echo ""
-echo "=== minio-lb (pai-prod) - MinIO 9000 ==="
-curl -m5 -s -o /dev/null -w "HTTP status: %{http_code}\n" http://10.172.202.160:9000
-
-echo ""
-echo "=== milvus-lb (pai-prod) - Milvus 19530 ==="
-nc -w5 -zv 10.172.202.161 19530
-
-echo ""
-echo "=== minio-lb (pai-test) - MinIO 9000 ==="
-curl -m5 -s -o /dev/null -w "HTTP status: %{http_code}\n" http://10.172.198.160:9000
-
-echo ""
-echo "=== milvus-lb (pai-test) - Milvus 19530 ==="
 nc -w5 -zv 10.172.198.161 19530
+=== pg-lb (pai-dev) - PostgreSQL 5432 ===
+HTTP status: 000
+nc: connect to 10.172.194.163 port 5432 (tcp) timed out: Operation now in progress
+
+=== milvus-lb (pai-dev) - Milvus 19530 ===
+Connection to 10.172.194.161 19530 port [tcp/*] succeeded!
+
+=== minio-lb (pai-prod) - MinIO 9000 ===
+HTTP status: 000
+
+=== milvus-lb (pai-prod) - Milvus 19530 ===
+nc: connect to 10.172.202.161 port 19530 (tcp) timed out: Operation now in progress
+
+=== minio-lb (pai-test) - MinIO 9000 ===
+HTTP status: 000
+
+=== milvus-lb (pai-test) - Milvus 19530 ===
+nc: connect to 10.172.198.161 port 19530 (tcp) timed out: Operation now in progress
+hsuma@plnx-admin:~$
