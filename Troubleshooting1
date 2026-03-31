@@ -1,3 +1,27 @@
+
+
+
+# Start tcpdump on master01 in background (waits 30s for packets)
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+  echo "=== nftables ingress hooks ==="
+  nft list ruleset 2>/dev/null | grep -B5 -A15 "hook ingress" || echo "None found"
+  echo "=== Listening for 25 seconds ==="
+  timeout 25 tcpdump -i bnd0.1794 -nn "host 10.172.194.160 and tcp" 2>&1
+' &
+
+# Wait for debug pod to start
+sleep 15
+
+# Test from master02
+oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
+
+# Wait for tcpdump to finish
+wait
+
+
+=====
+
+
 hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
   echo "=== VIP still assigned? ==="
