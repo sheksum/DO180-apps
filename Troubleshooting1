@@ -1,96 +1,17 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-  ip neigh del 10.172.194.160 dev bnd0.1794 2>/dev/null
-  ip neigh replace 10.172.194.160 lladdr 00:25:b5:50:0a:65 dev bnd0.1794
-  echo "=== ARP entry ==="
-  ip neigh show 10.172.194.160
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+  echo "=== XDP programs on interfaces ==="
+  for iface in eno7 eno8 bnd0 bnd0.1794; do
+    echo -n "$iface: "
+    ip -d link show $iface 2>/dev/null | grep -i "xdp\|prog/xdp" || echo "no xdp"
+  done
+  
+  echo "=== BPF filesystem ==="
+  ls -la /sys/fs/bpf/ 2>/dev/null || echo "not mounted"
+  
+  echo "=== Check for any attached BPF on bnd0.1794 ==="
+  ip -d link show bnd0.1794
+  
+  echo "=== Trying alternative: access via NodePort 32714 ==="
+  echo "From localhost:"
+  nc -zv -w 3 10.172.194.150 32714 2>&1 || true
 '
-Starting pod/ocp-ai-master02calixlocal-debug-7qmzc ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== ARP entry ===
-10.172.194.160 dev bnd0.1794 lladdr 00:25:b5:50:0a:65 PERMANENT
-
-Removing debug pod ...
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
-Starting pod/ocp-ai-master02calixlocal-debug-rc7gg ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: TIMEOUT.
-
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ip addr show bnd0.1794
-Starting pod/ocp-ai-master01calixlocal-debug-qjrzs ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-15: bnd0.1794@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP group default qlen 1000
-    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
-    inet 10.172.194.150/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794
-       valid_lft forever preferred_lft forever
-    inet 10.172.194.160/32 scope global bnd0.1794
-       valid_lft forever preferred_lft forever
-
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- ip neigh show 10.172.194.160
-Starting pod/ocp-ai-master02calixlocal-debug-zt48p ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-10.172.194.160 dev bnd0.1794 lladdr 00:25:b5:50:0a:65 PERMANENT
-
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-  cat /proc/sys/net/ipv4/conf/all/arp_ignore
-  cat "/proc/sys/net/ipv4/conf/bnd0.1794/arp_ignore"
-'
-Starting pod/ocp-ai-master01calixlocal-debug-qc4dh ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-0
-0
-
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-  echo "=== dmesg VIP-HIT entries ==="
-  dmesg | grep VIP-HIT | tail -10
-  echo "=== LOG rule packet counter ==="
-  iptables -t raw -L PREROUTING -v -n 2>/dev/null | head -5
-  echo "=== DNAT counter ==="
-  iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
-  echo "=== FORWARD chain ==="
-  iptables -L FORWARD -v -n 2>/dev/null | head -12
-  echo "=== rx_dropped ==="
-  cat /sys/class/net/bnd0.1794/statistics/rx_dropped
-  echo "=== VIP still assigned ==="
-  ip addr show bnd0.1794 | grep 10.172.194.160
-'
-Starting pod/ocp-ai-master01calixlocal-debug-m6x4l ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== dmesg VIP-HIT entries ===
-=== LOG rule packet counter ===
-Chain PREROUTING (policy ACCEPT 4767M packets, 2200G bytes)
- pkts bytes target     prot opt in     out     source               destination
-    0     0 LOG        all  --  *      *       0.0.0.0/0            10.172.194.160       LOG flags 0 level 4 prefix "VIP-HIT: "
-    0     0 LOG        all  --  bnd0.1794 *       0.0.0.0/0            10.172.194.160       LOG flags 0 level 4 prefix "VLAN1794-VIP: "
- 242M  485G CT         udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp dpt:6081 NOTRACK
-=== DNAT counter ===
-  158  9480 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
-=== FORWARD chain ===
-Chain FORWARD (policy DROP 35 packets, 10164 bytes)
- pkts bytes target     prot opt in     out     source               destination
-    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            169.254.0.1
-    0     0 ACCEPT     all  --  *      *       169.254.0.1          0.0.0.0/0
-    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            172.30.0.0/16
-    0     0 ACCEPT     all  --  *      *       172.30.0.0/16        0.0.0.0/0
-   11   440 ACCEPT     all  --  *      *       0.0.0.0/0            10.128.0.0/14
-    0     0 ACCEPT     all  --  *      *       10.128.0.0/14        0.0.0.0/0
-    0     0 REJECT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22624 flags:0x17/0x02 reject-with icmp-port-unreachable
-    0     0 REJECT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22623 flags:0x17/0x02 reject-with icmp-port-unreachable
-=== rx_dropped ===
-532069
-=== VIP still assigned ===
-    inet 10.172.194.160/32 scope global bnd0.1794
-
-Removing debug pod ...
-hsuma@plnx-admin:~$
