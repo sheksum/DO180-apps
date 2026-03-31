@@ -1,3 +1,28 @@
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ip route get 172.30.168.89 from 10.172.194.151 iif bnd0.1794
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ip route get 172.30.168.89 from 10.172.194.151 iif bnd0.1794
+Starting pod/ocp-ai-master01calixlocal-debug-hfzxj ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+172.30.168.89 from 10.172.194.151 via 169.254.0.4 dev br-ex
+    cache mtu 8900 iif bnd0.1794
 
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c 'ip rule show; echo "---TABLE 101---"; ip route show table 101; echo "---MAIN---"; ip route show table main | grep -E "172.30|default"'
+Removing debug pod ...
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c 'ip rule show; echo "---TABLE 101---"; ip route show table 101; echo "---MAIN---"; ip route show table main | grep -E "172.30|default"'
+Starting pod/ocp-ai-master01calixlocal-debug-xhttk ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+0:	from all lookup local
+30:	from all fwmark 0x1745ec lookup 7
+32763:	from 10.172.202.150 lookup 102
+32764:	from 10.172.198.150 lookup 100
+32765:	from 10.172.194.150 lookup 101
+32766:	from all lookup main
+32767:	from all lookup default
+---TABLE 101---
+default via 10.172.194.1 dev bnd0.1794
+---MAIN---
+default via 10.172.248.1 dev br-ex proto static
+172.30.0.0/16 via 169.254.0.4 dev br-ex src 169.254.0.2 mtu 8900
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
+
