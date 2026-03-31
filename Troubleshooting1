@@ -1,20 +1,7 @@
-hsuma@plnx-admin:~$ oc set env daemonset/speaker -n metallb-system METALLB_LOG_LEVEL=debug
-daemonset.apps/speaker updated
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get daemonset speaker -n metallb-system -o jsonpath='{.spec.template.spec.containers[0].args}' | python3 -m json.tool
-[
-    "--port=29150",
-    "--log-level=warn",
-    "--host=localhost",
-    "--frrk8s-namespace=openshift-frr-k8s"
-]
-hsuma@plnx-admin:~$ oc get pods -n metallb-system -o wide | grep speaker
-speaker-2kmzs                                          2/2     Running   0              8m3s   10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
-speaker-cq5vz                                          2/2     Running   2 (8m2s ago)   8m3s   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
-speaker-xxhpl                                          1/2     Running   0              12s    10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get daemonset speaker -n metallb-system -o jsonpath='{.spec.template.spec.hostNetwork}'
-truehsuma@plnx-admin:~$
+oc patch daemonset speaker -n metallb-system --type json -p '[{"op":"replace","path":"/spec/template/spec/containers/0/args","value":["--port=29150","--log-level=debug","--host=localhost","--frrk8s-namespace=openshift-frr-k8s"]}]'
+
+
+sleep 40 && oc get pods -n metallb-system -o wide | grep speaker
+
+# Then grab debug logs - look for interface/announce/skip/config activity
+oc logs -n metallb-system -l component=speaker -c speaker --tail=200 2>/dev/null | grep -i "announc\|interface\|skip\|assign\|arp\|config\|handler\|service\|pool\|l2\|advert"
