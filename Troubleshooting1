@@ -1,3 +1,12 @@
+
+# Check CSV status - wait for it to show "Succeeded"
+oc get csv -n metallb-system | grep metallb
+
+
+# Check that the operator and speaker pods are restarting
+oc get pods -n metallb-system
+
+
 hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$ oc get packagemanifest metallb-operator -n openshift-marketplace -o jsonpath='{.status.channels[?(@.name=="stable")].entries[*].name}' | tr ' ' '\n' | grep metallb
