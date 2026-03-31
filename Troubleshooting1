@@ -1,28 +1,6 @@
-Starting pod/ocp-ai-master01calixlocal-debug-vgrkl ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== TC filters on bnd0.1794 (ingress) ===
-=== TC filters on bnd0 (ingress) ===
-=== TC filters on eno7 (ingress) ===
-=== TC filters on eno8 (ingress) ===
-=== TC qdisc on bnd0.1794 ===
-qdisc noqueue 0: root refcnt 2
-=== TC qdisc on bnd0 ===
-qdisc noqueue 0: root refcnt 2
-=== eBPF programs attached ===
-bpftool not available
-=== IP input errors (snapshot 1) ===
-Ip: Forwarding DefaultTTL InReceives InHdrErrors InAddrErrors ForwDatagrams InUnknownProtos InDiscards InDelivers OutRequests OutDiscards OutNoRoutes ReasmTimeout ReasmReqds ReasmOKs ReasmFails FragOKs FragFails FragCreates OutTransmits
-Ip: 1 64 4773368132 0 1130 151 26 0 4773065945 4805335402 24 204 0 0 0 0 0 0 0 4808028091
-Icmp: InMsgs InErrors InCsumErrors InDestUnreachs InTimeExcds InParmProbs InSrcQuenchs InRedirects InEchos InEchoReps InTimestamps InTimestampReps InAddrMasks InAddrMaskReps OutMsgs OutErrors OutRateLimitGlobal OutRateLimitHost OutDestUnreachs OutTimeExcds OutParmProbs OutSrcQuenchs OutRedirects OutEchos OutEchoReps OutTimestamps OutTimestampReps OutAddrMasks OutAddrMaskReps
-#kernel
-IpInHdrErrors                   0                  0.0
-IpInAddrErrors                  1130               0.0
-TcpInErrs                       11                 0.0
-=== rx_dropped on bnd0.1794 ===
-532738
-=== Check if bnd0.1794 MAC matches what MetalLB advertises ===
-    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
-    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
+oc get svc minio-lb -n pai-dev -o jsonpath='{.spec.externalTrafficPolicy}'
+echo
 
-Removing debug pod ...
-hsuma@plnx-admin:~$
+oc patch svc minio-lb -n pai-dev -p '{"spec":{"externalTrafficPolicy":"Cluster"}}'
+
+oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- nc -w 5 -zv 10.172.194.160 9000
