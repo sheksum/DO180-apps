@@ -1,23 +1,16 @@
-Starting pod/ocp-ai-master02calixlocal-debug-c2hgl ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== Enable iptables TRACE for DNAT packets ===
-=== Add LOG at top of POSTROUTING (no -o filter) ===
-=== Flush conntrack ===
-1
-=== Testing ===
-HTTP status: 000
+oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
+echo "=== Current table 101 ==="
+ip route show table 101
 
-=== POSTROUTING LOG hits ===
-Chain POSTROUTING (policy ACCEPT 48M packets, 2864M bytes)
-num   pkts bytes target     prot opt in     out     source               destination
-1        1    60 LOG        tcp  --  *      *       0.0.0.0/0            172.30.168.89        tcp dpt:9000 LOG flags 0 level 4 prefix "POST-DNAT: "
-2        0     0 MASQUERADE  all  --  *      br-ex   0.0.0.0/0            0.0.0.0/0            ctstate DNAT
-3      48M 2864M OVN-KUBE-EGRESS-IP-MULTI-NIC  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+echo ""
+echo "=== Adding ClusterIP route to table 101 ==="
+ip route add 172.30.0.0/16 via 169.254.0.4 dev br-ex table 101
 
-=== dmesg TRACE + LOG ===
-[2667583.437175] POST-DNAT: IN= OUT=bnd0.1794 SRC=10.172.194.151 DST=172.30.168.89 LEN=60 TOS=0x00 PREC=0x00 TTL=64 ID=29063 DF PROTO=TCP SPT=52696 DPT=9000 WINDOW=62720 RES=0x00 SYN URGP=0
+echo ""
+echo "=== Verify ==="
+ip route show table 101
 
-=== Cleanup ===
-
-Removing debug pod ...
-hsuma@plnx-admin:~$
+echo ""
+echo "=== Test ==="
+curl -m5 -s -o /dev/null -w "HTTP status: %{http_code}\n" http://10.172.194.160:9000
+'
