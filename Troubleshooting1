@@ -18,3 +18,6 @@ oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194
 
 # 7. Check kernel log for the LOG output
 oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- dmesg | grep VLAN1794-VIP | tail -5
+
+# 8. Check nftables FORWARD drop counter
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- nft list chain ip filter FORWARD
