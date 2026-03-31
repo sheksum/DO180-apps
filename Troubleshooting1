@@ -1,162 +1,38 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get l2advertisements -A -o yaml | grep -A 20 "spec:"
-  spec:
-    ipAddressPools:
-    - reserved-future
-- apiVersion: metallb.io/v1beta1
-  kind: L2Advertisement
-  metadata:
-    annotations:
-      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1794-dev
-      kubectl.kubernetes.io/last-applied-configuration: |
-        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1794-dev"},"name":"l2-vlan1794-dev","namespace":"metallb-system"},"spec":{"interfaces":["bond0.1794","bnd0.1794"],"ipAddressPools":["pai-services-dev"]}}
-    creationTimestamp: "2026-02-28T20:56:44Z"
-    generation: 7
-    name: l2-vlan1794-dev
-    namespace: metallb-system
-    resourceVersion: "29735913"
-    uid: de697be7-8103-4b7e-873d-75f26d1800fd
-  spec:
-    interfaces:
-    - bond0.1794
-    - bnd0.1794
-    ipAddressPools:
-    - pai-services-dev
-- apiVersion: metallb.io/v1beta1
-  kind: L2Advertisement
-  metadata:
-    annotations:
-      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1797-prod
-      kubectl.kubernetes.io/last-applied-configuration: |
-        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1797-prod"},"name":"l2-vlan1797-prod","namespace":"metallb-system"},"spec":{"interfaces":["bond0.1797","bnd0.1797"],"ipAddressPools":["pai-services-prod"]}}
-    creationTimestamp: "2026-02-28T20:56:44Z"
-    generation: 5
-    name: l2-vlan1797-prod
-    namespace: metallb-system
-    resourceVersion: "29737600"
-    uid: 7b203a4b-15ed-41a8-af7b-9fded1b38e60
-  spec:
-    interfaces:
-    - bond0.1797
-    - bnd0.1797
-    ipAddressPools:
-    - pai-services-prod
-- apiVersion: metallb.io/v1beta1
-  kind: L2Advertisement
-  metadata:
-    annotations:
-      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1798-test
-      kubectl.kubernetes.io/last-applied-configuration: |
-        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1798-test"},"name":"l2-vlan1798-test","namespace":"metallb-system"},"spec":{"interfaces":["bond0.1798","bnd0.1798"],"ipAddressPools":["pai-services-test"]}}
-    creationTimestamp: "2026-02-28T20:56:44Z"
-    generation: 5
-    name: l2-vlan1798-test
-    namespace: metallb-system
-    resourceVersion: "29737598"
-    uid: 5607c6b0-28fe-4b61-a9aa-49d37f2c97fd
-  spec:
-    interfaces:
-    - bond0.1798
-    - bnd0.1798
-    ipAddressPools:
-    - pai-services-test
-kind: List
-metadata:
-  resourceVersion: ""
-hsuma@plnx-admin:~$ oc get ipaddresspools -A -o yaml | grep -A 10 "spec:"
-  spec:
-    addresses:
-    - 10.172.194.160-10.172.194.179
-    autoAssign: true
-    avoidBuggyIPs: false
-  status:
-    assignedIPv4: 3
-    assignedIPv6: 0
-    availableIPv4: 17
-    availableIPv6: 0
-- apiVersion: metallb.io/v1beta1
---
-  spec:
-    addresses:
-    - 10.172.202.160-10.172.202.179
-    autoAssign: true
-    avoidBuggyIPs: false
-  status:
-    assignedIPv4: 2
-    assignedIPv6: 0
-    availableIPv4: 18
-    availableIPv6: 0
-- apiVersion: metallb.io/v1beta1
---
-  spec:
-    addresses:
-    - 10.172.198.160-10.172.198.179
-    autoAssign: true
-    avoidBuggyIPs: false
-  status:
-    assignedIPv4: 2
-    assignedIPv6: 0
-    availableIPv4: 18
-    availableIPv6: 0
-- apiVersion: metallb.io/v1beta1
---
-  spec:
-    addresses:
-    - 10.172.248.175-10.172.248.180
-    autoAssign: false
-    avoidBuggyIPs: false
-  status:
-    assignedIPv4: 1
-    assignedIPv6: 0
-    availableIPv4: 5
-    availableIPv6: 0
-kind: List
-hsuma@plnx-admin:~$ echo ""
+echo "=== pg-lb service details ==="
+oc get svc pg-lb -n pai-dev -o yaml | grep -A 20 "spec:"
 
-hsuma@plnx-admin:~$ echo "=== ARP for all VIPs from this host ==="
-for vip in 10.172.194.160 10.172.194.161 10.172.194.163 10.172.202.160 10.172.202.161 10.172.198.160 10.172.198.161; do
+echo ""
+echo "=== pg-lb endpoints ==="
+oc get endpoints pg-lb -n pai-dev -o yaml
+
+echo ""
+echo "=== ARP checks from master02 (same VLAN) ==="
+oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
+for vip in 10.172.194.160 10.172.194.161 10.172.194.163; do
   echo -n "$vip -> "
-  arping -c 1 -w 2 $vip 2>&1 | grep -E "reply|timeout" | head -1
+  arping -c 2 -w 3 -I bnd0.1794 $vip 2>&1 | tail -3
 done
-=== ARP for all VIPs from this host ===
-10.172.194.160 -> 10.172.194.161 -> 10.172.194.163 -> 10.172.202.160 -> 10.172.202.161 -> 10.172.198.160 -> 10.172.198.161 -> hsuma@plnx-admin:~$
+echo ""
+echo "=== ARP on VLAN 1797 ==="
+for vip in 10.172.202.160 10.172.202.161; do
+  echo -n "$vip -> "
+  arping -c 2 -w 3 -I bnd0.1797 $vip 2>&1 | tail -3
+done
+echo ""
+echo "=== ARP on VLAN 1798 ==="
+for vip in 10.172.198.160 10.172.198.161; do
+  echo -n "$vip -> "
+  arping -c 2 -w 3 -I bnd0.1798 $vip 2>&1 | tail -3
+done
+'
 
-hsuma@plnx-admin:~$ for pod in $(oc get pods -n metallb-system -l component=speaker -o name); do
-  node=$(oc get $pod -n metallb-system -o jsonpath='{.spec.nodeName}')
-  echo "=== $node ==="
-  oc logs $pod -n metallb-system --tail=200 2>/dev/null | grep -i "announc" | tail -10
+echo "=== MetalLB service allocation ==="
+for ns in pai-dev pai-prod pai-test; do
+  echo "--- $ns ---"
+  oc get svc -n $ns --field-selector spec.type=LoadBalancer -o custom-columns='NAME:.metadata.name,EXTERNAL-IP:.status.loadBalancer.ingress[0].ip,ENDPOINTS:.subsets'
 done
-=== ocp-ai-master02.calix.local ===
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:26Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:36Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:46Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:56Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:06Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:16Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:26Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:36Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:46Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:56Z"}
-=== ocp-ai-master01.calix.local ===
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:28Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:38Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:48Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:58Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:08Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:18Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:28Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:38Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:48Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:58Z"}
-=== ocp-ai-master03.calix.local ===
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:25Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:35Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:45Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:50:55Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:05Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:15Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:25Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:35Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:45Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T22:51:55Z"}
-hsuma@plnx-admin:~$
+
+echo ""
+echo "=== Speaker logs - broader search ==="
+pod=$(oc get pods -n metallb-system -l component=speaker --field-selector spec.nodeName=ocp-ai-master01.calix.local -o name)
+oc logs $pod -n metallb-system --tail=500 | grep -v "interface to exclude" | tail -20
