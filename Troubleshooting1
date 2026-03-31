@@ -1,20 +1,40 @@
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
   echo "=== XDP programs on interfaces ==="
   for iface in eno7 eno8 bnd0 bnd0.1794; do
     echo -n "$iface: "
     ip -d link show $iface 2>/dev/null | grep -i "xdp\|prog/xdp" || echo "no xdp"
   done
-  
+
   echo "=== BPF filesystem ==="
   ls -la /sys/fs/bpf/ 2>/dev/null || echo "not mounted"
-  
+
   echo "=== Check for any attached BPF on bnd0.1794 ==="
   ip -d link show bnd0.1794
-  
+
   echo "=== Trying alternative: access via NodePort 32714 ==="
   echo "From localhost:"
   nc -zv -w 3 10.172.194.150 32714 2>&1 || true
 '
+Starting pod/ocp-ai-master01calixlocal-debug-vbnvd ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== XDP programs on interfaces ===
+eno7: no xdp
+eno8: no xdp
+bnd0: no xdp
+bnd0.1794: no xdp
+=== BPF filesystem ===
+total 0
+drwx-----T.  3 root root 0 Mar  1 01:30 .
+drwxr-xr-x. 12 root root 0 Mar  1 01:30 ..
+drwx------.  2 root root 0 Mar 31 20:42 crun
+=== Check for any attached BPF on bnd0.1794 ===
+15: bnd0.1794@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff promiscuity 0 allmulti 0 minmtu 0 maxmtu 65535
+    vlan protocol 802.1Q id 1794 <REORDER_HDR> numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 65536 tso_max_segs 65535 gro_max_size 65536 gso_ipv4_max_size 65536 gro_ipv4_max_size 65536
+=== Trying alternative: access via NodePort 32714 ===
+From localhost:
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
 
-# NodePort should work regardless of MetalLB/VIP issues
-oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.150 32714
+Removing debug pod ...
+hsuma@plnx-admin:~$
