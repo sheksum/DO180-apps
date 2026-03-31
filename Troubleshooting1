@@ -1,8 +1,15 @@
-# Check if VIP is still answering ARP
-oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- arping -c 2 -I bnd0.1794 10.172.194.160
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- arping -c 2 -I bnd0.1794 10.172.194.160
+Starting pod/ocp-ai-master02calixlocal-debug-zfzhm ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+ARPING 10.172.194.160 from 10.172.194.151 bnd0.1794
+Unicast reply from 10.172.194.160 [00:25:B5:50:0A:65]  0.989ms
+Unicast reply from 10.172.194.160 [00:25:B5:50:0A:65]  0.781ms
+Sent 2 probes (1 broadcast(s))
+Received 2 response(s)
 
-# Check what iptables rules OVN created with routingViaHost
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
 echo "=== NodePort/ExternalIP rules ==="
 iptables -t nat -S | grep -i "10.172.194.160\|NODEPORT\|EXTERNAL\|9000"
 
@@ -19,6 +26,71 @@ ip addr show dev bnd0.1794 | grep 10.172.194.160
 
 echo "=== Service details ==="
 '
+Starting pod/ocp-ai-master01calixlocal-debug-h598c ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== NodePort/ExternalIP rules ===
+-N OVN-KUBE-EXTERNALIP
+-N OVN-KUBE-NODEPORT
+-A PREROUTING -j OVN-KUBE-EXTERNALIP
+-A PREROUTING -j OVN-KUBE-NODEPORT
+-A OUTPUT -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+-A OUTPUT -j OVN-KUBE-EXTERNALIP
+-A OUTPUT -j OVN-KUBE-NODEPORT
+-A OVN-KUBE-EXTERNALIP -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+-A OVN-KUBE-EXTERNALIP -d 10.172.194.163/32 -p tcp -m tcp --dport 5432 -j DNAT --to-destination 172.30.23.200:5432
+-A OVN-KUBE-EXTERNALIP -d 10.172.248.175/32 -p tcp -m tcp --dport 443 -j DNAT --to-destination 172.30.31.98:443
+-A OVN-KUBE-EXTERNALIP -d 10.172.248.175/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination 172.30.31.98:80
+-A OVN-KUBE-EXTERNALIP -d 10.172.248.175/32 -p tcp -m tcp --dport 15021 -j DNAT --to-destination 172.30.31.98:15021
+-A OVN-KUBE-EXTERNALIP -d 10.172.198.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.17.247:9000
+-A OVN-KUBE-EXTERNALIP -d 10.172.198.161/32 -p tcp -m tcp --dport 19530 -j DNAT --to-destination 172.30.154.19:19530
+-A OVN-KUBE-EXTERNALIP -d 10.172.202.161/32 -p tcp -m tcp --dport 19530 -j DNAT --to-destination 172.30.250.144:19530
+-A OVN-KUBE-EXTERNALIP -d 10.172.194.161/32 -p tcp -m tcp --dport 19530 -j DNAT --to-destination 172.30.156.22:19530
+-A OVN-KUBE-EXTERNALIP -d 10.172.202.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.161.228:9000
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 32714 -j DNAT --to-destination 172.30.168.89:9000
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 31478 -j DNAT --to-destination 172.30.23.200:5432
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 30465 -j DNAT --to-destination 172.30.31.98:443
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 31594 -j DNAT --to-destination 172.30.31.98:80
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 30643 -j DNAT --to-destination 172.30.31.98:15021
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 32339 -j DNAT --to-destination 172.30.17.247:9000
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 31563 -j DNAT --to-destination 172.30.154.19:19530
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 30139 -j DNAT --to-destination 172.30.250.144:19530
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 30241 -j DNAT --to-destination 172.30.156.22:19530
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 32639 -j DNAT --to-destination 172.30.161.228:9000
+=== OVN nat chains ===
+-N OVN-KUBE-NODEPORT
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 32714 -j DNAT --to-destination 172.30.168.89:9000
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 31478 -j DNAT --to-destination 172.30.23.200:5432
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 30465 -j DNAT --to-destination 172.30.31.98:443
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 31594 -j DNAT --to-destination 172.30.31.98:80
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 30643 -j DNAT --to-destination 172.30.31.98:15021
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 32339 -j DNAT --to-destination 172.30.17.247:9000
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 31563 -j DNAT --to-destination 172.30.154.19:19530
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 30139 -j DNAT --to-destination 172.30.250.144:19530
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 30241 -j DNAT --to-destination 172.30.156.22:19530
+-A OVN-KUBE-NODEPORT -p tcp -m addrtype --dst-type LOCAL -m tcp --dport 32639 -j DNAT --to-destination 172.30.161.228:9000
+-N OVN-KUBE-EXTERNALIP
+-A OVN-KUBE-EXTERNALIP -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+-A OVN-KUBE-EXTERNALIP -d 10.172.194.163/32 -p tcp -m tcp --dport 5432 -j DNAT --to-destination 172.30.23.200:5432
+-A OVN-KUBE-EXTERNALIP -d 10.172.248.175/32 -p tcp -m tcp --dport 443 -j DNAT --to-destination 172.30.31.98:443
+-A OVN-KUBE-EXTERNALIP -d 10.172.248.175/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination 172.30.31.98:80
+-A OVN-KUBE-EXTERNALIP -d 10.172.248.175/32 -p tcp -m tcp --dport 15021 -j DNAT --to-destination 172.30.31.98:15021
+-A OVN-KUBE-EXTERNALIP -d 10.172.198.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.17.247:9000
+-A OVN-KUBE-EXTERNALIP -d 10.172.198.161/32 -p tcp -m tcp --dport 19530 -j DNAT --to-destination 172.30.154.19:19530
+-A OVN-KUBE-EXTERNALIP -d 10.172.202.161/32 -p tcp -m tcp --dport 19530 -j DNAT --to-destination 172.30.250.144:19530
+-A OVN-KUBE-EXTERNALIP -d 10.172.194.161/32 -p tcp -m tcp --dport 19530 -j DNAT --to-destination 172.30.156.22:19530
+-A OVN-KUBE-EXTERNALIP -d 10.172.202.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.161.228:9000
+-N OVN-KUBE-ETP
+=== ip_forward still on ===
+1
+=== VIP address on bnd0.1794? ===
+=== Service details ===
 
-# Also check service
-oc get svc minio-lb -n pai-dev -o yaml | grep -A5 "spec:" | head -15
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc get svc minio-lb -n pai-dev -o yaml | grep -A5 "spec:" | head -15
+spec:
+  allocateLoadBalancerNodePorts: true
+  clusterIP: 172.30.168.89
+  clusterIPs:
+  - 172.30.168.89
+  externalTrafficPolicy: Cluster
+hsuma@plnx-admin:~$
