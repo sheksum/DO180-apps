@@ -1,21 +1,42 @@
-Gene Siepka  [12:32 PM]
-sorry to bug you, need some of your time. Sulabh is getting antsy. ping me when you get online.
-Haj Suma  [12:46 PM]
-Why is he antsy lol?
-[12:47 PM]what's the issue again?
-Gene Siepka  [12:48 PM]
-apparently now there's an issue and he's saying he needs access to his DB externally.
+# Does plnx-admin have a route to 10.172.194.0/23?
+ip route get 10.172.194.163
 
-I created an LB Service for his postgresDB, using metallb all that looks good. It's just that I can't reach it
-[12:48 PM]10.172.194.163
-Haj Suma  [12:49 PM]
-do you notice any error or issue that stands out?
-[12:49 PM]call
-Gene Siepka  [12:49 PM]
-I can ping 10.172.194.1 gateway from pnlx-admin but can't reach that .163 IP, none of the other LB Services are reachable either
+# Trace the path
+traceroute -n 10.172.194.163
+
+ssh -i ~/.ssh/ocp-ai core@10.172.248.150
+
+# Is the VIP bound?
+ip addr show | grep 10.172.194.163
+
+# Which interface is it on?
+ip addr show | grep -B5 10.172.194
+
+# Are ALL the MetalLB IPs present?
+ip addr show | grep "10.172.194.16"
 
 
 
+# From plnx-admin:
+oc get l2advertisement -n metallb-system -o yaml
+oc get ipaddresspool -n metallb-system -o yaml
+
+
+# On the same master node:
+ip rule list
+ip route show table all | grep "10.172.194"
+```
+
+The MachineConfig `99-master-app-vlan-policy-routes` should have created rules like `from 10.172.194.0/23 lookup <table>` with a default route via 10.172.194.1 in that table. If these rules aren't present, the MC script might not have run — check `systemctl status app-vlan-policy-routes` (or whatever the unit is named) and `journalctl -u app-vlan-policy-routes`.
+
+**Step 5: Check the Nexus side**
+
+Ask the network team (or if you have access):
+```
+show interface Vlan1794
+show ip route 10.172.194.0/23
+show mac address-table vlan 1794
+show ip arp vlan 1794
 
 # === 1. SHOW THE OPERATOR UPGRADE ===
 # Previous working version vs current broken version
