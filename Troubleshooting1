@@ -1,15 +1,53 @@
- # 1. Did the OVS TCP flow counter change from 0?
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
   ovs-ofctl dump-flows br-ex | grep "tcp.*10.172.194.160"
+Starting pod/ocp-ai-master01calixlocal-debug-gq4xr ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+ cookie=0x25a8284c9ab947c1, duration=2648721.052s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=110,tcp,in_port=1,nw_dst=10.172.194.160,tp_dst=9000 actions=output:2
+ cookie=0x25a8284c9ab947c1, duration=2648721.052s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=110,tcp,in_port=2,dl_src=00:25:b5:50:0a:64,nw_src=10.172.194.160,tp_src=9000 actions=output:1
 
-# 2. Did the ARP entry survive, or did MetalLB overwrite it?
-oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
   ip neigh show 10.172.194.160
+Starting pod/ocp-ai-master02calixlocal-debug-vkr9w ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+10.172.194.160 dev bnd0.1794 lladdr 00:25:b5:50:0a:64 PERMANENT
 
-# 3. Are eno5 and bnd0 separate physical paths? What NICs are in the bond?
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
   cat /proc/net/bonding/bnd0 | head -30
+Starting pod/ocp-ai-master01calixlocal-debug-pp5zw ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+Ethernet Channel Bonding Driver: v5.14.0-570.83.1.el9_6.x86_64
 
-# 4. Which VLAN does eno5 carry? Is it trunking 1794?
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+Bonding Mode: fault-tolerance (active-backup)
+Primary Slave: None
+Currently Active Slave: eno7
+MII Status: up
+MII Polling Interval (ms): 100
+Up Delay (ms): 0
+Down Delay (ms): 0
+Peer Notification Delay (ms): 0
+
+Slave Interface: eno7
+MII Status: up
+Speed: 100000 Mbps
+Duplex: full
+Link Failure Count: 0
+Permanent HW addr: 00:25:b5:50:0a:65
+Slave queue ID: 0
+
+Slave Interface: eno8
+MII Status: up
+Speed: 100000 Mbps
+Duplex: full
+Link Failure Count: 0
+Permanent HW addr: 00:25:b5:51:0b:65
+Slave queue ID: 0
+
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
   bridge vlan show dev eno5 2>/dev/null; ip -d link show eno5
+port              vlan-id
+Device "eno5" does not exist.
+hsuma@plnx-admin:~$
