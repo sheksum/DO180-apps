@@ -1,4 +1,4 @@
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
 # Load trace log module
 modprobe nf_log_syslog 2>/dev/null
 modprobe nf_log_ipv4 2>/dev/null
@@ -26,14 +26,30 @@ dmesg -C
 echo "RX before: $(cat /sys/class/net/bnd0.1794/statistics/rx_packets)"
 echo "Rules set. Ready for test."
 '
+Starting pod/ocp-ai-master01calixlocal-debug-782d8 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+RX before: 7016065
+Rules set. Ready for test.
 
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- nc -w 5 -zv 10.172.194.160 9000
+Starting pod/ocp-ai-master02calixlocal-debug-sg22q ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
 
-# master02 - test:
-oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- nc -w 5 -zv 10.172.194.160 9000
-
-# master01 - collect (run right after):
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
 echo "RX after: $(cat /sys/class/net/bnd0.1794/statistics/rx_packets)"
 echo "=== dmesg ==="
 dmesg | grep -E "RAW-PRE|POST-DNAT|MANGLE-FWD|FILTER-FWD|INPUT-VIP" | tail -20
 '
+Starting pod/ocp-ai-master01calixlocal-debug-98nj9 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+RX after: 7016129
+=== dmesg ===
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
