@@ -1,34 +1,47 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
-echo "=== nat OUTPUT chain ==="
-iptables -t nat -L OUTPUT -n -v --line-numbers | head -15
+oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
+echo "=== nftables external-ips vmap ==="
+nft list map inet ovn-kubernetes udn-mark-external-ips-v4
 
 echo ""
-echo "=== Flushing stale conntrack ==="
-conntrack -D -d 10.172.194.160 2>&1
-conntrack -D -d 172.30.168.89 -p tcp --dport 9000 2>&1
+echo "=== MASQUERADE rule on this node? ==="
+iptables -t nat -L POSTROUTING -n -v --line-numbers | head -10
 
 echo ""
-echo "=== Retry after flush ==="
+echo "=== Stale conntrack entries ==="
+grep -E "194.160|168.89.*dport=9000" /proc/net/nf_conntrack 2>/dev/null | head -10
+
+echo ""
+echo "=== Flushing via /proc ==="
+echo 1 > /proc/sys/net/netfilter/nf_conntrack_acct 2>/dev/null
+find /usr -name conntrack -type f 2>/dev/null
+# Flush by dropping all for this dst
+for f in $(grep "dst=10.172.194.160" /proc/net/nf_conntrack 2>/dev/null | grep "dport=9000" | awk "{print NR}"); do echo "found stale entry"; done
+
+echo ""
+echo "=== Route to ClusterIP ==="
+ip route get 172.30.168.89
+
+echo ""  
+echo "=== Wait for stale CT to clear, then test ==="
+sleep 130
 curl -m5 -s -o /dev/null -w "HTTP status: %{http_code}\n" http://10.172.194.160:9000
 '
-Starting pod/ocp-ai-master02calixlocal-debug-fpdjw ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== nat OUTPUT chain ===
-Chain OUTPUT (policy ACCEPT 48M packets, 2863M bytes)
-num   pkts bytes target     prot opt in     out     source               destination
-1     5497  330K REDIRECT   tcp  --  *      lo      0.0.0.0/0            10.172.248.155       tcp dpt:6443 /* OCP_API_LB_REDIRECT */ redir ports 9445
-2      48M 2863M OVN-KUBE-EXTERNALIP  all  --  *      *       0.0.0.0/0            0.0.0.0/0
-3      48M 2863M OVN-KUBE-NODEPORT  all  --  *      *       0.0.0.0/0            0.0.0.0/0
-4      48M 2863M OVN-KUBE-ITP  all  --  *      *       0.0.0.0/0            0.0.0.0/0
 
-=== Flushing stale conntrack ===
-bash: line 7: conntrack: command not found
-bash: line 8: conntrack: command not found
 
-=== Retry after flush ===
-HTTP status: 000
+oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
+echo "=== nftables external-ips vmap ==="
+nft list map inet ovn-kubernetes udn-mark-external-ips-v4
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
+echo ""
+echo "=== POSTROUTING rules ==="
+iptables -t nat -L POSTROUTING -n -v --line-numbers | head -10
+
+echo ""
+echo "=== conntrack entries for VIP ==="
+grep "194.160" /proc/net/nf_conntrack 2>/dev/null | head -10
+grep "dport=9000" /proc/net/nf_conntrack 2>/dev/null | head -10
+
+echo ""
+echo "=== route to ClusterIP ==="
+ip route get 172.30.168.89
+'
