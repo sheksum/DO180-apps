@@ -1,4 +1,5 @@
-echo "=== MetalLB speaker VIP assignments ==="
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ echo "=== MetalLB speaker VIP assignments ==="
 for ns in pai-dev pai-prod pai-test; do
   echo "--- $ns ---"
   for pod in $(oc get pods -n metallb-system -l component=speaker -o name); do
@@ -7,16 +8,50 @@ for ns in pai-dev pai-prod pai-test; do
     oc logs $pod -n metallb-system --tail=50 2>/dev/null | grep -E "announcing|allocated" | grep "$ns" | tail -5
   done
 done
-
-
-for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
+=== MetalLB speaker VIP assignments ===
+--- pai-dev ---
+  ocp-ai-master02.calix.local:
+  ocp-ai-master01.calix.local:
+  ocp-ai-master03.calix.local:
+--- pai-prod ---
+  ocp-ai-master02.calix.local:
+  ocp-ai-master01.calix.local:
+  ocp-ai-master03.calix.local:
+--- pai-test ---
+  ocp-ai-master02.calix.local:
+  ocp-ai-master01.calix.local:
+  ocp-ai-master03.calix.local:
+hsuma@plnx-admin:~$ for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
   echo "=== $node ==="
   oc debug node/$node -- chroot /host bash -c '
     echo "VIPs on bnd0.1794:"
-    ip addr show dev bnd0.1794 | grep "inet " 
+    ip addr show dev bnd0.1794 | grep "inet "
     echo "VIPs on bnd0.1797:"
     ip addr show dev bnd0.1797 2>/dev/null | grep "inet "
     echo "VIPs on bnd0.1798:"
     ip addr show dev bnd0.1798 2>/dev/null | grep "inet "
   ' 2>/dev/null
 done
+=== ocp-ai-master01.calix.local ===
+VIPs on bnd0.1794:
+    inet 10.172.194.150/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794
+    inet 10.172.194.160/32 scope global bnd0.1794
+VIPs on bnd0.1797:
+    inet 10.172.202.150/23 brd 10.172.203.255 scope global noprefixroute bnd0.1797
+VIPs on bnd0.1798:
+    inet 10.172.198.150/23 brd 10.172.199.255 scope global noprefixroute bnd0.1798
+=== ocp-ai-master02.calix.local ===
+VIPs on bnd0.1794:
+    inet 10.172.194.151/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794
+VIPs on bnd0.1797:
+    inet 10.172.202.151/23 brd 10.172.203.255 scope global noprefixroute bnd0.1797
+VIPs on bnd0.1798:
+    inet 10.172.198.151/23 brd 10.172.199.255 scope global noprefixroute bnd0.1798
+=== ocp-ai-master03.calix.local ===
+VIPs on bnd0.1794:
+    inet 10.172.194.152/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794
+VIPs on bnd0.1797:
+    inet 10.172.202.152/23 brd 10.172.203.255 scope global noprefixroute bnd0.1797
+VIPs on bnd0.1798:
+    inet 10.172.198.152/23 brd 10.172.199.255 scope global noprefixroute bnd0.1798
+hsuma@plnx-admin:~$
