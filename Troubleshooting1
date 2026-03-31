@@ -1,4 +1,2 @@
-Sulabh Sinha  [2:40 PM]
-Hey @gene.siepka / @haj.suma - Created the tickets for read only access for the team and making endpoint accessible outside of cluster. Between the 2 making db endpoint accessible outside the cluster is more urgent, please consider that it as P1.
-EOSM-54195
-EOSM-54196EOSM-54195 Need view only access for PAI Team members for AI ClusterStatus: OpenType: [System] IncidentAssignee: Gene SiepkaPriority: P3-MediumAdded by Jira CloudEOSM-54196 AI Cluster - Make DB endpoint accessible outside of cluster
+Hey team — got the MetalLB VLAN VIP issue sorted out. All 7 LB services (MinIO, Milvus, PostgreSQL) are working now across dev/test/prod VLANs.
+Short version: MetalLB was handing out VIPs and answering ARP just fine, but traffic on the bnd0.179x interfaces was getting silently dropped. It ended up being four things stacked on each other — OVN wasn't creating DNAT rules for non-OVS interfaces (fixed with routingViaHost: true), ip_forward was getting reset (fixed with ipForwarding: Global), the policy routing tables were sending DNAT'd packets back out the VLAN gateway instead of into OVN (added the ClusterIP route to tables 100/101/102), and rp_filter was dropping packets from external subnets on the VLAN interfaces (disabled it on bnd0.*). Also needed a MASQUERADE rule so OVN can route responses back out the right interface.
