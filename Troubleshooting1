@@ -1,55 +1,29 @@
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-# Load trace log module
-modprobe nf_log_syslog 2>/dev/null
-modprobe nf_log_ipv4 2>/dev/null
-
-# Add LOG rules at every stage
-iptables -t raw -C PREROUTING -d 10.172.194.160 -p tcp --dport 9000 -j LOG --log-prefix "RAW-PRE: " 2>/dev/null || \
-  iptables -t raw -I PREROUTING -d 10.172.194.160 -p tcp --dport 9000 -j LOG --log-prefix "RAW-PRE: "
-
-iptables -t mangle -C FORWARD -d 172.30.0.0/16 -j LOG --log-prefix "MANGLE-FWD: " 2>/dev/null || \
-  iptables -t mangle -I FORWARD -d 172.30.0.0/16 -j LOG --log-prefix "MANGLE-FWD: "
-
-iptables -C FORWARD -d 172.30.0.0/16 -j LOG --log-prefix "FILTER-FWD: " 2>/dev/null || \
-  iptables -I FORWARD -d 172.30.0.0/16 -j LOG --log-prefix "FILTER-FWD: "
-
-# Also log locally-destined traffic (in case packet goes to INPUT not FORWARD)
-iptables -C INPUT -d 10.172.194.160 -p tcp --dport 9000 -j LOG --log-prefix "INPUT-VIP: " 2>/dev/null || \
-  iptables -I INPUT -d 10.172.194.160 -p tcp --dport 9000 -j LOG --log-prefix "INPUT-VIP: "
-
-# Log after DNAT in mangle PREROUTING (fires after nat PREROUTING DNAT)
-iptables -t mangle -C PREROUTING -d 172.30.168.89 -p tcp --dport 9000 -j LOG --log-prefix "POST-DNAT: " 2>/dev/null || \
-  iptables -t mangle -I PREROUTING -d 172.30.168.89 -p tcp --dport 9000 -j LOG --log-prefix "POST-DNAT: "
-
-# Clear dmesg and record baseline RX counter
-dmesg -C
-echo "RX before: $(cat /sys/class/net/bnd0.1794/statistics/rx_packets)"
-echo "Rules set. Ready for test."
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+  echo "=== VIP local address? ==="
+  ip addr show bnd0.1794 | grep 10.172.194.160 || echo "NOT CONFIGURED"
+  
+  echo "=== BEFORE test counters ==="
+  echo "DNAT:"
+  iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
+  echo "FORWARD:"
+  iptables -L FORWARD -v -n 2>/dev/null | grep 172.30
+  echo "MASQ:"
+  iptables -t nat -L POSTROUTING -v -n 2>/dev/null | grep MASQ
+  echo "FORWARD policy drops:"
+  iptables -L FORWARD -v -n 2>/dev/null | head -3
+  
+  echo "=== Waiting 15s - TEST NOW ==="
+  sleep 15
+  
+  echo "=== AFTER test counters ==="
+  echo "DNAT:"
+  iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
+  echo "FORWARD:"
+  iptables -L FORWARD -v -n 2>/dev/null | grep 172.30
+  echo "MASQ:"
+  iptables -t nat -L POSTROUTING -v -n 2>/dev/null | grep MASQ
+  echo "FORWARD policy drops:"
+  iptables -L FORWARD -v -n 2>/dev/null | head -3
 '
-Starting pod/ocp-ai-master01calixlocal-debug-782d8 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-RX before: 7016065
-Rules set. Ready for test.
 
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- nc -w 5 -zv 10.172.194.160 9000
-Starting pod/ocp-ai-master02calixlocal-debug-sg22q ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: TIMEOUT.
-
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-echo "RX after: $(cat /sys/class/net/bnd0.1794/statistics/rx_packets)"
-echo "=== dmesg ==="
-dmesg | grep -E "RAW-PRE|POST-DNAT|MANGLE-FWD|FILTER-FWD|INPUT-VIP" | tail -20
-'
-Starting pod/ocp-ai-master01calixlocal-debug-98nj9 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-RX after: 7016129
-=== dmesg ===
-
-Removing debug pod ...
-hsuma@plnx-admin:~$
+oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
