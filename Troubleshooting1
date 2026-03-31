@@ -1,15 +1,41 @@
-hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo ovs-ofctl dump-flows br-ex 2>/dev/null | grep -c '10.172.194'"
-19
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo iptables-save 2>/dev/null | grep '10.172.194.160'"
--A OVN-KUBE-EXTERNALIP -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo ovn-nbctl --no-leader-only lb-list 2>/dev/null | grep -E '10.172.194|10.172.202|10.172.198'"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master02.calix.local "nc -zv -w 3 10.172.248.150 32714"
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Connected to 10.172.248.150:32714.
-Ncat: 0 bytes sent, 0 bytes received in 0.01 seconds.
-hsuma@plnx-admin:~$
+# ============================================================
+# PHASE 1: DIAGNOSE THE EXACT FAILURE POINT
+# ============================================================
+
+echo "=== 1. Check how OVN-KUBE-EXTERNALIP is referenced in PREROUTING ==="
+oc debug node/master01 -- chroot /host iptables -t nat -S PREROUTING 2>/dev/null
+
+echo ""
+echo "=== 2. Check if OVN-KUBE-EXTERNALIP is also in OUTPUT chain ==="
+oc debug node/master01 -- chroot /host iptables -t nat -S OUTPUT 2>/dev/null
+
+echo ""
+echo "=== 3. Check FORWARD chain for restrictions ==="
+oc debug node/master01 -- chroot /host iptables -S FORWARD 2>/dev/null | head -30
+
+echo ""
+echo "=== 4. Check reverse path filtering (rp_filter) on bnd0.1794 ==="
+oc debug node/master01 -- chroot /host bash -c 'for f in /proc/sys/net/ipv4/conf/{all,bnd0.1794,default}/rp_filter; do echo "$f = $(cat $f)"; done'
+
+echo ""
+echo "=== 5. Check conntrack and ip_forward ==="
+oc debug node/master01 -- chroot /host bash -c 'cat /proc/sys/net/ipv4/ip_forward; echo ""; cat /proc/sys/net/ipv4/conf/bnd0.1794/forwarding'
+
+echo ""
+echo "=== 6. Check the full OVN-KUBE-EXTERNALIP chain ==="
+oc debug node/master01 -- chroot /host iptables -t nat -S OVN-KUBE-EXTERNALIP 2>/dev/null
+
+echo ""
+echo "=== 7. Check route to ClusterIP 172.30.168.89 ==="
+oc debug node/master01 -- chroot /host ip route get 172.30.168.89
+
+echo ""
+echo "=== 8. Check iptables counters for the DNAT rule (are packets hitting it?) ==="
+oc debug node/master01 -- chroot /host iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
+
+
+oc debug node/master01 -- chroot /host tcpdump -i bnd0.1794 -nn 'host 10.172.194.160 and port 9000' -c 10
+
+oc debug node/master02 -- chroot /host nc -zv -w 3 10.172.194.160 9000
+
+oc debug node/master01 -- chroot /host conntrack -L -d 172.30.168.89 2>/dev/null
