@@ -1,58 +1,23 @@
-Starting pod/ocp-ai-master01calixlocal-debug-sbrhz ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== rp_filter BEFORE ===
-br-ex: 0
-default: 0
+oc debug node/ocp-ai-master01.calix.local -- chroot /host bash -c '
+echo "=== nftables prerouting chains ==="
+nft list table inet ovn-kubernetes 2>&1 | grep -A 20 "prerouting\|ingress"
 
-=== rp_filter AFTER ===
-br-ex: 0
-default: 0
+echo ""
+echo "=== full iptables PREROUTING chain ==="
+iptables -t nat -L PREROUTING -n -v --line-numbers
 
-=== DNAT counter ===
-    8   480 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
+echo ""
+echo "=== rx_packets before ==="
+cat /sys/class/net/bnd0.1794/statistics/rx_packets
+sleep 8
+echo "=== rx_packets after (test now from master02!) ==="
+cat /sys/class/net/bnd0.1794/statistics/rx_packets
 
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker -o wide
-NAME            READY   STATUS    RESTARTS      AGE   IP               NODE                          NOMINATED NODE   READINESS GATES
-speaker-2lqrr   2/2     Running   1 (36m ago)   36m   10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
-speaker-4rnbf   2/2     Running   0             36m   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
-speaker-x7w2q   2/2     Running   1 (36m ago)   36m   10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
-hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker --all-containers --tail=20 | grep -i "10.172.194.160"
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host curl -m10 http://10.172.194.160:9000
-Starting pod/ocp-ai-master02calixlocal-debug-p9xbc ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0
-curl: (28) Connection timed out after 10000 milliseconds
+echo ""
+echo "=== raw table PREROUTING (anything before nat?) ==="
+iptables -t raw -L PREROUTING -n -v --line-numbers
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host bash -c '
-echo "DNAT counter:"
-iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n | grep "10.172.194.160.*9000"
-echo "FORWARD LOG:"
-iptables -L FORWARD -v -n | grep FWD-VLAN
-echo "POSTROUTING MASQ:"
-iptables -t nat -L POSTROUTING -v -n | grep -i masq
-echo "RPF drops:"
-nstat -z | grep IPReversePathFilter
+echo ""
+echo "=== mangle PREROUTING ==="
+iptables -t mangle -L PREROUTING -n -v --line-numbers
 '
-Starting pod/ocp-ai-master01calixlocal-debug-q9jtc ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-DNAT counter:
-    8   480 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
-FORWARD LOG:
-    0     0 LOG        all  --  *      *       10.172.194.0/23      172.30.0.0/16        LOG flags 0 level 4 prefix "FWD-VLAN: "
-POSTROUTING MASQ:
-    0     0 MASQUERADE  all  --  *      br-ex   0.0.0.0/0            0.0.0.0/0            ctstate DNAT
-    0     0 MASQUERADE  all  --  *      br-ex   0.0.0.0/0            0.0.0.0/0            ctstate DNAT
-    0     0 MASQUERADE  all  --  *      br-ex   10.172.194.0/23      172.30.0.0/16
-    0     0 MASQUERADE  all  --  *      br-ex   10.172.194.0/24      172.30.0.0/16
-    0     0 MASQUERADE  all  --  *      br-ex   10.172.198.0/24      172.30.0.0/16
-    0     0 MASQUERADE  all  --  *      br-ex   10.172.202.0/24      172.30.0.0/16
-RPF drops:
-TcpExtIPReversePathFilter       0                  0.0
-
-Removing debug pod ...
-hsuma@plnx-admin:~$
