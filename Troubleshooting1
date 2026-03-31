@@ -1,21 +1,68 @@
-# 1. What are the two containers in the speaker pod?
-oc get pod speaker-96xwt -n metallb-system -o jsonpath='{.spec.containers[*].name}'
-echo
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs -n metallb-system speaker-96xwt -c $(oc get pod speaker-96xwt -n metallb-system -o jsonpath='{.spec.containers[1].name}')
+W0330 20:34:43.966113       1 deprecated.go:66]
+==== Removed Flag Warning ======================
 
-# 2. Logs from the second container (whatever it's called)
-oc logs -n metallb-system speaker-96xwt -c $(oc get pod speaker-96xwt -n metallb-system -o jsonpath='{.spec.containers[1].name}')
+logtostderr is removed in the k8s upstream and has no effect any more.
 
-# 3. The MetalLB CR — this controls how the operator deploys speakers
-oc get metallb -n metallb-system -o yaml
+===============================================
 
-# 4. Is the speaker process actually running inside the container?
-oc exec -n metallb-system speaker-96xwt -c speaker -- ps aux
-
-# 5. Key question: were VIPs EVER reachable from outside the cluster?
-#    Check when the previous operator version was installed vs L2Advertisement creation
-#    L2Advertisements were created Feb 28. Previous operator: v4.20.0-202602261925
-#    Current operator: v4.20.0-202603152019 (March 15 auto-upgrade)
-#    Did MetalLB VIPs work between Feb 28 and March 15?
-
-# 6. Check operator events for anything about the upgrade
-oc get events -n metallb-system --sort-by='.lastTimestamp' | tail -30
+I0330 20:34:43.966502       1 kube-rbac-proxy.go:235] Valid token audiences:
+I0330 20:34:43.967257       1 kube-rbac-proxy.go:349] Reading certificate files
+I0330 20:34:43.967476       1 kube-rbac-proxy.go:397] Starting TCP socket on :9120
+I0330 20:34:43.967652       1 kube-rbac-proxy.go:404] Listening securely on :9120
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get metallb -n metallb-system -o yaml
+apiVersion: v1
+items:
+- apiVersion: metallb.io/v1beta1
+  kind: MetalLB
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: metallb:metallb.io/MetalLB:metallb-system/metallb
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"metallb.io/v1beta1","kind":"MetalLB","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/MetalLB:metallb-system/metallb"},"name":"metallb","namespace":"metallb-system"},"spec":{"logLevel":"warn"}}
+    creationTimestamp: "2026-02-26T04:36:27Z"
+    generation: 3
+    name: metallb
+    namespace: metallb-system
+    resourceVersion: "29021752"
+    uid: 1fb9e4ea-3556-4127-a735-f0d8f4c3377f
+  spec:
+    logLevel: warn
+  status:
+    conditions:
+    - lastTransitionTime: "2026-03-30T20:35:05Z"
+      message: ""
+      reason: Available
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2026-03-30T20:35:05Z"
+      message: ""
+      reason: Upgradeable
+      status: "True"
+      type: Upgradeable
+    - lastTransitionTime: "2026-03-30T20:35:05Z"
+      message: ""
+      reason: Progressing
+      status: "False"
+      type: Progressing
+    - lastTransitionTime: "2026-03-30T20:35:05Z"
+      message: ""
+      reason: Degraded
+      status: "False"
+      type: Degraded
+kind: List
+metadata:
+  resourceVersion: ""
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc exec -n metallb-system speaker-96xwt -c speaker -- ps aux
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  0.5  0.0 6459540 93676 ?       Ssl  Mar30   7:30 /speaker --port=29150 --log-level=warn --host=localhost --frrk8s-namespace=openshift-frr-k8s
+root          95  0.0  0.0   7164  2048 ?        Rs   17:33   0:00 ps aux
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get events -n metallb-system --sort-by='.lastTimestamp' | tail -30
+No resources found in metallb-system namespace.
+hsuma@plnx-admin:~$
