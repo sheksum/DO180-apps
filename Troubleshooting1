@@ -1,56 +1,10 @@
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-  echo "=== Route to ClusterIP (normal) ==="
-  ip route get 172.30.168.89
-
-  echo "=== Route to ClusterIP (with OVN fwmark) ==="
-  ip route get 172.30.168.89 mark 0x1745ec
-
-  echo "=== Routing table 7 ==="
-  ip route show table 7
-
-  echo "=== Routing table 101 ==="
-  ip route show table 101
-
-  echo "=== OVN-KUBE-ITP mangle chain (sets fwmark?) ==="
-  iptables -t mangle -S OVN-KUBE-ITP
-
-  echo "=== INPUT chain counters (packet going to local instead of forward?) ==="
-  iptables -L INPUT -v -n 2>/dev/null | head -10
-
-  echo "=== conntrack entries for VIP ==="
-  conntrack -L -d 172.30.168.89 2>/dev/null || cat /proc/net/nf_conntrack 2>/dev/null | grep 172.30.168.89 | head -5
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+  echo "=== Adding MASQUERADE for cross-VLAN DNAT traffic ==="
+  iptables -t nat -A POSTROUTING -s 10.172.194.0/23 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
+  echo "=== Verify ==="
+  iptables -t nat -S POSTROUTING | tail -5
+  echo "Done — test from master02 now"
 '
-Starting pod/ocp-ai-master01calixlocal-debug-zghwh ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== Route to ClusterIP (normal) ===
-172.30.168.89 via 169.254.0.4 dev br-ex src 169.254.0.2 uid 0
-    cache mtu 8900
-=== Route to ClusterIP (with OVN fwmark) ===
-172.30.168.89 via 10.129.0.1 dev ovn-k8s-mp0 table 7 src 10.129.0.2 mark 0x1745ec uid 0
-    cache
-=== Routing table 7 ===
-172.30.0.0/16 via 10.129.0.1 dev ovn-k8s-mp0
-=== Routing table 101 ===
-default via 10.172.194.1 dev bnd0.1794
-=== OVN-KUBE-ITP mangle chain (sets fwmark?) ===
--N OVN-KUBE-ITP
--A OVN-KUBE-ITP -d 172.30.166.154/32 -p tcp -m tcp --dport 5555 -j MARK --set-xmark 0x1745ec/0xffffffff
-=== INPUT chain counters (packet going to local instead of forward?) ===
-Chain INPUT (policy ACCEPT 4770M packets, 2202G bytes)
- pkts bytes target     prot opt in     out     source               destination
-4770M 2202G KUBE-FIREWALL  all  --  *      *       0.0.0.0/0            0.0.0.0/0
-=== conntrack entries for VIP ===
-ipv4     2 tcp      6 106 TIME_WAIT src=10.172.248.51 dst=10.172.194.160 sport=46226 dport=9000 src=172.30.168.89 dst=10.172.248.51 sport=9000 dport=46226 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=0 use=2
-ipv4     2 tcp      6 106 TIME_WAIT src=10.172.248.51 dst=172.30.168.89 sport=46226 dport=9000 src=172.30.168.89 dst=169.254.0.2 sport=9000 dport=46226 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=64001 use=2
 
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
   nc -zv -w 3 10.172.194.160 9000
-Starting pod/ocp-ai-master02calixlocal-debug-n9cbp ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: TIMEOUT.
-
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
