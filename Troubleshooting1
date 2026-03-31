@@ -1,16 +1,16 @@
-oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
-echo "=== Current table 101 ==="
-ip route show table 101
+Starting pod/ocp-ai-master02calixlocal-debug-wsnts ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== Current table 101 ===
+default via 10.172.194.1 dev bnd0.1794
 
-echo ""
-echo "=== Adding ClusterIP route to table 101 ==="
-ip route add 172.30.0.0/16 via 169.254.0.4 dev br-ex table 101
+=== Adding ClusterIP route to table 101 ===
 
-echo ""
-echo "=== Verify ==="
-ip route show table 101
+=== Verify ===
+default via 10.172.194.1 dev bnd0.1794
+172.30.0.0/16 via 169.254.0.4 dev br-ex
 
-echo ""
-echo "=== Test ==="
-curl -m5 -s -o /dev/null -w "HTTP status: %{http_code}\n" http://10.172.194.160:9000
-'
+=== Test ===
+HTTP status: 403
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
