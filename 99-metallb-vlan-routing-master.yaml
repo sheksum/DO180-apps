@@ -1,0 +1,46 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 99-metallb-vlan-routing-master
+spec:
+  config:
+    ignition:
+      version: 3.5.0
+    storage:
+      files:
+        # Sysctl: disable rp_filter globally
+        - path: /etc/sysctl.d/99-metallb-rp-filter.conf
+          mode: 420
+          contents:
+            source: data:text/plain;charset=utf-8;base64,IyBEaXNhYmxlIHJldmVyc2UgcGF0aCBmaWx0ZXJpbmcgZm9yIE1ldGFsTEIgVklQIHRyYWZmaWMgb24gc2Vjb25kYXJ5IFZMQU4gaW50ZXJmYWNlcwojIFBhY2tldHMgYXJyaXZlIG9uIGJuZDAuMTc5eCBidXQgcmVzcG9uc2VzIHJvdXRlIHZpYSBici1leCAoYXN5bW1ldHJpYykKbmV0LmlwdjQuY29uZi5hbGwucnBfZmlsdGVyID0gMAo=
+        # NetworkManager dispatcher: set rp_filter + add routes when VLAN interfaces come up
+        - path: /etc/NetworkManager/dispatcher.d/99-metallb-vlan-routing
+          mode: 493
+          contents:
+            source: data:text/plain;charset=utf-8;base64,IyEvYmluL2Jhc2gKIyBNZXRhTEIgVkxBTiByb3V0aW5nIGZpeGVzIC0gTmV0d29ya01hbmFnZXIgZGlzcGF0Y2hlcgojIFNldHMgcnBfZmlsdGVyPTAgb24gVkxBTiBpbnRlcmZhY2VzIGFuZCBhZGRzIENsdXN0ZXJJUCByb3V0ZXMgdG8gcG9saWN5IHRhYmxlcwoKSU5URVJGQUNFPSIkMSIKQUNUSU9OPSIkMiIKCiMgT25seSBhY3Qgb24gYm5kMC4qIFZMQU4gaW50ZXJmYWNlIHVwIGV2ZW50cwpjYXNlICIkSU5URVJGQUNFIiBpbgogIGJuZDAuKikgOzsKICAqKSBleGl0IDA7Owplc2FjCgpjYXNlICIkQUNUSU9OIiBpbgogIHVwfGRoY3A0LWNoYW5nZSkKICAgICMgRGlzYWJsZSByZXZlcnNlIHBhdGggZmlsdGVyaW5nIG9uIHRoaXMgaW50ZXJmYWNlCiAgICBlY2hvIDAgPiAvcHJvYy9zeXMvbmV0L2lwdjQvY29uZi8kSU5URVJGQUNFL3JwX2ZpbHRlciAyPi9kZXYvbnVsbAoKICAgICMgQWRkIENsdXN0ZXJJUCByb3V0ZSB0byBhbGwgcG9saWN5IHJvdXRpbmcgdGFibGVzIHRoYXQgdXNlIGJuZDAgaW50ZXJmYWNlcwogICAgZm9yIHRhYmxlIGluIDEwMCAxMDEgMTAyOyBkbwogICAgICBpZiBpcCByb3V0ZSBzaG93IHRhYmxlICR0YWJsZSAyPi9kZXYvbnVsbCB8IGdyZXAgLXEgImRlZmF1bHQiOyB0aGVuCiAgICAgICAgaWYgISBpcCByb3V0ZSBzaG93IHRhYmxlICR0YWJsZSAyPi9kZXYvbnVsbCB8IGdyZXAgLXEgIjE3Mi4zMC4wLjAvMTYiOyB0aGVuCiAgICAgICAgICBpcCByb3V0ZSBhZGQgMTcyLjMwLjAuMC8xNiB2aWEgMTY5LjI1NC4wLjQgZGV2IGJyLWV4IHRhYmxlICR0YWJsZSAyPi9kZXYvbnVsbAogICAgICAgIGZpCiAgICAgIGZpCiAgICBkb25lCiAgICA7Owplc2FjCgpleGl0IDAK
+        # Main setup script
+        - path: /usr/local/bin/metallb-vlan-routing-setup.sh
+          mode: 493
+          contents:
+            source: data:text/plain;charset=utf-8;base64,IyEvYmluL2Jhc2gKIyBNZXRhTEIgVkxBTiByb3V0aW5nIHNldHVwCiMgQXBwbGllcyBpcHRhYmxlcyBNQVNRVUVSQURFLCBycF9maWx0ZXIsIGFuZCBwb2xpY3kgcm91dGluZyBmaXhlcwojCiMgUmVxdWlyZWQgZm9yIE1ldGFsTEIgTDIgVklQcyBvbiBzZWNvbmRhcnkgVkxBTiBpbnRlcmZhY2VzIChibmQwLjE3OXgpCiMgd2l0aCBPVk4tS3ViZXJuZXRlcyByb3V0aW5nVmlhSG9zdDogdHJ1ZQoKc2V0IC1lCgpMT0dfVEFHPSJtZXRhbGxiLXZsYW4tcm91dGluZyIKCmxvZygpIHsKICBsb2dnZXIgLXQgIiRMT0dfVEFHIiAiJDEiCiAgZWNobyAiJChkYXRlICslVCkgJDEiCn0KCiMgV2FpdCBmb3IgYnItZXggdG8gYmUgYXZhaWxhYmxlIChPVlMgbmVlZHMgdG8gYmUgdXApCmZvciBpIGluICQoc2VxIDEgNjApOyBkbwogIGlmIGlwIGxpbmsgc2hvdyBici1leCA+L2Rldi9udWxsIDI+JjE7IHRoZW4KICAgIGJyZWFrCiAgZmkKICBsb2cgIldhaXRpbmcgZm9yIGJyLWV4Li4uICgkaS82MCkiCiAgc2xlZXAgNQpkb25lCgppZiAhIGlwIGxpbmsgc2hvdyBici1leCA+L2Rldi9udWxsIDI+JjE7IHRoZW4KICBsb2cgIkVSUk9SOiBici1leCBub3QgZm91bmQgYWZ0ZXIgNSBtaW51dGVzLCBhYm9ydGluZyIKICBleGl0IDEKZmkKCiMgMSkgQWRkIE1BU1FVRVJBREUgcnVsZSBmb3IgRE5BVCdkIHBhY2tldHMgZ29pbmcgdG8gT1ZOIHZpYSBici1leAppZiAhIGlwdGFibGVzIC10IG5hdCAtQyBQT1NUUk9VVElORyAtbSBjb25udHJhY2sgLS1jdHN0YXRlIEROQVQgLW8gYnItZXggLWogTUFTUVVFUkFERSAyPi9kZXYvbnVsbDsgdGhlbgogIGlwdGFibGVzIC10IG5hdCAtSSBQT1NUUk9VVElORyAtbSBjb25udHJhY2sgLS1jdHN0YXRlIEROQVQgLW8gYnItZXggLWogTUFTUVVFUkFERQogIGxvZyAiQWRkZWQgTUFTUVVFUkFERSBydWxlIGZvciBETkFUJ2QgcGFja2V0cyBvbiBici1leCIKZWxzZQogIGxvZyAiTUFTUVVFUkFERSBydWxlIGFscmVhZHkgZXhpc3RzIgpmaQoKIyAyKSBEaXNhYmxlIHJwX2ZpbHRlciBnbG9iYWxseQplY2hvIDAgPiAvcHJvYy9zeXMvbmV0L2lwdjQvY29uZi9hbGwvcnBfZmlsdGVyCmVjaG8gMCA+IC9wcm9jL3N5cy9uZXQvaXB2NC9jb25mL2RlZmF1bHQvcnBfZmlsdGVyCmxvZyAiU2V0IHJwX2ZpbHRlcj0wIG9uIGFsbCBhbmQgZGVmYXVsdCIKCiMgMykgRGlzYWJsZSBycF9maWx0ZXIgb24gYWxsIGJuZDAgVkxBTiBpbnRlcmZhY2VzCmZvciBpZmFjZSBpbiAkKGxzIC1kIC9wcm9jL3N5cy9uZXQvaXB2NC9jb25mL2JuZDAuKiAyPi9kZXYvbnVsbCB8IHhhcmdzIC1uMSBiYXNlbmFtZSk7IGRvCiAgZWNobyAwID4gL3Byb2Mvc3lzL25ldC9pcHY0L2NvbmYvJGlmYWNlL3JwX2ZpbHRlciAyPi9kZXYvbnVsbAogIGxvZyAiU2V0IHJwX2ZpbHRlcj0wIG9uICRpZmFjZSIKZG9uZQoKIyA0KSBBZGQgQ2x1c3RlcklQIHJvdXRlIHRvIHBvbGljeSByb3V0aW5nIHRhYmxlcyB0aGF0IGhhdmUgYm5kMCBkZWZhdWx0IHJvdXRlcwpmb3IgdGFibGUgaW4gMTAwIDEwMSAxMDI7IGRvCiAgaWYgaXAgcm91dGUgc2hvdyB0YWJsZSAkdGFibGUgMj4vZGV2L251bGwgfCBncmVwIC1xICJkZWZhdWx0LipibmQwIjsgdGhlbgogICAgaWYgISBpcCByb3V0ZSBzaG93IHRhYmxlICR0YWJsZSAyPi9kZXYvbnVsbCB8IGdyZXAgLXEgIjE3Mi4zMC4wLjAvMTYiOyB0aGVuCiAgICAgIGlwIHJvdXRlIGFkZCAxNzIuMzAuMC4wLzE2IHZpYSAxNjkuMjU0LjAuNCBkZXYgYnItZXggdGFibGUgJHRhYmxlCiAgICAgIGxvZyAiQWRkZWQgQ2x1c3RlcklQIHJvdXRlIHRvIHRhYmxlICR0YWJsZSIKICAgIGVsc2UKICAgICAgbG9nICJDbHVzdGVySVAgcm91dGUgYWxyZWFkeSBleGlzdHMgaW4gdGFibGUgJHRhYmxlIgogICAgZmkKICBlbHNlCiAgICBsb2cgIlRhYmxlICR0YWJsZSBoYXMgbm8gYm5kMCBkZWZhdWx0IHJvdXRlLCBza2lwcGluZyIKICBmaQpkb25lCgpsb2cgIk1ldGFsTEIgVkxBTiByb3V0aW5nIHNldHVwIGNvbXBsZXRlIgo=
+    systemd:
+      units:
+        - name: metallb-vlan-routing.service
+          enabled: true
+          contents: |
+            [Unit]
+            Description=MetalLB VLAN routing fixes (MASQUERADE + rp_filter + policy routes)
+            After=ovs-configuration.service openvswitch.service NetworkManager.service network-online.target
+            Wants=network-online.target
+
+            [Service]
+            Type=oneshot
+            ExecStart=/usr/local/bin/metallb-vlan-routing-setup.sh
+            RemainAfterExit=yes
+            StandardOutput=journal
+            StandardError=journal
+
+            [Install]
+            WantedBy=multi-user.target
