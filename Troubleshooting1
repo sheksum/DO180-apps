@@ -1,39 +1,13 @@
-hsuma@plnx-admin:~$ for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
-  echo "=== $node ==="
-  oc debug node/$node -- chroot /host bash -c '
-    if ! iptables -t nat -C POSTROUTING -m conntrack --ctstate DNAT -o br-ex -j MASQUERADE 2>/dev/null; then
-      iptables -t nat -I POSTROUTING -m conntrack --ctstate DNAT -o br-ex -j MASQUERADE
-      echo "MASQUERADE rule added"
-    else
-      echo "MASQUERADE rule already exists"
-    fi
-  '
-done
-=== ocp-ai-master01.calix.local ===
-Starting pod/ocp-ai-master01calixlocal-debug-6p4v5 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-MASQUERADE rule already exists
+oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
+echo "=== nat OUTPUT chain ==="
+iptables -t nat -L OUTPUT -n -v --line-numbers | head -15
 
-Removing debug pod ...
-=== ocp-ai-master02.calix.local ===
-Starting pod/ocp-ai-master02calixlocal-debug-5vgmn ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-MASQUERADE rule added
+echo ""
+echo "=== Flushing stale conntrack ==="
+conntrack -D -d 10.172.194.160 2>&1
+conntrack -D -d 172.30.168.89 -p tcp --dport 9000 2>&1
 
-Removing debug pod ...
-=== ocp-ai-master03.calix.local ===
-Starting pod/ocp-ai-master03calixlocal-debug-75glq ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-MASQUERADE rule added
-
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
+echo ""
+echo "=== Retry after flush ==="
 curl -m5 -s -o /dev/null -w "HTTP status: %{http_code}\n" http://10.172.194.160:9000
 '
-Starting pod/ocp-ai-master02calixlocal-debug-j6cs9 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-HTTP status: 000
-
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
