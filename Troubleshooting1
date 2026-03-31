@@ -1,2 +1,4 @@
-oc get network.operator cluster -o jsonpath='{.spec.defaultNetwork.ovnKubernetesConfig.gatewayConfig}'
+hsuma@plnx-admin:~$ oc get network.operator cluster -o jsonpath='{.spec.defaultNetwork.ovnKubernetesConfig.gatewayConfig}'
 echo
+{"ipForwarding":"Global","ipv4":{},"ipv6":{},"routingViaHost":false}
+hsuma@plnx-admin:~$
