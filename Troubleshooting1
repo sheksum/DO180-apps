@@ -1,10 +1,30 @@
-# This is the critical test — nc from HOST namespace, not pod namespace
-oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
   echo "=== Testing VIP from HOST namespace ==="
   nc -zv -w 3 10.172.194.160 9000 2>&1 || /usr/bin/ncat -zv -w 3 10.172.194.160 9000 2>&1 || true
-  
-  echo "=== Testing NodePort from HOST namespace ==="  
+
+  echo "=== Testing NodePort from HOST namespace ==="
   nc -zv -w 3 10.172.194.150 32714 2>&1 || /usr/bin/ncat -zv -w 3 10.172.194.150 32714 2>&1 || true
 '
+Starting pod/ocp-ai-master02calixlocal-debug-xg8rn ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== Testing VIP from HOST namespace ===
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
+=== Testing NodePort from HOST namespace ===
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Connected to 10.172.194.150:32714.
+Ncat: 0 bytes sent, 0 bytes received in 0.01 seconds.
 
-oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -n -- chroot /host nc -zv -w 3 10.172.194.160 9000
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -n -- chroot /host nc -zv -w 3 10.172.194.160 9000
+Starting pod/ocp-ai-master02calixlocal-debug-4bm5l ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
+
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$
