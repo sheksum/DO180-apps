@@ -1,53 +1,17 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get servicel2status -n metallb-system -o custom-columns='NAME:.metadata.name,NODE:.status.node,SVC:.spec.serviceRef.name,NS:.spec.serviceRef.namespace' | grep minio
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-  echo "=== Before ==="
-  nstat -z TcpExtIPReversePathFilter
-  cat /proc/sys/net/ipv4/ip_forward
-  cat /proc/sys/net/ipv4/conf/bnd0.1794/rp_filter
-  cat /proc/sys/net/ipv4/conf/all/rp_filter
-  echo "=== Applying fixes ==="
-  echo 1 > /proc/sys/net/ipv4/ip_forward
-  echo 0 > /proc/sys/net/ipv4/conf/bnd0.1794/rp_filter
-  echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
-  echo "=== After ==="
-  cat /proc/sys/net/ipv4/ip_forward
-  cat /proc/sys/net/ipv4/conf/bnd0.1794/rp_filter
-  cat /proc/sys/net/ipv4/conf/all/rp_filter
-  echo "=== Testing VIP from localhost ==="
-  nc -zv -w 3 10.172.194.160 9000 2>&1 || true
-  echo "=== rp_filter counter after ==="
-  nstat -z TcpExtIPReversePathFilter
-'
-Starting pod/ocp-ai-master01calixlocal-debug-42bjh ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== Before ===
-#kernel
-TcpExtIPReversePathFilter       0                  0.0
-1
-1
-0
-=== Applying fixes ===
-=== After ===
-1
-0
-0
-=== Testing VIP from localhost ===
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: TIMEOUT.
-=== rp_filter counter after ===
-#kernel
-TcpExtIPReversePathFilter       0                  0.0
+# 1. What service actually uses this VIP?
+oc get svc -A -o wide | grep 10.172.194.160
 
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
-Starting pod/ocp-ai-master02calixlocal-debug-fvvnn ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: TIMEOUT.
+# 2. Does the ClusterIP (172.30.168.89) work from master01?
+oc debug node/ocp-ai-master01.calix.local -- chroot /host nc -zv -w 3 172.30.168.89 9000
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
+# 3. Is there a DNAT rule in nat OUTPUT for localhost traffic?
+#    (PREROUTING only handles incoming traffic, OUTPUT handles locally-originated)
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+  iptables -t nat -S | grep 10.172.194.160
+
+# 4. Check ALL servicel2statuses — what VIPs are actually being announced?
+oc get servicel2status -n metallb-system -o custom-columns='NAME:.metadata.name,NODE:.status.node,SVC:.spec.serviceRef.name,NS:.spec.serviceRef.namespace'
+
+# 5. What does OVN think about this VIP? Check the load balancer
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+  ovn-nbctl --no-leader-only lb-list | grep 10.172.194.160
