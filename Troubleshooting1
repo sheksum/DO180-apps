@@ -1,6 +1,144 @@
-oc get configmap metallb-excludel2 -n metallb-system -o yaml
-
-oc get l2advertisement -n metallb-system -o yaml
-
-
-oc logs -n metallb-system -l component=speaker -c speaker --tail=100
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get configmap metallb-excludel2 -n metallb-system -o yaml
+apiVersion: v1
+data:
+  excludel2.yaml: |
+    announcedInterfacesToExclude:
+    - ^docker.*
+    - ^cbr.*
+    - ^dummy.*
+    - ^virbr.*
+    - ^lxcbr.*
+    - ^veth.*
+    - ^lo$
+    - ^cali.*
+    - ^tunl.*
+    - ^flannel.*
+    - ^kube-ipvs.*
+    - ^cni.*
+    - ^nodelocaldns.*
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2026-02-26T04:36:27Z"
+  labels:
+    app: metallb
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: v0.0.0
+    helm.sh/chart: metallb-0.0.0
+  name: metallb-excludel2
+  namespace: metallb-system
+  ownerReferences:
+  - apiVersion: metallb.io/v1beta1
+    blockOwnerDeletion: true
+    controller: true
+    kind: MetalLB
+    name: metallb
+    uid: 1fb9e4ea-3556-4127-a735-f0d8f4c3377f
+  resourceVersion: "4585364"
+  uid: 82b79a35-758c-469b-8b45-014a916c2cf9
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get l2advertisement -n metallb-system -o yaml
+apiVersion: v1
+items:
+- apiVersion: metallb.io/v1beta1
+  kind: L2Advertisement
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1510
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1510"},"name":"l2-vlan1510","namespace":"metallb-system"},"spec":{"ipAddressPools":["reserved-future"]}}
+    creationTimestamp: "2026-02-26T04:36:27Z"
+    generation: 7
+    name: l2-vlan1510
+    namespace: metallb-system
+    resourceVersion: "6645095"
+    uid: e2169b8c-eded-430a-9a67-bda4c55a4f8a
+  spec:
+    ipAddressPools:
+    - reserved-future
+- apiVersion: metallb.io/v1beta1
+  kind: L2Advertisement
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1794-dev
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1794-dev"},"name":"l2-vlan1794-dev","namespace":"metallb-system"},"spec":{"interfaces":["bond0.1794","bnd0.1794"],"ipAddressPools":["pai-services-dev"]}}
+    creationTimestamp: "2026-02-28T20:56:44Z"
+    generation: 3
+    name: l2-vlan1794-dev
+    namespace: metallb-system
+    resourceVersion: "29697549"
+    uid: de697be7-8103-4b7e-873d-75f26d1800fd
+  spec:
+    interfaces:
+    - bond0.1794
+    - bnd0.1794
+    ipAddressPools:
+    - pai-services-dev
+- apiVersion: metallb.io/v1beta1
+  kind: L2Advertisement
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1797-prod
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1797-prod"},"name":"l2-vlan1797-prod","namespace":"metallb-system"},"spec":{"interfaces":["bond0.1797","bnd0.1797"],"ipAddressPools":["pai-services-prod"]}}
+    creationTimestamp: "2026-02-28T20:56:44Z"
+    generation: 1
+    name: l2-vlan1797-prod
+    namespace: metallb-system
+    resourceVersion: "6525407"
+    uid: 7b203a4b-15ed-41a8-af7b-9fded1b38e60
+  spec:
+    interfaces:
+    - bond0.1797
+    - bnd0.1797
+    ipAddressPools:
+    - pai-services-prod
+- apiVersion: metallb.io/v1beta1
+  kind: L2Advertisement
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1798-test
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"metallb.io/v1beta1","kind":"L2Advertisement","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/L2Advertisement:metallb-system/l2-vlan1798-test"},"name":"l2-vlan1798-test","namespace":"metallb-system"},"spec":{"interfaces":["bond0.1798","bnd0.1798"],"ipAddressPools":["pai-services-test"]}}
+    creationTimestamp: "2026-02-28T20:56:44Z"
+    generation: 1
+    name: l2-vlan1798-test
+    namespace: metallb-system
+    resourceVersion: "6525405"
+    uid: 5607c6b0-28fe-4b61-a9aa-49d37f2c97fd
+  spec:
+    interfaces:
+    - bond0.1798
+    - bnd0.1798
+    ipAddressPools:
+    - pai-services-test
+kind: List
+metadata:
+  resourceVersion: ""
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker -c speaker --tail=100
+{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master03.calix.local)","ts":"2026-03-31T17:58:54Z"}
+{"level":"error","ts":"2026-03-31T17:58:54Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"8978aaa6-4053-415d-82ba-3bd28a766a6e","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:58:54Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"453b366e-39ce-4910-9af7-96e91a716b89","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:58:54Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"857e2fab-241d-4d65-91cc-a8b0988cd5ba","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:58:54Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"caef8dd4-6fcc-4ac6-b289-1a761f687db2","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:58:54Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"e389fb8d-ff60-420c-aba6-c784a11a19dd","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:58:54Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"1dece4af-e9ea-45ba-9d25-b818d62617e1","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:58:55Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"2142f9f0-24b6-42a0-81b3-573573b2cf97","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:58:55Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"f77f62f9-3dc3-4f65-8068-29573599721c","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:58:56Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"f988d49f-e088-4e52-a654-c597918a0154","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:58:57Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"2ac23463-68e4-4e7f-a7fa-b1323138366e","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:58:59Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"1786a871-d086-463d-a43d-104b28456790","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:59:05Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"7e248ab0-ef66-415a-abf8-ca1538c24b77","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:59:15Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"77372dd2-d0c3-4add-a7a5-447ef5d1fb09","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T17:59:35Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"805ad503-131c-4a0d-b619-f66bd1464798","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T18:00:16Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"c046d4f6-ad8b-4a14-975c-683b5c32dc1e","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T18:01:38Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"20d5c0b7-b1e7-4426-b4fb-9b512e419bbe","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T18:04:22Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"89559b68-e309-4673-95c5-b25dd9cb0c46","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-03-31T18:09:50Z","msg":"Reconciler error","controller":"servicel2status","namespace":"openshift-ingress","name":"pai-gateway-openshift-default","reconcileID":"9006c94c-6b2a-47f7-8f6f-f8f990fbacf8","error":"ServiceL2Status.metallb.io \"l2-g4hgz\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master02.calix.local)","ts":"2026-03-31T17:58:41Z"}
+{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master01.calix.local)","ts":"2026-03-31T17:58:31Z"}
+hsuma@plnx-admin:~$
