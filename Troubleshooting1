@@ -1,17 +1,155 @@
-# Check if the gateway VIP (10.172.248.175) from the reserved-future pool is bound anywhere
-for node in master01 master02 master03 worker01 worker02; do
-  echo "=== $node ==="
-  ssh core@ocp-ai-${node} "ip addr show | grep 10.172.248.175"
-done
-
-# Also check ServiceL2Status for the gateway
-oc get servicel2status -A -o wide
-
-
-oc patch subscription metallb-operator -n metallb-system --type merge -p '{"spec":{"installPlanApproval":"Manual"}}'
-
-
-# Check current subscription and installplan state
-oc get subscription metallb-operator -n metallb-system -o yaml
-oc get installplan -n metallb-system
-oc get csv -n metallb-system
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@10.172.248.152 ip addr show | grep 10.172.248.175
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@10.172.248.152 ip addr show | grep 10.172
+    inet 10.172.196.152/23 brd 10.172.197.255 scope global noprefixroute bnd0.1796
+    inet 10.172.200.152/23 brd 10.172.201.255 scope global noprefixroute bnd0.1793
+    inet 10.172.202.152/23 brd 10.172.203.255 scope global noprefixroute bnd0.1797
+    inet 10.172.194.152/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794
+    inet 10.172.192.152/23 brd 10.172.193.255 scope global noprefixroute bnd0.1792
+    inet 10.172.198.152/23 brd 10.172.199.255 scope global noprefixroute bnd0.1798
+    inet 10.172.248.152/24 brd 10.172.248.255 scope global noprefixroute br-ex
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@10.172.248.151 ip addr show | grep 10.172
+    inet 10.172.192.151/23 brd 10.172.193.255 scope global noprefixroute bnd0.1792
+    inet 10.172.200.151/23 brd 10.172.201.255 scope global noprefixroute bnd0.1793
+    inet 10.172.198.151/23 brd 10.172.199.255 scope global noprefixroute bnd0.1798
+    inet 10.172.194.151/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794
+    inet 10.172.196.151/23 brd 10.172.197.255 scope global noprefixroute bnd0.1796
+    inet 10.172.202.151/23 brd 10.172.203.255 scope global noprefixroute bnd0.1797
+    inet 10.172.248.151/24 brd 10.172.248.255 scope global noprefixroute br-ex
+    inet 10.172.248.156/32 scope global vip
+    inet 10.172.248.155/32 scope global vip
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@10.172.248.150 ip addr show | grep 10.172
+    inet 10.172.198.150/23 brd 10.172.199.255 scope global noprefixroute bnd0.1798
+    inet 10.172.202.150/23 brd 10.172.203.255 scope global noprefixroute bnd0.1797
+    inet 10.172.196.150/23 brd 10.172.197.255 scope global noprefixroute bnd0.1796
+    inet 10.172.200.150/23 brd 10.172.201.255 scope global noprefixroute bnd0.1793
+    inet 10.172.194.150/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794
+    inet 10.172.192.150/23 brd 10.172.193.255 scope global noprefixroute bnd0.1792
+    inet 10.172.248.150/24 brd 10.172.248.255 scope global noprefixroute br-ex
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@10.172.248.154 ip addr show | grep 10.172
+    inet 10.172.192.154/23 brd 10.172.193.255 scope global noprefixroute bond0.1792
+    inet 10.172.202.154/23 brd 10.172.203.255 scope global noprefixroute bond0.1797
+    inet 10.172.198.154/23 brd 10.172.199.255 scope global noprefixroute bond0.1798
+    inet 10.172.194.154/23 brd 10.172.195.255 scope global noprefixroute bond0.1794
+    inet 10.172.200.154/23 brd 10.172.201.255 scope global noprefixroute bond0.1793
+    inet 10.172.196.154/23 brd 10.172.197.255 scope global noprefixroute bond0.1796
+    inet 10.172.248.154/24 brd 10.172.248.255 scope global noprefixroute br-ex
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@10.172.248.153 ip addr show | grep 10.172
+    inet 10.172.200.153/23 brd 10.172.201.255 scope global noprefixroute bond0.1793
+    inet 10.172.194.153/23 brd 10.172.195.255 scope global noprefixroute bond0.1794
+    inet 10.172.198.153/23 brd 10.172.199.255 scope global noprefixroute bond0.1798
+    inet 10.172.196.153/23 brd 10.172.197.255 scope global noprefixroute bond0.1796
+    inet 10.172.202.153/23 brd 10.172.203.255 scope global noprefixroute bond0.1797
+    inet 10.172.192.153/23 brd 10.172.193.255 scope global noprefixroute bond0.1792
+    inet 10.172.248.153/24 brd 10.172.248.255 scope global noprefixroute br-ex
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get servicel2status -A -o wide
+NAMESPACE        NAME       ALLOCATED NODE                SERVICE NAME                    SERVICE NAMESPACE
+metallb-system   l2-4ddnn   ocp-ai-master01.calix.local   minio-lb                        pai-test
+metallb-system   l2-bm4mm   ocp-ai-master03.calix.local   minio-lb                        pai-dev
+metallb-system   l2-lbxjc   ocp-ai-master02.calix.local   pai-gateway-openshift-default   openshift-ingress
+metallb-system   l2-ps759   ocp-ai-master02.calix.local   minio-lb                        pai-prod
+metallb-system   l2-q4qdv   ocp-ai-master02.calix.local   pg-lb                           pai-dev
+metallb-system   l2-q88zm   ocp-ai-master01.calix.local   milvus-lb                       pai-test
+metallb-system   l2-s5jdt   ocp-ai-master02.calix.local   milvus-lb                       pai-prod
+metallb-system   l2-xtrlr   ocp-ai-master03.calix.local   milvus-lb                       pai-dev
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get subscription metallb-operator -n metallb-system -o yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  creationTimestamp: "2026-02-26T02:34:27Z"
+  generation: 2
+  labels:
+    operators.coreos.com/metallb-operator.metallb-system: ""
+  name: metallb-operator
+  namespace: metallb-system
+  resourceVersion: "28997388"
+  uid: c356b9c6-8bb8-402a-9a2f-290c1b243522
+spec:
+  channel: stable
+  installPlanApproval: Manual
+  name: metallb-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: metallb-operator.v4.20.0-202602091941
+status:
+  catalogHealth:
+  - catalogSourceRef:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: CatalogSource
+      name: certified-operators
+      namespace: openshift-marketplace
+      resourceVersion: "6663289"
+      uid: 497c7fb0-7342-444b-b465-59994ff26150
+    healthy: true
+    lastUpdated: "2026-03-01T01:24:27Z"
+  - catalogSourceRef:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: CatalogSource
+      name: community-operators
+      namespace: openshift-marketplace
+      resourceVersion: "6660454"
+      uid: c0cee574-b62f-44ab-a401-6a5b3638636d
+    healthy: true
+    lastUpdated: "2026-03-01T01:24:27Z"
+  - catalogSourceRef:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: CatalogSource
+      name: redhat-marketplace
+      namespace: openshift-marketplace
+      resourceVersion: "6661446"
+      uid: 9d536fee-f468-4d9a-9dff-0b5ab6e3ab42
+    healthy: true
+    lastUpdated: "2026-03-01T01:24:27Z"
+  - catalogSourceRef:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: CatalogSource
+      name: redhat-operators
+      namespace: openshift-marketplace
+      resourceVersion: "6662701"
+      uid: 76a4e0ac-abee-4572-9e4f-dc9e9eb002cd
+    healthy: true
+    lastUpdated: "2026-03-01T01:24:27Z"
+  conditions:
+  - lastTransitionTime: "2026-03-01T01:24:30Z"
+    message: all available catalogsources are healthy
+    reason: AllCatalogSourcesHealthy
+    status: "False"
+    type: CatalogSourcesUnhealthy
+  currentCSV: metallb-operator.v4.20.0-202603152019
+  installPlanGeneration: 3
+  installPlanRef:
+    apiVersion: operators.coreos.com/v1alpha1
+    kind: InstallPlan
+    name: install-rccbn
+    namespace: metallb-system
+    resourceVersion: "25131778"
+    uid: 16d48f5f-348c-4c39-aa99-f3e5c8b27509
+  installedCSV: metallb-operator.v4.20.0-202603152019
+  installplan:
+    apiVersion: operators.coreos.com/v1alpha1
+    kind: InstallPlan
+    name: install-rccbn
+    uuid: 16d48f5f-348c-4c39-aa99-f3e5c8b27509
+  lastUpdated: "2026-03-25T18:56:46Z"
+  state: AtLatestKnown
+hsuma@plnx-admin:~$ oc get installplan -n metallb-system
+NAME            CSV                                     APPROVAL    APPROVED
+install-29ckt   metallb-operator.v4.20.0-202602261925   Automatic   true
+install-rccbn   metallb-operator.v4.20.0-202603152019   Automatic   true
+install-vv6sc   metallb-operator.v4.20.0-202602091941   Automatic   true
+hsuma@plnx-admin:~$ oc get csv -n metallb-system
+NAME                                         DISPLAY                                           VERSION               REPLACES                                PHASE
+cert-manager-operator.v1.18.1                cert-manager Operator for Red Hat OpenShift       1.18.1                cert-manager-operator.v1.18.0           Succeeded
+cloudnative-pg.v1.28.1                       CloudNativePG                                     1.28.1                cloudnative-pg.v1.28.0                  Succeeded
+metallb-operator.v4.20.0-202603152019        MetalLB Operator                                  4.20.0-202603152019   metallb-operator.v4.20.0-202602261925   Succeeded
+openshift-external-secrets-operator.v1.1.0   External Secrets Operator for Red Hat OpenShift   1.1.0                 external-secrets-operator.v1.0.0        Succeeded
+openshift-gitops-operator.v1.20.0            Red Hat OpenShift GitOps                          1.20.0                openshift-gitops-operator.v1.19.2       Succeeded
+servicemeshoperator3.v3.2.2                  Red Hat OpenShift Service Mesh 3                  3.2.2                 servicemeshoperator3.v3.1.0             Succeeded
+trident-operator.v26.2.0                     NetApp Trident                                    26.2.0                trident-operator.v25.10.0-linux-only    Succeeded
+hsuma@plnx-admin:~$
