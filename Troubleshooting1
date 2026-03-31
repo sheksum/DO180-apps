@@ -1,26 +1,17 @@
-hsuma@plnx-admin:~$ oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}}}'
-application.argoproj.io/metallb patched
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc patch l2advertisement l2-vlan1794-dev -n metallb-system --type merge -p '{"spec":{"interfaces":null}}'
-l2advertisement.metallb.io/l2-vlan1794-dev patched
-hsuma@plnx-admin:~$ oc patch l2advertisement l2-vlan1797-prod -n metallb-system --type merge -p '{"spec":{"interfaces":null}}'
-l2advertisement.metallb.io/l2-vlan1797-prod patched
-hsuma@plnx-admin:~$ oc patch l2advertisement l2-vlan1798-test -n metallb-system --type merge -p '{"spec":{"interfaces":null}}'
-l2advertisement.metallb.io/l2-vlan1798-test patched
-hsuma@plnx-admin:~$ oc delete pods -n metallb-system -l component=speaker
-pod "speaker-b8mvg" deleted from metallb-system namespace
-pod "speaker-dsglt" deleted from metallb-system namespace
-pod "speaker-vq9sl" deleted from metallb-system namespace
-hsuma@plnx-admin:~$ sleep 20
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ for node in master01 master02 master03; do
+# Check current ServiceL2Status assignments
+oc get servicel2status -n metallb-system -o custom-columns='NAME:.metadata.name,NODE:.status.node,SVC:.status.serviceName,NS:.status.serviceNamespace'
+
+# Check all LoadBalancer services and their IPs
+oc get svc -A --field-selector spec.type=LoadBalancer -o custom-columns='NS:.metadata.namespace,NAME:.metadata.name,IP:.status.loadBalancer.ingress[0].ip,PORTS:.spec.ports[*].port'
+
+
+# Check speaker logs on master02 (where VIPs appeared) for any VLAN activity
+SPEAKER02=$(oc get pods -n metallb-system -o wide | grep master02 | awk '{print $1}')
+oc logs -n metallb-system $SPEAKER02 -c speaker --tail=200 | grep -iE "10\.172\.194|10\.172\.202|10\.172\.198|announce|arp|gratuitous|SetBalancer|assign" | head -40
+
+
+# Also recheck /32 addresses - maybe they're still propagating
+for node in master01 master02 master03; do
   echo "=== $node ==="
   ssh -i .ssh/ocp-ai core@ocp-ai-${node}.calix.local "ip addr show | grep '/32'"
 done
-=== master01 ===
-=== master02 ===
-    inet 10.172.248.156/32 scope global vip
-    inet 10.172.248.155/32 scope global vip
-=== master03 ===
-hsuma@plnx-admin:~$
