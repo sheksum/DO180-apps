@@ -1,39 +1,16 @@
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-echo "=== tc filters bnd0.1794 ingress ==="
-tc filter show dev bnd0.1794 ingress 2>&1
-echo "=== tc filters bnd0.1794 egress ==="
-tc filter show dev bnd0.1794 egress 2>&1
-echo "=== tc filters bnd0 ingress ==="
-tc filter show dev bnd0 ingress 2>&1
-echo "=== tc qdisc bnd0.1794 ==="
-tc qdisc show dev bnd0.1794 2>&1
-echo "=== tc qdisc bnd0 ==="
-tc qdisc show dev bnd0 2>&1
-echo "=== IP snmp counters ==="
-cat /proc/net/snmp | grep -A1 "^Ip:"
-echo "=== rx_dropped ==="
-cat /sys/class/net/bnd0.1794/statistics/rx_dropped
-echo "=== bnd0.1794 MAC ==="
-ip -d link show bnd0.1794 | head -5
-'
-Starting pod/ocp-ai-master01calixlocal-debug-vt6v6 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== tc filters bnd0.1794 ingress ===
-=== tc filters bnd0.1794 egress ===
-=== tc filters bnd0 ingress ===
-=== tc qdisc bnd0.1794 ===
-qdisc noqueue 0: root refcnt 2
-=== tc qdisc bnd0 ===
-qdisc noqueue 0: root refcnt 2
-=== IP snmp counters ===
-Ip: Forwarding DefaultTTL InReceives InHdrErrors InAddrErrors ForwDatagrams InUnknownProtos InDiscards InDelivers OutRequests OutDiscards OutNoRoutes ReasmTimeout ReasmReqds ReasmOKs ReasmFails FragOKs FragFails FragCreates OutTransmits
-Ip: 1 64 4773770471 0 1130 163 26 0 4773468266 4805746878 24 204 0 0 0 0 0 0 0 4808439579
-Icmp: InMsgs InErrors InCsumErrors InDestUnreachs InTimeExcds InParmProbs InSrcQuenchs InRedirects InEchos InEchoReps InTimestamps InTimestampReps InAddrMasks InAddrMaskReps OutMsgs OutErrors OutRateLimitGlobal OutRateLimitHost OutDestUnreachs OutTimeExcds OutParmProbs OutSrcQuenchs OutRedirects OutEchos OutEchoReps OutTimestamps OutTimestampReps OutAddrMasks OutAddrMaskReps
-=== rx_dropped ===
-532785
-=== bnd0.1794 MAC ===
-15: bnd0.1794@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default qlen 1000
-    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff promiscuity 0 allmulti 0 minmtu 0 maxmtu 65535
-    vlan protocol 802.1Q id 1794 <REORDER_HDR> numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 65536 tso_max_segs 65535 gro_max_size 65536 gso_ipv4_max_size 65536 gro_ipv4_max_size 65536
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+echo "=== nftables ingress chains ==="
+nft list chains 2>&1 | grep -i ingress
 
-Removing debug pod ...
+echo "=== nftables full netdev family ==="
+nft list ruleset netdev 2>&1
+
+echo "=== nftables inet ingress hooks ==="
+nft list ruleset inet 2>&1 | grep -B3 -A10 "hook ingress"
+
+echo "=== all nftables chains with priorities ==="
+nft list chains 2>&1
+
+echo "=== firewalld status ==="
+systemctl is-active firewalld 2>&1
+'
