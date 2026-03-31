@@ -1,29 +1,29 @@
 oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-  echo "=== VIP local address? ==="
-  ip addr show bnd0.1794 | grep 10.172.194.160 || echo "NOT CONFIGURED"
-  
-  echo "=== BEFORE test counters ==="
-  echo "DNAT:"
-  iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
-  echo "FORWARD:"
-  iptables -L FORWARD -v -n 2>/dev/null | grep 172.30
-  echo "MASQ:"
-  iptables -t nat -L POSTROUTING -v -n 2>/dev/null | grep MASQ
-  echo "FORWARD policy drops:"
-  iptables -L FORWARD -v -n 2>/dev/null | head -3
-  
-  echo "=== Waiting 15s - TEST NOW ==="
-  sleep 15
-  
-  echo "=== AFTER test counters ==="
-  echo "DNAT:"
-  iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
-  echo "FORWARD:"
-  iptables -L FORWARD -v -n 2>/dev/null | grep 172.30
-  echo "MASQ:"
-  iptables -t nat -L POSTROUTING -v -n 2>/dev/null | grep MASQ
-  echo "FORWARD policy drops:"
-  iptables -L FORWARD -v -n 2>/dev/null | head -3
-'
+echo "=== TC filters on bnd0.1794 (ingress) ==="
+tc filter show dev bnd0.1794 ingress 2>&1
+echo "=== TC filters on bnd0 (ingress) ==="
+tc filter show dev bnd0 ingress 2>&1
+echo "=== TC filters on eno7 (ingress) ==="
+tc filter show dev eno7 ingress 2>&1
+echo "=== TC filters on eno8 (ingress) ==="
+tc filter show dev eno8 ingress 2>&1
 
-oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
+echo "=== TC qdisc on bnd0.1794 ==="
+tc qdisc show dev bnd0.1794 2>&1
+echo "=== TC qdisc on bnd0 ==="
+tc qdisc show dev bnd0 2>&1
+
+echo "=== eBPF programs attached ==="
+bpftool net show 2>/dev/null || echo "bpftool not available"
+
+echo "=== IP input errors (snapshot 1) ==="
+cat /proc/net/snmp | grep -A1 "^Ip:"
+nstat -az IpInAddrErrors IpInHdrErrors TcpInErrs 2>/dev/null
+
+echo "=== rx_dropped on bnd0.1794 ==="
+cat /sys/class/net/bnd0.1794/statistics/rx_dropped
+
+echo "=== Check if bnd0.1794 MAC matches what MetalLB advertises ==="
+ip link show bnd0.1794 | grep ether
+ip link show bnd0 | grep ether
+'
