@@ -1,0 +1,488 @@
+# Nagios Core Monitoring - HIL RKE2 Cluster (Restricted/AAM)
+
+## Overview
+
+Nagios Core 4.5.7 deployed in the HIL RKE2 Kubernetes cluster for infrastructure and Kubernetes alert monitoring.
+
+- **URL:** https://nagios.apps.ttmtech.com
+- **Namespace:** monitoring
+- **Credentials:** nagiosadmin / (updated password)
+- **Storage:** Longhorn RWX PVC (10Gi)
+- **Image:** jasonrivers/nagios@sha256:2a7c2b20d118baf92b47b69a3901e68dd7664617801b94e560bc4d6564d6ae54
+
+-----
+
+## Node Inventory
+
+|Hostname                 |IP          |Role                |
+|-------------------------|------------|--------------------|
+|aamhilcp01.ttmtech.local |10.45.10.167|Control Plane       |
+|aamhilcp02.ttmtech.local |10.45.10.168|Control Plane       |
+|aamhilcp03.ttmtech.local |10.45.10.169|Control Plane       |
+|aamhilwk01.ttmtech.local |10.45.10.171|Worker              |
+|aamhilwk02.ttmtech.local |10.45.10.172|Worker              |
+|aamhilwk03.ttmtech.local |10.45.10.173|Worker              |
+|aamhilwk04.ttmtech.local |10.45.10.174|Worker              |
+|aamhillts01.ttmtech.local|10.45.17.118|HAProxy LB (pending)|
+
+-----
+
+## Architecture
+
+```
+User Browser
+    ↓ https://nagios.apps.ttmtech.com
+HAProxy (10.45.17.118) - SSL termination, wildcard cert *.apps.ttmtech.com
+    ↓ port 80
+Nginx Ingress Controller (worker nodes)
+    ↓
+Nagios Pod (monitoring namespace)
+    ↓ port 5666 (NRPE)
+Target Nodes (active checks)
+
+Prometheus → Alertmanager → Webhook Receiver → Nagios CMD pipe (passive checks)
+```
+
+-----
+
+## Kubernetes Resources
+
+```bash
+# Check all monitoring resources
+kubectl get all -n monitoring
+kubectl get pvc -n monitoring
+kubectl get ingress -n monitoring
+```
+
+### Key manifests (stored on aamhilcp01 ~/)
+
+- `nagios-deployment.yaml`
+- `nagios-pvc.yaml`
+- `nagios-service.yaml`
+- `nagios-ingress.yaml`
+- `nagios-webhook.yaml`
+- `alertmanager-config.yaml`
+
+-----
+
+## Monitored Services (NRPE - Active Checks)
+
+All 7 cluster nodes are monitored with:
+
+|Check     |Warning          |Critical         |
+|----------|-----------------|-----------------|
+|PING      |>100ms / 20% loss|>500ms / 60% loss|
+|CPU Load  |>2.0 per CPU     |>4.0 per CPU     |
+|Disk Usage|<20% free        |<10% free        |
+
+
+> Swap monitoring disabled — Kubernetes requires swap off  
+> Process monitoring disabled — container workloads cause high counts
+
+-----
+
+## Kubernetes Alerts (Passive Checks via Alertmanager)
+
+Host: `hil-rke2-cluster`
+
+### Tier 1 — Critical
+
+- KubeAPIServerDown
+- etcdInsufficientMembers
+- KubeControllerManagerDown
+- KubeSchedulerDown
+- KubeNodeNotReady
+- KubeNodeDiskPressure
+- KubeNodeMemoryPressure
+- KubeNodePIDPressure
+- KubePodCrashLooping
+- KubeDeploymentReplicasMismatch
+
+### Tier 2 — Warning
+
+- KubePersistentVolumeFillingUp
+- KubeCPUOvercommit
+- KubeMemoryOvercommit
+- KubePodNotReady
+- KubeContainerWaiting
+- KubeDeploymentRolloutStuck
+- CoreDNSDown
+- KubeProxyDown
+
+### Tier 3 — Info
+
+- KubePersistentVolumeErrors
+- KubeJobFailed
+- KubeStatefulSetReplicasMismatch
+
+### Watchdog (Heartbeat)
+
+- Fires every 1 minute from Prometheus
+- Freshness threshold: 300 seconds
+- If CRITICAL — Alertmanager or Prometheus pipeline is down
+
+-----
+
+## Alertmanager Integration
+
+### Flow
+
+```
+Prometheus detects condition
+    ↓
+Alertmanager routes to webhook
+    ↓
+nagios-webhook pod (monitoring namespace, port 5000)
+    ↓
+Writes to /opt/nagios/var/rw/nagios.cmd (passive check result)
+    ↓
+Nagios updates service status
+```
+
+### Webhook Service
+
+```bash
+kubectl get svc nagios-webhook -n monitoring
+# ClusterIP:5000
+# Internal URL: http://nagios-webhook.monitoring.svc.cluster.local:5000/webhook
+```
+
+### Alertmanager Config
+
+- `AlertmanagerConfig` CRD in `cattle-monitoring-system` namespace
+- Routes alerts matching `prometheus=~"cattle-monitoring-system/.*"`
+- Watchdog routed via main Alertmanager secret patch
+
+### Check Alertmanager Status
+
+```bash
+curl -s http://10.43.218.173:9093/api/v2/status | python3 -m json.tool | grep -A5 "receiver"
+curl -s http://10.43.218.173:9093/api/v2/alerts | python3 -m json.tool | grep alertname
+```
+
+-----
+
+## Email Alerts
+
+|Setting      |Value                                          |
+|-------------|-----------------------------------------------|
+|SMTP Relay   |smtp.ttmtech.local                             |
+|From         |nagios@nagios.apps.ttmtech.com                 |
+|Current To   |alhaji.suma@ttmtech.com                        |
+|Production To|linuxteam@ttmtech.com (update after validation)|
+
+### Update email address
+
+```bash
+NAGIOS_POD=$(kubectl get pod -n monitoring -l app=nagios -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -it -n monitoring $NAGIOS_POD -- bash
+vi /opt/nagios/etc/objects/contacts.cfg
+# Update email field
+kill -HUP $(pgrep nagios)
+```
+
+### Postfix persistence
+
+Postfix config is saved to PVC at `/opt/nagios/etc/postfix-main.cf`  
+Restored via postStart lifecycle hook on every pod restart.  
+If email stops working after restart:
+
+```bash
+kubectl exec -n monitoring $NAGIOS_POD -- bash -c \
+  'cp /opt/nagios/etc/postfix-main.cf /etc/postfix/main.cf && service postfix restart'
+```
+
+-----
+
+## Key File Locations (inside Nagios pod)
+
+|Path                                         |Purpose                                  |
+|---------------------------------------------|-----------------------------------------|
+|/opt/nagios/etc/nagios.cfg                   |Main config                              |
+|/opt/nagios/etc/conf.d/                      |Host/service definitions                 |
+|/opt/nagios/etc/conf.d/hil-hostgroups.cfg    |Host groups                              |
+|/opt/nagios/etc/conf.d/hil-controlplane.cfg  |Control plane definitions                |
+|/opt/nagios/etc/conf.d/hil-workers.cfg       |Worker definitions                       |
+|/opt/nagios/etc/conf.d/hil-cluster-alerts.cfg|Kubernetes passive checks                |
+|/opt/nagios/etc/conf.d/hil-commands.cfg      |Custom commands (check_nrpe, check_dummy)|
+|/opt/nagios/etc/objects/contacts.cfg         |Contact email config                     |
+|/opt/nagios/etc/objects/commands.cfg         |Notification commands                    |
+|/opt/nagios/etc/htpasswd.users               |Web UI credentials                       |
+|/opt/nagios/etc/postfix-main.cf              |Postfix config backup                    |
+|/opt/nagios/var/nagios.log                   |Runtime log                              |
+|/opt/nagios/var/rw/nagios.cmd                |Command pipe                             |
+
+-----
+
+## NRPE Configuration on Nodes
+
+### allowed_hosts
+
+```
+127.0.0.1,10.45.10.171,10.45.10.172,10.45.10.173,10.45.10.174,10.42.0.0/16
+```
+
+> 10.42.0.0/16 covers pod CIDR — required when Nagios pod is on same worker as target node
+
+### Key NRPE commands on nodes
+
+```
+command[check_load]=/usr/lib64/nagios/plugins/check_load -r -w 2.0,1.5,1.0 -c 4.0,3.0,2.0
+command[check_disk]=/usr/lib64/nagios/plugins/check_disk -w 20% -c 10% -p /
+```
+
+### Update NRPE config on all nodes via Ansible
+
+```bash
+ansible hil_cluster -i hil-nodes.ini -b -m shell -a \
+  "sed -i 's/^allowed_hosts=.*/allowed_hosts=127.0.0.1,10.45.10.171,10.45.10.172,10.45.10.173,10.45.10.174,10.42.0.0\/16/' /etc/nagios/nrpe.cfg && systemctl restart nrpe"
+```
+
+-----
+
+## Onboarding New Systems
+
+### Step 1 — Install NRPE on target (run on target system)
+
+```bash
+dnf install -y epel-release
+dnf install -y nrpe nagios-plugins-ping nagios-plugins-load nagios-plugins-disk \
+  nagios-plugins-procs nagios-plugins-users nagios-plugins-ssh nagios-plugins-tcp
+
+# Update allowed_hosts
+sed -i 's/^allowed_hosts=.*/allowed_hosts=127.0.0.1,10.45.10.171,10.45.10.172,10.45.10.173,10.45.10.174,10.42.0.0\/16/' /etc/nagios/nrpe.cfg
+
+# Update check thresholds
+sed -i 's|command\[check_load\]=.*|command[check_load]=/usr/lib64/nagios/plugins/check_load -r -w 2.0,1.5,1.0 -c 4.0,3.0,2.0|' /etc/nagios/nrpe.cfg
+sed -i 's|command\[check_disk\]=.*|command[check_disk]=/usr/lib64/nagios/plugins/check_disk -w 20% -c 10% -p /|' /etc/nagios/nrpe.cfg
+
+systemctl enable nrpe
+systemctl start nrpe
+```
+
+### Step 2 — Verify connectivity from Nagios pod
+
+```bash
+NAGIOS_POD=$(kubectl get pod -n monitoring -l app=nagios -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n monitoring $NAGIOS_POD -- /usr/lib/nagios/plugins/check_nrpe -H <TARGET_IP>
+# Expected: NRPE v4.1.2
+```
+
+### Step 3 — Add host/service definitions (inside Nagios pod)
+
+```bash
+kubectl exec -it -n monitoring $NAGIOS_POD -- bash
+vi /opt/nagios/etc/conf.d/<hostname>.cfg
+```
+
+Template:
+
+```
+define host {
+    host_name               <hostname>
+    alias                   <Friendly Name>
+    address                 <IP>
+    max_check_attempts      3
+    check_period            24x7
+    notification_interval   30
+    notification_period     24x7
+    check_command           check-host-alive
+    contact_groups          admins
+}
+
+define service {
+    host_name               <hostname>
+    service_description     PING
+    check_command           check_ping!100.0,20%!500.0,60%
+    max_check_attempts      3
+    check_period            24x7
+    notification_interval   30
+    notification_period     24x7
+    contact_groups          admins
+}
+
+define service {
+    host_name               <hostname>
+    service_description     CPU Load
+    check_command           check_nrpe!check_load
+    max_check_attempts      3
+    check_period            24x7
+    notification_interval   30
+    notification_period     24x7
+    contact_groups          admins
+}
+
+define service {
+    host_name               <hostname>
+    service_description     Disk Usage
+    check_command           check_nrpe!check_disk
+    max_check_attempts      3
+    check_period            24x7
+    notification_interval   30
+    notification_period     24x7
+    contact_groups          admins
+}
+```
+
+### Step 4 — Validate and reload
+
+```bash
+nagios -v /opt/nagios/etc/nagios.cfg
+kill -HUP $(pgrep nagios)
+```
+
+-----
+
+## Bulk Onboarding via Ansible (from Satellite)
+
+### Inventory file (hil-nodes.ini)
+
+```ini
+[controlplane]
+aamhilcp01.ttmtech.local ansible_host=10.45.10.167
+aamhilcp02.ttmtech.local ansible_host=10.45.10.168
+aamhilcp03.ttmtech.local ansible_host=10.45.10.169
+
+[workers]
+aamhilwk01.ttmtech.local ansible_host=10.45.10.171
+aamhilwk02.ttmtech.local ansible_host=10.45.10.172
+aamhilwk03.ttmtech.local ansible_host=10.45.10.173
+aamhilwk04.ttmtech.local ansible_host=10.45.10.174
+
+[hil_cluster:children]
+controlplane
+workers
+```
+
+### Run playbook
+
+```bash
+ansible-playbook -i hil-nodes.ini nrpe-install.yml
+# Target specific hosts
+ansible-playbook -i hil-nodes.ini nrpe-install.yml --limit <hostname>
+```
+
+-----
+
+## Monday Tasks
+
+- [ ] DNS A record: `nagios.apps.ttmtech.com → 10.45.17.118`
+- [ ] Update contact email to `linuxteam@ttmtech.com`
+- [ ] Add HAProxy (`aamhillts01`) monitoring
+- [ ] Add Rancher server (`10.45.10.180`) monitoring
+- [ ] Deploy equivalent setup in Commercial (CAM) environment
+- [ ] Remove hosts file entry from workstations
+
+-----
+
+## Troubleshooting
+
+### UI shows 502 Bad Gateway
+
+```bash
+kubectl get pods -n monitoring -o wide
+# Check firewalld is disabled on workers
+ansible workers -i hil-nodes.ini -b -m shell -a 'systemctl status firewalld'
+# Test NodePort directly
+curl -I http://10.45.10.172:30318/nagios/
+```
+
+### NRPE connection reset by peer
+
+```bash
+# Add pod CIDR to allowed_hosts on all nodes
+ansible hil_cluster -i hil-nodes.ini -b -m shell -a \
+  "sed -i 's/^allowed_hosts=.*/allowed_hosts=127.0.0.1,...,10.42.0.0\/16/' /etc/nagios/nrpe.cfg && systemctl restart nrpe"
+```
+
+### Config errors after pod restart
+
+```bash
+NAGIOS_POD=$(kubectl get pod -n monitoring -l app=nagios -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n monitoring $NAGIOS_POD -- bash -c \
+  'chown -R nagios:nagios /opt/nagios/var/ && chmod -R 775 /opt/nagios/var/ && chmod 777 /opt/nagios/var/rw/'
+kubectl exec -n monitoring $NAGIOS_POD -- sv force-restart nagios
+kubectl exec -n monitoring $NAGIOS_POD -- sv restart apache
+```
+
+### Validate config
+
+```bash
+kubectl exec -n monitoring $NAGIOS_POD -- nagios -v /opt/nagios/etc/nagios.cfg
+```
+
+### Reload Nagios
+
+```bash
+kubectl exec -n monitoring $NAGIOS_POD -- kill -HUP $(pgrep nagios)
+```
+
+### Watchdog CRITICAL (pipeline down)
+
+```bash
+# Check Alertmanager is running
+kubectl get pods -n cattle-monitoring-system | grep alertmanager
+# Check webhook is receiving
+WEBHOOK_POD=$(kubectl get pod -n monitoring -l app=nagios-webhook -o jsonpath='{.items[0].metadata.name}')
+kubectl logs -n monitoring $WEBHOOK_POD --tail=20
+# Check Alertmanager alerts
+curl -s http://10.43.218.173:9093/api/v2/alerts | python3 -m json.tool | grep alertname
+```
+
+### Manually submit passive check result
+
+```bash
+NAGIOS_POD=$(kubectl get pod -n monitoring -l app=nagios -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n monitoring $NAGIOS_POD -- bash -c \
+  "echo '[$(date +%s)] PROCESS_SERVICE_CHECK_RESULT;hil-rke2-cluster;<SERVICE>;0;OK - Manual clear' > /opt/nagios/var/rw/nagios.cmd"
+```
+
+### Initialize all passive checks to OK
+
+```bash
+kubectl exec -it -n monitoring $NAGIOS_POD -- bash
+TIMESTAMP=$(date +%s)
+SERVICES="Watchdog KubeAPIServerDown etcdInsufficientMembers KubeControllerManagerDown KubeSchedulerDown KubeNodeNotReady KubeNodeDiskPressure KubeNodeMemoryPressure KubeNodePIDPressure KubePodCrashLooping KubeDeploymentReplicasMismatch KubePersistentVolumeFillingUp KubeCPUOvercommit KubeMemoryOvercommit KubePodNotReady KubeContainerWaiting KubeDeploymentRolloutStuck CoreDNSDown KubeProxyDown KubePersistentVolumeErrors KubeJobFailed KubeStatefulSetReplicasMismatch"
+for SVC in $SERVICES; do
+  echo "[$TIMESTAMP] PROCESS_SERVICE_CHECK_RESULT;hil-rke2-cluster;$SVC;0;OK - Initialized" > /opt/nagios/var/rw/nagios.cmd
+  sleep 0.5
+done
+```
+
+-----
+
+## HAProxy and Rancher Monitoring (Monday)
+
+### Add to Ansible inventory
+
+```ini
+[infrastructure]
+aamhillts01.ttmtech.local ansible_host=10.45.17.118
+aamhilrs01.ttmtech.local ansible_host=10.45.10.180
+```
+
+### Nagios host definitions to add
+
+Create `/opt/nagios/etc/conf.d/hil-infrastructure.cfg` with host and service definitions for HAProxy and Rancher server following the same template as other nodes.
+
+### Additional service checks for HAProxy
+
+```
+define service {
+    host_name               aamhillts01
+    service_description     HAProxy Port 443
+    check_command           check_tcp!443
+    ...
+}
+```
+
+### Additional service checks for Rancher
+
+```
+define service {
+    host_name               aamhilrs01
+    service_description     Rancher HTTPS
+    check_command           check_tcp!443
+    ...
+}
+```
