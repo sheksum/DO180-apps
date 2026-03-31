@@ -1,12 +1,5 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ git push -u origin
-Enter passphrase for key '/home/hsuma/.ssh/id_ed25519':
-To bitbucket.org:calixprod/ocp-ai-platform.git
- ! [rejected]        main -> main (fetch first)
-error: failed to push some refs to 'bitbucket.org:calixprod/ocp-ai-platform.git'
-hint: Updates were rejected because the remote contains work that you do
-hint: not have locally. This is usually caused by another repository pushing
-hint: to the same ref. You may want to first integrate the remote changes
-hint: (e.g., 'git pull ...') before pushing again.
-hint: See the 'Note about fast-forwards' in 'git push --help' for details.
-hsuma@plnx-admin:~/ocp-ai-config$
+for vip in "10.172.194.160:9000" "10.172.194.161:19530" "10.172.194.163:5432" "10.172.202.160:9000" "10.172.202.161:19530" "10.172.198.160:9000" "10.172.198.161:19530"; do
+  ip=${vip%:*}; port=${vip#*:}
+  echo -n "$vip -> "
+  nc -w5 -zv $ip $port 2>&1 | tail -1
+done
