@@ -1,15 +1,26 @@
-oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}}}'
-
-
-oc patch l2advertisement l2-vlan1794-dev -n metallb-system --type merge -p '{"spec":{"interfaces":null}}'
-oc patch l2advertisement l2-vlan1797-prod -n metallb-system --type merge -p '{"spec":{"interfaces":null}}'
-oc patch l2advertisement l2-vlan1798-test -n metallb-system --type merge -p '{"spec":{"interfaces":null}}'
-
-
-oc delete pods -n metallb-system -l component=speaker
-sleep 20
-# Check if VIPs are now bound
-for node in master01 master02 master03; do
+hsuma@plnx-admin:~$ oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}}}'
+application.argoproj.io/metallb patched
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc patch l2advertisement l2-vlan1794-dev -n metallb-system --type merge -p '{"spec":{"interfaces":null}}'
+l2advertisement.metallb.io/l2-vlan1794-dev patched
+hsuma@plnx-admin:~$ oc patch l2advertisement l2-vlan1797-prod -n metallb-system --type merge -p '{"spec":{"interfaces":null}}'
+l2advertisement.metallb.io/l2-vlan1797-prod patched
+hsuma@plnx-admin:~$ oc patch l2advertisement l2-vlan1798-test -n metallb-system --type merge -p '{"spec":{"interfaces":null}}'
+l2advertisement.metallb.io/l2-vlan1798-test patched
+hsuma@plnx-admin:~$ oc delete pods -n metallb-system -l component=speaker
+pod "speaker-b8mvg" deleted from metallb-system namespace
+pod "speaker-dsglt" deleted from metallb-system namespace
+pod "speaker-vq9sl" deleted from metallb-system namespace
+hsuma@plnx-admin:~$ sleep 20
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ for node in master01 master02 master03; do
   echo "=== $node ==="
   ssh -i .ssh/ocp-ai core@ocp-ai-${node}.calix.local "ip addr show | grep '/32'"
 done
+=== master01 ===
+=== master02 ===
+    inet 10.172.248.156/32 scope global vip
+    inet 10.172.248.155/32 scope global vip
+=== master03 ===
+hsuma@plnx-admin:~$
