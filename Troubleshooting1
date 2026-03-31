@@ -42,27 +42,38 @@ Ncat: 0 bytes sent, 0 bytes received in 0.01 seconds.
 Removing debug pod ...
 
 
-------
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== MASQUERADE counter (did it fire?) ===
+    0     0 MASQUERADE  all  --  *      br-ex   10.172.194.0/23      172.30.0.0/16
+=== FORWARD counters ===
+   52  2964 ACCEPT     all  --  *      *       0.0.0.0/0            172.30.0.0/16
+   30  3138 ACCEPT     all  --  *      *       172.30.0.0/16        0.0.0.0/0
+=== DNAT counter ===
+  168 10080 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
+=== ARP on br-ex (is the gateway resolved?) ===
+10.172.248.101 lladdr 00:50:56:b5:e5:90 STALE
+169.254.0.4 lladdr 0a:58:a9:fe:00:04 PERMANENT
+10.172.248.55 lladdr 00:50:56:b5:08:45 STALE
+10.172.248.22 lladdr 00:50:56:b5:7e:ed STALE
+10.172.248.32 lladdr 00:50:56:b5:ee:65 REACHABLE
+10.172.248.1 lladdr 20:20:00:00:00:aa REACHABLE
+10.172.248.154 lladdr c8:4b:d6:f3:d8:22 REACHABLE
+10.172.248.155 lladdr 00:25:b5:50:0a:66 REACHABLE
+10.172.248.50 lladdr 00:50:56:b5:c2:c4 STALE
+169.254.0.1 lladdr 0a:58:a9:fe:00:01 PERMANENT
+10.172.248.151 lladdr 00:25:b5:50:0a:66 REACHABLE
+10.172.248.152 lladdr 00:25:b5:50:0a:68 REACHABLE
+10.172.248.51 lladdr 00:50:56:b5:3b:6b STALE
+10.172.248.153 lladdr c8:4b:d6:f3:d8:40 REACHABLE
+10.172.248.105 lladdr 00:50:56:b5:7a:3a STALE
+fe80::2220:ff:fe00:aa lladdr 20:20:00:00:00:aa router STALE
+=== LOG counter ===
+   63  5106 LOG        all  --  *      *       0.0.0.0/0            10.172.194.160       LOG flags 0 level 4 prefix "VIP-HIT: "
+=== conntrack for VIP ===
+ipv4     2 tcp      6 48 TIME_WAIT src=10.172.248.50 dst=10.172.194.160 sport=34314 dport=9000 src=172.30.168.89 dst=10.172.248.50 sport=9000 dport=34314 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=0 use=2
+ipv4     2 tcp      6 70 TIME_WAIT src=10.172.248.51 dst=10.172.194.160 sport=59858 dport=9000 src=172.30.168.89 dst=10.172.248.51 sport=9000 dport=59858 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=0 use=2
+=== rx_dropped on bnd0.1794 ===
+532491
 
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-  echo "=== MASQUERADE counter (did it fire?) ==="
-  iptables -t nat -L POSTROUTING -v -n 2>/dev/null | grep -E "MASQ|10.172.194"
-  
-  echo "=== FORWARD counters ==="
-  iptables -L FORWARD -v -n 2>/dev/null | grep 172.30
-  
-  echo "=== DNAT counter ==="
-  iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
-  
-  echo "=== ARP on br-ex (is the gateway resolved?) ==="
-  ip neigh show dev br-ex
-  
-  echo "=== LOG counter ==="
-  iptables -t raw -L PREROUTING -v -n 2>/dev/null | grep VIP-HIT
-  
-  echo "=== conntrack for VIP ==="
-  cat /proc/net/nf_conntrack 2>/dev/null | grep "10.172.194.160.*dport=9000" | tail -5
-  
-  echo "=== rx_dropped on bnd0.1794 ==="
-  cat /sys/class/net/bnd0.1794/statistics/rx_dropped
-'
+Removing debug pod ...
+hsuma@plnx-admin:~$
