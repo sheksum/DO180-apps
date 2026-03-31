@@ -1,76 +1,30 @@
-Removing debug pod ...
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc delete servicel2status --all -n metallb-system
-oc delete pod -n metallb-system -l component=speaker
-sleep 20
-servicel2status.metallb.io "l2-72srf" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-8bc9g" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-8s5jw" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-b6gqb" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-gt42z" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-kv9jp" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-t9bmz" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-zq8hs" deleted from metallb-system namespace
-pod "speaker-52lmv" deleted from metallb-system namespace
-pod "speaker-hxrm7" deleted from metallb-system namespace
-pod "speaker-vk4mx" deleted from metallb-system namespace
-hsuma@plnx-admin:~$ oc get servicel2status -n metallb-system -o custom-columns='NAME:.metadata.name,NODE:.status.node,SVC:.spec.serviceRef.name,NS:.spec.serviceRef.namespace'
-NAME       NODE                          SVC      NS
-l2-2wbhp   ocp-ai-master02.calix.local   <none>   <none>
-l2-4ks5z   ocp-ai-master01.calix.local   <none>   <none>
-l2-bgpwz   ocp-ai-master01.calix.local   <none>   <none>
-l2-f5xlr   ocp-ai-master01.calix.local   <none>   <none>
-l2-jmmv6   ocp-ai-master01.calix.local   <none>   <none>
-l2-ngsws   ocp-ai-master02.calix.local   <none>   <none>
-l2-xhp9k   ocp-ai-master03.calix.local   <none>   <none>
-l2-xswww   ocp-ai-master02.calix.local   <none>   <none>
-hsuma@plnx-admin:~$ for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
-  echo "=== $node ==="
-  oc debug node/$node -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-    iptables -t nat -C POSTROUTING -s 10.172.194.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE 2>/dev/null || \
-      iptables -t nat -A POSTROUTING -s 10.172.194.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
-    iptables -t nat -C POSTROUTING -s 10.172.198.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE 2>/dev/null || \
-      iptables -t nat -A POSTROUTING -s 10.172.198.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
-    iptables -t nat -C POSTROUTING -s 10.172.202.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE 2>/dev/null || \
-      iptables -t nat -A POSTROUTING -s 10.172.202.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
-    echo "MASQUERADE rules added"
-    iptables -t nat -S POSTROUTING | grep MASQ
-  '
-done
-=== ocp-ai-master01.calix.local ===
-Starting pod/ocp-ai-master01calixlocal-debug-2ssfm ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-MASQUERADE rules added
--A POSTROUTING -s 10.172.194.0/23 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
--A POSTROUTING -s 10.172.194.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
--A POSTROUTING -s 10.172.198.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
--A POSTROUTING -s 10.172.202.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
+oc get servicel2status -n metallb-system -o json | jq -r '.items[] | select(.spec.serviceRef.name != null) | "\(.spec.serviceRef.namespace)/\(.spec.serviceRef.name) → \(.status.node)"' 2>/dev/null || oc get servicel2status -n metallb-system -o yaml | grep -A5 "serviceRef\|node:"
 
-Removing debug pod ...
-=== ocp-ai-master02.calix.local ===
-Starting pod/ocp-ai-master02calixlocal-debug-c8fch ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-MASQUERADE rules added
--A POSTROUTING -s 10.172.194.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
--A POSTROUTING -s 10.172.198.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
--A POSTROUTING -s 10.172.202.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
 
-Removing debug pod ...
-=== ocp-ai-master03.calix.local ===
-Starting pod/ocp-ai-master03calixlocal-debug-wpzvg ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-MASQUERADE rules added
--A POSTROUTING -s 10.172.194.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
--A POSTROUTING -s 10.172.198.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
--A POSTROUTING -s 10.172.202.0/24 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
+oc debug node/<VIP-OWNER-NODE> -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+# Add VIP address if not present
+ip addr show dev bnd0.1794 | grep -q 10.172.194.160 || ip addr add 10.172.194.160/32 dev bnd0.1794
+echo "VIP addr: $(ip addr show dev bnd0.1794 | grep 10.172.194.160)"
 
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 5 10.172.194.160 9000
-Starting pod/ocp-ai-master02calixlocal-debug-j8l28 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: TIMEOUT.
+# Add DNAT rule (the missing piece)
+iptables -t nat -C PREROUTING -d 10.172.194.160/32 -p tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000 2>/dev/null || \
+  iptables -t nat -I PREROUTING -d 10.172.194.160/32 -p tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+echo "DNAT rule added"
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
+# Enable TRACE for full packet path visibility
+iptables -t raw -C PREROUTING -d 10.172.194.160 -p tcp --dport 9000 -j TRACE 2>/dev/null || \
+  iptables -t raw -I PREROUTING -d 10.172.194.160 -p tcp --dport 9000 -j TRACE
+echo "TRACE enabled"
+
+# rp_filter off
+echo 0 > /proc/sys/net/ipv4/conf/bnd0.1794/rp_filter
+echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
+
+# Verify
+iptables -t nat -S PREROUTING | grep 10.172.194.160
+iptables -t raw -S PREROUTING | grep TRACE
+'
+
+oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- nc -w 5 -zv 10.172.194.160 9000
+
+oc debug node/<VIP-OWNER-NODE> -- nsenter -t 1 -m -u -i -n -p -- bash -c 'dmesg | grep -i "trace\|PACKET" | tail -40'
