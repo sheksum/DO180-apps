@@ -1,18 +1,25 @@
-hsuma@plnx-admin:~$ nc -zv -w 3 10.172.194.160 9000
-nc: connect to 10.172.194.160 port 9000 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$ nc -zv -w 3 10.172.194.161 19530
-nc: connect to 10.172.194.161 port 19530 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$ nc -zv -w 3 10.172.202.160 9000
-nc: connect to 10.172.202.160 port 9000 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$ SPEAKER02=$(oc get pods -n metallb-system -o wide | grep master02 | awk '{print $1}')
-oc logs -n metallb-system $SPEAKER02 -c speaker --tail=300 | grep -iE "error|fail|cannot|unable|denied|permission|send.*arp|gratuitous.*send|SetBalancer" | head -30
-{"level":"error","ts":"2026-03-31T18:43:51Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-prod","name":"milvus-lb","reconcileID":"b001c79d-9955-460f-b813-a4e1ee2e37bb","error":"ServiceL2Status.metallb.io \"l2-x625v\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
-{"level":"error","ts":"2026-03-31T18:44:32Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-prod","name":"milvus-lb","reconcileID":"2a6bb0ed-00f6-4a70-9a8f-f3d813c6dce7","error":"ServiceL2Status.metallb.io \"l2-x625v\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
-{"level":"error","ts":"2026-03-31T18:45:54Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-prod","name":"milvus-lb","reconcileID":"8e9dce54-eef1-42f4-9693-be0792a64a68","error":"ServiceL2Status.metallb.io \"l2-x625v\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
-{"level":"error","ts":"2026-03-31T18:48:37Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-prod","name":"milvus-lb","reconcileID":"79b9201d-9b82-41e3-b2a1-910bc9e203f9","error":"ServiceL2Status.metallb.io \"l2-x625v\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
-hsuma@plnx-admin:~$ oc get l2advertisement -n metallb-system -o jsonpath='{range .items[*]}{.metadata.name}: interfaces={.spec.interfaces}, pools={.spec.ipAddressPools}{"\n"}{end}'
-l2-vlan1510: interfaces=, pools=["reserved-future"]
-l2-vlan1794-dev: interfaces=["bond0.1794","bnd0.1794"], pools=["pai-services-dev"]
-l2-vlan1797-prod: interfaces=["bond0.1797","bnd0.1797"], pools=["pai-services-prod"]
-l2-vlan1798-test: interfaces=["bond0.1798","bnd0.1798"], pools=["pai-services-test"]
-hsuma@plnx-admin:~$
+# Delete all stale ServiceL2Status objects
+oc delete servicel2status --all -n metallb-system
+
+# Use JSON patch to actually remove the interfaces field
+oc patch l2advertisement l2-vlan1794-dev -n metallb-system --type json -p '[{"op":"remove","path":"/spec/interfaces"}]'
+oc patch l2advertisement l2-vlan1797-prod -n metallb-system --type json -p '[{"op":"remove","path":"/spec/interfaces"}]'
+oc patch l2advertisement l2-vlan1798-test -n metallb-system --type json -p '[{"op":"remove","path":"/spec/interfaces"}]'
+
+
+
+oc get l2advertisement -n metallb-system -o jsonpath='{range .items[*]}{.metadata.name}: interfaces={.spec.interfaces}, pools={.spec.ipAddressPools}{"\n"}{end}'
+
+
+oc delete pods -n metallb-system -l component=speaker
+sleep 25
+
+# Check VIP binding
+for node in master01 master02 master03; do
+  echo "=== $node ==="
+  ssh -i .ssh/ocp-ai core@ocp-ai-${node}.calix.local "ip addr show | grep '/32'"
+done
+
+# Test connectivity
+nc -zv -w 3 10.172.194.160 9000
+nc -zv -w 3 10.172.194.161 19530
