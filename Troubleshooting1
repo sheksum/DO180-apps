@@ -80,3 +80,19 @@ table ip filter {
 
 Removing debug pod ...
 hsuma@plnx-admin:~$
+
+
+# 1. Is bnd0.1794 an OVS port?
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-vsctl show | grep -A2 bnd0
+
+# 2. Check if there's an OVS bridge consuming VLAN 1794 traffic
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-vsctl list-ports br-ex
+
+# 3. Check OVS flow hits for the VIP
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-ofctl dump-flows br-ex | grep "10.172.194.160"
+
+# 4. Also check br-int
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-ofctl dump-flows br-int | grep "10.172.194.160"
+
+# 5. Check if bnd0 (parent) is in OVS
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-vsctl port-to-br bnd0 2>&1
