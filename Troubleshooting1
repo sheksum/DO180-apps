@@ -1,4 +1,4 @@
-oc debug node/ocp-ai-master01.calix.local -- chroot /host bash -c '
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host bash -c '
 echo "=== rp_filter settings ==="
 for iface in all default bnd0.1794 br-ex ovn-k8s-mp0; do
   val=$(cat /proc/sys/net/ipv4/conf/$iface/rp_filter 2>/dev/null)
@@ -14,6 +14,38 @@ echo "=== netfilter drops ==="
 cat /proc/net/stat/nf_conntrack 2>/dev/null | head -2
 nstat -z | grep -i -E "drop|filter|rp_" 2>/dev/null
 '
+Starting pod/ocp-ai-master01calixlocal-debug-8gt67 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== rp_filter settings ===
+all: rp_filter=0
+default: rp_filter=1
+bnd0.1794: rp_filter=0
+br-ex: rp_filter=1
+ovn-k8s-mp0: rp_filter=2
 
-echo 0 > /proc/sys/net/ipv4/conf/bnd0.1794/rp_filter
-echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
+=== ip_forward ===
+1
+
+=== netfilter drops ===
+entries  clashres found new invalid ignore delete chainlength insert insert_failed drop early_drop icmp_error  expect_new expect_create expect_delete search_restart
+00002c47  00000003 000000d0 00000000 000001c1 00000000 00000000 00000000 00000000 00000000 00000000 00000000 0000000a  00000000 00000000 00000000 00000000
+TcpExtLockDroppedIcmps          0                  0.0
+TcpExtArpFilter                 0                  0.0
+TcpExtListenDrops               0                  0.0
+TcpExtTCPBacklogDrop            0                  0.0
+TcpExtPFMemallocDrop            0                  0.0
+TcpExtTCPMinTTLDrop             0                  0.0
+TcpExtTCPDeferAcceptDrop        0                  0.0
+TcpExtIPReversePathFilter       1                  0.0
+TcpExtTCPReqQFullDrop           0                  0.0
+TcpExtTCPOFODrop                0                  0.0
+TcpExtTCPZeroWindowDrop         0                  0.0
+TcpExtTCPRcvQDrop               0                  0.0
+MPTcpExtAddAddrTxDrop           0                  0.0
+MPTcpExtEchoAddTxDrop           0                  0.0
+MPTcpExtAddAddrDrop             0                  0.0
+MPTcpExtRmAddrDrop              0                  0.0
+MPTcpExtRmAddrTxDrop            0                  0.0
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
