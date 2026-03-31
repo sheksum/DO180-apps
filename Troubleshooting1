@@ -1,5 +1,5 @@
-# Step 1: Verify and add logging
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
   echo "=== VIP still assigned? ==="
   ip addr show bnd0.1794 | grep 10.172.194.160
   echo "=== DNAT rules intact? ==="
@@ -11,13 +11,32 @@ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash
   iptables -t raw -I PREROUTING -d 10.172.194.160 -j LOG --log-prefix "VIP-HIT: "
   echo "Ready"
 '
+Starting pod/ocp-ai-master01calixlocal-debug-f9bmj ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== VIP still assigned? ===
+    inet 10.172.194.160/32 scope global bnd0.1794
+=== DNAT rules intact? ===
+-A OUTPUT -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+-A OVN-KUBE-EXTERNALIP -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+=== ip_forward ===
+1
+=== Adding LOG rule (no interface filter this time) ===
+Ready
 
-# Step 2: Test from master02
-oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
+Starting pod/ocp-ai-master02calixlocal-debug-79kbc ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
 
-
-# Step 3: Check what happened
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
   echo "=== LOG entries ==="
   dmesg | grep VIP-HIT | tail -5
   echo "=== FORWARD chain counters ==="
@@ -27,3 +46,24 @@ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash
   echo "=== VIP still there? ==="
   ip addr show bnd0.1794 | grep 10.172.194.160
 '
+Starting pod/ocp-ai-master01calixlocal-debug-fp87x ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== LOG entries ===
+=== FORWARD chain counters ===
+Chain FORWARD (policy DROP 35 packets, 10164 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            169.254.0.1
+    0     0 ACCEPT     all  --  *      *       169.254.0.1          0.0.0.0/0
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            172.30.0.0/16
+    0     0 ACCEPT     all  --  *      *       172.30.0.0/16        0.0.0.0/0
+   11   440 ACCEPT     all  --  *      *       0.0.0.0/0            10.128.0.0/14
+    0     0 ACCEPT     all  --  *      *       10.128.0.0/14        0.0.0.0/0
+    0     0 REJECT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22624 flags:0x17/0x02 reject-with icmp-port-unreachable
+    0     0 REJECT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22623 flags:0x17/0x02 reject-with icmp-port-unreachable
+=== DNAT counter ===
+  158  9480 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
+=== VIP still there? ===
+    inet 10.172.194.160/32 scope global bnd0.1794
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
