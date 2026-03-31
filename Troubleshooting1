@@ -1,17 +1,37 @@
-# From master01 (which has bnd0.1794 with IP 10.172.194.150), arping the VIP
-ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "arping -c 3 -I bnd0.1794 10.172.194.160"
-
-
-# Check ALL errors across ALL speakers right now
-for pod in $(oc get pods -n metallb-system -l component=speaker -o name); do
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "arping -c 3 -I bnd0.1794 10.172.194.160"
+ARPING 10.172.194.160 from 10.172.194.150 bnd0.1794
+Sent 3 probes (3 broadcast(s))
+Received 0 response(s)
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ for pod in $(oc get pods -n metallb-system -l component=speaker -o name); do
   echo "=== $pod ==="
   oc logs -n metallb-system $pod -c speaker --tail=100 | grep -i "error" | tail -5
 done
-
-# Check current ServiceL2Status - see if they exist and are clean
-oc get servicel2status -n metallb-system -o custom-columns='NAME:.metadata.name,NODE:.status.node,SVC:.status.serviceName,NS:.status.serviceNamespace'
-
-
-# And check the speaker logs for any ARP socket opening or ARP activity on VLAN interfaces
-SPEAKER01=$(oc get pods -n metallb-system -o wide | grep master01 | awk '{print $1}')
+=== pod/speaker-52lmv ===
+=== pod/speaker-hxrm7 ===
+{"caller":"service_controller_reload.go:97","controller":"ServiceReconciler - reprocessAll","level":"debug","reprocessing service":"{\"kind\":\"Service\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"webhook-service\",\"namespace\":\"metallb-system\",\"uid\":\"08592da8-5725-4cb2-9088-b691afde2948\",\"resourceVersion\":\"29706041\",\"creationTimestamp\":\"2026-03-31T17:58:07Z\",\"labels\":{\"olm.managed\":\"true\",\"operators.coreos.com/metallb-operator.metallb-system\":\"\"},\"annotations\":{\"service.alpha.openshift.io/serving-cert-generation-error\":\"secret metallb-system/metallb-operator-webhook-server-service-cert does not have corresponding service UID 08592da8-5725-4cb2-9088-b691afde2948\",\"service.alpha.openshift.io/serving-cert-generation-error-num\":\"10\",\"service.alpha.openshift.io/serving-cert-secret-name\":\"metallb-operator-webhook-server-service-cert\",\"service.beta.openshift.io/serving-cert-generation-error\":\"secret metallb-system/metallb-operator-webhook-server-service-cert does not have corresponding service UID 08592da8-5725-4cb2-9088-b691afde2948\",\"service.beta.openshift.io/serving-cert-generation-error-num\":\"10\"},\"ownerReferences\":[{\"apiVersion\":\"operators.coreos.com/v1alpha1\",\"kind\":\"ClusterServiceVersion\",\"name\":\"metallb-operator.v4.20.0-202602261925\",\"uid\":\"aa0ee7cc-0012-4704-ad50-e87d977c2c67\",\"controller\":false,\"blockOwnerDeletion\":false}],\"managedFields\":[{\"manager\":\"catalog\",\"operation\":\"Update\",\"apiVersion\":\"v1\",\"time\":\"2026-03-31T17:58:07Z\",\"fieldsType\":\"FieldsV1\",\"fieldsV1\":{\"f:metadata\":{\"f:annotations\":{\".\":{},\"f:service.alpha.openshift.io/serving-cert-secret-name\":{}},\"f:labels\":{\".\":{},\"f:olm.managed\":{}},\"f:ownerReferences\":{\".\":{},\"k:{\\\"uid\\\":\\\"aa0ee7cc-0012-4704-ad50-e87d977c2c67\\\"}\":{}}},\"f:spec\":{\"f:internalTrafficPolicy\":{},\"f:ports\":{\".\":{},\"k:{\\\"port\\\":443,\\\"protocol\\\":\\\"TCP\\\"}\":{\".\":{},\"f:port\":{},\"f:protocol\":{},\"f:targetPort\":{}}},\"f:selector\":{},\"f:sessionAffinity\":{},\"f:type\":{}}}},{\"manager\":\"olm\",\"operation\":\"Update\",\"apiVersion\":\"v1\",\"time\":\"2026-03-31T17:58:27Z\",\"fieldsType\":\"FieldsV1\",\"fieldsV1\":{\"f:metadata\":{\"f:labels\":{\"f:operators.coreos.com/metallb-operator.metallb-system\":{}}}}},{\"manager\":\"service-ca-operator\",\"operation\":\"Update\",\"apiVersion\":\"v1\",\"time\":\"2026-03-31T17:58:32Z\",\"fieldsType\":\"FieldsV1\",\"fieldsV1\":{\"f:metadata\":{\"f:annotations\":{\"f:service.alpha.openshift.io/serving-cert-generation-error\":{},\"f:service.alpha.openshift.io/serving-cert-generation-error-num\":{},\"f:service.beta.openshift.io/serving-cert-generation-error\":{},\"f:service.beta.openshift.io/serving-cert-generation-error-num\":{}}}}}]},\"spec\":{\"ports\":[{\"protocol\":\"TCP\",\"port\":443,\"targetPort\":9443}],\"selector\":{\"component\":\"webhook-server\"},\"clusterIP\":\"172.30.182.150\",\"clusterIPs\":[\"172.30.182.150\"],\"type\":\"ClusterIP\",\"sessionAffinity\":\"None\",\"ipFamilies\":[\"IPv4\"],\"ipFamilyPolicy\":\"SingleStack\",\"internalTrafficPolicy\":\"Cluster\"},\"status\":{\"loadBalancer\":{}}}","ts":"2026-03-31T18:54:56Z"}
+=== pod/speaker-vk4mx ===
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get servicel2status -n metallb-system -o custom-columns='NAME:.metadata.name,NODE:.status.node,SVC:.status.serviceName,NS:.status.serviceNamespace'
+NAME       NODE                          SVC                             NS
+l2-72srf   ocp-ai-master02.calix.local   minio-lb                        pai-prod
+l2-8bc9g   ocp-ai-master01.calix.local   minio-lb                        pai-dev
+l2-8s5jw   ocp-ai-master01.calix.local   milvus-lb                       pai-dev
+l2-b6gqb   ocp-ai-master02.calix.local   pg-lb                           pai-dev
+l2-gt42z   ocp-ai-master02.calix.local   milvus-lb                       pai-prod
+l2-kv9jp   ocp-ai-master03.calix.local   pai-gateway-openshift-default   openshift-ingress
+l2-t9bmz   ocp-ai-master01.calix.local   milvus-lb                       pai-test
+l2-zq8hs   ocp-ai-master01.calix.local   minio-lb                        pai-test
+hsuma@plnx-admin:~$ SPEAKER01=$(oc get pods -n metallb-system -o wide | grep master01 | awk '{print $1}')
 oc logs -n metallb-system $SPEAKER01 -c speaker --tail=200 | grep -iE "arp|socket|bind|open|listen|bnd0" | head -20
+error: expected 'logs [-f] [-p] (POD | TYPE/NAME) [-c CONTAINER]'.
+POD or TYPE/NAME is a required argument for the logs command
+See 'oc logs -h' for help and examples
+hsuma@plnx-admin:~$  SPEAKER01=$(oc get pods -n metallb-system -o wide | grep master01 | awk '{print $1}')
+hsuma@plnx-admin:~$ oc logs -n metallb-system $SPEAKER01 -c speaker --tail=200 | grep -iE "arp|socket|bind|open|listen|bnd0" | head -20
+error: expected 'logs [-f] [-p] (POD | TYPE/NAME) [-c CONTAINER]'.
+POD or TYPE/NAME is a required argument for the logs command
+See 'oc logs -h' for help and examples
+hsuma@plnx-admin:~$
