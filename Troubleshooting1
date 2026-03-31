@@ -1,77 +1,32 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host tcpdump -i br-ex -n host 172.30.168.89 and port 9000 -c 20
-Starting pod/ocp-ai-master01calixlocal-debug-rxwz5 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-chroot: failed to run command 'tcpdump': No such file or directory
+oc debug node/ocp-ai-master01.calix.local -- chroot /host bash -c '
+echo "=== PREROUTING (NAT) ==="
+iptables -t nat -L PREROUTING -v -n --line-numbers 2>&1 | head -30
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host tcpdump -i br-ex -n host 172.30.168.89 and port 9000 -c 20
-Starting pod/ocp-ai-master01calixlocal-debug-xmn45 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-chroot: failed to run command 'tcpdump': No such file or directory
+echo ""
+echo "=== OVN-KUBE-EXTERNALIP ==="
+iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n --line-numbers 2>&1
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host tcpdump -i bnd0.1794 -n host 10.172.194.160 and port 9000 -c 20
-Starting pod/ocp-ai-master01calixlocal-debug-rwrvv ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-chroot: failed to run command 'tcpdump': No such file or directory
+echo ""
+echo "=== POSTROUTING (NAT) ==="
+iptables -t nat -L POSTROUTING -v -n --line-numbers 2>&1 | head -30
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host tcpdump -i bnd0.1794 -n host 10.172.194.160 and port 9000 -c 20
-Starting pod/ocp-ai-master01calixlocal-debug-ww92n ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-chroot: failed to run command 'tcpdump': No such file or directory
+echo ""
+echo "=== OVN-KUBE-SNAT-MGMTPORT ==="
+iptables -t nat -L OVN-KUBE-SNAT-MGMTPORT -v -n --line-numbers 2>&1
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host tcpdump -i bnd0.1794 -n host 10.172.194.160 and port 9000 -c 20
-Starting pod/ocp-ai-master01calixlocal-debug-9bsth ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-chroot: failed to run command 'tcpdump': No such file or directory
+echo ""
+echo "=== FORWARD filter ==="
+iptables -L FORWARD -v -n --line-numbers 2>&1 | head -20
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host tcpdump -i bnd0.1794 -n host 10.172.194.160 and port 9000 -c 20
-Starting pod/ocp-ai-master01calixlocal-debug-sjp59 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-chroot: failed to run command 'tcpdump': No such file or directory
+echo ""
+echo "=== ip route get to ClusterIP from VLAN src ==="
+ip route get 172.30.168.89 from 10.172.194.151 iif bnd0.1794 2>&1
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
+echo ""
+echo "=== ip route get return path ==="
+ip route get 10.172.194.151 2>&1
 
-
-suma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host curl -m5 http://10.172.194.160:9000
-Starting pod/ocp-ai-master02calixlocal-debug-m9cpv ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0
-curl: (28) Connection timed out after 5001 milliseconds
-
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host curl -m5 http://10.172.194.160:9000
-Starting pod/ocp-ai-master02calixlocal-debug-84pjf ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0
-curl: (28) Connection timed out after 5000 milliseconds
-
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host curl -m5 http://10.172.194.160:22
-Starting pod/ocp-ai-master02calixlocal-debug-nnl27 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (1) Received HTTP/0.9 when not allowed
-
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
+echo ""
+echo "=== conntrack count ==="
+conntrack -C 2>&1
+'
