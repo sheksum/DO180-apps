@@ -1,49 +1,24 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc delete servicel2status --all -n metallb-system
-oc delete pod -n metallb-system -l component=speaker
-sleep 25
-servicel2status.metallb.io "l2-2wbhp" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-4ks5z" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-bgpwz" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-f5xlr" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-jmmv6" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-ngsws" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-xhp9k" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-xswww" deleted from metallb-system namespace
-pod "speaker-dd8xb" deleted from metallb-system namespace
-pod "speaker-nm8sq" deleted from metallb-system namespace
-pod "speaker-sln6h" deleted from metallb-system namespace
-hsuma@plnx-admin:~$ oc get servicel2status -n metallb-system -o custom-columns='NAME:.metadata.name,NODE:.status.node,SVC:.spec.serviceRef.name,NS:.spec.serviceRef.namespace'
-NAME       NODE                          SVC      NS
-l2-4r8gs   ocp-ai-master02.calix.local   <none>   <none>
-l2-7st2q   ocp-ai-master02.calix.local   <none>   <none>
-l2-bgqck   ocp-ai-master01.calix.local   <none>   <none>
-l2-fpzld   ocp-ai-master03.calix.local   <none>   <none>
-l2-js5r6   ocp-ai-master02.calix.local   <none>   <none>
-l2-md6nh   ocp-ai-master01.calix.local   <none>   <none>
-l2-pjk2m   ocp-ai-master01.calix.local   <none>   <none>
-l2-wxrxm   ocp-ai-master01.calix.local   <none>   <none>
-hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker --tail=20 2>&1 | grep -iE "error|immutable|announce|minio"
-{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1794","ts":"2026-03-31T21:45:38Z"}
-{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1796","ts":"2026-03-31T21:45:38Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T21:45:44Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T21:45:54Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T21:46:04Z"}
-{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1798","ts":"2026-03-31T21:45:38Z"}
-{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1797","ts":"2026-03-31T21:45:38Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T21:45:43Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T21:45:53Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T21:46:03Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T21:45:44Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T21:45:54Z"}
-{"caller":"announcer.go:77","event":"announced interface to exclude","interface":"lo","level":"debug","ts":"2026-03-31T21:46:04Z"}
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 5 10.172.194.160 9000
-Starting pod/ocp-ai-master02calixlocal-debug-zknjz ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: TIMEOUT.
+# Check if VIP is still answering ARP
+oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- arping -c 2 -I bnd0.1794 10.172.194.160
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
+# Check what iptables rules OVN created with routingViaHost
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+echo "=== NodePort/ExternalIP rules ==="
+iptables -t nat -S | grep -i "10.172.194.160\|NODEPORT\|EXTERNAL\|9000"
+
+echo "=== OVN nat chains ==="
+iptables -t nat -S OVN-KUBE-NODEPORT 2>/dev/null
+iptables -t nat -S OVN-KUBE-EXTERNALIP 2>/dev/null
+iptables -t nat -S OVN-KUBE-ETP 2>/dev/null
+
+echo "=== ip_forward still on ==="
+cat /proc/sys/net/ipv4/ip_forward
+
+echo "=== VIP address on bnd0.1794? ==="
+ip addr show dev bnd0.1794 | grep 10.172.194.160
+
+echo "=== Service details ==="
+'
+
+# Also check service
+oc get svc minio-lb -n pai-dev -o yaml | grep -A5 "spec:" | head -15
