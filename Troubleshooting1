@@ -1,16 +1,81 @@
-# Check current setting
-oc get network.operator cluster -o jsonpath='{.spec.defaultNetwork.ovnKubernetesConfig.gatewayConfig.ipForwarding}'
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get network.operator cluster -o jsonpath='{.spec.defaultNetwork.ovnKubernetesConfig.gatewayConfig.ipForwarding}'
 echo
 
-# Apply the fix — tells OVN-Kubernetes to stop resetting ip_forward
-oc patch network.operator cluster -p '{"spec":{"defaultNetwork":{"ovnKubernetesConfig":{"gatewayConfig":{"ipForwarding": "Global"}}}}}' --type=merge
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc patch network.operator cluster -p '{"spec":{"defaultNetwork":{"ovnKubernetesConfig":{"gatewayConfig":{"ipForwarding": "Global"}}}}}' --type=merge
+network.operator.openshift.io/cluster patched
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get network.operator cluster -o jsonpath='{.spec.defaultNetwork.ovnKubernetesConfig.gatewayConfig.ipForwarding}'
+Globalhsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get co network -w
+NAME      VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE   MESSAGE
+network   4.20.13   True        False         False      43d
+network   4.20.13   True        False         False      43d
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is being processed (generation 3, observed generation 2)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is being processed (generation 3, observed generation 2)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (0 out of 5 updated)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (0 out of 5 updated)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (0 out of 5 updated)...
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (0 out of 5 updated)...
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-multus/multus" is not available (awaiting 1 nodes)...
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-multus/multus" is not available (awaiting 1 nodes)...
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (1 out of 5 updated)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (1 out of 5 updated)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (1 out of 5 updated)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-multus/multus" is not available (awaiting 1 nodes)...
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-multus/multus" is not available (awaiting 1 nodes)...
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (2 out of 5 updated)...
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (2 out of 5 updated)...
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (2 out of 5 updated)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (2 out of 5 updated)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (2 out of 5 updated)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (2 out of 5 updated)...
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (2 out of 5 updated)...
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (2 out of 5 updated)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (2 out of 5 updated)
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (3 out of 5 updated)
+^Chsuma@plnx-admin:~$ oc get co network
+NAME      VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE   MESSAGE
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (3 out of 5 updated)
+hsuma@plnx-admin:~$ oc get co network
+NAME      VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE   MESSAGE
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" update is rolling out (4 out of 5 updated)
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- cat /proc/sys/net/ipv4/ip_forward
+Starting pod/ocp-ai-master01calixlocal-debug-x56tb ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+1
 
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
+Starting pod/ocp-ai-master02calixlocal-debug-nm8sn ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
 
-# Watch the network operator status
-oc get co network -w
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$ oc get co network
+NAME      VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE   MESSAGE
+network   4.20.13   True        True          False      43d     DaemonSet "/openshift-ovn-kubernetes/ovnkube-node" is not available (awaiting 1 nodes)
+hsuma@plnx-admin:~$ oc get co network -w
+NAME      VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE   MESSAGE
+network   4.20.13   True        False         False      43d
+^Chsuma@plnx-admin:~$ oc debug node/ocp-ai-maste1.calix.local -- nsenter -t 1 -m -u -i -n -p -- cat /proc/sys/net/ipv4/ip_forward
+Starting pod/ocp-ai-master01calixlocal-debug-zx5w6 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+1
 
-# Once stable, verify ip_forward is now 1
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- cat /proc/sys/net/ipv4/ip_forward
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
+Starting pod/ocp-ai-master02calixlocal-debug-lmg8g ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
 
-# Then test
-oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$
