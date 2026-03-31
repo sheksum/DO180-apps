@@ -1,36 +1,20 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc delete servicel2status --all -n metallb-system
-servicel2status.metallb.io "l2-cblk9" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-cp9xw" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-ct9fm" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-ffscn" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-ghqtd" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-r7tfs" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-r95v6" deleted from metallb-system namespace
-servicel2status.metallb.io "l2-xdcch" deleted from metallb-system namespace
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc delete pods -n metallb-system -l component=speaker
-pod "speaker-mr2ks" deleted from metallb-system namespace
-pod "speaker-qkjvx" deleted from metallb-system namespace
-pod "speaker-sxk7c" deleted from metallb-system namespace
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ sleep 30 && oc get servicel2status -A -o wide
-NAMESPACE        NAME       ALLOCATED NODE                SERVICE NAME                    SERVICE NAMESPACE
-metallb-system   l2-f7gph   ocp-ai-master02.calix.local   pg-lb                           pai-dev
-metallb-system   l2-g8mpt   ocp-ai-master02.calix.local   milvus-lb                       pai-prod
-metallb-system   l2-jlgdg   ocp-ai-master02.calix.local   minio-lb                        pai-prod
-metallb-system   l2-pp6dq   ocp-ai-master01.calix.local   milvus-lb                       pai-dev
-metallb-system   l2-qcd6g   ocp-ai-master01.calix.local   milvus-lb                       pai-test
-metallb-system   l2-s9wjl   ocp-ai-master03.calix.local   pai-gateway-openshift-default   openshift-ingress
-metallb-system   l2-sk5gz   ocp-ai-master01.calix.local   minio-lb                        pai-test
-metallb-system   l2-z4thp   ocp-ai-master01.calix.local   minio-lb                        pai-dev
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker -c speaker --tail=50
-{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.150:9122: dial tcp 10.172.248.150:9122: connect: connection refused\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-03-31T18:18:33Z"}
-{"caller":"speakerlist.go:269","error":null,"expected":2,"joined":1,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-03-31T18:18:32Z"}
-hsuma@plnx-admin:~$
+# Test MinIO on its actual port (9000)
+nc -zv 10.172.194.160 9000 -w 3
+
+
+# Test Milvus (19530)
+nc -zv 10.172.194.161 19530 -w 3
+
+# Test PostgreSQL (5432)
+nc -zv 10.172.194.163 5432 -w 3
+
+
+# And still check if VIPs are bound on the nodes - this is the fundamental question
+for node in master01 master02 master03; do
+  echo "=== $node ==="
+  ssh -i .ssh/ocp-ai core@ocp-ai-${node}.calix.local "ip addr show | grep -E '10.172.194.1(6[0-9]|7[0-9])|10.172.198.1(6[0-9]|7[0-9])|10.172.202.1(6[0-9]|7[0-9])|10.172.248.175'"
+done
+
+
+# Check speaker logs - are there errors or successful announcements?
+oc logs -n metallb-system -l component=speaker -c speaker --tail=50
