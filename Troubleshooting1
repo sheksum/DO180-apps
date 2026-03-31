@@ -1,24 +1,32 @@
-# Temporarily change logLevel to debug (ArgoCD will revert in ~3-5 min, 
-# so we need to read logs quickly after speakers restart)
-oc patch metallb metallb -n metallb-system --type merge -p '{"spec":{"logLevel":"debug"}}'
-
-# Wait for the operator to roll out new speaker pods
-sleep 30 && oc get pods -n metallb-system -l component=speaker -w
-
-
-# Grab the full logs immediately — this will show us EVERYTHING:
-# interface matching, VIP binding attempts, ARP announcements, election results
-oc logs -n metallb-system -l component=speaker -c speaker --tail=500
-
-# And quickly check if VIPs are bound now
-ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "ip addr show | grep '10.172.194.16'"
-
-
-# Pause ArgoCD auto-sync on the metallb app
-oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":null}}'
-
-# Then patch the logLevel (won't be reverted until you re-enable sync)
-oc patch metallb metallb -n metallb-system --type merge -p '{"spec":{"logLevel":"debug"}}'
+hsuma@plnx-admin:~$ oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":null}}'
+application.argoproj.io/metallb patched
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc patch metallb metallb -n metallb-system --type merge -p '{"spec":{"logLevel":"debug"}}'
+metallb.metallb.io/metallb patched
+hsuma@plnx-admin:~$ sleep 30 && oc get pods -n metallb-system -l component=speaker -w
+NAME            READY   STATUS    RESTARTS      AGE
+speaker-96xwt   2/2     Running   0             21h
+speaker-fs45p   2/2     Running   1 (21h ago)   21h
+speaker-gn45f   1/2     Running   3 (36s ago)   37s
+speaker-gn45f   2/2     Running   3 (36s ago)   37s
+^Chsuma@plnx-admin:~$ sleep 30 && oc get pods -n metallb-system -l component=speaker -w
+^C
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker -w
+NAME            READY   STATUS    RESTARTS      AGE
+speaker-96xwt   2/2     Running   0             21h
+speaker-fs45p   2/2     Running   1 (21h ago)   21h
+speaker-gn45f   2/2     Running   3 (59s ago)   60s
+^Chsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker -c speaker --tail=500
+{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master01.calix.local)","ts":"2026-03-30T20:34:44Z"}
+{"level":"error","ts":"2026-03-30T20:34:44Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-prod","name":"minio-lb","reconcileID":"89abba76-3e45-4e9a-bf17-3f009d3f6af4","error":"servicel2statuses.metallb.io \"l2-zxb8j\" not found","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master03.calix.local)","ts":"2026-03-31T17:36:22Z"}
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "ip addr show | grep '10.172.194.16'"
+hsuma@plnx-admin:~$
 
 
 oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":{"selfHeal":true,"prune":true}}}}'
