@@ -1,32 +1,18 @@
-hsuma@plnx-admin:~$ oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":null}}'
-application.argoproj.io/metallb patched
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc patch metallb metallb -n metallb-system --type merge -p '{"spec":{"logLevel":"debug"}}'
-metallb.metallb.io/metallb patched
-hsuma@plnx-admin:~$ sleep 30 && oc get pods -n metallb-system -l component=speaker -w
-NAME            READY   STATUS    RESTARTS      AGE
-speaker-96xwt   2/2     Running   0             21h
-speaker-fs45p   2/2     Running   1 (21h ago)   21h
-speaker-gn45f   1/2     Running   3 (36s ago)   37s
-speaker-gn45f   2/2     Running   3 (36s ago)   37s
-^Chsuma@plnx-admin:~$ sleep 30 && oc get pods -n metallb-system -l component=speaker -w
-^C
-hsuma@plnx-admin:~$ oc get pods -n metallb-system -l component=speaker -w
-NAME            READY   STATUS    RESTARTS      AGE
-speaker-96xwt   2/2     Running   0             21h
-speaker-fs45p   2/2     Running   1 (21h ago)   21h
-speaker-gn45f   2/2     Running   3 (59s ago)   60s
-^Chsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker -c speaker --tail=500
-{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master01.calix.local)","ts":"2026-03-30T20:34:44Z"}
-{"level":"error","ts":"2026-03-30T20:34:44Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-prod","name":"minio-lb","reconcileID":"89abba76-3e45-4e9a-bf17-3f009d3f6af4","error":"servicel2statuses.metallb.io \"l2-zxb8j\" not found","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
-{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master03.calix.local)","ts":"2026-03-31T17:36:22Z"}
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "ip addr show | grep '10.172.194.16'"
-hsuma@plnx-admin:~$
+# 1. Logs from the NEW crash-looping pod — including previous crash attempts
+oc logs -n metallb-system speaker-gn45f -c speaker --previous
+
+# 2. Current logs from the new pod
+oc logs -n metallb-system speaker-gn45f -c speaker
+
+# 3. Which node is the new pod on? (old speaker-tjlqv on master03 is gone)
+oc get pod speaker-gn45f -n metallb-system -o wide
+
+# 4. Did the operator actually update the DaemonSet with the new log level?
+oc get daemonset -n metallb-system speaker -o jsonpath='{.spec.template.spec.containers[0].args}'
+echo
+
+# 5. Describe the pod for crash events and reasons
+oc describe pod speaker-gn45f -n metallb-system | tail -40
 
 
 oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":{"selfHeal":true,"prune":true}}}}'
