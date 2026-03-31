@@ -15,3 +15,6 @@ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash
   echo "From localhost:"
   nc -zv -w 3 10.172.194.150 32714 2>&1 || true
 '
+
+# NodePort should work regardless of MetalLB/VIP issues
+oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.150 32714
