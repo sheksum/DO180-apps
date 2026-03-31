@@ -1,62 +1,17 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system speaker-gn45f -c speaker --previous
-{"caller":"speakerlist.go:108","error":"Could not set up network transport: failed to obtain an address: Failed to start TCP listener on \"10.172.248.152\" port 9122: listen tcp 10.172.248.152:9122: bind: address already in use","level":"error","msg":"failed to create memberlist","op":"startup","ts":"2026-03-31T17:35:57Z"}
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system speaker-gn45f -c speaker
-{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master03.calix.local)","ts":"2026-03-31T17:36:22Z"}
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pod speaker-gn45f -n metallb-system -o wide
-NAME            READY   STATUS    RESTARTS        AGE     IP               NODE                          NOMINATED NODE   READINESS GATES
-speaker-gn45f   2/2     Running   3 (3m10s ago)   3m11s   10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get daemonset -n metallb-system speaker -o jsonpath='{.spec.template.spec.containers[0].args}'
-echo
-["--port=29150","--log-level=warn","--host=localhost","--frrk8s-namespace=openshift-frr-k8s"]
-hsuma@plnx-admin:~$ oc describe pod speaker-gn45f -n metallb-system | tail -40
-    SecretName:  speaker-certs-secret
-    Optional:    false
-  memberlist:
-    Type:        Secret (a volume populated by a Secret)
-    SecretName:  metallb-memberlist
-    Optional:    false
-  metallb-excludel2:
-    Type:      ConfigMap (a volume populated by a ConfigMap)
-    Name:      metallb-excludel2
-    Optional:  false
-  kube-api-access-m554b:
-    Type:                    Projected (a volume that contains injected data from multiple sources)
-    TokenExpirationSeconds:  3607
-    ConfigMapName:           kube-root-ca.crt
-    Optional:                false
-    DownwardAPI:             true
-    ConfigMapName:           openshift-service-ca.crt
-    Optional:                false
-QoS Class:                   Burstable
-Node-Selectors:              kubernetes.io/os=linux
-Tolerations:                 node-role.kubernetes.io/control-plane:NoSchedule op=Exists
-                             node-role.kubernetes.io/master:NoSchedule op=Exists
-                             node.kubernetes.io/disk-pressure:NoSchedule op=Exists
-                             node.kubernetes.io/memory-pressure:NoSchedule op=Exists
-                             node.kubernetes.io/network-unavailable:NoSchedule op=Exists
-                             node.kubernetes.io/not-ready:NoExecute op=Exists
-                             node.kubernetes.io/pid-pressure:NoSchedule op=Exists
-                             node.kubernetes.io/unreachable:NoExecute op=Exists
-                             node.kubernetes.io/unschedulable:NoSchedule op=Exists
-Events:
-  Type     Reason     Age                    From               Message
-  ----     ------     ----                   ----               -------
-  Normal   Scheduled  3m24s                  default-scheduler  Successfully assigned metallb-system/speaker-gn45f to ocp-ai-master03.calix.local
-  Normal   Pulled     3m23s (x2 over 3m24s)  kubelet            Container image "registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:f7953a8e77c5bb0efaa670ba2188050740eba0e1f6979248832c05cb886fa5d0" already present on machine
-  Normal   Created    3m23s (x2 over 3m24s)  kubelet            Created container: kube-rbac-proxy
-  Normal   Started    3m23s (x2 over 3m24s)  kubelet            Started container kube-rbac-proxy
-  Warning  BackOff    3m14s (x2 over 3m22s)  kubelet            Back-off restarting failed container speaker in pod speaker-gn45f_metallb-system(bfd8d767-11d1-4450-8c04-81dba260f741)
-  Normal   Pulled     2m59s (x3 over 3m24s)  kubelet            Container image "registry.redhat.io/openshift4/metallb-rhel9@sha256:a3232aa4d6177e05440d2a517cf7ccda9b059253ab0c0fb5161ff4f2a378f7b2" already present on machine
-  Normal   Created    2m59s (x3 over 3m24s)  kubelet            Created container: speaker
-  Normal   Started    2m59s (x3 over 3m24s)  kubelet            Started container speaker
-hsuma@plnx-admin:~$
+# 1. The crash logs from the new pod — what made it crash 3 times?
+oc logs -n metallb-system speaker-gn45f -c speaker --previous
 
+# 2. What's in the exclude list? This could be the whole problem.
+oc get configmap metallb-excludel2 -n metallb-system -o yaml
+
+# 3. Force the log level by editing the DaemonSet directly
+oc set env daemonset/speaker -n metallb-system -c speaker LOG_LEVEL=debug 2>/dev/null; \
+oc patch daemonset speaker -n metallb-system --type json -p '[{"op":"replace","path":"/spec/template/spec/containers/0/args","value":["--port=29150","--log-level=debug","--host=localhost","--frrk8s-namespace=openshift-frr-k8s"]}]'
+
+# 4. Wait for rollout
+oc rollout status daemonset/speaker -n metallb-system --timeout=60s
+
+# 5. Then immediately grab logs from any speaker
+oc logs -n metallb-system -l component=speaker -c speaker --tail=500
 
 oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":{"selfHeal":true,"prune":true}}}}'
