@@ -1,10 +1,12 @@
-iptables -t nat -L POSTROUTING -v -n --line-numbers
+# 1. Re-add the VIP (MetalLB L2 only does ARP, doesn't assign the IP)
+ip addr add 10.172.194.160/32 dev bnd0.1794
 
-# In one terminal on master01:
-tcpdump -i br-ex -n host 172.30.168.89 and port 9000 -c 20 &
+# 2. Disable reverse path filtering (packets arrive on bnd0.1794 but route reply via br-ex)
+echo 0 > /proc/sys/net/ipv4/conf/bnd0.1794/rp_filter
+echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
 
-# In another terminal on master01:
-tcpdump -i bnd0.1794 -n host 10.172.194.160 and port 9000 -c 20 &
+# 3. Add the MASQUERADE rule
+iptables -t nat -I POSTROUTING -m conntrack --ctstate DNAT -o br-ex -j MASQUERADE
 
 
-curl -m5 http://10.172.194.160:9000
+nsenter -t 1 -m -u -i -n -p -- nc -w 5 -zv 10.172.194.160 9000
