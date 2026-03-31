@@ -20,3 +20,7 @@ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash
   echo "=== conntrack entries for VIP ==="
   conntrack -L -d 172.30.168.89 2>/dev/null || cat /proc/net/nf_conntrack 2>/dev/null | grep 172.30.168.89 | head -5
 '
+
+
+oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+  nc -zv -w 3 10.172.194.160 9000
