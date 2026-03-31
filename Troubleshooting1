@@ -1,44 +1,12 @@
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-  echo "=== Current nat OUTPUT chain ==="
-  iptables -t nat -S OUTPUT
-
-  echo "=== Applying fixes ==="
-  # Fix 1: Add DNAT in OUTPUT chain for localhost access
-  iptables -t nat -I OUTPUT -d 10.172.194.160/32 -p tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
-
-  # Fix 2: Add VIP as local address so kernel accepts incoming packets
-  #         on bnd0.1794 instead of dropping them before netfilter
-  ip addr add 10.172.194.160/32 dev bnd0.1794
-
-  echo "=== Verify VIP assigned ==="
-  ip addr show bnd0.1794 | grep 10.172.194.160
-
-  echo "=== Test localhost ==="
-  nc -zv -w 3 10.172.194.160 9000 2>&1 || true
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+  ip addr add 10.172.194.160/32 dev bnd0.1794 2>/dev/null || true
+  sysctl -w net.ipv4.ip_forward=1
+  sysctl -w net.ipv4.conf.all.rp_filter=0
+  sysctl -w net.ipv4.conf.bnd0.1794.rp_filter=0
+  echo "=== All fixes applied. Holding for 90s - TEST NOW ==="
+  sleep 90
+  echo "=== Session ending ==="
 '
-Starting pod/ocp-ai-master01calixlocal-debug-588r7 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== Current nat OUTPUT chain ===
--P OUTPUT ACCEPT
--A OUTPUT -d 10.172.248.155/32 -o lo -p tcp -m tcp --dport 6443 -m comment --comment OCP_API_LB_REDIRECT -j REDIRECT --to-ports 9445
--A OUTPUT -j OVN-KUBE-EXTERNALIP
--A OUTPUT -j OVN-KUBE-NODEPORT
--A OUTPUT -j OVN-KUBE-ITP
-=== Applying fixes ===
-=== Verify VIP assigned ===
-    inet 10.172.194.160/32 scope global bnd0.1794
-=== Test localhost ===
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Connected to 10.172.194.160:9000.
-Ncat: 0 bytes sent, 0 bytes received in 0.01 seconds.
 
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
-Starting pod/ocp-ai-master02calixlocal-debug-7gwsx ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: TIMEOUT.
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
+oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
