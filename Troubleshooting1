@@ -1,12 +1,12 @@
-git add machineconfigs/99-metallb-vlan-routing-master.yaml machineconfigs/99-metallb-vlan-routing-worker.yaml && git commit -m "$(cat <<'EOF'
-fix: MetalLB VIP routing on secondary VLAN interfaces
-
-Enables cross-node and cross-VLAN access to MetalLB L2 VIPs on bnd0.179x
-interfaces with OVN-Kubernetes routingViaHost: true.
-
-Three fixes applied via systemd + NM dispatcher + sysctl:
-- iptables MASQUERADE for DNAT'd packets exiting br-ex to OVN
-- ClusterIP route (172.30.0.0/16 via br-ex) in policy routing tables 100/101/102
-- rp_filter=0 on all bnd0.* VLAN interfaces (asymmetric routing)
-EOF
-)"
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ git push -u origin
+Enter passphrase for key '/home/hsuma/.ssh/id_ed25519':
+To bitbucket.org:calixprod/ocp-ai-platform.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'bitbucket.org:calixprod/ocp-ai-platform.git'
+hint: Updates were rejected because the remote contains work that you do
+hint: not have locally. This is usually caused by another repository pushing
+hint: to the same ref. You may want to first integrate the remote changes
+hint: (e.g., 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+hsuma@plnx-admin:~/ocp-ai-config$
