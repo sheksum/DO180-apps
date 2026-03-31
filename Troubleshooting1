@@ -1,47 +1,25 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
-  tc filter show dev bnd0.1794 ingress
-Starting pod/ocp-ai-master01calixlocal-debug-q9rh4 ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+# First: check which node owns the VIP
+oc get servicel2status -n metallb-system -o custom-columns='NAME:.metadata.name,NODE:.status.node,SVC:.spec.serviceRef.name,NS:.spec.serviceRef.namespace' | grep minio
 
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
-  tc filter show dev bnd0 ingress
-Starting pod/ocp-ai-master01calixlocal-debug-rgnrn ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+# Then run on the owning node (adjust node name if needed)
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+  echo "=== Before ==="
+  nstat -z TcpExtIPReversePathFilter
+  cat /proc/sys/net/ipv4/ip_forward
+  cat /proc/sys/net/ipv4/conf/bnd0.1794/rp_filter
+  cat /proc/sys/net/ipv4/conf/all/rp_filter
+  echo "=== Applying fixes ==="
+  echo 1 > /proc/sys/net/ipv4/ip_forward
+  echo 0 > /proc/sys/net/ipv4/conf/bnd0.1794/rp_filter
+  echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
+  echo "=== After ==="
+  cat /proc/sys/net/ipv4/ip_forward
+  cat /proc/sys/net/ipv4/conf/bnd0.1794/rp_filter
+  cat /proc/sys/net/ipv4/conf/all/rp_filter
+  echo "=== Testing VIP from localhost ==="
+  nc -zv -w 3 10.172.194.160 9000 2>&1 || true
+  echo "=== rp_filter counter after ==="
+  nstat -z TcpExtIPReversePathFilter
+'
 
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
-  bpftool net show
-Starting pod/ocp-ai-master01calixlocal-debug-vk2jh ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-nsenter: failed to execute bpftool: No such file or directory
-
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
-  nstat -z | grep -i "drop\|filter\|InDiscard"
-Starting pod/ocp-ai-master01calixlocal-debug-5ffxf ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-IpInDiscards                    0                  0.0
-Ip6InDiscards                   114762             0.0
-TcpExtLockDroppedIcmps          0                  0.0
-TcpExtArpFilter                 0                  0.0
-TcpExtListenDrops               0                  0.0
-TcpExtTCPBacklogDrop            0                  0.0
-TcpExtPFMemallocDrop            0                  0.0
-TcpExtTCPMinTTLDrop             0                  0.0
-TcpExtTCPDeferAcceptDrop        2405               0.0
-TcpExtIPReversePathFilter       438                0.0
-TcpExtTCPReqQFullDrop           0                  0.0
-TcpExtTCPOFODrop                0                  0.0
-TcpExtTCPZeroWindowDrop         0                  0.0
-TcpExtTCPRcvQDrop               0                  0.0
-MPTcpExtAddAddrTxDrop           0                  0.0
-MPTcpExtEchoAddTxDrop           0                  0.0
-MPTcpExtAddAddrDrop             0                  0.0
-MPTcpExtRmAddrDrop              0                  0.0
-MPTcpExtRmAddrTxDrop            0                  0.0
-
-Removing debug pod ...
-hsuma@plnx-admin:~$
+oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
