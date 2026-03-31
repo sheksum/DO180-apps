@@ -1,29 +1,28 @@
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-echo "=== TC filters on bnd0.1794 (ingress) ==="
-tc filter show dev bnd0.1794 ingress 2>&1
-echo "=== TC filters on bnd0 (ingress) ==="
-tc filter show dev bnd0 ingress 2>&1
-echo "=== TC filters on eno7 (ingress) ==="
-tc filter show dev eno7 ingress 2>&1
-echo "=== TC filters on eno8 (ingress) ==="
-tc filter show dev eno8 ingress 2>&1
+Starting pod/ocp-ai-master01calixlocal-debug-vgrkl ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== TC filters on bnd0.1794 (ingress) ===
+=== TC filters on bnd0 (ingress) ===
+=== TC filters on eno7 (ingress) ===
+=== TC filters on eno8 (ingress) ===
+=== TC qdisc on bnd0.1794 ===
+qdisc noqueue 0: root refcnt 2
+=== TC qdisc on bnd0 ===
+qdisc noqueue 0: root refcnt 2
+=== eBPF programs attached ===
+bpftool not available
+=== IP input errors (snapshot 1) ===
+Ip: Forwarding DefaultTTL InReceives InHdrErrors InAddrErrors ForwDatagrams InUnknownProtos InDiscards InDelivers OutRequests OutDiscards OutNoRoutes ReasmTimeout ReasmReqds ReasmOKs ReasmFails FragOKs FragFails FragCreates OutTransmits
+Ip: 1 64 4773368132 0 1130 151 26 0 4773065945 4805335402 24 204 0 0 0 0 0 0 0 4808028091
+Icmp: InMsgs InErrors InCsumErrors InDestUnreachs InTimeExcds InParmProbs InSrcQuenchs InRedirects InEchos InEchoReps InTimestamps InTimestampReps InAddrMasks InAddrMaskReps OutMsgs OutErrors OutRateLimitGlobal OutRateLimitHost OutDestUnreachs OutTimeExcds OutParmProbs OutSrcQuenchs OutRedirects OutEchos OutEchoReps OutTimestamps OutTimestampReps OutAddrMasks OutAddrMaskReps
+#kernel
+IpInHdrErrors                   0                  0.0
+IpInAddrErrors                  1130               0.0
+TcpInErrs                       11                 0.0
+=== rx_dropped on bnd0.1794 ===
+532738
+=== Check if bnd0.1794 MAC matches what MetalLB advertises ===
+    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
+    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
 
-echo "=== TC qdisc on bnd0.1794 ==="
-tc qdisc show dev bnd0.1794 2>&1
-echo "=== TC qdisc on bnd0 ==="
-tc qdisc show dev bnd0 2>&1
-
-echo "=== eBPF programs attached ==="
-bpftool net show 2>/dev/null || echo "bpftool not available"
-
-echo "=== IP input errors (snapshot 1) ==="
-cat /proc/net/snmp | grep -A1 "^Ip:"
-nstat -az IpInAddrErrors IpInHdrErrors TcpInErrs 2>/dev/null
-
-echo "=== rx_dropped on bnd0.1794 ==="
-cat /sys/class/net/bnd0.1794/statistics/rx_dropped
-
-echo "=== Check if bnd0.1794 MAC matches what MetalLB advertises ==="
-ip link show bnd0.1794 | grep ether
-ip link show bnd0 | grep ether
-'
+Removing debug pod ...
+hsuma@plnx-admin:~$
