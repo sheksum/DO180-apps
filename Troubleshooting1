@@ -1,14 +1,23 @@
-# Arping from master02 to the VIP owned by master01
-ssh -i .ssh/ocp-ai core@ocp-ai-master02.calix.local "arping -c 3 -I bnd0.1794 10.172.194.160"
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master02.calix.local "arping -c 3 -I bnd0.1794 10.172.194.160"
+ARPING 10.172.194.160 from 10.172.194.151 bnd0.1794
+Unicast reply from 10.172.194.160 [00:25:B5:50:0A:65]  0.678ms
+Unicast reply from 10.172.194.160 [00:25:B5:50:0A:65]  0.774ms
+Unicast reply from 10.172.194.160 [00:25:B5:50:0A:65]  0.852ms
+Sent 3 probes (1 broadcast(s))
+Received 3 response(s)
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs -n metallb-system speaker-52lmv -c speaker --tail=500 | grep -iE "error|fail|cannot|errno|EPERM|raw|socket" | head -20
+{"caller":"service_controller_reload.go:97","controller":"ServiceReconciler - reprocessAll","level":"debug","reprocessing service":"{\"kind\":\"Service\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"webhook-service\",\"namespace\":\"metallb-system\",\"uid\":\"08592da8-5725-4cb2-9088-b691afde2948\",\"resourceVersion\":\"29706041\",\"creationTimestamp\":\"2026-03-31T17:58:07Z\",\"labels\":{\"olm.managed\":\"true\",\"operators.coreos.com/metallb-operator.metallb-system\":\"\"},\"annotations\":{\"service.alpha.openshift.io/serving-cert-generation-error\":\"secret metallb-system/metallb-operator-webhook-server-service-cert does not have corresponding service UID 08592da8-5725-4cb2-9088-b691afde2948\",\"service.alpha.openshift.io/serving-cert-generation-error-num\":\"10\",\"service.alpha.openshift.io/serving-cert-secret-name\":\"metallb-operator-webhook-server-service-cert\",\"service.beta.openshift.io/serving-cert-generation-error\":\"secret metallb-system/metallb-operator-webhook-server-service-cert does not have corresponding service UID 08592da8-5725-4cb2-9088-b691afde2948\",\"service.beta.openshift.io/serving-cert-generation-error-num\":\"10\"},\"ownerReferences\":[{\"apiVersion\":\"operators.coreos.com/v1alpha1\",\"kind\":\"ClusterServiceVersion\",\"name\":\"metallb-operator.v4.20.0-202602261925\",\"uid\":\"aa0ee7cc-0012-4704-ad50-e87d977c2c67\",\"controller\":false,\"blockOwnerDeletion\":false}],\"managedFields\":[{\"manager\":\"catalog\",\"operation\":\"Update\",\"apiVersion\":\"v1\",\"time\":\"2026-03-31T17:58:07Z\",\"fieldsType\":\"FieldsV1\",\"fieldsV1\":{\"f:metadata\":{\"f:annotations\":{\".\":{},\"f:service.alpha.openshift.io/serving-cert-secret-name\":{}},\"f:labels\":{\".\":{},\"f:olm.managed\":{}},\"f:ownerReferences\":{\".\":{},\"k:{\\\"uid\\\":\\\"aa0ee7cc-0012-4704-ad50-e87d977c2c67\\\"}\":{}}},\"f:spec\":{\"f:internalTrafficPolicy\":{},\"f:ports\":{\".\":{},\"k:{\\\"port\\\":443,\\\"protocol\\\":\\\"TCP\\\"}\":{\".\":{},\"f:port\":{},\"f:protocol\":{},\"f:targetPort\":{}}},\"f:selector\":{},\"f:sessionAffinity\":{},\"f:type\":{}}}},{\"manager\":\"olm\",\"operation\":\"Update\",\"apiVersion\":\"v1\",\"time\":\"2026-03-31T17:58:27Z\",\"fieldsType\":\"FieldsV1\",\"fieldsV1\":{\"f:metadata\":{\"f:labels\":{\"f:operators.coreos.com/metallb-operator.metallb-system\":{}}}}},{\"manager\":\"service-ca-operator\",\"operation\":\"Update\",\"apiVersion\":\"v1\",\"time\":\"2026-03-31T17:58:32Z\",\"fieldsType\":\"FieldsV1\",\"fieldsV1\":{\"f:metadata\":{\"f:annotations\":{\"f:service.alpha.openshift.io/serving-cert-generation-error\":{},\"f:service.alpha.openshift.io/serving-cert-generation-error-num\":{},\"f:service.beta.openshift.io/serving-cert-generation-error\":{},\"f:service.beta.openshift.io/serving-cert-generation-error-num\":{}}}}}]},\"spec\":{\"ports\":[{\"protocol\":\"TCP\",\"port\":443,\"targetPort\":9443}],\"selector\":{\"component\":\"webhook-server\"},\"clusterIP\":\"172.30.182.150\",\"clusterIPs\":[\"172.30.182.150\"],\"type\":\"ClusterIP\",\"sessionAffinity\":\"None\",\"ipFamilies\":[\"IPv4\"],\"ipFamilyPolicy\":\"SingleStack\",\"internalTrafficPolicy\":\"Cluster\"},\"status\":{\"loadBalancer\":{}}}","ts":"2026-03-31T18:54:56Z"}
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo ebtables -L 2>/dev/null | head -20"
+Bridge table: filter
 
+Bridge chain: INPUT, entries: 0, policy: ACCEPT
 
-# Check if the speaker can even do raw ARP on bnd0.1794 - look for socket errors
-oc logs -n metallb-system speaker-52lmv -c speaker --tail=500 | grep -iE "error|fail|cannot|errno|EPERM|raw|socket" | head -20
+Bridge chain: FORWARD, entries: 0, policy: ACCEPT
 
-
-# Check if ebtables is filtering ARP
-ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo ebtables -L 2>/dev/null | head -20"
-
-
-# Check if OVS has any involvement with bnd0.1794
-ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo ovs-vsctl show 2>/dev/null | grep -A2 bnd0"
+Bridge chain: OUTPUT, entries: 0, policy: ACCEPT
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo ovs-vsctl show 2>/dev/null | grep -A2 bnd0"
+hsuma@plnx-admin:~$
