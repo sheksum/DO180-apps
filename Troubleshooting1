@@ -1,26 +1,34 @@
-oc debug node/ocp-ai-master01.calix.local -- chroot /host bash -c '
-# Disable rp_filter on br-ex
-echo 0 > /proc/sys/net/ipv4/conf/br-ex/rp_filter
-echo "br-ex rp_filter now: $(cat /proc/sys/net/ipv4/conf/br-ex/rp_filter)"
-
-# Also set default to 0 so new interfaces inherit it
-echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter
-echo "default rp_filter now: $(cat /proc/sys/net/ipv4/conf/default/rp_filter)"
-
-# Zero the DNAT counter for a clean test
-echo "Before test:"
-iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n | grep 9000 | head -1
-iptables -L FORWARD -v -n | grep -E "FWD-VLAN|172.30"
-
-echo ""
-echo "Now test from master02: curl -m5 http://10.172.194.160:9000"
-echo "Sleeping 15 seconds for you to test..."
-sleep 15
-
-echo ""
-echo "After test:"
-iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n | grep 9000 | head -1
-iptables -L FORWARD -v -n | grep -E "FWD-VLAN|172.30"
-iptables -t nat -L POSTROUTING -v -n | grep -E "MASQ|masq" | head -3
-nstat -z | grep IPReversePathFilter
 '
+Starting pod/ocp-ai-master01calixlocal-debug-prkcb ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+br-ex rp_filter now: 0
+default rp_filter now: 0
+Before test:
+    8   480 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
+    0     0 LOG        all  --  *      *       10.172.194.0/23      172.30.0.0/16        LOG flags 0 level 4 prefix "FWD-VLAN: "
+
+Now test from master02: curl -m5 http://10.172.194.160:9000
+Sleeping 15 seconds for you to test...
+
+After test:
+    8   480 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
+    0     0 LOG        all  --  *      *       10.172.194.0/23      172.30.0.0/16        LOG flags 0 level 4 prefix "FWD-VLAN: "
+    0     0 MASQUERADE  all  --  *      br-ex   0.0.0.0/0            0.0.0.0/0            ctstate DNAT
+    0     0 MASQUERADE  all  --  *      br-ex   0.0.0.0/0            0.0.0.0/0            ctstate DNAT
+    0     0 MASQUERADE  all  --  *      br-ex   10.172.194.0/23      172.30.0.0/16
+TcpExtIPReversePathFilter       0                  0.0
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
+
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host curl -m5 http://10.172.194.160:9000
+Starting pod/ocp-ai-master02calixlocal-debug-cvwzd ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0
+curl: (28) Connection timed out after 5001 milliseconds
+
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$
