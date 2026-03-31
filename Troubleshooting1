@@ -1,31 +1,6 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- ip neigh show 10.172.194.160
-Starting pod/ocp-ai-master02calixlocal-debug-hj5nf ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-10.172.194.160 dev bnd0.1794 lladdr 00:25:b5:50:0a:65 STALE
+# Force master02's ARP cache to use br-ex's MAC instead
+oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+  ip neigh replace 10.172.194.160 lladdr 00:25:b5:50:0a:64 dev bnd0.1794
 
-Removing debug pod ...
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ip link show br-ex
-Starting pod/ocp-ai-master01calixlocal-debug-4js6v ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-17: br-ex: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
-    link/ether 00:25:b5:50:0a:64 brd ff:ff:ff:ff:ff:ff
-
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ip addr show | grep 10.172.194.160
-Starting pod/ocp-ai-master01calixlocal-debug-cjhrn ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- sysctl net.ipv4.conf.bnd0.1794.rp_filter
-Starting pod/ocp-ai-master01calixlocal-debug-dgnvs ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-sysctl: cannot stat /proc/sys/net/ipv4/conf/bnd0/1794/rp_filter: No such file or directory
-
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
+# Now test — this should work!
+oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
