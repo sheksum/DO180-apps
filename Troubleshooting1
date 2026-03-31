@@ -1,11 +1,11 @@
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+suma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
   echo "=== LOG counter now (should show ICMP/SSH hits from recent tests) ==="
   iptables -t raw -L PREROUTING -v -n 2>/dev/null | grep -E "VIP-HIT|10.172.194.160"
 
   echo "=== ALL iptables rules mentioning VIP across ALL tables ==="
   iptables-save | grep 10.172.194.160
 
-  echo "=== ALL iptables rules mentioning port 9000 ==="  
+  echo "=== ALL iptables rules mentioning port 9000 ==="
   iptables-save | grep "dport 9000"
 
   echo "=== ALL nftables rules mentioning VIP ==="
@@ -18,3 +18,41 @@ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash
   ip rule show | grep -E "10.172.194.160|9000" || echo "No matching ip rules"
   ip rule show | head -15
 '
+Starting pod/ocp-ai-master01calixlocal-debug-sczcd ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== LOG counter now (should show ICMP/SSH hits from recent tests) ===
+   29  3204 LOG        all  --  *      *       0.0.0.0/0            10.172.194.160       LOG flags 0 level 4 prefix "VIP-HIT: "
+   21  1290 LOG        all  --  bnd0.1794 *       0.0.0.0/0            10.172.194.160       LOG flags 0 level 4 prefix "VLAN1794-VIP: "
+=== ALL iptables rules mentioning VIP across ALL tables ===
+-A PREROUTING -d 10.172.194.160/32 -j LOG --log-prefix "VIP-HIT: "
+-A PREROUTING -d 10.172.194.160/32 -i bnd0.1794 -j LOG --log-prefix "VLAN1794-VIP: "
+-A OUTPUT -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+-A OVN-KUBE-EXTERNALIP -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+=== ALL iptables rules mentioning port 9000 ===
+-A OUTPUT -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+-A OVN-KUBE-EXTERNALIP -d 10.172.202.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.161.228:9000
+-A OVN-KUBE-EXTERNALIP -d 10.172.198.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.17.247:9000
+-A OVN-KUBE-EXTERNALIP -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+=== ALL nftables rules mentioning VIP ===
+		ip daddr 10.172.194.160 tcp dport 9000 counter packets 161 bytes 9660 dnat to 172.30.168.89:9000
+		ip daddr 10.172.194.160 tcp dport 9000 counter packets 3 bytes 180 dnat to 172.30.168.89:9000
+		ip daddr 10.172.194.160 counter packets 29 bytes 3204 log prefix "VIP-HIT: "
+		ip daddr 10.172.194.160 iifname "bnd0.1794" counter packets 21 bytes 1290 log prefix "VLAN1794-VIP: "
+=== Does PREROUTING jump to OVN-KUBE-EXTERNALIP? ===
+-P PREROUTING ACCEPT
+-A PREROUTING -d 10.172.248.155/32 -p tcp -m tcp --dport 6443 -m comment --comment OCP_API_LB_REDIRECT -j DNAT --to-destination 10.172.248.155:9445
+-A PREROUTING -j OVN-KUBE-ETP
+-A PREROUTING -j OVN-KUBE-EXTERNALIP
+-A PREROUTING -j OVN-KUBE-NODEPORT
+=== ip rules (policy routing for the VIP?) ===
+No matching ip rules
+0:	from all lookup local
+30:	from all fwmark 0x1745ec lookup 7
+32763:	from 10.172.202.150 lookup 102
+32764:	from 10.172.198.150 lookup 100
+32765:	from 10.172.194.150 lookup 101
+32766:	from all lookup main
+32767:	from all lookup default
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
