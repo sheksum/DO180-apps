@@ -1,34 +1,22 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-  echo 1 > /proc/sys/net/ipv4/ip_forward
-  echo "ip_forward=$(cat /proc/sys/net/ipv4/ip_forward)"
-  echo "FORWARD chain 172.30 counter BEFORE:"
-  iptables -L FORWARD -v -n 2>/dev/null | grep 172.30
-  echo "=== HOLDING 60s — GO TEST ==="
-  sleep 60
-  echo "ip_forward at end: $(cat /proc/sys/net/ipv4/ip_forward)"
-  echo "FORWARD chain 172.30 counter AFTER:"
-  iptables -L FORWARD -v -n 2>/dev/null | grep 172.30
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+  echo "=== Route to ClusterIP (normal) ==="
+  ip route get 172.30.168.89
+  
+  echo "=== Route to ClusterIP (with OVN fwmark) ==="
+  ip route get 172.30.168.89 mark 0x1745ec
+  
+  echo "=== Routing table 7 ==="
+  ip route show table 7
+  
+  echo "=== Routing table 101 ==="
+  ip route show table 101
+  
+  echo "=== OVN-KUBE-ITP mangle chain (sets fwmark?) ==="
+  iptables -t mangle -S OVN-KUBE-ITP
+  
+  echo "=== INPUT chain counters (packet going to local instead of forward?) ==="
+  iptables -L INPUT -v -n 2>/dev/null | head -10
+  
+  echo "=== conntrack entries for VIP ==="
+  conntrack -L -d 172.30.168.89 2>/dev/null || cat /proc/net/nf_conntrack 2>/dev/null | grep 172.30.168.89 | head -5
 '
-Starting pod/ocp-ai-master01calixlocal-debug-f2snf ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-ip_forward=1
-FORWARD chain 172.30 counter BEFORE:
-   36  2100 ACCEPT     all  --  *      *       0.0.0.0/0            172.30.0.0/16
-   20  2586 ACCEPT     all  --  *      *       172.30.0.0/16        0.0.0.0/0
-=== HOLDING 60s — GO TEST ===
-
-^C
-Removing debug pod ...
-hsuma@plnx-admin:~$
-
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
-Starting pod/ocp-ai-master02calixlocal-debug-k6djd ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: TIMEOUT.
-
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$
