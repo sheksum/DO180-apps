@@ -1,28 +1,65 @@
-oc debug node/ocp-ai-master01.calix.local -- chroot /host bash -c '
-echo "=== What does udn-service-mark do? ==="
-nft list chain inet ovn-kubernetes udn-service-mark
+Starting pod/ocp-ai-master01calixlocal-debug-9fq9w ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== What does udn-service-mark do? ===
+table inet ovn-kubernetes {
+	chain udn-service-mark {
+		comment "UDN services packet mark"
+		fib daddr type local meta l4proto . th dport vmap @udn-mark-nodeports
+		ip daddr . meta l4proto . th dport vmap @udn-mark-external-ips-v4
+		ip6 daddr . meta l4proto . th dport vmap @udn-mark-external-ips-v6
+	}
+}
 
-echo ""
-echo "=== Zeroing all counters ==="
-iptables -t raw -Z PREROUTING
-iptables -t nat -Z PREROUTING
-iptables -t nat -Z OVN-KUBE-EXTERNALIP
+=== Zeroing all counters ===
+=== Counters zeroed, test from master02 now ===
+=== raw PREROUTING after test ===
+Chain PREROUTING (policy ACCEPT 21609 packets, 7034K bytes)
+ pkts bytes target     prot opt in     out     source               destination
+   12   806 LOG        all  --  *      *       0.0.0.0/0            10.172.194.160       LOG flags 0 level 4 prefix "VIP-HIT: "
+   12   806 LOG        all  --  bnd0.1794 *       0.0.0.0/0            10.172.194.160       LOG flags 0 level 4 prefix "VLAN1794-VIP: "
+ 1262  493K CT         udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp dpt:6081 NOTRACK
+ 1262  493K CT         udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp dpt:6081 NOTRACK
+ 1262  493K CT         udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp dpt:6081 NOTRACK
 
-echo "=== Counters zeroed, test from master02 now ==="
-sleep 12
+=== nat PREROUTING after test ===
+Chain PREROUTING (policy ACCEPT 46 packets, 2760 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.248.155       tcp dpt:6443 /* OCP_API_LB_REDIRECT */ to:10.172.248.155:9445
+   48  2880 OVN-KUBE-ETP  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+   48  2880 OVN-KUBE-EXTERNALIP  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+   46  2760 OVN-KUBE-NODEPORT  all  --  *      *       0.0.0.0/0            0.0.0.0/0
 
-echo "=== raw PREROUTING after test ==="
-iptables -t raw -L PREROUTING -n -v
+=== DNAT counters ===
+Chain OVN-KUBE-EXTERNALIP (2 references)
+ pkts bytes target     prot opt in     out     source               destination
+    2   120 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.163       tcp dpt:5432 to:172.30.23.200:5432
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.248.175       tcp dpt:443 to:172.30.31.98:443
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.248.175       tcp dpt:80 to:172.30.31.98:80
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.248.175       tcp dpt:15021 to:172.30.31.98:15021
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.198.160       tcp dpt:9000 to:172.30.17.247:9000
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.198.161       tcp dpt:19530 to:172.30.154.19:19530
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.202.161       tcp dpt:19530 to:172.30.250.144:19530
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.161       tcp dpt:19530 to:172.30.156.22:19530
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.202.160       tcp dpt:9000 to:172.30.161.228:9000
 
-echo ""
-echo "=== nat PREROUTING after test ==="
-iptables -t nat -L PREROUTING -n -v
+=== dmesg VIP LOG entries ===
+[2667626.855872] VIP-HIT: IN=bnd0.1794 OUT= MAC=00:25:b5:50:0a:65:48:80:02:e3:bd:67:08:00 SRC=10.172.248.105 DST=10.172.194.160 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=51590 DF PROTO=TCP SPT=52602 DPT=9000 WINDOW=502 RES=0x00 ACK URGP=0
+[2667626.855877] VLAN1794-VIP: IN=bnd0.1794 OUT= MAC=00:25:b5:50:0a:65:48:80:02:e3:bd:67:08:00 SRC=10.172.248.105 DST=10.172.194.160 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=51590 DF PROTO=TCP SPT=52602 DPT=9000 WINDOW=502 RES=0x00 ACK URGP=0
+[2667626.855944] VIP-HIT: IN=bnd0.1794 OUT= MAC=00:25:b5:50:0a:65:48:80:02:e3:bd:67:08:00 SRC=10.172.248.105 DST=10.172.194.160 LEN=135 TOS=0x00 PREC=0x00 TTL=63 ID=51591 DF PROTO=TCP SPT=52602 DPT=9000 WINDOW=502 RES=0x00 ACK PSH URGP=0
+[2667626.855949] VLAN1794-VIP: IN=bnd0.1794 OUT= MAC=00:25:b5:50:0a:65:48:80:02:e3:bd:67:08:00 SRC=10.172.248.105 DST=10.172.194.160 LEN=135 TOS=0x00 PREC=0x00 TTL=63 ID=51591 DF PROTO=TCP SPT=52602 DPT=9000 WINDOW=502 RES=0x00 ACK PSH URGP=0
+[2667626.856405] VIP-HIT: IN=bnd0.1794 OUT= MAC=00:25:b5:50:0a:65:48:80:02:e3:bd:67:08:00 SRC=10.172.248.105 DST=10.172.194.160 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=51592 DF PROTO=TCP SPT=52602 DPT=9000 WINDOW=501 RES=0x00 ACK URGP=0
+[2667626.856412] VLAN1794-VIP: IN=bnd0.1794 OUT= MAC=00:25:b5:50:0a:65:48:80:02:e3:bd:67:08:00 SRC=10.172.248.105 DST=10.172.194.160 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=51592 DF PROTO=TCP SPT=52602 DPT=9000 WINDOW=501 RES=0x00 ACK URGP=0
+[2667626.856556] VIP-HIT: IN=bnd0.1794 OUT= MAC=00:25:b5:50:0a:65:48:80:02:e3:bd:67:08:00 SRC=10.172.248.105 DST=10.172.194.160 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=51593 DF PROTO=TCP SPT=52602 DPT=9000 WINDOW=501 RES=0x00 ACK FIN URGP=0
+[2667626.856562] VLAN1794-VIP: IN=bnd0.1794 OUT= MAC=00:25:b5:50:0a:65:48:80:02:e3:bd:67:08:00 SRC=10.172.248.105 DST=10.172.194.160 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=51593 DF PROTO=TCP SPT=52602 DPT=9000 WINDOW=501 RES=0x00 ACK FIN URGP=0
+[2667626.856791] VIP-HIT: IN=bnd0.1794 OUT= MAC=00:25:b5:50:0a:65:48:80:02:e3:bd:67:08:00 SRC=10.172.248.105 DST=10.172.194.160 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=51594 DF PROTO=TCP SPT=52602 DPT=9000 WINDOW=501 RES=0x00 ACK URGP=0
+[2667626.856796] VLAN1794-VIP: IN=bnd0.1794 OUT= MAC=00:25:b5:50:0a:65:48:80:02:e3:bd:67:08:00 SRC=10.172.248.105 DST=10.172.194.160 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=51594 DF PROTO=TCP SPT=52602 DPT=9000 WINDOW=501 RES=0x00 ACK URGP=0
 
-echo ""
-echo "=== DNAT counters ==="
-iptables -t nat -L OVN-KUBE-EXTERNALIP -n -v
+Removing debug pod ...
+hsuma@plnx-admin:~$
 
-echo ""
-echo "=== dmesg VIP LOG entries ==="
-dmesg | grep -E "VIP-HIT|VLAN1794" | tail -10
-'
+
+hsuma@plnx-admin:~$ curl -m5 http://10.172.194.160:9000
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>AccessDenied</Code><Message>Access Denied.</Message><Resource>/</Resource><RequestId>18A20D9BFE928E09</RequestId><HostId>dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8</HostId></Error>hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
