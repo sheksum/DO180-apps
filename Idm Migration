@@ -1,3 +1,22 @@
+Gene Siepka  [12:32 PM]
+sorry to bug you, need some of your time. Sulabh is getting antsy. ping me when you get online.
+Haj Suma  [12:46 PM]
+Why is he antsy lol?
+[12:47 PM]what's the issue again?
+Gene Siepka  [12:48 PM]
+apparently now there's an issue and he's saying he needs access to his DB externally.
+
+I created an LB Service for his postgresDB, using metallb all that looks good. It's just that I can't reach it
+[12:48 PM]10.172.194.163
+Haj Suma  [12:49 PM]
+do you notice any error or issue that stands out?
+[12:49 PM]call
+Gene Siepka  [12:49 PM]
+I can ping 10.172.194.1 gateway from pnlx-admin but can't reach that .163 IP, none of the other LB Services are reachable either
+
+
+
+
 # === 1. SHOW THE OPERATOR UPGRADE ===
 # Previous working version vs current broken version
 oc get csv -n metallb-system | grep metallb
