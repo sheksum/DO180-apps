@@ -1,20 +1,130 @@
-# 1. Confirm ip_forward is still 1 (might have been reset by kubelet/OVN)
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- cat /proc/sys/net/ipv4/ip_forward
 
-# 2. Note the DNAT counter NOW
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- cat /proc/sys/net/ipv4/ip_forward
+Starting pod/ocp-ai-master01calixlocal-debug-srhts ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+1
 
-# 3. Note the FORWARD chain counters NOW
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- iptables -L FORWARD -v -n 2>/dev/null
+Removing debug pod ...
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
+  157  9420 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- iptables -L FORWARD -v -n 2>/dev/null
+Chain FORWARD (policy DROP 35 packets, 10164 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            169.254.0.1
+    0     0 ACCEPT     all  --  *      *       169.254.0.1          0.0.0.0/0
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            172.30.0.0/16
+    0     0 ACCEPT     all  --  *      *       172.30.0.0/16        0.0.0.0/0
+   11   440 ACCEPT     all  --  *      *       0.0.0.0/0            10.128.0.0/14
+    0     0 ACCEPT     all  --  *      *       10.128.0.0/14        0.0.0.0/0
+    0     0 REJECT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22624 flags:0x17/0x02 reject-with icmp-port-unreachable
+    0     0 REJECT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22623 flags:0x17/0x02 reject-with icmp-port-unreachable
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
+Starting pod/ocp-ai-master02calixlocal-debug-fk5rn ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
 
-# 4. Test from master02
-oc debug node/ocp-ai-master02.calix.local -- chroot /host nc -zv -w 3 10.172.194.160 9000
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
+  157  9420 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- iptables -L FORWARD -v -n 2>/dev/null
+Chain FORWARD (policy DROP 35 packets, 10164 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            169.254.0.1
+    0     0 ACCEPT     all  --  *      *       169.254.0.1          0.0.0.0/0
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            172.30.0.0/16
+    0     0 ACCEPT     all  --  *      *       172.30.0.0/16        0.0.0.0/0
+   11   440 ACCEPT     all  --  *      *       0.0.0.0/0            10.128.0.0/14
+    0     0 ACCEPT     all  --  *      *       10.128.0.0/14        0.0.0.0/0
+    0     0 REJECT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22624 flags:0x17/0x02 reject-with icmp-port-unreachable
+    0     0 REJECT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22623 flags:0x17/0x02 reject-with icmp-port-unreachable
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- nft list ruleset 2>/dev/null | head -80
+table ip mangle {
+	chain KUBE-IPTABLES-HINT {
+	}
 
-# 5. Check DNAT counter AFTER test (did it increase from step 2?)
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
+	chain KUBE-KUBELET-CANARY {
+	}
 
-# 6. Check FORWARD counters AFTER test (did they increase from step 3?)
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- iptables -L FORWARD -v -n 2>/dev/null
+	chain OVN-KUBE-ITP {
+		ip daddr 172.30.166.154 tcp dport 5555 counter# Warning: table ip mangle is managed by iptables-nft, do not touch!
+ packets 0 bytes 0 meta mark set 0x1745ec
+	}
 
-# 7. Check if nftables has additional rules blocking traffic
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- nft list ruleset 2>/dev/null | head -80
+	chain OUTPUT {
+		type route hook output priority mangle; policy accept;
+		counter packets 4794111120 bytes 3420283419803 jump OVN-KUBE-ITP
+	}
+}
+table ip filter {# Warning: table ip filter is managed by iptables-nft, do not touch!
+
+	chain KUBE-FIREWALL {
+		ip saddr != 127.0.0.0/8 ip daddr 127.0.0.0/8  ct status dnat counter packets 0 bytes 0 drop
+	}
+
+	chain OUTPUT {
+		type filter hook output priority filter; policy accept;
+		tcp flags syn / fin,syn,rst,ack tcp dport 22624 counter packets 0 bytes 0 reject
+		tcp flags syn / fin,syn,rst,ack tcp dport 22623 counter packets 0 bytes 0 reject
+		counter packets 4794123332 bytes 3420287035415 jump KUBE-FIREWALL
+	}
+
+	chain INPUT {
+		type filter hook input priority filter; policy accept;
+		counter packets 4759437014 bytes 2196002538168 jump KUBE-FIREWALL
+	}
+
+	chain KUBE-KUBELET-CANARY {
+	}
+
+	chain FORWARD {
+		type filter hook forward priority filter; policy drop;
+		ip daddr 169.254.0.1 counter packets 0 bytes 0 accept
+		ip saddr 169.254.0.1 counter packets 0 bytes 0 accept
+		ip daddr 172.30.0.0/16 counter packets 0 bytes 0 accept
+		ip saddr 172.30.0.0/16 counter packets 0 bytes 0 accept
+		ip daddr 10.128.0.0/14 counter packets 11 bytes 440 accept
+		ip saddr 10.128.0.0/14 counter packets 0 bytes 0 accept
+		tcp flags syn / fin,syn,rst,ack tcp dport 22624 counter packets 0 bytes 0 reject
+		tcp flags syn / fin,syn,rst,ack tcp dport 22623 counter packets 0 bytes 0 reject
+	}
+}
+table ip6 mangle {
+	chain KUBE-IPTABLES-HINT {
+	}
+
+	chain KUBE-KUBELET-CANARY {
+	}
+}
+table ip nat {
+	chain KUBE-KUBELET-CANARY {
+	}
+
+# Warning: table ip nat is managed by iptables-nft, do not touch!
+	chain OVN-KUBE-ITP {
+	}
+
+	chain OVN-KUBE-NODEPORT {
+		ip protocol tcp fib daddr type local tcp dport 31478 counter packets 0 bytes 0 dnat to 172.30.23.200:5432
+		ip protocol tcp fib daddr type local tcp dport 30465 counter packets 0 bytes 0 dnat to 172.30.31.98:443
+		ip protocol tcp fib daddr type local tcp dport 31594 counter packets 0 bytes 0 dnat to 172.30.31.98:80
+		ip protocol tcp fib daddr type local tcp dport 30643 counter packets 0 bytes 0 dnat to 172.30.31.98:15021
+		ip protocol tcp fib daddr type local tcp dport 31563 counter packets 0 bytes 0 dnat to 172.30.154.19:19530
+		ip protocol tcp fib daddr type local tcp dport 30241 counter packets 0 bytes 0 dnat to 172.30.156.22:19530
+		ip protocol tcp fib daddr type local tcp dport 30139 counter packets 0 bytes 0 dnat to 172.30.250.144:19530
+		ip protocol tcp fib daddr type local tcp dport 32639 counter packets 0 bytes 0 dnat to 172.30.161.228:9000
+		ip protocol tcp fib daddr type local tcp dport 32339 counter packets 0 bytes 0 dnat to 172.30.17.247:9000
+		ip protocol tcp fib daddr type local tcp dport 32714 counter packets 0 bytes 0 dnat to 172.30.168.89:9000
+	}
+
+	chain OVN-KUBE-EXTERNALIP {
+		ip daddr 10.172.194.163 tcp dport 5432 counter packets 1 bytes 60 dnat to 172.30.23.200:5432
+hsuma@plnx-admin:~$
