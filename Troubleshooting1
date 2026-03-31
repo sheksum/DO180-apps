@@ -1,20 +1,22 @@
-nc -w5 -zv 10.172.198.161 19530
-=== pg-lb (pai-dev) - PostgreSQL 5432 ===
-HTTP status: 000
-nc: connect to 10.172.194.163 port 5432 (tcp) timed out: Operation now in progress
+echo "=== MetalLB speaker VIP assignments ==="
+for ns in pai-dev pai-prod pai-test; do
+  echo "--- $ns ---"
+  for pod in $(oc get pods -n metallb-system -l component=speaker -o name); do
+    node=$(oc get $pod -n metallb-system -o jsonpath='{.spec.nodeName}')
+    echo "  $node:"
+    oc logs $pod -n metallb-system --tail=50 2>/dev/null | grep -E "announcing|allocated" | grep "$ns" | tail -5
+  done
+done
 
-=== milvus-lb (pai-dev) - Milvus 19530 ===
-Connection to 10.172.194.161 19530 port [tcp/*] succeeded!
 
-=== minio-lb (pai-prod) - MinIO 9000 ===
-HTTP status: 000
-
-=== milvus-lb (pai-prod) - Milvus 19530 ===
-nc: connect to 10.172.202.161 port 19530 (tcp) timed out: Operation now in progress
-
-=== minio-lb (pai-test) - MinIO 9000 ===
-HTTP status: 000
-
-=== milvus-lb (pai-test) - Milvus 19530 ===
-nc: connect to 10.172.198.161 port 19530 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$
+for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
+  echo "=== $node ==="
+  oc debug node/$node -- chroot /host bash -c '
+    echo "VIPs on bnd0.1794:"
+    ip addr show dev bnd0.1794 | grep "inet " 
+    echo "VIPs on bnd0.1797:"
+    ip addr show dev bnd0.1797 2>/dev/null | grep "inet "
+    echo "VIPs on bnd0.1798:"
+    ip addr show dev bnd0.1798 2>/dev/null | grep "inet "
+  ' 2>/dev/null
+done
