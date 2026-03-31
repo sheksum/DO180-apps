@@ -22,3 +22,17 @@ Ncat: TIMEOUT.
 Removing debug pod ...
 error: non-zero exit code from debug container
 hsuma@plnx-admin:~$
+
+
+
+# 1. Is the VIP still a local address on master01?
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ip addr show bnd0.1794
+
+# 2. Can master02 resolve ARP for the VIP?
+oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- ip neigh show 10.172.194.160
+
+# 3. What's arp_ignore set to?
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+  cat /proc/sys/net/ipv4/conf/all/arp_ignore
+  cat "/proc/sys/net/ipv4/conf/bnd0.1794/arp_ignore"
+'
