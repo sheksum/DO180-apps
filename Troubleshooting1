@@ -82,17 +82,44 @@ Removing debug pod ...
 hsuma@plnx-admin:~$
 
 
-# 1. Is bnd0.1794 an OVS port?
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-vsctl show | grep -A2 bnd0
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-vsctl show | grep -A2 bnd0
+Starting pod/ocp-ai-master01calixlocal-debug-54296 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
 
-# 2. Check if there's an OVS bridge consuming VLAN 1794 traffic
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-vsctl list-ports br-ex
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-vsctl list-ports br-ex
+Starting pod/ocp-ai-master01calixlocal-debug-d55m9 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+eno5
+patch-br-ex_ocp-ai-master01.calix.local-to-br-int
 
-# 3. Check OVS flow hits for the VIP
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-ofctl dump-flows br-ex | grep "10.172.194.160"
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-ofctl dump-flows br-ex | grep "10.172.194.160"
+Starting pod/ocp-ai-master01calixlocal-debug-tgsfw ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+ cookie=0x25a8284c9ab947c1, duration=2648192.414s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=110,icmp,in_port=1,nw_dst=10.172.194.160,icmp_type=3,icmp_code=4 actions=output:2
+ cookie=0x25a8284c9ab947c1, duration=2648192.414s, table=0, n_packets=52, n_bytes=3068, idle_age=3369, hard_age=65534, priority=110,arp,in_port=1,arp_tpa=10.172.194.160,arp_op=1 actions=LOCAL
+ cookie=0x25a8284c9ab947c1, duration=2648192.414s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=110,tcp,in_port=1,nw_dst=10.172.194.160,tp_dst=9000 actions=output:2
+ cookie=0x25a8284c9ab947c1, duration=2648192.414s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=110,tcp,in_port=2,dl_src=00:25:b5:50:0a:64,nw_src=10.172.194.160,tp_src=9000 actions=output:1
 
-# 4. Also check br-int
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-ofctl dump-flows br-int | grep "10.172.194.160"
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-ofctl dump-flows br-int | grep "10.172.194.160"
+Starting pod/ocp-ai-master01calixlocal-debug-4gs85 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+ cookie=0x109a5cd3, duration=2648197.943s, table=14, n_packets=6, n_bytes=503, idle_age=65534, hard_age=65534, priority=120,tcp,reg0=0x4/0x4,metadata=0x3,nw_dst=10.172.194.160,tp_dst=9000 actions=load:0xaacc2a0->NXM_NX_XXREG1[96..127],load:0x2328->NXM_NX_XXREG0[32..47],ct(table=15,zone=NXM_NX_REG13[0..15],nat)
+ cookie=0x83b979aa, duration=2648197.943s, table=15, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=100,ip,metadata=0x4,nw_dst=10.172.194.160 actions=ct(table=16,zone=NXM_NX_REG11[0..15],nat)
+ cookie=0x6007541b, duration=2648149.674s, table=17, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=120,ct_state=+new-rel+trk,tcp,metadata=0x4,nw_dst=10.172.194.160,tp_dst=9000 actions=load:0x1->NXM_NX_REG10[3],group:321
+ cookie=0x662ffd35, duration=2648149.674s, table=21, n_packets=1, n_bytes=74, idle_age=65534, hard_age=65534, priority=120,ct_state=+new+trk,tcp,metadata=0x3,nw_dst=10.172.194.160,tp_dst=9000 actions=load:0xaacc2a0->NXM_NX_XXREG1[96..127],load:0x2328->NXM_NX_XXREG0[32..47],group:323
+ cookie=0xbf2a46e9, duration=7593.133s, table=79, n_packets=0, n_bytes=0, idle_age=7593, priority=100,ip,reg14=0x1,metadata=0x5,dl_src=0a:58:0a:81:00:02,nw_src=10.172.194.160 actions=drop
+ cookie=0xbf2a46e9, duration=7593.133s, table=79, n_packets=2, n_bytes=120, idle_age=3663, priority=100,arp,reg14=0x1,metadata=0x5,dl_src=0a:58:0a:81:00:02,arp_spa=10.172.194.160,arp_op=2 actions=drop
 
-# 5. Check if bnd0 (parent) is in OVS
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-vsctl port-to-br bnd0 2>&1
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- ovs-vsctl port-to-br bnd0 2>&1
+Starting pod/ocp-ai-master01calixlocal-debug-76b59 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+ovs-vsctl: no port named bnd0
+
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$
