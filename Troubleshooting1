@@ -1,68 +1,24 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system speaker-96xwt -c $(oc get pod speaker-96xwt -n metallb-system -o jsonpath='{.spec.containers[1].name}')
-W0330 20:34:43.966113       1 deprecated.go:66]
-==== Removed Flag Warning ======================
+# Temporarily change logLevel to debug (ArgoCD will revert in ~3-5 min, 
+# so we need to read logs quickly after speakers restart)
+oc patch metallb metallb -n metallb-system --type merge -p '{"spec":{"logLevel":"debug"}}'
 
-logtostderr is removed in the k8s upstream and has no effect any more.
+# Wait for the operator to roll out new speaker pods
+sleep 30 && oc get pods -n metallb-system -l component=speaker -w
 
-===============================================
 
-I0330 20:34:43.966502       1 kube-rbac-proxy.go:235] Valid token audiences:
-I0330 20:34:43.967257       1 kube-rbac-proxy.go:349] Reading certificate files
-I0330 20:34:43.967476       1 kube-rbac-proxy.go:397] Starting TCP socket on :9120
-I0330 20:34:43.967652       1 kube-rbac-proxy.go:404] Listening securely on :9120
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get metallb -n metallb-system -o yaml
-apiVersion: v1
-items:
-- apiVersion: metallb.io/v1beta1
-  kind: MetalLB
-  metadata:
-    annotations:
-      argocd.argoproj.io/tracking-id: metallb:metallb.io/MetalLB:metallb-system/metallb
-      kubectl.kubernetes.io/last-applied-configuration: |
-        {"apiVersion":"metallb.io/v1beta1","kind":"MetalLB","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"metallb:metallb.io/MetalLB:metallb-system/metallb"},"name":"metallb","namespace":"metallb-system"},"spec":{"logLevel":"warn"}}
-    creationTimestamp: "2026-02-26T04:36:27Z"
-    generation: 3
-    name: metallb
-    namespace: metallb-system
-    resourceVersion: "29021752"
-    uid: 1fb9e4ea-3556-4127-a735-f0d8f4c3377f
-  spec:
-    logLevel: warn
-  status:
-    conditions:
-    - lastTransitionTime: "2026-03-30T20:35:05Z"
-      message: ""
-      reason: Available
-      status: "True"
-      type: Available
-    - lastTransitionTime: "2026-03-30T20:35:05Z"
-      message: ""
-      reason: Upgradeable
-      status: "True"
-      type: Upgradeable
-    - lastTransitionTime: "2026-03-30T20:35:05Z"
-      message: ""
-      reason: Progressing
-      status: "False"
-      type: Progressing
-    - lastTransitionTime: "2026-03-30T20:35:05Z"
-      message: ""
-      reason: Degraded
-      status: "False"
-      type: Degraded
-kind: List
-metadata:
-  resourceVersion: ""
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc exec -n metallb-system speaker-96xwt -c speaker -- ps aux
-USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-root           1  0.5  0.0 6459540 93676 ?       Ssl  Mar30   7:30 /speaker --port=29150 --log-level=warn --host=localhost --frrk8s-namespace=openshift-frr-k8s
-root          95  0.0  0.0   7164  2048 ?        Rs   17:33   0:00 ps aux
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get events -n metallb-system --sort-by='.lastTimestamp' | tail -30
-No resources found in metallb-system namespace.
-hsuma@plnx-admin:~$
+# Grab the full logs immediately — this will show us EVERYTHING:
+# interface matching, VIP binding attempts, ARP announcements, election results
+oc logs -n metallb-system -l component=speaker -c speaker --tail=500
+
+# And quickly check if VIPs are bound now
+ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "ip addr show | grep '10.172.194.16'"
+
+
+# Pause ArgoCD auto-sync on the metallb app
+oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":null}}'
+
+# Then patch the logLevel (won't be reverted until you re-enable sync)
+oc patch metallb metallb -n metallb-system --type merge -p '{"spec":{"logLevel":"debug"}}'
+
+
+oc patch application metallb -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":{"selfHeal":true,"prune":true}}}}'
