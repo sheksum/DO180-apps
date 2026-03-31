@@ -1,8 +1,6 @@
-# Which node owns the VIP right now?
-oc get servicel2status -n pai-dev
-
-# ARP table on master02 — what MAC does it think 10.172.194.160 is?
-oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
+hsuma@plnx-admin:~$ oc get servicel2status -n pai-dev
+No resources found in pai-dev namespace.
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
 echo "=== ARP for VIP ==="
 ip neigh show | grep 194.160
 
@@ -13,9 +11,27 @@ sleep 2
 curl -m5 http://10.172.194.160:9000 2>&1
 wait
 '
+Starting pod/ocp-ai-master02calixlocal-debug-h22zq ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== ARP for VIP ===
+10.172.194.160 dev bnd0.1794 lladdr 00:25:b5:50:0a:65 PERMANENT
 
-# MAC addresses of bnd0.1794 on each master
-for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
+=== tcpdump — does the SYN leave? ===
+timeout: failed to run command 'tcpdump': No such file or directory
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0
+curl: (28) Connection timed out after 5000 milliseconds
+
+Removing debug pod ...
+hsuma@plnx-admin:~$ for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
   echo "=== $node ==="
   oc debug node/$node -- chroot /host bash -c 'ip link show bnd0.1794 | grep ether' 2>/dev/null
 done
+=== ocp-ai-master01.calix.local ===
+    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
+=== ocp-ai-master02.calix.local ===
+    link/ether 00:25:b5:50:0a:67 brd ff:ff:ff:ff:ff:ff
+=== ocp-ai-master03.calix.local ===
+    link/ether 00:25:b5:50:0a:69 brd ff:ff:ff:ff:ff:ff
+hsuma@plnx-admin:~$
