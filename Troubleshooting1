@@ -1,9 +1,26 @@
-oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
 arping -c 2 -I bnd0.1794 10.172.194.160 2>&1
 ip neigh show 10.172.194.160 dev bnd0.1794
 '
+Starting pod/ocp-ai-master02calixlocal-debug-8kzqq ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+ARPING 10.172.194.160 from 10.172.194.151 bnd0.1794
+Unicast reply from 10.172.194.160 [00:25:B5:50:0A:65]  0.570ms
+Unicast reply from 10.172.194.160 [00:25:B5:50:0A:65]  0.702ms
+Unicast reply from 10.172.194.160 [00:25:B5:50:0A:65]  0.557ms
+Unicast reply from 10.172.194.160 [00:25:B5:50:0A:65]  0.684ms
+Sent 2 probes (1 broadcast(s))
+Received 4 response(s)
+10.172.194.160 lladdr 00:25:b5:50:0a:65 PERMANENT
 
-for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
+Removing debug pod ...
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
   echo "=== $node ==="
   oc debug node/$node -- nsenter -t 1 -m -u -i -n -p -- ip addr show dev bnd0.1794 2>/dev/null | grep "10.172.194.160"
 done
+=== ocp-ai-master01.calix.local ===
+    inet 10.172.194.160/32 scope global bnd0.1794
+=== ocp-ai-master02.calix.local ===
+=== ocp-ai-master03.calix.local ===
+hsuma@plnx-admin:~$
