@@ -1,20 +1,47 @@
-# 1. nftables netdev/ingress hooks (fire BEFORE iptables)
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
-  nft list ruleset | grep -B3 -A10 "hook ingress"
-
-# 2. tc ingress filters on the VLAN interface
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
   tc filter show dev bnd0.1794 ingress
+Starting pod/ocp-ai-master01calixlocal-debug-q9rh4 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
 
-# 3. tc ingress filters on the parent bond
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
   tc filter show dev bnd0 ingress
+Starting pod/ocp-ai-master01calixlocal-debug-rgnrn ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
 
-# 4. eBPF programs attached to any interfaces
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
   bpftool net show
+Starting pod/ocp-ai-master01calixlocal-debug-vk2jh ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+nsenter: failed to execute bpftool: No such file or directory
 
-# 5. Also verify: with the original MAC, does the packet actually reach ip_rcv?
-#    Check the broader drop stats
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
   nstat -z | grep -i "drop\|filter\|InDiscard"
+Starting pod/ocp-ai-master01calixlocal-debug-5ffxf ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+IpInDiscards                    0                  0.0
+Ip6InDiscards                   114762             0.0
+TcpExtLockDroppedIcmps          0                  0.0
+TcpExtArpFilter                 0                  0.0
+TcpExtListenDrops               0                  0.0
+TcpExtTCPBacklogDrop            0                  0.0
+TcpExtPFMemallocDrop            0                  0.0
+TcpExtTCPMinTTLDrop             0                  0.0
+TcpExtTCPDeferAcceptDrop        2405               0.0
+TcpExtIPReversePathFilter       438                0.0
+TcpExtTCPReqQFullDrop           0                  0.0
+TcpExtTCPOFODrop                0                  0.0
+TcpExtTCPZeroWindowDrop         0                  0.0
+TcpExtTCPRcvQDrop               0                  0.0
+MPTcpExtAddAddrTxDrop           0                  0.0
+MPTcpExtEchoAddTxDrop           0                  0.0
+MPTcpExtAddAddrDrop             0                  0.0
+MPTcpExtRmAddrDrop              0                  0.0
+MPTcpExtRmAddrTxDrop            0                  0.0
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
