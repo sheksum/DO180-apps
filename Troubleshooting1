@@ -1,4 +1,21 @@
-hsuma@plnx-admin:~$ oc get network.operator cluster -o jsonpath='{.spec.defaultNetwork.ovnKubernetesConfig.gatewayConfig}'
-echo
-{"ipForwarding":"Global","ipv4":{},"ipv6":{},"routingViaHost":false}
-hsuma@plnx-admin:~$
+oc patch network.operator cluster -p '{"spec":{"defaultNetwork":{"ovnKubernetesConfig":{"gatewayConfig":{"routingViaHost": true}}}}}' --type=merge
+
+oc get co network -w
+
+
+# Clean up manual hacks on master01
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+iptables -t nat -D PREROUTING -d 10.172.194.160/32 -p tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000 2>/dev/null
+iptables -t raw -D PREROUTING -d 10.172.194.160 -p tcp --dport 9000 -j TRACE 2>/dev/null
+iptables -t raw -D PREROUTING -d 10.172.194.160 -p tcp --dport 9000 -j LOG --log-prefix "RAW-PRE: " 2>/dev/null
+iptables -t raw -D PREROUTING -i bnd0.1794 -j LOG --log-prefix "BND-ANY: " 2>/dev/null
+iptables -t mangle -D FORWARD -d 172.30.0.0/16 -j LOG --log-prefix "MANGLE-FWD: " 2>/dev/null
+iptables -D FORWARD -d 172.30.0.0/16 -j LOG --log-prefix "FILTER-FWD: " 2>/dev/null
+iptables -D INPUT -d 10.172.194.160 -p tcp --dport 9000 -j LOG --log-prefix "INPUT-VIP: " 2>/dev/null
+iptables -t mangle -D PREROUTING -d 172.30.168.89 -p tcp --dport 9000 -j LOG --log-prefix "POST-DNAT: " 2>/dev/null
+ip addr del 10.172.194.160/32 dev bnd0.1794 2>/dev/null
+echo "Cleaned up"
+'
+
+# Then test
+oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- nc -w 5 -zv 10.172.194.160 9000
