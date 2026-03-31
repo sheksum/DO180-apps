@@ -1,8 +1,21 @@
-oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
 curl -m5 -s -o /dev/null -w "HTTP status: %{http_code}\n" http://10.172.194.160:9000
 '
+Starting pod/ocp-ai-master02calixlocal-debug-b5gcz ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+HTTP status: 000
 
-
-oc debug node/ocp-ai-master03.calix.local -- chroot /host bash -c '
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master03.calix.local -- chroot /host bash -c '
 curl -m5 -s -o /dev/null -w "HTTP status: %{http_code}\n" http://10.172.194.160:9000
 '
+Starting pod/ocp-ai-master03calixlocal-debug-4g664 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+HTTP status: 000
+
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$
