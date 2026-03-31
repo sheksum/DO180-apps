@@ -1,57 +1,20 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ echo "=== MetalLB speaker VIP assignments ==="
-for ns in pai-dev pai-prod pai-test; do
-  echo "--- $ns ---"
-  for pod in $(oc get pods -n metallb-system -l component=speaker -o name); do
-    node=$(oc get $pod -n metallb-system -o jsonpath='{.spec.nodeName}')
-    echo "  $node:"
-    oc logs $pod -n metallb-system --tail=50 2>/dev/null | grep -E "announcing|allocated" | grep "$ns" | tail -5
-  done
+echo "=== L2Advertisements ==="
+oc get l2advertisements -A -o yaml | grep -A 20 "spec:"
+
+echo ""
+echo "=== IPAddressPools ==="
+oc get ipaddresspools -A -o yaml | grep -A 10 "spec:"
+
+echo ""
+echo "=== ARP for all VIPs from this host ==="
+for vip in 10.172.194.160 10.172.194.161 10.172.194.163 10.172.202.160 10.172.202.161 10.172.198.160 10.172.198.161; do
+  echo -n "$vip -> "
+  arping -c 1 -w 2 $vip 2>&1 | grep -E "reply|timeout" | head -1
 done
-=== MetalLB speaker VIP assignments ===
---- pai-dev ---
-  ocp-ai-master02.calix.local:
-  ocp-ai-master01.calix.local:
-  ocp-ai-master03.calix.local:
---- pai-prod ---
-  ocp-ai-master02.calix.local:
-  ocp-ai-master01.calix.local:
-  ocp-ai-master03.calix.local:
---- pai-test ---
-  ocp-ai-master02.calix.local:
-  ocp-ai-master01.calix.local:
-  ocp-ai-master03.calix.local:
-hsuma@plnx-admin:~$ for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
+
+
+for pod in $(oc get pods -n metallb-system -l component=speaker -o name); do
+  node=$(oc get $pod -n metallb-system -o jsonpath='{.spec.nodeName}')
   echo "=== $node ==="
-  oc debug node/$node -- chroot /host bash -c '
-    echo "VIPs on bnd0.1794:"
-    ip addr show dev bnd0.1794 | grep "inet "
-    echo "VIPs on bnd0.1797:"
-    ip addr show dev bnd0.1797 2>/dev/null | grep "inet "
-    echo "VIPs on bnd0.1798:"
-    ip addr show dev bnd0.1798 2>/dev/null | grep "inet "
-  ' 2>/dev/null
+  oc logs $pod -n metallb-system --tail=200 2>/dev/null | grep -i "announc" | tail -10
 done
-=== ocp-ai-master01.calix.local ===
-VIPs on bnd0.1794:
-    inet 10.172.194.150/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794
-    inet 10.172.194.160/32 scope global bnd0.1794
-VIPs on bnd0.1797:
-    inet 10.172.202.150/23 brd 10.172.203.255 scope global noprefixroute bnd0.1797
-VIPs on bnd0.1798:
-    inet 10.172.198.150/23 brd 10.172.199.255 scope global noprefixroute bnd0.1798
-=== ocp-ai-master02.calix.local ===
-VIPs on bnd0.1794:
-    inet 10.172.194.151/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794
-VIPs on bnd0.1797:
-    inet 10.172.202.151/23 brd 10.172.203.255 scope global noprefixroute bnd0.1797
-VIPs on bnd0.1798:
-    inet 10.172.198.151/23 brd 10.172.199.255 scope global noprefixroute bnd0.1798
-=== ocp-ai-master03.calix.local ===
-VIPs on bnd0.1794:
-    inet 10.172.194.152/23 brd 10.172.195.255 scope global noprefixroute bnd0.1794
-VIPs on bnd0.1797:
-    inet 10.172.202.152/23 brd 10.172.203.255 scope global noprefixroute bnd0.1797
-VIPs on bnd0.1798:
-    inet 10.172.198.152/23 brd 10.172.199.255 scope global noprefixroute bnd0.1798
-hsuma@plnx-admin:~$
