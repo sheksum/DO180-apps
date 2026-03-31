@@ -1,31 +1,42 @@
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-  echo "=== What is in OVN-KUBE-EGRESS-IP-MULTI-NIC? ==="
-  iptables -t nat -S OVN-KUBE-EGRESS-IP-MULTI-NIC
-  
-  echo "=== Full POSTROUTING chain ==="
-  iptables -t nat -S POSTROUTING
-  
-  echo "=== Move MASQUERADE to top of POSTROUTING ==="
-  iptables -t nat -D POSTROUTING -s 10.172.194.0/23 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
-  iptables -t nat -I POSTROUTING 1 -s 10.172.194.0/23 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
-  
-  echo "=== Add FORWARD LOG to confirm packets reach FORWARD ==="
-  iptables -I FORWARD 1 -s 10.172.194.0/23 -d 172.30.0.0/16 -j LOG --log-prefix "FWD-VLAN: "
-  
-  echo "=== ip_forward still on? ==="
-  cat /proc/sys/net/ipv4/ip_forward
-  
-  echo "=== Verify new order ==="
-  iptables -t nat -S POSTROUTING | head -5
-  echo "Ready for test"
-'
+Starting pod/ocp-ai-master01calixlocal-debug-f2h6h ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== What is in OVN-KUBE-EGRESS-IP-MULTI-NIC? ===
+-N OVN-KUBE-EGRESS-IP-MULTI-NIC
+=== Full POSTROUTING chain ===
+-P POSTROUTING ACCEPT
+-A POSTROUTING -j OVN-KUBE-EGRESS-IP-MULTI-NIC
+-A POSTROUTING -s 10.172.194.0/23 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
+=== Move MASQUERADE to top of POSTROUTING ===
+=== Add FORWARD LOG to confirm packets reach FORWARD ===
+=== ip_forward still on? ===
+1
+=== Verify new order ===
+-P POSTROUTING ACCEPT
+-A POSTROUTING -s 10.172.194.0/23 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
+-A POSTROUTING -j OVN-KUBE-EGRESS-IP-MULTI-NIC
+Ready for test
 
-oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+Removing debug pod ...
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
   nc -zv -w 3 10.172.194.160 9000
+Starting pod/ocp-ai-master02calixlocal-debug-vjdrd ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
 
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
   echo "=== FWD-VLAN LOG ==="
   dmesg | grep FWD-VLAN | tail -5
   echo "=== MASQUERADE counter ==="
   iptables -t nat -L POSTROUTING -v -n 2>/dev/null | grep MASQ
 '
+Starting pod/ocp-ai-master01calixlocal-debug-hfrwl ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== FWD-VLAN LOG ===
+=== MASQUERADE counter ===
+    0     0 MASQUERADE  all  --  *      br-ex   10.172.194.0/23      172.30.0.0/16
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
