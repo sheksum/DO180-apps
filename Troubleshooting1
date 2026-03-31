@@ -1,79 +1,31 @@
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
-  echo "=== Adding MASQUERADE for cross-VLAN DNAT traffic ==="
-  iptables -t nat -A POSTROUTING -s 10.172.194.0/23 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
-  echo "=== Verify ==="
-  iptables -t nat -S POSTROUTING | tail -5
-  echo "Done — test from master02 now"
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+  echo "=== What is in OVN-KUBE-EGRESS-IP-MULTI-NIC? ==="
+  iptables -t nat -S OVN-KUBE-EGRESS-IP-MULTI-NIC
+  
+  echo "=== Full POSTROUTING chain ==="
+  iptables -t nat -S POSTROUTING
+  
+  echo "=== Move MASQUERADE to top of POSTROUTING ==="
+  iptables -t nat -D POSTROUTING -s 10.172.194.0/23 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
+  iptables -t nat -I POSTROUTING 1 -s 10.172.194.0/23 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
+  
+  echo "=== Add FORWARD LOG to confirm packets reach FORWARD ==="
+  iptables -I FORWARD 1 -s 10.172.194.0/23 -d 172.30.0.0/16 -j LOG --log-prefix "FWD-VLAN: "
+  
+  echo "=== ip_forward still on? ==="
+  cat /proc/sys/net/ipv4/ip_forward
+  
+  echo "=== Verify new order ==="
+  iptables -t nat -S POSTROUTING | head -5
+  echo "Ready for test"
 '
-Starting pod/ocp-ai-master01calixlocal-debug-2nw8h ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== Adding MASQUERADE for cross-VLAN DNAT traffic ===
-=== Verify ===
--P POSTROUTING ACCEPT
--A POSTROUTING -j OVN-KUBE-EGRESS-IP-MULTI-NIC
--A POSTROUTING -s 10.172.194.0/23 -d 172.30.0.0/16 -o br-ex -j MASQUERADE
-Done — test from master02 now
 
-Removing debug pod ...
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
+oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- \
   nc -zv -w 3 10.172.194.160 9000
-Starting pod/ocp-ai-master02calixlocal-debug-wjdjp ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: TIMEOUT.
 
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p --   nc -zv -w 3 10.172.194.160 9000
-Starting pod/ocp-ai-master02calixlocal-debug-4jxlg ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: TIMEOUT.
-
-Removing debug pod ...
-error: non-zero exit code from debug container
-hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p --   nc -zv -w 3 10.172.194.160 22
-Starting pod/ocp-ai-master02calixlocal-debug-dfjhb ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Connected to 10.172.194.160:22.
-Ncat: 0 bytes sent, 0 bytes received in 0.01 seconds.
-
-Removing debug pod ...
-
-
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-=== MASQUERADE counter (did it fire?) ===
-    0     0 MASQUERADE  all  --  *      br-ex   10.172.194.0/23      172.30.0.0/16
-=== FORWARD counters ===
-   52  2964 ACCEPT     all  --  *      *       0.0.0.0/0            172.30.0.0/16
-   30  3138 ACCEPT     all  --  *      *       172.30.0.0/16        0.0.0.0/0
-=== DNAT counter ===
-  168 10080 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
-=== ARP on br-ex (is the gateway resolved?) ===
-10.172.248.101 lladdr 00:50:56:b5:e5:90 STALE
-169.254.0.4 lladdr 0a:58:a9:fe:00:04 PERMANENT
-10.172.248.55 lladdr 00:50:56:b5:08:45 STALE
-10.172.248.22 lladdr 00:50:56:b5:7e:ed STALE
-10.172.248.32 lladdr 00:50:56:b5:ee:65 REACHABLE
-10.172.248.1 lladdr 20:20:00:00:00:aa REACHABLE
-10.172.248.154 lladdr c8:4b:d6:f3:d8:22 REACHABLE
-10.172.248.155 lladdr 00:25:b5:50:0a:66 REACHABLE
-10.172.248.50 lladdr 00:50:56:b5:c2:c4 STALE
-169.254.0.1 lladdr 0a:58:a9:fe:00:01 PERMANENT
-10.172.248.151 lladdr 00:25:b5:50:0a:66 REACHABLE
-10.172.248.152 lladdr 00:25:b5:50:0a:68 REACHABLE
-10.172.248.51 lladdr 00:50:56:b5:3b:6b STALE
-10.172.248.153 lladdr c8:4b:d6:f3:d8:40 REACHABLE
-10.172.248.105 lladdr 00:50:56:b5:7a:3a STALE
-fe80::2220:ff:fe00:aa lladdr 20:20:00:00:00:aa router STALE
-=== LOG counter ===
-   63  5106 LOG        all  --  *      *       0.0.0.0/0            10.172.194.160       LOG flags 0 level 4 prefix "VIP-HIT: "
-=== conntrack for VIP ===
-ipv4     2 tcp      6 48 TIME_WAIT src=10.172.248.50 dst=10.172.194.160 sport=34314 dport=9000 src=172.30.168.89 dst=10.172.248.50 sport=9000 dport=34314 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=0 use=2
-ipv4     2 tcp      6 70 TIME_WAIT src=10.172.248.51 dst=10.172.194.160 sport=59858 dport=9000 src=172.30.168.89 dst=10.172.248.51 sport=9000 dport=59858 [ASSURED] mark=0 secctx=system_u:object_r:unlabeled_t:s0 zone=0 use=2
-=== rx_dropped on bnd0.1794 ===
-532491
-
-Removing debug pod ...
-hsuma@plnx-admin:~$
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+  echo "=== FWD-VLAN LOG ==="
+  dmesg | grep FWD-VLAN | tail -5
+  echo "=== MASQUERADE counter ==="
+  iptables -t nat -L POSTROUTING -v -n 2>/dev/null | grep MASQ
+'
