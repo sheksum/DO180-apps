@@ -1,68 +1,19 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
-  echo "=== $node ==="
-  oc debug node/$node -- chroot /host bash -c 'ip link show | grep -E "bnd0\.[0-9]+" | grep -oP "bnd0\.\d+"' 2>/dev/null
-done
-=== ocp-ai-master01.calix.local ===
-bnd0.1798
-bnd0.1797
-bnd0.1796
-bnd0.1793
-bnd0.1794
-bnd0.1792
-=== ocp-ai-master02.calix.local ===
-bnd0.1792
-bnd0.1793
-bnd0.1798
-bnd0.1794
-bnd0.1796
-bnd0.1797
-=== ocp-ai-master03.calix.local ===
-bnd0.1796
-bnd0.1793
-bnd0.1797
-bnd0.1794
-bnd0.1792
-bnd0.1798
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$   echo "=== $node ==="
-  oc debug node/$node -- chroot /host bash -c '
-    for iface in bnd0.1794 bnd0.1797 bnd0.1798; do
-      current=$(cat /proc/sys/net/ipv4/conf/$iface/rp_filter 2>/dev/null)
-      echo "$iface rp_filter=$current"
-      echo 0 > /proc/sys/net/ipv4/conf/$iface/rp_filter
-      echo "  -> set to 0"
-    done
-    echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
-    echo "all rp_filter -> 0"
-  '
-done
-=== ocp-ai-master03.calix.local ===
-Starting pod/ocp-ai-master03calixlocal-debug-67h9p ...
-To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
-bnd0.1794 rp_filter=1
-  -> set to 0
-bnd0.1797 rp_filter=1
-  -> set to 0
-bnd0.1798 rp_filter=1
-  -> set to 0
-all rp_filter -> 0
+echo "=== master01 ===" && oc debug node/ocp-ai-master01.calix.local -- chroot /host bash -c '
+for iface in bnd0.1794 bnd0.1797 bnd0.1798 all; do
+  echo 0 > /proc/sys/net/ipv4/conf/$iface/rp_filter
+  echo "$iface rp_filter -> 0"
+done'
 
-Removing debug pod ...
--bash: syntax error near unexpected token `done'
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ for vip in "10.172.194.160:9000" "10.172.194.161:19530" "10.172.194.163:5432" "10.172.202.160:9000" "10.172.202.161:19530" "10.172.198.160:9000" "10.172.198.161:19530"; do
+echo "=== master02 ===" && oc debug node/ocp-ai-master02.calix.local -- chroot /host bash -c '
+for iface in bnd0.1794 bnd0.1797 bnd0.1798 all; do
+  echo 0 > /proc/sys/net/ipv4/conf/$iface/rp_filter
+  echo "$iface rp_filter -> 0"
+done'
+
+
+for vip in "10.172.194.160:9000" "10.172.194.161:19530" "10.172.194.163:5432" "10.172.202.160:9000" "10.172.202.161:19530" "10.172.198.160:9000" "10.172.198.161:19530"; do
   ip=${vip%:*}
   port=${vip#*:}
   echo -n "$vip -> "
   nc -w5 -zv $ip $port 2>&1 | tail -1
 done
-10.172.194.160:9000 -> Connection to 10.172.194.160 9000 port [tcp/*] succeeded!
-10.172.194.161:19530 -> Connection to 10.172.194.161 19530 port [tcp/*] succeeded!
-10.172.194.163:5432 -> nc: connect to 10.172.194.163 port 5432 (tcp) timed out: Operation now in progress
-10.172.202.160:9000 -> nc: connect to 10.172.202.160 port 9000 (tcp) timed out: Operation now in progress
-10.172.202.161:19530 -> nc: connect to 10.172.202.161 port 19530 (tcp) timed out: Operation now in progress
-10.172.198.160:9000 -> nc: connect to 10.172.198.160 port 9000 (tcp) timed out: Operation now in progress
-10.172.198.161:19530 -> nc: connect to 10.172.198.161 port 19530 (tcp) timed out: Operation now in progress
-hsuma@plnx-admin:~$
