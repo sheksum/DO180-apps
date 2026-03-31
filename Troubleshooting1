@@ -1,34 +1,21 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get svc -A -o wide | grep -i loadbalancer
-openshift-ingress                                  pai-gateway-openshift-default                                  LoadBalancer   172.30.31.98     10.172.248.175                         15021:30643/TCP,80:31594/TCP,443:30465/TCP     33d     gateway.networking.k8s.io/gateway-name=pai-gateway
-pai-dev                                            milvus-lb                                                      LoadBalancer   172.30.156.22    10.172.194.161                         19530:30241/TCP                                30d     app=milvus
-pai-dev                                            minio-lb                                                       LoadBalancer   172.30.168.89    10.172.194.160                         9000:32714/TCP                                 30d     app=minio
-pai-dev                                            pg-lb                                                          LoadBalancer   172.30.23.200    10.172.194.163                         5432:31478/TCP                                 3d20h   cnpg.io/cluster=pai-apps-db,cnpg.io/instanceRole=primary
-pai-prod                                           milvus-lb                                                      LoadBalancer   172.30.250.144   10.172.202.161                         19530:30139/TCP                                30d     app=milvus
-pai-prod                                           minio-lb                                                       LoadBalancer   172.30.161.228   10.172.202.160                         9000:32639/TCP                                 30d     app=minio
-pai-test                                           milvus-lb                                                      LoadBalancer   172.30.154.19    10.172.198.161                         19530:31563/TCP                                30d     app=milvus
-pai-test                                           minio-lb                                                       LoadBalancer   172.30.17.247    10.172.198.160                         9000:32339/TCP                                 30d     app=minio
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n metallb-system -o wide
-NAME                                                  READY   STATUS    RESTARTS      AGE   IP               NODE                          NOMINATED NODE   READINESS GATES
-controller-664ffb8889-d8dl9                           2/2     Running   0             21h   10.129.1.75      ocp-ai-master01.calix.local   <none>           <none>
-metallb-operator-controller-manager-b8577c5fc-gvpjr   1/1     Running   0             20h   10.129.1.81      ocp-ai-master01.calix.local   <none>           <none>
-metallb-operator-webhook-server-5ffd6c9cc5-zzkvl      1/1     Running   0             21h   10.129.1.68      ocp-ai-master01.calix.local   <none>           <none>
-speaker-96xwt                                         2/2     Running   0             20h   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
-speaker-fs45p                                         2/2     Running   1 (20h ago)   20h   10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
-speaker-tjlqv                                         2/2     Running   1 (20h ago)   20h   10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
-hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker --all-containers --tail=50 | grep -i "10.172.194"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ for ip in 150 151 152 153 154; do
-  echo "=== 10.172.248.$ip ==="
-  ssh -i ~/.ssh/ocp-ai -o StrictHostKeyChecking=no core@10.172.248.$ip "ip addr show | grep '10.172.194.16'" 2>/dev/null
-done
-=== 10.172.248.150 ===
-=== 10.172.248.151 ===
-=== 10.172.248.152 ===
-=== 10.172.248.153 ===
-=== 10.172.248.154 ===
-hsuma@plnx-admin:~$
+# 1. Events on one of the LB services — does MetalLB report any issues?
+oc describe svc minio-lb -n pai-dev | tail -20
+
+# 2. Broader speaker logs — look for errors, interface issues, or election problems
+oc logs -n metallb-system -l component=speaker --all-containers --tail=200 | grep -iE "error|fail|interface|announce|assign|reject|bnd0|bond0"
+
+# 3. Check the controller logs for assignment issues
+oc logs -n metallb-system deployment/controller --all-containers --tail=200 | grep -iE "error|fail|assign|10.172.194|pai-services"
+
+# 4. Does the speaker even see the L2Advertisement / interfaces?
+oc logs -n metallb-system -l component=speaker --all-containers --tail=500 | grep -iE "l2advertisement|interface|vlan1794"
+
+
+# 5. Does the service have externalTrafficPolicy: Local?
+oc get svc minio-lb -n pai-dev -o jsonpath='{.spec.externalTrafficPolicy}'
+echo
+
+# 6. Are there endpoints backing the service? (if externalTrafficPolicy=Local, 
+#    MetalLB only assigns VIP to a node running a backend pod)
+oc get endpoints minio-lb -n pai-dev
+oc get pods -n pai-dev -l app=minio -o wide
