@@ -1,13 +1,20 @@
-# Enable debug logging on the speaker DaemonSet
-oc set env daemonset/speaker -n metallb-system METALLB_LOG_LEVEL=debug
-
-# Check current speaker args
-oc get daemonset speaker -n metallb-system -o jsonpath='{.spec.template.spec.containers[0].args}' | python3 -m json.tool
-
-
-# Also verify speakers are running and on which nodes
-oc get pods -n metallb-system -o wide | grep speaker
-
-
-# And critically - check if speakers are running with hostNetwork (they need it to see host interfaces)
-oc get daemonset speaker -n metallb-system -o jsonpath='{.spec.template.spec.hostNetwork}'
+hsuma@plnx-admin:~$ oc set env daemonset/speaker -n metallb-system METALLB_LOG_LEVEL=debug
+daemonset.apps/speaker updated
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get daemonset speaker -n metallb-system -o jsonpath='{.spec.template.spec.containers[0].args}' | python3 -m json.tool
+[
+    "--port=29150",
+    "--log-level=warn",
+    "--host=localhost",
+    "--frrk8s-namespace=openshift-frr-k8s"
+]
+hsuma@plnx-admin:~$ oc get pods -n metallb-system -o wide | grep speaker
+speaker-2kmzs                                          2/2     Running   0              8m3s   10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
+speaker-cq5vz                                          2/2     Running   2 (8m2s ago)   8m3s   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
+speaker-xxhpl                                          1/2     Running   0              12s    10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get daemonset speaker -n metallb-system -o jsonpath='{.spec.template.spec.hostNetwork}'
+truehsuma@plnx-admin:~$
