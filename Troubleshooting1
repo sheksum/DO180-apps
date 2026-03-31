@@ -1,12 +1,15 @@
-# Check if OVN has load balancer rules for the VIPs
-ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo ovs-ofctl dump-flows br-ex 2>/dev/null | grep -c '10.172.194'"
-
-# Check iptables for any DNAT rules for the VIP
-ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo iptables-save 2>/dev/null | grep '10.172.194.160'"
-
-# Check OVN load balancers - this will show if OVN knows about the VIP DNAT
-ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo ovn-nbctl --no-leader-only lb-list 2>/dev/null | grep -E '10.172.194|10.172.202|10.172.198'"
-
-
-# Test the nodePort directly from master02 to master01 - this should work because nodePort goes through OVN
-ssh -i .ssh/ocp-ai core@ocp-ai-master02.calix.local "nc -zv -w 3 10.172.248.150 32714"
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo ovs-ofctl dump-flows br-ex 2>/dev/null | grep -c '10.172.194'"
+19
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo iptables-save 2>/dev/null | grep '10.172.194.160'"
+-A OVN-KUBE-EXTERNALIP -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master01.calix.local "sudo ovn-nbctl --no-leader-only lb-list 2>/dev/null | grep -E '10.172.194|10.172.202|10.172.198'"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ssh -i .ssh/ocp-ai core@ocp-ai-master02.calix.local "nc -zv -w 3 10.172.248.150 32714"
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Connected to 10.172.248.150:32714.
+Ncat: 0 bytes sent, 0 bytes received in 0.01 seconds.
+hsuma@plnx-admin:~$
