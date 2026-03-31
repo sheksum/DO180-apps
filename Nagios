@@ -1,6 +1,26 @@
 # Nagios Core Monitoring - HIL RKE2 Cluster (Restricted/AAM)
 
-## Overview
+## What is Nagios?
+
+Nagios is one of the most widely used open source IT infrastructure monitoring platforms in the industry. Originally released in 1999, it has been production-proven in enterprise environments for over 25 years and is trusted by thousands of organizations worldwide including government and defense sectors.
+
+Nagios Core monitors the availability and performance of hosts, services, and network devices. It works by running checks against target systems on a defined schedule and alerting contacts when something goes wrong or recovers. It supports two types of checks:
+
+- **Active checks** — Nagios initiates the check on a schedule (e.g. ping a host, check CPU via NRPE)
+- **Passive checks** — External systems submit check results to Nagios (e.g. Alertmanager sending Kubernetes alerts)
+
+Key capabilities used in this deployment:
+
+- **NRPE (Nagios Remote Plugin Executor)** — agent installed on target hosts that allows Nagios to run checks remotely
+- **Passive check integration** — receives alerts from Alertmanager/Prometheus via a webhook receiver
+- **Email notifications** — alerts sent via SMTP when host/service states change
+- **Host groups** — logical grouping of hosts for organized monitoring views
+
+Nagios Core 4.5.7 is the latest release (October 2024) and is free and open source under the GPL license.
+
+-----
+
+## Deployment Overview
 
 Nagios Core 4.5.7 deployed in the HIL RKE2 Kubernetes cluster for infrastructure and Kubernetes alert monitoring.
 
