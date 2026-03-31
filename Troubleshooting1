@@ -1,5 +1,4 @@
-for vip in "10.172.194.160:9000" "10.172.194.161:19530" "10.172.194.163:5432" "10.172.202.160:9000" "10.172.202.161:19530" "10.172.198.160:9000" "10.172.198.161:19530"; do
-  ip=${vip%:*}; port=${vip#*:}
-  echo -n "$vip -> "
-  nc -w5 -zv $ip $port 2>&1 | tail -1
-done
+Sulabh Sinha  [2:40 PM]
+Hey @gene.siepka / @haj.suma - Created the tickets for read only access for the team and making endpoint accessible outside of cluster. Between the 2 making db endpoint accessible outside the cluster is more urgent, please consider that it as P1.
+EOSM-54195
+EOSM-54196EOSM-54195 Need view only access for PAI Team members for AI ClusterStatus: OpenType: [System] IncidentAssignee: Gene SiepkaPriority: P3-MediumAdded by Jira CloudEOSM-54196 AI Cluster - Make DB endpoint accessible outside of cluster
