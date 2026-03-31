@@ -1,15 +1,50 @@
-# 1. Does the ServiceL2Status CRD exist?
-oc get crd | grep metallb
-
-# 2. Are there any ServiceL2Status resources?
-oc get servicel2statuses -n metallb-system
-
-# 3. What MetalLB version is running?
-oc get csv -n metallb-system
-
-# 4. Broader speaker logs — see what's actually happening (not filtered)
-oc logs -n metallb-system speaker-96xwt -c speaker --tail=100
-
-# 5. Check if there were recent operator upgrades that might have 
-#    left CRDs in a bad state
-oc get installplan -n metallb-system --sort-by=.metadata.creationTimestamp
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get crd | grep metallb
+bfdprofiles.metallb.io                                            2026-02-26T02:34:41Z
+bgpadvertisements.metallb.io                                      2026-02-26T02:34:41Z
+bgppeers.metallb.io                                               2026-02-26T02:34:41Z
+bgpsessionstates.frrk8s.metallb.io                                2026-02-26T02:43:45Z
+communities.metallb.io                                            2026-02-26T02:34:41Z
+frrconfigurations.frrk8s.metallb.io                               2026-02-26T02:34:40Z
+frrnodestates.frrk8s.metallb.io                                   2026-02-26T02:34:40Z
+ipaddresspools.metallb.io                                         2026-02-26T02:34:41Z
+l2advertisements.metallb.io                                       2026-02-26T02:34:41Z
+metallbs.metallb.io                                               2026-02-26T02:34:41Z
+servicebgpstatuses.metallb.io                                     2026-02-26T02:34:41Z
+servicel2statuses.metallb.io                                      2026-02-26T02:34:41Z
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get servicel2statuses -n metallb-system
+NAME       ALLOCATED NODE                SERVICE NAME                    SERVICE NAMESPACE
+l2-ccmzc   ocp-ai-master02.calix.local   minio-lb                        pai-prod
+l2-gg2bb   ocp-ai-master02.calix.local   milvus-lb                       pai-prod
+l2-mkvkj   ocp-ai-master01.calix.local   milvus-lb                       pai-test
+l2-q8c69   ocp-ai-master03.calix.local   pai-gateway-openshift-default   openshift-ingress
+l2-r4l52   ocp-ai-master02.calix.local   pg-lb                           pai-dev
+l2-vkzpr   ocp-ai-master01.calix.local   minio-lb                        pai-test
+l2-xkxmc   ocp-ai-master01.calix.local   milvus-lb                       pai-dev
+l2-xvpsm   ocp-ai-master01.calix.local   minio-lb                        pai-dev
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get csv -n metallb-system
+NAME                                         DISPLAY                                           VERSION               REPLACES                                PHASE
+cert-manager-operator.v1.18.1                cert-manager Operator for Red Hat OpenShift       1.18.1                cert-manager-operator.v1.18.0           Succeeded
+cloudnative-pg.v1.28.1                       CloudNativePG                                     1.28.1                cloudnative-pg.v1.28.0                  Succeeded
+metallb-operator.v4.20.0-202603152019        MetalLB Operator                                  4.20.0-202603152019   metallb-operator.v4.20.0-202602261925   Succeeded
+openshift-external-secrets-operator.v1.1.0   External Secrets Operator for Red Hat OpenShift   1.1.0                 external-secrets-operator.v1.0.0        Succeeded
+openshift-gitops-operator.v1.20.0            Red Hat OpenShift GitOps                          1.20.0                openshift-gitops-operator.v1.19.2       Succeeded
+servicemeshoperator3.v3.2.2                  Red Hat OpenShift Service Mesh 3                  3.2.2                 servicemeshoperator3.v3.1.0             Succeeded
+trident-operator.v26.2.0                     NetApp Trident                                    26.2.0                trident-operator.v25.10.0-linux-only    Succeeded
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs -n metallb-system speaker-96xwt -c speaker --tail=100
+{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master01.calix.local)","ts":"2026-03-30T20:34:44Z"}
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get installplan -n metallb-system --sort-by=.metadata.creationTimestamp
+NAME            CSV                                     APPROVAL    APPROVED
+install-vv6sc   metallb-operator.v4.20.0-202602091941   Automatic   true
+install-29ckt   metallb-operator.v4.20.0-202602261925   Automatic   true
+install-rccbn   metallb-operator.v4.20.0-202603152019   Automatic   true
+hsuma@plnx-admin:~$
