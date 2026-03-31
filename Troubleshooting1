@@ -1,22 +1,21 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system speaker-96xwt -c speaker
-{"caller":"state.go:1284","component":"Memberlist","level":"warn","msg":"memberlist: Refuting a dead message (from: ocp-ai-master01.calix.local)","ts":"2026-03-30T20:34:44Z"}
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system speaker-96xwt -c frr
-error: container frr is not valid for pod speaker-96xwt
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@10.172.248.150 "ip -o link show | grep -i bnd0"
-4: eno7: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 9000 qdisc mq master bnd0 state UP mode DEFAULT group default qlen 1000\    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff\    altname enp27s0f2\    altname ens7f2
-5: eno8: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 9000 qdisc mq master bnd0 state UP mode DEFAULT group default qlen 1000\    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff permaddr 00:25:b5:51:0b:65\    altname enp27s0f3\    altname ens7f3
-10: bnd0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
-11: bnd0.1798@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
-12: bnd0.1797@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
-13: bnd0.1796@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
-14: bnd0.1793@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
-15: bnd0.1794@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
-16: bnd0.1792@bnd0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 00:25:b5:50:0a:65 brd ff:ff:ff:ff:ff:ff
-hsuma@plnx-admin:~$
+# 1. What are the two containers in the speaker pod?
+oc get pod speaker-96xwt -n metallb-system -o jsonpath='{.spec.containers[*].name}'
+echo
+
+# 2. Logs from the second container (whatever it's called)
+oc logs -n metallb-system speaker-96xwt -c $(oc get pod speaker-96xwt -n metallb-system -o jsonpath='{.spec.containers[1].name}')
+
+# 3. The MetalLB CR — this controls how the operator deploys speakers
+oc get metallb -n metallb-system -o yaml
+
+# 4. Is the speaker process actually running inside the container?
+oc exec -n metallb-system speaker-96xwt -c speaker -- ps aux
+
+# 5. Key question: were VIPs EVER reachable from outside the cluster?
+#    Check when the previous operator version was installed vs L2Advertisement creation
+#    L2Advertisements were created Feb 28. Previous operator: v4.20.0-202602261925
+#    Current operator: v4.20.0-202603152019 (March 15 auto-upgrade)
+#    Did MetalLB VIPs work between Feb 28 and March 15?
+
+# 6. Check operator events for anything about the upgrade
+oc get events -n metallb-system --sort-by='.lastTimestamp' | tail -30
