@@ -1,45 +1,15 @@
-hsuma@plnx-admin:~$ oc describe svc minio-lb -n pai-dev | tail -20
-Labels:                   <none>
-Annotations:              argocd.argoproj.io/tracking-id: minio:/Service:pai-dev/minio-lb
-                          metallb.io/ip-allocated-from-pool: pai-services-dev
-                          metallb.universe.tf/address-pool: pai-services-dev
-                          metallb.universe.tf/loadBalancerIPs: 10.172.194.160
-Selector:                 app=minio
-Type:                     LoadBalancer
-IP Family Policy:         SingleStack
-IP Families:              IPv4
-IP:                       172.30.168.89
-IPs:                      172.30.168.89
-LoadBalancer Ingress:     10.172.194.160 (VIP)
-Port:                     s3  9000/TCP
-TargetPort:               9000/TCP
-NodePort:                 s3  32714/TCP
-Endpoints:                10.128.0.26:9000
-Session Affinity:         None
-External Traffic Policy:  Cluster
-Internal Traffic Policy:  Cluster
-Events:                   <none>
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker --all-containers --tail=200 | grep -iE "error|fail|interface|announce|assign|reject|bnd0|bond0"
-{"level":"error","ts":"2026-03-30T20:34:44Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-prod","name":"minio-lb","reconcileID":"89abba76-3e45-4e9a-bf17-3f009d3f6af4","error":"servicel2statuses.metallb.io \"l2-zxb8j\" not found","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
-hsuma@plnx-admin:~$ oc logs -n metallb-system deployment/controller --all-containers --tail=200 | grep -iE "error|fail|assign|10.172.194|pai-services"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker --all-containers --tail=500 | grep -iE "l2advertisement|interface|vlan1794"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get svc minio-lb -n pai-dev -o jsonpath='{.spec.externalTrafficPolicy}'
-Clusterhsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ echo
+# 1. Does the ServiceL2Status CRD exist?
+oc get crd | grep metallb
 
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get endpoints minio-lb -n pai-dev
-Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
-NAME       ENDPOINTS          AGE
-minio-lb   10.128.0.26:9000   30d
-hsuma@plnx-admin:~$ oc get pods -n pai-dev -l app=minio -o wide
-NAME                     READY   STATUS    RESTARTS   AGE   IP            NODE                          NOMINATED NODE   READINESS GATES
-minio-788889d4b7-g9g59   1/1     Running   0          30d   10.128.0.26   ocp-ai-master02.calix.local   <none>           <none>
-hsuma@plnx-admin:~$
+# 2. Are there any ServiceL2Status resources?
+oc get servicel2statuses -n metallb-system
+
+# 3. What MetalLB version is running?
+oc get csv -n metallb-system
+
+# 4. Broader speaker logs — see what's actually happening (not filtered)
+oc logs -n metallb-system speaker-96xwt -c speaker --tail=100
+
+# 5. Check if there were recent operator upgrades that might have 
+#    left CRDs in a bad state
+oc get installplan -n metallb-system --sort-by=.metadata.creationTimestamp
