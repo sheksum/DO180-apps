@@ -1,7 +1,7 @@
-oc get servicel2status -n metallb-system -o json | jq -r '.items[] | select(.spec.serviceRef.name != null) | "\(.spec.serviceRef.namespace)/\(.spec.serviceRef.name) → \(.status.node)"' 2>/dev/null || oc get servicel2status -n metallb-system -o yaml | grep -A5 "serviceRef\|node:"
-
-
-oc debug node/<VIP-OWNER-NODE> -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+hsuma@plnx-admin:~$ oc get servicel2status -n metallb-system -o json | jq -r '.items[] | select(.spec.serviceRef.name != null) | "\(.spec.serviceRef.namespace)/\(.spec.serviceRef.name) → \(.status.node)"' 2>/dev/null || oc get servicel2status -n metallb-system -o yaml | grep -A5 "serviceRef\|node:"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/<VIP-OWNER-NODE> -- nsenter -t 1 -m -u -i -n -p -- bash -c '
 # Add VIP address if not present
 ip addr show dev bnd0.1794 | grep -q 10.172.194.160 || ip addr add 10.172.194.160/32 dev bnd0.1794
 echo "VIP addr: $(ip addr show dev bnd0.1794 | grep 10.172.194.160)"
@@ -24,7 +24,5 @@ echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
 iptables -t nat -S PREROUTING | grep 10.172.194.160
 iptables -t raw -S PREROUTING | grep TRACE
 '
-
-oc debug node/ocp-ai-master02.calix.local -- nsenter -t 1 -m -u -i -n -p -- nc -w 5 -zv 10.172.194.160 9000
-
-oc debug node/<VIP-OWNER-NODE> -- nsenter -t 1 -m -u -i -n -p -- bash -c 'dmesg | grep -i "trace\|PACKET" | tail -40'
+-bash: VIP-OWNER-NODE: No such file or directory
+hsuma@plnx-admin:~$
