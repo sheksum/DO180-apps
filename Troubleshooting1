@@ -1,17 +1,71 @@
-# Check current ServiceL2Status assignments
-oc get servicel2status -n metallb-system -o custom-columns='NAME:.metadata.name,NODE:.status.node,SVC:.status.serviceName,NS:.status.serviceNamespace'
-
-# Check all LoadBalancer services and their IPs
-oc get svc -A --field-selector spec.type=LoadBalancer -o custom-columns='NS:.metadata.namespace,NAME:.metadata.name,IP:.status.loadBalancer.ingress[0].ip,PORTS:.spec.ports[*].port'
-
-
-# Check speaker logs on master02 (where VIPs appeared) for any VLAN activity
-SPEAKER02=$(oc get pods -n metallb-system -o wide | grep master02 | awk '{print $1}')
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get svc -A --field-selector spec.type=LoadBalancer -o custom-columns='NS:.metadata.namespace,NAME:.metadata.name,IP:.status.loadBalancer.ingress[0].ip,PORTS:.spec.ports[*].port'
+NS                  NAME                            IP               PORTS
+openshift-ingress   pai-gateway-openshift-default   10.172.248.175   15021,80,443
+pai-dev             milvus-lb                       10.172.194.161   19530
+pai-dev             minio-lb                        10.172.194.160   9000
+pai-dev             pg-lb                           10.172.194.163   5432
+pai-prod            milvus-lb                       10.172.202.161   19530
+pai-prod            minio-lb                        10.172.202.160   9000
+pai-test            milvus-lb                       10.172.198.161   19530
+pai-test            minio-lb                        10.172.198.160   9000
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ SPEAKER02=$(oc get pods -n metallb-system -o wide | grep master02 | awk '{print $1}')
 oc logs -n metallb-system $SPEAKER02 -c speaker --tail=200 | grep -iE "10\.172\.194|10\.172\.202|10\.172\.198|announce|arp|gratuitous|SetBalancer|assign" | head -40
-
-
-# Also recheck /32 addresses - maybe they're still propagating
-for node in master01 master02 master03; do
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1793","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1796","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1797","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"ovn-k8s-mp0","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1792","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1798","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"br-ex","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"ovn-k8s-mp0","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1792","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1798","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"br-ex","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1793","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1794","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1796","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1796","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"ovn-k8s-mp0","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1792","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1798","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"br-ex","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1793","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1794","ts":"2026-03-31T18:43:42Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1797","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"ovn-k8s-mp0","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1792","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1798","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"br-ex","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1793","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1796","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"br-ex","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1793","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1794","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1796","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"ovn-k8s-mp0","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1792","ts":"2026-03-31T18:43:43Z"}
+{"caller":"announcer.go:217","level":"debug","op":"gratuitousAnnounce","skip interfaces":"bnd0.1798","ts":"2026-03-31T18:43:43Z"}
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ for node in master01 master02 master03; do
   echo "=== $node ==="
   ssh -i .ssh/ocp-ai core@ocp-ai-${node}.calix.local "ip addr show | grep '/32'"
 done
+=== master01 ===
+=== master02 ===
+    inet 10.172.248.156/32 scope global vip
+    inet 10.172.248.155/32 scope global vip
+=== master03 ===
+hsuma@plnx-admin:~$
