@@ -1,1 +1,12 @@
-oc get svc -A --field-selector spec.type=LoadBalancer -o custom-columns='NAMESPACE:.metadata.namespace,NAME:.metadata.name,EXTERNAL-IP:.status.loadBalancer.ingress[0].ip,PORTS:.spec.ports[*].port,CLUSTER-IP:.spec.clusterIP'
+hsuma@plnx-admin:~$ oc get svc -A --field-selector spec.type=LoadBalancer -o custom-columns='NAMESPACE:.metadata.namespace,NAME:.metadata.name,EXTERNAL-IP:.status.loadBalancer.ingress[0].ip,PORTS:.spec.ports[*].port,CLUSTER-IP:.spec.clusterIP'
+NAMESPACE           NAME                            EXTERNAL-IP      PORTS          CLUSTER-IP
+openshift-ingress   pai-gateway-openshift-default   10.172.248.175   15021,80,443   172.30.31.98
+pai-dev             milvus-lb                       10.172.194.161   19530          172.30.156.22
+pai-dev             minio-lb                        10.172.194.160   9000           172.30.168.89
+pai-dev             pg-lb                           10.172.194.163   5432           172.30.23.200
+pai-prod            milvus-lb                       10.172.202.161   19530          172.30.250.144
+pai-prod            minio-lb                        10.172.202.160   9000           172.30.161.228
+pai-test            milvus-lb                       10.172.198.161   19530          172.30.154.19
+pai-test            minio-lb                        10.172.198.160   9000           172.30.17.247
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
