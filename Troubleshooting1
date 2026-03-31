@@ -15,3 +15,10 @@ for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-maste
     done
   '
 done
+
+
+
+for node in ocp-ai-master01.calix.local ocp-ai-master02.calix.local ocp-ai-master03.calix.local; do
+  echo "=== $node ==="
+  oc debug node/$node -- chroot /host bash -c "curl -m5 -s -o /dev/null -w 'HTTP status: %{http_code}\n' http://10.172.194.160:9000"
+done
