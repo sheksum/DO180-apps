@@ -1,4 +1,4 @@
-oc debug node/ocp-ai-master01.calix.local -- chroot /host bash -c '
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host bash -c '
 echo "=== PREROUTING (NAT) ==="
 iptables -t nat -L PREROUTING -v -n --line-numbers 2>&1 | head -30
 
@@ -30,3 +30,64 @@ echo ""
 echo "=== conntrack count ==="
 conntrack -C 2>&1
 '
+Starting pod/ocp-ai-master01calixlocal-debug-77p97 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== PREROUTING (NAT) ===
+Chain PREROUTING (policy ACCEPT 7708K packets, 483M bytes)
+num   pkts bytes target     prot opt in     out     source               destination
+1       35 10164 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.248.155       tcp dpt:6443 /* OCP_API_LB_REDIRECT */ to:10.172.248.155:9445
+2    7709K  483M OVN-KUBE-ETP  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+3    7709K  483M OVN-KUBE-EXTERNALIP  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+4    7708K  483M OVN-KUBE-NODEPORT  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+
+=== OVN-KUBE-EXTERNALIP ===
+Chain OVN-KUBE-EXTERNALIP (2 references)
+num   pkts bytes target     prot opt in     out     source               destination
+1        8   480 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
+2        0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.163       tcp dpt:5432 to:172.30.23.200:5432
+3        0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.248.175       tcp dpt:443 to:172.30.31.98:443
+4        0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.248.175       tcp dpt:80 to:172.30.31.98:80
+5        0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.248.175       tcp dpt:15021 to:172.30.31.98:15021
+6        0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.198.160       tcp dpt:9000 to:172.30.17.247:9000
+7        0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.198.161       tcp dpt:19530 to:172.30.154.19:19530
+8        0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.202.161       tcp dpt:19530 to:172.30.250.144:19530
+9        0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.161       tcp dpt:19530 to:172.30.156.22:19530
+10       0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.202.160       tcp dpt:9000 to:172.30.161.228:9000
+
+=== POSTROUTING (NAT) ===
+Chain POSTROUTING (policy ACCEPT 58M packets, 3486M bytes)
+num   pkts bytes target     prot opt in     out     source               destination
+1        0     0 MASQUERADE  all  --  *      br-ex   0.0.0.0/0            0.0.0.0/0            ctstate DNAT
+2        0     0 MASQUERADE  all  --  *      br-ex   0.0.0.0/0            0.0.0.0/0            ctstate DNAT
+3        0     0 MASQUERADE  all  --  *      br-ex   10.172.194.0/23      172.30.0.0/16
+4      58M 3486M OVN-KUBE-EGRESS-IP-MULTI-NIC  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+5        0     0 MASQUERADE  all  --  *      br-ex   10.172.194.0/24      172.30.0.0/16
+6        0     0 MASQUERADE  all  --  *      br-ex   10.172.198.0/24      172.30.0.0/16
+7        0     0 MASQUERADE  all  --  *      br-ex   10.172.202.0/24      172.30.0.0/16
+
+=== OVN-KUBE-SNAT-MGMTPORT ===
+iptables: Incompatible with this kernel.
+
+=== FORWARD filter ===
+Chain FORWARD (policy ACCEPT 16586 packets, 38M bytes)
+num   pkts bytes target     prot opt in     out     source               destination
+1     406K  132M ACCEPT     all  --  ovn-k8s-mp0 *       0.0.0.0/0            0.0.0.0/0
+2     388K  699M ACCEPT     all  --  *      ovn-k8s-mp0  0.0.0.0/0            0.0.0.0/0
+3        0     0 LOG        all  --  *      *       10.172.194.0/23      172.30.0.0/16        LOG flags 0 level 4 prefix "FWD-VLAN: "
+4        0     0 REJECT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22624 flags:0x17/0x02 reject-with icmp-port-unreachable
+5        0     0 REJECT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22623 flags:0x17/0x02 reject-with icmp-port-unreachable
+
+=== ip route get to ClusterIP from VLAN src ===
+172.30.168.89 from 10.172.194.151 via 169.254.0.4 dev br-ex
+    cache mtu 8900 iif bnd0.1794
+
+=== ip route get return path ===
+10.172.194.151 dev bnd0.1794 src 10.172.194.150 uid 0
+    cache
+
+=== conntrack count ===
+bash: line 31: conntrack: command not found
+
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$
