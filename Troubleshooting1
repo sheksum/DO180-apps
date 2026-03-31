@@ -1,17 +1,35 @@
-oc get packagemanifest metallb-operator -n openshift-marketplace -o jsonpath='{.status.channels[?(@.name=="stable")].entries[*].name}' | tr ' ' '\n' | grep metallb
-
-
-oc get packagemanifest metallb-operator -n openshift-marketplace -o jsonpath='{.status.channels[?(@.name=="stable")].currentCSV}'
-
-
-oc delete subscription metallb-operator -n metallb-system
-oc delete csv metallb-operator.v4.20.0-202603152019 -n metallb-system
-
-
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get packagemanifest metallb-operator -n openshift-marketplace -o jsonpath='{.status.channels[?(@.name=="stable")].entries[*].name}' | tr ' ' '\n' | grep metallb
+metallb-operator.v4.20.0-202603152019
+metallb-operator.v4.20.0-202602261925
+metallb-operator.v4.20.0-202602091941
+metallb-operator.v4.20.0-202602021426
+metallb-operator.v4.20.0-202601271911
+metallb-operator.v4.20.0-202601192051
+metallb-operator.v4.20.0-202512222252
+metallb-operator.v4.20.0-202512081818
+metallb-operator.v4.20.0-202511250912
+metallb-operator.v4.20.0-202511181524
+metallb-operator.v4.20.0-202511102026
+metallb-operator.v4.20.0-202511040554
+metallb-operator.v4.20.0-202510211040
+metallb-operator.v4.20.0-202509271248
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get packagemanifest metallb-operator -n openshift-marketplace -o jsonpath='{.status.channels[?(@.name=="stable")].currentCSV}'
+metallb-operator.v4.20.0-202603152019hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc delete subscription metallb-operator -n metallb-system
+subscription.operators.coreos.com "metallb-operator" deleted from metallb-system namespace
+hsuma@plnx-admin:~$ oc delete csv metallb-operator.v4.20.0-202603152019 -n metallb-system
+clusterserviceversion.operators.coreos.com "metallb-operator.v4.20.0-202603152019" deleted from metallb-system namespace
+hsuma@plnx-admin:~$
 oc delete installplan install-29ckt install-rccbn install-vv6sc -n metallb-system
-
-
-cat <<'EOF' | oc apply -f -
+Error from server (NotFound): installplans.operators.coreos.com "install-29ckt" not found
+Error from server (NotFound): installplans.operators.coreos.com "install-rccbn" not found
+Error from server (NotFound): installplans.operators.coreos.com "install-vv6sc" not found
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ cat <<'EOF' | oc apply -f -
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
@@ -27,10 +45,14 @@ spec:
   sourceNamespace: openshift-marketplace
   startingCSV: metallb-operator.v4.20.0-202602261925
 EOF
-
-
-# Wait a few seconds, then find the new install plan
-oc get installplan -n metallb-system
-
-# Approve it (replace PLAN_NAME with the actual name)
-oc patch installplan PLAN_NAME -n metallb-system --type merge -p '{"spec":{"approved":true}}'
+subscription.operators.coreos.com/metallb-operator created
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get installplan -n metallb-system
+NAME            CSV                                     APPROVAL   APPROVED
+install-m6nqs   metallb-operator.v4.20.0-202602261925   Manual     false
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc patch installplan PLAN_NAME -n metallb-system --type merge -p '{"spec":{"approved":true}}'
+Error from server (NotFound): installplans.operators.coreos.com "PLAN_NAME" not found
+hsuma@plnx-admin:~$ oc patch installplan install-m6nqs -n metallb-system --type merge -p '{"spec":{"approved":true}}'
+installplan.operators.coreos.com/install-m6nqs patched
+hsuma@plnx-admin:~$
