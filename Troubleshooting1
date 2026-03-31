@@ -1,8 +1,12 @@
-hsuma@plnx-admin:~$ oc get nodes -o custom-columns='NAME:.metadata.name,ROLE:.metadata.labels.node-role\.kubernetes\.io/worker' --no-headers
-ocp-ai-gpu01.calix.local
-ocp-ai-gpu02.calix.local
-ocp-ai-master01.calix.local
-ocp-ai-master02.calix.local
-ocp-ai-master03.calix.local
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
+git add machineconfigs/99-metallb-vlan-routing-master.yaml machineconfigs/99-metallb-vlan-routing-worker.yaml && git commit -m "$(cat <<'EOF'
+fix: MetalLB VIP routing on secondary VLAN interfaces
+
+Enables cross-node and cross-VLAN access to MetalLB L2 VIPs on bnd0.179x
+interfaces with OVN-Kubernetes routingViaHost: true.
+
+Three fixes applied via systemd + NM dispatcher + sysctl:
+- iptables MASQUERADE for DNAT'd packets exiting br-ex to OVN
+- ClusterIP route (172.30.0.0/16 via br-ex) in policy routing tables 100/101/102
+- rp_filter=0 on all bnd0.* VLAN interfaces (asymmetric routing)
+EOF
+)"
