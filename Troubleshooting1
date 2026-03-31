@@ -16,3 +16,6 @@ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash
   echo "=== NodePort DNAT counter (after) ==="
   iptables -t nat -L OVN-KUBE-NODEPORT -v -n 2>/dev/null | grep 32714
 '
+
+
+oc debug node/ocp-ai-master02.calix.local -- chroot /host ping -c 3 -W 1 10.172.194.150
