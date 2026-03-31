@@ -40,3 +40,29 @@ Ncat: Connected to 10.172.194.160:22.
 Ncat: 0 bytes sent, 0 bytes received in 0.01 seconds.
 
 Removing debug pod ...
+
+
+------
+
+oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+  echo "=== MASQUERADE counter (did it fire?) ==="
+  iptables -t nat -L POSTROUTING -v -n 2>/dev/null | grep -E "MASQ|10.172.194"
+  
+  echo "=== FORWARD counters ==="
+  iptables -L FORWARD -v -n 2>/dev/null | grep 172.30
+  
+  echo "=== DNAT counter ==="
+  iptables -t nat -L OVN-KUBE-EXTERNALIP -v -n 2>/dev/null | grep 10.172.194.160
+  
+  echo "=== ARP on br-ex (is the gateway resolved?) ==="
+  ip neigh show dev br-ex
+  
+  echo "=== LOG counter ==="
+  iptables -t raw -L PREROUTING -v -n 2>/dev/null | grep VIP-HIT
+  
+  echo "=== conntrack for VIP ==="
+  cat /proc/net/nf_conntrack 2>/dev/null | grep "10.172.194.160.*dport=9000" | tail -5
+  
+  echo "=== rx_dropped on bnd0.1794 ==="
+  cat /sys/class/net/bnd0.1794/statistics/rx_dropped
+'
