@@ -1,21 +1,58 @@
-oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- nsenter -t 1 -m -u -i -n -p -- bash -c '
   echo "=== Is our OUTPUT DNAT still there? ==="
   iptables -t nat -S OUTPUT | head -10
-  
+
   echo "=== NodePort DNAT counter (before) ==="
   iptables -t nat -L OVN-KUBE-NODEPORT -v -n 2>/dev/null | grep 32714
-  
+
   echo "=== Test NodePort via loopback ==="
   nc -zv -w 3 127.0.0.1 32714 2>&1 || true
-  
+
   echo "=== Test NodePort via br-ex IP ==="
   BREX_IP=$(ip addr show br-ex | grep "inet " | awk "{print \$2}" | cut -d/ -f1)
   echo "br-ex IP: $BREX_IP"
   nc -zv -w 3 $BREX_IP 32714 2>&1 || true
-  
+
   echo "=== NodePort DNAT counter (after) ==="
   iptables -t nat -L OVN-KUBE-NODEPORT -v -n 2>/dev/null | grep 32714
 '
+Starting pod/ocp-ai-master01calixlocal-debug-nhpb9 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+=== Is our OUTPUT DNAT still there? ===
+-P OUTPUT ACCEPT
+-A OUTPUT -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+-A OUTPUT -d 10.172.248.155/32 -o lo -p tcp -m tcp --dport 6443 -m comment --comment OCP_API_LB_REDIRECT -j REDIRECT --to-ports 9445
+-A OUTPUT -j OVN-KUBE-EXTERNALIP
+-A OUTPUT -j OVN-KUBE-NODEPORT
+-A OUTPUT -j OVN-KUBE-ITP
+=== NodePort DNAT counter (before) ===
+    2   120 DNAT       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            ADDRTYPE match dst-type LOCAL tcp dpt:32714 to:172.30.168.89:9000
+=== Test NodePort via loopback ===
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
+=== Test NodePort via br-ex IP ===
+br-ex IP: 10.172.248.150
+169.254.0.2
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Got more than one port specification: 169.254.0.2 32714. QUITTING.
+=== NodePort DNAT counter (after) ===
+    4   240 DNAT       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            ADDRTYPE match dst-type LOCAL tcp dpt:32714 to:172.30.168.89:9000
 
+Removing debug pod ...
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master02.calix.local -- chroot /host ping -c 3 -W 1 10.172.194.150
+Starting pod/ocp-ai-master02calixlocal-debug-zwr4t ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+PING 10.172.194.150 (10.172.194.150) 56(84) bytes of data.
+64 bytes from 10.172.194.150: icmp_seq=1 ttl=63 time=0.134 ms
+64 bytes from 10.172.194.150: icmp_seq=2 ttl=63 time=0.264 ms
+64 bytes from 10.172.194.150: icmp_seq=3 ttl=63 time=0.169 ms
 
-oc debug node/ocp-ai-master02.calix.local -- chroot /host ping -c 3 -W 1 10.172.194.150
+--- 10.172.194.150 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2073ms
+rtt min/avg/max/mdev = 0.134/0.189/0.264/0.054 ms
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
