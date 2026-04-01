@@ -32,6 +32,8 @@ oc logs -n metallb-system -l component=speaker --tail=50
 
 What I found: Speaker pods were all Running 2/2. Every service had an EXTERNAL-IP assigned. I didn't see ARP-specific messages in the speaker logs — turns out the FRR-based speakers in this version don't log gratuitous ARPs like older MetalLB did. So I moved on to checking ARP directly.
 
+Note on speaker logs: Even after everything is fixed and traffic is flowing, the speaker logs still show "no route to host" errors for some ServiceL2Status objects in pai-test (l2-q9wzr, l2-gh5t9). Those are stale status objects that the speaker is trying to update — it gets "Value is immutable" back and retries. It's not a routing problem, it's a stuck Kubernetes status resource. Traffic is fine, the errors are cosmetic. Hasn't impacted anything.
+
 Why check this first: Most common LB issue is MetalLB itself — wrong pool, speaker not running, L2Advertisement not matching. Eliminates the obvious stuff fast.
 
 
@@ -67,6 +69,208 @@ Add a LOG rule in raw PREROUTING — this is the absolute first thing the kernel
 oc debug node/ocp-ai-master01.calix.local -- chroot /host iptables -t raw -I PREROUTING -d 10.172.194.160 -j LOG --log-prefix "RAW-PRE: "
 
 Then test from my workstation:
+nc -zv 10.172.194.160 9000
+
+Check dmesg for the log:
+oc debug node/ocp-ai-master01.calix.local -- chroot /host dmesg | grep RAW-PRE | tail -5
+
+What I found: RAW-PRE LOG fired every time I ran nc. I could see IN=bnd0.1794 and DST=10.172.194.160 in the dmesg output. Packets were definitely hitting the kernel. Problem was somewhere after ingress.
+
+Why check this next: I wanted definitive proof the packet was hitting the kernel. If LOG doesn't fire, it's a switch/VLAN/L2 problem and I'm looking in the wrong place. It fired, so I knew the problem was further down the stack.
+
+
+5. After DNAT — trace where the packet exits
+
+This was the key step. I added a LOG in POSTROUTING to see where the kernel sends the packet after DNAT rewrites the destination:
+oc debug node/ocp-ai-master01.calix.local -- chroot /host iptables -t nat -I POSTROUTING -m conntrack --ctstate DNAT -j LOG --log-prefix "POST-DNAT: "
+
+Then checked dmesg again:
+oc debug node/ocp-ai-master01.calix.local -- chroot /host dmesg | grep POST-DNAT | tail -5
+
+What I found: In dmesg I saw OUT=bnd0.1794. The DST had changed to 172.30.x.x (ClusterIP — so DNAT worked), but the packet was exiting through the VLAN interface instead of br-ex. It should have been going into OVN via br-ex. That was the breakthrough — the kernel was routing the DNAT'd packet back out the VLAN gateway instead of into OVN. That pointed straight at policy routing.
+
+Why check this next: I knew the packet arrives (step 4) and gets DNAT'd (step 3) but the service still doesn't respond. Something is happening between DNAT and the pod. On OVN-Kubernetes, DNAT'd traffic needs to enter OVN via br-ex. POSTROUTING LOG shows the OUT= interface — the exit path the kernel chose. Seeing bnd0.1794 instead of br-ex was the smoking gun.
+
+
+6. Policy routing tables — the root cause
+
+Check the rules and tables:
+oc debug node/ocp-ai-master01.calix.local -- chroot /host ip rule show
+oc debug node/ocp-ai-master01.calix.local -- chroot /host ip route show table 100
+oc debug node/ocp-ai-master01.calix.local -- chroot /host ip route show table 101
+oc debug node/ocp-ai-master01.calix.local -- chroot /host ip route show table 102
+
+What I found: The policy tables (100/101/102) only had a default gateway route via the VLAN interface and the local subnet route. No route to 172.30.0.0/16 (ClusterIP range). So here's what was happening: after DNAT changes the destination to a ClusterIP (172.30.x.x), the packet hits the policy table because the source IP is on the VLAN subnet. The table has no route for 172.30.0.0/16, so it falls through to the default route, which sends it out bnd0.1794 toward the VLAN gateway. That gateway has no idea what 172.30.x.x is, and the packet is gone.
+
+Fix — add the ClusterIP route to each table:
+ip route add 172.30.0.0/16 via 169.254.0.4 dev br-ex table 100
+ip route add 172.30.0.0/16 via 169.254.0.4 dev br-ex table 101
+ip route add 172.30.0.0/16 via 169.254.0.4 dev br-ex table 102
+
+169.254.0.4 is the OVN gateway router on br-ex.
+
+Verify with: ip route show table 101 — should now include 172.30.0.0/16 via 169.254.0.4 dev br-ex.
+
+After adding the route to table 101, I tested from master02 to a VIP on master01 using curl. I got back an HTTP 403 Forbidden from MinIO. That 403 was actually a good sign — before the fix I got nothing (nc timeout, curl hang). The 403 meant the packet went all the way through DNAT, into OVN via br-ex, hit the MinIO pod, and MinIO responded. It denied access because I hit it without credentials, but the point is end-to-end connectivity was working. Timeout = packet dropped in the kernel. 403 = full round trip.
+
+VLANs 1797 and 1798 were still broken after this — that turned out to be rp_filter (step 8).
+
+Why check this next: Step 5 showed OUT=bnd0.1794. Linux policy routing (ip rule) can override the main routing table. NMState creates policy tables for source-based routing on VLAN interfaces. Once I saw the wrong OUT= interface, the policy tables were the obvious next thing to check.
+
+
+7. MASQUERADE — needed for return traffic
+
+Even with the route fix, there's a return path problem. DNAT'd packets arriving on br-ex still have my workstation's source IP (10.172.248.105). OVN only knows pod and service IPs — it has no route back to an external IP.
+
+iptables -t nat -I POSTROUTING -m conntrack --ctstate DNAT -o br-ex -j MASQUERADE
+
+What I found: Without MASQUERADE, the packet entered OVN correctly (I could see OUT=br-ex in the LOG) but I still got no response. MASQUERADE rewrites the source to the node's br-ex IP so OVN thinks the traffic came from the node, handles the reply, and conntrack maps it back to the real client. After adding MASQUERADE, responses started coming back.
+
+Why this was needed: The routing fix (step 6) got the packet into OVN, but the reply had nowhere to go. MASQUERADE was the missing piece for the return path.
+
+
+8. rp_filter — the silent killer
+
+After steps 6 and 7, VLAN 1794 worked. VLANs 1797 and 1798 still timed out.
+
+Check rp_filter:
+oc debug node/ocp-ai-master01.calix.local -- chroot /host sysctl -a | grep "rp_filter" | grep bnd0
+
+What I found: All bnd0.* interfaces had rp_filter=1 (strict mode). rp_filter=1 means the kernel checks every incoming packet: "would I route a reply to this source IP back out this same interface?" If the answer is no, the packet is silently dropped — no log, no counter, nothing.
+
+External clients from 10.172.248.x were hitting VIPs on bnd0.1797 and bnd0.1798. The kernel checked: "would I route a reply to 10.172.248.x via bnd0.1797?" — no, that subnet isn't on VLAN 1797. Packet dropped.
+
+Fix:
+sysctl -w net.ipv4.conf.all.rp_filter=0
+sysctl -w net.ipv4.conf.default.rp_filter=0
+sysctl -w net.ipv4.conf.bnd0/1794.rp_filter=0
+sysctl -w net.ipv4.conf.bnd0/1797.rp_filter=0
+sysctl -w net.ipv4.conf.bnd0/1798.rp_filter=0
+
+Note: sysctl uses / instead of . for interface names (bnd0/1794 not bnd0.1794).
+
+After disabling rp_filter on all bnd0.* interfaces on all nodes, VLANs 1797 and 1798 immediately started working.
+
+Why check this next: Same fixes applied to all VLANs, same setup, but 1794 worked and 1797/1798 didn't. RAW-PRE LOG fired on those VLANs (packets arriving) but nothing after — packet was getting dropped between raw and nat. Not many things sit between raw PREROUTING and nat PREROUTING. Connection tracking and rp_filter are the main suspects. Conntrack was fine (working for 1794), so rp_filter was next.
+
+Why 1794 worked but 1797/1798 didn't: I'm not 100% certain on this — it may have been related to how the routing tables were set up differently for that subnet, or it may have been that I tested 1794 cross-node (where source IP was on the same VLAN subnet) vs externally (where source IP was on a different VLAN). Either way, rp_filter=1 was the cause for 1797/1798 and disabling it fixed them immediately.
+
+
+9. Validation — all 7 VIPs
+
+for ip_port in 10.172.194.160:9000 10.172.194.161:19530 10.172.194.163:5432 \
+               10.172.198.160:9000 10.172.198.161:19530 \
+               10.172.202.160:9000 10.172.202.161:19530 10.172.202.163:5432; do
+  echo -n "Testing $ip_port: "
+  nc -zv ${ip_port%:*} ${ip_port#*:} 2>&1 | tail -1
+done
+
+All 7 returned "succeeded" after the rp_filter fix.
+
+
+10. Making it permanent — MachineConfig
+
+All the fixes above are lost on reboot. Created two MachineConfigs (master + worker) with:
+- /etc/sysctl.d/99-metallb-rp-filter.conf — disables rp_filter on bnd0.* interfaces
+- /etc/NetworkManager/dispatcher.d/99-metallb-vlan-routing — runs on bnd0.* interface up, sets rp_filter=0 and adds ClusterIP route to the right policy table
+- /usr/local/bin/metallb-vlan-routing-setup.sh — systemd oneshot at boot, adds MASQUERADE rule, sets rp_filter, adds ClusterIP routes to tables 100/101/102
+- metallb-vlan-routing.service — runs the setup script after OVS and NetworkManager are up
+
+MachineConfigs pushed to ArgoCD repo: 99-metallb-vlan-routing-master and 99-metallb-vlan-routing-worker.
+
+Important MachineConfig gotchas I hit:
+- Must use Ignition 3.5.0 (not 3.2.0 — wrong version causes RenderDegraded which blocks ALL MC updates)
+- File modes must be decimal (493 = 0755, 420 = 0644)
+- File contents must be base64 data URI, not inline
+
+
+CNPG Recovery
+
+During the MachineConfig rollout, MCO drained master01. CNPG tried switching the PostgreSQL primary from db-1 (on master01) to db-2. The switchover got stuck.
+
+What happened:
+- db-1 pod got evicted from master01
+- db-2 couldn't promote — stuck replaying WAL from the MinIO archive
+- WAL files in MinIO had system identifier 7621790087615889432
+- db-2's pg_control had system identifier 7623307342724771863
+- Mismatch = WAL from a previous/different cluster instance
+- db-2 kept looping: restore WAL from MinIO -> mismatch -> try streaming replication -> connection refused -> wait -> repeat
+
+How to check:
+oc logs pai-apps-db-2 -n pai-prod --tail=100 | grep -iE "wal|system identifier|recover|promot"
+
+What I actually saw in the logs (repeating every ~5 seconds):
+  {"msg":"Restored WAL file","walName":"000000010000000000000035","elapsedWalTime":0.309}
+  {"message":"restored log file \"000000010000000000000035\" from archive"}
+  {"message":"WAL file is from different database system: WAL file database system identifier is 7621790087615889432, pg_control database system identifier is 7623307342724771863"}
+  {"message":"could not connect to the primary server: connection to server at \"pai-apps-db-rw\" (172.30.138.226), port 5432 failed: Connection refused"}
+  {"message":"waiting for WAL to become available at 0/35000078"}
+
+The key line: "WAL file is from different database system" — the WAL archive in MinIO was from a different PostgreSQL instance than what's running.
+
+What cnpg status showed when stuck:
+kubectl cnpg status pai-apps-db -n pai-prod
+
+  Name           Current LSN  Replication role  Status         Node
+  pai-apps-db-1  -            -                 InternalError  ocp-ai-master01.calix.local
+  pai-apps-db-2  -            -                 InternalError  ocp-ai-master02.calix.local
+  pai-apps-db-3  -            -                 InternalError  ocp-ai-master03.calix.local
+
+All InternalError with no LSN = no primary is up.
+
+I also checked what CNPG was injecting into PostgreSQL config:
+oc exec pai-apps-db-2 -n pai-prod -c postgres -- cat /var/lib/postgresql/data/pgdata/override.conf
+
+What I saw:
+  primary_conninfo = 'host=pai-apps-db-rw user=streaming_replica port=5432 ...'
+  primary_slot_name = '_cnpg_pai_apps_db_2'
+  recovery_target_timeline = 'latest'
+  restore_command = '/controller/manager wal-restore --log-destination /controller/log/postgres.json %f %p'
+
+The restore_command is what pulls WAL from MinIO. primary_conninfo points to pai-apps-db-rw (which is itself, but can't connect because it hasn't started). That's why the instance loops — it keeps trying to restore bad WAL and connect to a primary that doesn't exist.
+
+Recovery steps (in order of what I tried):
+1. Patched cluster status to set db-2 as primary:
+   oc patch cluster pai-apps-db -n pai-prod --type merge --subresource status -p '{"status":{"currentPrimary":"pai-apps-db-2","targetPrimary":"pai-apps-db-2"}}'
+   Result: Cluster phase changed but db-2 still stuck in the recovery loop.
+
+2. Tried pg_ctl promote:
+   oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_ctl promote -D /var/lib/postgresql/data/pgdata
+   Result: "cannot promote server; server is not in standby mode" — PostgreSQL thought it was already primary but was stuck in crash recovery replaying bad WAL.
+
+3. Removed standby.signal:
+   oc exec pai-apps-db-2 -n pai-prod -c postgres -- rm /var/lib/postgresql/data/pgdata/standby.signal
+   Result: Didn't help — the restore_command in override.conf was still pulling bad WAL from MinIO.
+
+4. Cleared override.conf:
+   oc exec pai-apps-db-2 -n pai-prod -c postgres -- sh -c 'echo "" > /var/lib/postgresql/data/pgdata/override.conf'
+   Then restarted postgres:
+   oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_ctl restart -D /var/lib/postgresql/data/pgdata -m fast
+   Result: Container got killed (exit 137). CNPG operator rewrote override.conf on restart — back to square one.
+
+5. Renamed the bad WAL archive in MinIO so restore_command can't find anything:
+   oc exec minio-85b4477cdc-t275f -n pai-prod -- mv /data/cnpg-backups/pai-prod/pai-apps-db/wals /data/cnpg-backups/pai-prod/pai-apps-db/wals.bak
+   Result: WAL directory gone, but PostgreSQL still stuck — it needed WAL file 000000010000000000000035 for crash recovery and couldn't find it anywhere now.
+
+6. Forced WAL reset with pg_resetwal (had to catch the container while it was crashlooping):
+   while ! oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata 2>/dev/null; do echo "waiting..."; sleep 2; done
+   Result: "Write-ahead log reset" — db-2 came up as primary. db-1 reconnected as standby automatically.
+
+7. db-3 was also stuck. Tried pg_ctl stop then pg_resetwal but the container died between the two commands. Ended up deleting the PVC and pod:
+   oc delete pvc/pai-apps-db-3 pod/pai-apps-db-3 -n pai-prod
+   Result: CNPG rebuilt it as db-4 via pg_basebackup from db-2. Came up clean.
+
+Final cnpg status after recovery:
+  Name           Current LSN  Replication role      Status  Node
+  pai-apps-db-2  0/3A026238   Primary               OK      ocp-ai-master02.calix.local
+  pai-apps-db-1  0/3A026238   Standby (file based)  OK      ocp-ai-master01.calix.local
+  pai-apps-db-4  0/3A026238   Standby (file based)  OK      ocp-ai-master03.calix.local
+
+Key commands for CNPG troubleshooting:
+kubectl cnpg status pai-apps-db -n pai-prod
+kubectl cnpg hibernate on pai-apps-db -n pai-prod
+kubectl cnpg hibernate off pai-apps-db -n pai-prod
+kubectl cnpg promote pai-apps-db <instance> -n pai-prodThen test from my workstation:
 nc -zv 10.172.194.160 9000
 
 Check dmesg for the log:
