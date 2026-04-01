@@ -1,3 +1,22 @@
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host arping -c 3 -I bnd0.1794 10.172.194.160
+Starting pod/ocp-ai-master01calixlocal-debug-gwhs8 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+ARPING 10.172.194.160 from 10.172.194.150 bnd0.1794
+Sent 3 probes (3 broadcast(s))
+Received 0 response(s)
+
+Removing debug pod ...
+error: non-zero exit code from debug container
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host iptables-save -t nat | grep 10.172.194.160
+Starting pod/ocp-ai-master01calixlocal-debug-cm9t4 ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+-A OVN-KUBE-EXTERNALIP -d 10.172.194.160/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.30.168.89:9000
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
+
+
 OCP-AI MetalLB + CNPG Troubleshooting Walkthrough
 March 31, 2026
 
