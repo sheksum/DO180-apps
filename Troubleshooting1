@@ -1,2 +1,13 @@
-We can now access all the external LB services across dev/test/prod VLANs — MinIO, Milvus, and PostgreSQL are all reachable. Turned out to be four things stacked on each other causing VIP traffic on the bnd0.179x interfaces to get silently dropped. MetalLB was assigning IPs and answering ARP fine, the problem was all on the routing/filtering side.
-OVN wasn't creating DNAT rules for non-OVS interfaces (fixed with routingViaHost: true), ip_forward kept getting reset (fixed with ipForwarding: Global), the policy routing tables were sending DNAT'd packets back out the VLAN gateway instead of into OVN (added the ClusterIP route to tables 100/101/102), and rp_filter was quietly dropping packets from external subnets hitting the VLAN interfaces (disabled it on bnd0.*). Also needed a MASQUERADE rule so OVN can route responses back out the right interface.
+Sulabh Sinha  [7:58 PM]
+Thank you for getting the public endpoint available but would appreciate a heads-up, if there is a known restart or maintenance .
+Brian Wing  [7:58 PM]
+So Sulabh, probably time to put some governance on changes being requested yeah?  Don't want to be getting pings if this is something you requested.
+Haj Suma  [7:58 PM]
+From my understanding from Gene - Sulabh needed this ASAP
+[7:59 PM]and a node going down for reboot should cause issue in kubernetes
+Brian Wing  [7:59 PM]
+Yep.  Understand Haj.
+Sulabh Sinha  [7:59 PM]
+yes for sure, if anytime system availability is going to be impacted, we need to know so that we can manage any user experiences.
+Brian Wing  [7:59 PM]
+That's why I am asking for planning and timing from AIDev side
