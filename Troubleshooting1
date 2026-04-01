@@ -1,3 +1,4 @@
-while ! oc exec pai-apps-db-3 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata 2>/dev/null; do echo "waiting..."; sleep 2; done
+oc get svc pai-apps-db-rw -n pai-prod -o wide
 
-oc delete pvc/pai-apps-db-3 pod/pai-apps-db-3 -n pai-prod
+
+oc get svc -n pai-prod | grep -i -E "db|postgres"
