@@ -1,14 +1,7 @@
-=== CNPG operator pod ===
-No resources found in cnpg-system namespace.
+echo "=== Find CNPG operator namespace ==="
+oc get pods -A | grep -i cnpg
 
-=== Is master01 schedulable now? ===
-
-
-=== Current cluster target primary ===
-currentPrimary: pai-apps-db-1, targetPrimary: pai-apps-db-2
-
-=== All pai-apps-db pods ===
-NAME            READY   STATUS    RESTARTS      AGE   IP             NODE                          NOMINATED NODE   READINESS GATES
-pai-apps-db-2   0/1     Running   3 (59m ago)   68m   10.128.0.24    ocp-ai-master02.calix.local   <none>           <none>
-pai-apps-db-3   1/1     Running   0             60m   10.130.0.113   ocp-ai-master03.calix.local   <none>           <none>
-hsuma@plnx-admin:~/ocp-ai-config$
+echo ""
+echo "=== Check CNPG subscriptions/CSV ==="
+oc get csv -A | grep -i cnpg
+oc get subscription -A | grep -i cnpg
