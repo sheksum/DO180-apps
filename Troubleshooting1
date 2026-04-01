@@ -1,4 +1,11 @@
-oc get svc pai-apps-db-rw -n pai-prod -o wide
-
-
-oc get svc -n pai-prod | grep -i -E "db|postgres"
+hsuma@plnx-admin:~$ oc get svc pai-apps-db-rw -n pai-prod -o wide
+NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE   SELECTOR
+pai-apps-db-rw   ClusterIP   172.30.138.226   <none>        5432/TCP   18h   cnpg.io/cluster=pai-apps-db,cnpg.io/instanceRole=primary
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get svc -n pai-prod | grep -i -E "db|postgres"
+milvus-lb                                  LoadBalancer   172.30.250.144   10.172.202.161   19530:30139/TCP              30d
+minio-lb                                   LoadBalancer   172.30.161.228   10.172.202.160   9000:32639/TCP               30d
+pai-apps-db-r                              ClusterIP      172.30.233.52    <none>           5432/TCP                     18h
+pai-apps-db-ro                             ClusterIP      172.30.195.97    <none>           5432/TCP                     18h
+pai-apps-db-rw                             ClusterIP      172.30.138.226   <none>           5432/TCP                     18h
+hsuma@plnx-admin:~$
