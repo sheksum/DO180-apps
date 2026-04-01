@@ -16,6 +16,27 @@ To use host binaries, run `chroot /host`. Instead, if you need to access host na
 Removing debug pod ...
 hsuma@plnx-admin:~$
 
+hsuma@plnx-admin:~$ oc debug node/ocp-ai-master01.calix.local -- chroot /host iptables -t nat -L OVN-KUBE-EXTERNALIP -nv
+Starting pod/ocp-ai-master01calixlocal-debug-fgq4f ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+Chain OVN-KUBE-EXTERNALIP (2 references)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.202.163       tcp dpt:5432 to:172.30.93.138:5432
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.198.160       tcp dpt:9000 to:172.30.17.247:9000
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.163       tcp dpt:5432 to:172.30.23.200:5432
+    1    60 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.161       tcp dpt:19530 to:172.30.156.22:19530
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.248.175       tcp dpt:443 to:172.30.31.98:443
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.248.175       tcp dpt:80 to:172.30.31.98:80
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.248.175       tcp dpt:15021 to:172.30.31.98:15021
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.202.160       tcp dpt:9000 to:172.30.161.228:9000
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.202.161       tcp dpt:19530 to:172.30.250.144:19530
+    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.198.161       tcp dpt:19530 to:172.30.154.19:19530
+    1    60 DNAT       tcp  --  *      *       0.0.0.0/0            10.172.194.160       tcp dpt:9000 to:172.30.168.89:9000
+
+Removing debug pod ...
+hsuma@plnx-admin:~$
+
+
 
 OCP-AI MetalLB + CNPG Troubleshooting Walkthrough
 March 31, 2026
