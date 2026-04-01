@@ -1,10 +1,16 @@
-echo "=== Cluster status ==="
-oc get cluster pai-apps-db -n pai-prod -o jsonpath='phase: {.status.phase}, current: {.status.currentPrimary}, target: {.status.targetPrimary}{"\n"}'
-
-echo ""
-echo "=== DB pods ==="
-oc get pods -n pai-prod -l cnpg.io/cluster=pai-apps-db -o wide
-
-echo ""
-echo "=== All crashlooping pods ==="
-oc get pods -n pai-prod | grep -iE "crash|error|0/"
+hsuma@plnx-admin:~/ocp-ai-config$ oc get cluster pai-apps-db -n pai-prod -o jsonpath='phase: {.status.phase}, current: {.status.currentPrimary}, target: {.status.targetPrimary}{"\n"}'
+phase: Waiting for the instances to become active, current: pai-apps-db-2, target: pai-apps-db-2
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-prod -l cnpg.io/cluster=pai-apps-db -o wide
+NAME            READY   STATUS    RESTARTS        AGE   IP             NODE                          NOMINATED NODE   READINESS GATES
+pai-apps-db-1   0/1     Running   0               65s   10.129.0.17    ocp-ai-master01.calix.local   <none>           <none>
+pai-apps-db-2   0/1     Running   4 (6m10s ago)   76m   10.128.0.24    ocp-ai-master02.calix.local   <none>           <none>
+pai-apps-db-3   0/1     Running   1 (69s ago)     67m   10.130.0.113   ocp-ai-master03.calix.local   <none>           <none>
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-prod | grep -iE "crash|error|0/"
+internal-agentmesh-auth-service-86ccb7895f-5kzzh            0/1     CrashLoopBackOff   20 (3m23s ago)   68m
+internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb   0/1     CrashLoopBackOff   17 (2m18s ago)   67m
+pai-apps-db-1                                               0/1     Running            0                70s
+pai-apps-db-2                                               0/1     Running            4 (6m15s ago)    76m
+pai-apps-db-3                                               0/1     Running            1 (74s ago)      67m
+hsuma@plnx-admin:~/ocp-ai-config$
