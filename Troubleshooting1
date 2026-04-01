@@ -1,1 +1,6 @@
-That's fair — should have flagged the reboot window ahead of time, will do that going forward. That said, this is actually a good validation of your deployment resilience. The MachineConfig rollout reboots nodes one at a time — pods get drained and rescheduled before each node goes down, same process as an OCP upgrade. If your apps are deployed with multiple replicas and proper pod disruption budgets, there should be zero downtime during these rollouts. If anything did go down, that's worth looking into because it would mean the app deployment needs hardening — not that the platform change was risky. Kubernetes is built for this.
+oc get nodes && echo "" && oc get mcp && echo "" && oc get mc --sort-by=.metadata.creationTimestamp | tail -10
+
+
+oc get mcp master -o jsonpath='{.status.conditions[*].type}{"\n"}{.status.conditions[*].status}{"\n"}{.status.conditions[*].message}' | head -10
+
+oc describe mcp master | grep -A 5 -i "degraded\|updating\|message"
