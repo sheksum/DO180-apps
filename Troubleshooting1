@@ -1,1 +1,10 @@
-"Hey Gene, here's the external DB endpoint for pai-dev: 10.172.194.163:5432 (pg-lb service). Let me know if you need the milvus or minio LB IPs too."
+for ip_port in 10.172.194.160:9000 10.172.194.161:19530 10.172.194.163:5432; do
+  echo -n "Testing $ip_port: "
+  nc -zv ${ip_port%:*} ${ip_port#*:} 2>&1 | tail -1
+done
+
+
+for ip_port in 10.172.202.160:9000 10.172.202.161:19530 10.172.202.163:5432; do
+  echo -n "Testing $ip_port: "
+  nc -zv ${ip_port%:*} ${ip_port#*:} 2>&1 | tail -1
+done
