@@ -1,12 +1,3 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ kubectl cnpg promote pai-apps-db pai-apps-db-2 -n pai-prod
-pai-apps-db-2 is already the primary node in the cluster
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_ctl promote -D /var/lib/postgresql/data/pgdata
-pg_ctl: cannot promote server; server is not in standby mode
-command terminated with exit code 1
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
+oc exec pai-apps-db-2 -n pai-prod -c postgres -- cat /var/lib/postgresql/data/pgdata/postgresql.auto.conf
+
+oc exec pai-apps-db-2 -n pai-prod -c postgres -- ls -la /var/lib/postgresql/data/pgdata/standby.signal /var/lib/postgresql/data/pgdata/recovery.signal 2>&1
