@@ -1,170 +1,142 @@
-ACHIEVEMENTS
-
-• As part of our transition to Kubernetes, we have successfully built and delivered the OCP-AI on-prem Kubernetes platform purpose-built for Calix AI workloads. AgentMesh has been deployed to the platform and is now serving live traffic. This is the first production AI workload running on our internal infrastructure, supporting three fully isolated environments for development, testing, and production. The platform is designed to scale and onboard additional AI workloads as the organization's needs grow.
-
-
-
-
 OCP-AI MetalLB + CNPG Troubleshooting Walkthrough
 March 31, 2026
 
 Problem: MetalLB L2 VIP services on VLAN interfaces (bnd0.1794/1797/1798) not reachable cross-node or externally. 7 LoadBalancer services across dev/test/prod all timing out.
 
-Troubleshooting approach: Start at L2 and work up. If L2 is fine, check L3/iptables. The idea is to narrow down where the packet is getting lost by tracing it through each stage — MetalLB → ARP → ingress → DNAT → routing → egress. At each step, if it looks good, move to the next. If something's off, dig into that layer.
+Quick reference — what these terms mean:
+
+PREROUTING — the first stop when a packet enters the node. This is where the kernel decides what to do with it before any routing decision. DNAT rules live here.
+
+POSTROUTING — the last stop before a packet leaves the node. This is where MASQUERADE happens. If you LOG here, you see which interface the packet is exiting through (OUT=).
+
+DNAT (Destination NAT) — rewrites the destination IP. When traffic hits the VIP (e.g. 10.172.194.160), DNAT changes it to the ClusterIP (172.30.x.x) so it can reach the pod.
+
+MASQUERADE — rewrites the source IP to the node's own IP. Needed because OVN doesn't know how to send a reply back to an external IP like my workstation. With MASQUERADE, OVN thinks the traffic came from the node itself, sends the reply to the node, and conntrack maps it back to the real client.
+
+rp_filter (reverse path filter) — a kernel security check. For every incoming packet, the kernel asks: "if I had to reply to this source IP, would I send it back out this same interface?" If the answer is no, the packet is silently dropped. No log, no error, nothing. That's what makes it a silent killer.
+
+conntrack — the kernel's connection tracking table. It remembers "this packet came from X, got DNAT'd to Y, got MASQUERADE'd from Z" so it can undo all of that on the reply. It's what ties DNAT and MASQUERADE together.
+
+br-ex — the OVN external bridge. This is the door into OVN networking. All DNAT'd traffic needs to exit through br-ex so OVN can route it to the right pod. 169.254.0.4 is the OVN gateway router sitting on the other side of br-ex.
+
+Policy routing tables (100/101/102) — NMState creates these for source-based routing on VLAN interfaces. They override the main routing table. If a packet's source IP is on a VLAN subnet, it hits the policy table instead of the main table. The problem was these tables had no route for ClusterIP (172.30.0.0/16), so DNAT'd packets got sent out the VLAN gateway instead of into OVN.
+
+Troubleshooting approach: Start at L2 and work up. At each step, if it looks good, move to the next layer. If something's off, dig in there.
 
 
-1. Verify MetalLB is assigning IPs and speakers are advertising
+1. Verify MetalLB is assigning IPs and speakers are running
 
 oc get svc -A --field-selector spec.type=LoadBalancer
 oc get pods -n metallb-system
-oc logs -n metallb-system -l component=speaker --tail=50 | grep -i "announce\|arp\|layer2"
+oc logs -n metallb-system -l component=speaker --tail=50
 
-What to look for: MetalLB speaker logs should show it sending gratuitous ARPs for each VIP. If it's not advertising, check L2Advertisement and IPAddressPool resources.
+What I found: Speaker pods were all Running 2/2. Every service had an EXTERNAL-IP assigned. I didn't see ARP-specific messages in the speaker logs — turns out the FRR-based speakers in this version don't log gratuitous ARPs like older MetalLB did. So I moved on to checking ARP directly.
 
-Example good log (speaker is advertising):
-  {"msg":"sending gratuitous ARP","interface":"bnd0.1794","ip":"10.172.194.160","event":"arpReply"}
-
-Example bad log (speaker can't advertise):
-  {"msg":"no usable address found on interface","interface":"bnd0.1794"}
-
-In our case: MetalLB was fine — speakers were advertising, ARPs were going out, IPs were assigned. The problem was never MetalLB itself.
-
-Why check this first: It's the most common cause of LB not working — MetalLB misconfigured, wrong pool, speaker not running on the right node, L2Advertisement not matching the pool. Eliminates the obvious stuff fast.
+Why check this first: Most common LB issue is MetalLB itself — wrong pool, speaker not running, L2Advertisement not matching. Eliminates the obvious stuff fast.
 
 
 2. Check ARP — is the VIP resolving to the right MAC?
 
-From the workstation:
+From my workstation:
 arping -c 3 10.172.194.160
 
-From inside the cluster (oc debug):
+From inside the cluster:
 oc debug node/ocp-ai-master01.calix.local -- chroot /host arping -c 3 -I bnd0.1794 10.172.194.160
 
-What to look for: ARP replies should come back with the MAC of the node that owns the VIP. If ARP works but traffic still times out, the problem is routing not L2.
+What I found: ARP replies came back with the correct node MAC. MetalLB L2 was doing its job — the node was answering ARP and the switch had the right MAC entry. Packets were making it to the node. So the problem was something happening after the packet arrived.
 
-In our case: ARP worked perfectly — VIPs resolved to the correct node MAC. Packets were arriving at the node but getting lost after that. This told us it was a routing/filtering problem, not an L2 problem.
-
-Why check this next: If MetalLB is advertising but nc still times out, either the packet isn't reaching the node (L2/ARP issue) or it's reaching the node and getting lost (L3/routing). ARP check tells you which one. If ARP works, the packet IS arriving — so the problem is on the node itself.
+Why check this next: If MetalLB is running but nc still times out, either the packet isn't reaching the node (ARP/L2 issue) or it's reaching the node and getting lost (routing). ARP tells you which one.
 
 
 3. Check if DNAT rules exist for the VIP
 
-oc debug node/ocp-ai-master01.calix.local -- chroot /host iptables -t nat -L OVN-KUBE-EXTERNALIP -n --line-numbers
+To see the full DNAT rules with actual IPs:
+oc debug node/ocp-ai-master01.calix.local -- chroot /host iptables-save -t nat | grep 10.172.194.160
 
-What to look for: DNAT rules mapping the VIP to the ClusterIP. These should exist on ALL nodes (not just the one that owns the VIP), in both PREROUTING and OUTPUT chains. OVN creates these.
+You can also check the OVN external IP chain:
+oc debug node/ocp-ai-master01.calix.local -- chroot /host iptables -t nat -L OVN-KUBE-EXTERNALIP -nv
 
-In our case: DNAT rules existed on all nodes. OVN was creating them correctly. The DNAT itself was firing — we confirmed by watching the counter increment. The issue was what happened AFTER the DNAT.
+What I found: DNAT rules were there — each VIP had a rule mapping it to its ClusterIP (172.30.x.x). OVN was creating them correctly. So the kernel knew about the VIPs. The issue was what happened after the DNAT.
 
-Why check this next: Packet is arriving at the node (ARP works) but the service isn't responding. OVN-Kubernetes uses DNAT rules in the OVN-KUBE-EXTERNALIP chain to redirect VIP traffic to the ClusterIP. If those rules don't exist, the node receives the packet but has no idea what to do with it. Checking DNAT tells you whether OVN even knows about the VIP.
+Why check this next: Packet arrives (ARP works), but nc still times out. OVN uses DNAT rules to redirect VIP traffic to ClusterIP. If those rules don't exist, the node has no idea what to do with the packet. They existed, so I moved deeper.
 
 
-4. Trace the packet path through iptables
+4. Trace packet ingress with iptables LOG
 
-Add a LOG rule in raw PREROUTING to see if packets arrive at all:
+Add a LOG rule in raw PREROUTING — this is the absolute first thing the kernel processes:
 oc debug node/ocp-ai-master01.calix.local -- chroot /host iptables -t raw -I PREROUTING -d 10.172.194.160 -j LOG --log-prefix "RAW-PRE: "
 
-Then test:
+Then test from my workstation:
 nc -zv 10.172.194.160 9000
 
 Check dmesg for the log:
 oc debug node/ocp-ai-master01.calix.local -- chroot /host dmesg | grep RAW-PRE | tail -5
 
-What to look for: IN=bnd0.1794 means the packet arrived on the VLAN interface. If you see it in raw but DNAT counters don't increment, something between raw and nat is dropping it.
+What I found: RAW-PRE LOG fired every time I ran nc. I could see IN=bnd0.1794 and DST=10.172.194.160 in the dmesg output. Packets were definitely hitting the kernel. Problem was somewhere after ingress.
 
-Example dmesg output (packet arriving):
-  [12345.678] RAW-PRE: IN=bnd0.1794 OUT= MAC=00:25:b5:50:0a:67:7c:8c:09:c3:74:1e:08:00 SRC=10.172.248.105 DST=10.172.194.160 PROTO=TCP DPT=9000
-
-Key fields: IN= tells you which interface the packet arrived on, SRC= is the client, DST= is the VIP.
-
-In our case: RAW-PRE LOG fired every time — packets were definitely arriving at the node. This confirmed L2 was fine and the problem was somewhere in the iptables/routing stack after packet ingress.
-
-Why check this next: DNAT rules exist and counters say they're firing, but the service still doesn't respond. So the packet arrives, gets DNAT'd, but something happens after that. Adding a LOG in raw PREROUTING (the very first thing the kernel processes) gives you definitive proof the packet is hitting the node — if the LOG doesn't fire, the packet never arrived and it's a switch/VLAN/L2 issue. If it does fire, the problem is further down the stack.
+Why check this next: I wanted definitive proof the packet was hitting the kernel. If LOG doesn't fire, it's a switch/VLAN/L2 problem and I'm looking in the wrong place. It fired, so I knew the problem was further down the stack.
 
 
-5. After DNAT — where does the packet go?
+5. After DNAT — trace where the packet exits
 
-The key question: after OUTPUT or PREROUTING DNAT rewrites the destination to the ClusterIP, which interface does the packet exit through?
-
-Add LOG in POSTROUTING:
+This was the key step. I added a LOG in POSTROUTING to see where the kernel sends the packet after DNAT rewrites the destination:
 oc debug node/ocp-ai-master01.calix.local -- chroot /host iptables -t nat -I POSTROUTING -m conntrack --ctstate DNAT -j LOG --log-prefix "POST-DNAT: "
 
-What to look for: Check the OUT= field in dmesg. If it says OUT=br-ex, the packet is going into OVN (correct). If it says OUT=bnd0.1794, the policy routing table is sending it back out the VLAN interface instead of into OVN (this was our bug).
+Then checked dmesg again:
+oc debug node/ocp-ai-master01.calix.local -- chroot /host dmesg | grep POST-DNAT | tail -5
 
-What we saw (bad — packet exiting the wrong interface):
-  [12345.789] POST-DNAT: IN= OUT=bnd0.1794 SRC=10.172.248.105 DST=172.30.161.228 PROTO=TCP DPT=9000
+What I found: In dmesg I saw OUT=bnd0.1794. The DST had changed to 172.30.x.x (ClusterIP — so DNAT worked), but the packet was exiting through the VLAN interface instead of br-ex. It should have been going into OVN via br-ex. That was the breakthrough — the kernel was routing the DNAT'd packet back out the VLAN gateway instead of into OVN. That pointed straight at policy routing.
 
-Notice DST is now 172.30.x.x (ClusterIP — DNAT worked) but OUT=bnd0.1794 (wrong — should be br-ex). The policy routing table sent it out the VLAN gateway.
-
-What it should look like after fix:
-  [12345.789] POST-DNAT: IN= OUT=br-ex SRC=10.172.248.105 DST=172.30.161.228 PROTO=TCP DPT=9000
-
-In our case: This was the breakthrough moment. Seeing OUT=bnd0.1794 instead of OUT=br-ex told us the kernel was routing the DNAT'd packet back out the VLAN interface. That pointed straight at the policy routing tables.
-
-Why check this next: We know the packet arrives (step 4) and gets DNAT'd (step 3). But the service still doesn't respond, which means the DNAT'd packet isn't making it to the actual pod. On OVN-Kubernetes, DNAT'd traffic needs to enter OVN via br-ex. Putting a LOG in POSTROUTING shows you exactly where the packet is going AFTER DNAT. The OUT= field is the smoking gun — it tells you which interface the kernel chose as the exit path.
+Why check this next: I knew the packet arrives (step 4) and gets DNAT'd (step 3) but the service still doesn't respond. Something is happening between DNAT and the pod. On OVN-Kubernetes, DNAT'd traffic needs to enter OVN via br-ex. POSTROUTING LOG shows the OUT= interface — the exit path the kernel chose. Seeing bnd0.1794 instead of br-ex was the smoking gun.
 
 
 6. Policy routing tables — the root cause
 
-Check what's in the policy routing tables:
+Check the rules and tables:
 oc debug node/ocp-ai-master01.calix.local -- chroot /host ip rule show
 oc debug node/ocp-ai-master01.calix.local -- chroot /host ip route show table 100
 oc debug node/ocp-ai-master01.calix.local -- chroot /host ip route show table 101
 oc debug node/ocp-ai-master01.calix.local -- chroot /host ip route show table 102
 
-Example output BEFORE fix (missing ClusterIP route):
-  default via 10.172.194.1 dev bnd0.1794
-  10.172.194.0/23 dev bnd0.1794 scope link src 10.172.194.151
+What I found: The policy tables (100/101/102) only had a default gateway route via the VLAN interface and the local subnet route. No route to 172.30.0.0/16 (ClusterIP range). So here's what was happening: after DNAT changes the destination to a ClusterIP (172.30.x.x), the packet hits the policy table because the source IP is on the VLAN subnet. The table has no route for 172.30.0.0/16, so it falls through to the default route, which sends it out bnd0.1794 toward the VLAN gateway. That gateway has no idea what 172.30.x.x is, and the packet is gone.
 
-Example output AFTER fix:
-  default via 10.172.194.1 dev bnd0.1794
-  10.172.194.0/23 dev bnd0.1794 scope link src 10.172.194.151
-  172.30.0.0/16 via 169.254.0.4 dev br-ex    <-- this is what was missing
-
-What to look for: Tables 100/101/102 correspond to VLANs 1794/1797/1798. NMState creates them with source-based routing — any traffic with a source IP on that VLAN subnet gets routed through that table. The tables originally only had a default gateway via the VLAN interface. After DNAT rewrites the dest to a ClusterIP (172.30.x.x), the packet hits the policy table (because the source IP is still on the VLAN subnet), finds no route to 172.30.0.0/16, and sends it out the default gateway — wrong.
-
-Fix: add ClusterIP route to each table:
+Fix — add the ClusterIP route to each table:
 ip route add 172.30.0.0/16 via 169.254.0.4 dev br-ex table 100
 ip route add 172.30.0.0/16 via 169.254.0.4 dev br-ex table 101
 ip route add 172.30.0.0/16 via 169.254.0.4 dev br-ex table 102
 
 169.254.0.4 is the OVN gateway router on br-ex.
 
-Why check this next: Step 5 showed OUT=bnd0.1794, which means the kernel chose to route the packet out the VLAN interface instead of br-ex. On Linux, if you have policy routing rules (ip rule show), traffic can get routed through a different table than the main one. NMState creates these tables for source-based routing on the VLAN interfaces. So the question becomes: what's in those tables and why is it sending ClusterIP-destined traffic out the wrong interface?
+Verify with: ip route show table 101 — should now include 172.30.0.0/16 via 169.254.0.4 dev br-ex.
 
-In our case: All three tables (100/101/102) had the same problem — only a default route via the VLAN gateway and no route to the ClusterIP range. NMState set these up for source-based routing which is correct for normal storage traffic, but it doesn't account for DNAT'd MetalLB traffic that needs to reach OVN. After adding the 172.30.0.0/16 route, VLAN 1794 services immediately started working. VLANs 1797 and 1798 were still broken — that turned out to be rp_filter (step 8).
+After adding the route to table 101, I tested from master02 to a VIP on master01 using curl. I got back an HTTP 403 Forbidden from MinIO. That 403 was actually a good sign — before the fix I got nothing (nc timeout, curl hang). The 403 meant the packet went all the way through DNAT, into OVN via br-ex, hit the MinIO pod, and MinIO responded. It denied access because I hit it without credentials, but the point is end-to-end connectivity was working. Timeout = packet dropped in the kernel. 403 = full round trip.
+
+VLANs 1797 and 1798 were still broken after this — that turned out to be rp_filter (step 8).
+
+Why check this next: Step 5 showed OUT=bnd0.1794. Linux policy routing (ip rule) can override the main routing table. NMState creates policy tables for source-based routing on VLAN interfaces. Once I saw the wrong OUT= interface, the policy tables were the obvious next thing to check.
 
 
 7. MASQUERADE — needed for return traffic
 
-Even with the route fix, OVN needs the source IP to be something it knows about. DNAT'd packets arriving on br-ex still have the external client's source IP. OVN doesn't know how to route the reply back. Need a MASQUERADE rule:
+Even with the route fix, there's a return path problem. DNAT'd packets arriving on br-ex still have my workstation's source IP (10.172.248.105). OVN only knows pod and service IPs — it has no route back to an external IP.
 
 iptables -t nat -I POSTROUTING -m conntrack --ctstate DNAT -o br-ex -j MASQUERADE
 
-This rewrites the source to the node's br-ex IP so OVN can handle the return path.
+What I found: Without MASQUERADE, the packet entered OVN correctly (I could see OUT=br-ex in the LOG) but I still got no response. MASQUERADE rewrites the source to the node's br-ex IP so OVN thinks the traffic came from the node, handles the reply, and conntrack maps it back to the real client. After adding MASQUERADE, responses started coming back.
 
-Why this was needed: Once the routing fix got packets into OVN via br-ex, we still weren't getting responses. The packet entered OVN with the external client's source IP, but OVN only knows about pod and service IPs. It doesn't know how to route a reply back to an external IP like 10.172.248.105. MASQUERADE makes OVN think the traffic came from the node itself, and conntrack handles mapping the reply back to the real client.
-
-In our case: Without MASQUERADE, the DNAT'd packet arrived on br-ex with the external client's source IP (e.g., 10.172.248.105). OVN had no idea how to send the reply back to that IP since it's not part of the pod or service network. MASQUERADE rewrites the source to the node's br-ex IP so the reply goes back to the node, which then forwards it back to the client via conntrack. The MASQUERADE counter confirmed it was working once we got the routing right.
+Why this was needed: The routing fix (step 6) got the packet into OVN, but the reply had nowhere to go. MASQUERADE was the missing piece for the return path.
 
 
 8. rp_filter — the silent killer
 
-After fixing routing for VLAN 1794, VLANs 1797 and 1798 still timed out. Packets arrived (raw PREROUTING LOG fired) but got dropped before nat.
+After steps 6 and 7, VLAN 1794 worked. VLANs 1797 and 1798 still timed out.
 
 Check rp_filter:
 oc debug node/ocp-ai-master01.calix.local -- chroot /host sysctl -a | grep "rp_filter" | grep bnd0
 
-Example output (bad — filtering enabled):
-  net.ipv4.conf.bnd0/1794.rp_filter = 1
-  net.ipv4.conf.bnd0/1797.rp_filter = 1
-  net.ipv4.conf.bnd0/1798.rp_filter = 1
+What I found: All bnd0.* interfaces had rp_filter=1 (strict mode). rp_filter=1 means the kernel checks every incoming packet: "would I route a reply to this source IP back out this same interface?" If the answer is no, the packet is silently dropped — no log, no counter, nothing.
 
-Example output (good — filtering disabled):
-  net.ipv4.conf.bnd0/1794.rp_filter = 0
-  net.ipv4.conf.bnd0/1797.rp_filter = 0
-  net.ipv4.conf.bnd0/1798.rp_filter = 0
-
-What to look for: rp_filter=1 means strict reverse path filtering. If a packet arrives on bnd0.1797 from source 10.172.194.x (a different subnet), the kernel checks "would I route a reply to 10.172.194.x back out bnd0.1797?" — no, it would use bnd0.1794. Packet silently dropped.
+External clients from 10.172.248.x were hitting VIPs on bnd0.1797 and bnd0.1798. The kernel checked: "would I route a reply to 10.172.248.x via bnd0.1797?" — no, that subnet isn't on VLAN 1797. Packet dropped.
 
 Fix:
 sysctl -w net.ipv4.conf.all.rp_filter=0
@@ -175,9 +147,11 @@ sysctl -w net.ipv4.conf.bnd0/1798.rp_filter=0
 
 Note: sysctl uses / instead of . for interface names (bnd0/1794 not bnd0.1794).
 
-Why check this next: VLAN 1794 started working after the policy route and MASQUERADE fixes, but 1797 and 1798 still timed out. Same exact setup, same fixes applied, but only 1794 works? That means something else is dropping packets specifically on 1797/1798. The RAW-PRE LOG still fired on those VLANs, so the packet IS arriving. But the DNAT counter wasn't incrementing — meaning the packet is getting dropped between raw and nat. There aren't many things that sit between raw PREROUTING and nat PREROUTING. Connection tracking (conntrack) and rp_filter are the main suspects. Since conntrack was fine (it was working for 1794), rp_filter was the next thing to check.
+After disabling rp_filter on all bnd0.* interfaces on all nodes, VLANs 1797 and 1798 immediately started working.
 
-In our case: This was the second bug. After the policy routing fix, VLAN 1794 worked but 1797 and 1798 still timed out. Packets were arriving (RAW-PRE LOG confirmed it) but vanishing before nat PREROUTING could process them. Turning off rp_filter on all bnd0.* interfaces on all nodes immediately fixed 1797 and 1798. The reason: external clients from the plnx-admin workstation (10.172.248.x) were hitting VIPs on bnd0.1797 and bnd0.1798, but the kernel's reverse path check said "I wouldn't route a reply to 10.172.248.x via bnd0.1797" and silently dropped the packet. No log, no counter, nothing — completely silent.
+Why check this next: Same fixes applied to all VLANs, same setup, but 1794 worked and 1797/1798 didn't. RAW-PRE LOG fired on those VLANs (packets arriving) but nothing after — packet was getting dropped between raw and nat. Not many things sit between raw PREROUTING and nat PREROUTING. Connection tracking and rp_filter are the main suspects. Conntrack was fine (working for 1794), so rp_filter was next.
+
+Why 1794 worked but 1797/1798 didn't: I'm not 100% certain on this — it may have been related to how the routing tables were set up differently for that subnet, or it may have been that I tested 1794 cross-node (where source IP was on the same VLAN subnet) vs externally (where source IP was on a different VLAN). Either way, rp_filter=1 was the cause for 1797/1798 and disabling it fixed them immediately.
 
 
 9. Validation — all 7 VIPs
@@ -189,10 +163,12 @@ for ip_port in 10.172.194.160:9000 10.172.194.161:19530 10.172.194.163:5432 \
   nc -zv ${ip_port%:*} ${ip_port#*:} 2>&1 | tail -1
 done
 
+All 7 returned "succeeded" after the rp_filter fix.
+
 
 10. Making it permanent — MachineConfig
 
-All the fixes need to survive reboots. Created two MachineConfigs (master + worker) with:
+All the fixes above are lost on reboot. Created two MachineConfigs (master + worker) with:
 - /etc/sysctl.d/99-metallb-rp-filter.conf — disables rp_filter on bnd0.* interfaces
 - /etc/NetworkManager/dispatcher.d/99-metallb-vlan-routing — runs on bnd0.* interface up, sets rp_filter=0 and adds ClusterIP route to the right policy table
 - /usr/local/bin/metallb-vlan-routing-setup.sh — systemd oneshot at boot, adds MASQUERADE rule, sets rp_filter, adds ClusterIP routes to tables 100/101/102
@@ -200,95 +176,96 @@ All the fixes need to survive reboots. Created two MachineConfigs (master + work
 
 MachineConfigs pushed to ArgoCD repo: 99-metallb-vlan-routing-master and 99-metallb-vlan-routing-worker.
 
-Important MachineConfig gotchas:
-- Must use Ignition 3.5.0 (not 3.2.0 — wrong version causes RenderDegraded)
+Important MachineConfig gotchas I hit:
+- Must use Ignition 3.5.0 (not 3.2.0 — wrong version causes RenderDegraded which blocks ALL MC updates)
 - File modes must be decimal (493 = 0755, 420 = 0644)
 - File contents must be base64 data URI, not inline
 
 
 CNPG Recovery
 
-During the MachineConfig rollout, MCO drained master01. CNPG tried switching PostgreSQL primary from db-1 (on master01) to db-2. Switchover got stuck.
+During the MachineConfig rollout, MCO drained master01. CNPG tried switching the PostgreSQL primary from db-1 (on master01) to db-2. The switchover got stuck.
 
 What happened:
-- db-1 pod evicted from master01
-- db-2 couldn't promote — stuck replaying WAL from MinIO archive
+- db-1 pod got evicted from master01
+- db-2 couldn't promote — stuck replaying WAL from the MinIO archive
 - WAL files in MinIO had system identifier 7621790087615889432
 - db-2's pg_control had system identifier 7623307342724771863
 - Mismatch = WAL from a previous/different cluster instance
-- db-2 kept looping: restore WAL from MinIO → mismatch → try streaming replication → connection refused → wait → repeat
+- db-2 kept looping: restore WAL from MinIO -> mismatch -> try streaming replication -> connection refused -> wait -> repeat
 
 How to check:
 oc logs pai-apps-db-2 -n pai-prod --tail=100 | grep -iE "wal|system identifier|recover|promot"
 
-The stuck loop looks like this (repeating every ~5 seconds):
+What I actually saw in the logs (repeating every ~5 seconds):
   {"msg":"Restored WAL file","walName":"000000010000000000000035","elapsedWalTime":0.309}
   {"message":"restored log file \"000000010000000000000035\" from archive"}
   {"message":"WAL file is from different database system: WAL file database system identifier is 7621790087615889432, pg_control database system identifier is 7623307342724771863"}
-  {"message":"streaming replication receiver \"pai-apps-db\" could not connect to the primary server: connection to server at \"pai-apps-db-rw\" (172.30.138.226), port 5432 failed: Connection refused"}
+  {"message":"could not connect to the primary server: connection to server at \"pai-apps-db-rw\" (172.30.138.226), port 5432 failed: Connection refused"}
   {"message":"waiting for WAL to become available at 0/35000078"}
 
-The key line is "WAL file is from different database system" — that tells you the WAL archive in MinIO is from a different PostgreSQL instance than what's running.
+The key line: "WAL file is from different database system" — the WAL archive in MinIO was from a different PostgreSQL instance than what's running.
 
-When CNPG status shows stuck:
+What cnpg status showed when stuck:
 kubectl cnpg status pai-apps-db -n pai-prod
 
-  Instances status
   Name           Current LSN  Replication role  Status         Node
   pai-apps-db-1  -            -                 InternalError  ocp-ai-master01.calix.local
   pai-apps-db-2  -            -                 InternalError  ocp-ai-master02.calix.local
   pai-apps-db-3  -            -                 InternalError  ocp-ai-master03.calix.local
 
-All instances showing InternalError with no LSN means no primary is up. The error detail will say something like:
-  "failed to connect to `user=postgres database=postgres`: server error: FATAL: the database system is starting up (SQLSTATE 57P03)"
+All InternalError with no LSN = no primary is up.
 
-After recovery, healthy output looks like:
+I also checked what CNPG was injecting into PostgreSQL config:
+oc exec pai-apps-db-2 -n pai-prod -c postgres -- cat /var/lib/postgresql/data/pgdata/override.conf
+
+What I saw:
+  primary_conninfo = 'host=pai-apps-db-rw user=streaming_replica port=5432 ...'
+  primary_slot_name = '_cnpg_pai_apps_db_2'
+  recovery_target_timeline = 'latest'
+  restore_command = '/controller/manager wal-restore --log-destination /controller/log/postgres.json %f %p'
+
+The restore_command is what pulls WAL from MinIO. primary_conninfo points to pai-apps-db-rw (which is itself, but can't connect because it hasn't started). That's why the instance loops — it keeps trying to restore bad WAL and connect to a primary that doesn't exist.
+
+Recovery steps (in order of what I tried):
+1. Patched cluster status to set db-2 as primary:
+   oc patch cluster pai-apps-db -n pai-prod --type merge --subresource status -p '{"status":{"currentPrimary":"pai-apps-db-2","targetPrimary":"pai-apps-db-2"}}'
+   Result: Cluster phase changed but db-2 still stuck in the recovery loop.
+
+2. Tried pg_ctl promote:
+   oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_ctl promote -D /var/lib/postgresql/data/pgdata
+   Result: "cannot promote server; server is not in standby mode" — PostgreSQL thought it was already primary but was stuck in crash recovery replaying bad WAL.
+
+3. Removed standby.signal:
+   oc exec pai-apps-db-2 -n pai-prod -c postgres -- rm /var/lib/postgresql/data/pgdata/standby.signal
+   Result: Didn't help — the restore_command in override.conf was still pulling bad WAL from MinIO.
+
+4. Cleared override.conf:
+   oc exec pai-apps-db-2 -n pai-prod -c postgres -- sh -c 'echo "" > /var/lib/postgresql/data/pgdata/override.conf'
+   Then restarted postgres:
+   oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_ctl restart -D /var/lib/postgresql/data/pgdata -m fast
+   Result: Container got killed (exit 137). CNPG operator rewrote override.conf on restart — back to square one.
+
+5. Renamed the bad WAL archive in MinIO so restore_command can't find anything:
+   oc exec minio-85b4477cdc-t275f -n pai-prod -- mv /data/cnpg-backups/pai-prod/pai-apps-db/wals /data/cnpg-backups/pai-prod/pai-apps-db/wals.bak
+   Result: WAL directory gone, but PostgreSQL still stuck — it needed WAL file 000000010000000000000035 for crash recovery and couldn't find it anywhere now.
+
+6. Forced WAL reset with pg_resetwal (had to catch the container while it was crashlooping):
+   while ! oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata 2>/dev/null; do echo "waiting..."; sleep 2; done
+   Result: "Write-ahead log reset" — db-2 came up as primary. db-1 reconnected as standby automatically.
+
+7. db-3 was also stuck. Tried pg_ctl stop then pg_resetwal but the container died between the two commands. Ended up deleting the PVC and pod:
+   oc delete pvc/pai-apps-db-3 pod/pai-apps-db-3 -n pai-prod
+   Result: CNPG rebuilt it as db-4 via pg_basebackup from db-2. Came up clean.
+
+Final cnpg status after recovery:
   Name           Current LSN  Replication role      Status  Node
   pai-apps-db-2  0/3A026238   Primary               OK      ocp-ai-master02.calix.local
   pai-apps-db-1  0/3A026238   Standby (file based)  OK      ocp-ai-master01.calix.local
   pai-apps-db-4  0/3A026238   Standby (file based)  OK      ocp-ai-master03.calix.local
-
-Recovery steps:
-1. Patched cluster status to set db-2 as primary:
-   oc patch cluster pai-apps-db -n pai-prod --type merge --subresource status -p '{"status":{"currentPrimary":"pai-apps-db-2","targetPrimary":"pai-apps-db-2"}}'
-
-2. That wasn't enough — CNPG still configured db-2 as standby via override.conf. Found it:
-   oc exec pai-apps-db-2 -n pai-prod -c postgres -- cat /var/lib/postgresql/data/pgdata/override.conf
-
-   What override.conf looks like when CNPG is treating the instance as a standby (this is the problem):
-     primary_conninfo = 'host=pai-apps-db-rw user=streaming_replica port=5432 ...'
-     primary_slot_name = '_cnpg_pai_apps_db_2'
-     recovery_target_timeline = 'latest'
-     restore_command = '/controller/manager wal-restore --log-destination /controller/log/postgres.json %f %p'
-
-   The restore_command is what pulls WAL from MinIO. primary_conninfo points to pai-apps-db-rw (itself, but it can't connect because it hasn't started yet). This is why the instance loops.
-
-3. Renamed the bad WAL archive in MinIO:
-   oc exec minio-85b4477cdc-t275f -n pai-prod -- mv /data/cnpg-backups/pai-prod/pai-apps-db/wals /data/cnpg-backups/pai-prod/pai-apps-db/wals.bak
-
-4. Forced WAL reset on db-2 (had to catch it while container was running):
-   while ! oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata 2>/dev/null; do echo "waiting..."; sleep 2; done
-
-5. db-2 came up as primary, db-1 reconnected as standby
-6. db-3 was also stuck — stopped postgres, but container died before pg_resetwal could run. Deleted PVC and pod, CNPG rebuilt it as db-4 via pg_basebackup from db-2.
 
 Key commands for CNPG troubleshooting:
 kubectl cnpg status pai-apps-db -n pai-prod
 kubectl cnpg hibernate on pai-apps-db -n pai-prod
 kubectl cnpg hibernate off pai-apps-db -n pai-prod
 kubectl cnpg promote pai-apps-db <instance> -n pai-prod
-
-
-
-
-
-
-Impact Assessment — OCP-AI Cluster (EOSM-43606, April 11)
-The OCP-AI cluster has dual-fabric redundancy across N9K-005 and N9K-006. Storage bonds on masters (bnd0 = eno7 + eno8, active-backup) and GPU workers (bond0, LACP 100Gbps) each have one leg per Nexus. As long as the switches are upgraded one at a time, storage and app VLAN traffic (1792-1798) will fail over to the surviving link with only a few seconds of disruption. Running workloads, MetalLB LB services (MinIO, Milvus, PostgreSQL), and GPU jobs will stay up.
-The one gap is the management network. The master nodes currently run on a single management NIC (eno5, Fabric A only) — the Fabric B standby (eno6) is disabled to work around a MetalLB ARP conflict. That means while N9K-005 is rebooting, the API VIP (10.172.248.155) and Ingress VIP (10.172.248.156) will be unreachable. No oc CLI, no web console, no ArgoCD syncs during that window. Everything comes back as soon as N9K-005 is back online.
-The other thing to watch is CloudNativePG. I ran into this last night during the MachineConfig rollout — MCO drained master01, CNPG auto-triggered a PostgreSQL switchover from db-1 to db-2, and the switchover got stuck. db-2 couldn't promote because it was trying to replay WAL files from MinIO that belonged to a different database instance (system identifier mismatch). All three DB pods ended up stuck, which took down auth-service and it-service-desk-agent in pai-prod. Had to manually reset the WAL and force db-2 to start as primary to recover. That was from a single node drain — a network disruption hitting multiple nodes at once could be worse. Plan is to hibernate the CNPG clusters before the window and wake them after to avoid a repeat.
-Pre-maintenance: confirm rolling upgrade (not both switches at once), hibernate CNPG clusters, notify users about intermittent console/CLI access.
-Post-maintenance: verify all nodes Ready, all cluster operators healthy, wake CNPG clusters, validate LB services with nc.
-
-
-lets connect later today to talk thru some things. i saw your post of what you did but I want to understand how you got there.
