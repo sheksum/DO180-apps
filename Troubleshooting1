@@ -1,31 +1,4 @@
-# Install krew
-(
-  set -x; cd "$(mktemp -d)" &&
-  OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
-  ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/aarch64/arm64/')" &&
-  KREW="krew-${OS}_${ARCH}" &&
-  curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
-  tar zxvf "${KREW}.tar.gz" &&
-  ./"${KREW}" install krew
-)
-
-# Add to PATH (add this to your .bashrc too)
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
-
-# Then install the cnpg plugin
-kubectl krew install cnpg
-
-
-
-
-
-# Hibernate - shuts down all pods
-oc annotate cluster pai-apps-db -n pai-prod cnpg.io/hibernation=on
-
-# Wait for pods to terminate
-oc get pods -n pai-prod -l cnpg.io/cluster=pai-apps-db -w
-
-# Wake up
-oc annotate cluster pai-apps-db -n pai-prod cnpg.io/hibernation=on --overwrite=false
-# or
-oc annotate cluster pai-apps-db -n pai-prod cnpg.io/hibernation-
+kubectl cnpg hibernate on pai-apps-db -n pai-prod
+kubectl cnpg hibernate off pai-apps-db -n pai-prod
+kubectl cnpg status pai-apps-db -n pai-prod
+kubectl cnpg promote pai-apps-db pai-apps-db-2 -n pai-prod
