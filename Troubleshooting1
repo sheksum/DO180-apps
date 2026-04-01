@@ -1,1 +1,42 @@
-oc get svc pg-lb -n pai-dev -o yaml
+hsuma@plnx-admin:~$ oc get svc pg-lb -n pai-dev -o yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"metallb.universe.tf/address-pool":"pai-services-dev","metallb.universe.tf/loadBalancerIPs":"10.172.194.163"},"name":"pg-lb","namespace":"pai-dev"},"spec":{"ports":[{"name":"postgres","port":5432,"protocol":"TCP","targetPort":5432}],"selector":{"cnpg.io/cluster":"pai-apps-db","cnpg.io/instanceRole":"primary"},"type":"LoadBalancer"}}
+    metallb.io/ip-allocated-from-pool: pai-services-dev
+    metallb.universe.tf/address-pool: pai-services-dev
+    metallb.universe.tf/loadBalancerIPs: 10.172.194.163
+  creationTimestamp: "2026-03-27T20:38:59Z"
+  name: pg-lb
+  namespace: pai-dev
+  resourceVersion: "26722061"
+  uid: 98e54e7a-8ee5-4144-9b4d-9f3a66d8bbf6
+spec:
+  allocateLoadBalancerNodePorts: true
+  clusterIP: 172.30.23.200
+  clusterIPs:
+  - 172.30.23.200
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: postgres
+    nodePort: 31478
+    port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    cnpg.io/cluster: pai-apps-db
+    cnpg.io/instanceRole: primary
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+    - ip: 10.172.194.163
+      ipMode: VIP
+hsuma@plnx-admin:~$
