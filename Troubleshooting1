@@ -1,1 +1,9 @@
-oc exec pai-apps-db-3 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc exec pai-apps-db-3 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata
+pg_resetwal: error: lock file "postmaster.pid" exists
+pg_resetwal: hint: Is a server running?  If not, delete the lock file and try again.
+command terminated with exit code 1
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
