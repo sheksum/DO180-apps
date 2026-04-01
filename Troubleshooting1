@@ -1,3 +1,13 @@
-oc exec pai-apps-db-2 -n pai-prod -c postgres -- cat /var/lib/postgresql/data/pgdata/override.conf
-
-oc exec pai-apps-db-2 -n pai-prod -c postgres -- ls /var/lib/postgresql/data/pgdata/conf.d/ 2>&1
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc exec pai-apps-db-2 -n pai-prod -c postgres -- cat /var/lib/postgresql/data/pgdata/override.conf
+primary_conninfo = 'host=pai-apps-db-rw user=streaming_replica port=5432 sslkey=/controller/certificates/streaming_replica.key sslcert=/controller/certificates/streaming_replica.crt sslrootcert=/controller/certificates/server-ca.crt application_name=pai-apps-db-2 sslmode=verify-ca dbname=postgres tcp_user_timeout=''5000'''
+primary_slot_name = '_cnpg_pai_apps_db_2'
+recovery_target_timeline = 'latest'
+restore_command = '/controller/manager wal-restore --log-destination /controller/log/postgres.json %f %p'
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc exec pai-apps-db-2 -n pai-prod -c postgres -- ls /var/lib/postgresql/data/pgdata/conf.d/ 2>&1
+ls: cannot access '/var/lib/postgresql/data/pgdata/conf.d/': No such file or directory
+command terminated with exit code 2
+hsuma@plnx-admin:~/ocp-ai-config$
