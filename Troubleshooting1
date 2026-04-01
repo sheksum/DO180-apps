@@ -1,6 +1,9 @@
-oc exec minio-85b4477cdc-t275f -n pai-prod -- ls /data/cnpg-backups/pai-prod/pai-apps-db/
-
-oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata
-
-
-oc delete pod pai-apps-db-2 -n pai-prod
+hsuma@plnx-admin:~/ocp-ai-config$ oc exec minio-85b4477cdc-t275f -n pai-prod -- ls /data/cnpg-backups/pai-prod/pai-apps-db/
+wals.bak
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata
+error: unable to upgrade connection: container not found ("postgres")
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
