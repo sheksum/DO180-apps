@@ -1,12 +1,20 @@
-hsuma@plnx-admin:~$ oc get ipaddresspool -n metallb-system
-NAME                AUTO ASSIGN   AVOID BUGGY IPS   ADDRESSES
-pai-services-dev    true          false             ["10.172.194.160-10.172.194.179"]
-pai-services-prod   true          false             ["10.172.202.160-10.172.202.179"]
-pai-services-test   true          false             ["10.172.198.160-10.172.198.179"]
-reserved-future     false         false             ["10.172.248.175-10.172.248.180"]
-hsuma@plnx-admin:~$status:
-  loadBalancer:
-    ingress:
-    - ip: 10.172.194.163
-      ipMode: VIP
-hsuma@plnx-admin:~$
+oc apply -f - <<'EOF'
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    metallb.universe.tf/address-pool: pai-services-prod
+    metallb.universe.tf/loadBalancerIPs: 10.172.202.163
+  name: pg-lb
+  namespace: pai-prod
+spec:
+  ports:
+  - name: postgres
+    port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    cnpg.io/cluster: pai-apps-db
+    cnpg.io/instanceRole: primary
+  type: LoadBalancer
+EOF
