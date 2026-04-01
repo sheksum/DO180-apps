@@ -1,37 +1,12 @@
-oc apply -f - <<'EOF'
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    metallb.universe.tf/address-pool: pai-services-prod
-    metallb.universe.tf/loadBalancerIPs: 10.172.202.163
-  name: pg-lb
-  namespace: pai-prod
-spec:
-  ports:
-  - name: postgres
-    port: 5432
-    protocol: TCP
-    targetPort: 5432
-  selector:
-    cnpg.io/cluster: pai-apps-db
-    cnpg.io/instanceRole: primary
-  type: LoadBalancer
-EOF
+NX-OS 10.4(2) patch upgrade to 10.5(4)M to remediate critical CVEs impacting BIOS and diagnostics
 
 
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ nc -zv 10.172.202.163 5432
-Connection to 10.172.202.163 5432 port [tcp/postgresql] succeeded!
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-
-
-For the ticket (more detailed):
-"Created pg-lb LoadBalancer service in pai-prod — PostgreSQL is now externally reachable at 10.172.202.163:5432, matching the dev setup at 10.172.194.163:5432. Both validated from plnx-admin. Service manifest needs to be added to ArgoCD for persistence."
-For the Slack channel (#ai-ml-team, more casual):
-"External DB endpoints are up for both environments:
-Dev: 10.172.194.163:5432
-Prod: 10.172.202.163:5432
-Quick test: nc -zv 10.172.202.163 5432"
+This change request covers patch management for Cisco Nexus devices currently running NX-OS 10.4(2). Four CVEs were identified; two are relevant to our environment:
+CVE-2024-20397 – NX-OS Image Verification Bypass (BIOS impact)
+CVE-2025-20111 – Health Monitoring Diagnostics DoS (workaround available) The other two CVEs (IS-IS and DHCPv6 SISF) are not applicable as those features are disabled. The upgrade to NX-OS 10.5(4)M ensures compliance, mitigates risks, and maintains rollback readiness.
+Main Agenda:
+Perform NX-OS patch upgrade to 10.4(5)M
+Remediate BIOS vulnerability (CVE-2024-20397)
+Mitigate diagnostics DoS vulnerability (CVE-2025-20111)
+Confirm unaffected CVEs are not relevant
+Validate upgrade success and rollback plan
