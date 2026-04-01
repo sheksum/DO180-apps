@@ -1,13 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc annotate cluster pai-apps-db -n pai-prod cnpg.io/fencedInstances-
-Warning: Native support for Barman Cloud backups and recovery is deprecated and will be completely removed in CloudNativePG 1.29.0. Found usage in: spec.backup.barmanObjectStore. Please migrate existing clusters to the new Barman Cloud Plugin to ensure a smooth transition.
-cluster.postgresql.cnpg.io/pai-apps-db annotated
-hsuma@plnx-admin:~/ocp-ai-config$ sleep 30 && echo "=== DB pods ===" && oc get pods -n pai-prod -l cnpg.io/cluster=pai-apps-db && echo "" && echo "=== Cluster phase ===" && oc get cluster pai-apps-db -n pai-prod -o jsonpath='phase: {.status.phase}{"\n"}'
-=== DB pods ===
-NAME            READY   STATUS    RESTARTS        AGE
-pai-apps-db-1   0/1     Running   0               2m32s
-pai-apps-db-2   0/1     Running   4 (7m37s ago)   77m
-pai-apps-db-3   0/1     Running   1 (2m36s ago)   69m
-
-=== Cluster phase ===
-phase: Waiting for the instances to become active
-hsuma@plnx-admin:~/ocp-ai-config$
+oc logs pai-apps-db-2 -n pai-prod --tail=10
