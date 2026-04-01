@@ -10,3 +10,28 @@ Remediate BIOS vulnerability (CVE-2024-20397)
 Mitigate diagnostics DoS vulnerability (CVE-2025-20111)
 Confirm unaffected CVEs are not relevant
 Validate upgrade success and rollback plan
+
+
+Subject: Scheduled Maintenance: Cisco Nexus Upgrade
+Email Body:
+What:
+Title: Cisco Nexus Infrastructure Upgrade.
+Change Description: Scheduled upgrade of Cisco Nexus infrastructure to improve stability, security, and overall system reliability.
+Change Number: EOSM-43606
+Request Number: EOSM-43042
+ 
+When:
+Start Time: 11th Apr 2026 12:00 PM 
+End Time: 11th Apr 2026 04:00 PM
+Downtime: 2 hour 
+How it Affects You:
+ 
+Impact: Brief connectivity disruptions may occur during the upgrade window. Devices will be placed in maintenance mode to reduce impact, and rollback procedures are in place if required.
+ 
+Affected Systems:
+Secure Dome and Non-Secure Dome Infrastructure
+CI Builder VMs
+IT Infrastructure VMs
+Plano TS Farm
+Regards,
+Engineering Infrastructure Operations
