@@ -1,7 +1,8 @@
-echo "=== Find CNPG operator namespace ==="
-oc get pods -A | grep -i cnpg
-
-echo ""
 echo "=== Check CNPG subscriptions/CSV ==="
 oc get csv -A | grep -i cnpg
 oc get subscription -A | grep -i cnpg
+=== Find CNPG operator namespace ===
+openshift-operators                                cnpg-controller-manager-6494cfcfdd-s44dp                        1/1     Running                 0                69m
+
+=== Check CNPG subscriptions/CSV ===
+hsuma@plnx-admin:~/ocp-ai-config$
