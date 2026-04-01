@@ -2,3 +2,33 @@ kubectl cnpg hibernate on pai-apps-db -n pai-prod
 kubectl cnpg hibernate off pai-apps-db -n pai-prod
 kubectl cnpg status pai-apps-db -n pai-prod
 kubectl cnpg promote pai-apps-db pai-apps-db-2 -n pai-prod
+
+
+hsuma@plnx-admin:~/ocp-ai-config$ kubectl cnpg hibernate on pai-apps-db -n pai-prod
+Error: cluster pai-apps-db is already in the requested state
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-prod
+NAME                                                        READY   STATUS             RESTARTS         AGE
+ai-guardrails-service-6655874777-j4zx4                      1/1     Running            0                88m
+ai-model-embedding-service-658585d59c-fzfds                 1/1     Running            0                92m
+ai-model-library-847465b77-5fxb5                            1/1     Running            1 (81m ago)      96m
+ai-model-multimodel-service-cfdfb946c-qnp9r                 1/1     Running            0                96m
+fileparser-c75f8db46-9gzvb                                  1/1     Running            0                92m
+fileparser-c75f8db46-r5brs                                  1/1     Running            0                92m
+fileparser-c75f8db46-tln98                                  1/1     Running            0                96m
+internal-agentmesh-agent-gateway-service-5c4ccb9c46-6v8jb   1/1     Running            0                87m
+internal-agentmesh-atlassian-agent-7c8d6c74b5-jwf5t         1/1     Running            0                79m
+internal-agentmesh-auth-service-86ccb7895f-5kzzh            0/1     Running            24 (63s ago)     79m
+internal-agentmesh-generic-agent-f8478db6f-74d9z            1/1     Running            1 (78m ago)      79m
+internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb   0/1     CrashLoopBackOff   19 (3m31s ago)   79m
+internal-agentmesh-rag-service-b8546ff7f-pjdnj              1/1     Running            0                79m
+internal-agentmesh-router-service-86dbdc66f5-z7vw7          1/1     Running            0                79m
+internal-agentmesh-ui-service-555b47ddbb-46mdq              1/1     Running            0                79m
+internal-mcp-atlassian-service-55bf4578cd-m4wx5             1/1     Running            0                88m
+milvus-5dd75f7b74-2bd75                                     1/1     Running            2                85m
+minio-85b4477cdc-t275f                                      1/1     Running            0                88m
+pai-apps-db-1                                               0/1     Running            0                12m
+pai-apps-db-2                                               0/1     Running            0                5m
+pai-apps-db-3                                               0/1     Running            1 (12m ago)      79m
+hsuma@plnx-admin:~/ocp-ai-config$
