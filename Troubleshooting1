@@ -1,13 +1,1 @@
-Sulabh Sinha  [7:58 PM]
-Thank you for getting the public endpoint available but would appreciate a heads-up, if there is a known restart or maintenance .
-Brian Wing  [7:58 PM]
-So Sulabh, probably time to put some governance on changes being requested yeah?  Don't want to be getting pings if this is something you requested.
-Haj Suma  [7:58 PM]
-From my understanding from Gene - Sulabh needed this ASAP
-[7:59 PM]and a node going down for reboot should cause issue in kubernetes
-Brian Wing  [7:59 PM]
-Yep.  Understand Haj.
-Sulabh Sinha  [7:59 PM]
-yes for sure, if anytime system availability is going to be impacted, we need to know so that we can manage any user experiences.
-Brian Wing  [7:59 PM]
-That's why I am asking for planning and timing from AIDev side
+That's fair — should have flagged the reboot window ahead of time, will do that going forward. That said, this is actually a good validation of your deployment resilience. The MachineConfig rollout reboots nodes one at a time — pods get drained and rescheduled before each node goes down, same process as an OCP upgrade. If your apps are deployed with multiple replicas and proper pod disruption budgets, there should be zero downtime during these rollouts. If anything did go down, that's worth looking into because it would mean the app deployment needs hardening — not that the platform change was risky. Kubernetes is built for this.
