@@ -1,42 +1,7 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc annotate cluster pai-apps-db -n pai-prod --overwrite cnpg.io/fencedInstances='["pai-apps-db-1"]'
-Warning: Native support for Barman Cloud backups and recovery is deprecated and will be completely removed in CloudNativePG 1.29.0. Found usage in: spec.backup.barmanObjectStore. Please migrate existing clusters to the new Barman Cloud Plugin to ensure a smooth transition.
-cluster.postgresql.cnpg.io/pai-apps-db annotated
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ sleep 10 && oc logs -n openshift-operators deployment/cnpg-controller-manager --tail=20 | grep "pai-prod"
-{"level":"info","ts":"2026-04-01T00:44:06.028114149Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"af569d7d-651d-4472-a4ca-b0cb55981ad0","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:07.057468176Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"06b3ae13-2b34-450e-9cd2-30c8dd5f98b4","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:08.087982085Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"68463e65-3168-4763-bd05-5e5f5ee744f6","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:09.119531569Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"9345f531-1193-451b-b95a-b03401414fa2","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:10.14822298Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"c35957c3-b428-4382-a7ee-8ed25f2c4edd","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:11.17933353Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"5d7da3c8-db69-4faa-b69b-c05d6582d570","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:12.211634472Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"881fc1de-a9a9-46ac-9021-faed1a410219","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:13.240826519Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"364e10cc-5731-45b2-b9c9-7fc09687a22a","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:14.271779139Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"79a8dc87-eb44-4fe7-a8d8-0ef02fffe97e","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:15.303264974Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"967635a9-837a-49f8-a17e-e34c1cb6a9cf","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:16.334220597Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"eb763bd0-d39c-424a-9360-21684fe2656e","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:17.365276629Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"3777fdb1-dea0-400a-9dea-20edb99d9459","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T00:44:18.398374534Z","msg":"There is a switchover or a failover in progress, waiting for the operation to complete","controller":"cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"b94e546d-74f2-453d-8642-085d79dc0aa9","currentPrimary":"pai-apps-db-1","targetPrimary":"pai-apps-db-2"}
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-prod
-NAME                                                        READY   STATUS             RESTARTS        AGE
-ai-guardrails-service-6655874777-j4zx4                      1/1     Running            0               74m
-ai-model-embedding-service-658585d59c-fzfds                 1/1     Running            0               78m
-ai-model-library-847465b77-5fxb5                            1/1     Running            1 (67m ago)     82m
-ai-model-multimodel-service-cfdfb946c-qnp9r                 1/1     Running            0               82m
-fileparser-c75f8db46-9gzvb                                  1/1     Running            0               78m
-fileparser-c75f8db46-r5brs                                  1/1     Running            0               78m
-fileparser-c75f8db46-tln98                                  1/1     Running            0               82m
-internal-agentmesh-agent-gateway-service-5c4ccb9c46-6v8jb   1/1     Running            0               73m
-internal-agentmesh-atlassian-agent-7c8d6c74b5-jwf5t         1/1     Running            0               65m
-internal-agentmesh-auth-service-86ccb7895f-5kzzh            0/1     CrashLoopBackOff   20 (62s ago)    65m
-internal-agentmesh-generic-agent-f8478db6f-74d9z            1/1     Running            1 (64m ago)     65m
-internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb   0/1     Running            17 (5m5s ago)   65m
-internal-agentmesh-rag-service-b8546ff7f-pjdnj              1/1     Running            0               65m
-internal-agentmesh-router-service-86dbdc66f5-z7vw7          1/1     Running            0               65m
-internal-agentmesh-ui-service-555b47ddbb-46mdq              1/1     Running            0               65m
-internal-mcp-atlassian-service-55bf4578cd-m4wx5             1/1     Running            0               74m
-milvus-5dd75f7b74-2bd75                                     1/1     Running            2               71m
-minio-85b4477cdc-t275f                                      1/1     Running            0               74m
-pai-apps-db-2                                               0/1     Running            4 (3m54s ago)   74m
-pai-apps-db-3                                               1/1     Running            0               65m
-hsuma@plnx-admin:~/ocp-ai-config$
+oc patch cluster pai-apps-db -n pai-prod --type merge --subresource status -p '{"status":{"currentPrimary":"pai-apps-db-2","targetPrimary":"pai-apps-db-2"}}'
+
+
+oc delete pod -n openshift-operators -l app.kubernetes.io/name=cloudnative-pg
+
+
+sleep 15 && oc get cluster pai-apps-db -n pai-prod -o jsonpath='phase: {.status.phase}{"\n"}' && oc get pods -n pai-prod -l cnpg.io/cluster=pai-apps-db
