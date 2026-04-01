@@ -1,1 +1,9 @@
-oc patch cluster pai-apps-db -n pai-prod --type merge -p '{"spec":{"targetPrimary":"pai-apps-db-2"}}'
+cnpg plugin not installed
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc patch cluster pai-apps-db -n pai-prod --type merge -p '{"spec":{"targetPrimary":"pai-apps-db-2"}}'
+Warning: unknown field "spec.targetPrimary"
+Warning: Native support for Barman Cloud backups and recovery is deprecated and will be completely removed in CloudNativePG 1.29.0. Found usage in: spec.backup.barmanObjectStore. Please migrate existing clusters to the new Barman Cloud Plugin to ensure a smooth transition.
+cluster.postgresql.cnpg.io/pai-apps-db patched (no change)
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
