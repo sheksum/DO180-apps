@@ -1,7 +1,10 @@
-oc patch cluster pai-apps-db -n pai-prod --type merge --subresource status -p '{"status":{"currentPrimary":"pai-apps-db-2","targetPrimary":"pai-apps-db-2"}}'
+echo "=== Cluster status ==="
+oc get cluster pai-apps-db -n pai-prod -o jsonpath='phase: {.status.phase}, current: {.status.currentPrimary}, target: {.status.targetPrimary}{"\n"}'
 
+echo ""
+echo "=== DB pods ==="
+oc get pods -n pai-prod -l cnpg.io/cluster=pai-apps-db -o wide
 
-oc delete pod -n openshift-operators -l app.kubernetes.io/name=cloudnative-pg
-
-
-sleep 15 && oc get cluster pai-apps-db -n pai-prod -o jsonpath='phase: {.status.phase}{"\n"}' && oc get pods -n pai-prod -l cnpg.io/cluster=pai-apps-db
+echo ""
+echo "=== All crashlooping pods ==="
+oc get pods -n pai-prod | grep -iE "crash|error|0/"
