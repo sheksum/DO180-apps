@@ -1,1 +1,1 @@
-oc cnpg status pai-apps-db -n pai-prod 2>/dev/null || kubectl cnpg status pai-apps-db -n pai-prod 2>/dev/null || echo "cnpg plugin not installed"
+oc patch cluster pai-apps-db -n pai-prod --type merge -p '{"spec":{"targetPrimary":"pai-apps-db-2"}}'
