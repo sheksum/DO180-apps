@@ -1,20 +1,14 @@
-echo "=== Trident node on master01 ==="
-oc get pods -n trident -o wide | grep master01
-=== Trident pods ===
-NAME                                  READY   STATUS    RESTARTS   AGE   IP               NODE                          NOMINATED NODE   READINESS GATES
-trident-node-linux-bxzgr              2/2     Running   5          11d   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
-trident-node-linux-h8bn9              2/2     Running   3          11d   10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
-trident-node-linux-ktrms              2/2     Running   3          11d   10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
-trident-node-linux-rdcxk              2/2     Running   3          11d   10.172.248.154   ocp-ai-gpu02.calix.local      <none>           <none>
-trident-node-linux-rfrzm              2/2     Running   3          11d   10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
+echo "=== CNPG cluster phase ==="
+oc get cluster pai-apps-db -n pai-prod -o jsonpath='{.status.phase}{"\n"}'
 
-=== pai-apps-db-1 pod status ===
-Error from server (NotFound): pods "pai-apps-db-1" not found
+echo ""
+echo "=== CNPG operator logs ==="
+oc logs -n cnpg-system deployment/cnpg-controller-manager --tail=100 2>/dev/null | grep -i "pai-apps-db" | tail -20
 
-=== CSI drivers registered ===
-NAME                    ATTACHREQUIRED   PODINFOONMOUNT   STORAGECAPACITY   TOKENREQUESTS   REQUIRESREPUBLISH   MODES        AGE
-csi.trident.netapp.io   true             false            false             <unset>         false               Persistent   11d
+echo ""
+echo "=== Recent events for pai-apps-db ==="
+oc get events -n pai-prod --sort-by=.lastTimestamp --field-selector involvedObject.name=pai-apps-db | tail -10
 
-=== Trident node on master01 ===
-trident-node-linux-bxzgr              2/2     Running   5          11d   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
-hsuma@plnx-admin:~/ocp-ai-config$
+echo ""
+echo "=== CNPG cluster conditions ==="
+oc get cluster pai-apps-db -n pai-prod -o jsonpath='{range .status.conditions[*]}{.type}: {.status} - {.message}{"\n"}{end}'
