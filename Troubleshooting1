@@ -4,3 +4,6 @@ The one gap is the management network. The master nodes currently run on a singl
 The other thing to watch is CloudNativePG. I ran into this last night during the MachineConfig rollout — MCO drained master01, CNPG auto-triggered a PostgreSQL switchover from db-1 to db-2, and the switchover got stuck. db-2 couldn't promote because it was trying to replay WAL files from MinIO that belonged to a different database instance (system identifier mismatch). All three DB pods ended up stuck, which took down auth-service and it-service-desk-agent in pai-prod. Had to manually reset the WAL and force db-2 to start as primary to recover. That was from a single node drain — a network disruption hitting multiple nodes at once could be worse. Plan is to hibernate the CNPG clusters before the window and wake them after to avoid a repeat.
 Pre-maintenance: confirm rolling upgrade (not both switches at once), hibernate CNPG clusters, notify users about intermittent console/CLI access.
 Post-maintenance: verify all nodes Ready, all cluster operators healthy, wake CNPG clusters, validate LB services with nc.
+
+
+lets connect later today to talk thru some things. i saw your post of what you did but I want to understand how you got there.
