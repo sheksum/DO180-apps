@@ -1,14 +1,14 @@
-=== CNPG cluster phase ===
-Switchover in progress
+echo "=== CNPG operator pod ==="
+oc get pods -n cnpg-system
 
-=== CNPG operator logs ===
+echo ""
+echo "=== Is master01 schedulable now? ==="
+oc get node ocp-ai-master01.calix.local -o jsonpath='{.spec.taints}' 2>/dev/null; echo ""
 
-=== Recent events for pai-apps-db ===
-LAST SEEN   TYPE     REASON          OBJECT                MESSAGE
-58m         Normal   SwitchingOver   cluster/pai-apps-db   Current primary is running on unschedulable node ocp-ai-master01.calix.local, switching over from pai-apps-db-1 to pai-apps-db-2
+echo ""
+echo "=== Current cluster target primary ==="
+oc get cluster pai-apps-db -n pai-prod -o jsonpath='currentPrimary: {.status.currentPrimary}, targetPrimary: {.status.targetPrimary}{"\n"}'
 
-=== CNPG cluster conditions ===
-ConsistentSystemID: True - A single, unique system ID was found across reporting instances.
-Ready: False - Cluster Is Not Ready
-ContinuousArchiving: False - unexpected failure invoking barman-cloud-wal-archive: exit status 1
-hsuma@plnx-admin:~/ocp-ai-config$
+echo ""
+echo "=== All pai-apps-db pods ==="
+oc get pods -n pai-prod -l cnpg.io/cluster=pai-apps-db -o wide
