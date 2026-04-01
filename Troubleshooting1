@@ -1,42 +1,4 @@
-{"level":"info","ts":"2026-04-01T01:04:09.681624296Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 01:04:09.681 UTC","user_name":"postgres","database_name":"postgres","process_id":"7062","connection_from":"[local]","session_id":"69cc6f09.1b96","session_line_num":"1","session_start_time":"2026-04-01 01:04:09 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"57P03","message":"the database system is starting up","backend_type":"client backend","query_id":"0"}}
-{"level":"info","ts":"2026-04-01T01:04:09.682003866Z","msg":"Instance is still down, will retry in 1 second","logger":"instance-manager","logging_pod":"pai-apps-db-2","controller":"instance-cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"678801f7-e566-4b86-9a7e-9f7bf5c1ea71","instance":"pai-apps-db-2","cluster":"pai-apps-db","namespace":"pai-prod","logging_pod":"pai-apps-db-2"}
-{"level":"info","ts":"2026-04-01T01:04:09.76121552Z","logger":"wal-restore","msg":"WAL file not found in the recovery object store","logging_pod":"pai-apps-db-2","walName":"00000002.history","options":["--endpoint-url","http://minio.pai-prod.svc:9000","--cloud-provider","aws-s3","s3://cnpg-backups/pai-prod/","pai-apps-db"],"startTime":"2026-04-01T01:04:09.507322018Z","endTime":"2026-04-01T01:04:09.761190755Z","elapsedWalTime":0.253868733}
-{"level":"info","ts":"2026-04-01T01:04:09.863681568Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 01:04:09.863 UTC","process_id":"40","session_id":"69cc6c8c.28","session_line_num":"387","session_start_time":"2026-04-01 00:53:32 UTC","transaction_id":"0","error_severity":"LOG","sql_state_code":"00000","message":"waiting for WAL to become available at 0/35000078","backend_type":"startup","query_id":"0"}}
-{"level":"info","ts":"2026-04-01T01:04:10.571953434Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 01:04:10.571 UTC","user_name":"postgres","database_name":"postgres","process_id":"7063","connection_from":"[local]","session_id":"69cc6f0a.1b97","session_line_num":"1","session_start_time":"2026-04-01 01:04:10 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"57P03","message":"the database system is starting up","backend_type":"client backend","query_id":"0"}}
-{"level":"info","ts":"2026-04-01T01:04:10.715876118Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 01:04:10.715 UTC","user_name":"postgres","database_name":"postgres","process_id":"7065","connection_from":"[local]","session_id":"69cc6f0a.1b99","session_line_num":"1","session_start_time":"2026-04-01 01:04:10 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"57P03","message":"the database system is starting up","backend_type":"client backend","query_id":"0"}}
-{"level":"info","ts":"2026-04-01T01:04:10.716032911Z","msg":"Instance is still down, will retry in 1 second","logger":"instance-manager","logging_pod":"pai-apps-db-2","controller":"instance-cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"2b75232c-fe85-47aa-9d4f-ea68535689d8","instance":"pai-apps-db-2","cluster":"pai-apps-db","namespace":"pai-prod","logging_pod":"pai-apps-db-2"}
-^Chsuma@plnx-admin:~/ocp-ai-configkubectl cnpg status pai-apps-db -n pai-prod
-Cluster Summary
-Name                     pai-prod/pai-apps-db
-PostgreSQL Image:        ghcr.io/cloudnative-pg/postgresql:18.1-system-trixie
-Primary instance:        pai-apps-db-2
-Primary promotion time:  2026-03-31 06:46:06 +0000 UTC (18h18m10s)
-Status:                  Waiting for the instances to become active Some instances are not yet active. Please wait.
-Instances:               3
-Ready instances:         0
-Size:                    647M
-
-Continuous Backup status
-First Point of Recoverability:  Not Available
-No Primary instance found
-
-Physical backups
-Primary instance not found
-
-Streaming Replication status
-Primary instance not found
-
-Instances status
-Name           Current LSN  Replication role  Status         QoS         Manager Version  Node
-----           -----------  ----------------  ------         ---         ---------------  ----
-pai-apps-db-1  -            -                 InternalError  BestEffort  -                ocp-ai-master01.calix.local
-pai-apps-db-2  -            -                 InternalError  BestEffort  -                ocp-ai-master02.calix.local
-pai-apps-db-3  -            -                 InternalError  BestEffort  -                ocp-ai-master03.calix.local
+oc exec pai-apps-db-2 -n pai-prod -c postgres -- grep -E "restore_command|recovery_target|primary_conninfo" /var/lib/postgresql/data/pgdata/postgresql.conf
 
 
-Error(s) extracting status
------------------------------------
-failed to get status by proxying to the pod, you might lack permissions to get pods/proxy: an error on the server ("failed to connect to `user=postgres database=postgres`: /controller/run/.s.PGSQL.5432 (/controller/run): dial error: dial unix /controller/run/.s.PGSQL.5432: connect: no such file or directory") has prevented the request from succeeding (get pods https:pai-apps-db-1:8000)
-failed to get status by proxying to the pod, you might lack permissions to get pods/proxy: an error on the server ("failed to connect to `user=postgres database=postgres`: /controller/run/.s.PGSQL.5432 (/controller/run): server error: FATAL: the database system is starting up (SQLSTATE 57P03)") has prevented the request from succeeding (get pods https:pai-apps-db-2:8000)
-failed to get status by proxying to the pod, you might lack permissions to get pods/proxy: an error on the server ("failed to connect to `user=postgres database=postgres`: /controller/run/.s.PGSQL.5432 (/controller/run): server error: FATAL: the database system is starting up (SQLSTATE 57P03)") has prevented the request from succeeding (get pods https:pai-apps-db-3:8000)
-hsuma@plnx-admin:~/ocp-ai-config$
+oc exec pai-apps-db-2 -n pai-prod -c postgres -- ls -la /var/lib/postgresql/data/pgdata/standby.signal /var/lib/postgresql/data/pgdata/recovery.signal 2>&1
