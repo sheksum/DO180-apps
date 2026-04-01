@@ -1,6 +1,83 @@
-oc get nodes && echo "" && oc get mcp && echo "" && oc get mc --sort-by=.metadata.creationTimestamp | tail -10
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get nodes -A
+NAME                          STATUS                        ROLES                         AGE   VERSION
+ocp-ai-gpu01.calix.local      Ready                         worker                        41d   v1.33.6
+ocp-ai-gpu02.calix.local      Ready                         worker                        41d   v1.33.6
+ocp-ai-master01.calix.local   NotReady,SchedulingDisabled   control-plane,master,worker   44d   v1.33.6
+ocp-ai-master02.calix.local   Ready                         control-plane,master,worker   44d   v1.33.6
+ocp-ai-master03.calix.local   Ready                         control-plane,master,worker   44d   v1.33.6
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get nodes && echo "" && oc get mcp && echo "" && oc get mc --sort-by=.metadata.creationTimestamp | tail -10
+NAME                          STATUS                        ROLES                         AGE   VERSION
+ocp-ai-gpu01.calix.local      Ready                         worker                        41d   v1.33.6
+ocp-ai-gpu02.calix.local      Ready                         worker                        41d   v1.33.6
+ocp-ai-master01.calix.local   NotReady,SchedulingDisabled   control-plane,master,worker   44d   v1.33.6
+ocp-ai-master02.calix.local   Ready                         control-plane,master,worker   44d   v1.33.6
+ocp-ai-master03.calix.local   Ready                         control-plane,master,worker   44d   v1.33.6
+
+NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
+master   rendered-master-cc1c3312899238628a893da4c625bd4f   False     True       False      3              2                   2                     0                      44d
+worker   rendered-worker-fda221ecccdf2b5c8441aaa219214924   True      False      False      2              2                   2                     0                      44d
 
 
-oc get mcp master -o jsonpath='{.status.conditions[*].type}{"\n"}{.status.conditions[*].status}{"\n"}{.status.conditions[*].message}' | head -10
 
-oc describe mcp master | grep -A 5 -i "degraded\|updating\|message"
+99-worker-app-vlan-policy-routes                                                               3.5.0             31d
+rendered-worker-b0af68968c513b88d4bd5c33b98c8124    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             31d
+99-master-app-vlan-policy-routes                                                               3.5.0             31d
+rendered-master-85aa97bdd232e0d3962e5889d37f9d94    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             31d
+99-master-eno6-down                                                                            3.5.0             30d
+rendered-master-cc1c3312899238628a893da4c625bd4f    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             30d
+99-metallb-vlan-routing-master                                                                 3.5.0             69m
+99-metallb-vlan-routing-worker                                                                 3.5.0             69m
+rendered-master-7fbaa0d07cee52536b335b322f07a11f    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             69m
+rendered-worker-fda221ecccdf2b5c8441aaa219214924    035a7f3c16e820ed0461b25ba82c263131ff6c3d   3.5.0             69m
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc get mcp master -o jsonpath='{.status.conditions[*].type}{"\n"}{.status.conditions[*].status}{"\n"}{.status.conditions[*].message}' | head -10
+PinnedImageSetsDegraded RenderDegraded NodeDegraded Degraded Updated Updating
+False False False False False True
+     All nodes are updating to MachineConfig rendered-master-7fbaa0d07cee52536b335b322f07a11fhsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ oc describe mcp master | grep -A 5 -i "degraded\|updating\|message"
+    Message:
+    Reason:
+    Status:                False
+    Type:                  PinnedImageSetsDegraded
+    Last Transition Time:  2026-02-15T22:46:16Z
+    Message:
+    Reason:
+    Status:                False
+    Type:                  RenderDegraded
+    Last Transition Time:  2026-02-15T22:46:20Z
+    Message:
+    Reason:
+    Status:                False
+    Type:                  NodeDegraded
+    Last Transition Time:  2026-02-15T22:46:20Z
+    Message:
+    Reason:
+    Status:                False
+    Type:                  Degraded
+    Last Transition Time:  2026-03-31T23:22:08Z
+    Message:
+    Reason:
+    Status:                False
+    Type:                  Updated
+    Last Transition Time:  2026-03-31T23:22:08Z
+    Message:               All nodes are updating to MachineConfig rendered-master-7fbaa0d07cee52536b335b322f07a11f
+    Reason:
+    Status:                True
+    Type:                  Updating
+  Configuration:
+    Name:  rendered-master-cc1c3312899238628a893da4c625bd4f
+    Source:
+      API Version:         machineconfiguration.openshift.io/v1
+      Kind:                MachineConfig
+--
+  Degraded Machine Count:  0
+  Machine Count:           3
+  Observed Generation:     8
+  Pool Synchronizers Status:
+    Available Machine Count:    2
+    Machine Count:              3
+hsuma@plnx-admin:~/ocp-ai-config$
