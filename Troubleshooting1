@@ -1,3 +1,1 @@
-oc delete pod pai-apps-db-2 -n pai-prod
-
-oc get pods -n pai-prod -w -l cnpg.io/cluster=pai-apps-db
+oc logs pai-apps-db-2 -n pai-prod --tail=20
