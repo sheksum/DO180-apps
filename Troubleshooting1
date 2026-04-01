@@ -1,14 +1,20 @@
-echo "=== Trident pods ==="
-oc get pods -n trident -o wide | grep -E "node|NAME"
-
-echo ""
-echo "=== pai-apps-db-1 pod status ==="
-oc get pod pai-apps-db-1 -n pai-prod -o wide
-
-echo ""
-echo "=== CSI drivers registered ==="
-oc get csidrivers
-
-echo ""
 echo "=== Trident node on master01 ==="
 oc get pods -n trident -o wide | grep master01
+=== Trident pods ===
+NAME                                  READY   STATUS    RESTARTS   AGE   IP               NODE                          NOMINATED NODE   READINESS GATES
+trident-node-linux-bxzgr              2/2     Running   5          11d   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
+trident-node-linux-h8bn9              2/2     Running   3          11d   10.172.248.152   ocp-ai-master03.calix.local   <none>           <none>
+trident-node-linux-ktrms              2/2     Running   3          11d   10.172.248.151   ocp-ai-master02.calix.local   <none>           <none>
+trident-node-linux-rdcxk              2/2     Running   3          11d   10.172.248.154   ocp-ai-gpu02.calix.local      <none>           <none>
+trident-node-linux-rfrzm              2/2     Running   3          11d   10.172.248.153   ocp-ai-gpu01.calix.local      <none>           <none>
+
+=== pai-apps-db-1 pod status ===
+Error from server (NotFound): pods "pai-apps-db-1" not found
+
+=== CSI drivers registered ===
+NAME                    ATTACHREQUIRED   PODINFOONMOUNT   STORAGECAPACITY   TOKENREQUESTS   REQUIRESREPUBLISH   MODES        AGE
+csi.trident.netapp.io   true             false            false             <unset>         false               Persistent   11d
+
+=== Trident node on master01 ===
+trident-node-linux-bxzgr              2/2     Running   5          11d   10.172.248.150   ocp-ai-master01.calix.local   <none>           <none>
+hsuma@plnx-admin:~/ocp-ai-config$
