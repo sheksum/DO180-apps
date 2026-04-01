@@ -1,2 +1,1 @@
-
-for ip_port in 10.172.194.163:5432 10.172.202.163:5432; do echo -n "Testing $ip_port: "; nc -zv ${ip_port%:*} ${ip_port#*:} 2>&1 | tail -1; done
+oc get svc pg-lb -n pai-dev -o yaml
