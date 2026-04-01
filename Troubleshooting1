@@ -18,3 +18,11 @@ spec:
     cnpg.io/instanceRole: primary
   type: LoadBalancer
 EOF
+
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ nc -zv 10.172.202.163 5432
+Connection to 10.172.202.163 5432 port [tcp/postgresql] succeeded!
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
