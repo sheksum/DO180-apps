@@ -40,3 +40,30 @@ waiting...
 waiting...
 Write-ahead log reset
 hsuma@plnx-admin:~/ocp-ai-config$
+
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n pai-prod
+NAME                                                        READY   STATUS             RESTARTS         AGE
+ai-guardrails-service-6655874777-j4zx4                      1/1     Running            0                109m
+ai-model-embedding-service-658585d59c-fzfds                 1/1     Running            0                113m
+ai-model-library-847465b77-5fxb5                            1/1     Running            1 (102m ago)     117m
+ai-model-multimodel-service-cfdfb946c-qnp9r                 1/1     Running            0                117m
+fileparser-c75f8db46-9gzvb                                  1/1     Running            0                113m
+fileparser-c75f8db46-r5brs                                  1/1     Running            0                113m
+fileparser-c75f8db46-tln98                                  1/1     Running            0                117m
+internal-agentmesh-agent-gateway-service-5c4ccb9c46-6v8jb   1/1     Running            0                109m
+internal-agentmesh-atlassian-agent-7c8d6c74b5-jwf5t         1/1     Running            0                100m
+internal-agentmesh-auth-service-86ccb7895f-5kzzh            0/1     Running            29 (5m48s ago)   101m
+internal-agentmesh-generic-agent-f8478db6f-74d9z            1/1     Running            1 (99m ago)      100m
+internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb   0/1     CrashLoopBackOff   23 (3m43s ago)   100m
+internal-agentmesh-rag-service-b8546ff7f-pjdnj              1/1     Running            0                101m
+internal-agentmesh-router-service-86dbdc66f5-z7vw7          1/1     Running            0                101m
+internal-agentmesh-ui-service-555b47ddbb-46mdq              1/1     Running            0                100m
+internal-mcp-atlassian-service-55bf4578cd-m4wx5             1/1     Running            0                109m
+milvus-5dd75f7b74-2bd75                                     1/1     Running            2                106m
+minio-85b4477cdc-t275f                                      1/1     Running            0                109m
+pai-apps-db-1                                               0/1     Running            0                34m
+pai-apps-db-2                                               1/1     Running            0                29s
+pai-apps-db-3                                               0/1     Running            1 (34m ago)      100m
+hsuma@plnx-admin:~$
