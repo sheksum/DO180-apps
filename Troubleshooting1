@@ -1,14 +1,35 @@
-echo "=== CNPG cluster details ==="
-oc get cluster pai-apps-db -n pai-prod -o jsonpath='{.status.phase}{"\n"}'
-
-echo ""
-echo "=== Events ==="
-oc get events -n pai-prod --sort-by=.lastTimestamp --field-selector reason!=Pulling,reason!=Pulled | tail -20
-
-echo ""
-echo "=== PVC status ==="
-oc get pvc -n pai-prod -l cnpg.io/cluster=pai-apps-db
-
-echo ""
 echo "=== CNPG operator logs ==="
 oc logs -n cnpg-system deployment/cnpg-controller-manager --tail=30 2>/dev/null | grep -i "pai-prod\|pai-apps-db\|error"
+=== CNPG cluster details ===
+Switchover in progress
+
+=== Events ===
+49m         Normal    Created                  pod/internal-agentmesh-auth-service-86ccb7895f-5kzzh             Created container: internal-agentmesh-auth-service
+42m         Normal    Started                  pod/internal-agentmesh-router-service-86dbdc66f5-z7vw7           Started container internal-agentmesh-router-service
+42m         Normal    Created                  pod/internal-agentmesh-router-service-86dbdc66f5-z7vw7           Created container: internal-agentmesh-router-service
+39m         Normal    Started                  pod/internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb    Started container internal-agentmesh-it-service-desk-agent
+39m         Normal    Created                  pod/internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb    Created container: internal-agentmesh-it-service-desk-agent
+27m         Warning   Unhealthy                pod/pai-apps-db-1                                                Startup probe failed: HTTP probe failed with statuscode: 500
+19m         Normal    TaintManagerEviction     pod/pai-apps-db-1                                                Marking for deletion Pod pai-prod/pai-apps-db-1
+16m         Warning   Unhealthy                pod/internal-agentmesh-auth-service-86ccb7895f-5kzzh             Readiness probe failed: Get "http://10.130.0.75:8280/health": dial tcp 10.130.0.75:8280: connect: connection refused
+11m         Warning   FailedMount              pod/pai-apps-db-1                                                MountVolume.SetUp failed for volume "kube-api-access-bn42w" : [object "pai-prod"/"kube-root-ca.crt" not registered, object "pai-prod"/"openshift-service-ca.crt" not registered]
+11m         Warning   FailedMount              pod/pai-apps-db-1                                                MountVolume.MountDevice failed for volume "pvc-67fe28fc-fc5f-416d-8801-3781409b22ed" : kubernetes.io/csi: attacher.MountDevice failed to create newCsiDriverClient: driver name csi.trident.netapp.io not found in the list of registered CSI drivers
+10m         Normal    TaintManagerEviction     pod/pai-apps-db-1                                                Cancelling deletion of Pod pai-prod/pai-apps-db-1
+6m55s       Warning   BackOff                  pod/internal-agentmesh-auth-service-86ccb7895f-5kzzh             Back-off restarting failed container internal-agentmesh-auth-service in pod internal-agentmesh-auth-service-86ccb7895f-5kzzh_pai-prod(8e9926bf-c1c0-4da1-955f-1f5b5510a456)
+5m34s       Normal    NoPods                   poddisruptionbudget/pai-apps-db-primary                          No matching pods found
+3m41s       Normal    nodeAssigned             service/minio-lb                                                 announcing from node "ocp-ai-master02.calix.local" with protocol "layer2"
+3m41s       Normal    nodeAssigned             service/milvus-lb                                                announcing from node "ocp-ai-master02.calix.local" with protocol "layer2"
+2m18s       Warning   Unhealthy                pod/pai-apps-db-2                                                Startup probe failed: HTTP probe failed with statuscode: 500
+2m16s       Normal    Killing                  pod/internal-agentmesh-auth-service-86ccb7895f-5kzzh             Container internal-agentmesh-auth-service failed liveness probe, will be restarted
+96s         Warning   Unhealthy                pod/internal-agentmesh-auth-service-86ccb7895f-5kzzh             Liveness probe failed: Get "http://10.130.0.75:8280/health": dial tcp 10.130.0.75:8280: connect: connection refused
+88s         Warning   BackOff                  pod/internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb    Back-off restarting failed container internal-agentmesh-it-service-desk-agent in pod internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb_pai-prod(2a4cd398-8a14-4d40-afc1-69df06c4d272)
+56s         Normal    Valid                    secretstore/vault-store                                          store validated
+
+=== PVC status ===
+NAME            STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pai-apps-db-1   Bound    pvc-67fe28fc-fc5f-416d-8801-3781409b22ed   50Gi       RWO            netapp-app     <unset>                 17h
+pai-apps-db-2   Bound    pvc-d846636d-1a4e-4c72-9d37-6c65ee503202   50Gi       RWO            netapp-app     <unset>                 17h
+pai-apps-db-3   Bound    pvc-c56759fb-0852-42dd-a80a-a9967e8e303a   50Gi       RWO            netapp-app     <unset>                 17h
+
+=== CNPG operator logs ===
+hsuma@plnx-admin:~/ocp-ai-config$
