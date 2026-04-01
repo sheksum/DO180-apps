@@ -1,1 +1,4 @@
-oc exec minio-85b4477cdc-t275f -n pai-prod -- find /data -name "*00000035*" 2>&1
+hsuma@plnx-admin:~/ocp-ai-config$ oc exec minio-85b4477cdc-t275f -n pai-prod -- find /data -name "*00000035*" 2>&1
+executable file `find` not found in $PATH: No such file or directory
+command terminated with exit code 1
+hsuma@plnx-admin:~/ocp-ai-config$
