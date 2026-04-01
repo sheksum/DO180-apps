@@ -1,4 +1,7 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc exec minio-85b4477cdc-t275f -n pai-prod -- find /data -name "*00000035*" 2>&1
-executable file `find` not found in $PATH: No such file or directory
-command terminated with exit code 1
-hsuma@plnx-admin:~/ocp-ai-config$
+oc exec minio-85b4477cdc-t275f -n pai-prod -- ls /data/cnpg-backups/pai-prod/pai-apps-db/wals/0000000100000000/
+
+
+oc exec minio-85b4477cdc-t275f -n pai-prod -- ls /data/
+
+
+oc run minio-debug --rm -it --image=curlimages/curl -n pai-prod --restart=Never -- curl -s http://minio.pai-prod.svc:9000/cnpg-backups/?list-type=2&prefix=pai-prod/pai-apps-db/wals/0000000100000000/000000010000000000000035
