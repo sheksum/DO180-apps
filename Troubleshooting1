@@ -1,5 +1,1 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc patch cluster pai-apps-db -n pai-prod --type merge -p '{"spec":{"instances":0}}'
-The Cluster "pai-apps-db" is invalid: spec.instances: Invalid value: 0: spec.instances in body should be greater than or equal to 1
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$oc patch cluster pai-apps-db -n pai-prod --type merge -p '{"spec":{"instances":0}}'
+oc exec minio-85b4477cdc-t275f -n pai-prod -- find /data -name "*00000035*" 2>&1
