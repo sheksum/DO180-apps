@@ -1,3 +1,29 @@
+hsuma@plnx-admin:~$ oc get pods -n metallb-system
+NAME                                                   READY   STATUS    RESTARTS   AGE
+controller-78cdfd5849-nz579                            2/2     Running   0          18h
+metallb-operator-controller-manager-5964b77555-ssq2k   1/1     Running   0          18h
+metallb-operator-webhook-server-54d799d757-g2ndn       1/1     Running   0          18h
+speaker-dmk2n                                          2/2     Running   0          18h
+speaker-qmnqn                                          2/2     Running   4          18h
+speaker-ts6q5                                          2/2     Running   0          18h
+hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker --tail=50 | grep -i "announce\|arp\|layer2"
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker --tail=50 -c speaker | grep -i "announce\|arp\|layer2"
+hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker --tail=50 -c speaker | grep^Ci "announce\|arp\|layer2"
+hsuma@plnx-admin:~$ oc logs -n metallb-system -l component=speaker
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+Defaulted container "speaker" out of: speaker, kube-rbac-proxy
+{"caller":"speakerlist.go:269","error":"1 error occurred:\n\t* Failed to join 10.172.248.150:9122: dial tcp 10.172.248.150:9122: connect: connection refused\n\n","expected":1,"joined":0,"level":"error","msg":"partial join","op":"memberDiscovery","ts":"2026-04-01T00:29:02Z"}
+{"level":"error","ts":"2026-04-01T00:29:22Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-test","name":"milvus-lb","reconcileID":"65b58d66-ecf1-4428-990f-7557d74dda98","error":"ServiceL2Status.metallb.io \"l2-q9wzr\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-04-01T00:29:22Z","msg":"Reconciler error","controller":"servicel2status","namespace":"pai-test","name":"minio-lb","reconcileID":"fed34c6c-19a0-4ee3-8a2e-6d87bdef4391","error":"ServiceL2Status.metallb.io \"l2-gh5t9\" is invalid: status.node: Invalid value: \"string\": Value is immutable","stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:347\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:294\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func2.2\n\t/metallb/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:255"}
+{"level":"error","ts":"2026-04-01T00:30:03Z","msg":"Reconciler error","controller":"servicel2s
+
+
+
+
 OCP-AI MetalLB + CNPG Troubleshooting Walkthrough
 March 31, 2026
 
