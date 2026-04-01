@@ -1,1 +1,1 @@
-while ! oc exec pai-apps-db-3 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata 2>/dev/null; do echo "waiting..."; sleep 2; done
+oc exec pai-apps-db-3 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata
