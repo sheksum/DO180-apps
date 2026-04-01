@@ -1,4 +1,5 @@
-echo "=== pai-apps-db cluster status ==="
+hsuma@plnx-admin:~/ocp-ai-config$
+hsuma@plnx-admin:~/ocp-ai-config$ echo "=== pai-apps-db cluster status ==="
 oc get cluster pai-apps-db -n pai-prod -o yaml 2>/dev/null | grep -A 20 "status:" || echo "No CNPG cluster resource found"
 
 echo ""
@@ -16,3 +17,160 @@ oc logs internal-agentmesh-auth-service-86ccb7895f-5kzzh -n pai-prod --tail=30
 echo ""
 echo "=== it-service-desk-agent logs ==="
 oc logs internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb -n pai-prod --tail=30
+=== pai-apps-db cluster status ===
+status:
+  availableArchitectures:
+  - goArch: amd64
+    hash: 1fa32bddc89d8eb9de4a448660db1f1d0227e0269b4ffdcb98e6dbbcffe12cf9
+  - goArch: arm64
+    hash: e340717194993e45f026a61c78a424a5eba6a3b628e6c2d1d617ae1a94a58ee0
+  certificates:
+    clientCASecret: pai-apps-db-ca
+    expirations:
+      pai-apps-db-ca: 2026-06-17 10:28:58 +0000 UTC
+      pai-apps-db-replication: 2026-06-17 10:28:58 +0000 UTC
+      pai-apps-db-server: 2026-06-25 04:33:05 +0000 UTC
+    replicationTLSSecret: pai-apps-db-replication
+    serverAltDNSNames:
+    - pai-apps-db-rw
+    - pai-apps-db-rw.pai-prod
+    - pai-apps-db-rw.pai-prod.svc
+    - pai-apps-db-rw.pai-prod.svc.cluster.local
+    - pai-apps-db-r
+    - pai-apps-db-r.pai-prod
+    - pai-apps-db-r.pai-prod.svc
+--
+    status: "True"
+    type: ConsistentSystemID
+  - lastTransitionTime: "2026-03-31T23:39:07Z"
+    message: Cluster Is Not Ready
+    reason: ClusterIsNotReady
+    status: "False"
+    type: Ready
+  - lastTransitionTime: "2026-03-31T06:46:06Z"
+    message: 'unexpected failure invoking barman-cloud-wal-archive: exit status 1'
+    reason: ContinuousArchivingFailing
+    status: "False"
+    type: ContinuousArchiving
+  configMapResourceVersion:
+    metrics:
+      cnpg-default-monitoring: "29345190"
+  currentPrimary: pai-apps-db-1
+  currentPrimaryTimestamp: "2026-03-31T06:46:05.806602Z"
+  danglingPVC:
+  - pai-apps-db-1
+  healthyPVC:
+  - pai-apps-db-2
+  - pai-apps-db-3
+  image: ghcr.io/cloudnative-pg/postgresql:18.1-system-trixie
+  instanceNames:
+  - pai-apps-db-1
+  - pai-apps-db-2
+  - pai-apps-db-3
+  instances: 3
+  instancesReportedState:
+    pai-apps-db-1:
+      ip: 10.129.1.156
+
+=== pai-apps-db-1 - where is it? ===
+NAME            READY   STATUS    RESTARTS      AGE
+pai-apps-db-2   0/1     Running   3 (55m ago)   65m
+pai-apps-db-3   1/1     Running   0             56m
+
+=== pai-apps-db-2 logs ===
+Defaulted container "postgres" out of: postgres, bootstrap-controller (init)
+{"level":"info","ts":"2026-04-01T00:35:33.69219454Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:33.691 UTC","user_name":"postgres","database_name":"postgres","process_id":"32312","connection_from":"[local]","session_id":"69cc6855.7e38","session_line_num":"1","session_start_time":"2026-04-01 00:35:33 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"57P03","message":"the database system is starting up","backend_type":"client backend","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:33.692390312Z","msg":"startup probe failing","logging_pod":"pai-apps-db-2","err":"server is alive but rejecting connections"}
+{"level":"info","ts":"2026-04-01T00:35:34.431338425Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:34.431 UTC","user_name":"postgres","database_name":"postgres","process_id":"32314","connection_from":"[local]","session_id":"69cc6856.7e3a","session_line_num":"1","session_start_time":"2026-04-01 00:35:34 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"57P03","message":"the database system is starting up","backend_type":"client backend","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:34.431554104Z","msg":"Instance is still down, will retry in 1 second","logger":"instance-manager","logging_pod":"pai-apps-db-2","controller":"instance-cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"8d02a4fe-aebd-48e0-a6c1-6e53a6f99d57","instance":"pai-apps-db-2","cluster":"pai-apps-db","namespace":"pai-prod","logging_pod":"pai-apps-db-2"}
+{"level":"info","ts":"2026-04-01T00:35:35.310328463Z","logger":"wal-restore","msg":"Restored WAL file","logging_pod":"pai-apps-db-2","walName":"000000010000000000000035","startTime":"2026-04-01T00:35:35.002184162Z","endTime":"2026-04-01T00:35:35.310296682Z","elapsedWalTime":0.308112536}
+{"level":"info","ts":"2026-04-01T00:35:35.310467031Z","logger":"wal-restore","msg":"WAL restore command completed (parallel)","logging_pod":"pai-apps-db-2","walName":"000000010000000000000035","maxParallel":1,"successfulWalRestore":1,"failedWalRestore":0,"endOfWALStream":false,"startTime":"2026-04-01T00:35:34.998939373Z","downloadStartTime":"2026-04-01T00:35:35.002173378Z","downloadTotalTime":0.308290768,"totalTime":0.311524932}
+{"level":"info","ts":"2026-04-01T00:35:35.312013214Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:35.311 UTC","process_id":"40","session_id":"69cc5b77.28","session_line_num":"1978","session_start_time":"2026-03-31 23:40:39 UTC","transaction_id":"0","error_severity":"LOG","sql_state_code":"00000","message":"restored log file \"000000010000000000000035\" from archive","backend_type":"startup","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:35.322104901Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:35.321 UTC","process_id":"40","session_id":"69cc5b77.28","session_line_num":"1979","session_start_time":"2026-03-31 23:40:39 UTC","transaction_id":"0","error_severity":"LOG","sql_state_code":"00000","message":"WAL file is from different database system: WAL file database system identifier is 7621790087615889432, pg_control database system identifier is 7623307342724771863","backend_type":"startup","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:35.325851512Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:35.325 UTC","process_id":"32334","session_id":"69cc6857.7e4e","session_line_num":"1","session_start_time":"2026-04-01 00:35:35 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"08006","message":"streaming replication receiver \"pai-apps-db\" could not connect to the primary server: connection to server at \"pai-apps-db-rw\" (172.30.138.226), port 5432 failed: Connection refused\n\tIs the server running on that host and accepting TCP/IP connections?","backend_type":"walreceiver","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:35.467184502Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:35.467 UTC","user_name":"postgres","database_name":"postgres","process_id":"32352","connection_from":"[local]","session_id":"69cc6857.7e60","session_line_num":"1","session_start_time":"2026-04-01 00:35:35 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"57P03","message":"the database system is starting up","backend_type":"client backend","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:35.46732453Z","msg":"Instance is still down, will retry in 1 second","logger":"instance-manager","logging_pod":"pai-apps-db-2","controller":"instance-cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"5639d7c3-1228-48f0-b8ad-a91ad98fb917","instance":"pai-apps-db-2","cluster":"pai-apps-db","namespace":"pai-prod","logging_pod":"pai-apps-db-2"}
+{"level":"info","ts":"2026-04-01T00:35:35.614329389Z","logger":"wal-restore","msg":"WAL file not found in the recovery object store","logging_pod":"pai-apps-db-2","walName":"00000002.history","options":["--endpoint-url","http://minio.pai-prod.svc:9000","--cloud-provider","aws-s3","s3://cnpg-backups/pai-prod/","pai-apps-db"],"startTime":"2026-04-01T00:35:35.34671807Z","endTime":"2026-04-01T00:35:35.614290038Z","elapsedWalTime":0.267571971}
+{"level":"info","ts":"2026-04-01T00:35:35.71622315Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:35.716 UTC","process_id":"40","session_id":"69cc5b77.28","session_line_num":"1980","session_start_time":"2026-03-31 23:40:39 UTC","transaction_id":"0","error_severity":"LOG","sql_state_code":"00000","message":"waiting for WAL to become available at 0/35000078","backend_type":"startup","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:36.502933701Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:36.502 UTC","user_name":"postgres","database_name":"postgres","process_id":"32354","connection_from":"[local]","session_id":"69cc6858.7e62","session_line_num":"1","session_start_time":"2026-04-01 00:35:36 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"57P03","message":"the database system is starting up","backend_type":"client backend","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:36.50308508Z","msg":"Instance is still down, will retry in 1 second","logger":"instance-manager","logging_pod":"pai-apps-db-2","controller":"instance-cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"79e18463-aa6f-4214-adbf-2ee6db757e74","instance":"pai-apps-db-2","cluster":"pai-apps-db","namespace":"pai-prod","logging_pod":"pai-apps-db-2"}
+{"level":"info","ts":"2026-04-01T00:35:37.535871968Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:37.535 UTC","user_name":"postgres","database_name":"postgres","process_id":"32356","connection_from":"[local]","session_id":"69cc6859.7e64","session_line_num":"1","session_start_time":"2026-04-01 00:35:37 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"57P03","message":"the database system is starting up","backend_type":"client backend","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:37.536112041Z","msg":"Instance is still down, will retry in 1 second","logger":"instance-manager","logging_pod":"pai-apps-db-2","controller":"instance-cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"d1b1e3c6-d54c-4e02-b2b9-5e859a4032f2","instance":"pai-apps-db-2","cluster":"pai-apps-db","namespace":"pai-prod","logging_pod":"pai-apps-db-2"}
+{"level":"info","ts":"2026-04-01T00:35:38.569882949Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:38.569 UTC","user_name":"postgres","database_name":"postgres","process_id":"32358","connection_from":"[local]","session_id":"69cc685a.7e66","session_line_num":"1","session_start_time":"2026-04-01 00:35:38 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"57P03","message":"the database system is starting up","backend_type":"client backend","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:38.570046173Z","msg":"Instance is still down, will retry in 1 second","logger":"instance-manager","logging_pod":"pai-apps-db-2","controller":"instance-cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"62955941-a901-4e7b-a234-e4dba6bbc955","instance":"pai-apps-db-2","cluster":"pai-apps-db","namespace":"pai-prod","logging_pod":"pai-apps-db-2"}
+{"level":"info","ts":"2026-04-01T00:35:39.604480775Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:39.604 UTC","user_name":"postgres","database_name":"postgres","process_id":"32360","connection_from":"[local]","session_id":"69cc685b.7e68","session_line_num":"1","session_start_time":"2026-04-01 00:35:39 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"57P03","message":"the database system is starting up","backend_type":"client backend","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:39.604870613Z","msg":"Instance is still down, will retry in 1 second","logger":"instance-manager","logging_pod":"pai-apps-db-2","controller":"instance-cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"04d2b4c9-1ed5-4737-8a4c-d6bfce0f1690","instance":"pai-apps-db-2","cluster":"pai-apps-db","namespace":"pai-prod","logging_pod":"pai-apps-db-2"}
+{"level":"info","ts":"2026-04-01T00:35:40.301455459Z","logger":"wal-restore","msg":"Restored WAL file","logging_pod":"pai-apps-db-2","walName":"000000010000000000000035","startTime":"2026-04-01T00:35:40.005310225Z","endTime":"2026-04-01T00:35:40.301424176Z","elapsedWalTime":0.296113951}
+{"level":"info","ts":"2026-04-01T00:35:40.301583686Z","logger":"wal-restore","msg":"WAL restore command completed (parallel)","logging_pod":"pai-apps-db-2","walName":"000000010000000000000035","maxParallel":1,"successfulWalRestore":1,"failedWalRestore":0,"endOfWALStream":false,"startTime":"2026-04-01T00:35:40.001434064Z","downloadStartTime":"2026-04-01T00:35:40.005296626Z","downloadTotalTime":0.29628276,"totalTime":0.300145344}
+{"level":"info","ts":"2026-04-01T00:35:40.303323955Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:40.303 UTC","process_id":"40","session_id":"69cc5b77.28","session_line_num":"1981","session_start_time":"2026-03-31 23:40:39 UTC","transaction_id":"0","error_severity":"LOG","sql_state_code":"00000","message":"restored log file \"000000010000000000000035\" from archive","backend_type":"startup","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:40.307977353Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:40.307 UTC","process_id":"40","session_id":"69cc5b77.28","session_line_num":"1982","session_start_time":"2026-03-31 23:40:39 UTC","transaction_id":"0","error_severity":"LOG","sql_state_code":"00000","message":"WAL file is from different database system: WAL file database system identifier is 7621790087615889432, pg_control database system identifier is 7623307342724771863","backend_type":"startup","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:40.311158546Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:40.311 UTC","process_id":"32380","session_id":"69cc685c.7e7c","session_line_num":"1","session_start_time":"2026-04-01 00:35:40 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"08006","message":"streaming replication receiver \"pai-apps-db\" could not connect to the primary server: connection to server at \"pai-apps-db-rw\" (172.30.138.226), port 5432 failed: Connection refused\n\tIs the server running on that host and accepting TCP/IP connections?","backend_type":"walreceiver","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:40.583148149Z","logger":"wal-restore","msg":"WAL file not found in the recovery object store","logging_pod":"pai-apps-db-2","walName":"00000002.history","options":["--endpoint-url","http://minio.pai-prod.svc:9000","--cloud-provider","aws-s3","s3://cnpg-backups/pai-prod/","pai-apps-db"],"startTime":"2026-04-01T00:35:40.332239251Z","endTime":"2026-04-01T00:35:40.583123642Z","elapsedWalTime":0.250884389}
+{"level":"info","ts":"2026-04-01T00:35:40.642368913Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:40.642 UTC","user_name":"postgres","database_name":"postgres","process_id":"32400","connection_from":"[local]","session_id":"69cc685c.7e90","session_line_num":"1","session_start_time":"2026-04-01 00:35:40 UTC","transaction_id":"0","error_severity":"FATAL","sql_state_code":"57P03","message":"the database system is starting up","backend_type":"client backend","query_id":"0"}}
+{"level":"info","ts":"2026-04-01T00:35:40.642456601Z","msg":"Instance is still down, will retry in 1 second","logger":"instance-manager","logging_pod":"pai-apps-db-2","controller":"instance-cluster","controllerGroup":"postgresql.cnpg.io","controllerKind":"Cluster","Cluster":{"name":"pai-apps-db","namespace":"pai-prod"},"namespace":"pai-prod","name":"pai-apps-db","reconcileID":"9a553bd3-9069-4c7e-b85d-1c203615e77d","instance":"pai-apps-db-2","cluster":"pai-apps-db","namespace":"pai-prod","logging_pod":"pai-apps-db-2"}
+{"level":"info","ts":"2026-04-01T00:35:40.685075101Z","logger":"postgres","msg":"record","logging_pod":"pai-apps-db-2","record":{"log_time":"2026-04-01 00:35:40.684 UTC","process_id":"40","session_id":"69cc5b77.28","session_line_num":"1983","session_start_time":"2026-03-31 23:40:39 UTC","transaction_id":"0","error_severity":"LOG","sql_state_code":"00000","message":"waiting for WAL to become available at 0/35000078","backend_type":"startup","query_id":"0"}}
+
+=== auth-service logs ===
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/pool.py", line 418, in _async__init__
+    await self._initialize()
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/pool.py", line 445, in _initialize
+    await first_ch.connect()
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/pool.py", line 132, in connect
+    self._con = await self._pool._get_new_connection()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/pool.py", line 517, in _get_new_connection
+    con = await self._connect(
+          ^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/connection.py", line 2421, in connect
+    return await connect_utils._connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/connect_utils.py", line 1075, in _connect
+    raise last_error or exceptions.TargetServerAttributeNotMatched(
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/connect_utils.py", line 1049, in _connect
+    conn = await _connect_addr(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/connect_utils.py", line 882, in _connect_addr
+    return await __connect_addr(params, False, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/connect_utils.py", line 931, in __connect_addr
+    tr, pr = await connector
+             ^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 2043, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+ConnectionRefusedError: [Errno 111] Connection refused
+
+ERROR:    Application startup failed. Exiting.
+
+=== it-service-desk-agent logs ===
+            ^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/connection.py", line 2443, in connect
+    return await connect_utils._connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/connect_utils.py", line 1249, in _connect
+    raise last_error or exceptions.TargetServerAttributeNotMatched(
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/connect_utils.py", line 1218, in _connect
+    conn = await _connect_addr(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/connect_utils.py", line 1050, in _connect_addr
+    return await __connect_addr(params, False, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/asyncpg/connect_utils.py", line 1099, in __connect_addr
+    tr, pr = await connector
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 1132, in create_connection
+    raise exceptions[0]
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 1107, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 1010, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/local/lib/python3.12/asyncio/selector_events.py", line 651, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/local/lib/python3.12/asyncio/selector_events.py", line 691, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('172.30.138.226', 5432)
+
+ERROR:    Application startup failed. Exiting.
+hsuma@plnx-admin:~/ocp-ai-config$
