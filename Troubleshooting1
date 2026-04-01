@@ -1,1 +1,7 @@
-oc get svc -n pai-prod --field-selector spec.type=LoadBalancer
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get svc -n pai-dev --field-selector spec.type=LoadBalancer
+NAME        TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)           AGE
+milvus-lb   LoadBalancer   172.30.156.22   10.172.194.161   19530:30241/TCP   30d
+minio-lb    LoadBalancer   172.30.168.89   10.172.194.160   9000:32714/TCP    30d
+pg-lb       LoadBalancer   172.30.23.200   10.172.194.163   5432:31478/TCP    4d4h
+hsuma@plnx-admin:~$
