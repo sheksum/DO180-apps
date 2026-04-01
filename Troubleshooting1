@@ -1,56 +1,18 @@
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-prod --field-selector status.phase!=Running,status.phase!=Succeeded -o wide 2>/dev/null; echo ""; oc get pods -n pai-prod | grep -iE "crash|error|backoff|pending|0/"
+echo "=== pai-apps-db cluster status ==="
+oc get cluster pai-apps-db -n pai-prod -o yaml 2>/dev/null | grep -A 20 "status:" || echo "No CNPG cluster resource found"
 
-internal-agentmesh-auth-service-86ccb7895f-5kzzh            0/1     Running            18 (4s ago)    55m
-internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb   0/1     CrashLoopBackOff   15 (20s ago)   55m
-pai-apps-db-2                                               0/1     Running            3 (54m ago)    64m
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-dev
-NAME                                                           READY   STATUS                  RESTARTS         AGE
-ai-guardrails-service-6f84967494-29c86                         1/1     Running                 0                55m
-fileparser-6d7db69bd6-zdbwx                                    1/1     Running                 0                68m
-internal-agentmesh-agent-gateway-service-66759f9bbb-sbsk9      1/1     Running                 0                55m
-internal-agentmesh-atlassian-agent-574c6845f5-vpx2h            1/1     Running                 0                55m
-internal-agentmesh-auth-service-5fc5c98578-f82ff               1/1     Running                 0                55m
-internal-agentmesh-employeeengagement-agent-7cd4b77b6f-7xc7x   1/1     Running                 0                55m
-internal-agentmesh-generic-agent-688b9d495f-hcs4p              1/1     Running                 0                55m
-internal-agentmesh-it-service-desk-agent-59fc5d669d-6vqjw      1/1     Running                 0                55m
-internal-agentmesh-rag-service-5fc8dc59f6-tgtrh                1/1     Running                 0                64m
-internal-agentmesh-router-service-788f5d57cf-ngbqs             1/1     Running                 0                55m
-internal-agentmesh-tts-service-59bb9c9b9d-qqplt                0/1     CrashLoopBackOff        16 (3m36s ago)   64m
-internal-agentmesh-tts-service-f75587df6-rs6qm                 0/1     Init:CrashLoopBackOff   17 (87s ago)     64m
-internal-agentmesh-tts-service-test-855b48654d-7h7sr           0/1     CrashLoopBackOff        15 (2m11s ago)   55m
-internal-agentmesh-tts-service-test-b84c5fc7f-n2p4s            0/1     CrashLoopBackOff        16 (3m36s ago)   64m
-internal-agentmesh-ui-service-7f67746769-7qh8v                 1/1     Running                 0                55m
-internal-mcp-atlassian-service-7f6d5df9c8-szwjz                1/1     Running                 0                55m
-milvus-5d4bb7fb7-tt78t                                         1/1     Running                 0                55m
-minio-788889d4b7-5dckj                                         1/1     Running                 0                55m
-pai-apps-db-1                                                  0/1     Running                 0                55m
-pai-apps-db-2                                                  1/1     Running                 0                64m
-pai-apps-db-3                                                  1/1     Running                 0                63m
-postgresql-78b656858b-z89j6                                    1/1     Running                 0                64m
-hsuma@plnx-admin:~/ocp-ai-config$ oc get pods -n pai-prod
-NAME                                                        READY   STATUS             RESTARTS       AGE
-ai-guardrails-service-6655874777-j4zx4                      1/1     Running            0              64m
-ai-model-embedding-service-658585d59c-fzfds                 1/1     Running            0              68m
-ai-model-library-847465b77-5fxb5                            1/1     Running            1 (57m ago)    72m
-ai-model-multimodel-service-cfdfb946c-qnp9r                 1/1     Running            0              72m
-fileparser-c75f8db46-9gzvb                                  1/1     Running            0              68m
-fileparser-c75f8db46-r5brs                                  1/1     Running            0              68m
-fileparser-c75f8db46-tln98                                  1/1     Running            0              72m
-internal-agentmesh-agent-gateway-service-5c4ccb9c46-6v8jb   1/1     Running            0              64m
-internal-agentmesh-atlassian-agent-7c8d6c74b5-jwf5t         1/1     Running            0              55m
-internal-agentmesh-auth-service-86ccb7895f-5kzzh            0/1     Running            18 (15s ago)   55m
-internal-agentmesh-generic-agent-f8478db6f-74d9z            1/1     Running            1 (54m ago)    55m
-internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb   0/1     CrashLoopBackOff   15 (31s ago)   55m
-internal-agentmesh-rag-service-b8546ff7f-pjdnj              1/1     Running            0              55m
-internal-agentmesh-router-service-86dbdc66f5-z7vw7          1/1     Running            0              55m
-internal-agentmesh-ui-service-555b47ddbb-46mdq              1/1     Running            0              55m
-internal-mcp-atlassian-service-55bf4578cd-m4wx5             1/1     Running            0              64m
-milvus-5dd75f7b74-2bd75                                     1/1     Running            2              61m
-minio-85b4477cdc-t275f                                      1/1     Running            0              64m
-pai-apps-db-2                                               0/1     Running            3 (54m ago)    64m
-pai-apps-db-3                                               1/1     Running            0              55m
-hsuma@plnx-admin:~/ocp-ai-config$
+echo ""
+echo "=== pai-apps-db-1 - where is it? ==="
+oc get pods -n pai-prod -l cnpg.io/cluster=pai-apps-db
+
+echo ""
+echo "=== pai-apps-db-2 logs ==="
+oc logs pai-apps-db-2 -n pai-prod --tail=30
+
+echo ""
+echo "=== auth-service logs ==="
+oc logs internal-agentmesh-auth-service-86ccb7895f-5kzzh -n pai-prod --tail=30
+
+echo ""
+echo "=== it-service-desk-agent logs ==="
+oc logs internal-agentmesh-it-service-desk-agent-7d84599f95-8ggcb -n pai-prod --tail=30
