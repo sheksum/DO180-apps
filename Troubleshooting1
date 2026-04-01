@@ -1,9 +1,4 @@
-hsuma@plnx-admin:~/ocp-ai-config$ oc exec minio-85b4477cdc-t275f -n pai-prod -- ls /data/cnpg-backups/pai-prod/pai-apps-db/
-wals.bak
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$ oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata
-error: unable to upgrade connection: container not found ("postgres")
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
-hsuma@plnx-admin:~/ocp-ai-config$
+oc wait --for=condition=Ready=false pod/pai-apps-db-2 -n pai-prod --timeout=60s && oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata
+
+
+while ! oc exec pai-apps-db-2 -n pai-prod -c postgres -- pg_resetwal -f /var/lib/postgresql/data/pgdata 2>/dev/null; do echo "waiting..."; sleep 2; done
