@@ -1,3 +1,13 @@
+As part of our transition to Kubernetes, we have successfully built and delivered the OCP-AI on-prem Kubernetes platform purpose-built for Calix AI workloads. AgentMesh has been deployed to the platform and is now serving live traffic. This is the first production AI workload running on our internal infrastructure, supporting three fully isolated environments for development, testing, and production. The platform is designed to scale and onboard additional AI and non-AI workloads as the organization's needs grow.(edited)
+Brian Wing  [5:35 PM]
+Maybe highlight the Dell GPU, which GPU we're running and how many we have?
+[5:35 PM]thinking some folks might find that interesting
+[5:36 PM]but sounds good!
+
+
+
+
+
 # Does plnx-admin have a route to 10.172.194.0/23?
 ip route get 10.172.194.163
 
