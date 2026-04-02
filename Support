@@ -1,17 +1,98 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(requestState=complete)" \
-  2>/dev/null | head -60
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket   -b "ou=ca,ou=requests,o=ipaca"   -s one "(requestState=complete)"   2>/dev/null | head -60
+# extended LDIF
+#
+# LDAPv3
+# base <ou=ca,ou=requests,o=ipaca> with scope oneLevel
+# filter: (requestState=complete)
+# requesting: ALL
+#
 
-# Get the first 3 request DNs
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(objectclass=*)" dn \
-  2>/dev/null | grep "^dn:" | head -3
-
-pki -d /etc/pki/pki-tomcat/alias \
-    -C /etc/pki/pki-tomcat/password.conf \
-    ca-cert-find --status VALID 2>/dev/null | head -40
-
-# Check if pruning config exists in CS.cfg
-grep -i "prune\|purge\|job" /etc/pki/pki-tomcat/ca/CS.cfg | grep -i "job\|prune" | head -20
+# 1, ca, requests, ipaca
+dn: cn=1,ou=ca,ou=requests,o=ipaca
+cn: 1
+dateOfCreate: 20180630003950Z
+dateOfModify: 20180630003950Z
+extdata-cert--005frequest:: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURSBSRVFVRVNULS0tLS0KTU
+ lJQ3NUQ0NBWmtDQVFBd09qRVlNQllHQTFVRUNnd1BTVkJCTGtOQlRFbFlMa3hQUTBGTU1SNHdIQVl
+ EVlFRRERCVkRaWEowYVdacApZMkYwWlNCQmRYUm9iM0pwZEhrd2dnRWlNQTBHQ1NxR1NJYjNEUUVC
+ QVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUNkT3FmbjRUVmxIUm9kCk1scHFoMldRaG9aYW5JWFhwaW45M
+ 3BzdnVoYkNtMDdCa2NPS2VtRWtNM0huWExEMUJ1ZEcvL0JTcUkzb1VsZ3NpWGIvNVlIMllvam4KQ3
+ FmRFdQRnF2NkdmVC9pZ3N2NDJFVHpWZDFBaHcydXI5RnV6K2g0S3JLalR1MlozeW9pZDM2L1BCaXF
+ 4cTRBWkFzV0dLL0dLSVp0aAptUFFwU1o4N0E2SVArR00vM3BXTHovUm1USVFEZm9TajJTb2hjWWcx
+ VS9zZG1rYzhlN01la0J3cGFpa2E4cG5nOXF1bEYyeDlHaHJHCnR0NXEyMWh3N0xLQXRueWhMdloza
+ G5ZaGhvY0FSY25yZjA5akl3RnZXNkt2WU5scEFoYnFsZHd0WU8rT2VrWDlRdm5CZEdwbmRKNisKc0
+ o4Yy94ZUxpTnZjN1MwUGdKeWRmRmdoQWdNQkFBR2dNakF3QmdrcWhraUc5dzBCQ1E0eEl6QWhNQTh
+ HQTFVZEV3RUIvd1FGTUFNQgpBZjh3RGdZRFZSMFBBUUgvQkFRREFnSEdNQTBHQ1NxR1NJYjNEUUVC
+ Q3dVQUE0SUJBUUE5c08wWkRRYkxIUmF2OUpGQk1DTUFnWkFKCm52QWMyazUyMElCL3ZrNXVZSmYyU
+ CtOYlovVDg1RkpnSFoyN1pSdVdyblBNYjFNdjJhYUpDZFhtNTZxUXJxeTdHclJvVFZaVnkycGcKbj
+ M0d2VEcmh3L2pBVkJOQWlNaVEvUUxTYkFnbXBhREYxbk5oNFlNVnJocHdFUXZYcGlhNkdyOVRnVnF
+ 0UDBxaDd3THc3WU5DcFRyZwpQZzJ5cWRya1V0QXRRcjREYU5wUDgzRVpTT2NQU3Z5RVpmSmVmSlRz
+ c2ZCRE9odmtRcXUyZ1NDNTZkWGtnSk0wYzFkSnRGU1BpUWlrCkhFWWp1NGM3VVFZSmVmMkxpVm5PN
+ GJybjFmS0FpV1Q0TkhUOUpER0FoMStUc3kwMnVPRjNkbTBXRmZTc0ZpRzdWajltNU5hY21tWCsKZS
+ 91SHE3NWhBSXllCi0tLS0tRU5EIENFUlRJRklDQVRFIFJFUVVFU1QtLS0tLQ==
+extdata-cert--005frequest--005ftype: pkcs10
+extdata-dbstatus: UPDATED
+extdata-isencryptioncert: false
+extdata-origprofileid: caCert
+extdata-profile: true
+extdata-profileapprovedby: system
+extdata-profileid: caCACert
+extdata-profileremoteaddr:
+extdata-profileremotehost:
+extdata-profilesetid: caCertSet
+extdata-req--005fextensions:: b3dJd0FBPT0NCg==
+extdata-req--005fissued--005fcert:: TUlJRGx6Q0NBbitnQXdJQkFnSUJBVEFOQmdrcWhraU
+ c5dzBCQVFzRkFEQTZNUmd3RmdZRFZRUUtEQTlKVUVFdQ0KUTBGTVNWZ3VURTlEUVV3eEhqQWNCZ05
+ WQkFNTUZVTmxjblJwWm1sallYUmxJRUYxZEdodmNtbDBlVEFlRncweA0KT0RBMk16QXdOek01TlRC
+ YUZ3MHpPREEyTXpBd056TTVOVEJhTURveEdEQVdCZ05WQkFvTUQwbFFRUzVEUVV4Sg0KV0M1TVQwT
+ kJUREVlTUJ3R0ExVUVBd3dWUTJWeWRHbG1hV05oZEdVZ1FYVjBhRzl5YVhSNU1JSUJJakFOQmdrcQ
+ 0KaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFuVHFuNStFMVpSMGFIVEphYW9kbGtJYUd
+ XcHlGMTZZcA0KL2Q2Ykw3b1d3cHRPd1pIRGlucGhKRE54NTF5dzlRYm5Sdi93VXFpTjZGSllMSWwy
+ LytXQjltS0k1d3FudzFqeA0KYXIraG4wLzRvTEwrTmhFODFYZFFJY05ycS9SYnMvb2VDcXlvMDd0b
+ WQ4cUluZCt2endZcXNhdUFHUUxGaGl2eA0KaWlHYllaajBLVW1mT3dPaUQvaGpQOTZWaTgvMFpreU
+ VBMzZFbzlrcUlYR0lOVlA3SFpwSFBIdXpIcEFjS1dvcA0KR3ZLWjRQYXJwUmRzZlJvYXhyYmVhdHR
+ ZY095eWdMWjhvUzcyZDRaMklZYUhBRVhKNjM5UFl5TUJiMXVpcjJEWg0KYVFJVzZwWGNMV0R2am5w
+ Ri9VTDV3WFJxWjNTZXZyQ2ZIUDhYaTRqYjNPMHRENENjblh4WUlRSURBUUFCbzRHbg0KTUlHa01CO
+ EdBMVVkSXdRWU1CYUFGQmRiMTBoTktnMTZlZ0FLb0RzZDdIR3JhSlNxTUE4R0ExVWRFd0VCL3dRRg
+ 0KTUFNQkFmOHdEZ1lEVlIwUEFRSC9CQVFEQWdIR01CMEdBMVVkRGdRV0JCUVhXOWRJVFNvTmVub0F
+ DcUE3SGV4eA0KcTJpVXFqQkJCZ2dyQmdFRkJRY0JBUVExTURNd01RWUlLd1lCQlFVSE1BR0dKV2gw
+ ZEhBNkx5OXBjR0V0WTJFdQ0KYVhCaExtTmhiR2w0TG14dlkyRnNMMk5oTDI5amMzQXdEUVlKS29aS
+ Wh2Y05BUUVMQlFBRGdnRUJBRm95Nis1Ng0KbzBNR1llamxFdmZDYU1MYjRTdnN6cllxQmEvS1p2NU
+ tRdDFQRnJ2VUt0VGhTWGtZL09tQmZEZHBFeWt0MXRBdg0KcW4yOXNLcFFPWTN2blRGalpVZExVS3d
+^C
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(objectclass=*)" dn \
+>   2>/dev/null | grep "^dn:" | head -3
+dn: cn=1,ou=ca,ou=requests,o=ipaca
+dn: cn=2,ou=ca,ou=requests,o=ipaca
+dn: cn=3,ou=ca,ou=requests,o=ipaca
+^C
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# pki -d /etc/pki/pki-tomcat/alias \
+>     -C /etc/pki/pki-tomcat/password.conf \
+>     ca-cert-find --status VALID 2>/dev/null | head -40
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# grep -i "prune\|purge\|job" /etc/pki/pki-tomcat/ca/CS.cfg | grep -i "job\|prune" | head -20
+jobsScheduler._000=##
+jobsScheduler._001=## jobScheduler
+jobsScheduler._002=##
+jobsScheduler.enabled=false
+jobsScheduler.impl.PublishCertsJob.class=com.netscape.cms.jobs.PublishCertsJob
+jobsScheduler.impl.RenewalNotificationJob.class=com.netscape.cms.jobs.RenewalNotificationJob
+jobsScheduler.impl.RequestInQueueJob.class=com.netscape.cms.jobs.RequestInQueueJob
+jobsScheduler.impl.UnpublishExpiredJob.class=com.netscape.cms.jobs.UnpublishExpiredJob
+jobsScheduler.interval=1
+jobsScheduler.job.certRenewalNotifier.cron=0 3 * * 1-5
+jobsScheduler.job.certRenewalNotifier.emailSubject=Certificate Renewal Notification
+jobsScheduler.job.certRenewalNotifier.emailTemplate=/var/lib/pki/pki-tomcat/ca/emails/rnJob1.txt
+jobsScheduler.job.certRenewalNotifier.enabled=false
+jobsScheduler.job.certRenewalNotifier.notifyEndOffset=30
+jobsScheduler.job.certRenewalNotifier.notifyTriggerOffset=30
+jobsScheduler.job.certRenewalNotifier.pluginName=RenewalNotificationJob
+jobsScheduler.job.certRenewalNotifier.senderEmail=
+jobsScheduler.job.certRenewalNotifier.summary.emailSubject=Certificate Renewal Notification Summary
+jobsScheduler.job.certRenewalNotifier.summary.emailTemplate=/var/lib/pki/pki-tomcat/ca/emails/rnJob1Summary.txt
+jobsScheduler.job.certRenewalNotifier.summary.enabled=true
+[root@cpeg-ipareplica ~]#
