@@ -1,115 +1,21 @@
+# Oldest request — what's the earliest one?
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(requestState=complete)" requestCreateTime \
+  2>/dev/null | grep "^requestCreateTime:" | sort | head -5
 
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=ca,ou=requests,o=ipaca" \
->   -s one "(objectclass=*)" requestState 2>/dev/null \
->   | grep "^requestState:" | sort | uniq -c | sort -rn
- 707842 requestState: complete
-[root@cpeg-ipareplica ~]# ipa config-show | grep "CA renewal"
-  IPA CA renewal master: cpeg-ipareplica.ipa.calix.local
-[root@cpeg-ipareplica ~]# curl -sk https://cpeg-ipareplica.ipa.calix.local/ca/admin/ca/getStatus
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><XMLResponse><State>1</State><Type>CA</Type><Status>running</Status><Version>10.15.0-1.module+el8.10.0+21280+cce842b8</Version></XMLResponse>[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=ranges,o=ipaca" "(objectclass=*)" 2>/dev/null | grep -E "^dn:|^cn:|^beginRange:|^endRange:"
-dn: ou=ranges,o=ipaca
-dn: ou=replica,ou=ranges,o=ipaca
-dn: ou=requests,ou=ranges,o=ipaca
-dn: ou=certificateRepository,ou=ranges,o=ipaca
-dn: cn=10000001,ou=requests,ou=ranges,o=ipaca
-beginRange: 10000001
-cn: 10000001
-endRange: 20000000
-dn: cn=20000001,ou=requests,ou=ranges,o=ipaca
-beginRange: 20000001
-cn: 20000001
-endRange: 30000000
-dn: cn=30000001,ou=requests,ou=ranges,o=ipaca
-beginRange: 30000001
-cn: 30000001
-endRange: 40000000
-dn: cn=10000001,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 10000001
-cn: 10000001
-endRange: 20000000
-dn: cn=20000001,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 20000001
-cn: 20000001
-endRange: 30000000
-dn: cn=30000001,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 30000001
-cn: 30000001
-endRange: 40000000
-dn: cn=1000,ou=replica,ou=ranges,o=ipaca
-beginRange: 1000
-cn: 1000
-endRange: 1099
-dn: cn=40000001,ou=requests,ou=ranges,o=ipaca
-beginRange: 40000001
-cn: 40000001
-endRange: 50000000
-dn: cn=40000001,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 40000001
-cn: 40000001
-endRange: 308435456
-dn: cn=50000001,ou=requests,ou=ranges,o=ipaca
-beginRange: 50000001
-cn: 50000001
-endRange: 60000000
-dn: cn=308435457,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 308435457
-cn: 308435457
-endRange: 576870912
-dn: cn=1100,ou=replica,ou=ranges,o=ipaca
-beginRange: 1100
-endRange: 1199
-cn: 1100
-dn: cn=60000001,ou=requests,ou=ranges,o=ipaca
-beginRange: 60000001
-endRange: 70000000
-cn: 60000001
-dn: cn=576870913,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 576870913
-endRange: 845306368
-cn: 576870913
-dn: cn=845306369,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 845306369
-endRange: 1113741824
-cn: 845306369
-dn: cn=1113741825,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 1113741825
-endRange: 1382177280
-cn: 1113741825
-dn: cn=1382177281,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 1382177281
-endRange: 1650612736
-cn: 1382177281
-dn: cn=70000001,ou=requests,ou=ranges,o=ipaca
-beginRange: 70000001
-endRange: 80000000
-cn: 70000001
-dn: cn=80000001,ou=requests,ou=ranges,o=ipaca
-beginRange: 80000001
-endRange: 90000000
-cn: 80000001
-dn: cn=1650612737,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 1650612737
-endRange: 1919048192
-cn: 1650612737
-dn: cn=90000001,ou=requests,ou=ranges,o=ipaca
-beginRange: 90000001
-endRange: 100000000
-cn: 90000001
-dn: cn=1919048193,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 1919048193
-endRange: 2187483648
-cn: 1919048193
-dn: cn=100000001,ou=requests,ou=ranges,o=ipaca
-beginRange: 100000001
-endRange: 110000000
-cn: 100000001
-dn: cn=2187483649,ou=certificateRepository,ou=ranges,o=ipaca
-beginRange: 2187483649
-endRange: 2455919104
-cn: 2187483649
-[root@cpeg-ipareplica ~]#
+# Newest request
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(requestState=complete)" requestCreateTime \
+  2>/dev/null | grep "^requestCreateTime:" | sort | tail -5
+
+
+# Count issued certs in the certificate repository
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(objectclass=*)" userCertificate \
+  2>/dev/null | grep "^dn:" | wc -l
+
+ipa --version
+rpm -q ipa-server pki-ca
