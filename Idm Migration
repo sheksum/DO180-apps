@@ -1,3 +1,10 @@
+vault write -field=csr pki_int/intermediate/generate/internal \
+  common_name="OCP-AI Intermediate CA" \
+  key_type=rsa \
+  key_bits=4096 > ocp-ai-intermediate.csr
+
+
+
 "As part of our transition to Kubernetes, we have successfully built and delivered the OCP-AI on-prem Kubernetes platform purpose-built for Calix AI workloads. The platform runs on Dell PowerEdge R760xa GPU servers equipped with 8x NVIDIA H100L 94GB GPUs, providing 752 GB of total GPU memory for AI/ML compute. AgentMesh has been deployed to the platform and is now serving live traffic. This is the first production AI workload running on our internal infrastructure, supporting three fully isolated environments for development, testing, and production. The platform is designed to scale and onboard additional AI and non-AI workloads as the organization's needs grow."
 
 
