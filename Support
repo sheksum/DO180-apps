@@ -33,3 +33,8 @@ Number of entries returned 5000
 [root@cpeg-ipareplica ~]# ipa cert-find --status=VALID 2>/dev/null | grep "Number of entries"
 Number of entries returned 5000
 [root@cpeg-ipareplica ~]#
+
+
+ipa cert-find --status=VALID --sizelimit=0 2>/dev/null | grep "Number of entries"
+
+ipa cert-find --status=VALID --sizelimit=0 2>/dev/null | grep "Subject:" | sed 's/.*CN=//;s/,.*//' | sort | uniq -c | sort -rn | head -20
