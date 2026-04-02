@@ -1,7 +1,7 @@
 vault write -field=csr pki_int/intermediate/generate/internal \
-  common_name="OCP-AI Intermediate CA" \
+  common_name="Calix Vault Intermediate CA" \
   key_type=rsa \
-  key_bits=4096 > ocp-ai-intermediate.csr
+  key_bits=4096 > calix-vault-intermediate.csr
 
 
 
