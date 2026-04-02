@@ -1,4 +1,4 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa cert-find --status=VALID --sizelimit=0 2>/dev/null | grep "Number of entries"
-[root@cpeg-ipareplica ~]# ipa cert-find --status=VALID --sizelimit=0 2>/dev/null | grep "Subject:" | sed 's/.*CN=//;s/,.*//' | sort | uniq -c | sort -rn | head -20
-[root@cpeg-ipareplica ~]#
+ipa cert-find --status=VALID --all 2>/dev/null | grep "Number of entries"
+
+ipa cert-find --status=VALID 2>/dev/null | grep "Serial number:" | tail -5
+ipa cert-find --status=VALID 2>/dev/null | grep "Subject:" | head -20
