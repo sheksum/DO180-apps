@@ -3,3 +3,33 @@ ipa cert-find --validity-notafter-from="$(date +%Y-%m-%d)" 2>/dev/null | grep -E
 
 
 ipa cert-find --status=VALID 2>/dev/null | grep "Number of entries"
+
+
+Issuing CA: ipa
+  Subject: CN=sjccafe-llin.calix.local,O=IPA.CALIX.LOCAL
+  Issuer: CN=Certificate Authority,O=IPA.CALIX.LOCAL
+  Not Before: Sun Mar 01 04:41:55 2026 UTC
+  Not After: Wed Mar 01 04:41:55 2028 UTC
+  Serial number: 1073680082
+  Serial number (hex): 0x3FFF0ED2
+  Status: VALID
+  Revoked: False
+
+  Issuing CA: ipa
+  Subject: CN=sjccafe-vshah.calix.local,O=IPA.CALIX.LOCAL
+  Issuer: CN=Certificate Authority,O=IPA.CALIX.LOCAL
+  Not Before: Sun Mar 01 04:41:56 2026 UTC
+  Not After: Wed Mar 01 04:41:56 2028 UTC
+  Serial number: 1073680083
+  Serial number (hex): 0x3FFF0ED3
+  Status: VALID
+  Revoked: False
+-------------------------------
+Number of entries returned 5000
+-------------------------------
+[root@cpeg-ipareplica ~]# ipa cert-find --validity-notafter-from="$(date +%Y-%m-%d)" 2>/dev/null | grep -E "Subject:|Serial|Status" | head -40
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa cert-find --status=VALID 2>/dev/null | grep "Number of entries"
+Number of entries returned 5000
+[root@cpeg-ipareplica ~]#
