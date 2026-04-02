@@ -1,16 +1,56 @@
-# Oldest request
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(objectclass=*)" dateOfCreate \
-  2>/dev/null | grep "^dateOfCreate:" | sort | head -3
+Title: IPA/IdM Migration from RHEL 8 to RHEL 9 — Plano DC
 
-# Newest request
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(objectclass=*)" dateOfCreate \
-  2>/dev/null | grep "^dateOfCreate:" | sort | tail -3
+Assignee: Haj Suma
+Priority: High
+Component: Infrastructure / Identity Management
 
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(dateOfCreate<=20250401000000Z)" dateOfCreate \
-  2>/dev/null | grep "^dn:" | wc -l
+---
+
+Summary:
+Migrate IPA/IdM master server from cpeg-ipareplica (RHEL 8, IPA 4.9.13) to pln-ipamaster (RHEL 9.3, IPA 4.12.2, Plano DC) to modernize the IPA infrastructure and consolidate identity management services to the Plano datacenter.
+
+Business Justification:
+Centralizing IPA/IdM services in the Plano DC improves reliability and positions us on a supported RHEL 9 platform. The current master (cpeg-ipareplica) is running RHEL 8 which is approaching end of life.
+
+Current State:
+- cpeg-ipareplica.ipa.calix.local — RHEL 8, IPA 4.9.13 — currently serving all clients
+- pln-ipamaster.ipa.calix.local — RHEL 9.3, IPA 4.12.2, Plano DC — installed, partially validated, temporarily reverted
+
+Work Completed:
+- Installed pln-ipamaster as CA replica in existing IPA topology
+- Replicated full CA database to pln
+- Transferred CA renewal master and CRL generation to pln
+- Validated core services — DS, KDC, kadmin, httpd, pki-tomcatd
+- UI and CLI authentication validated
+- Red Hat support case opened — confirmed clean fresh install is recommended path forward
+
+Decision:
+Red Hat recommended a clean fresh install rather than migrating the existing CA database due to the size and age of the CA request database. LDAP-confirmed count: 707,842 completed certificate requests accumulated since 2018. Investigation confirmed all existing certificates are host and service certs that can be automatically reissued upon client re-enrollment. CA data does not need to be preserved.
+
+Next Steps:
+1. Prune 707,842 completed certificate requests from cpeg o=ipaca database (prerequisite — reduces pki-tomcatd startup from 30-60 min to seconds)
+2. Uninstall current pln-ipamaster (ipa-server-install --uninstall)
+3. Apply pre-install checklist on pln — installer.conf timeouts, constants.py patch, pki-tomcatd systemd override, time-skew ldif (required to prevent install hang)
+4. Fresh install of pln-ipamaster per RH recommendation
+5. Migrate user/group/HBAC/sudo/DNS data only — no CA data
+6. Post-install validation — cn=masters entries, certmonger, CA health, replication topology
+7. Transfer CA renewal master and CRL generation to pln
+8. Re-enroll client machines in batch
+9. Update all client sssd.conf to point to pln-ipamaster
+10. Update OCP-AI LDAP integration to point to pln-ipamaster
+11. Decommission cpeg-ipareplica once pln fully validated
+
+Acceptance Criteria:
+- ipactl status all green on pln-ipamaster
+- kinit admin and ipa user-find working
+- All certmonger certs in MONITORING state
+- CA renewal master and CRL generation transferred to pln
+- cpeg-ipareplica removed from topology and decommissioned
+- OCP-AI LDAP auth validated against pln-ipamaster
+
+Environment:
+- IPA Realm: IPA.CALIX.LOCAL
+- IPA Domain: ipa.calix.local
+- Other replicas: nan-ipareplica01, sjc-ipareplica01
+- RH Support Case: Cesar Goslawski — [add case number]
+- RH Migration Guide: https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/migrating_to_identity_management_on_rhel_9/index
