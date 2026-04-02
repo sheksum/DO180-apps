@@ -1,0 +1,36 @@
+ Red Hat associate comment Goslawski, Cesar
+
+Tue, Mar 31, 2026 at 08:41:48 AM EDT
+Hello!
+
+Right so your first couple of questions will depend:
+>>What is the recommended procedure for a clean fresh install of pln-ipamaster while preserving our existing user/host/group data and certificates?
+>>How do we handle the CA database migration — specifically the existing issued certificates that clients depend on?
+
+Are you aware of issued certificates for specific clients? The point I'm trying to reach is that - clients are not automatically issued SSL certs,
+so unless you have specific servers running SSL certificates issued by IPA and not another CA, these would need a reissue. However, I still am skeptical
+about the number of certs you have, which greatly increases the size of your LDAP database. Specially because this comes from a centOS 7 which doesn't have ACME.
+If this was a deployment initially with ACME, but without configuring pruning then this number would be fine. Without ACME? I'm really skeptical IPA issued ~1mi certs manually.
+
+Of course, these may be organic, but I've just seen a couple of tickets about the JIRA I mentioned in the last couple of weeks, so I am really trying to make sure you need these,
+otherwise you can just discard all data from the CA and start anew with much less of a headache.
+
+In your place, I'd try reviewing any existing documentation about clients/services running and check whether these certs are really needed. If not,
+just migrate from one topology to another, then bring up user/group/hbac/sudo/dns(if in use) data, then enroll the client machines in batch to the new topology.
+
+>>Would removing ric-ipareplica (CentOS 7, Dogtag down) from the topology first be a prerequisite before the fresh install?
+I'd recommend against removing anything prior to installing new replicas, even if pki-tomcat is currently down. The replica may still be servicing ldap requests.
+
+*IF* you want to keep the current environment (e.g., the current ldap database as-is), the next steps are to introduce new replicas, and then start decommissioning
+the old centOS machines, and the last step would be to replace the rhel-8.10 with another rhel-9.
+
+You'd just have to be aware of transferring the roles appropriately in the process as documented in this doc:
+https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/migrating_to_identity_management_on_rhel_9/index
+
+>>We are still experiencing the gssproxy SPNEGO cannot find mechanisms to negotiate issue after service restarts on the current pln-ipamaster. 
+>>Is this related to the unsupported install method or a separate issue we should address regardless?
+We'd have to investigate. A keytab may have gone stale?
+
+I'd recommend opening a new case and referring to this one. Or things may get too complicate as we work on a possible migration.
+
+Let me know if this helps?
