@@ -1,0 +1,7 @@
+@frank I looked into this and reset your password, then validated authentication — I was able to successfully log in using the new password without any issues.
+
+I’ve shared a temporary password with you over Slack. Please use that to log in and update it.
+
+IPA is functioning as expected. The earlier behavior where the old password appeared to work was likely due to a cached Kerberos ticket or session on the client.
+
+Let me know if you run into any issues.
