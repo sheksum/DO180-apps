@@ -1,37 +1,17 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=ca,ou=requests,o=ipaca" \
->   -s one "(requestState=complete)" requestCreateTime \
->   2>/dev/null | grep "^requestCreateTime:" | sort | head -5
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=ca,ou=requests,o=ipaca" \
->   -s one "(requestState=complete)" requestCreateTime \
->   2>/dev/null | grep "^requestCreateTime:" | sort | tail -5
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(objectclass=*)" userCertificate \
->   2>/dev/null | grep "^dn:" | wc -l
-708866
-[root@cpeg-ipareplica ~]# ipa --version
-VERSION: 4.9.13, API_VERSION: 2.251
-[root@cpeg-ipareplica ~]# rpm -q ipa-server pki-ca
-ipa-server-4.9.13-10.module+el8.10.0+21944+3943ad77.x86_64
-package pki-ca is not installed
-[root@cpeg-ipareplica ~]#
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(requestState=complete)" \
+  2>/dev/null | head -60
 
-[root@cpeg-ipareplica ~]# rpm -qa | grep  pki
-idm-pki-tools-10.15.0-1.module+el8.10.0+21280+cce842b8.x86_64
-idm-pki-ca-10.15.0-1.module+el8.10.0+21280+cce842b8.noarch
-idm-pki-kra-10.15.0-1.module+el8.10.0+21280+cce842b8.noarch
-idm-pki-base-java-10.15.0-1.module+el8.10.0+21280+cce842b8.noarch
-idm-pki-symkey-10.15.0-1.module+el8.10.0+21280+cce842b8.x86_64
-idm-pki-server-10.15.0-1.module+el8.10.0+21280+cce842b8.noarch
-python3-idm-pki-10.15.0-1.module+el8.10.0+21280+cce842b8.noarch
-idm-pki-acme-10.15.0-1.module+el8.10.0+21280+cce842b8.noarch
-krb5-pkinit-1.18.2-27.el8_10.x86_64
-idm-pki-base-10.15.0-1.module+el8.10.0+21280+cce842b8.noarch
-[root@cpeg-ipareplica ~]#
+# Get the first 3 request DNs
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(objectclass=*)" dn \
+  2>/dev/null | grep "^dn:" | head -3
+
+pki -d /etc/pki/pki-tomcat/alias \
+    -C /etc/pki/pki-tomcat/password.conf \
+    ca-cert-find --status VALID 2>/dev/null | head -40
+
+# Check if pruning config exists in CS.cfg
+grep -i "prune\|purge\|job" /etc/pki/pki-tomcat/ca/CS.cfg | grep -i "job\|prune" | head -20
