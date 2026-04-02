@@ -1,4 +1,32 @@
-ipa cert-find --status=VALID --all 2>/dev/null | grep "Number of entries"
-
-ipa cert-find --status=VALID 2>/dev/null | grep "Serial number:" | tail -5
-ipa cert-find --status=VALID 2>/dev/null | grep "Subject:" | head -20
+[root@cpeg-ipareplica ~]# ipa cert-find --status=VALID --all 2>/dev/null | grep "Number of entries"
+Number of entries returned 5000
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa cert-find --status=VALID 2>/dev/null | grep "Serial number:" | tail -5
+  Serial number: 1073681245
+  Serial number: 1073681246
+  Serial number: 1073681247
+  Serial number: 1073681248
+  Serial number: 1073681249
+[root@cpeg-ipareplica ~]# ipa cert-find --status=VALID 2>/dev/null | grep "Subject:" | head -20
+  Subject: CN=Certificate Authority,O=IPA.CALIX.LOCAL
+  Subject: CN=pet-ipamaster.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=pet-ipamaster.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=pet-ipamaster.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=sjc-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=sjc-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=sjc-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=min-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=min-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=min-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=ric-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=ric-ipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=ric-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=ric-ipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=ric-ipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=ric-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=nan-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=nan-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=nan-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
+  Subject: CN=vmlnx-taccms04.calix.local,O=IPA.CALIX.LOCAL
+[root@cpeg-ipareplica ~]#
