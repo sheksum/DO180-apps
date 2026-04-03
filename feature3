@@ -14,7 +14,7 @@ python3 ocp-capacity-report.py
 
 
 
-cat > ocp-capacity-report.py << 'ENDOFSCRIPT'
+cat > ocp-capacity-report.py << 'EOF'
 #!/usr/bin/env python3
 import argparse
 import csv
@@ -46,15 +46,33 @@ def ki_to_gib(val):
         return round(float(val[:-2]), 1)
     return round(int(val) / (1024 ** 3), 1)
 
-def parse_machineset(machineset):
-    if not machineset:
-        return "shared", "n/a"
-    parts = machineset.split("-")
-    if len(parts) >= 4:
-        return parts[2], parts[3]
-    elif len(parts) == 3:
-        return "shared", parts[2]
-    return "shared", "n/a"
+def get_bu(labels, node_name):
+    for key in ("cscglobal.com/chargeback.businessUnit",
+                "cscglobal.com/owner.businessUnit",
+                "machine.openshift.io/cluster-api-machineset"):
+        if key in labels and labels[key]:
+            val = labels[key]
+            if key == "machine.openshift.io/cluster-api-machineset":
+                parts = val.split("-")
+                return parts[2] if len(parts) >= 3 else val
+            return val
+    parts = node_name.split("-")
+    if len(parts) >= 4 and parts[3] in ("large", "medium", "small"):
+        return parts[2]
+    if len(parts) >= 3:
+        return parts[2]
+    return "shared"
+
+def get_size(labels, node_name):
+    machineset = labels.get("machine.openshift.io/cluster-api-machineset", "")
+    if machineset:
+        parts = machineset.split("-")
+        if len(parts) >= 4:
+            return parts[3]
+    parts = node_name.split("-")
+    if len(parts) >= 4 and parts[3] in ("large", "medium", "small"):
+        return parts[3]
+    return "n/a"
 
 def get_role(labels):
     if "node-role.kubernetes.io/master" in labels or "node-role.kubernetes.io/control-plane" in labels:
@@ -82,12 +100,15 @@ def collect(cluster_name):
         labels = node["metadata"].get("labels", {})
         capacity = node["status"].get("capacity", {})
         info = node["status"].get("nodeInfo", {})
+        node_name = node["metadata"]["name"]
         machineset = labels.get("machine.openshift.io/cluster-api-machineset", "")
-        bu, size = parse_machineset(machineset)
         role = get_role(labels)
         if role == "control":
             bu = "shared"
             size = "n/a"
+        else:
+            bu = get_bu(labels, node_name)
+            size = get_size(labels, node_name)
         rows.append({
             "Month": month,
             "Year": year,
@@ -95,7 +116,7 @@ def collect(cluster_name):
             "business_unit": bu,
             "size": size,
             "Role": role,
-            "node": node["metadata"]["name"],
+            "node": node_name,
             "Cores": millicore_to_cores(capacity.get("cpu", "0")),
             "Memory (GiB)": ki_to_gib(capacity.get("memory", "0Ki")),
             "OS": info.get("osImage", ""),
@@ -160,4 +181,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-ENDOFSCRIPT
+EOF
