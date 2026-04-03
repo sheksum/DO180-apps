@@ -1,0 +1,261 @@
+# Basic run — auto-detects cluster name from Infrastructure object
+python3 ocp-capacity-report.py
+
+# Override cluster name if needed
+python3 ocp-capacity-report.py --cluster-name ocpuat
+
+# Custom output dir
+python3 ocp-capacity-report.py --out /tmp/reports
+
+
+## #!/usr/bin/env python3
+“””
+ocp-capacity-report.py
+
+One-shot OCP node inventory and capacity report.
+Outputs a CSV to ./reports/ and prints a summary table to stdout.
+
+Requirements:
+
+- oc CLI in PATH and logged in (oc whoami should work)
+- python3 (no pip installs needed — stdlib only)
+
+Usage:
+python3 ocp-capacity-report.py
+python3 ocp-capacity-report.py –cluster-name ocpuat   # override cluster name
+python3 ocp-capacity-report.py –out /tmp/reports
+“””
+
+import argparse
+import csv
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+
+# —————————————————————————
+
+# Helpers
+
+# —————————————————————————
+
+def oc(*args) -> dict | list:
+“”“Run an oc command with -o json and return parsed output.”””
+cmd = [“oc”] + list(args) + [”-o”, “json”]
+result = subprocess.run(cmd, capture_output=True, text=True)
+if result.returncode != 0:
+print(f”[ERROR] oc {’ ’.join(args)} failed:\n{result.stderr}”, file=sys.stderr)
+sys.exit(1)
+return json.loads(result.stdout)
+
+def millicore_to_cores(val: str) -> float:
+if val.endswith(“m”):
+return round(int(val[:-1]) / 1000, 1)
+return float(val)
+
+def ki_to_gib(val: str) -> float:
+if val.endswith(“Ki”):
+return round(int(val[:-2]) / (1024 ** 2), 1)
+if val.endswith(“Mi”):
+return round(int(val[:-2]) / 1024, 1)
+if val.endswith(“Gi”):
+return round(float(val[:-2]), 1)
+return round(int(val) / (1024 ** 3), 1)
+
+# —————————————————————————
+
+# BU / role / size derivation
+
+# —————————————————————————
+
+def parse_machineset(machineset: str) -> tuple[str, str]:
+“””
+Parse BU and size from machineset label.
+Pattern: <cluster>-<id>-<bu>-<size>  e.g. ocpuat-7bqb4-cls-large
+Special single-segment pools: infra, worker → bu=shared
+Returns: (bu, size)
+“””
+if not machineset:
+return “shared”, “n/a”
+
+```
+parts = machineset.split("-")
+
+if len(parts) >= 4:
+    bu   = parts[2]   # cls, dbs, fin, enterprise
+    size = parts[3]   # large, medium, small
+elif len(parts) == 3:
+    # e.g. ocpuat-7bqb4-infra  or  ocpuat-7bqb4-worker
+    bu   = "shared"
+    size = parts[2]
+else:
+    bu   = "shared"
+    size = "n/a"
+
+return bu, size
+```
+
+def get_role(labels: dict) -> str:
+if “node-role.kubernetes.io/master” in labels or   
+“node-role.kubernetes.io/control-plane” in labels:
+return “control”
+if “node-role.kubernetes.io/infra” in labels:
+return “infra”
+return “compute”
+
+# —————————————————————————
+
+# Cluster name resolution
+
+# —————————————————————————
+
+def get_cluster_name(override: str | None) -> str:
+if override:
+return override
+try:
+infra = oc(“get”, “infrastructure”, “cluster”)
+return infra.get(“status”, {}).get(“infrastructureName”, “unknown”)
+except SystemExit:
+return “unknown”
+
+# —————————————————————————
+
+# Main collection
+
+# —————————————————————————
+
+def collect(cluster_name: str) -> list[dict]:
+now = datetime.utcnow()
+month = now.strftime(”%m”)   # “03”
+year  = now.strftime(”%Y”)   # “2026”
+
+```
+nodes_raw = oc("get", "nodes")
+rows = []
+
+for node in nodes_raw.get("items", []):
+    labels   = node["metadata"].get("labels", {})
+    capacity = node["status"].get("capacity", {})
+    info     = node["status"].get("nodeInfo", {})
+
+    machineset = labels.get("machine.openshift.io/cluster-api-machineset", "")
+    bu, size   = parse_machineset(machineset)
+    role       = get_role(labels)
+
+    # Control plane nodes have no MachineSet — force BU
+    if role == "control":
+        bu   = "shared"
+        size = "n/a"
+
+    rows.append({
+        "Month":          month,
+        "Year":           year,
+        "Cluster":        cluster_name,
+        "business_unit":  bu,
+        "size":           size,
+        "Role":           role,
+        "node":           node["metadata"]["name"],
+        "Cores":          millicore_to_cores(capacity.get("cpu", "0")),
+        "Memory (GiB)":   ki_to_gib(capacity.get("memory", "0Ki")),
+        "OS":             info.get("osImage", ""),
+        "Kernel":         info.get("kernelVersion", ""),
+        "Kubelet":        info.get("kubeletVersion", ""),
+        "MachineSet":     machineset,
+    })
+
+return rows
+```
+
+# —————————————————————————
+
+# Output
+
+# —————————————————————————
+
+FIELDNAMES = [
+“Month”, “Year”, “Cluster”, “business_unit”, “size”,
+“Role”, “node”, “Cores”, “Memory (GiB)”,
+“OS”, “Kernel”, “Kubelet”, “MachineSet”,
+]
+
+def write_csv(rows: list[dict], out_dir: Path) -> Path:
+out_dir.mkdir(parents=True, exist_ok=True)
+now = datetime.utcnow()
+filename = out_dir / f”ocp-capacity-{now.strftime(’%Y-%m’)}.csv”
+
+```
+with open(filename, "w", newline="") as f:
+    writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
+    writer.writeheader()
+    writer.writerows(rows)
+
+return filename
+```
+
+def print_summary(rows: list[dict]):
+if not rows:
+print(“No nodes found.”)
+return
+
+```
+cluster = rows[0]["Cluster"]
+month   = f"{rows[0]['Month']}/{rows[0]['Year']}"
+
+print(f"\n{'='*60}")
+print(f"  OCP Capacity Report — {cluster} — {month}")
+print(f"{'='*60}")
+
+# Per-BU summary
+bu_map: dict[str, dict] = {}
+for r in rows:
+    key = (r["business_unit"], r["size"])
+    if key not in bu_map:
+        bu_map[key] = {"nodes": 0, "cores": 0.0, "mem": 0.0, "role": r["Role"]}
+    bu_map[key]["nodes"]  += 1
+    bu_map[key]["cores"]  += r["Cores"]
+    bu_map[key]["mem"]    += r["Memory (GiB)"]
+
+print(f"\n{'BU':<14} {'Size':<10} {'Role':<10} {'Nodes':>6} {'Cores':>8} {'Memory (GiB)':>14}")
+print(f"{'-'*14} {'-'*10} {'-'*10} {'-'*6} {'-'*8} {'-'*14}")
+
+for (bu, size), s in sorted(bu_map.items()):
+    print(f"{bu:<14} {size:<10} {s['role']:<10} {s['nodes']:>6} {s['cores']:>8.0f} {s['mem']:>14.1f}")
+
+total_nodes  = len(rows)
+total_cores  = sum(r["Cores"] for r in rows)
+total_mem    = sum(r["Memory (GiB)"] for r in rows)
+
+print(f"\n{'TOTAL':<14} {'':<10} {'':<10} {total_nodes:>6} {total_cores:>8.0f} {total_mem:>14.1f}")
+print(f"{'='*60}\n")
+```
+
+# —————————————————————————
+
+# Entry point
+
+# —————————————————————————
+
+def main():
+parser = argparse.ArgumentParser(description=“OCP one-shot capacity report”)
+parser.add_argument(”–cluster-name”, help=“Override cluster name (default: auto-detect)”)
+parser.add_argument(”–out”, default=”./reports”, help=“Output directory (default: ./reports)”)
+args = parser.parse_args()
+
+```
+cluster_name = get_cluster_name(args.cluster_name)
+print(f"[*] Cluster : {cluster_name}")
+print(f"[*] Collecting node data...")
+
+rows = collect(cluster_name)
+print(f"[*] Found {len(rows)} nodes")
+
+csv_path = write_csv(rows, Path(args.out))
+print(f"[*] CSV written: {csv_path}")
+
+print_summary(rows)
+```
+
+if **name** == “**main**”:
+main()
