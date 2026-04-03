@@ -85,7 +85,11 @@ def get_cluster_name(override):
         return override
     try:
         infra = oc("get", "infrastructure", "cluster")
-        return infra.get("status", {}).get("infrastructureName", "unknown")
+        full_name = infra.get("status", {}).get("infrastructureName", "unknown")
+        parts = full_name.rsplit("-", 1)
+        if len(parts) == 2 and len(parts[1]) == 5:
+            return parts[0]
+        return full_name
     except SystemExit:
         return "unknown"
 
