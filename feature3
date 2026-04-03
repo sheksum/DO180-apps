@@ -1,4 +1,20 @@
 
+# Option 1 - check the MachineSet spec (provisioned RAM)
+oc get machineset ocpuat-7bqb4-cls-large -n openshift-machine-api -o json | python3 -c "
+import json, sys
+ms = json.load(sys.stdin)
+spec = ms.get('spec', {}).get('template', {}).get('spec', {})
+print(json.dumps(spec, indent=2))
+" | grep -i mem
+
+# Option 2 - check the Machine object for a node
+oc get machines -n openshift-machine-api -o json | python3 -c "
+import json, sys
+ml = json.load(sys.stdin)
+m = ml['items'][0]
+print(json.dumps(m.get('spec', {}), indent=2))
+" | grep -i mem
+
 
 oc get node ocpuat-7bqb4-cls-large-5gdkf -o json | python3 -c "
 import json, sys
