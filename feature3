@@ -12,9 +12,11 @@ for m in ml['items']:
 
 
 
-oc get node ocpuat-7bqb4-infra-7wdgq -o json | python3 -c "
-import json, sys
-n = json.load(sys.stdin)
-print(n['status']['capacity'])
-"
-
+# Round 31.3 GiB up to nearest standard: 32, 64, 96, 128
+import math
+STANDARD_SIZES = [32, 64, 96, 128, 192, 256, 384, 512]
+def round_to_standard(gib):
+    for s in STANDARD_SIZES:
+        if gib <= s:
+            return s
+    return int(math.ceil(gib / 32) * 32)
