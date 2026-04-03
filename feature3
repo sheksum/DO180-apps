@@ -1,3 +1,13 @@
+
+
+oc get node ocpuat-7bqb4-cls-large-5gdkf -o json | python3 -c "
+import json, sys
+node = json.load(sys.stdin)
+for k, v in sorted(node['metadata']['labels'].items()):
+    print(k + ' = ' + v)
+"
+
+
 python3 -c "import py_compile; py_compile.compile('ocp-capacity-report.py', doraise=True)" && echo OK
 python3 ocp-capacity-report.py
 
