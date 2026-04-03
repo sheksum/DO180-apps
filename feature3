@@ -1,3 +1,9 @@
+python3 -c "import py_compile; py_compile.compile('ocp-capacity-report.py', doraise=True)" && echo OK
+python3 ocp-capacity-report.py
+
+
+
+
 cat > ocp-capacity-report.py << 'ENDOFSCRIPT'
 #!/usr/bin/env python3
 import argparse
