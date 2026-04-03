@@ -101,22 +101,37 @@ def node_name_to_machineset(node_name):
         return "-".join(parts[:3])
     return ""
 
-def build_machineset_lookup():
+def build_lookup():
     lookup = {}
+
     try:
         machinesets = oc("get", "machinesets", "-n", "openshift-machine-api")
         for ms in machinesets.get("items", []):
             ms_name = ms["metadata"]["name"]
             pv = ms.get("spec", {}).get("template", {}).get("spec", {}).get("providerSpec", {}).get("value", {})
             mem = gi_str_to_int(pv.get("memorySize", ""))
-            sockets = int(pv.get("vcpuSockets", 1) or 1)
-            per_socket = int(pv.get("vcpusPerSocket", 1) or 1)
-            cpu = sockets * per_socket
+            cpu = int(pv.get("vcpuSockets", 1) or 1) * int(pv.get("vcpusPerSocket", 1) or 1)
             if mem or cpu:
                 lookup[ms_name] = {"cpu": cpu, "mem": mem}
                 print("[*] MachineSet " + ms_name + " cpu=" + str(cpu) + " mem=" + str(mem) + "Gi")
     except SystemExit:
-        print("[WARN] Could not fetch MachineSet objects - falling back to node capacity", file=sys.stderr)
+        print("[WARN] Could not fetch MachineSets", file=sys.stderr)
+
+    try:
+        machines = oc("get", "machines", "-n", "openshift-machine-api")
+        for m in machines.get("items", []):
+            node_name = m.get("status", {}).get("nodeRef", {}).get("name", "")
+            if not node_name:
+                continue
+            pv = m.get("spec", {}).get("providerSpec", {}).get("value", {})
+            mem = gi_str_to_int(pv.get("memorySize", ""))
+            cpu = int(pv.get("vcpuSockets", 1) or 1) * int(pv.get("vcpusPerSocket", 1) or 1)
+            if mem or cpu:
+                lookup[node_name] = {"cpu": cpu, "mem": mem}
+                print("[*] Machine " + node_name + " cpu=" + str(cpu) + " mem=" + str(mem) + "Gi")
+    except SystemExit:
+        print("[WARN] Could not fetch Machines", file=sys.stderr)
+
     return lookup
 
 def collect(cluster_name):
@@ -124,8 +139,8 @@ def collect(cluster_name):
     month = now.strftime("%m")
     year = now.strftime("%Y")
     nodes_raw = oc("get", "nodes")
-    ms_lookup = build_machineset_lookup()
-    print("[*] MachineSet lookup entries: " + str(len(ms_lookup)))
+    lookup = build_lookup()
+    print("[*] Total lookup entries: " + str(len(lookup)))
     rows = []
     for node in nodes_raw.get("items", []):
         labels = node["metadata"].get("labels", {})
@@ -142,9 +157,9 @@ def collect(cluster_name):
         else:
             bu = get_bu(labels, node_name)
             size = get_size(labels, node_name)
-        ms_data = ms_lookup.get(machineset, {})
-        cores = ms_data.get("cpu") or int(millicore_to_cores(capacity.get("cpu", "0")))
-        mem = ms_data.get("mem") or ki_to_gib(capacity.get("memory", "0Ki"))
+        data = lookup.get(node_name) or lookup.get(machineset) or {}
+        cores = data.get("cpu") or int(millicore_to_cores(capacity.get("cpu", "0")))
+        mem = data.get("mem") or ki_to_gib(capacity.get("memory", "0Ki"))
         rows.append({
             "Month": month,
             "Year": year,
