@@ -11,35 +11,6 @@ for m in ml['items']:
 
 
 
-# Option 1 - check the MachineSet spec (provisioned RAM)
-oc get machineset ocpuat-7bqb4-cls-large -n openshift-machine-api -o json | python3 -c "
-import json, sys
-ms = json.load(sys.stdin)
-spec = ms.get('spec', {}).get('template', {}).get('spec', {})
-print(json.dumps(spec, indent=2))
-" | grep -i mem
-
-# Option 2 - check the Machine object for a node
-oc get machines -n openshift-machine-api -o json | python3 -c "
-import json, sys
-ml = json.load(sys.stdin)
-m = ml['items'][0]
-print(json.dumps(m.get('spec', {}), indent=2))
-" | grep -i mem
-
-
-oc get node ocpuat-7bqb4-cls-large-5gdkf -o json | python3 -c "
-import json, sys
-node = json.load(sys.stdin)
-for k, v in sorted(node['metadata']['labels'].items()):
-    print(k + ' = ' + v)
-"
-
-
-python3 -c "import py_compile; py_compile.compile('ocp-capacity-report.py', doraise=True)" && echo OK
-python3 ocp-capacity-report.py
-
-
 
 
 cat > ocp-capacity-report.py << 'EOF'
@@ -73,6 +44,21 @@ def ki_to_gib(val):
     if val.endswith("Gi"):
         return round(float(val[:-2]), 1)
     return round(int(val) / (1024 ** 3), 1)
+
+def gi_str_to_int(val):
+    if not val:
+        return None
+    val = str(val).strip()
+    if val.endswith("Gi"):
+        return int(float(val[:-2]))
+    if val.endswith("Mi"):
+        return int(float(val[:-2]) / 1024)
+    if val.endswith("G"):
+        return int(float(val[:-1]))
+    try:
+        return int(val)
+    except ValueError:
+        return None
 
 def get_bu(labels, node_name):
     for key in ("cscglobal.com/chargeback.businessUnit",
@@ -118,11 +104,31 @@ def get_cluster_name(override):
     except SystemExit:
         return "unknown"
 
+def build_machine_lookup():
+    lookup = {}
+    try:
+        machines = oc("get", "machines", "-n", "openshift-machine-api")
+        for m in machines.get("items", []):
+            node_name = m.get("status", {}).get("nodeRef", {}).get("name", "")
+            if not node_name:
+                continue
+            pv = m.get("spec", {}).get("providerSpec", {}).get("value", {})
+            mem = gi_str_to_int(pv.get("memorySize", ""))
+            cpu_raw = pv.get("vcpuSockets", None)
+            cpu = int(cpu_raw) if cpu_raw is not None else None
+            if mem or cpu:
+                lookup[node_name] = {"cpu": cpu, "mem": mem}
+    except SystemExit:
+        print("[WARN] Could not fetch Machine objects - falling back to node capacity", file=sys.stderr)
+    return lookup
+
 def collect(cluster_name):
     now = datetime.utcnow()
     month = now.strftime("%m")
     year = now.strftime("%Y")
     nodes_raw = oc("get", "nodes")
+    machine_lookup = build_machine_lookup()
+    print("[*] Machine lookup entries: " + str(len(machine_lookup)))
     rows = []
     for node in nodes_raw.get("items", []):
         labels = node["metadata"].get("labels", {})
@@ -137,6 +143,9 @@ def collect(cluster_name):
         else:
             bu = get_bu(labels, node_name)
             size = get_size(labels, node_name)
+        machine = machine_lookup.get(node_name, {})
+        cores = machine.get("cpu") or int(millicore_to_cores(capacity.get("cpu", "0")))
+        mem = machine.get("mem") or ki_to_gib(capacity.get("memory", "0Ki"))
         rows.append({
             "Month": month,
             "Year": year,
@@ -145,8 +154,8 @@ def collect(cluster_name):
             "size": size,
             "Role": role,
             "node": node_name,
-            "Cores": millicore_to_cores(capacity.get("cpu", "0")),
-            "Memory (GiB)": ki_to_gib(capacity.get("memory", "0Ki")),
+            "Cores": cores,
+            "Memory (GiB)": mem,
             "OS": info.get("osImage", ""),
             "Kernel": info.get("kernelVersion", ""),
             "Kubelet": info.get("kubeletVersion", ""),
@@ -178,19 +187,19 @@ def print_summary(rows):
     for r in rows:
         key = (r["business_unit"], r["size"])
         if key not in bu_map:
-            bu_map[key] = {"nodes": 0, "cores": 0.0, "mem": 0.0, "role": r["Role"]}
+            bu_map[key] = {"nodes": 0, "cores": 0, "mem": 0, "role": r["Role"]}
         bu_map[key]["nodes"] += 1
         bu_map[key]["cores"] += r["Cores"]
         bu_map[key]["mem"] += r["Memory (GiB)"]
     print("\n" + "BU".ljust(14) + "Size".ljust(10) + "Role".ljust(10) + "Nodes".rjust(6) + "Cores".rjust(8) + "Memory(GiB)".rjust(14))
     print("-" * 62)
     for (bu, size), s in sorted(bu_map.items()):
-        print(bu.ljust(14) + size.ljust(10) + s["role"].ljust(10) + str(s["nodes"]).rjust(6) + str(int(s["cores"])).rjust(8) + str(round(s["mem"],1)).rjust(14))
+        print(bu.ljust(14) + size.ljust(10) + s["role"].ljust(10) + str(s["nodes"]).rjust(6) + str(s["cores"]).rjust(8) + str(s["mem"]).rjust(14))
     total_nodes = len(rows)
     total_cores = sum(r["Cores"] for r in rows)
     total_mem = sum(r["Memory (GiB)"] for r in rows)
     print("-" * 62)
-    print("TOTAL".ljust(34) + str(total_nodes).rjust(6) + str(int(total_cores)).rjust(8) + str(round(total_mem,1)).rjust(14))
+    print("TOTAL".ljust(34) + str(total_nodes).rjust(6) + str(total_cores).rjust(8) + str(total_mem).rjust(14))
     print("=" * 60 + "\n")
 
 def main():
