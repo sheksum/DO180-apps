@@ -11,12 +11,10 @@ for m in ml['items']:
 
 
 
-
-# Round 31.3 GiB up to nearest standard: 32, 64, 96, 128
-import math
-STANDARD_SIZES = [32, 64, 96, 128, 192, 256, 384, 512]
-def round_to_standard(gib):
-    for s in STANDARD_SIZES:
-        if gib <= s:
-            return s
-    return int(math.ceil(gib / 32) * 32)
+# Confirm infra MachineSet has the spec
+oc get machineset ocpuat-7bqb4-infra -n openshift-machine-api -o json | python3 -c "
+import json, sys
+ms = json.load(sys.stdin)
+pv = ms['spec']['template']['spec']['providerSpec']['value']
+print('mem=' + str(pv.get('memorySize')) + ' cpu=' + str(pv.get('vcpuSockets')))
+"
