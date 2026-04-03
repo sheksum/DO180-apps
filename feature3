@@ -11,10 +11,11 @@ for m in ml['items']:
 
 
 
-# Confirm infra MachineSet has the spec
 oc get machineset ocpuat-7bqb4-infra -n openshift-machine-api -o json | python3 -c "
 import json, sys
 ms = json.load(sys.stdin)
 pv = ms['spec']['template']['spec']['providerSpec']['value']
-print('mem=' + str(pv.get('memorySize')) + ' cpu=' + str(pv.get('vcpuSockets')))
+print('memorySize=' + str(pv.get('memorySize')))
+print('vcpuSockets=' + str(pv.get('vcpuSockets')))
+print('vcpusPerSocket=' + str(pv.get('vcpusPerSocket')))
 "
