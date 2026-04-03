@@ -1,3 +1,7 @@
+python3 -c "import openpyxl; print(openpyxl.__version__)"
+
+
+
 cat > send_test.py << 'EOF'
 import subprocess
 from email.mime.multipart import MIMEMultipart
