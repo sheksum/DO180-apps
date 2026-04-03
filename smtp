@@ -1,0 +1,27 @@
+cat > send_test.py << 'EOF'
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email import encoders
+
+msg = MIMEMultipart()
+msg['From'] = 'asuma@dlasuma001.wil.csc.local'
+msg['To'] = 'alhaji.suma@cscglobal.com'
+msg['Subject'] = 'OCP Capacity Report - ocpuat - 04/2026'
+
+msg.attach(MIMEText('Please find attached the OCP capacity report.', 'plain'))
+
+with open('reports/ocp-capacity-2026-04.csv', 'rb') as f:
+    part = MIMEBase('application', 'octet-stream')
+    part.set_payload(f.read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', 'attachment; filename=ocp-capacity-2026-04.csv')
+    msg.attach(part)
+
+with smtplib.SMTP('localhost', 25) as s:
+    s.sendmail(msg['From'], [msg['To']], msg.as_string())
+    print('Sent')
+EOF
+
+python3 send_test.py
