@@ -1,34 +1,333 @@
-python3 -c "import openpyxl; print(openpyxl.__version__)"
-
-
-
-cat > send_test.py << 'EOF'
+cat > ocp-capacity-report.py << 'EOF'
+#!/usr/bin/env python3
+import argparse
+import csv
+import json
 import subprocess
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email import encoders
+import sys
+from datetime import datetime
+from pathlib import Path
 
-msg = MIMEMultipart()
-msg['From'] = 'asuma@dlasuma001.wil.csc.local'
-msg['To'] = 'alhaji.suma@cscglobal.com'
-msg['Subject'] = 'OCP Capacity Report - ocpuat - 04/2026'
+def oc(*args):
+    cmd = ["oc"] + list(args) + ["-o", "json"]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        print("[ERROR] oc " + " ".join(args) + " failed:\n" + result.stderr, file=sys.stderr)
+        sys.exit(1)
+    return json.loads(result.stdout)
 
-msg.attach(MIMEText('Please find attached the OCP capacity report.', 'plain'))
+def millicore_to_cores(val):
+    if val.endswith("m"):
+        return round(int(val[:-1]) / 1000, 1)
+    return float(val)
 
-with open('reports/ocp-capacity-2026-04.csv', 'rb') as f:
-    part = MIMEBase('application', 'octet-stream')
-    part.set_payload(f.read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition', 'attachment; filename=ocp-capacity-2026-04.csv')
-    msg.attach(part)
+def ki_to_gib(val):
+    if val.endswith("Ki"):
+        return int(round(int(val[:-2]) / (1024 ** 2), 0))
+    if val.endswith("Mi"):
+        return int(round(int(val[:-2]) / 1024, 0))
+    if val.endswith("Gi"):
+        return int(round(float(val[:-2]), 0))
+    return int(round(int(val) / (1024 ** 3), 0))
 
-proc = subprocess.Popen(
-    ['/usr/sbin/sendmail', '-t', '-oi'],
-    stdin=subprocess.PIPE
-)
-proc.communicate(msg.as_bytes())
-print('Sent via sendmail, exit code: ' + str(proc.returncode))
+def gi_str_to_int(val):
+    if not val:
+        return None
+    val = str(val).strip()
+    if val.endswith("Gi"):
+        return int(float(val[:-2]))
+    if val.endswith("Mi"):
+        return int(float(val[:-2]) / 1024)
+    if val.endswith("G"):
+        return int(float(val[:-1]))
+    try:
+        return int(val)
+    except ValueError:
+        return None
+
+def get_bu(labels, node_name):
+    for key in ("cscglobal.com/chargeback.businessUnit",
+                "cscglobal.com/owner.businessUnit",
+                "machine.openshift.io/cluster-api-machineset"):
+        if key in labels and labels[key]:
+            val = labels[key]
+            if key == "machine.openshift.io/cluster-api-machineset":
+                parts = val.split("-")
+                return parts[2] if len(parts) >= 3 else val
+            return val
+    parts = node_name.split("-")
+    if len(parts) >= 4 and parts[3] in ("large", "medium", "small"):
+        return parts[2]
+    if len(parts) >= 3:
+        return parts[2]
+    return "shared"
+
+def get_size(labels, node_name):
+    machineset = labels.get("machine.openshift.io/cluster-api-machineset", "")
+    if machineset:
+        parts = machineset.split("-")
+        if len(parts) >= 4:
+            return parts[3]
+    parts = node_name.split("-")
+    if len(parts) >= 4 and parts[3] in ("large", "medium", "small"):
+        return parts[3]
+    return "n/a"
+
+def get_role(labels):
+    if "node-role.kubernetes.io/master" in labels or "node-role.kubernetes.io/control-plane" in labels:
+        return "control"
+    if "node-role.kubernetes.io/infra" in labels:
+        return "infra"
+    return "compute"
+
+def get_cluster_name(override):
+    if override:
+        return override
+    try:
+        infra = oc("get", "infrastructure", "cluster")
+        full_name = infra.get("status", {}).get("infrastructureName", "unknown")
+        parts = full_name.rsplit("-", 1)
+        if len(parts) == 2 and len(parts[1]) == 5:
+            return parts[0]
+        return full_name
+    except SystemExit:
+        return "unknown"
+
+def node_name_to_machineset(node_name):
+    parts = node_name.split("-")
+    if len(parts) >= 5:
+        return "-".join(parts[:4])
+    if len(parts) == 4:
+        return "-".join(parts[:3])
+    return ""
+
+def build_lookup():
+    lookup = {}
+    try:
+        machinesets = oc("get", "machinesets", "-n", "openshift-machine-api")
+        for ms in machinesets.get("items", []):
+            ms_name = ms["metadata"]["name"]
+            pv = ms.get("spec", {}).get("template", {}).get("spec", {}).get("providerSpec", {}).get("value", {})
+            mem = gi_str_to_int(pv.get("memorySize", ""))
+            cpu = int(pv.get("vcpuSockets", 1) or 1) * int(pv.get("vcpusPerSocket", 1) or 1)
+            if mem or cpu:
+                lookup[ms_name] = {"cpu": cpu, "mem": mem}
+                print("[*] MachineSet " + ms_name + " cpu=" + str(cpu) + " mem=" + str(mem) + "Gi")
+    except SystemExit:
+        print("[WARN] Could not fetch MachineSets", file=sys.stderr)
+    try:
+        machines = oc("get", "machines", "-n", "openshift-machine-api")
+        for m in machines.get("items", []):
+            node_name = m.get("status", {}).get("nodeRef", {}).get("name", "")
+            if not node_name:
+                continue
+            pv = m.get("spec", {}).get("providerSpec", {}).get("value", {})
+            mem = gi_str_to_int(pv.get("memorySize", ""))
+            cpu = int(pv.get("vcpuSockets", 1) or 1) * int(pv.get("vcpusPerSocket", 1) or 1)
+            if mem or cpu:
+                lookup[node_name] = {"cpu": cpu, "mem": mem}
+                print("[*] Machine " + node_name + " cpu=" + str(cpu) + " mem=" + str(mem) + "Gi")
+    except SystemExit:
+        print("[WARN] Could not fetch Machines", file=sys.stderr)
+    return lookup
+
+def collect(cluster_name):
+    now = datetime.utcnow()
+    month = now.strftime("%m")
+    year = now.strftime("%Y")
+    nodes_raw = oc("get", "nodes")
+    lookup = build_lookup()
+    print("[*] Total lookup entries: " + str(len(lookup)))
+    rows = []
+    for node in nodes_raw.get("items", []):
+        labels = node["metadata"].get("labels", {})
+        capacity = node["status"].get("capacity", {})
+        info = node["status"].get("nodeInfo", {})
+        node_name = node["metadata"]["name"]
+        machineset = labels.get("machine.openshift.io/cluster-api-machineset", "")
+        if not machineset:
+            machineset = node_name_to_machineset(node_name)
+        role = get_role(labels)
+        if role == "control":
+            bu = "shared"
+            size = "n/a"
+        else:
+            bu = get_bu(labels, node_name)
+            size = get_size(labels, node_name)
+        data = lookup.get(node_name) or lookup.get(machineset) or {}
+        cores = data.get("cpu") or int(millicore_to_cores(capacity.get("cpu", "0")))
+        mem = data.get("mem") or ki_to_gib(capacity.get("memory", "0Ki"))
+        rows.append({
+            "Month": month,
+            "Year": year,
+            "Cluster": cluster_name,
+            "business_unit": bu,
+            "size": size,
+            "Role": role,
+            "node": node_name,
+            "Cores": cores,
+            "Memory (GiB)": mem,
+            "OS": info.get("osImage", ""),
+            "Kernel": info.get("kernelVersion", ""),
+            "Kubelet": info.get("kubeletVersion", ""),
+            "MachineSet": machineset,
+        })
+    return rows
+
+FIELDNAMES = ["Month","Year","Cluster","business_unit","size","Role","node","Cores","Memory (GiB)","OS","Kernel","Kubelet","MachineSet"]
+
+def write_csv(rows, out_dir, append=False):
+    out_dir.mkdir(parents=True, exist_ok=True)
+    filename = out_dir / ("ocp-capacity-" + datetime.utcnow().strftime("%Y-%m") + ".csv")
+    file_exists = filename.exists()
+    mode = "a" if append and file_exists else "w"
+    with open(filename, mode, newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
+        if not append or not file_exists:
+            writer.writeheader()
+        writer.writerows(rows)
+    return filename
+
+def write_xlsx(rows, out_dir):
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.utils import get_column_letter
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    filename = out_dir / ("ocp-capacity-" + datetime.utcnow().strftime("%Y-%m") + ".xlsx")
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Capacity"
+
+    header_font = Font(bold=True, color="FFFFFF", name="Arial", size=10)
+    header_fill = PatternFill("solid", fgColor="375623")
+    even_fill = PatternFill("solid", fgColor="E2EFDA")
+    odd_fill = PatternFill("solid", fgColor="FFFFFF")
+    data_font = Font(name="Arial", size=10)
+
+    ws.append(FIELDNAMES)
+    for col_num, col_name in enumerate(FIELDNAMES, 1):
+        cell = ws.cell(row=1, column=col_num)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    for row_num, row in enumerate(rows, 2):
+        ws.append([row[f] for f in FIELDNAMES])
+        fill = even_fill if row_num % 2 == 0 else odd_fill
+        for col_num in range(1, len(FIELDNAMES) + 1):
+            cell = ws.cell(row=row_num, column=col_num)
+            cell.fill = fill
+            cell.font = data_font
+            cell.alignment = Alignment(vertical="center")
+
+    ws.auto_filter.ref = ws.dimensions
+
+    col_widths = {"Month": 8, "Year": 8, "Cluster": 14, "business_unit": 16,
+                  "size": 10, "Role": 12, "node": 36, "Cores": 8,
+                  "Memory (GiB)": 14, "OS": 40, "Kernel": 30,
+                  "Kubelet": 14, "MachineSet": 36}
+    for col_num, col_name in enumerate(FIELDNAMES, 1):
+        ws.column_dimensions[get_column_letter(col_num)].width = col_widths.get(col_name, 16)
+
+    ws.freeze_panes = "A2"
+    ws.row_dimensions[1].height = 20
+
+    wb.save(filename)
+    return filename
+
+def send_email(xlsx_path, recipients, cluster_name):
+    import subprocess as sp
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.base import MIMEBase
+    from email.mime.text import MIMEText
+    from email import encoders
+
+    now = datetime.utcnow()
+    month_year = now.strftime("%m/%Y")
+    filename = xlsx_path.name
+
+    msg = MIMEMultipart()
+    msg['From'] = 'ocp-reports@dlasuma001.wil.csc.local'
+    msg['To'] = ", ".join(recipients)
+    msg['Subject'] = 'OCP Capacity Report - ' + cluster_name + ' - ' + month_year
+
+    body = "Please find attached the OCP node capacity report for " + cluster_name + " - " + month_year + "."
+    msg.attach(MIMEText(body, 'plain'))
+
+    with open(xlsx_path, 'rb') as f:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(f.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment; filename=' + filename)
+        msg.attach(part)
+
+    proc = sp.Popen(['/usr/sbin/sendmail', '-t', '-oi'], stdin=sp.PIPE)
+    proc.communicate(msg.as_bytes())
+    print("[*] Email sent to: " + ", ".join(recipients) + " (exit code: " + str(proc.returncode) + ")")
+
+def print_summary(rows):
+    if not rows:
+        print("No nodes found.")
+        return
+    cluster = rows[0]["Cluster"]
+    month = rows[0]["Month"] + "/" + rows[0]["Year"]
+    print("\n" + "=" * 60)
+    print("  OCP Capacity Report - " + cluster + " - " + month)
+    print("=" * 60)
+    bu_map = {}
+    for r in rows:
+        key = (r["business_unit"], r["size"])
+        if key not in bu_map:
+            bu_map[key] = {"nodes": 0, "cores": 0, "mem": 0, "role": r["Role"]}
+        bu_map[key]["nodes"] += 1
+        bu_map[key]["cores"] += r["Cores"]
+        bu_map[key]["mem"] += r["Memory (GiB)"]
+    print("\n" + "BU".ljust(14) + "Size".ljust(10) + "Role".ljust(10) + "Nodes".rjust(6) + "Cores".rjust(8) + "Memory(GiB)".rjust(14))
+    print("-" * 62)
+    for (bu, size), s in sorted(bu_map.items()):
+        print(bu.ljust(14) + size.ljust(10) + s["role"].ljust(10) + str(s["nodes"]).rjust(6) + str(s["cores"]).rjust(8) + str(s["mem"]).rjust(14))
+    total_nodes = len(rows)
+    total_cores = sum(r["Cores"] for r in rows)
+    total_mem = sum(r["Memory (GiB)"] for r in rows)
+    print("-" * 62)
+    print("TOTAL".ljust(34) + str(total_nodes).rjust(6) + str(total_cores).rjust(8) + str(total_mem).rjust(14))
+    print("=" * 60 + "\n")
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cluster-name", default=None)
+    parser.add_argument("--out", default="./reports")
+    parser.add_argument("--append", action="store_true")
+    parser.add_argument("--email", default=None, help="Comma-separated recipient list")
+    args = parser.parse_args()
+
+    cluster_name = get_cluster_name(args.cluster_name)
+    print("[*] Cluster: " + cluster_name)
+    print("[*] Collecting node data...")
+    rows = collect(cluster_name)
+    print("[*] Found " + str(len(rows)) + " nodes")
+
+    out_dir = Path(args.out)
+    csv_path = write_csv(rows, out_dir, append=args.append)
+    action = "Appended to" if args.append else "CSV written:"
+    print("[*] " + action + " " + str(csv_path))
+
+    xlsx_path = write_xlsx(rows, out_dir)
+    print("[*] XLSX written: " + str(xlsx_path))
+
+    if args.email:
+        recipients = [e.strip() for e in args.email.split(",")]
+        send_email(xlsx_path, recipients, cluster_name)
+
+    print_summary(rows)
+
+if __name__ == "__main__":
+    main()
 EOF
 
-python3 send_test.py
+
+python3 -c "import py_compile; py_compile.compile('ocp-capacity-report.py', doraise=True)" && echo OK
+python3 ocp-capacity-report.py --email alhaji.suma@cscglobal.com
+
