@@ -23,12 +23,12 @@ def millicore_to_cores(val):
 
 def ki_to_gib(val):
     if val.endswith("Ki"):
-        return round(int(val[:-2]) / (1024 ** 2), 1)
+        return int(round(int(val[:-2]) / (1024 ** 2), 0))
     if val.endswith("Mi"):
-        return round(int(val[:-2]) / 1024, 1)
+        return int(round(int(val[:-2]) / 1024, 0))
     if val.endswith("Gi"):
-        return round(float(val[:-2]), 1)
-    return round(int(val) / (1024 ** 3), 1)
+        return int(round(float(val[:-2]), 0))
+    return int(round(int(val) / (1024 ** 3), 0))
 
 def gi_str_to_int(val):
     if not val:
