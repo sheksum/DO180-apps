@@ -1,4 +1,16 @@
 
+oc get machines -n openshift-machine-api -o json | python3 -c "
+import json, sys
+ml = json.load(sys.stdin)
+for m in ml['items']:
+    node = m.get('status', {}).get('nodeRef', {}).get('name', 'none')
+    mem = m.get('spec', {}).get('providerSpec', {}).get('value', {}).get('memorySize', 'none')
+    cpu = m.get('spec', {}).get('providerSpec', {}).get('value', {}).get('vcpuSockets', 'none')
+    print(node + ' mem=' + str(mem) + ' cpu=' + str(cpu))
+"
+
+
+
 # Option 1 - check the MachineSet spec (provisioned RAM)
 oc get machineset ocpuat-7bqb4-cls-large -n openshift-machine-api -o json | python3 -c "
 import json, sys
