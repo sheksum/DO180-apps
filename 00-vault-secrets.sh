@@ -204,3 +204,34 @@ hsuma@plnx-admin:~$ oc get secret test-corporate-cert-tls -n pai-dev -o jsonpath
 hsuma@plnx-admin:~$
 
 oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -B2 -A5 "https-dev"
+
+
+
+hsuma@plnx-admin:~$ oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -B2 -A5 "https-dev"
+    argocd.argoproj.io/tracking-id: gateway-api:gateway.networking.k8s.io/Gateway:openshift-ingress/pai-gateway
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"gateway.networking.k8s.io/v1","kind":"Gateway","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"gateway-api:gateway.networking.k8s.io/Gateway:openshift-ingress/pai-gateway"},"name":"pai-gateway","namespace":"openshift-ingress"},"spec":{"gatewayClassName":"openshift-default","listeners":[{"allowedRoutes":{"namespaces":{"from":"Same"}},"name":"http","port":80,"protocol":"HTTP"},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"dev"}}}},"hostname":"*.dev.ocp-ai.calix.local","name":"https-dev","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"wildcard-dev-calixca-tls-secret"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"dev"}}}},"hostname":"agentmesh-dev-ai.calix.local","name":"https-agentmesh-dev","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"agent-dev-tls-secret"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"test"}}}},"hostname":"*.test.ocp-ai.calix.local","name":"https-test","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"wildcard-test-tls-secret"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"prod"}}}},"hostname":"*.prod.ocp-ai.calix.local","name":"https-prod","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"wildcard-prod-calixca-tls-secret"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"Selector","selector":{"matchLabels":{"env":"prod"}}}},"hostname":"agentmesh-ai.calix.local","name":"https-agentmesh-prod","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"agent-prod-tls-secret"}],"mode":"Terminate"}}]}}
+  creationTimestamp: "2026-02-26T04:51:26Z"
+  generation: 10
+  labels:
+    istio.io/rev: openshift-gateway
+  name: pai-gateway
+--
+            env: dev
+    hostname: '*.dev.ocp-ai.calix.local'
+    name: https-dev
+    port: 443
+    protocol: HTTPS
+    tls:
+      certificateRefs:
+      - group: ""
+--
+      status: "True"
+      type: ResolvedRefs
+    name: https-dev
+    supportedKinds:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+    - group: gateway.networking.k8s.io
+      kind: GRPCRoute
+hsuma@plnx-admin:~$
