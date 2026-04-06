@@ -235,3 +235,45 @@ hsuma@plnx-admin:~$ oc get gateway pai-gateway -n openshift-ingress -o yaml | gr
     - group: gateway.networking.k8s.io
       kind: GRPCRoute
 hsuma@plnx-admin:~$
+
+
+Based on what we confirmed from LDAP, our target is:
+707,842 completed certificate requests in ou=ca,ou=requests,o=ipaca — all with requestState: complete, accumulated since June 2018.
+We want to delete all of them. Here's the reasoning:
+
+Every single one is complete — no pending, rejected, or in-progress requests in the mix
+They're all historical host/service cert requests — RH confirmed those certs auto-reissue on client re-enrollment
+None of them need to be preserved for operational continuity
+Deleting them is what gets pki-tomcatd startup from 30-60 minutes down to seconds
+
+
+=====
+
+Start
+
+“Quick update on the MetalLB issue that was preventing customers from accessing TCP services externally.”
+
+What was happening
+
+“VIPs were getting assigned correctly and traffic was reaching the nodes, but the connections were failing before reaching the backend services.”
+
+Root cause
+
+“This wasn’t a MetalLB problem.
+The Linux kernel was dropping the traffic due to reverse path filtering — because packets were coming in on one interface and needed to go out another.
+
+On top of that, OVN didn’t have a proper return path for those VLAN subnets, so responses couldn’t make it back to the client.”
+
+What we fixed
+
+“We applied node-level fixes via MachineConfig:
+
+Disabled reverse path filtering
+Added the correct internal routing
+Added masquerade so return traffic flows back properly
+
+Operator-level settings were already correct.”
+
+Current state
+
+“Everything is working now — all TCP services exposed via MetalLB VIPs are reachable externally.”
