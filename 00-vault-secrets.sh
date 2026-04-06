@@ -137,7 +137,7 @@ default_follows_latest_issuer    false
 [root@plnx-vault ~]#
 
 
-  cat <<EOF | oc apply -f -
+cat <<EOF | oc apply -f -
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -162,3 +162,43 @@ oc get secret test-corporate-cert-tls -n pai-dev -o jsonpath='{.data.tls\.crt}' 
 
 oc delete certificate test-corporate-cert -n pai-dev
 oc delete secret test-corporate-cert-tls -n pai-dev
+
+
+
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+cat <<EOF | oc apply -f -
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: test-corporate-cert
+  namespace: pai-dev
+spec:
+  secretName: test-corporate-cert-tls
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - test.dev.ocp-ai.calix.local
+  duration: 24h
+  renewBefore: 1h
+EOF
+Warning: spec.privateKey.rotationPolicy: In cert-manager >= v1.18.0, the default value changed from `Never` to `Always`.
+certificate.cert-manager.io/test-corporate-cert created
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+oc get certificate test-corporate-cert -n pai-dev
+NAME                  READY   SECRET                    AGE
+test-corporate-cert   True    test-corporate-cert-tls   9s
+hsuma@plnx-admin:~$ oc get secret test-corporate-cert-tls -n pai-dev -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout | grep -E "Issuer|Subject"
+        Issuer: CN = Calix Vault Intermediate CA
+        Subject:
+        Subject Public Key Info:
+            X509v3 Subject Key Identifier:
+                CA Issuers - URI:https://plnx-vault.calix.local:8200/v1/pki_int/ca
+            X509v3 Subject Alternative Name: critical
+hsuma@plnx-admin:~$
