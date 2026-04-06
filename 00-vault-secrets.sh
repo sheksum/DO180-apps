@@ -20,6 +20,40 @@ for id in 05261746-481f-2842-13de-13a1f17aa98c 28fe332e-56ba-1fd3-d619-49435d688
   echo ""
 done
 
+
+[root@plnx-vault ~]#
+[root@plnx-vault ~]#
+[root@plnx-vault ~]# for id in 05261746-481f-2842-13de-13a1f17aa98c 28fe332e-56ba-1fd3-d619-49435d6881c8 607ba730-8951-e16d-44e4-e49b853669b0 a4799ae0-b0ed-c853-e1fa-a3135340090a b402d59f-cf38-651b-81ec-3fd840b36a12 c07ee43a-517b-4404-e4f4-da4f951e1d2e; do
+  echo "=== $id ==="
+  vault read -field=certificate pki_int/issuer/$id | openssl x509 -noout -subject -issuer
+  echo ""
+done
+=== 05261746-481f-2842-13de-13a1f17aa98c ===
+subject=DC=local, DC=calix, CN=CalixInterCA
+issuer=CN=CalixRootCA
+
+=== 28fe332e-56ba-1fd3-d619-49435d6881c8 ===
+subject=CN=CalixRootCA
+issuer=CN=CalixRootCA
+
+=== 607ba730-8951-e16d-44e4-e49b853669b0 ===
+subject=CN=Calix Vault Intermediate CA
+issuer=DC=local, DC=calix, CN=CalixEntCA
+
+=== a4799ae0-b0ed-c853-e1fa-a3135340090a ===
+subject=CN=Calix OCP-AI Intermediate CA
+issuer=CN=OCP-AI Temporary Root CA
+
+=== b402d59f-cf38-651b-81ec-3fd840b36a12 ===
+subject=CN=OCP-AI Temporary Root CA
+issuer=CN=OCP-AI Temporary Root CA
+
+=== c07ee43a-517b-4404-e4f4-da4f951e1d2e ===
+subject=DC=local, DC=calix, CN=CalixEntCA
+issuer=DC=local, DC=calix, CN=CalixInterCA
+
+[root@plnx-vault ~]#
+
 # Check which issuer is the new corporate-signed one
 vault read pki_int/issuer/<issuer-id> | grep -i "issuer_name\|common_name"
 
