@@ -102,6 +102,25 @@ vault write -format=json pki_int/issue/ocp-ai \
 
 
 
+[root@plnx-vault ~]# vault write pki_int/config/issuers default=607ba730-8951-e16d-44e4-e49b853669b0
+Key                              Value
+---                              -----
+default                          607ba730-8951-e16d-44e4-e49b853669b0
+default_follows_latest_issuer    false
+[root@plnx-vault ~]#
+[root@plnx-vault ~]#
+[root@plnx-vault ~]# vault write -format=json pki_int/issue/ocp-ai   common_name="test.dev.ocp-ai.calix.local"   ttl="24h" | jq -r '.data.certificate' | openssl x509 -text -noout | grep -E "Issuer|Subject|Not After"
+        Issuer: CN=Calix Vault Intermediate CA
+            Not After : Apr  7 13:37:43 2026 GMT
+        Subject: CN=test.dev.ocp-ai.calix.local
+        Subject Public Key Info:
+            X509v3 Subject Key Identifier:
+                CA Issuers - URI:https://plnx-vault.calix.local:8200/v1/pki_int/ca
+            X509v3 Subject Alternative Name:
+[root@plnx-vault ~]#
+
+
+
   [root@plnx-vault ~]#
 [root@plnx-vault ~]# vault write -format=json pki_int/issue/ocp-ai \
   common_name="test.dev.ocp-ai.calix.local" \
