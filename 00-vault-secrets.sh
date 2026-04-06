@@ -1,6 +1,18 @@
 # List all issuers in pki_int
 vault list pki_int/issuers
 
+
+[root@plnx-vault ~]# vault list pki_int/issuers
+Keys
+----
+05261746-481f-2842-13de-13a1f17aa98c
+28fe332e-56ba-1fd3-d619-49435d6881c8
+607ba730-8951-e16d-44e4-e49b853669b0
+a4799ae0-b0ed-c853-e1fa-a3135340090a
+b402d59f-cf38-651b-81ec-3fd840b36a12
+c07ee43a-517b-4404-e4f4-da4f951e1d2e
+[root@plnx-vault ~]#
+
 # Check which issuer is the new corporate-signed one
 vault read pki_int/issuer/<issuer-id> | grep -i "issuer_name\|common_name"
 
