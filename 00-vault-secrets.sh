@@ -1,18 +1,75 @@
-hey i know you're out today so just dropping a note here for Monday, did a couple things today.
+# List all issuers in pki_int
+vault list pki_int/issuers
 
-on plnx-vault, I copied over the Calix CA chain to /etc/pki/ca-trust/source/anchors/ and ran update-ca-trust It will save you from having to run export VAULT_SKIP_VERIFY=true all the time when operating there locally.
+# Check which issuer is the new corporate-signed one
+vault read pki_int/issuer/<issuer-id> | grep -i "issuer_name\|common_name"
 
-I added that signed ca cert (with the full chain) to vault via:
+# Do this for each issuer ID to identify old vs new
 
-[root@plnx-vault ~]# vault write pki_int/intermediate/set-signed certificate=@calix-local-chain.pem
-Key                 Value
----                 -----
-existing_issuers    <nil>
-existing_keys       <nil>
-imported_issuers    [607ba730-8951-e16d-44e4-e49b853669b0 c07ee43a-517b-4404-e4f4-da4f951e1d2e 05261746-481f-2842-13de-13a1f17aa98c 28fe332e-56ba-1fd3-d619-49435d6881c8]
-imported_keys       <nil>
-mapping             map[05261746-481f-2842-13de-13a1f17aa98c: 28fe332e-56ba-1fd3-d619-49435d6881c8: 607ba730-8951-e16d-44e4-e49b853669b0:a6727a6b-43ac-9de8-086f-de5ee743c128 c07ee43a-517b-4404-e4f4-da4f951e1d2e:]
+vault write pki_int/config/issuers default=<new-issuer-id>
 
-I now see the 2 sets of issuers.  We'll probably want to clean that old ocp-ai issuer up, and update that ocp-ai role, and maybe is going to need some work on the k8s side as well to reconfigure the cert-manager issuer config
 
-Even though no one is really using that yet, figured it be best to wait til next week to work on any of that, and not sure we should create a change record etc.. (edited)
+vault write pki_int/roles/ocp-ai \
+  issuer_ref=<new-issuer-id> \
+  allowed_domains="calix.local" \
+  allow_subdomains=true \
+  allow_wildcard_certificates=true \
+  max_ttl="8760h"
+
+
+  vault delete pki_int/issuer/<old-issuer-id>
+
+
+  vault list pki_root/issuers
+
+
+  # Check current ClusterIssuer
+oc get clusterissuer vault-issuer -o yaml | grep -A5 caBundle
+
+# Check current SecretStores
+oc get secretstore vault-store -n pai-dev -o yaml | grep -A5 caBundle
+
+
+# Delete existing cert secrets so cert-manager reissues with the new chain
+oc get certificates -A
+# For each one, delete the secret and cert-manager will reissue
+oc delete secret <cert-secret> -n <namespace>
+
+
+
+vault write pki_int/issue/ocp-ai \
+  common_name="test.dev.ocp-ai.calix.local" \
+  ttl="24h"
+
+
+
+vault write -format=json pki_int/issue/ocp-ai \
+  common_name="test.dev.ocp-ai.calix.local" \
+  ttl="24h" | jq -r '.data.certificate' | openssl x509 -text -noout | grep -E "Issuer|Subject|Not After"
+
+
+  cat <<EOF | oc apply -f -
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: test-corporate-cert
+  namespace: pai-dev
+spec:
+  secretName: test-corporate-cert-tls
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - test.dev.ocp-ai.calix.local
+  duration: 24h
+  renewBefore: 1h
+EOF
+
+
+
+oc get certificate test-corporate-cert -n pai-dev
+oc get secret test-corporate-cert-tls -n pai-dev -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout | grep -E "Issuer|Subject"
+
+
+oc delete certificate test-corporate-cert -n pai-dev
+oc delete secret test-corporate-cert-tls -n pai-dev
