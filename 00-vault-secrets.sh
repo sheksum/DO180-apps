@@ -101,6 +101,23 @@ vault write -format=json pki_int/issue/ocp-ai \
   ttl="24h" | jq -r '.data.certificate' | openssl x509 -text -noout | grep -E "Issuer|Subject|Not After"
 
 
+
+  [root@plnx-vault ~]#
+[root@plnx-vault ~]# vault write -format=json pki_int/issue/ocp-ai \
+  common_name="test.dev.ocp-ai.calix.local" \
+  ttl="24h" | jq -r '.data.certificate' | openssl x509 -text -noout | grep -E "Issuer|Subject|Not After"
+        Issuer: CN=Calix OCP-AI Intermediate CA
+            Not After : Apr  7 13:35:14 2026 GMT
+        Subject: CN=test.dev.ocp-ai.calix.local
+        Subject Public Key Info:
+            X509v3 Subject Key Identifier:
+                CA Issuers - URI:https://plnx-vault.calix.local:8200/v1/pki_int/ca
+            X509v3 Subject Alternative Name:
+[root@plnx-vault ~]#
+[root@plnx-vault ~]#
+[root@plnx-vault ~]#
+
+
   cat <<EOF | oc apply -f -
 apiVersion: cert-manager.io/v1
 kind: Certificate
