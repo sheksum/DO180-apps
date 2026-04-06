@@ -202,3 +202,5 @@ hsuma@plnx-admin:~$ oc get secret test-corporate-cert-tls -n pai-dev -o jsonpath
                 CA Issuers - URI:https://plnx-vault.calix.local:8200/v1/pki_int/ca
             X509v3 Subject Alternative Name: critical
 hsuma@plnx-admin:~$
+
+oc get gateway pai-gateway -n openshift-ingress -o yaml | grep -B2 -A5 "https-dev"
