@@ -1,104 +1,26 @@
 python3 << 'PYEOF'
-content = """\
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nagios
-  namespace: monitoring
-  labels:
-    app: nagios
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nagios
-  template:
-    metadata:
-      labels:
-        app: nagios
-    spec:
-      nodeSelector:
-        node-role.kubernetes.io/worker: "true"
-      securityContext:
-        runAsUser: 0
-        fsGroup: 0
-      containers:
-        - name: nagios
-          image: img-registry.apps.ttmtech.com/ttm-infra/nagios:4.5.7
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 80
-              protocol: TCP
-          resources:
-            requests:
-              cpu: 1500m
-              memory: 512Mi
-            limits:
-              cpu: 3000m
-              memory: 1024Mi
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - /bin/bash
-                  - -c
-                  - |
-                    cp /opt/nagios/etc/postfix-main.cf /etc/postfix/main.cf
-                    cp -rp /opt/nagios/etc/apache2-backup/. /etc/apache2/
-                    service postfix restart
-                    sv restart apache
-          livenessProbe:
-            tcpSocket:
-              port: 80
-            initialDelaySeconds: 60
-            periodSeconds: 30
-            failureThreshold: 3
-          readinessProbe:
-            tcpSocket:
-              port: 80
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          volumeMounts:
-            - name: nagios-etc
-              mountPath: /opt/nagios/etc
-            - name: nagios-var
-              mountPath: /opt/nagios/var
-        - name: git-sync
-          image: img-registry.apps.ttmtech.com/ttm-infra/git-sync:v4.0.0
-          args:
-            - --repo=https://gitlab.ttmtech.com/ttm-infra/hil-infrastructure.git
-            - --branch=main
-            - --depth=1
-            - --period=60s
-            - --root=/git
-            - --link=current
-            - --insecure-skip-tls-verify=true
-            - --exechook-command=cp -r /git/current/apps/monitoring/conf.d/. /opt/nagios/etc/conf.d/ && kill -HUP $(pgrep -f nagios)
-          env:
-            - name: GITSYNC_USERNAME
-              value: "git"
-            - name: GITSYNC_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: gitlab-token
-                  key: token
-          volumeMounts:
-            - name: nagios-etc
-              mountPath: /opt/nagios/etc
-            - name: git-data
-              mountPath: /git
-      volumes:
-        - name: nagios-etc
-          persistentVolumeClaim:
-            claimName: nagios-pvc
-        - name: nagios-var
-          persistentVolumeClaim:
-            claimName: nagios-pvc
-        - name: git-data
-          emptyDir: {}
-"""
+import yaml
+
+with open('/root/hil-infrastructure/apps/monitoring/nagios-deployment.yaml') as f:
+    content = f.read()
+
+# Fix the exechook-command
+old = '            - --exechook-command=cp -r /git/current/apps/monitoring/conf.d/. /opt/nagios/etc/conf.d/ && kill -HUP $(pgrep -f nagios)'
+new = '            - --exechook-command=sh -c "cp -r /git/current/apps/monitoring/conf.d/. /opt/nagios/etc/conf.d/ && kill -HUP $(pgrep -f nagios)"'
+
+content = content.replace(old, new)
+
 with open('/root/hil-infrastructure/apps/monitoring/nagios-deployment.yaml', 'w') as f:
     f.write(content)
-print("Written successfully")
+print("Done")
 PYEOF
+
+
+yamllint -d "{extends: default, rules: {line-length: disable}}" apps/monitoring/nagios-deployment.yaml
+
+git add apps/monitoring/nagios-deployment.yaml
+git commit -m "fix: wrap git-sync exechook-command in shell"
+git push
+
+flux reconcile kustomization apps --with-source
+kubectl get pods -n monitoring -w
