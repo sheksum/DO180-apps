@@ -1,127 +1,637 @@
-vault write -field=csr pki_int/intermediate/generate/internal \
-  common_name="Calix Vault Intermediate CA" \
-  key_type=rsa \
-  key_bits=4096 > calix-vault-intermediate.csr
+Red Hat associate comment Goslawski, Cesar
+
+Tue, Mar 31, 2026 at 08:41:48 AM EDT
+Hello!
+
+Right so your first couple of questions will depend:
+>>What is the recommended procedure for a clean fresh install of pln-ipamaster while preserving our existing user/host/group data and certificates?
+>>How do we handle the CA database migration — specifically the existing issued certificates that clients depend on?
+
+Are you aware of issued certificates for specific clients? The point I'm trying to reach is that - clients are not automatically issued SSL certs,
+so unless you have specific servers running SSL certificates issued by IPA and not another CA, these would need a reissue. However, I still am skeptical
+about the number of certs you have, which greatly increases the size of your LDAP database. Specially because this comes from a centOS 7 which doesn't have ACME.
+If this was a deployment initially with ACME, but without configuring pruning then this number would be fine. Without ACME? I'm really skeptical IPA issued ~1mi certs manually.
+
+Of course, these may be organic, but I've just seen a couple of tickets about the JIRA I mentioned in the last couple of weeks, so I am really trying to make sure you need these,
+otherwise you can just discard all data from the CA and start anew with much less of a headache.
+
+In your place, I'd try reviewing any existing documentation about clients/services running and check whether these certs are really needed. If not,
+just migrate from one topology to another, then bring up user/group/hbac/sudo/dns(if in use) data, then enroll the client machines in batch to the new topology.
+
+>>Would removing ric-ipareplica (CentOS 7, Dogtag down) from the topology first be a prerequisite before the fresh install?
+I'd recommend against removing anything prior to installing new replicas, even if pki-tomcat is currently down. The replica may still be servicing ldap requests.
+
+*IF* you want to keep the current environment (e.g., the current ldap database as-is), the next steps are to introduce new replicas, and then start decommissioning
+the old centOS machines, and the last step would be to replace the rhel-8.10 with another rhel-9.
+
+You'd just have to be aware of transferring the roles appropriately in the process as documented in this doc:
+https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/migrating_to_identity_management_on_rhel_9/index
+
+>>We are still experiencing the gssproxy SPNEGO cannot find mechanisms to negotiate issue after service restarts on the current pln-ipamaster. 
+>>Is this related to the unsupported install method or a separate issue we should address regardless?
+We'd have to investigate. A keytab may have gone stale?
+
+I'd recommend opening a new case and referring to this one. Or things may get too complicate as we work on a possible migration.
+
+Let me know if this helps?
+
+Kr,
+-Cesar
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aHjKEIA0
+
+
+ Suma, Alhaji
+
+Mon, Mar 30, 2026 at 12:17:40 PM EDT
+i Cesar,
+Thank you for the feedback and guidance.
+We have completed the Petaluma DC shutdown activity and cpeg-ipareplica is back in rotation. We have at least a week before we need to cut over to pln-ipamaster, so we are open to doing a clean fresh install as you recommended if that gives us a healthier and fully supported environment.
+A few questions to help us plan:
+
+What is the recommended procedure for a clean fresh install of pln-ipamaster while preserving our existing user/host/group data and certificates?
+How do we handle the CA database migration — specifically the existing issued certificates that clients depend on?
+
+Would removing ric-ipareplica (CentOS 7, Dogtag down) from the topology first be a prerequisite before the fresh install?
+
+We are still experiencing the gssproxy SPNEGO cannot find mechanisms to negotiate issue after service restarts on the current pln-ipamaster. Is this related to the unsupported install method or a separate issue we should address regardless?
+
+We want to do this right and have a fully supported environment going forward. Please advise on the best path.
+Thanks,
+Haj
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aHcmsIAC
+
+Red Hat associate comment Goslawski, Cesar
+
+Thu, Mar 26, 2026 at 12:04:00 PM EDT
+Hello,
+
+Thanks for the update. I'm glad the installation was successful, but I'd like point out that manual changes directly during the
+installation process are not tested. So we cannot guarantee the system is or will remain 100% healthy, and this is not supported.
+
+I'm reducing the severity and removing the 24x7 flag.
+
+About this:
+>>pki-tomcatd startup time — takes 45-60 minutes on every restart due to ~1M certificate entries in o=ipaca. We need guidance on how to purge expired certificates from the CA database to reduce startup time.
+
+I'd strongly suggest you check whether most of these certs are really organic. The JIRA I mentioned is this one both upstream and internal:
+---
+https://pagure.io/certmonger/pull-request/303
+https://redhat.atlassian.net/browse/RHEL-159362
+---
+
+And may match the behaviour here in case these 1,089,773 entries are really not being used. rhel-9 has a prune feature but that requires rsnv3,
+and your current topology does not support that. You'd need a full fresh install and then migrate the data over.
+
+Considering the 1mi certificates, however, along with the way this replica has been installed in a topology with centOS 7 servers,
+that would be the best way ahead to ensure you have a 100% working environment.
+
+Kr,
+-Cesar
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aHEawIAG
+
+
+ Suma, Alhaji
+
+Thu, Mar 26, 2026 at 11:14:25 AM EDT
+Update on our situation:
+
+pln-ipamaster is now operational. After working through multiple issues I was able to complete the migration using the following approach:
+
+The ipa-replica-install completed all 33 CA steps successfully including full CA database replication (1,089,773 entries)
+We manually injected the cn=masters entries into cpeg to unblock the KDC replication timeout
+The upgrade step 7/10 deadlocked for 1.5+ hours — and eventually failing after I restarted dirsrv - however I was able to resolve it by manually setting complete = True in /var/lib/ipa/sysrestore/sysrestore.state and running ipactl start which triggered ipa-server-upgrade to complete successfully
+All services are now running — DS, krb5kdc, kadmin, httpd, pki-tomcatd, ipa-custodia
+CA renewal master transferred to pln-ipamaster
+UI login working, kinit working, LDAP queries working
+
+Outstanding issues needing guidance:
+
+pki-tomcatd startup time — takes 45-60 minutes on every restart due to ~1M certificate entries in o=ipaca. We need guidance on how to purge expired certificates from the CA database to reduce startup time.
+
+ipa-dnskeysyncd failing — fails with CalledProcessError on ipa-dnskeysync-replica. No DNSSEC signing is configured on any zones so this is low priority but would like guidance on proper fix.
+
+Post migration cleanup
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aHCaMIAW
+
+Red Hat associate comment Sambare, Aniket
+
+Thu, Mar 26, 2026 at 03:08:44 AM EDT
+Hello,
+
+Thanks for the update.
+
+>>> Please share the output of the commands below to check the DS status and logs. 
+
+      # systemctl status dirsrv@$(hostname -s)
+
+      # tail -100 /var/log/dirsrv/slapd-*/errors
 
 
 
-"As part of our transition to Kubernetes, we have successfully built and delivered the OCP-AI on-prem Kubernetes platform purpose-built for Calix AI workloads. The platform runs on Dell PowerEdge R760xa GPU servers equipped with 8x NVIDIA H100L 94GB GPUs, providing 752 GB of total GPU memory for AI/ML compute. AgentMesh has been deployed to the platform and is now serving live traffic. This is the first production AI workload running on our internal infrastructure, supporting three fully isolated environments for development, testing, and production. The platform is designed to scale and onboard additional AI and non-AI workloads as the organization's needs grow."
+Thanks,
+Aniket Sambare
+Red Hat
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH9geIAC
 
 
+ Suma, Alhaji
+
+Thu, Mar 26, 2026 at 02:30:36 AM EDT
+Hello Cesar / Juarez,
+
+The install successfully completed all 33 CA steps including full CA database replication (1,089,773 entries), CA startup, KDC, httpd
+
+I manually injected the cn=KDC entry into cpeg to get past the replication timeout — this worked and the installer moved forward
+The install is now stuck at "Upgrading IPA" step 7/10 for over 1 hour with no progress
+Install log frozen at 2026-03-26T05:33:39Z
+Directory Server has no listeners (ss -tlnp | grep slapd returns nothing) — DS stopped listeners during the upgrade step and never re-enabled them
+Install process PID 38436 is still alive but not making progress
+poll_schedule_timeout is the wchan — process is polling/waiting for something
+
+What I tried:
+
+Started named (it was inactive)
+Forced sync from pln to cpeg
+Confirmed index task completed successfully
+Confirmed cn=masters entries exist on pln for pln-ipamaster
+
+We need urgent guidance on what is causing the upgrade to hang at step 7/10 and how to recover without uninstalling
+ ====
+
+Update in progress, 1398 seconds elapsed
+Update succeeded
+
+  [4/33]: revert time skew after initial replication
+  [5/33]: creating ACIs for admin
+  [6/33]: creating installation admin user
+  [7/33]: configuring certificate server instance
+  [8/33]: stopping certificate server instance to update CS.cfg
+  [9/33]: backing up CS.cfg
+  [10/33]: Add ipa-pki-wait-running
+Set start up timeout of pki-tomcatd service to 7200 seconds
+  [11/33]: secure AJP connector
+  [12/33]: reindex attributes
+  [13/33]: exporting Dogtag certificate store pin
+  [14/33]: disabling nonces
+  [15/33]: set up CRL publishing
+  [16/33]: enable PKIX certificate path discovery and validation
+  [17/33]: authorizing RA to modify profiles
+  [18/33]: authorizing RA to manage lightweight CAs
+  [19/33]: Ensure lightweight CAs container exists
+  [20/33]: Enable lightweight CA monitor
+  [21/33]: Ensuring backward compatibility
+  [22/33]: destroying installation admin user
+  [23/33]: updating IPA configuration
+  [24/33]: starting certificate server instance
+  [25/33]: Finalize replication settings
+  [26/33]: configure certmonger for renewals
+  [27/33]: Importing RA key
+  [28/33]: configure certificate renewals
+  [29/33]: Configure HTTP to proxy connections
+  [30/33]: enabling CA instance
+  [31/33]: importing IPA certificate profiles
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
+Lookup failed: Preferred host pln-ipamaster.ipa.calix.local does not provide CA.
+  [32/33]: configuring certmonger renewal for lightweight CAs
+  [33/33]: deploying ACME service
+Done configuring certificate server (pki-tomcatd).
+Configuring Kerberos KDC (krb5kdc)
+  [1/1]: installing X509 Certificate for PKINIT
+Done configuring Kerberos KDC (krb5kdc).
+Applying LDAP updates
+Upgrading IPA:. Estimated time: 1 minute 30 seconds
+  [1/10]: stopping directory server
+  [2/10]: saving configuration
+  [3/10]: disabling listeners
+  [4/10]: enabling DS global lock
+  [5/10]: disabling Schema Compat
+  [6/10]: starting directory server
+  [7/10]: upgrading server
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH9OfIAK
+
+Red Hat associate comment Juarez, Sergio
+
+Wed, Mar 25, 2026 at 08:03:21 PM EDT
+Hello,
+
+Ok, thank you for letting us know.
+
+Best Regards.
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH6YTIA0
 
 
+ Suma, Alhaji
 
-# Does plnx-admin have a route to 10.172.194.0/23?
-ip route get 10.172.194.163
+Wed, Mar 25, 2026 at 08:01:53 PM EDT
+Yes I have Juarez - see my earlier response below. Installations is ongoing. Will keep you posted
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH7IvIAK
 
-# Trace the path
-traceroute -n 10.172.194.163
+Red Hat associate comment Juarez, Sergio
 
-ssh -i ~/.ssh/ocp-ai core@10.172.248.150
+Wed, Mar 25, 2026 at 07:56:16 PM EDT
+Hello,
 
-# Is the VIP bound?
-ip addr show | grep 10.172.194.163
+I've reviewed the case history and I'm unclear about the following.
+I want to make sure if you followed Cesar's action plan:
 
-# Which interface is it on?
-ip addr show | grep -B5 10.172.194
+Modifying this file:
+/usr/share/ipa/replica-prevent-time-skew.ldif
+to contain:
 
-# Are ALL the MetalLB IPs present?
-ip addr show | grep "10.172.194.16"
+dn: cn=config
+changetype: modify
+replace: nsslapd-ignore-time-skew
+nsslapd-ignore-time-skew: on
+Can you confirm if you completed these steps and if it's now working?
+And then attempt the installation. This should make 'nsslapd-ignore-time-skew' be set to on even after dirsrv restarts and it should work.
+But ideally - these repl errors should be taken care of.
+
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH7JJIA0
+
+Red Hat associate comment Juarez, Sergio
+
+Wed, Mar 25, 2026 at 07:39:49 PM EDT
+Hello,
+
+I am collaborating on this case.
+I am reviewing the case history and will update you as soon as possible about this: And on the LDIF migration path — we will keep this in mind as a last resort, but our primary concern is whether it preserves the existing CA chain. Losing the CA would be a significant problem.
+
+Thank you
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH7FqIAK
 
 
+ Suma, Alhaji
 
-# From plnx-admin:
-oc get l2advertisement -n metallb-system -o yaml
-oc get ipaddresspool -n metallb-system -o yaml
+Wed, Mar 25, 2026 at 06:44:46 PM EDT
+Hi Cesar,
+
+Thank you - this is very helpful and we have already acted on your suggestion.
+
+The nsslapd-ignore-time-skew — you were correct, it was not set on pln-ipamaster. We have now applied the fix both to /usr/share/ipa/replica-prevent-time-skew.ldif and to the live DS instance. It is now confirmed on on pln. It was already set on cpeg prior to the install.
+
+On the PKINIT point — understood and appreciated. That clarifies why we should not attempt to manually mark the install complete.
+Regarding the ~1M certificates — these appear organic, accumulated over many years. We would appreciate the JIRA reference to investigate post-migration.
+
+And on the LDIF migration path — we will keep this in mind as a last resort, but our primary concern is whether it preserves the existing CA chain. Losing the CA would be a significant problem.
+Thanks,
+Haj
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH76yIAC
+
+Red Hat associate comment Goslawski, Cesar
+
+Wed, Mar 25, 2026 at 04:04:02 PM EDT
+Hello,
+
+Thanks for your patience.
+
+I completely understand you're points/requirements, but some of them cannot be met as-is from the standpoint of our support scope.
+Firstly, for IPA I cannot address this:
+>>How to manually complete or finalize the replica install given that all services are running and only sysrestore.state shows complete=False
+Because even though it looks like it was the last step in the replica install, it probably wasn't. 
+E.g., you have the installation called with
+~~~
+DEBUG ipa-replica-install was invoked with arguments [] and options: {'unattended': False, 'ip_addresses': None, 'domain_name': 'ipa.calix.local', 'servers': ['cpeg-ipareplica.ipa.calix.local'], 'realm_name': 'IPA.CALIX.LOCAL', 'host_name': None, 'p
+rincipal': 'admin', 'hidden_replica': False, 'setup_adtrust': False, 'setup_ca': True, 'setup_kra': False, 'setup_dns': True, 'no_pkinit': False,
+~~~
+no_pkinit :false, means that the PKINIT setup still needs to run for the KDC, and I don't see the task being executed in the replica install logs.
+
+So the installation script still has more steps to go. So I cannot really provide you with a 'workaround' in this scenario because we cannot attest
+it will work *at all*.
+
+One thing in addition that I can suggest, is to do a quick workaround for the directory server in 'pln' during the install which involves:
+
+1. Modifying this file:
+/usr/share/ipa/replica-prevent-time-skew.ldif
+
+to contain:
+~~~
+dn: cn=config
+changetype: modify
+replace: nsslapd-ignore-time-skew
+nsslapd-ignore-time-skew: on
+~~~
+
+And then attempt the installation. This should make 'nsslapd-ignore-time-skew' be set to on even after dirsrv restarts and it *should* work.
+But *ideally* - these repl errors should be taken care of.
+
+Two additional points for thought.
+
+2. You have ~1mi cert entries in your o=ipaca. Are these organic? Or is certmonger in a renewing spiral? (there's a jira about that...) because ~1mi
+certs is a lot.
+3. Have you considered migrating with ldif, if your environment allows:
+---
+Migrating Your IDM Environment To a New Environment in RHEL 7
+https://access.redhat.com/articles/2949931
+---
+
+This is the *closest* it can get to your requirements as it would not be tied to the installation script, but it has additional requirements.
+
+Kr,
+-Cesar
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH5x8IAC
+
+Red Hat associate comment Goslawski, Cesar
+
+Wed, Mar 25, 2026 at 02:57:26 PM EDT
+Hello,
+
+Thanks for the files. I am checking them currently.
+
+Will reach out soon.
+
+Kr,
+-Cesar
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH606IAC
 
 
-# On the same master node:
-ip rule list
-ip route show table all | grep "10.172.194"
-```
+ Suma, Alhaji
 
-The MachineConfig `99-master-app-vlan-policy-routes` should have created rules like `from 10.172.194.0/23 lookup <table>` with a default route via 10.172.194.1 in that table. If these rules aren't present, the MC script might not have run — check `systemctl status app-vlan-policy-routes` (or whatever the unit is named) and `journalctl -u app-vlan-policy-routes`.
+Wed, Mar 25, 2026 at 02:31:32 PM EDT
+I've attached sos-report from cpeg for your review
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH5pDIAS
 
-**Step 5: Check the Nexus side**
 
-Ask the network team (or if you have access):
-```
-show interface Vlan1794
-show ip route 10.172.194.0/23
-show mac address-table vlan 1794
-show ip arp vlan 1794
+Suma, Alhaji
 
-# === 1. SHOW THE OPERATOR UPGRADE ===
-# Previous working version vs current broken version
-oc get csv -n metallb-system | grep metallb
-# Shows: metallb-operator.v4.20.0-202603152019 replaces v4.20.0-202602261925
+Wed, Mar 25, 2026 at 02:22:13 PM EDT
+Attached file  to this case.
+Description
 
-oc get installplan -n metallb-system
-# Shows three installplans, latest is the broken one
+https://access.redhat.com/support/cases/#/case/04408743/discussion?attachmentId=a09Hn00005B3k1mIAB
 
-# === 2. SHOW THE --host=localhost BUG ===
-# Speaker process args — --host=localhost is the problem
-oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- cat /proc/1/cmdline | tr '\0' ' '
-# Expected output: /speaker --port=29150 --log-level=warn --host=localhost --frrk8s-namespace=openshift-frr-k8s
 
-# The env var has the CORRECT node IP but --host overrides it
-oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- env | grep METALLB_HOST
-# Shows: METALLB_HOST=10.172.248.x (correct node IP, but unused)
+Suma, Alhaji
 
-# Memberlist is bound to localhost — speakers can't discover each other
-oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- ss -tlnp | grep 29150
-# Shows: LISTEN 127.0.0.1:29150 (loopback only — should be 0.0.0.0 or node IP)
+Wed, Mar 25, 2026 at 02:13:53 PM EDT
+Attached file  to this case.
+Description
 
-# === 3. SHOW THE PARTIAL JOIN ERROR ===
-oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker | grep "partial join"
-# Shows: expected 2, joined 1
+https://access.redhat.com/support/cases/#/case/04408743/discussion?attachmentId=a09Hn00005B3jKFIAZ
 
-# === 4. SHOW THE IMMUTABLE ServiceL2Status BUG ===
-oc logs -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker | grep "immutable" | head -5
-# Shows: status.node: Invalid value: "string": Value is immutable
 
-# === 5. SHOW VIPs ARE UNREACHABLE ===
-# LoadBalancer services have IPs assigned but can't be reached
-oc get svc -A -o wide | grep LoadBalancer
+ Suma, Alhaji
 
-# MinIO LB — unreachable
-nc -zv -w 3 10.172.194.160 9000
-# Times out
+Wed, Mar 25, 2026 at 02:03:04 PM EDT
+Hi Cesar,
+Thank you for the response. So basically to address the intermediate replica suggestion directly -  it is not feasible for two reasons:
+First, our hard deadline is March 28. The Petaluma DC where cpeg resides is being powered off that morning. A new replica install from cpeg involves replicating a 14GB o=ipaca database with ~1 million certificate entries — that process alone takes 5+ hours, and we have already burned multiple attempts getting to where we are today.
 
-# Milvus LB — unreachable
-nc -zv -w 3 10.172.194.161 19530
-# Times out
+Second, and more importantly, any new replica install against cpeg would fail for the same reason our current install nearly failed — cpeg has deep pre-existing replication health issues including a 29,000+ day CSN time skew on dc=ipa,dc=calix,dc=local and chronic changelog purge errors. These are not version compatibility issues. A new RHEL 8 intermediate would hit the exact same replication problems.
 
-# === 6. SHOW ClusterIP AND GATEWAY WORK FINE ===
-# MinIO ClusterIP — healthy
-ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://172.30.168.89:9000/minio/health/live"
-# Returns: 200
+To be clear about our current state: this is not a failed install. The RHEL 8 to RHEL 9 replica install completed successfully through all 33 steps including full CA database replication, CA startup, KDC, and httpd. The only failure was at the very last step — a replication timeout waiting for cn=KDC to appear on cpeg, caused by an Error 18 transient replication warning on the pln to cpeg agreement. All services on pln are running right now.
+What we need is specific guidance on one of two things:
 
-# Gateway API routes — healthy
-curl -k -s -o /dev/null -w "%{http_code}" https://minio.dev.ocp-ai.calix.local
-# Returns: 200
+How to resolve the Error 18 incremental replication issue so the cn=KDC entry replicates from pln to cpeg and the install can complete
+How to manually complete or finalize the replica install given that all services are running and only sysrestore.state shows complete=False
 
-# === 7. SHOW INFRASTRUCTURE IS CORRECT ===
-# Speakers can see the VLAN interfaces
-oc exec -n metallb-system $(oc get pods -n metallb-system -l component=speaker -o name | head -1) -c speaker -- ip link show | grep bnd0.1794
-# Shows: bnd0.1794 UP mtu 9000
+Given the March 28 deadline this is a Severity 1 situation for us.
+Thanks,
+Haj
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH5eeIAC
 
-# NET_RAW capability is present
-oc get pod $(oc get pods -n metallb-system -l component=speaker -o name | head -1 | cut -d/ -f2) -n metallb-system -o yaml | grep -A4 "capabilities"
-# Shows: NET_RAW
+Red Hat associate comment Goslawski, Cesar
 
-# Policy routing is correct
-ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "ip rule show"
-# Shows source-based routing rules for all app VLANs
+Wed, Mar 25, 2026 at 01:14:42 PM EDT
+Hello,
 
-# L2Advertisement config is correct
-oc get l2advertisement -n metallb-system -o yaml | grep -A3 "interfaces"
-# Shows: bnd0.1794, bond0.1794
+Thanks for the update.
 
-# eno6 is down (not causing ARP conflicts)
-ssh -i ~/.ssh/ocp-ai core@ocp-ai-master01.calix.local "ip link show eno6"
-# Shows: state DOWN
+Right so I talked with some engineers and SMEs in the background, and this kind of setup you're going for is not exactly
+recommended, and not supported as well.
 
-# === 8. SHOW WE PREVENTED FURTHER AUTO-UPGRADES ===
-oc get subscription metallb-operator -n metallb-system -o jsonpath='{.spec.installPlanApproval}'
-# Shows: Manual
+Assuming these were rhel-7s, the recommendation would still be to deploy and replace all rhel-7s in the topology with
+rhel-8s, and only after decommissioning the rhel-7s, starting the migration to rhel-9.
+
+Some points about this so you can have an idea:
+
+1. RHEL 8 supports SPAKE and IdP pre-authentication, while RHEL 7 (or CentOS 7) does not, and that having RHEL 8 servers with those enabled in a RHEL (or CentOS) 7 deployment can cause problems such as users being unable to log in.
+ - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/8/html/migrating_to_identity_management_on_rhel_8/migrate-7-to-8_migrating
+
+2. In a mixed environment with RHEL 7, RHEL 8, and RHEL 9 servers, you can enforce the additional password policy settings only on servers running on RHEL 8.4 and later. If a user is logged in to an IdM client and the IdM client is communicating with an IdM server running on RHEL 8.3 or earlier, then the new password policy requirements set by the system administrator are not applied. To ensure consistent behavior, upgrade or update all servers to RHEL 8.4 and later.
+ - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/defining-idm-password-policies_managing-users-groups-hosts
+
+Beyond the above points, a myriad of risks are taken within a mixed environment such as this.
+
+I also see there are some replication errors between your centOS 7 servers which in this case are unsupported.
+
+Our suggestion at this point is:
+
+1. Deploy another rhel-8, point to cpeg, and try installing the replica.
+If that still fails, then share another sosreport from *both* the machines. I'll need the sosreport from cpeg as well so I can see
+what cpeg (rhel-8) says during the install attempt.
+
+But the gist of it is - having CentOS 7 + rhel-8 + rhel-9 is not 100% supported.
+
+Kr,
+-Cesar Goslawski
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH5DZIA0
+
+
+ Suma, Alhaji
+
+Wed, Mar 25, 2026 at 12:40:57 PM EDT
+Logs have been shared
+
+[root@cpeg-ipareplica tmp]# kinit -V admin
+Using existing cache: 0:62812
+Using principal: admin@IPA.CALIX.LOCAL
+Password for admin@IPA.CALIX.LOCAL:
+Authenticated to Kerberos v5
+[root@cpeg-ipareplica tmp]# ipa config-show
+  Maximum username length: 32
+  Maximum hostname length: 64
+  Home directory base: /home
+  Default shell: /bin/bash
+  Default users group: sw
+  Default e-mail domain: calix.com
+  Search time limit: 2
+  Search size limit: 5000
+  User search fields: uid,givenname,sn,telephonenumber,ou,title
+  Group search fields: cn,description
+  Enable migration mode: False
+  Certificate Subject base: O=IPA.CALIX.LOCAL
+  Password Expiration Notification (days): 4
+  Password plugin features: AllowNThash, KDC:Disable Last Success
+  SELinux user map order: guest_u:s0$xguest_u:s0$user_u:s0$staff_u:s0-s0:c0.c1023$unconfined_u:s0-s0:c0.c1023
+  Default SELinux user: unconfined_u:s0-s0:c0.c1023
+  Default PAC types: MS-PAC, nfs:NONE
+  IPA masters: cpeg-ipareplica.ipa.calix.local, nan-ipareplica01.ipa.calix.local, ric-ipareplica.ipa.calix.local, ric-
+               ipareplica01.ipa.calix.local, sjc-ipareplica01.ipa.calix.local
+  IPA master capable of PKINIT: cpeg-ipareplica.ipa.calix.local, nan-ipareplica01.ipa.calix.local, ric-ipareplica.ipa.calix.local,
+                                ric-ipareplica01.ipa.calix.local, sjc-ipareplica01.ipa.calix.local
+  IPA CA servers: cpeg-ipareplica.ipa.calix.local
+  IPA CA renewal master: cpeg-ipareplica.ipa.calix.local
+  IPA DNS servers: cpeg-ipareplica.ipa.calix.local, nan-ipareplica01.ipa.calix.local, ric-ipareplica.ipa.calix.local, ric-
+                   ipareplica01.ipa.calix.local, sjc-ipareplica01.ipa.calix.local
+[root@cpeg-ipareplica tmp]# for i in $(ipa-csreplica-manage list | awk '{print $1}' | tr -d ":"); do echo && printf '%.s-' {1..91} && echo && echo $i && printf '%.s-' {1..91} && echo && ipa-replica-manage -v list $i; done
+Directory Manager password:
+
+-------------------------------------------------------------------------------------------
+sjc-ipareplica01.ipa.calix.local
+-------------------------------------------------------------------------------------------
+cpeg-ipareplica.ipa.calix.local: replica
+  last update status: Error (0) No replication sessions started since server startup
+  last update ended: 1970-01-01 00:00:00+00:00
+nan-ipareplica01.ipa.calix.local: replica
+  last update status: Error (0) No replication sessions started since server startup
+  last update ended: 1970-01-01 00:00:00+00:00
+
+-------------------------------------------------------------------------------------------
+nan-ipareplica01.ipa.calix.local
+-------------------------------------------------------------------------------------------
+cpeg-ipareplica.ipa.calix.local: replica
+  last update status: Error (18) Replication error acquiring replica: Incremental update transient warning.  Backing off, will retry update later. (transient warning)
+  last update ended: 1970-01-01 00:00:00+00:00
+pln-petipareplica.ipa.calix.local: replica
+  last update status: Error (2) Replication error acquiring replica: fatal error - too much time skew between replicas (excessive clock skew)
+  last update ended: 1970-01-01 00:00:00+00:00
+sjc-ipareplica01.ipa.calix.local: replica
+  last update status: Error (0) No replication sessions started since server startup
+  last update ended: 1970-01-01 00:00:00+00:00
+
+-------------------------------------------------------------------------------------------
+ric-ipareplica01.ipa.calix.local
+-------------------------------------------------------------------------------------------
+cpeg-ipareplica.ipa.calix.local: replica
+  last update status: Error (18) Replication error acquiring replica: Incremental update transient warning.  Backing off, will retry update later. (transient warning)
+  last update ended: 1970-01-01 00:00:00+00:00
+ric-ipareplica.ipa.calix.local: replica
+  last update status: Error (-2) Problem connecting to replica - LDAP error: Local error (connection error)
+  last update ended: 1970-01-01 00:00:00+00:00
+
+-------------------------------------------------------------------------------------------
+ric-ipareplica.ipa.calix.local
+-------------------------------------------------------------------------------------------
+cpeg-ipareplica.ipa.calix.local: replica
+  last update status: Error (18) Replication error acquiring replica: Incremental update transient warning.  Backing off, will retry update later. (transient warning)
+  last update ended: 1970-01-01 00:00:00+00:00
+nan-ipareplica.ipa.calix.local: replica
+  last update status: Error (-1) Problem connecting to replica - LDAP error: Can't contact LDAP server (connection error)
+  last update ended: 1970-01-01 00:00:00+00:00
+ric-ipareplica01.ipa.calix.local: replica
+  last update status: Error (2) Replication error acquiring replica: fatal error - too much time skew between replicas (excessive clock skew)
+  last update ended: 1970-01-01 00:00:00+00:00
+
+-------------------------------------------------------------------------------------------
+cpeg-ipareplica.ipa.calix.local
+-------------------------------------------------------------------------------------------
+nan-ipareplica01.ipa.calix.local: replica
+  last update status: Error (0) Replica acquired successfully: Incremental update succeeded
+  last update ended: 2026-03-25 15:06:37+00:00
+ric-ipareplica01.ipa.calix.local: replica
+  last update status: Error (0) Replica acquired successfully: Incremental update succeeded
+  last update ended: 2026-03-25 15:06:36+00:00
+sjc-ipareplica01.ipa.calix.local: replica
+  last update status: Error (6) Replication error acquiring replica: Unable to acquire replica: there is no replicated area on the consumer server. Replication is aborting. (no such replica)
+  last update ended: 1970-01-01 00:00:00+00:00
+pln-ipamaster.ipa.calix.local: replica
+  last update status: Error (0) Replica acquired successfully: Incremental update succeeded
+  last update ended: 2026-03-25 15:06:36+00:00
+[root@cpeg-ipareplica tmp]# for i in $(ipa-replica-manage list | awk '{print $1}' | tr -d ":"); do echo && printf '%.s-' {1..91} && echo && echo $i && printf '%.s-' {1..91} && echo && ipa-replica-manage -v list $i; done
+
+-------------------------------------------------------------------------------------------
+sjc-ipareplica01.ipa.calix.local
+-------------------------------------------------------------------------------------------
+cpeg-ipareplica.ipa.calix.local: replica
+  last update status: Error (0) No replication sessions started since server startup
+  last update ended: 1970-01-01 00:00:00+00:00
+nan-ipareplica01.ipa.calix.local: replica
+  last update status: Error (0) No replication sessions started since server startup
+  last update ended: 1970-01-01 00:00:00+00:00
+
+-------------------------------------------------------------------------------------------
+nan-ipareplica01.ipa.calix.local
+-------------------------------------------------------------------------------------------
+cpeg-ipareplica.ipa.calix.local: replica
+  last update status: Error (18) Replication error acquiring replica: Incremental update transient warning.  Backing off, will retry update later. (transient warning)
+  last update ended: 1970-01-01 00:00:00+00:00
+pln-petipareplica.ipa.calix.local: replica
+  last update status: Error (2) Replication error acquiring replica: fatal error - too much time skew between replicas (excessive clock skew)
+  last update ended: 1970-01-01 00:00:00+00:00
+sjc-ipareplica01.ipa.calix.local: replica
+  last update status: Error (0) No replication sessions started since server startup
+  last update ended: 1970-01-01 00:00:00+00:00
+
+-------------------------------------------------------------------------------------------
+ric-ipareplica01.ipa.calix.local
+-------------------------------------------------------------------------------------------
+cpeg-ipareplica.ipa.calix.local: replica
+  last update status: Error (1) Can't acquire busy replica
+  last update ended: 1970-01-01 00:00:00+00:00
+ric-ipareplica.ipa.calix.local: replica
+  last update status: Error (-2) Problem connecting to replica - LDAP error: Local error (connection error)
+  last update ended: 1970-01-01 00:00:00+00:00
+
+-------------------------------------------------------------------------------------------
+ric-ipareplica.ipa.calix.local
+-------------------------------------------------------------------------------------------
+cpeg-ipareplica.ipa.calix.local: replica
+  last update status: Error (1) Can't acquire busy replica
+  last update ended: 1970-01-01 00:00:00+00:00
+nan-ipareplica.ipa.calix.local: replica
+  last update status: Error (-1) Problem connecting to replica - LDAP error: Can't contact LDAP server (connection error)
+  last update ended: 1970-01-01 00:00:00+00:00
+ric-ipareplica01.ipa.calix.local: replica
+  last update status: Error (2) Replication error acquiring replica: fatal error - too much time skew between replicas (excessive clock skew)
+  last update ended: 1970-01-01 00:00:00+00:00
+
+-------------------------------------------------------------------------------------------
+cpeg-ipareplica.ipa.calix.local
+-------------------------------------------------------------------------------------------
+nan-ipareplica01.ipa.calix.local: replica
+  last update status: Error (0) Replica acquired successfully: Incremental update succeeded
+  last update ended: 2026-03-25 15:07:08+00:00
+ric-ipareplica01.ipa.calix.local: replica
+  last update status: Error (0) Replica acquired successfully: Incremental update succeeded
+  last update ended: 2026-03-25 15:07:07+00:00
+sjc-ipareplica01.ipa.calix.local: replica
+  last update status: Error (6) Replication error acquiring replica: Unable to acquire replica: there is no replicated area on the consumer server. Replication is aborting. (no such replica)
+  last update ended: 1970-01-01 00:00:00+00:00
+pln-ipamaster.ipa.calix.local: replica
+  last update status: Error (0) Replica acquired successfully: Incremental update succeeded
+  last update ended: 2026-03-25 15:07:07+00:00
+[root@cpeg-ipareplica tmp]#
+https://access.redhat.com/support/cases/#/case/04408743/discussion?commentId=a0aHn00000aH4wTIAS
+
+
+Suma, Alhaji
+
+Wed, Mar 25, 2026 at 12:40:46 PM EDT
+Attached file  to this case.
+SHA-256
+949f40ac904be3df78fe769e983c1e4d90af5b110ce6bab288f483c1aa2ed1e0
+
+Description
+
+https://access.redhat.com/support/cases/#/case/04408743/discussion?attachmentId=a09Hn00005B3jl0IAB
+
+Red Hat associate comment Goslawski, Cesar
+
+Wed, Mar 25, 2026 at 10:39:18 AM EDT
+Hello,
+
+Thanks for your time on the call. Just reiterating, my name is Cesar and I am member of the Red Hat Identity Management team. 
+I'll be assisting you with this case during the EST work hours, since this is an FTS.
+
+I understand that you're facing an issue installing a new rhel-9 replica in this topology,
+and that this topology is composed of CentOS 7 servers, one rhel-8 (cpeg-ipareplica.ipa.calix.local),
+and you're trying to install a new rhel-9 (pln-ipamaster.ipa.calix.local).
+
+In addition to these logs that you shared, I need a bit more of information from your topology.
+Please run and share:
+~~~
+# kinit -V admin
+# ipa config-show
+# for i in $(ipa-csreplica-manage list | awk '{print $1}' | tr -d ":"); do echo && printf '%.s-' {1..91} && echo && echo $i && printf '%.s-' {1..91} && echo && ipa-replica-manage -v list $i; done
+# for i in $(ipa-replica-manage list | awk '{print $1}' | tr -d ":"); do echo && printf '%.s-' {1..91} && echo && echo $i && printf '%.s-' {1..91} && echo && ipa-replica-manage -v list $i; done
+~~~
+
+And from both cpeg and pln, please share their respective sos reports:
+~~~
+# sos report --all-logs
+~~~
+
+As I need to verify the other logs (e.g., messages, PKI, httpd, krb5kdc) and some config files.
+
+Kind regards,
+-Cesar Goslawski
