@@ -1,5 +1,12 @@
-cd ~/hil-infrastructure
-git pull
+# Create the sync script as a ConfigMap
+kubectl create configmap nagios-sync-script \
+  --from-literal=sync.sh='#!/bin/sh
+cp -r /git/current/apps/monitoring/conf.d/. /opt/nagios/etc/conf.d/
+kill -HUP $(pgrep -f "nagios -d")
+echo "Nagios config synced and reloaded"
+' \
+  -n monitoring
+
 
 python3 << 'PYEOF'
 import yaml
@@ -7,43 +14,43 @@ import yaml
 with open('apps/monitoring/nagios-deployment.yaml') as f:
     doc = yaml.safe_load(f)
 
-git_sync = {
-    'name': 'git-sync',
-    'image': 'img-registry.apps.ttmtech.com/ttm-infra/git-sync:v4.0.0',
-    'args': [
-        '--repo=https://gitlab.ttmtech.com/ttm-infra/hil-infrastructure.git',
-        '--ref=main',
-        '--depth=1',
-        '--period=60s',
-        '--root=/git',
-        '--link=current',
-        '--git-config=http.sslVerify:false',
-        '--exechook-command=sh -c "cp -r /git/current/apps/monitoring/conf.d/. /opt/nagios/etc/conf.d/ && kill -HUP $(pgrep -f nagios)"'
-    ],
-    'env': [
-        {'name': 'GITSYNC_USERNAME', 'value': 'git'},
-        {
-            'name': 'GITSYNC_PASSWORD',
-            'valueFrom': {
-                'secretKeyRef': {
-                    'name': 'gitlab-token',
-                    'key': 'token'
-                }
-            }
-        }
-    ],
-    'volumeMounts': [
-        {'name': 'nagios-etc', 'mountPath': '/opt/nagios/etc'},
-        {'name': 'git-data', 'mountPath': '/git'}
-    ]
-}
+# Update git-sync args
+for container in doc['spec']['template']['spec']['containers']:
+    if container['name'] == 'git-sync':
+        container['args'] = [
+            '--repo=https://gitlab.ttmtech.com/ttm-infra/hil-infrastructure.git',
+            '--ref=main',
+            '--depth=1',
+            '--period=60s',
+            '--root=/git',
+            '--link=current',
+            '--git-config=http.sslVerify:false',
+            '--exechook-command=/scripts/sync.sh'
+        ]
+        container['volumeMounts'].append({
+            'name': 'sync-script',
+            'mountPath': '/scripts'
+        })
 
-doc['spec']['template']['spec']['containers'].append(git_sync)
-doc['spec']['template']['spec']['volumes'].append({'name': 'git-data', 'emptyDir': {}})
+# Add sync-script volume
+doc['spec']['template']['spec']['volumes'].append({
+    'name': 'sync-script',
+    'configMap': {
+        'name': 'nagios-sync-script',
+        'defaultMode': 0o755
+    }
+})
 
 with open('apps/monitoring/nagios-deployment.yaml', 'w') as f:
     yaml.dump(doc, f, default_flow_style=False)
-print("git-sync added successfully")
+print("Done")
 PYEOF
 
-yamllint -d "{extends: default, rules: {line-length: disable}}" apps/monitoring/nagios-deployment.yaml
+python3 -c "
+import yaml
+with open('apps/monitoring/nagios-deployment.yaml') as f:
+    doc = yaml.safe_load(f)
+print('Valid YAML')
+print('Containers:', [c['name'] for c in doc['spec']['template']['spec']['containers']])
+print('Volumes:', [v['name'] for v in doc['spec']['template']['spec']['volumes']])
+"
