@@ -1,26 +1,27 @@
+cd ~/hil-infrastructure
+git pull
+
 python3 << 'PYEOF'
 import yaml
 
-with open('/root/hil-infrastructure/apps/monitoring/nagios-deployment.yaml') as f:
-    content = f.read()
+with open('apps/monitoring/nagios-deployment.yaml') as f:
+    doc = yaml.safe_load(f)
 
-# Fix the exechook-command
-old = '            - --exechook-command=cp -r /git/current/apps/monitoring/conf.d/. /opt/nagios/etc/conf.d/ && kill -HUP $(pgrep -f nagios)'
-new = '            - --exechook-command=sh -c "cp -r /git/current/apps/monitoring/conf.d/. /opt/nagios/etc/conf.d/ && kill -HUP $(pgrep -f nagios)"'
+# Remove git-sync container
+containers = doc['spec']['template']['spec']['containers']
+doc['spec']['template']['spec']['containers'] = [c for c in containers if c['name'] != 'git-sync']
 
-content = content.replace(old, new)
+# Remove git-data volume
+volumes = doc['spec']['template']['spec']['volumes']
+doc['spec']['template']['spec']['volumes'] = [v for v in volumes if v['name'] != 'git-data']
 
-with open('/root/hil-infrastructure/apps/monitoring/nagios-deployment.yaml', 'w') as f:
-    f.write(content)
-print("Done")
+with open('apps/monitoring/nagios-deployment.yaml', 'w') as f:
+    yaml.dump(doc, f, default_flow_style=False)
+print("git-sync removed")
 PYEOF
 
-
-yamllint -d "{extends: default, rules: {line-length: disable}}" apps/monitoring/nagios-deployment.yaml
-
 git add apps/monitoring/nagios-deployment.yaml
-git commit -m "fix: wrap git-sync exechook-command in shell"
+git commit -m "fix: remove git-sync sidecar to restore Nagios service"
 git push
-
 flux reconcile kustomization apps --with-source
-kubectl get pods -n monitoring -w
+kubectl rollout status deployment/nagios -n monitoring
