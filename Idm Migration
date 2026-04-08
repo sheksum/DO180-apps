@@ -1,3 +1,35 @@
 Taking RH Support off to discuss a thought:
  
 @Haj Suma Should we look to have the IPA master also be an authorized Issuing CA signed by the Calix.local CA, like we've done with the AI infra cert-manager?
+ 
+-----Original Message-----
+From: Red Hat Support <support@redhat.com>
+Sent: Wednesday, April 8, 2026 6:41 AM
+To: Franklyn Ngundam <Franklyn.Ngundam@calix.com>; Haj Suma <haj.suma@calix.com>; Anjali Kumari <ANJALI.KUMARI@calix.com>; Engineering Operations - Infrastructure <EngineeringOperations-Infrastructure@calix.com>
+Subject: (WoC) (SEV 3) Case #04408743 (ipa-replica-install fails with wait_for_entry timeout on cn=KDC — cannot complete RHEL 8 to RHEL ...) ref:_00DA0HxWH._500Hn1ry1q0:ref
+ 
+[External Email]
+ 
+---------------------------------------
+|         Case Information            |
+---------------------------------------
+https://nam10.safelinks.protection.outlook.com/?url=https%3A%2F%2Faccess.redhat.com%2Fsupport%2Fcases%2F%23%2Fcase%2F04408743&data=05%7C02%7CBrian.Wing%40calix.com%7C2fd7bfaffbc241b3e0b008de9574678f%7C8ffae2e56ff04510bbf3ca842d7ca55e%7C0%7C0%7C639112524430122763%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=9Q1IKtiPQpw%2FNccWjtEKiRkQtBQQh%2BtJzZcNIEUASAw%3D&reserved=0
+Case Title       : ipa-replica-install fails with wait_for_entry timeout on cn=KDC — cannot complete RHEL 8 to RHEL 9 IPA migration before critical deadline
+Case Number      : 04408743
+Case Open Date   : 2026-03-25 10:44:12
+Severity         : 3 (Normal)
+Problem Type     : Defect / Bug
+Product          : Red Hat Enterprise Linux
+Version          : 8.10
+ 
+Most recent comment: On 2026-04-08 10:40:28, Burres, Ryan commented:
+"Hello,
+ 
+>>We are aligned with your recommendation. We will proceed with a clean fresh install of pln-ipamaster, migrate user/group/HBAC/sudo/DNS data only, discard the CA database entirely, and re-enroll clients in batch. No CA data preservation is needed.
+ 
+This sounds good. Would you like to keep this case open or go ahead and close it?
+ 
+Note, if there are questions about the migration, they would be better in a separate case to avoid overcomplicating this one.
+ 
+Best regards,
+Ryan"
