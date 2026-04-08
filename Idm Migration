@@ -1,32 +1,3 @@
-Hi Cesar,
-
-Thank you for the guidance. A few updates to close the loop on your open questions:
-
-1. Certificate requests — confirmed organic
-
-We queried the o=ipaca database directly and can confirm:
-
-- 707,842 completed certificate requests (requestState: complete)
-- Zero pending, rejected, or in-progress requests
-- Oldest entry dateOfCreate: 20180630 — accumulation since June 2018
-- No ACME configured, no certmonger renewal spiral
-
-These are entirely organic — 7+ years of host and service cert requests with no pruning in place. We reviewed our environment and confirmed there are no application workloads running SSL certificates manually issued by IPA. All certs are host and service certs managed by certmonger and will auto-reissue on client re-enrollment.
-
-2. Pre-install cleanup
-
-Before proceeding with the fresh install we are performing two cleanup tasks on cpeg:
-
-- Deleting all 707,842 completed certificate requests from ou=ca,ou=requests,o=ipaca via direct LDAP delete. This brings pki-tomcatd startup time back to normal and ensures pln does not inherit the bloated database during replication.
-- Removing expired certificates from ou=certificateRepository,ou=ca,o=ipaca, preserving all active IPA system certs.
-
-Since the built-in pruning feature requires rsnv3 which is unavailable in our topology, we are proceeding with direct LDAP deletes. Please flag if you have concerns with this approach.
-
-3. Path forward
-
-We are aligned with your recommendation. We will proceed with a clean fresh install of pln-ipamaster, migrate user/group/HBAC/sudo/DNS data only, discard the CA database entirely, and re-enroll clients in batch. No CA data preservation is needed.
-
-Thank you for your patience and guidance throughout this case.
-
-Best,
-Haj
+Taking RH Support off to discuss a thought:
+ 
+@Haj Suma Should we look to have the IPA master also be an authorized Issuing CA signed by the Calix.local CA, like we've done with the AI infra cert-manager?
