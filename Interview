@@ -270,3 +270,19 @@ total 0
 /etc/cron.weekly:
 total 0
 [root@plnx-atlproxy01 ~]#
+
+# ---- BACKUP SSH CONFIG ----
+cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+
+# ---- DISABLE ROOT SSH ----
+sed -i 's/^#*PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+
+# ---- SET ALLOWUSERS (ONLY THESE USERS) ----
+if grep -q "^AllowUsers" /etc/ssh/sshd_config; then
+  sed -i 's/^AllowUsers.*/AllowUsers calix_admin deploy/' /etc/ssh/sshd_config
+else
+  echo "AllowUsers calix_admin deploy" >> /etc/ssh/sshd_config
+fi
+
+# ---- VALIDATE + RESTART SSH ----
+sshd -t && systemctl restart sshd
