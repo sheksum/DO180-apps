@@ -22,3 +22,40 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "ou=certificateRepository,ou=ca,o=ipaca" \
   -s one "(objectclass=*)" certStatus \
   2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
+
+
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(objectclass=*)" dateOfCreate \
+>   2>/dev/null | grep "^dateOfCreate:" | sort | head -3
+dateOfCreate: 20180630003950Z
+dateOfCreate: 20180630003950Z
+dateOfCreate: 20180630003950Z
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(objectclass=*)" dateOfCreate \
+>   2>/dev/null | grep "^dateOfCreate:" | sort | tail -3
+dateOfCreate: 20260409135612Z
+dateOfCreate: 20260409135613Z
+dateOfCreate: 20260409135617Z
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=certificateRepository,ou=ca,o=ipaca" \
+>   -s one "(certStatus=REVOKED)" dn \
+>   2>/dev/null | grep "^dn:" | wc -l
+1
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=certificateRepository,ou=ca,o=ipaca" \
+>   -s one "(objectclass=*)" certStatus \
+>   2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
+ 856171 certStatus: VALID
+    751 certStatus: EXPIRED
+    414 certStatus: REVOKED_EXPIRED
+      1 certStatus: REVOKED
+[root@cpeg-ipareplica ~]#
