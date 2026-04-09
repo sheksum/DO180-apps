@@ -67,3 +67,16 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -s one "(dateOfCreate>=20260409000000Z)" \
   dateOfCreate extdata-profileid requestState \
   2>/dev/null | grep -E "^dn:|^dateOfCreate:|^extdata-profileid:|^requestState:"
+
+
+# How many requests from today
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409000000Z)" dn \
+  2>/dev/null | grep "^dn:" | wc -l
+
+# What profile types are they
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409000000Z)" extdata-profileid \
+  2>/dev/null | grep "^extdata-profileid:" | sort | uniq -c | sort -rn
