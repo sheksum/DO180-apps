@@ -1,5 +1,25 @@
+
+
 # SSH to sjc-ipareplica01 and check certmonger status
 ssh sjc-ipareplica01.ipa.calix.local "getcert list | grep -E 'status|stuck|ca-error' | sort | uniq -c"
 
 # Check how many certs certmonger is tracking on sjc
 ssh sjc-ipareplica01.ipa.calix.local "getcert list | grep 'Request ID' | wc -l"
+
+
+# How many requests per minute is it generating right now
+# Run this twice 60 seconds apart and compare
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(extdata-profileremotehost=192.168.99.34)" dn \
+  2>/dev/null | grep "^dn:" | wc -l
+
+# What certs is it requesting - are they all for the same host or different hosts
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(&(dateOfCreate>=20260409000000Z)(extdata-profileremotehost=192.168.99.34))" \
+  extdata-req--005fsubject--005fname--002ecn \
+  2>/dev/null | grep "^extdata-req--005fsubject--005fname--002ecn:" | sort | uniq -c | sort -rn | head -20
+
+# Check if sjc-ipareplica01 itself is accessible
+ping -c 3 192.168.99.34
