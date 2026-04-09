@@ -46,3 +46,27 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "ou=ca,ou=requests,o=ipaca" \
   -s one "(dateOfCreate>=20260409190000Z)" dn \
   2>/dev/null | grep "^dn:" | wc -l
+
+
+===
+
+Done today:
+
+Dug into the CA database and confirmed all 707,842 certificate requests are organic — 7 years of accumulation since 2018, nothing suspicious
+Found and stopped a certmonger renewal spiral — 8 SJC café machines were hammering the CA through sjc-ipareplica01, generating ~13k requests just today. Stopped certmonger on all 8 and confirmed the flood is gone
+Cleaned out 1,165 expired and revoked-expired certificates from the cert repository
+Closed the Red Hat support case — confirmed we're going with the clean install path
+Looped in Ric Rocheleau on the SJC machines and notified the owners
+
+
+In flight:
+
+About to run the bulk delete on the 707k completed requests — doing a final safety check right now to make sure we don't accidentally touch any request records tied to active system certs
+
+
+Still ahead:
+
+Shut down the 8 SJC machines
+Fresh install of pln-ipamaster once the database is clean
+Revisit the Vault PKI / calix.local subordinate CA decision before kicking off the install
+Update the handoff doc with everything we found today
