@@ -180,3 +180,16 @@ Please let me know at your earliest convenience as we are actively working throu
 
 Thanks,
 Haj
+
+
+# Get one EXPIRED cert entry to see its structure
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(certStatus=EXPIRED)" \
+  2>/dev/null | head -30
+
+# Get one REVOKED_EXPIRED cert entry
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(certStatus=REVOKED_EXPIRED)" \
+  2>/dev/null | head -30
