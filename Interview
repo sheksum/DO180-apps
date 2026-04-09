@@ -62,3 +62,23 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "ou=ca,ou=requests,o=ipaca" \
   -s one "(dateOfCreate>=20260409153500Z)" dn \
   2>/dev/null | grep "^dn:" | wc -l
+
+
+
+Impact Assessment — OCP-AI Cluster (EOSM-43606, April 11)
+The OCP-AI cluster has dual-fabric redundancy across N9K-005 and N9K-006. Storage bonds on masters (bnd0 = eno7 + eno8, active-backup) and GPU workers (bond0, LACP 100Gbps) each have one leg per Nexus. Network team has confirmed this is a rolling upgrade (one switch at a time), so storage and app VLAN traffic (1792-1798) will fail over to the surviving link with only a few seconds of disruption. Running workloads, MetalLB LB services (MinIO, Milvus, PostgreSQL), and GPU jobs will stay up.
+The one gap is the management network. The master nodes currently run on a single management NIC (eno5, Fabric A only) — the Fabric B standby (eno6) is disabled to work around a MetalLB ARP conflict. That means while N9K-005 is rebooting, the API VIP (10.172.248.155), Ingress VIP (10.172.248.156), and Gateway VIP (10.172.248.175) will be unreachable. No oc CLI, no web console, no ArgoCD syncs, and no Gateway API routes during that window. Everything comes back as soon as N9K-005 is back online.
+As a precaution, CloudNativePG clusters will be hibernated before the window and woken after to avoid any switchover issues during the network disruption.
+Pre-maintenance checklist:
+
+Hibernate CloudNativePG clusters in all three environments
+Notify users about intermittent console, CLI, and Gateway route access during the window
+
+Post-maintenance checklist:
+
+Verify all 5 nodes show Ready
+Verify all cluster operators healthy (oc get co)
+Wake CloudNativePG clusters and confirm all instances start correctly
+Validate all MetalLB LB services with nc across all three VLANs
+Verify ArgoCD apps are synced and healthy
+Verify Gateway API routes are responding
