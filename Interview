@@ -103,3 +103,10 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
 >   2>/dev/null | grep "^extdata-req--005fsubject--005fname--002ecn:" | sort -u | wc -l
 8
 [root@cpeg-ipareplica ~]#
+
+
+hsuma@plnx-admin:~$ ssh sjclnx-ccafe25.calix.local
+Unable to negotiate with UNKNOWN port 65535: no matching host key type found. Their offer: ssh-rsa,ssh-dss
+hsuma@plnx-admin:~$ ssh 192.168.98.171
+Unable to negotiate with UNKNOWN port 65535: no matching host key type found. Their offer: ssh-rsa,ssh-dss
+hsuma@plnx-admin:~$
