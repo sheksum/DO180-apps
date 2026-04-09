@@ -1,0 +1,11 @@
+Hey Keaton,
+
+I took a look at this.
+
+The main issue here isn’t just capacity — it’s that /var/lib/kubelet is being used to store model data, which is not designed for persistent or shared storage. It’s managed by kubelet and subject to cleanup/eviction, so it will continue to run into space and consistency issues regardless of how much we extend it.
+
+Expanding the partition is doable as a short-term relief, but it won’t solve the underlying problem — especially now that workloads are consolidated onto a single GPU node.
+
+The right approach would be to standardize on a persistent storage backend (like Longhorn, which you already started using) and have all models referenced from there so we maintain a single source of truth.
+
+Let me know if you want me to proceed with expanding the kubelet partition temporarily while we align on the longer-term approach.
