@@ -56,3 +56,9 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "ou=ca,ou=requests,o=ipaca" \
   -s one "(dateOfCreate>=20260409152500Z)" dn \
   2>/dev/null | grep "^dn:" | wc -l
+
+
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409153500Z)" dn \
+  2>/dev/null | grep "^dn:" | wc -l
