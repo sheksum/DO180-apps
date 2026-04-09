@@ -136,3 +136,12 @@ certmonger (pid  2413) is running...
 [root@sjclnx-ccafe25 ~]#
 
 getcert list | grep -E "status|stuck|ca-error|Request ID"
+
+
+
+[root@sjclnx-ccafe25 ~]# getcert list | grep -E "status|stuck|ca-error|Request ID"
+Request ID '20190216231635':
+	status: MONITORING
+	ca-error: Server at https://sjc-ipareplica01.ipa.calix.local/ipa/xml denied our request, giving up: 2100 (RPC failed at server.  Insufficient access: Insufficient 'write' privilege to the 'userCertificate' attribute of entry 'fqdn=sjclnx-ccafe25.calix.local,cn=computers,cn=accounts,dc=ipa,dc=calix,dc=local'.).
+	stuck: no
+[root@sjclnx-ccafe25 ~]#
