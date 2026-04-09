@@ -6,3 +6,13 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "ou=certificateRepository,ou=ca,o=ipaca" \
   -s one "(objectclass=*)" certStatus \
   2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
+
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=certificateRepository,ou=ca,o=ipaca" \
+>   -s one "(objectclass=*)" certStatus \
+>   2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
+ 857285 certStatus: VALID
+      1 certStatus: REVOKED
+[root@cpeg-ipareplica ~]#
