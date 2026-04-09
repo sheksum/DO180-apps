@@ -138,3 +138,16 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
       6 extdata-profileid: caInternalAuthServerCert
       5 extdata-profileid: KDCs_PKINIT_Certs
 [root@cpeg-ipareplica ~]#
+
+
+# Is certmonger still actively submitting requests right now
+getcert list | grep -E "status|stuck|CA error"
+
+# How many requests in just the last hour
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409140000Z)" dn \
+  2>/dev/null | grep "^dn:" | wc -l
+
+# Check pki-tomcat CA logs for renewal activity
+tail -50 /var/log/pki/pki-tomcat/ca/debug.$(date +%Y-%m-%d).log 2>/dev/null | grep -i "caIPAserviceCert\|renewal\|request"
