@@ -1,16 +1,8 @@
-# Delete all expired and revoked_expired certs
-while read dn; do
-  dn_value="${dn#dn: }"
-  ldapdelete -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-    "$dn_value" 2>&1
-done < /tmp/expired_certs.txt | tee /tmp/expired_certs_delete.log
+# Check for any errors in the log
+grep -i "error\|fail\|invalid" /tmp/expired_certs_delete.log | head -20
 
-# Confirm when done
-echo "Deleted: $(grep -c "^$" /tmp/expired_certs_delete.log) entries"
-wc -l /tmp/expired_certs_delete.log
-
-root@cpeg-ipareplica ~]# echo "Deleted: $(grep -c "^$" /tmp/expired_certs_delete.log) entries"
-Deleted: 0 entries
-[root@cpeg-ipareplica ~]# wc -l /tmp/expired_certs_delete.log
-3495 /tmp/expired_certs_delete.log
-[root@cpeg-ipareplica ~]#
+# Confirm EXPIRED and REVOKED_EXPIRED are gone
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(objectclass=*)" certStatus \
+  2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
