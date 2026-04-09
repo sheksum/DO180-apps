@@ -30,3 +30,19 @@ requestId:1317
 requestId:1318
 requestId:1339
 [root@cpeg-ipareplica ~]#
+
+
+# Get the complete list of request IDs linked to active VALID certs
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(certStatus=VALID)" metaInfo \
+  2>/dev/null | grep "requestId" | awk -F: '{print $2}' | sort -n > /tmp/protected_request_ids.txt
+
+wc -l /tmp/protected_request_ids.txt
+tail -20 /tmp/protected_request_ids.txt
+
+# Also check if requests are still coming in
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409190000Z)" dn \
+  2>/dev/null | grep "^dn:" | wc -l
