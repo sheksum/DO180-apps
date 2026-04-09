@@ -1,73 +1,15 @@
-# Check for any errors in the log
-grep -i "error\|fail\|invalid" /tmp/expired_certs_delete.log | head -20
-
-# Confirm EXPIRED and REVOKED_EXPIRED are gone
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=certificateRepository,ou=ca,o=ipaca" \
-  -s one "(objectclass=*)" certStatus \
-  2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
-
-
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(objectclass=*)" certStatus \
->   2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
- 857285 certStatus: VALID
-      1 certStatus: REVOKED
-[root@cpeg-ipareplica ~]#
-
-
-Hi Haj
- 
-I couldn’t say if these systems are critical systems or even needed anymore.
- 
-Owners are
- 
-- sjclnx-ccafe25.calix.local                        Juan Magana
-- sjccafe-shchandr.calix.local                Sanela Chandler
-- sjccafe-myousuf.calix.local                   Mohammed Yousef
-- sjclnx-incognito02.calix.local               Unknown – I did see a login for hochen…do not know who that is
-- sjccafe-llin.calix.local                                Leo Lin
-- sjclnx-ccafereg01.calix.local                 Unknown – but no logins for several months        
-- sjccafe-vshah.calix.local                         Viralkumar Shah             
-- sjclnx-cafereg04.calix.local                    Unknown – no logins for several months             
- 
-You could reach out to them and see if they still need them.  Others we could shutdown and see if someone speaks up.
- 
-I did notice on the last system – krb5.conf point to sjc ipa – maybe you need to uninstall and reinstall to point to your new servers
-
-
-Subject: RE: SJC Lab Machines — IPA Certificate Renewal Issue
-
-Hi Ric,
-
-Thanks for the info, really helpful.
-
-Given that several of these are unknown or have had no logins in months, I am going to go ahead and stop certmonger and shut them down. If anyone speaks up we can bring them back online and address the underlying issue.
-
-I will send a heads up to the known owners before I do anything.
-
-Thanks again,
-Haj
-
-
-Subject: FYI — SJC Lab Machine Shutdown
-
-Hi all,
-
-Just a heads up — we are shutting down the following SJC lab machines today as part of ongoing IPA infrastructure maintenance. These systems were identified as generating abnormal certificate renewal activity against our CA.
-
-- sjclnx-ccafe25.calix.local
-- sjccafe-shchandr.calix.local
-- sjccafe-myousuf.calix.local
-- sjclnx-incognito02.calix.local
-- sjccafe-llin.calix.local
-- sjclnx-ccafereg01.calix.local
-- sjccafe-vshah.calix.local
-- sjclnx-cafereg04.calix.local
-
-If any of these machines are still needed please reply and we will bring them back online.
-
-Thanks,
-Haj
+for host in \
+  sjclnx-ccafe25.calix.local \
+  sjccafe-shchandr.calix.local \
+  sjccafe-myousuf.calix.local \
+  sjclnx-incognito02.calix.local \
+  sjccafe-llin.calix.local \
+  sjclnx-ccafereg01.calix.local \
+  sjccafe-vshah.calix.local \
+  sjclnx-cafereg04.calix.local; do
+    echo "Shutting down $host"
+    ssh -o HostKeyAlgorithms=+ssh-rsa \
+        -o PubkeyAcceptedKeyTypes=+ssh-rsa \
+        -o ConnectTimeout=5 $host \
+        "service certmonger stop && shutdown -h now" 2>&1
+done
