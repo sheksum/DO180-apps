@@ -14,4 +14,13 @@ Total Used	User
 803 GiB	vajain
 
 
-/na/plnaff/unix_homes/lab_unix_homes/_decommissioned-lab-unix-homes
+crontab -e
+
+0 2 * * * find /na/plnaff/unix_homes/lab_unix_homes/_decommissioned-lab-unix-homes -mindepth 1 -maxdepth 1 -type d -mtime +90 -print -exec rm -rf {} \; >> /var/log/home_cleanup.log 2>&1
+
+crontab -l
+
+touch /var/log/home_cleanup.log
+chmod 600 /var/log/home_cleanup.log
+
+find /na/plnaff/unix_homes/lab_unix_homes/_decommissioned-lab-unix-homes -mindepth 1 -maxdepth 1 -type d -mtime +90 -print
