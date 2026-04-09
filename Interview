@@ -1,45 +1,24 @@
-[core@ocp-ai-gpu01 ovn-kubernetes]$ ls
-[core@ocp-ai-gpu01 ovn-kubernetes]$ ip a
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
-2: eno8303: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq master ovs-system state UP group default qlen 1000
-    link/ether c8:4b:d6:f3:d8:40 brd ff:ff:ff:ff:ff:ff
-    altname enp2s0f0
-3: eno8403: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000
-    link/ether c8:4b:d6:f3:d8:41 brd ff:ff:ff:ff:ff:ff
-    altname enp2s0f1
-4: eno12399np0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000
-    link/ether 8c:84:74:c9:61:e0 brd ff:ff:ff:ff:ff:ff
-    altname enp34s0f0np0
-5: eno12409np1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000
-    link/ether 8c:84:74:c9:61:e1 brd ff:ff:ff:ff:ff:ff
-    altname enp34s0f1np1
-6: ens8f0np0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-    link/ether 7c:8c:09:c3:74:1e brd ff:ff:ff:ff:ff:ff
-    altname enp160s0f0np0
-7: ens8f1np1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-    link/ether 7c:8c:09:c3:74:1f brd ff:ff:ff:ff:ff:ff
-    altname enp160s0f1np1
-11: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
-    link/ether 22:2f:29:14:93:61 brd ff:ff:ff:ff:ff:ff
-12: br-ex: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/ether c8:4b:d6:f3:d8:40 brd ff:ff:ff:ff:ff:ff
-    inet 10.172.248.153/24 brd 10.172.248.255 scope global noprefixroute br-ex
-       valid_lft forever preferred_lft forever
-    inet 169.254.0.2/17 brd 169.254.127.255 scope global br-ex
-       valid_lft forever preferred_lft forever
-    inet6 fe80::748:70e:8a92:663a/64 scope link noprefixroute
-       valid_lft forever preferred_lft forever
-    inet6 fe80::25f5:db9e:c96c:c207/64 scope link noprefixroute
-       valid_lft forever preferred_lft forever
-13: br-int: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
-    link/ether 72:e9:59:6f:48:a9 brd ff:ff:ff:ff:ff:ff
-14: genev_sys_6081: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 65000 qdisc noqueue master ovs-system state UNKNOWN group default qlen 1000
-    link/ether 2a:68:19:0d:af:57 brd ff:ff:ff:ff:ff:ff
-    inet6 fe80::2868:19ff:fe0d:af57/64 scope link
-       valid_lft forever preferred_lft forever
-[core@ocp-ai-gpu01 ovn-kubernetes]$
+bash# Date range on requests
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(objectclass=*)" dateOfCreate \
+  2>/dev/null | grep "^dateOfCreate:" | sort | head -3
+
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(objectclass=*)" dateOfCreate \
+  2>/dev/null | grep "^dateOfCreate:" | sort | tail -3
+
+
+# Count expired certs in the repository
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(certStatus=REVOKED)" dn \
+  2>/dev/null | grep "^dn:" | wc -l
+
+
+# Check what cert statuses exist in the repository
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(objectclass=*)" certStatus \
+  2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
