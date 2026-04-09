@@ -76,3 +76,30 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -s one "(dateOfCreate>=20260409000000Z)" \
   extdata-req--005fsubject--005fname--002ecn \
   2>/dev/null | grep "^extdata-req--005fsubject--005fname--002ecn:" | sort -u | wc -l
+
+
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(dateOfCreate>=20260409000000Z)" \
+>   extdata-req--005fsubject--005fname--002ecn \
+>   2>/dev/null | grep "^extdata-req--005fsubject--005fname--002ecn:" | sort | uniq -c | sort -rn | head -30
+   1651 extdata-req--005fsubject--005fname--002ecn: sjclnx-ccafe25.calix.local
+   1651 extdata-req--005fsubject--005fname--002ecn: sjccafe-shchandr.calix.local
+   1651 extdata-req--005fsubject--005fname--002ecn: sjccafe-myousuf.calix.local
+   1649 extdata-req--005fsubject--005fname--002ecn: sjclnx-incognito02.calix.local
+   1649 extdata-req--005fsubject--005fname--002ecn: sjccafe-llin.calix.local
+   1647 extdata-req--005fsubject--005fname--002ecn: sjclnx-ccafereg01.calix.local
+   1647 extdata-req--005fsubject--005fname--002ecn: sjccafe-vshah.calix.local
+   1642 extdata-req--005fsubject--005fname--002ecn: sjclnx-cafereg04.calix.local
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(dateOfCreate>=20260409000000Z)" \
+>   extdata-req--005fsubject--005fname--002ecn \
+>   2>/dev/null | grep "^extdata-req--005fsubject--005fname--002ecn:" | sort -u | wc -l
+8
+[root@cpeg-ipareplica ~]#
