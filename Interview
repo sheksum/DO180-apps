@@ -59,3 +59,20 @@ PING 192.168.99.34 (192.168.99.34) 56(84) bytes of data.
 rtt min/avg/max/mdev = 21.710/24.348/29.039/3.327 ms
 [root@cpeg-ipareplica ~]#
 [root@cpeg-ipareplica ~]#
+
+
+==
+
+# Get the actual subject CNs from today's requests
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409000000Z)" \
+  extdata-req--005fsubject--005fname--002ecn \
+  2>/dev/null | grep "^extdata-req--005fsubject--005fname--002ecn:" | sort | uniq -c | sort -rn | head -30
+
+# How many unique CNs are there today
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409000000Z)" \
+  extdata-req--005fsubject--005fname--002ecn \
+  2>/dev/null | grep "^extdata-req--005fsubject--005fname--002ecn:" | sort -u | wc -l
