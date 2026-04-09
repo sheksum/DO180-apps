@@ -59,3 +59,11 @@ dateOfCreate: 20260409135617Z
     414 certStatus: REVOKED_EXPIRED
       1 certStatus: REVOKED
 [root@cpeg-ipareplica ~]#
+
+
+# Look at the most recent 3 request entries
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409000000Z)" \
+  dateOfCreate extdata-profileid requestState \
+  2>/dev/null | grep -E "^dn:|^dateOfCreate:|^extdata-profileid:|^requestState:"
