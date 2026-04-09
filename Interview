@@ -13,3 +13,20 @@ for host in \
         -o ConnectTimeout=5 $host \
         "service certmonger stop && shutdown -h now" 2>&1
 done
+
+
+for host in \
+  sjclnx-ccafe25.calix.local \
+  sjccafe-shchandr.calix.local \
+  sjccafe-myousuf.calix.local \
+  sjclnx-incognito02.calix.local \
+  sjccafe-llin.calix.local \
+  sjclnx-ccafereg01.calix.local \
+  sjccafe-vshah.calix.local \
+  sjclnx-cafereg04.calix.local; do
+    echo "Shutting down $host"
+    ssh -o HostKeyAlgorithms=+ssh-rsa \
+        -o PubkeyAcceptedKeyTypes=+ssh-rsa \
+        -o ConnectTimeout=5 $host \
+        "service certmonger stop" 2>&1
+done
