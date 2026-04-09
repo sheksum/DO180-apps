@@ -191,3 +191,16 @@ ipa host-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
 [root@cpeg-ipareplica ~]# ipa host-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
 Number of entries returned 4668
 [root@cpeg-ipareplica ~]#
+
+
+# Get the correct subject attribute name from a recent request
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409140000Z)" \
+  2>/dev/null | head -80
+
+# Check if this is a known certmonger bug — look for duplicate requests per host
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409000000Z)" extdata-profileremotehost \
+  2>/dev/null | grep "^extdata-profileremotehost:" | sort | uniq -c | sort -rn | head -20
