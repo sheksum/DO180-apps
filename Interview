@@ -36,3 +36,17 @@ Owners are
 You could reach out to them and see if they still need them.  Others we could shutdown and see if someone speaks up.
  
 I did notice on the last system – krb5.conf point to sjc ipa – maybe you need to uninstall and reinstall to point to your new servers
+
+
+Subject: RE: SJC Lab Machines — IPA Certificate Renewal Issue
+
+Hi Ric,
+
+Thanks for the info, really helpful.
+
+Given that several of these are unknown or have had no logins in months, I am going to go ahead and stop certmonger and shut them down. If anyone speaks up we can bring them back online and address the underlying issue.
+
+I will send a heads up to the known owners before I do anything.
+
+Thanks again,
+Haj
