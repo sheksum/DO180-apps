@@ -286,3 +286,6 @@ fi
 
 # ---- VALIDATE + RESTART SSH ----
 sshd -t && systemctl restart sshd
+
+
+Thanks @Haj Suma perhaps we should take a follow up action on these and work on reconfiguring the networking.  work with @Chetan Kudari to identify how we can get these meshed into the network. We’ll probably need to purchase optics for both the servers and the swtiches.  Lab team can assist with this verification on physical side.  The p7960 is a workstation, so it’s probably not possible, but it may even have a second nic (copper) we could consider for future if/when we get a second copper port based nexus switch.
