@@ -204,3 +204,99 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "ou=ca,ou=requests,o=ipaca" \
   -s one "(dateOfCreate>=20260409000000Z)" extdata-profileremotehost \
   2>/dev/null | grep "^extdata-profileremotehost:" | sort | uniq -c | sort -rn | head -20
+
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(dateOfCreate>=20260409140000Z)" \
+>   2>/dev/null | head -80
+# extended LDIF
+#
+# LDAPv3
+# base <ou=ca,ou=requests,o=ipaca> with scope oneLevel
+# filter: (dateOfCreate>=20260409140000Z)
+# requesting: ALL
+#
+
+# 40846164, ca, requests, ipaca
+dn: cn=40846164,ou=ca,ou=requests,o=ipaca
+requestType: enrollment
+extdata-req--005fsubject--005fname:: TUVNeEdEQVdCZ05WQkFvVEQwbFFRUzVEUVV4SldDN
+ U1UME5CVERFbk1DVUdBMVVFQXhNZWMycGpiRzU0TFdsdVkyOW5ibWwwYnpBeQ0KTG1OaGJHbDRMbX
+ h2WTJGcw==
+extdata-profileremotehost: 192.168.99.34
+extdata-req--005fextensions:: bzRIWE1JSFVNSUdrQmdOVkhSRUVnWnd3Z1ptZ1F3WUtLd1lC
+ QkFHQ054UUNBNkExREROb2IzTjBMM05xWTJ4dWVDMXBibU52WjI1cA0KZEc4d01pNWpZV3hwZUM1c
+ 2IyTmhiRUJKVUVFdVEwRk1TVmd1VEU5RFFVeWdVZ1lHS3dZQkJRSUNvRWd3UnFBUkd3OUpVRUV1UT
+ BGTQ0KU1ZndVRFOURRVXloTVRBdm9BTUNBUUdoS0RBbUd3Um9iM04wR3g1emFtTnNibmd0YVc1amI
+ yZHVhWFJ2TURJdVkyRnNhWGd1Ykc5ag0KWVd3d0RBWURWUjBUQVFIL0JBSXdBREFkQmdOVkhRNEVG
+ Z1FVa1pXd2RNWnFrSUVDZ2pKaDhvRXhyUWhTTjBBPQ==
+extdata-requesttype: enrollment
+extdata-updatedby: ipara
+extdata-profileremoteaddr: 192.168.99.34
+extdata-auth--005ftoken--002egroup: Registration Manager Agents
+extdata-req--005fauthority--005fid: 7acefe44-df0f-4fa5-8142-d67d42cc18b2
+extdata-profilesetid: serverCertSet
+extdata-req--005fx509info:: TUlJRDI2QURBZ0VDQWdFQU1BMEdDU3FHU0liM0RRRUJDd1VBTU
+ RveEdEQVdCZ05WQkFvTUQwbFFRUzVEUVV4SldDNU1UME5CVERFZQ0KTUJ3R0ExVUVBd3dWUTJWeWR
+ HbG1hV05oZEdVZ1FYVjBhRzl5YVhSNU1CNFhEVEkyTURRd09URTBNREF4TUZvWERUSTRNRFF3T1RF
+ MA0KTURBeE1Gb3dRekVZTUJZR0ExVUVDZ3dQU1ZCQkxrTkJURWxZTGt4UFEwRk1NU2N3SlFZRFZRU
+ UREQjV6YW1Oc2JuZ3RhVzVqYjJkdQ0KYVhSdk1ESXVZMkZzYVhndWJHOWpZV3d3Z2dFaU1BMEdDU3
+ FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRExzUUQrRzJ3ZQ0KaVczbnZQRi9UT0l3VjN
+ RSXdiRlFNbzBLWmNGNmpYWHowWFpIcnFmUThpQjRQcDdjSzc0MFhUcTN4UW9rU2NuYmt2SUhFS0Yy
+ WU1jRA0KMm4zcFk2QW9qZXJSa1NlQVBzbW5vcVRQS3RoeVF5YUZkaVkrRElWcTluOW0rWDJIenI0M
+ nJITVVIRkwzbzBxSFNjazdxQm1oVXRMaA0KeGJoMzVDcEl5aDRNZ09LT2NwRmJUSDJWekxKQi9VQW
+ YvUDYwOHVFOW9pQnJrUFNFaXVWUzF1bGZMRUdsUFpPNUFZRXovK3VTVEdLbQ0KelJablplVXlQT3U
+ yYllNNmRTUnBmSm1oUWF0WWlsYTdIdVVnUGd5Y1Q3M1pJMkJkcCtGOEJIN2lIL01ZcWNIK3lvb2Rp
+ bklHR0xtVw0KYktxbEorMGlMbFRTdE9NYkQzOEVhdGRVRGJJTkFnTUJBQUdqZ2dINU1JSUI5VEFmQ
+ mdOVkhTTUVHREFXZ0JRWFc5ZElUU29OZW5vQQ0KQ3FBN0hleHhxMmlVcWpCQkJnZ3JCZ0VGQlFjQk
+ FRUTFNRE13TVFZSUt3WUJCUVVITUFHR0pXaDBkSEE2THk5cGNHRXRZMkV1YVhCaA0KTG1OaGJHbDR
+ MbXh2WTJGc0wyTmhMMjlqYzNBd0RnWURWUjBQQVFIL0JBUURBZ1R3TUIwR0ExVWRKUVFXTUJRR0ND
+ c0dBUVVGQndNQg0KQmdnckJnRUZCUWNEQWpCNkJnTlZIUjhFY3pCeE1HK2dONkExaGpOb2RIUndPa
+ Th2YVhCaExXTmhMbWx3WVM1allXeHBlQzVzYjJOaA0KYkM5cGNHRXZZM0pzTDAxaGMzUmxja05TVE
+ M1aWFXNmlOS1F5TURBeERqQU1CZ05WQkFvTUJXbHdZV05oTVI0d0hBWURWUVFEREJWRA0KWlhKMGF
+ XWnBZMkYwWlNCQmRYUm9iM0pwZEhrd0hRWURWUjBPQkJZRUZKR1ZzSFRHYXBDQkFvSXlZZktCTWEw
+ SVVqZEFNSUhFQmdOVg0KSFJFRWdid3dnYm1nUXdZS0t3WUJCQUdDTnhRQ0E2QTFERE5vYjNOMEwzT
+ nFZMnh1ZUMxcGJtTnZaMjVwZEc4d01pNWpZV3hwZUM1cw0KYjJOaGJFQkpVRUV1UTBGTVNWZ3VURT
+ lEUVV5Z1VnWUdLd1lCQlFJQ29FZ3dScUFSR3c5SlVFRXVRMEZNU1ZndVRFOURRVXloTVRBdg0Kb0F
+ NQ0FRR2hLREFtR3dSb2IzTjBHeDV6YW1Oc2JuZ3RhVzVqYjJkdWFYUnZNREl1WTJGc2FYZ3ViRzlq
+ WVd5Q0huTnFZMnh1ZUMxcA0KYm1OdloyNXBkRzh3TWk1allXeHBlQzVzYjJOaGJBPT0=
+extdata-req--005fseq--005fnum: 0
+extdata-requestid: 40846164
+extdata-auth--005ftoken--002eauthtime: 1775743210435
+extdata-auth--005ftoken--002euserdn: uid=ipara,ou=people,o=ipaca
+extdata-profileid: caIPAserviceCert
+extdata-auth--005ftoken--002euserid: ipara
+extdata-auth--005ftoken--002euid: ipara
+extdata-req--005fkey:: TUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0F
+ RRUF5N0VBL2h0c0hvbHQ1N3p4ZjB6aU1GZDBDTUd4VURLTg0KQ21YQmVvMTE4OUYyUjY2bjBQSWdl
+ RDZlM0N1K05GMDZ0OFVLSkVuSjI1THlCeENoZG1ESEE5cDk2V09nS0kzcTBaRW5nRDdKcDZLaw0Ke
+ nlyWWNrTW1oWFltUGd5RmF2Wi9admw5aDg2K05xeHpGQnhTOTZOS2gwbkpPNmdab1ZMUzRjVzRkK1
+ FxU01vZURJRGlqbktSVzB4OQ0KbGN5eVFmMUFIL3ordFBMaFBhSWdhNUQwaElybFV0YnBYeXhCcFQ
+ yVHVRR0JNLy9ya2t4aXBzMFdaMlhsTWp6cnRtMkRPblVrYVh5Wg0Kb1VHcldJcFd1eDdsSUQ0TW5F
+ KzkyU05nWGFmaGZBUis0aC96R0tuQi9zcUtIWXB5QmhpNWxteXFwU2Z0SWk1VTByVGpHdzkvQkdyW
+ A0KVkEyeURRSURBUUFC
+extdata-auth--005ftoken--002eauthmgrinstname: raCertAuth
+extdata-isencryptioncert: true
+extdata-auth--005ftoken--002euser: uid=ipara,ou=people,o=ipaca
+extdata-requeststatus: complete
+extdata-requestowner: ipara
+extdata-dbstatus: UPDATED
+extdata-req--005fsubject--005fname--002ecn: sjclnx-incognito02.calix.local
+extdata-req--005flocale: en
+extdata-requestversion: 1.0.0
+extdata-cert--005frequest--005ftype: pkcs10
+extdata-profile: true
+extdata-cert--005frequest:: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURSBSRVFVRVNULS0tLS0KTU
+ lJRCtUQ0NBdUVDQVFBd1F6RVlNQllHQTFVRUNoTVBTVkJCTGtOQlRFbFlMa3hQUTBGTU1TY3dKUVl
+ EVlFRRApFeDV6YW1Oc2JuZ3RhVzVqYjJkdWFYUnZNREl1WTJGc2FYZ3ViRzlqWVd3d2dnRWlNQTBH
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(dateOfCreate>=20260409000000Z)" extdata-profileremotehost \
+>   2>/dev/null | grep "^extdata-profileremotehost:" | sort | uniq -c | sort -rn | head -20
+  12983 extdata-profileremotehost: 192.168.99.34
+[root@cpeg-ipareplica ~]#
+
