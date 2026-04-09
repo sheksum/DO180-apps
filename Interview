@@ -30,3 +30,46 @@ for host in \
         -o ConnectTimeout=5 $host \
         "service certmonger stop" 2>&1
 done
+
+
+hsuma@plnx-admin:~$
+for host in \
+  sjclnx-ccafe25.calix.local \
+  sjccafe-shchandr.calix.local \
+  sjccafe-myousuf.calix.local \
+  sjclnx-incognito02.calix.local \
+  sjccafe-llin.calix.local \
+  sjclnx-ccafereg01.calix.local \
+  sjccafe-vshah.calix.local \
+  sjclnx-cafereg04.calix.local; do
+    echo "Shutting down $host"
+    ssh -o HostKeyAlgorithms=+ssh-rsa \
+        -o PubkeyAcceptedKeyTypes=+ssh-rsa \
+        -o ConnectTimeout=5 $host \
+        "service certmonger stop" 2>&1
+done
+Shutting down sjclnx-ccafe25.calix.local
+This system is being managed by IPA for Authentication!
+hsuma@sjclnx-ccafe25.calix.local's password:
+bash: service: command not found
+Shutting down sjccafe-shchandr.calix.local
+This system is being managed by IPA for Authentication!
+hsuma@sjccafe-shchandr.calix.local's password:
+bash: service: command not found
+Shutting down sjccafe-myousuf.calix.local
+This system is being managed by IPA for Authentication!
+hsuma@sjccafe-myousuf.calix.local's password:
+bash: service: command not found
+Shutting down sjclnx-incognito02.calix.local
+This system is being managed by IPA for Authentication!
+hsuma@sjclnx-incognito02.calix.local's password:
+Could not chdir to home directory /home/hsuma: No such file or directory
+bash: service: command not found
+Shutting down sjccafe-llin.calix.local
+This system is being managed by IPA for Authentication!
+hsuma@sjccafe-llin.calix.local's password:
+bash: service: command not found
+Shutting down sjclnx-ccafereg01.calix.local
+This system is being managed by IPA for Authentication!
+hsuma@sjclnx-ccafereg01.calix.local's password:
+
