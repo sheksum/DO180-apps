@@ -110,3 +110,6 @@ Unable to negotiate with UNKNOWN port 65535: no matching host key type found. Th
 hsuma@plnx-admin:~$ ssh 192.168.98.171
 Unable to negotiate with UNKNOWN port 65535: no matching host key type found. Their offer: ssh-rsa,ssh-dss
 hsuma@plnx-admin:~$
+
+
+ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa sjclnx-ccafe25.calix.local
