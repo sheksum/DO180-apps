@@ -1,26 +1,4 @@
-Hello All,
-
-The Unix home directory NFS mount "lab_unix_homes" is currently highly utilized and has reached a critical state.
-If not addressed, this may soon impact all users who rely on these Unix home directories.
-
-We request your support in reclaiming space by cleaning up any unnecessary or outdated files at the earliest.
-Please confirm within 2 business days whether the data is still required or if cleanup can be performed.
-
-Top users by total home usage:
-
-Total Used	User
-3.25 TiB	builder
-1.76 TiB	_decommissioned-lab-unix-homes
-803 GiB	vajain
-
-
-crontab -e
-
-0 2 * * * find /na/plnaff/unix_homes/lab_unix_homes/_decommissioned-lab-unix-homes -mindepth 1 -maxdepth 1 -type d -mtime +90 -print -exec rm -rf {} \; >> /var/log/home_cleanup.log 2>&1
-
-crontab -l
-
-touch /var/log/home_cleanup.log
-chmod 600 /var/log/home_cleanup.log
-
-find /na/plnaff/unix_homes/lab_unix_homes/_decommissioned-lab-unix-homes -mindepth 1 -maxdepth 1 -type d -mtime +90 -print
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409153500Z)" dn \
+  2>/dev/null | grep "^dn:" | wc -l
