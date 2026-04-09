@@ -1,5 +1,5 @@
-# First get a current total count so we know what we're starting with
+# Identify the request IDs for IPA's own system certs so we exclude them
 ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(requestState=complete)" dn \
-  2>/dev/null | grep "^dn:" | wc -l
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(certStatus=VALID)" metaInfo \
+  2>/dev/null | grep "requestId" | awk '{print $2}' | sort -n | head -20
