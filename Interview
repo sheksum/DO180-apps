@@ -8,3 +8,9 @@ done < /tmp/expired_certs.txt | tee /tmp/expired_certs_delete.log
 # Confirm when done
 echo "Deleted: $(grep -c "^$" /tmp/expired_certs_delete.log) entries"
 wc -l /tmp/expired_certs_delete.log
+
+root@cpeg-ipareplica ~]# echo "Deleted: $(grep -c "^$" /tmp/expired_certs_delete.log) entries"
+Deleted: 0 entries
+[root@cpeg-ipareplica ~]# wc -l /tmp/expired_certs_delete.log
+3495 /tmp/expired_certs_delete.log
+[root@cpeg-ipareplica ~]#
