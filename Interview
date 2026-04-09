@@ -1,26 +1,10 @@
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(certStatus=EXPIRED)" dn \
->   2>/dev/null | grep "^dn:" > /tmp/expired_certs.txt
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(certStatus=REVOKED_EXPIRED)" dn \
->   2>/dev/null | grep "^dn:" >> /tmp/expired_certs.txt
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# wc -l /tmp/expired_certs.txt
-1165 /tmp/expired_certs.txt
-[root@cpeg-ipareplica ~]# cat /tmp/expired_certs.txt | head -10
-dn: cn=2,ou=certificateRepository,ou=ca,o=ipaca
-dn: cn=3,ou=certificateRepository,ou=ca,o=ipaca
-dn: cn=4,ou=certificateRepository,ou=ca,o=ipaca
-dn: cn=5,ou=certificateRepository,ou=ca,o=ipaca
-dn: cn=6,ou=certificateRepository,ou=ca,o=ipaca
-dn: cn=7,ou=certificateRepository,ou=ca,o=ipaca
-dn: cn=8,ou=certificateRepository,ou=ca,o=ipaca
-dn: cn=9,ou=certificateRepository,ou=ca,o=ipaca
-dn: cn=10,ou=certificateRepository,ou=ca,o=ipaca
-dn: cn=11,ou=certificateRepository,ou=ca,o=ipaca
-[root@cpeg-ipareplica ~]#
+# Delete all expired and revoked_expired certs
+while read dn; do
+  dn_value="${dn#dn: }"
+  ldapdelete -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+    "$dn_value" 2>&1
+done < /tmp/expired_certs.txt | tee /tmp/expired_certs_delete.log
+
+# Confirm when done
+echo "Deleted: $(grep -c "^$" /tmp/expired_certs_delete.log) entries"
+wc -l /tmp/expired_certs_delete.log
