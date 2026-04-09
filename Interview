@@ -182,14 +182,74 @@ Thanks,
 Haj
 
 
-# Get one EXPIRED cert entry to see its structure
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=certificateRepository,ou=ca,o=ipaca" \
-  -s one "(certStatus=EXPIRED)" \
-  2>/dev/null | head -30
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=certificateRepository,ou=ca,o=ipaca" \
+>   -s one "(certStatus=EXPIRED)" \
+>   2>/dev/null | head -30
+# extended LDIF
+#
+# LDAPv3
+# base <ou=certificateRepository,ou=ca,o=ipaca> with scope oneLevel
+# filter: (certStatus=EXPIRED)
+# requesting: ALL
+#
 
-# Get one REVOKED_EXPIRED cert entry
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=certificateRepository,ou=ca,o=ipaca" \
-  -s one "(certStatus=REVOKED_EXPIRED)" \
-  2>/dev/null | head -30
+# 2, certificateRepository, ca, ipaca
+dn: cn=2,ou=certificateRepository,ou=ca,o=ipaca
+algorithmId: 1.2.840.113549.1.1.1
+autoRenew: ENABLED
+certStatus: EXPIRED
+cn: 2
+dateOfCreate: 20180630003950Z
+dateOfModify: 20200619004120Z
+duration: 1162208000000
+extension: 1.3.6.1.5.5.7.1.1
+extension: 2.5.29.37
+extension: 2.5.29.35
+extension: 1.3.6.1.5.5.7.48.1.5
+issuedBy: system
+issuerName: CN=Certificate Authority,O=IPA.CALIX.LOCAL
+metaInfo: profileId:caOCSPCert
+metaInfo: requestId:2
+notAfter: 20200619003950Z
+notBefore: 20180630003950Z
+objectClass: top
+objectClass: certificateRecord
+publicKeyData:: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1EiJI6Cek+MeVssMUo
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=certificateRepository,ou=ca,o=ipaca" \
+>   -s one "(certStatus=REVOKED_EXPIRED)" \
+>   2>/dev/null | head -30
+# extended LDIF
+#
+# LDAPv3
+# base <ou=certificateRepository,ou=ca,o=ipaca> with scope oneLevel
+# filter: (certStatus=REVOKED_EXPIRED)
+# requesting: ALL
+#
+
+# 268304385, certificateRepository, ca, ipaca
+dn: cn=268304385,ou=certificateRepository,ou=ca,o=ipaca
+algorithmId: 1.2.840.113549.1.1.1
+autoRenew: ENABLED
+certStatus: REVOKED_EXPIRED
+cn: 268304385
+dateOfCreate: 20190110125350Z
+dateOfModify: 20210110125435Z
+duration: 1163158400000
+extension: 1.3.6.1.5.5.7.1.1
+extension: 2.5.29.14
+extension: 2.5.29.37
+extension: 2.5.29.35
+extension: 2.5.29.17
+extension: 2.5.29.31
+extension: 2.5.29.15
+issuedBy: ipara
+issuerName: CN=Certificate Authority,O=IPA.CALIX.LOCAL
+metaInfo: requestId:9980001
+metaInfo: profileId:caIPAserviceCert
+notAfter: 20210110125350Z
+notBefore: 20190110125350Z
+[root@cpeg-ipareplica ~]#
