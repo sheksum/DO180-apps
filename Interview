@@ -134,3 +134,5 @@ Administrator. It usually boils down to these three things:
 [root@sjclnx-ccafe25 ~]# service certmonger status
 certmonger (pid  2413) is running...
 [root@sjclnx-ccafe25 ~]#
+
+getcert list | grep -E "status|stuck|ca-error|Request ID"
