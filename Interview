@@ -145,3 +145,38 @@ Request ID '20190216231635':
 	ca-error: Server at https://sjc-ipareplica01.ipa.calix.local/ipa/xml denied our request, giving up: 2100 (RPC failed at server.  Insufficient access: Insufficient 'write' privilege to the 'userCertificate' attribute of entry 'fqdn=sjclnx-ccafe25.calix.local,cn=computers,cn=accounts,dc=ipa,dc=calix,dc=local'.).
 	stuck: no
 [root@sjclnx-ccafe25 ~]#
+
+
+
+Subject: SJC Lab Machines — IPA Certificate Renewal Issue
+
+Hi Ric,
+
+While investigating a CA database issue on our IPA infrastructure, I identified 8 SJC machines that are stuck in a certificate renewal loop and generating an unusually high volume of requests against our CA. This is contributing to a broader IPA health issue we are actively working to resolve.
+
+To give you a sense of the scale — these 8 machines have collectively generated approximately 13,000 certificate requests today alone, with each host submitting roughly 1,650 requests. Normal renewal behavior would be 1-2 requests per host. This volume is abnormal and is directly impacting our CA database size and performance.
+
+The affected machines are:
+- sjclnx-ccafe25.calix.local
+- sjccafe-shchandr.calix.local
+- sjccafe-myousuf.calix.local
+- sjclnx-incognito02.calix.local
+- sjccafe-llin.calix.local
+- sjclnx-ccafereg01.calix.local
+- sjccafe-vshah.calix.local
+- sjclnx-cafereg04.calix.local
+
+The root cause appears to be an IPA permissions issue — certmonger on each host is getting an 'Insufficient write privilege' error when trying to update the certificate in IPA LDAP, and rather than giving up it keeps retrying indefinitely.
+
+Before I take any action on these systems I wanted to check with you first:
+
+1. Are any of these systems actively in use?
+2. Are they critical to any ongoing work or testing?
+3. Do you know who owns them?
+
+Depending on your answer, we may need to either stop the renewal loop on these machines temporarily or fix the underlying IPA permissions issue. Either way I want to make sure we are not impacting anyone before we proceed.
+
+Please let me know at your earliest convenience as we are actively working through this.
+
+Thanks,
+Haj
