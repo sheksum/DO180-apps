@@ -1,5 +1,32 @@
-# Identify the request IDs for IPA's own system certs so we exclude them
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=certificateRepository,ou=ca,o=ipaca" \
-  -s one "(certStatus=VALID)" metaInfo \
-  2>/dev/null | grep "requestId" | awk '{print $2}' | sort -n | head -20
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(requestState=complete)" dn \
+>   2>/dev/null | grep "^dn:" | wc -l
+858252
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=certificateRepository,ou=ca,o=ipaca" \
+>   -s one "(certStatus=VALID)" metaInfo \
+>   2>/dev/null | grep "requestId" | awk '{print $2}' | sort -n | head -20
+requestId:1
+requestId:1301
+requestId:1302
+requestId:1303
+requestId:1304
+requestId:1305
+requestId:1306
+requestId:1307
+requestId:1308
+requestId:1309
+requestId:1310
+requestId:1311
+requestId:1312
+requestId:1313
+requestId:1314
+requestId:1315
+requestId:1316
+requestId:1317
+requestId:1318
+requestId:1339
+[root@cpeg-ipareplica ~]#
