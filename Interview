@@ -1,9 +1,42 @@
-This is another NGINX proxy server that needs to be “hardened”
+echo "===== HOST INFO ====="
+hostname
+cat /etc/os-release
 
-Root credentials are old and use common SD password.  Please ensure login access is configured appropriately for EngOps with Deploy user.  
+echo -e "\n===== SSH CONFIG ====="
+grep -E "PermitRootLogin|PasswordAuthentication|PubkeyAuthentication|AllowUsers|ClientAliveInterval|ClientAliveCountMax|LoginGraceTime|MaxAuthTries" /etc/ssh/sshd_config
 
-Root credential is in cyberark, please update with new secure password and update cyberark.
+echo -e "\n===== SUDO CONFIG ====="
+ls -l /etc/sudoers.d/
+for f in /etc/sudoers.d/*; do echo "--- $f ---"; cat $f; done 2>/dev/null
 
+echo -e "\n===== USERS ====="
+grep -E "deploy|root" /etc/passwd
 
+echo -e "\n===== FIREWALL ====="
+firewall-cmd --list-all 2>/dev/null || iptables -L -n
 
-Apply any hardening that we have also applied to the pln-atlproxy01 host.
+echo -e "\n===== RUNNING SERVICES ====="
+systemctl list-units --type=service --state=running
+
+echo -e "\n===== NGINX CONFIG ====="
+grep -E "server_tokens|ssl_protocols|ssl_ciphers|add_header" /etc/nginx/nginx.conf
+
+echo -e "\n===== FULL NGINX (TOP SECTION) ====="
+sed -n '1,120p' /etc/nginx/nginx.conf
+
+echo -e "\n===== AUDITD ====="
+systemctl is-enabled auditd
+systemctl is-active auditd
+
+echo -e "\n===== ROOT STATUS ====="
+passwd -S root
+
+echo -e "\n===== OPEN PORTS ====="
+ss -tulnp
+
+echo -e "\n===== INSTALLED SECURITY RELATED PACKAGES ====="
+rpm -qa | grep -Ei "fail2ban|aide|audit|openssl"
+
+echo -e "\n===== CRON JOBS ====="
+crontab -l 2>/dev/null
+ls -l /etc/cron*
