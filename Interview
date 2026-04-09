@@ -1,15 +1,26 @@
-# Get all EXPIRED cert DNs
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=certificateRepository,ou=ca,o=ipaca" \
-  -s one "(certStatus=EXPIRED)" dn \
-  2>/dev/null | grep "^dn:" > /tmp/expired_certs.txt
-
-# Get all REVOKED_EXPIRED cert DNs
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=certificateRepository,ou=ca,o=ipaca" \
-  -s one "(certStatus=REVOKED_EXPIRED)" dn \
-  2>/dev/null | grep "^dn:" >> /tmp/expired_certs.txt
-
-# Confirm the count before we delete anything
-wc -l /tmp/expired_certs.txt
-cat /tmp/expired_certs.txt | head -10
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=certificateRepository,ou=ca,o=ipaca" \
+>   -s one "(certStatus=EXPIRED)" dn \
+>   2>/dev/null | grep "^dn:" > /tmp/expired_certs.txt
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=certificateRepository,ou=ca,o=ipaca" \
+>   -s one "(certStatus=REVOKED_EXPIRED)" dn \
+>   2>/dev/null | grep "^dn:" >> /tmp/expired_certs.txt
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# wc -l /tmp/expired_certs.txt
+1165 /tmp/expired_certs.txt
+[root@cpeg-ipareplica ~]# cat /tmp/expired_certs.txt | head -10
+dn: cn=2,ou=certificateRepository,ou=ca,o=ipaca
+dn: cn=3,ou=certificateRepository,ou=ca,o=ipaca
+dn: cn=4,ou=certificateRepository,ou=ca,o=ipaca
+dn: cn=5,ou=certificateRepository,ou=ca,o=ipaca
+dn: cn=6,ou=certificateRepository,ou=ca,o=ipaca
+dn: cn=7,ou=certificateRepository,ou=ca,o=ipaca
+dn: cn=8,ou=certificateRepository,ou=ca,o=ipaca
+dn: cn=9,ou=certificateRepository,ou=ca,o=ipaca
+dn: cn=10,ou=certificateRepository,ou=ca,o=ipaca
+dn: cn=11,ou=certificateRepository,ou=ca,o=ipaca
+[root@cpeg-ipareplica ~]#
