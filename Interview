@@ -1,83 +1,157 @@
-for host in \
-  sjclnx-ccafe25.calix.local \
-  sjccafe-shchandr.calix.local \
-  sjccafe-myousuf.calix.local \
-  sjclnx-incognito02.calix.local \
-  sjccafe-llin.calix.local \
-  sjclnx-ccafereg01.calix.local \
-  sjccafe-vshah.calix.local \
-  sjclnx-cafereg04.calix.local; do
-    echo "Shutting down $host"
-    ssh -o HostKeyAlgorithms=+ssh-rsa \
-        -o PubkeyAcceptedKeyTypes=+ssh-rsa \
-        -o ConnectTimeout=5 $host \
-        "service certmonger stop && shutdown -h now" 2>&1
-done
+The Dev systems will be offline during the maintenance as far as I know as they only have one interface defined @Haj Suma can you confirm on aidev01 and aidev02, similarly on the slcx-p7960 workstation.
 
 
-for host in \
-  sjclnx-ccafe25.calix.local \
-  sjccafe-shchandr.calix.local \
-  sjccafe-myousuf.calix.local \
-  sjclnx-incognito02.calix.local \
-  sjccafe-llin.calix.local \
-  sjclnx-ccafereg01.calix.local \
-  sjccafe-vshah.calix.local \
-  sjclnx-cafereg04.calix.local; do
-    echo "Shutting down $host"
-    ssh -o HostKeyAlgorithms=+ssh-rsa \
-        -o PubkeyAcceptedKeyTypes=+ssh-rsa \
-        -o ConnectTimeout=5 $host \
-        "service certmonger stop" 2>&1
-done
+hsuma@pln-aidev01:~$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute
+       valid_lft forever preferred_lft forever
+2: eno8303: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether c4:cb:e1:e9:08:26 brd ff:ff:ff:ff:ff:ff
+    altname enp2s0f0
+    inet6 fe80::c6cb:e1ff:fee9:826/64 scope link
+       valid_lft forever preferred_lft forever
+3: eno8403: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000
+    link/ether c4:cb:e1:e9:08:27 brd ff:ff:ff:ff:ff:ff
+    altname enp2s0f1
+4: eno12399np0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 30:3e:a7:23:22:34 brd ff:ff:ff:ff:ff:ff
+    altname enp34s0f0np0
+    inet 10.172.249.100/24 brd 10.172.249.255 scope global eno12399np0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::323e:a7ff:fe23:2234/64 scope link
+       valid_lft forever preferred_lft forever
+5: eno12409np1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000
+    link/ether 30:3e:a7:23:22:35 brd ff:ff:ff:ff:ff:ff
+    altname enp34s0f1np1
+6: idrac: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether a8:3c:a5:50:9e:0d brd ff:ff:ff:ff:ff:ff
 
 
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(dateOfCreate>=20260409150000Z)" dn \
-  2>/dev/null | grep "^dn:" | wc -l
+hsuma@pln-aidev01:~$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute
+       valid_lft forever preferred_lft forever
+2: eno8303: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether c4:cb:e1:e9:08:26 brd ff:ff:ff:ff:ff:ff
+    altname enp2s0f0
+    inet6 fe80::c6cb:e1ff:fee9:826/64 scope link
+       valid_lft forever preferred_lft forever
+3: eno8403: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000
+    link/ether c4:cb:e1:e9:08:27 brd ff:ff:ff:ff:ff:ff
+    altname enp2s0f1
+4: eno12399np0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 30:3e:a7:23:22:34 brd ff:ff:ff:ff:ff:ff
+    altname enp34s0f0np0
+    inet 10.172.249.100/24 brd 10.172.249.255 scope global eno12399np0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::323e:a7ff:fe23:2234/64 scope link
+       valid_lft forever preferred_lft forever
+5: eno12409np1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000
+    link/ether 30:3e:a7:23:22:35 brd ff:ff:ff:ff:ff:ff
+    altname enp34s0f1np1
+6: idrac: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether a8:3c:a5:50:9e:0d brd ff:ff:ff:ff:ff:ff
+7: br-0eea9fe655f1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether ce:93:08:26:f1:46 brd ff:ff:ff:ff:ff:ff
+    inet 172.25.0.1/16 brd 172.25.255.255 scope global br-0eea9fe655f1
+       valid_lft forever preferred_lft forever
+    inet6 fe80::cc93:8ff:fe26:f146/64 scope link
+       valid_lft forever preferred_lft forever
+8: br-2fa4345670c7: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether 4a:15:c5:30:60:54 brd ff:ff:ff:ff:ff:ff
+    inet 172.23.0.1/16 brd 172.23.255.255 scope global br-2fa4345670c7
+
+hsuma@pln-aidev02:~$ sudo dmidecode -t system
+# dmidecode 3.5
+Getting SMBIOS data from sysfs.
+SMBIOS 3.3.0 present.
+
+Handle 0x0100, DMI type 1, 27 bytes
+System Information
+	Manufacturer: Dell Inc.
+	Product Name: PowerEdge R760xa
+	Version: Not Specified
+	Serial Number: 8FPBV64
+	UUID: 4c4c4544-0046-5010-8042-b8c04f563634
+	Wake-up Type: Power Switch
+	SKU Number: SKU=0B72;ModelName=PowerEdge R760xa
+	Family: PowerEdge
+
+Handle 0x0C00, DMI type 12, 5 bytes
+System Configuration Options
+	Option 1: NVRAM_CLR: Clear user settable NVRAM areas and set defaults
+	Option 2: PWRD_EN: Close to enable password
+
+Handle 0x2000, DMI type 32, 11 bytes
+System Boot Information
+	Status: No errors detected
+
+hsuma@pln-aidev02:~$
 
 
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=ca,ou=requests,o=ipaca" \
->   -s one "(dateOfCreate>=20260409150000Z)" dn \
->   2>/dev/null | grep "^dn:" | wc -l
-747
-[root@cpeg-ipareplica ~]#
+(base) root@slcx-p7960:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: enp2s0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000
+    link/ether 00:4e:01:fd:99:09 brd ff:ff:ff:ff:ff:ff
+3: enp0s31f6: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:4e:01:fd:99:08 brd ff:ff:ff:ff:ff:ff
+    inet 10.172.249.149/24 brd 10.172.249.255 scope global noprefixroute enp0s31f6
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42d2:4155:58:c0d8/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+4: wlp1s0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default qlen 1000
+    link/ether fc:b0:de:31:f2:2d brd ff:ff:ff:ff:ff:ff
+5: docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether 7e:fd:87:52:be:65 brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::7cfd:87ff:fe52:be65/64 scope link
+       valid_lft forever preferred_lft forever
+6: br-154bafe7b012: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether e2:72:2c:16:a4:b1 brd ff:ff:ff:ff:ff:ff
+    inet 172.23.0.1/16 brd 172.23.255.255 scope global br-154bafe7b012
+       valid_lft forever preferred_lft forever
+    inet6 fe80::e072:2cff:fe16:a4b1/64 scope link
+       valid_lft forever preferred_lft forever
+7: br-44c18ba3f070: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether e2:11:54:0a:56:ba brd ff:ff:ff:ff:ff:ff
+    inet 172.22.0.1/16 brd 172.22.255.255 scope global br-44c18ba3f070
+       valid_lft forever preferred_lft forever
 
 
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(dateOfCreate>=20260409151500Z)" dn \
-  2>/dev/null | grep "^dn:" | wc -l
+(base) root@slcx-p7960:~# dmidecode -t system
+# dmidecode 3.3
+Getting SMBIOS data from sysfs.
+SMBIOS 3.4 present.
 
+Handle 0x0100, DMI type 1, 27 bytes
+System Information
+	Manufacturer: Dell Inc.
+	Product Name: Precision 7960 Tower
+	Version: Not Specified
+	Serial Number: 50MM724
+	UUID: 4c4c4544-0030-4d10-804d-b5c04f373234
+	Wake-up Type: Other
+	SKU Number: 0A3A
+	Family: Precision
 
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(dateOfCreate>=20260409152500Z)" dn \
-  2>/dev/null | grep "^dn:" | wc -l
+Handle 0x0C00, DMI type 12, 5 bytes
+System Configuration Options
+	Option 1: J2J2:1-2/2-3 CMOS CLEAR,J9E2:1-X BIOS RECOVERY
 
+Handle 0x2000, DMI type 32, 11 bytes
+System Boot Information
+	Status: No errors detected
 
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(dateOfCreate>=20260409153500Z)" dn \
-  2>/dev/null | grep "^dn:" | wc -l
-
-
-
-The cluster is built with dual-fabric redundancy across both Nexus switches. On the masters, the storage bond (bnd0 = eno7 + eno8) runs active-backup with one leg on each fabric. On the GPU workers, bond0 runs LACP at 100Gbps, again with one leg per fabric. Network team confirmed this is a rolling upgrade, one switch at a time, so storage and app VLAN traffic should fail over to the surviving link with only a few seconds of disruption. Running workloads, the MetalLB LoadBalancer services (MinIO, Milvus, PostgreSQL), and the GPU jobs should all stay up through it.
-The gap we have is on the management network. Right now the masters are running on a single management NIC — eno5 on Fabric A. The Fabric B standby (eno6) is disabled because it was causing a MetalLB ARP conflict we haven't fully resolved yet. So while the Fabric A switch is rebooting, we'll lose the API VIP (10.172.248.155), the Ingress VIP (10.172.248.156), and the Gateway VIP (10.172.248.175). That means no oc CLI, no web console, no ArgoCD syncs, and no Gateway API routes during that window. Everything comes back as soon as the switch is back online, but it's worth calling out so people know what to expect.
-I'm also going to hibernate the CloudNativePG clusters before the window and wake them up after. I don't want to take the chance of a database switchover getting triggered mid-maintenance while the network is unstable.
-Before the window:
-
-Hibernate the CNPG clusters in dev, test, and prod
-Send a note to the users about the expected management access gap
-
-After the window:
-
-Check that all 5 nodes come back Ready
-Run oc get co to make sure all cluster operators are healthy
-Wake the CNPG clusters and make sure all instances come back up cleanly
-Validate the MetalLB LoadBalancer services on all three app VLANs
-Confirm ArgoCD apps are synced and healthy
-Check that the Gateway API routes are responding
+(base) root@slcx-p7960:~#
