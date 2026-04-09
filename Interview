@@ -113,3 +113,24 @@ hsuma@plnx-admin:~$
 
 
 ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa sjclnx-ccafe25.calix.local
+
+
+[hsuma@sjclnx-ccafe25 ~]$
+[hsuma@sjclnx-ccafe25 ~]$ sudo su -
+
+We trust you have received the usual lecture from the local System
+Administrator. It usually boils down to these three things:
+
+    #1) Respect the privacy of others.
+    #2) Think before you type.
+    #3) With great power comes great responsibility.
+
+[sudo] password for hsuma:
+[root@sjclnx-ccafe25 ~]#
+[root@sjclnx-ccafe25 ~]#
+[root@sjclnx-ccafe25 ~]#
+[root@sjclnx-ccafe25 ~]#
+[root@sjclnx-ccafe25 ~]#
+[root@sjclnx-ccafe25 ~]# service certmonger status
+certmonger (pid  2413) is running...
+[root@sjclnx-ccafe25 ~]#
