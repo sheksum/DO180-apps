@@ -1,9 +1,9 @@
-Confirmed. All three systems only have a single active network interface, no bond or failover:
+This is another NGINX proxy server that needs to be “hardened”
 
-pln-aidev01 — single interface on 10.172.249.100 (eno12399np0). The second NIC is down.
+Root credentials are old and use common SD password.  Please ensure login access is configured appropriately for EngOps with Deploy user.  
 
-pln-aidev02 — same setup, single active NIC, no redundancy.
+Root credential is in cyberark, please update with new secure password and update cyberark.
 
-slcx-p7960 (Precision workstation) — single interface on 10.172.249.149 (enp0s31f6). The second NIC is down.
 
-All three will be offline during the maintenance window when their fabric switch reboots. Whoever is using these systems should expect them to be unreachable during that time. Worth including them in the user notification for the change window.
+
+Apply any hardening that we have also applied to the pln-atlproxy01 host.
