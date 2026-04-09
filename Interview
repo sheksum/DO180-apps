@@ -172,3 +172,22 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
 
 # Check how many IPA clients are enrolled
 ipa host-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
+
+
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(dateOfCreate>=20260310000000Z)" extdata-req--005fsubject \
+>   2>/dev/null | grep "^extdata-req--005fsubject:" | sort -u | wc -l
+0
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(dateOfCreate>=20260409141000Z)" dn \
+>   2>/dev/null | grep "^dn:" | wc -l
+163
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa host-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
+Number of entries returned 4668
+[root@cpeg-ipareplica ~]#
