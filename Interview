@@ -16,3 +16,23 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
  857285 certStatus: VALID
       1 certStatus: REVOKED
 [root@cpeg-ipareplica ~]#
+
+
+Hi Haj
+ 
+I couldn’t say if these systems are critical systems or even needed anymore.
+ 
+Owners are
+ 
+- sjclnx-ccafe25.calix.local                        Juan Magana
+- sjccafe-shchandr.calix.local                Sanela Chandler
+- sjccafe-myousuf.calix.local                   Mohammed Yousef
+- sjclnx-incognito02.calix.local               Unknown – I did see a login for hochen…do not know who that is
+- sjccafe-llin.calix.local                                Leo Lin
+- sjclnx-ccafereg01.calix.local                 Unknown – but no logins for several months        
+- sjccafe-vshah.calix.local                         Viralkumar Shah             
+- sjclnx-cafereg04.calix.local                    Unknown – no logins for several months             
+ 
+You could reach out to them and see if they still need them.  Others we could shutdown and see if someone speaks up.
+ 
+I did notice on the last system – krb5.conf point to sjc ipa – maybe you need to uninstall and reinstall to point to your new servers
