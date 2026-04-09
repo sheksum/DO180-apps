@@ -1,4 +1,7 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(dateOfCreate>=20260409180000Z)" dn \
-  2>/dev/null | grep "^dn:" | wc -l
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(dateOfCreate>=20260409180000Z)" dn \
+>   2>/dev/null | grep "^dn:" | wc -l
+0
+[root@cpeg-ipareplica ~]#
