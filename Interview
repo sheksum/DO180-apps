@@ -23,3 +23,39 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
 
 # Check if sjc-ipareplica01 itself is accessible
 ping -c 3 192.168.99.34
+
+
+Last login: Sun Apr  5 10:24:15 UTC 2026 from 192.168.97.112 on pts/1
+[root@sjc-ipareplica01 ~]#
+[root@sjc-ipareplica01 ~]#
+[root@sjc-ipareplica01 ~]# getcert list | grep -E 'status|stuck|ca-error' | sort | uniq -c
+      1 	ca-error: Server at https://sjc-ipareplica01.ipa.calix.local/ipa/xml denied our request, giving up: 2100 (RPC failed at server.  Insufficient access: Insufficient 'write' privilege to the 'userCertificate' attribute of entry 'krbprincipalname=http/sjc-ipareplica01.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local'.).
+      1 	ca-error: Server at https://sjc-ipareplica01.ipa.calix.local/ipa/xml denied our request, giving up: 2100 (RPC failed at server.  Insufficient access: Insufficient 'write' privilege to the 'userCertificate' attribute of entry 'krbprincipalname=ldap/sjc-ipareplica01.ipa.calix.local@ipa.calix.local,cn=services,cn=accounts,dc=ipa,dc=calix,dc=local'.).
+      4 	status: MONITORING
+      4 	stuck: no
+[root@sjc-ipareplica01 ~]#
+[root@sjc-ipareplica01 ~]#
+[root@sjc-ipareplica01 ~]#
+[root@sjc-ipareplica01 ~]#
+[root@sjc-ipareplica01 ~]# getcert list | grep 'Request ID' | wc -l
+4
+[root@sjc-ipareplica01 ~]#
+
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(&(dateOfCreate>=20260409000000Z)(extdata-profileremotehost=192.168.99.34))" \
+>   extdata-req--005fsubject--005fname--002ecn \
+>   2>/dev/null | grep "^extdata-req--005fsubject--005fname--002ecn:" | sort | uniq -c | sort -rn | head -20
+[root@cpeg-ipareplica ~]# ping -c 3 192.168.99.34
+PING 192.168.99.34 (192.168.99.34) 56(84) bytes of data.
+64 bytes from 192.168.99.34: icmp_seq=1 ttl=59 time=21.7 ms
+64 bytes from 192.168.99.34: icmp_seq=2 ttl=59 time=29.0 ms
+64 bytes from 192.168.99.34: icmp_seq=3 ttl=59 time=22.3 ms
+
+--- 192.168.99.34 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2003ms
+rtt min/avg/max/mdev = 21.710/24.348/29.039/3.327 ms
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
