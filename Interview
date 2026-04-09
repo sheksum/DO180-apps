@@ -50,3 +50,24 @@ I will send a heads up to the known owners before I do anything.
 
 Thanks again,
 Haj
+
+
+Subject: FYI — SJC Lab Machine Shutdown
+
+Hi all,
+
+Just a heads up — we are shutting down the following SJC lab machines today as part of ongoing IPA infrastructure maintenance. These systems were identified as generating abnormal certificate renewal activity against our CA.
+
+- sjclnx-ccafe25.calix.local
+- sjccafe-shchandr.calix.local
+- sjccafe-myousuf.calix.local
+- sjclnx-incognito02.calix.local
+- sjccafe-llin.calix.local
+- sjclnx-ccafereg01.calix.local
+- sjccafe-vshah.calix.local
+- sjclnx-cafereg04.calix.local
+
+If any of these machines are still needed please reply and we will bring them back online.
+
+Thanks,
+Haj
