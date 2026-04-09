@@ -96,3 +96,17 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
 >   2>/dev/null | grep "^extdata-profileid:" | sort | uniq -c | sort -rn
   12797 extdata-profileid: caIPAserviceCert
 [root@cpeg-ipareplica ~]#
+
+
+
+# How many requests in the last 30 days
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260310000000Z)" dn \
+  2>/dev/null | grep "^dn:" | wc -l
+
+# Profile breakdown for last 30 days
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260310000000Z)" extdata-profileid \
+  2>/dev/null | grep "^extdata-profileid:" | sort | uniq -c | sort -rn
