@@ -1,42 +1,5 @@
-# What hostname is 192.168.99.34
-host 192.168.99.34
+# SSH to sjc-ipareplica01 and check certmonger status
+ssh sjc-ipareplica01.ipa.calix.local "getcert list | grep -E 'status|stuck|ca-error' | sort | uniq -c"
 
-# How many unique hosts have submitted requests today vs just this one IP
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(dateOfCreate>=20260409000000Z)" extdata-profileremotehost \
-  2>/dev/null | grep "^extdata-profileremotehost:" | sort -u
-
-# How many requests has this specific host submitted in the last 30 days
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(&(dateOfCreate>=20260310000000Z)(extdata-profileremotehost=192.168.99.34))" dn \
-  2>/dev/null | grep "^dn:" | wc -l
-
-
-DNS Name (1)	
-sjc-ipareplica01.ipa.calix.local
-IP Addresses (2)	
-192.168.99.34
-fe80::250:56ff:fea8:b786
-Encryption	Not encrypted
-
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# host 192.168.99.34
-Host 34.99.168.192.in-addr.arpa. not found: 3(NXDOMAIN)
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=ca,ou=requests,o=ipaca" \
->   -s one "(dateOfCreate>=20260409000000Z)" extdata-profileremotehost \
->   2>/dev/null | grep "^extdata-profileremotehost:" | sort -u
-extdata-profileremotehost: 192.168.99.34
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=ca,ou=requests,o=ipaca" \
->   -s one "(&(dateOfCreate>=20260310000000Z)(extdata-profileremotehost=192.168.99.34))" dn \
->   2>/dev/null | grep "^dn:" | wc -l
-0
-[root@cpeg-ipareplica ~]#
-
+# Check how many certs certmonger is tracking on sjc
+ssh sjc-ipareplica01.ipa.calix.local "getcert list | grep 'Request ID' | wc -l"
