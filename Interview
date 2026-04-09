@@ -151,3 +151,48 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
 
 # Check pki-tomcat CA logs for renewal activity
 tail -50 /var/log/pki/pki-tomcat/ca/debug.$(date +%Y-%m-%d).log 2>/dev/null | grep -i "caIPAserviceCert\|renewal\|request"
+
+
+
+
+====
+
+
+[root@cpeg-ipareplica ~]# getcert list | grep -E "status|stuck|CA error"
+	status: MONITORING
+	stuck: no
+	status: MONITORING
+	stuck: no
+	status: MONITORING
+	stuck: no
+	status: MONITORING
+	stuck: no
+	status: MONITORING
+	stuck: no
+	status: MONITORING
+	stuck: no
+	status: MONITORING
+	stuck: no
+	status: MONITORING
+	stuck: no
+	status: MONITORING
+	stuck: no
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(dateOfCreate>=20260409140000Z)" dn \
+>   2>/dev/null | grep "^dn:" | wc -l
+267
+[root@cpeg-ipareplica ~]# tail -50 /var/log/pki/pki-tomcat/ca/debug.$(date +%Y-%m-%d).log 2>/dev/null | grep -i "caIPAserviceCert\|renewal\|request"
+2026-04-09 14:17:34 [ajp-nio-0:0:0:0:0:0:0:1-8009-exec-9] INFO: CertProcessor: - requesttype: enrollment
+2026-04-09 14:17:34 [ajp-nio-0:0:0:0:0:0:0:1-8009-exec-9] INFO: CertProcessor: Submitting certificate request to caIPAserviceCert profile
+2026-04-09 14:17:34 [ajp-nio-0:0:0:0:0:0:0:1-8009-exec-9] INFO: LDAPSession: Adding LDAP entry cn=40846430,ou=ca, ou=requests,o=ipaca
+2026-04-09 14:17:34 [ajp-nio-0:0:0:0:0:0:0:1-8009-exec-9] INFO: enrollment reqID 40846430 fromAgent userID: ipara authenticated by raCertAuth is completed DN requested: CN=sjccafe-shchandr.calix.local,O=IPA.CALIX.LOCAL cert issued serial number: 0x400c115a time: 21
+2026-04-09 14:17:34 [ajp-nio-0:0:0:0:0:0:0:1-8009-exec-9] INFO: Updating certificate request
+2026-04-09 14:17:34 [ajp-nio-0:0:0:0:0:0:0:1-8009-exec-9] INFO: LDAPSession: Modifying LDAP entry cn=40846430,ou=ca, ou=requests,o=ipaca
+2026-04-09 14:17:34 [Thread-4676] INFO: LDAPSession: reading cn=40846430,ou=ca, ou=requests,o=ipaca
+2026-04-09 14:17:34 [Thread-4676] INFO: LdapEnrollmentListener: Handling enrollment request 40846430
+2026-04-09 14:17:34 [Thread-4676] INFO: LDAPSession: Modifying LDAP entry ou=ca, ou=requests,o=ipaca
+2026-04-09 14:17:34 [ajp-nio-0:0:0:0:0:0:0:1-8009-exec-10] INFO: LDAPSession: reading cn=40846430,ou=ca, ou=requests,o=ipaca
+[root@cpeg-ipareplica ~]#
