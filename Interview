@@ -1,8 +1,45 @@
-# Is port 8443 accessible from pln
-nc -zv cpeg-ipareplica.ipa.calix.local 8443
+[root@pln-ipamaster ~]# nc -zv cpeg-ipareplica.ipa.calix.local 8443
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Connected to 172.23.49.10:8443.
+Ncat: 0 bytes sent, 0 bytes received in 0.06 seconds.
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
 
-# Check the CA replication error logs on cpeg
-tail -50 /var/log/pki/pki-tomcat/ca/debug.$(date +%Y-%m-%d).log | grep -i "error\|repl\|connect"
 
 
-grep "21:4[0-9]" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -30
+[root@cpeg-ipareplica ~]# tail -50 /var/log/pki/pki-tomcat/ca/debug.$(date +%Y-%m-%d).log | grep -i "error\|repl\|connect"
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# grep "21:4[0-9]" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -30
+[11/Apr/2026:21:47:27.617982599 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:47:29.988142635 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:47:31.354022363 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:47:34.483782169 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:47:37.612489773 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:47:39.714818136 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:47:40.080969893 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:47:42.083896027 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:47:43.450595689 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:47:46.052631619 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:47:46.418715097 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:47:48.422107901 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:47:48.788870198 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:47:50.792475962 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:47:52.157056033 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:47:55.292173804 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:47:58.420558778 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:48:00.003874216 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:48:01.371240035 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:48:02.487615803 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:48:03.853743482 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:48:04.976839928 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:48:07.342033825 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:48:07.344582310 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:48:09.713603106 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:48:10.079210667 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:48:12.081739348 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:48:13.448439281 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[11/Apr/2026:21:48:14.451304146 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[11/Apr/2026:21:48:15.816641312 +0000] - WARN - NSMMReplicationPlugin - repl5_inc_run - agmt="cn=caTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389): The remote replica has a different database generation ID than the local database.  You may have to reinitialize the remote replica, or the local replica.
+[root@cpeg-ipareplica ~]#
