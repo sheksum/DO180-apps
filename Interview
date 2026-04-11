@@ -1,31 +1,5 @@
-[root@cpeg-ipareplica ~]# ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
-> dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-> changetype: modify
-> replace: nsds5ReplicaEnabled
-> nsds5ReplicaEnabled: off
->
-> dn: cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-> changetype: modify
-> replace: nsds5ReplicaEnabled
-> nsds5ReplicaEnabled: off
->
-> dn: cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-> changetype: modify
-> replace: nsds5ReplicaEnabled
-> nsds5ReplicaEnabled: off
-> EOF
-SASL/EXTERNAL authentication started
-SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-SASL SSF: 0
-modifying entry "cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config"
-
-modifying entry "cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config"
-
-modifying entry "cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config"
-
-[root@cpeg-ipareplica ~]# firewall-cmd --add-port=8443/tcp --permanent
-Warning: ALREADY_ENABLED: 8443:tcp
-success
-[root@cpeg-ipareplica ~]# firewall-cmd --reload
-success
-[root@cpeg-ipareplica ~]#
+ipa-replica-install --setup-ca --setup-dns --no-forwarders --no-ntp \
+  --server cpeg-ipareplica.ipa.calix.local --domain ipa.calix.local \
+  --realm IPA.CALIX.LOCAL --principal admin \
+  --admin-password 'vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU=' \
+  --skip-conncheck --force-join
