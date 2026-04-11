@@ -1,12 +1,7 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=mapping tree,cn=config" \
->   "(objectclass=nsds5replicationagreement)" cn \
->   2>/dev/null | grep -i "pln"
-# meTopln-ipamaster.ipa.calix.local, replica, dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dloca
-dn: cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2
-cn: meTopln-ipamaster.ipa.calix.local
-# caTopln-ipamaster.ipa.calix.local, replica, o\3Dipaca, mapping tree, config
-dn: cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tr
-cn: caTopln-ipamaster.ipa.calix.local
-[root@cpeg-ipareplica ~]#
+ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
+dn: cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+changetype: delete
+
+dn: cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config
+changetype: delete
+EOF
