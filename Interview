@@ -1,12 +1,62 @@
-# Check for OOM kills
-dmesg | grep -i "killed process\|oom" | tail -20
-
-# Check dirsrv error log around the crash times
-grep -i "signal\|abort\|fatal\|core\|killed" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -30
-
-# Check system journal for dirsrv crashes
-journalctl -u dirsrv@IPA-CALIX-LOCAL --since "3 days ago" | grep -i "error\|fail\|crash\|killed" | tail -30
-
+[root@cpeg-ipareplica ~]# dmesg | grep -i "failed"
+[    0.126672] pci 0000:00:16.4: BAR 13: failed to assign [io  size 0x1000]
+[    0.126674] pci 0000:00:16.5: BAR 13: failed to assign [io  size 0x1000]
+[    0.126675] pci 0000:00:16.6: BAR 13: failed to assign [io  size 0x1000]
+[    0.126677] pci 0000:00:16.7: BAR 13: failed to assign [io  size 0x1000]
+[    0.126678] pci 0000:00:17.0: BAR 13: failed to assign [io  size 0x1000]
+[    0.126680] pci 0000:00:17.1: BAR 13: failed to assign [io  size 0x1000]
+[    0.126681] pci 0000:00:17.2: BAR 13: failed to assign [io  size 0x1000]
+[    0.126683] pci 0000:00:17.3: BAR 13: failed to assign [io  size 0x1000]
+[    0.126684] pci 0000:00:17.4: BAR 13: failed to assign [io  size 0x1000]
+[    0.126685] pci 0000:00:17.5: BAR 13: failed to assign [io  size 0x1000]
+[    0.126687] pci 0000:00:17.6: BAR 13: failed to assign [io  size 0x1000]
+[    0.126688] pci 0000:00:17.7: BAR 13: failed to assign [io  size 0x1000]
+[    0.126690] pci 0000:00:18.0: BAR 13: failed to assign [io  size 0x1000]
+[    0.126691] pci 0000:00:18.1: BAR 13: failed to assign [io  size 0x1000]
+[    0.126693] pci 0000:00:18.2: BAR 13: failed to assign [io  size 0x1000]
+[    0.126694] pci 0000:00:18.3: BAR 13: failed to assign [io  size 0x1000]
+[    0.126696] pci 0000:00:18.4: BAR 13: failed to assign [io  size 0x1000]
+[    0.126697] pci 0000:00:18.5: BAR 13: failed to assign [io  size 0x1000]
+[    0.126699] pci 0000:00:18.6: BAR 13: failed to assign [io  size 0x1000]
+[    0.126700] pci 0000:00:18.7: BAR 13: failed to assign [io  size 0x1000]
+[    0.126712] pci 0000:00:17.5: BAR 13: failed to assign [io  size 0x1000]
+[    0.126713] pci 0000:00:17.4: BAR 13: failed to assign [io  size 0x1000]
+[    0.126715] pci 0000:00:17.3: BAR 13: failed to assign [io  size 0x1000]
+[    0.126716] pci 0000:00:17.2: BAR 13: failed to assign [io  size 0x1000]
+[    0.126718] pci 0000:00:17.1: BAR 13: failed to assign [io  size 0x1000]
+[    0.126719] pci 0000:00:17.0: BAR 13: failed to assign [io  size 0x1000]
+[    0.126721] pci 0000:00:16.7: BAR 13: failed to assign [io  size 0x1000]
+[    0.126722] pci 0000:00:16.6: BAR 13: failed to assign [io  size 0x1000]
+[    0.126724] pci 0000:00:16.5: BAR 13: failed to assign [io  size 0x1000]
+[    0.126725] pci 0000:00:16.4: BAR 13: failed to assign [io  size 0x1000]
+[    0.126727] pci 0000:00:16.3: BAR 13: failed to assign [io  size 0x1000]
+[    0.126728] pci 0000:00:16.2: BAR 13: failed to assign [io  size 0x1000]
+[    0.126730] pci 0000:00:16.1: BAR 13: failed to assign [io  size 0x1000]
+[    0.126731] pci 0000:00:15.7: BAR 13: failed to assign [io  size 0x1000]
+[    0.126733] pci 0000:00:15.6: BAR 13: failed to assign [io  size 0x1000]
+[    0.126734] pci 0000:00:15.5: BAR 13: failed to assign [io  size 0x1000]
+[    0.126736] pci 0000:00:15.4: BAR 13: failed to assign [io  size 0x1000]
+[    0.126737] pci 0000:00:15.3: BAR 13: failed to assign [io  size 0x1000]
+[    0.126739] pci 0000:00:15.2: BAR 13: failed to assign [io  size 0x1000]
+[    0.126740] pci 0000:00:15.1: BAR 13: failed to assign [io  size 0x1000]
+[root@cpeg-ipareplica ~]# dmesg | grep -i "error"
+[root@cpeg-ipareplica ~]# dmesg | grep -i "oom"
+[root@cpeg-ipareplica ~]# dmesg | grep -i "grep -i "signal\|abort\|fatal\|core\|killed" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -30"
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# grep -i "signal\|abort\|fatal\|core\|killed" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -30
+[09/Apr/2026:09:00:07.054048175 +0000] - INFO - op_thread_cleanup - slapd shutting down - signaling operation threads - op stack size 11 max work q size 5 max work q stack size 5
+[09/Apr/2026:09:10:30.874674140 +0000] - WARN - Security Initialization - SSL alert: Sending pin request to SVRCore. You may need to run systemd-tty-ask-password-agent to provide the password.
+[09/Apr/2026:09:12:36.128018574 +0000] - ERR - NSMMReplicationPlugin - acquire_replica - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local" (sjc-ipareplica01:389): Unable to acquire replica: there is no replicated area "dc=ipa,dc=calix,dc=local" on the consumer server. Replication is aborting.
+[10/Apr/2026:09:00:20.312101200 +0000] - INFO - op_thread_cleanup - slapd shutting down - signaling operation threads - op stack size 17 max work q size 6 max work q stack size 6
+[10/Apr/2026:10:06:10.147812286 +0000] - WARN - Security Initialization - SSL alert: Sending pin request to SVRCore. You may need to run systemd-tty-ask-password-agent to provide the password.
+[10/Apr/2026:10:06:51.966447131 +0000] - INFO - op_thread_cleanup - slapd shutting down - signaling operation threads - op stack size 3 max work q size 2 max work q stack size 2
+[10/Apr/2026:10:06:53.958688396 +0000] - WARN - Security Initialization - SSL alert: Sending pin request to SVRCore. You may need to run systemd-tty-ask-password-agent to provide the password.
+[10/Apr/2026:10:07:58.061997634 +0000] - ERR - NSMMReplicationPlugin - acquire_replica - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local" (sjc-ipareplica01:389): Unable to acquire replica: there is no replicated area "dc=ipa,dc=calix,dc=local" on the consumer server. Replication is aborting.
+[root@cpeg-ipareplica ~]# journalctl -u dirsrv@IPA-CALIX-LOCAL --since "3 days ago" | grep -i "error\|fail\|crash\|killed" | tail -30
+Apr 11 13:51:49 cpeg-ipareplica.ipa.calix.local ns-slapd[2569667]: [11/Apr/2026:13:51:49.756761594 +0000] - ERR - log_ber_too_big_error - conn=964773 fd=986 Incoming BER Element was 547813409937 bytes, max allowable is 209715200 bytes. Change the nsslapd-maxbersize attribute in cn=config to increase.
+Apr 11 15:36:04 cpeg-ipareplica.ipa.calix.local ns-slapd[2569667]: [11/Apr/2026:15:36:04.341959691 +0000] - ERR - log_ber_too_big_error - conn=1549450 fd=1809 Incoming BER Element may be misformed. This may indicate an attempt to use TLS on a plaintext port, IE ldaps://localhost:389. Check your client LDAP_URI settings.
+[root@cpeg-ipareplica ~]#
 
 
 # CA still healthy
