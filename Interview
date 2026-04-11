@@ -1,18 +1,20 @@
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(|(subjectName=CN=sjccafe-vshah.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-cafereg04.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-llin.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-myousuf.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-ccafe25.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-shchandr.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-ccafereg01.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-incognito02.calix.local,O=IPA.CALIX.LOCAL))" dn \
->   2>/dev/null | grep "^dn:" | sed 's/^dn: //' > /tmp/sjc_certs_to_delete.txt
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# wc -l /tmp/sjc_certs_to_delete.txt
-857722 /tmp/sjc_certs_to_delete.txt
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# head -5 /tmp/sjc_certs_to_delete.txt
-cn=1073676316,ou=certificateRepository,ou=ca,o=ipaca
-cn=1073676317,ou=certificateRepository,ou=ca,o=ipaca
-cn=1073676318,ou=certificateRepository,ou=ca,o=ipaca
-cn=1073676319,ou=certificateRepository,ou=ca,o=ipaca
-cn=1073676320,ou=certificateRepository,ou=ca,o=ipaca
-[root@cpeg-ipareplica ~]#
+# Run in background with nohup so laptop sleep doesn't kill it
+nohup bash -c '
+  total=$(wc -l < /tmp/sjc_certs_to_delete.txt)
+  count=0
+  while IFS= read -r dn; do
+    ldapdelete -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket "$dn" 2>&1
+    count=$((count + 1))
+    if (( count % 1000 == 0 )); then
+      echo "$(date) -- Deleted $count of $total"
+    fi
+  done < /tmp/sjc_certs_to_delete.txt
+  echo "$(date) -- DONE. Total deleted: $count"
+' > /tmp/sjc_delete.log 2>&1 &
+
+echo "Started PID: $!"
+
+tail -f /tmp/sjc_delete.log
 
 
 
