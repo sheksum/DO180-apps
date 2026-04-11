@@ -1,32 +1,14 @@
-# sonar.properties
-sonar.web.javaAdditionalOpts=-Djdk.tls.disabledAlgorithms="SSLv3, TLSv1, TLSv1.1, DTLSv1.0, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL"
-sonar.ce.javaAdditionalOpts=-Djdk.tls.disabledAlgorithms="SSLv3, TLSv1, TLSv1.1, DTLSv1.0, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL"
-#
-# Legacy algorithms for Secure Socket Layer/Transport Layer Security (SSL/TLS)
-sonarqube@plnx-sonarqube [conf] $
+# Back up first
+cp $JAVA_HOME/conf/security/java.security $JAVA_HOME/conf/security/java.security.bak
 
-sonar.web.javaAdditionalOpts=-Djdk.tls.client.protocols=TLSv1.2
-sonar.ce.javaAdditionalOpts=-Djdk.tls.client.protocols=TLSv1.2
+# Verify the backup
+ls -la $JAVA_HOME/conf/security/java.security*
 
-Connecting to 10.172.248.32
-write:errno=104
-CONNECTED(00000003)
----
-no peer certificate available
----
-No client certificate CA names sent
----
-SSL handshake has read 0 bytes and written 262 bytes
-Verification: OK
----
-New, (NONE), Cipher is (NONE)
-This TLS version forbids renegotiation.
-Compression: NONE
-Expansion: NONE
-No ALPN negotiated
-Early data was not sent
-Verify return code: 0 (ok)
+# Remove ECDH from the disabled list
+sed -i 's/, ECDH//' $JAVA_HOME/conf/security/java.security
 
+# Verify the change looks right
+grep -A5 "jdk.tls.disabledAlgorithms=SSLv3" $JAVA_HOME/conf/security/java.security
 sonarqube@plnx-sonarqube [conf] $ grep -E "jdk.tls.disabledAlgorithms|jdk.tls.legacyAlgorithms" \
   $JAVA_HOME/conf/security/java.security
 #   jdk.tls.disabledAlgorithms=MD5, SSLv3, DSA, RSA keySize < 2048, \
