@@ -1,10 +1,4 @@
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=ca,ou=requests,o=ipaca" \
->   -s one "(requestState=complete)" dn \
->   2>/dev/null | grep "^dn:" | wc -l
-858256
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+The Java upgrade from 17 → 21 shipped with a hardened java.security config that explicitly disables ECDH in the TLS disabled algorithms list. ECDH is the key exchange mechanism that the AD domain controller uses for its LDAPS (port 636) connection. So when SonarQube tries to connect to AD on startup, Java 21 kills the TLS handshake before the bind request even goes out — hence the Connection or outbound has closed error.
 
 
 
