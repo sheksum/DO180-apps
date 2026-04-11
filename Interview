@@ -1,6 +1,3 @@
-[root@cpeg-ipareplica ~]# wc -l /tmp/requests_delete.log
-912238 /tmp/requests_delete.log
-[root@cpeg-ipareplica ~]# tail -n 10 /tmp/requests_delete.log
 SASL SSF: 0
 SASL/EXTERNAL authentication started
 SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
@@ -11,8 +8,7 @@ SASL SSF: 0
 SASL/EXTERNAL authentication started
 SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
 SASL SSF: 0
-[root@cpeg-ipareplica ~]#
-
+Sat Apr 11 20:36:34 UTC 2026 -- DONE. Total deleted: 858256
 [root@cpeg-ipareplica ~]# ps -p 2779346
     PID TTY          TIME CMD
 2779346 pts/3    00:00:32 bash
