@@ -1,5 +1,27 @@
-cat > /etc/ipa/installer.conf << EOF
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# cat /etc/ipa/installer.conf
+cat: /etc/ipa/installer.conf: No such file or directory
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
+[Service]
+TimeoutStartSec=7200
+Environment=JAVA_OPTS=-Xms512m -Xmx4096m -XX:MaxPermSize=256m
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# cat /usr/share/ipa/replica-prevent-time-skew.ldif
+dn: cn=config
+changetype: modify
+replace: nsslapd-ignore-time-skew
+nsslapd-ignore-time-skew: on
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# cat > /etc/ipa/installer.conf << EOF
 [global]
 startup_timeout=7200
 replication_wait_timeout=3600
 EOF
+-bash: /etc/ipa/installer.conf: No such file or directory
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
