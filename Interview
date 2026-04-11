@@ -1,14 +1,18 @@
-# Total enrolled hosts
-ipa host-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
+[root@cpeg-ipareplica ~]# ipa host-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
+Number of entries returned 4679
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa service-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
+Number of entries returned 25
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=certificateRepository,ou=ca,o=ipaca" \
+>   -s one "(certStatus=VALID)" subjectName \
+>   2>/dev/null | grep "^subjectName:" | sort -u | wc -l
 
-# Total enrolled services
-ipa service-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
+51
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
 
-# How many unique CNs are in the VALID cert repository
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=certificateRepository,ou=ca,o=ipaca" \
-  -s one "(certStatus=VALID)" subjectName \
-  2>/dev/null | grep "^subjectName:" | sort -u | wc -l
+
 
 
 [root@cpeg-ipareplica ~]# wc -l /tmp/protected_request_ids.txt 2>/dev/null || echo "still running"
