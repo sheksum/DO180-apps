@@ -1,3 +1,11 @@
-ss -tlnp | grep -E "389|636"
+Client uninstall complete.
+The ipa-client-install command was successful
+The ipa-server-install command was successful
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ss -tlnp | grep -E "389|636"
 ls /etc/ipa/ 2>/dev/null
 ls /var/lib/pki/ 2>/dev/null
+installer.conf  nssdb
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# c
