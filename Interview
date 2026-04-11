@@ -1,8 +1,36 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# crontab -l
-0 9 * * 1-5 /root/tools/ipa_backup.sh
-0 11 * * 1-5 /root/fortinet/ldap-sync --config /root/fortinet/config.yaml >> /var/log/ldap-sync.log 2>&1
+[root@cpeg-ipareplica ~]# cat /root/tools/ipa_backup.sh
+#!/bin/bash
+
+#Define the log file and the email address for the failure notifications
+LOG_FILE=/var/log/ipa/ipa_backup.log
+EMAIL="EngineeringOperations-Infrastructure@calix.com"
+#EMAIL="haj.suma@calix.com"
+
+#Log the current date/time and the start of the backup
+echo "$(date) - Starting IPA backup" >> $LOG_FILE
+
+#Run the ipa-backup command (this will stop IPA, perform the backup, and restart IPA)
+/usr/sbin/ipa-backup >> $LOG_FILE 2>&1
+
+#Check if the backup was successful
+
+if [ $? -eq 0 ]; then
+  echo "$(date) - IPA backup completed successfully" >> $LOG_FILE
+  #Send a success email notification
+  echo "IPA backup was successful on $(hostname) at $(date)." | mail -s "IPA Backup Successful" $EMAIL
+
+else
+  echo "$(date) - IPA backup failed" >> $LOG_FILE
+  #Send a failure email notification
+  echo "IPA backup failed on $(hostname) at $(date). Please check the logs." | mail -s "IPA Backup Failure" $EMAIL
+fi
+
+#Remove backups older than 90 days
+echo "$(date) - Cleaning up backups older than 90 days" >> $LOG_FILE
+find /var/lib/ipa/backup -type d -mtime +90 -exec rm -rf {} \; >>$LOG_FILE 2>&1
+
+#Log the end of the Cleanup
+echo "$(date) - IPA backup completed" >> $LOG_FILE
 [root@cpeg-ipareplica ~]#
 
 
