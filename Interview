@@ -1,58 +1,10 @@
-[root@cpeg-ipareplica ~]# head -20 /tmp/protected_request_ids.txt
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# tail -20 /tmp/protected_request_ids.txt
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
-[root@cpeg-ipareplica ~]# grep -v '^[0-9]' /tmp/protected_request_ids.txt | head -10
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
- requestId
-[root@cpeg-ipareplica ~]#
+# Fix the awk — field separator is ": " not ":"
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(certStatus=VALID)" metaInfo \
+  2>/dev/null | grep "requestId" | awk '{print $NF}' | sort -n > /tmp/protected_request_ids.txt
+
+wc -l /tmp/protected_request_ids.txt
 
 
 
