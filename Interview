@@ -1,8 +1,22 @@
-# Stop any running IPA services
-ipactl stop 2>/dev/null
-systemctl stop dirsrv@IPA-CALIX-LOCAL 2>/dev/null
-systemctl stop pki-tomcatd@pki-tomcat 2>/dev/null
-systemctl stop httpd krb5kdc kadmin 2>/dev/null
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster ~]# ipactl stop 2>/dev/null
+[root@pln-ipamaster ~]# systemctl stop dirsrv@IPA-CALIX-LOCAL 2>/dev/null
+[root@pln-ipamaster ~]# systemctl stop pki-tomcatd@pki-tomcat 2>/dev/null
+[root@pln-ipamaster ~]# systemctl stop httpd krb5kdc kadmin 2>/dev/null
+[root@pln-ipamaster ~]# ss -tlnp | grep -E "389|636"
+[root@pln-ipamaster ~]# ipa-replica-install --setup-ca --setup-dns --no-forwarders --no-ntp   --server cpeg-ipareplica.ipa.calix.local --domain ipa.calix.local   --realm IPA.CALIX.LOCAL --principal admin   --admin-password 'vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU='   --skip-conncheck --force-join
+IPA client is already configured on this system, ignoring the --domain, --server, --realm, --hostname, --password and --keytab options.
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
 
-# Confirm ports are free
-ss -tlnp | grep -E "389|636"
+NTP configuration cannot be updated during promotion
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa-server-install --uninstall --ignore-topology-disconnect
+WARNING:
+IPA server is not configured on this system. If you want to install the
+IPA server, please install it using 'ipa-server-install'.
+'Env' object has no attribute 'basedn'
+The ipa-server-install command failed. See /var/log/ipaserver-uninstall.log for more information
+[root@pln-ipamaster ~]#
