@@ -1,9 +1,29 @@
-echo | openssl s_client -connect plnwdc19a.calix.local:636 2>/dev/null \
-  | openssl x509 -noout -text | grep -A1 "Subject Alternative"
+# 1. Check TLS 1.2 support on DC
+openssl s_client -connect plnwdc19a.calix.local:636 -tls1_2 2>&1 | head -20
 
--Dcom.sun.jndi.ldap.object.disableEndpointIdentification=true
-grep "sonar.version" /opt/sonarqube/lib/sonar-application-*.jar 2>/dev/null || \
-  cat /opt/sonarqube/conf/sonar.properties | grep -i version
+# 2. Check TLS 1.3 support on DC
+openssl s_client -connect plnwdc19a.calix.local:636 -tls1_3 2>&1 | head -20
+
+# 3. Check Java 21 disabled algorithms
+grep -E "jdk.tls.disabledAlgorithms|jdk.tls.legacyAlgorithms" \
+  $JAVA_HOME/conf/security/java.security
+
+# 4. Check what cipher the DC is actually negotiating
+openssl s_client -connect plnwdc19a.calix.local:636 2>&1 | grep -E "Protocol|Cipher"
+
+# 5. Manual ldapsearch bind test (update DN and password)
+ldapsearch -H ldap://plnwdc19a.calix.local:389 \
+  -D "CN=svc-sonar,OU=ServiceAccounts,DC=calix,DC=local" \
+  -w 'PASSWORD' \
+  -b "ou=calix users,dc=calix,dc=local" \
+  "(sAMAccountName=testuser)" cn
+
+# 6. Check SonarQube version
+find /opt/sonarqube -name "sonar-application-*.jar" | sed 's/.*sonar-application-\(.*\)\.jar/\1/'
+
+
+
+
 
 
 # sonar.properties
