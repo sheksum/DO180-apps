@@ -6,6 +6,14 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
 wc -l /tmp/completed_requests_to_delete.txt
 
 
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# wc -l /tmp/completed_requests_to_delete.txt
+15575 /tmp/completed_requests_to_delete.txt
+[root@cpeg-ipareplica ~]# wc -l /tmp/completed_requests_to_delete.txt
+73458 /tmp/completed_requests_to_delete.txt
+[root@cpeg-ipareplica ~]#
+
 
 
 # Back up first
