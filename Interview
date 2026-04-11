@@ -1,32 +1,9 @@
-[root@cpeg-ipareplica ~]# systemctl stop pki-tomcatd@pki-tomcat
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# systemctl status pki-tomcatd@pki-tomcat
-● pki-tomcatd@pki-tomcat.service - PKI Tomcat Server pki-tomcat
-   Loaded: loaded (/lib/systemd/system/pki-tomcatd@.service; enabled; vendor preset: disabled)
-  Drop-In: /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d
-           └─ipa.conf
-   Active: inactive (dead) since Sat 2026-04-11 18:12:30 UTC; 9s ago
-  Process: 3685200 ExecStop=/usr/libexec/tomcat/server stop (code=exited, status=0/SUCCESS)
-  Process: 2570109 ExecStartPost=/usr/libexec/ipa/ipa-pki-wait-running (code=exited, status=0/SUCCESS)
-  Process: 2570108 ExecStart=/usr/libexec/tomcat/server start (code=exited, status=143)
-  Process: 2570096 ExecStartPre=/usr/bin/pkidaemon start pki-tomcat (code=exited, status=0/SUCCESS)
-  Process: 2570037 ExecStartPre=/usr/sbin/pki-server migrate pki-tomcat (code=exited, status=0/SUCCESS)
-  Process: 2570032 ExecStartPre=/usr/sbin/pki-server upgrade pki-tomcat (code=exited, status=0/SUCCESS)
- Main PID: 2570108 (code=exited, status=143)
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(requestState=complete)" dn \
+  2>/dev/null | grep "^dn:" | sed 's/^dn: //' > /tmp/completed_requests_to_delete.txt
 
-Apr 11 18:12:28 cpeg-ipareplica.ipa.calix.local systemd[1]: Stopping PKI Tomcat Server pki-tomcat...
-Apr 11 18:12:28 cpeg-ipareplica.ipa.calix.local server[3685200]: Java virtual machine used: /usr/lib/jvm/jre-1.8.0-openjdk/bin/java
-Apr 11 18:12:28 cpeg-ipareplica.ipa.calix.local server[3685200]: classpath used: /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar:
-Apr 11 18:12:28 cpeg-ipareplica.ipa.calix.local server[3685200]: main class used: org.apache.catalina.startup.Bootstrap
-Apr 11 18:12:28 cpeg-ipareplica.ipa.calix.local server[3685200]: flags used: -Dcom.redhat.fips=false
-Apr 11 18:12:28 cpeg-ipareplica.ipa.calix.local server[3685200]: options used: -Dcatalina.base=/var/lib/pki/pki-tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/lib/pki/pki-tomcat/temp -Djava.util.logging.con>
-Apr 11 18:12:28 cpeg-ipareplica.ipa.calix.local server[3685200]: arguments used: stop
-Apr 11 18:12:30 cpeg-ipareplica.ipa.calix.local systemd[1]: pki-tomcatd@pki-tomcat.service: Succeeded.
-Apr 11 18:12:30 cpeg-ipareplica.ipa.calix.local systemd[1]: Stopped PKI Tomcat Server pki-tomcat.
-Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.
-lines 1-23/23 (END)
-
+wc -l /tmp/completed_requests_to_delete.txt
 
 
 
