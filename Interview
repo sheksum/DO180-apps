@@ -4,8 +4,11 @@
       1 certStatus: REVOKED
 [root@cpeg-ipareplica ~]#
 
-# IPA still serving
+ipactl status
+curl -sk https://cpeg-ipareplica.ipa.calix.local/ca/admin/ca/getStatus
+getcert list | grep -E "status|stuck|ca-error"
 kinit admin && ipa user-find admin
+ipa-replica-manage -v list cpeg-ipareplica.ipa.calix.local
 
 
 [root@cpeg-ipareplica ~]# ps -p 2779346
