@@ -12,8 +12,9 @@ Directory Manager password:
 
 Removal of IPA CS replication agreement and replication data is deprecated with managed IPA replication topology. Please use the `ipa-replica-manage del` command.
 [root@cpeg-ipareplica ~]#
-# Remove host entry — revokes all certs and removes keytabs
-ipa host-del pln-ipamaster.ipa.calix.local --updatedns
+[root@cpeg-ipareplica ~]# ipa host-del pln-ipamaster.ipa.calix.local --updatedns
+ipa: ERROR: pln-ipamaster.ipa.calix.local: host not found
+[root@cpeg-ipareplica ~]#
 
 
 Dug into the CA database and confirmed all 707,842 certificate requests are organic — 7 years of accumulation since 2018, nothing suspicious
