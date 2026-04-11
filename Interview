@@ -3,3 +3,6 @@ nc -zv cpeg-ipareplica.ipa.calix.local 8443
 
 # Check the CA replication error logs on cpeg
 tail -50 /var/log/pki/pki-tomcat/ca/debug.$(date +%Y-%m-%d).log | grep -i "error\|repl\|connect"
+
+
+grep "21:4[0-9]" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -30
