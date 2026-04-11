@@ -1,11 +1,5 @@
-[root@cpeg-ipareplica ~]# time systemctl start pki-tomcatd@pki-tomcat.service
-
-real	0m10.068s
-user	0m0.005s
-sys	0m0.005s
-[root@cpeg-ipareplica ~]#
-===
-
+curl -sk https://cpeg-ipareplica.ipa.calix.local/ca/admin/ca/getStatus
+ipactl status
 Done today:
 
 Dug into the CA database and confirmed all 707,842 certificate requests are organic — 7 years of accumulation since 2018, nothing suspicious
