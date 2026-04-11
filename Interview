@@ -1,26 +1,34 @@
-# Check replication status from cpeg to all replicas
-ipa-replica-manage -v list cpeg-ipareplica.ipa.calix.local
+Hi Cesar,
 
-# Also check if the deletes are replicating by checking entry count on nan
-ssh nan-ipareplica01.ipa.calix.local \
-  "ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b 'ou=certificateRepository,ou=ca,o=ipaca' \
-  -s one '(objectclass=*)' dn 2>/dev/null | grep '^dn:' | wc -l"
+Wanted to share an important finding from our investigation today that directly addresses your skepticism about the ~1M certificate entries.
 
-# Get the complete list of request IDs linked to active VALID certs
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=certificateRepository,ou=ca,o=ipaca" \
-  -s one "(certStatus=VALID)" metaInfo \
-  2>/dev/null | grep "requestId" | awk -F: '{print $2}' | sort -n > /tmp/protected_request_ids.txt
+You were right to question whether these were organic. They were not.
 
-wc -l /tmp/protected_request_ids.txt
-tail -20 /tmp/protected_request_ids.txt
+Root cause identified:
 
-# Also check if requests are still coming in
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(dateOfCreate>=20260409190000Z)" dn \
-  2>/dev/null | grep "^dn:" | wc -l
+We traced the entire bloat to 8 abandoned CentOS 6 café/lab machines in our SJC office. These machines were stuck in a certmonger renewal spiral caused by an IPA permissions issue — certmonger was getting 'Insufficient write privilege' to the userCertificate attribute and rather than giving up, it retried indefinitely.
+
+The numbers:
+- 857,722 VALID certificates in ou=certificateRepository belonged to just 8 hosts (~107,000 certs each)
+- Those same 8 hosts generated the bulk of the completed certificate requests
+- Every other host in the environment has 3-24 certs which is completely normal
+- The spiral was being proxied through sjc-ipareplica01 (192.168.99.34)
+
+Actions taken:
+- Stopped certmonger on all 8 machines
+- Shut down the machines — they are abandoned CentOS 6 EOL systems with no active users
+- Currently running a bulk LDAP delete of the 857,722 certificates from ou=certificateRepository,ou=ca,o=ipaca
+- Will follow up with cleanup of the associated completed certificate requests
+
+Once cleanup is complete we will proceed with the clean fresh install of pln-ipamaster as recommended.
+
+We will also be enabling the cert pruning feature on pln-ipamaster (IPA 4.12 / RHEL 9) on day one to prevent this from recurring.
+
+Thanks again for pushing us to investigate — this was exactly the right call.
+
+Best regards,
+Haj Suma
+Engineering Operations | Calix
 
 
 [root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
