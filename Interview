@@ -1,14 +1,8 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(objectclass=*)" certStatus \
->   2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
-
-    117 certStatus: VALID
-      3 certStatus: EXPIRED
-      1 certStatus: REVOKED
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+# Get their DNs
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(certStatus=EXPIRED)" dn \
+  2>/dev/null | grep "^dn:" | sed 's/^dn: //'
 
 # IPA still serving
 kinit admin && ipa user-find admin
