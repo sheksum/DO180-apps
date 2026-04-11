@@ -1,28 +1,20 @@
-[root@cpeg-ipareplica ~]# kinit admin
-Password for admin@IPA.CALIX.LOCAL:
-[root@cpeg-ipareplica ~]# ipa host-add pln-ipamaster.ipa.calix.local --ip-address=10.172.248.55
-ipa: WARNING: The host was added but the DNS update failed with: DNS reverse zone 248.172.10.in-addr.arpa. for IP address 10.172.248.55 is not managed by this server
-------------------------------------------
-Added host "pln-ipamaster.ipa.calix.local"
-------------------------------------------
-  Host name: pln-ipamaster.ipa.calix.local
-  Principal name: host/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Principal alias: host/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Password: False
-  Keytab: False
-  Managed by: pln-ipamaster.ipa.calix.local
-[root@cpeg-ipareplica ~]# ipa service-add HTTP/pln-ipamaster.ipa.calix.local
-------------------------------------------------------------------
-Added service "HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL"
-------------------------------------------------------------------
-  Principal name: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Principal alias: HTTP/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Managed by: pln-ipamaster.ipa.calix.local
-[root@cpeg-ipareplica ~]# ipa service-add ldap/pln-ipamaster.ipa.calix.local
-------------------------------------------------------------------
-Added service "ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL"
-------------------------------------------------------------------
-  Principal name: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Principal alias: ldap/pln-ipamaster.ipa.calix.local@IPA.CALIX.LOCAL
-  Managed by: pln-ipamaster.ipa.calix.local
-[root@cpeg-ipareplica ~]#
+ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+changetype: modify
+replace: nsds5ReplicaEnabled
+nsds5ReplicaEnabled: off
+
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+changetype: modify
+replace: nsds5ReplicaEnabled
+nsds5ReplicaEnabled: off
+
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+changetype: modify
+replace: nsds5ReplicaEnabled
+nsds5ReplicaEnabled: off
+EOF
+
+
+firewall-cmd --add-port=8443/tcp --permanent
+firewall-cmd --reload
