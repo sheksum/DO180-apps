@@ -1,3 +1,14 @@
+# Check for OOM kills
+dmesg | grep -i "killed process\|oom" | tail -20
+
+# Check dirsrv error log around the crash times
+grep -i "signal\|abort\|fatal\|core\|killed" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -30
+
+# Check system journal for dirsrv crashes
+journalctl -u dirsrv@IPA-CALIX-LOCAL --since "3 days ago" | grep -i "error\|fail\|crash\|killed" | tail -30
+
+
+
 # CA still healthy
 curl -sk https://cpeg-ipareplica.ipa.calix.local/ca/admin/ca/getStatus
 
