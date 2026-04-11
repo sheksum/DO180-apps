@@ -1,21 +1,5 @@
-Connecting to 10.172.248.32
-write:errno=104
-CONNECTED(00000003)
----
-no peer certificate available
----
-No client certificate CA names sent
----
-SSL handshake has read 0 bytes and written 262 bytes
-Verification: OK
----
-New, (NONE), Cipher is (NONE)
-This TLS version forbids renegotiation.
-Compression: NONE
-Expansion: NONE
-No ALPN negotiated
-Early data was not sent
-Verify return code: 0 (ok)
+# sonar.properties
+sonar.web.javaAdditionalOpts=-Dhttps.protocols=TLSv1.2 -Djdk.tls.client.protocols=TLSv1.2
 
 
 # 1. Check TLS 1.2 support on DC
