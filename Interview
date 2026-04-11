@@ -1,11 +1,18 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(requestState=complete)" dn \
-  2>/dev/null | grep "^dn:" | wc -l
-
-
-
-CredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 4: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.LdapCredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 3: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.auth.ldap.LdapRealm': Failed to instantiate [org.sonar.auth.ldap.LdapRealm]: Constructor threw exception
+2026.04.11 12:18:01 INFO  web[][o.s.s.p.DetectPluginChange] Detect plugin changes
+2026.04.11 12:18:01 INFO  web[][o.s.s.s.PropertiesDBCleaner] Clean up properties from db
+2026.04.11 12:18:02 INFO  web[][o.h.v.i.util.Version] HV000001: Hibernate Validator 9.1.0.Final
+2026.04.11 12:18:03 INFO  web[][o.s.s.s.LogServerId] Server ID: 86E1FA4D-AXBj4GS0Uoa_pUWc5VaW
+2026.04.11 12:18:03 INFO  web[][o.o.c.c.InitializationService] Initializing OpenSAML using the Java Services API
+2026.04.11 12:18:03 INFO  web[][o.o.x.a.AlgorithmRegistry] Algorithm failed runtime support check, will not be usable: http://www.w3.org/2001/04/xmlenc#ripemd160
+2026.04.11 12:18:03 INFO  web[][o.o.x.a.AlgorithmRegistry] Algorithm failed runtime support check, will not be usable: http://www.w3.org/2001/04/xmldsig-more#hmac-ripemd160
+2026.04.11 12:18:03 INFO  web[][o.o.x.a.AlgorithmRegistry] Algorithm failed runtime support check, will not be usable: http://www.w3.org/2001/04/xmldsig-more#rsa-ripemd160
+2026.04.11 12:18:03 INFO  web[][o.s.s.p.UpdateCenterClient] Update center: https://downloads.sonarsource.com/sonarqube/update/update-center.properties
+2026.04.11 12:18:04 INFO  web[][o.s.a.l.LdapSettingsManager] User mapping: LdapUserMapping{baseDn=ou=calix users,dc=calix,dc=local, request=(&(objectClass=User)(sAMAccountName={0})), realNameAttribute=cn, emailAttribute=mail}
+2026.04.11 12:18:04 INFO  web[][o.s.a.l.LdapSettingsManager] Groups will not be synchronized, because property 'ldap.group.baseDn' is empty.
+2026.04.11 12:18:04 INFO  web[][o.s.a.l.LdapContextFactory] Test LDAP connection: FAIL
+2026.04.11 12:18:04 WARN  web[][o.s.c.a.AnnotationConfigApplicationContext] Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.ws.WebServiceEngine': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.ws.AuthenticationWs': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.ws.LoginAction': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.CredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 4: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.LdapCredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 3: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.auth.ldap.LdapRealm': Failed to instantiate [org.sonar.auth.ldap.LdapRealm]: Constructor threw exception
+2026.04.11 12:18:04 ERROR web[][o.s.s.p.Platform] Background initialization failed. Stopping SonarQube
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.ws.WebServiceEngine': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.ws.AuthenticationWs': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.ws.LoginAction': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.CredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 4: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.LdapCredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 3: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.auth.ldap.LdapRealm': Failed to instantiate [org.sonar.auth.ldap.LdapRealm]: Constructor threw exception
         at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804)
         at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240)
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1382)
@@ -29,7 +36,145 @@ CredentialsAuthentication': Unsatisfied dependency expressed through constructor
         at org.sonar.server.platform.PlatformImpl$1.doRun(PlatformImpl.java:120)
         at org.sonar.server.platform.PlatformImpl$AutoStarterRunnable.run(PlatformImpl.java:366)
         at java.base/java.lang.Thread.run(Thread.java:1583)
-
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.ws.AuthenticationWs': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.ws.LoginAction': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.CredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 4: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.LdapCredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 3: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.auth.ldap.LdapRealm': Failed to instantiate [org.sonar.auth.ldap.LdapRealm]: Constructor threw exception
+        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804)
+        at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1382)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1221)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:565)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+        at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:229)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.addCandidateEntry(DefaultListableBeanFactory.java:2008)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.findAutowireCandidates(DefaultListableBeanFactory.java:1971)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveMultipleBeans(DefaultListableBeanFactory.java:1814)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1711)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1651)
+        at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:912)
+        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791)
+        ... 22 common frames omitted
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.ws.LoginAction': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.CredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 4: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.LdapCredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 3: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.auth.ldap.LdapRealm': Failed to instantiate [org.sonar.auth.ldap.LdapRealm]: Constructor threw exception
+        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804)
+        at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1382)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1221)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:565)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+        at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:229)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.addCandidateEntry(DefaultListableBeanFactory.java:2008)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.findAutowireCandidates(DefaultListableBeanFactory.java:1971)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveMultipleBeanCollection(DefaultListableBeanFactory.java:1863)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveMultipleBeans(DefaultListableBeanFactory.java:1833)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1711)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1651)
+        at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:912)
+        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791)
+        ... 39 common frames omitted
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.CredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 4: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.LdapCredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 3: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.auth.ldap.LdapRealm': Failed to instantiate [org.sonar.auth.ldap.LdapRealm]: Constructor threw exception
+        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804)
+        at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1382)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1221)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:565)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+        at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:229)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1762)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1651)
+        at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:912)
+        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791)
+        ... 57 common frames omitted
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.server.authentication.LdapCredentialsAuthentication': Unsatisfied dependency expressed through constructor parameter 3: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.auth.ldap.LdapRealm': Failed to instantiate [org.sonar.auth.ldap.LdapRealm]: Constructor threw exception
+        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804)
+        at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1382)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1221)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:565)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+        at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:229)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1762)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1651)
+        at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:912)
+        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791)
+        ... 71 common frames omitted
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'jdk.internal.loader.ClassLoaders$AppClassLoader@5ffd2b27-org.sonar.auth.ldap.LdapRealm': Failed to instantiate [org.sonar.auth.ldap.LdapRealm]: Constructor threw exception
+        at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:321)
+        at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:309)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1382)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1221)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:565)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+        at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:229)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1762)
+        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1651)
+        at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:912)
+        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791)
+        ... 85 common frames omitted
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.sonar.auth.ldap.LdapRealm]: Constructor threw exception
+        at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:220)
+        at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:129)
+        at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:318)
+        ... 99 common frames omitted
+Caused by: org.sonar.auth.ldap.LdapException: LDAP realm failed to start: Unable to open LDAP connection
+        at org.sonar.auth.ldap.LdapRealm.testConnections(LdapRealm.java:85)
+        at org.sonar.auth.ldap.LdapRealm.<init>(LdapRealm.java:62)
+        at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+        at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+        at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+        at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:207)
+        ... 101 common frames omitted
+Caused by: org.sonar.auth.ldap.LdapException: Unable to open LDAP connection
+        at org.sonar.auth.ldap.LdapContextFactory.testConnection(LdapContextFactory.java:230)
+        at org.sonar.auth.ldap.LdapRealm.testConnections(LdapRealm.java:79)
+        ... 106 common frames omitted
+Caused by: javax.naming.CommunicationException: simple bind failed: plnwdc19a.calix.local:636 [Root exception is java.net.SocketException: Connection or outbound has closed]
+        at java.naming/com.sun.jndi.ldap.LdapClient.authenticate(LdapClient.java:223)
+        at java.naming/com.sun.jndi.ldap.LdapCtx.connect(LdapCtx.java:2896)
+        at java.naming/com.sun.jndi.ldap.LdapCtx.<init>(LdapCtx.java:349)
+        at java.naming/com.sun.jndi.ldap.LdapCtxFactory.getLdapCtxFromUrl(LdapCtxFactory.java:229)
+        at java.naming/com.sun.jndi.ldap.LdapCtxFactory.getUsingURL(LdapCtxFactory.java:189)
+        at java.naming/com.sun.jndi.ldap.LdapCtxFactory.getUsingURLs(LdapCtxFactory.java:247)
+        at java.naming/com.sun.jndi.ldap.LdapCtxFactory.getLdapCtxInstance(LdapCtxFactory.java:154)
+        at java.naming/com.sun.jndi.ldap.LdapCtxFactory.getInitialContext(LdapCtxFactory.java:84)
+        at java.naming/javax.naming.spi.NamingManager.getInitialContext(NamingManager.java:520)
+        at java.naming/javax.naming.InitialContext.getDefaultInitCtx(InitialContext.java:305)
+        at java.naming/javax.naming.InitialContext.init(InitialContext.java:236)
+        at java.naming/javax.naming.ldap.InitialLdapContext.<init>(InitialLdapContext.java:154)
+        at org.sonar.auth.ldap.LdapContextFactory.createInitialDirContext(LdapContextFactory.java:143)
+        at org.sonar.auth.ldap.LdapContextFactory.createBindContext(LdapContextFactory.java:101)
+        at org.sonar.auth.ldap.LdapContextFactory.testConnection(LdapContextFactory.java:226)
+        ... 107 common frames omitted
+Caused by: java.net.SocketException: Connection or outbound has closed
+        at java.base/sun.security.ssl.SSLSocketImpl$AppOutputStream.write(SSLSocketImpl.java:1297)
+        at java.base/java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:125)
+        at java.base/java.io.BufferedOutputStream.implFlush(BufferedOutputStream.java:252)
+        at java.base/java.io.BufferedOutputStream.flush(BufferedOutputStream.java:240)
+        at java.naming/com.sun.jndi.ldap.Connection.writeRequest(Connection.java:413)
+        at java.naming/com.sun.jndi.ldap.Connection.writeRequest(Connection.java:386)
+        at java.naming/com.sun.jndi.ldap.LdapClient.ldapBind(LdapClient.java:363)
+        at java.naming/com.sun.jndi.ldap.LdapClient.authenticate(LdapClient.java:218)
+        ... 121 common frames omitted
+2026.04.11 12:18:05 INFO  web[][o.s.p.ProcessEntryPoint] Hard stopping process
+2026.04.11 12:18:05 INFO  web[][c.z.h.HikariDataSource] HikariPool-1 - Shutdown initiated...
+2026.04.11 12:18:05 INFO  web[][c.z.h.HikariDataSource] HikariPool-1 - Shutdown completed.
 
 [root@cpeg-ipareplica ~]# ps -p 2779346
     PID TTY          TIME CMD
