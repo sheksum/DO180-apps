@@ -1,8 +1,4 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket   -b "o=ipaca"   "(&(nsuniqueid=ffffffff-ffffffff-ffffffff-ffffffff)(objectclass=nstombstone))"   nsds50ruv 2>/dev/null | grep -i "nsds50ruv\|pln"
-# requesting: nsds50ruv
-nsds50ruv: {replicageneration} 679275a4000000150000
-nsds50ruv: {replica 21 ldap://cpeg-ipareplica.ipa.calix.local:389} 679275ad000
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "dc=ipa,dc=calix,dc=local" \
+  "(&(nsuniqueid=ffffffff-ffffffff-ffffffff-ffffffff)(objectclass=nstombstone))" \
+  nsds50ruv 2>/dev/null | grep -i "nsds50ruv\|pln"
