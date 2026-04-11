@@ -1,48 +1,20 @@
-# Confirm process is still running
-ps -p 2779346
-
-# Check log size to see if it's growing
-wc -l /tmp/sjc_delete.log
-
-# Check current cert count to see if numbers are dropping
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=certificateRepository,ou=ca,o=ipaca" \
-  -s one "(objectclass=*)" dn \
-  2>/dev/null | grep "^dn:" | wc -l
-
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=ca,ou=requests,o=ipaca" \
->   -s one "(requestState=complete)" dn \
->   2>/dev/null | grep "^dn:" | wc -l
-858252
+[root@cpeg-ipareplica ~]# ps -p 2779346
+    PID TTY          TIME CMD
+2779346 pts/3    00:00:32 bash
 [root@cpeg-ipareplica ~]#
 [root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# wc -l /tmp/sjc_delete.log
+474702 /tmp/sjc_delete.log
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# wc -l /tmp/sjc_delete.log
+475500 /tmp/sjc_delete.log
 [root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
 >   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(certStatus=VALID)" metaInfo \
->   2>/dev/null | grep "requestId" | awk '{print $2}' | sort -n | head -20
-requestId:1
-requestId:1301
-requestId:1302
-requestId:1303
-requestId:1304
-requestId:1305
-requestId:1306
-requestId:1307
-requestId:1308
-requestId:1309
-requestId:1310
-requestId:1311
-requestId:1312
-requestId:1313
-requestId:1314
-requestId:1315
-requestId:1316
-requestId:1317
-requestId:1318
-requestId:1339
+>   -s one "(objectclass=*)" dn \
+>   2>/dev/null | grep "^dn:" | wc -l
+^C
 [root@cpeg-ipareplica ~]#
-
+[root@cpeg-ipareplica ~]#
 
 # Get the complete list of request IDs linked to active VALID certs
 ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
