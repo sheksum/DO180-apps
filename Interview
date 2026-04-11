@@ -1,32 +1,26 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa server-find
----------------------
-5 IPA servers matched
----------------------
-  Server name: cpeg-ipareplica.ipa.calix.local
-  Min domain level: 1
-  Max domain level: 1
+# 1. Installer timeout
+cat >> /etc/ipa/installer.conf << EOF
+startup_timeout=7200
+replication_wait_timeout=3600
+EOF
 
-  Server name: nan-ipareplica01.ipa.calix.local
-  Min domain level: 0
-  Max domain level: 1
-  Service weight: 100
+# 2. Python constants patch
+sed -i 's/startup_timeout = [0-9]*/startup_timeout = 7200/' \
+  /usr/lib/python3.9/site-packages/ipalib/constants.py
 
-  Server name: ric-ipareplica.ipa.calix.local
-  Min domain level: 0
-  Max domain level: 1
-  Service weight: 2000
+# 3. pki-tomcatd timeout + heap
+mkdir -p /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/
+cat > /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf << EOF
+[Service]
+TimeoutStartSec=7200
+Environment=JAVA_OPTS=-Xms512m -Xmx4096m -XX:MaxPermSize=256m
+EOF
+systemctl daemon-reload
 
-  Server name: ric-ipareplica01.ipa.calix.local
-  Min domain level: 0
-  Max domain level: 1
-  Service weight: 100
-
-  Server name: sjc-ipareplica01.ipa.calix.local
-  Min domain level: 0
-  Max domain level: 1
-  Service weight: 100
-----------------------------
-Number of entries returned 5
-----------------------------
-[root@cpeg-ipareplica ~]#
+# 4. Time skew fix
+cat > /usr/share/ipa/replica-prevent-time-skew.ldif << EOF
+dn: cn=config
+changetype: modify
+replace: nsslapd-ignore-time-skew
+nsslapd-ignore-time-skew: on
+EOF
