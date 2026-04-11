@@ -1,31 +1,8 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(certStatus=VALID)" subjectName \
->   2>/dev/null | grep "^subjectName:" | sort | uniq -c | sort -rn | head -20
-
- 107300 subjectName: CN=sjccafe-vshah.calix.local,O=IPA.CALIX.LOCAL
- 107244 subjectName: CN=sjclnx-cafereg04.calix.local,O=IPA.CALIX.LOCAL
- 107236 subjectName: CN=sjccafe-llin.calix.local,O=IPA.CALIX.LOCAL
- 107235 subjectName: CN=sjccafe-myousuf.calix.local,O=IPA.CALIX.LOCAL
- 107230 subjectName: CN=sjclnx-ccafe25.calix.local,O=IPA.CALIX.LOCAL
- 107172 subjectName: CN=sjccafe-shchandr.calix.local,O=IPA.CALIX.LOCAL
- 107170 subjectName: CN=sjclnx-ccafereg01.calix.local,O=IPA.CALIX.LOCAL
- 107135 subjectName: CN=sjclnx-incognito02.calix.local,O=IPA.CALIX.LOCAL
-     24 subjectName: CN=pln-ipamaster.ipa.calix.local,O=IPA.CALIX.LOCAL
-     14 subjectName: CN=sjc-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
-     10 subjectName: CN=pln-petipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL
-      6 subjectName: CN=ric-ipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL
-      6 subjectName: CN=ric-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
-      6 subjectName: CN=nan-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
-      4 subjectName: CN=cpeg-ipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL
-      3 subjectName: CN=pet-ipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL
-      3 subjectName: CN=nan-ipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL
-      3 subjectName: CN=min-ipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL
-      3 subjectName: CN=min-ipareplica01.ipa.calix.local,O=IPA.CALIX.LOCAL
-      3 subjectName: CN=cvil-ipareplica.ipa.calix.local,O=IPA.CALIX.LOCAL
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+# Get all cert DNs for the 8 SJC hosts
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(|(subjectName=CN=sjccafe-vshah.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-cafereg04.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-llin.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-myousuf.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-ccafe25.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-shchandr.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-ccafereg01.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-incognito02.calix.local,O=IPA.CALIX.LOCAL))" dn \
+  2>/dev/null | grep "^dn:" | wc -l
 
 
 
