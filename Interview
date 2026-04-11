@@ -1,17 +1,5 @@
-[root@cpeg-ipareplica ~]# ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
-> dn: cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-> changetype: delete
->
-> dn: cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config
-> changetype: delete
-> EOF
-SASL/EXTERNAL authentication started
-SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-SASL SSF: 0
-deleting entry "cn=meTopln-ipamaster.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config"
-
-deleting entry "cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config"
-
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+# Get the RUV tombstone entries to find pln's replica ID
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "o=ipaca" \
+  "(&(nsuniqueid=ffffffff-ffffffff-ffffffff-ffffffff)(objectclass=nstombstone))" \
+  nsds50ruv 2>/dev/null | grep -i "nsds50ruv\|pln"
