@@ -1,9 +1,11 @@
-# From the SonarQube host, try binding manually with the same creds
-ldapsearch -H ldaps://plnwdc19a.calix.local:636 \
-  -D "CN=svc-sonar,OU=ServiceAccounts,DC=calix,DC=local" \
-  -w 'yourpassword' \
-  -b "ou=calix users,dc=calix,dc=local" \
-  "(sAMAccountName=someuser)" cn
+echo | openssl s_client -connect plnwdc19a.calix.local:636 2>/dev/null \
+  | openssl x509 -noout -text | grep -A1 "Subject Alternative"
+
+-Dcom.sun.jndi.ldap.object.disableEndpointIdentification=true
+
+
+# sonar.properties
+sonar.web.javaAdditionalOpts=-Dcom.sun.jndi.ldap.object.disableEndpointIdentification=true
 
 [root@cpeg-ipareplica ~]# ps -p 2779346
     PID TTY          TIME CMD
