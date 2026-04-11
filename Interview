@@ -1,3 +1,5 @@
-cat /etc/ipa/installer.conf
-cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
-cat /usr/share/ipa/replica-prevent-time-skew.ldif
+cat > /etc/ipa/installer.conf << EOF
+[global]
+startup_timeout=7200
+replication_wait_timeout=3600
+EOF
