@@ -1,16 +1,8 @@
-[root@cpeg-ipareplica ~]# ipa host-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
-Number of entries returned 4679
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa service-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
-Number of entries returned 25
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(certStatus=VALID)" subjectName \
->   2>/dev/null | grep "^subjectName:" | sort -u | wc -l
-
-51
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+# Top 20 subjects by cert count
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(certStatus=VALID)" subjectName \
+  2>/dev/null | grep "^subjectName:" | sort | uniq -c | sort -rn | head -20
 
 
 
