@@ -1,4 +1,6 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "dc=ipa,dc=calix,dc=local" \
-  "(&(nsuniqueid=ffffffff-ffffffff-ffffffff-ffffffff)(objectclass=nstombstone))" \
-  nsds50ruv 2>/dev/null | grep -i "nsds50ruv\|pln"
+ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
+dn: cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+changetype: modify
+replace: nsds5task
+nsds5task: CLEANALLRUV54
+EOF
