@@ -1,17 +1,14 @@
-sed -i 's|/usr/sbin/ipa-backup --online|/usr/sbin/ipa-backup --data --online|' /root/tools/ipa_backup.sh
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=certificateRepository,ou=ca,o=ipaca" \
+>   -s one "(objectclass=*)" certStatus \
+>   2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
 
-# Verify
-grep "ipa-backup" /root/tools/ipa_backup.sh
-
-
-# CA still healthy
-curl -sk https://cpeg-ipareplica.ipa.calix.local/ca/admin/ca/getStatus
-
-# Cert repository count - should be tiny now
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=certificateRepository,ou=ca,o=ipaca" \
-  -s one "(objectclass=*)" certStatus \
-  2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
+    117 certStatus: VALID
+      3 certStatus: EXPIRED
+      1 certStatus: REVOKED
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
 
 # IPA still serving
 kinit admin && ipa user-find admin
