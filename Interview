@@ -1,13 +1,9 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(certStatus=EXPIRED)" dn \
->   2>/dev/null | grep "^dn:" | sed 's/^dn: //'
-cn=939,ou=certificateRepository,ou=ca,o=ipaca
-cn=940,ou=certificateRepository,ou=ca,o=ipaca
-cn=941,ou=certificateRepository,ou=ca,o=ipaca
-[root@cpeg-ipareplica ~]#
+for dn in \
+  "cn=939,ou=certificateRepository,ou=ca,o=ipaca" \
+  "cn=940,ou=certificateRepository,ou=ca,o=ipaca" \
+  "cn=941,ou=certificateRepository,ou=ca,o=ipaca"; do
+    ldapdelete -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket "$dn" 2>&1
+done
 
 # IPA still serving
 kinit admin && ipa user-find admin
