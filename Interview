@@ -1,28 +1,17 @@
-cn=40847813,ou=ca,ou=requests,o=ipaca
-cn=40847814,ou=ca,ou=requests,o=ipaca
-cn=40847815,ou=ca,ou=requests,o=ipaca
-cn=40847816,ou=ca,ou=requests,o=ipaca
-cn=40847817,ou=ca,ou=requests,o=ipaca
-cn=40847818,ou=ca,ou=requests,o=ipaca
-cn=40847819,ou=ca,ou=requests,o=ipaca
-cn=40847820,ou=ca,ou=requests,o=ipaca
-cn=40847821,ou=ca,ou=requests,o=ipaca
-cn=40847822,ou=ca,ou=requests,o=ipaca
-cn=40847823,ou=ca,ou=requests,o=ipaca
+nohup bash -c '
+  total=$(wc -l < /tmp/completed_requests_to_delete.txt)
+  count=0
+  while IFS= read -r dn; do
+    ldapdelete -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket "$dn" 2>&1
+    count=$((count + 1))
+    if (( count % 1000 == 0 )); then
+      echo "$(date) -- Deleted $count of $total"
+    fi
+  done < /tmp/completed_requests_to_delete.txt
+  echo "$(date) -- DONE. Total deleted: $count"
+' > /tmp/requests_delete.log 2>&1 &
 
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# wc -l /tmp/completed_requests_to_delete.txt
-15575 /tmp/completed_requests_to_delete.txt
-[root@cpeg-ipareplica ~]# wc -l /tmp/completed_requests_to_delete.txt
-73458 /tmp/completed_requests_to_delete.txt
-[root@cpeg-ipareplica ~]#
-
-
-[root@cpeg-ipareplica ~]# wc -l /tmp/completed_requests_to_delete.txt
-858256 /tmp/completed_requests_to_delete.txt
-[root@cpeg-ipareplica ~]#
-
+echo "Started PID: $!"
 
 # Back up first
 cp $JAVA_HOME/conf/security/java.security $JAVA_HOME/conf/security/java.security.bak
