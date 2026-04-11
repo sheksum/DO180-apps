@@ -1,84 +1,10 @@
+wc -l /tmp/protected_request_ids.txt 2>/dev/null || echo "still running"
 
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(certStatus=VALID)" metaInfo \
->   2>/dev/null | grep "requestId" | awk -F: '{print $2}' | sort -n > /tmp/protected_request_ids.txt
 
-[root@cpeg-ipareplica ~]# top
-top - 11:50:01 up 13 days, 18:10,  4 users,  load average: 1.71, 1.82, 1.50
-Tasks: 385 total,   1 running, 384 sleeping,   0 stopped,   0 zombie
-%Cpu0  : 16.1 us,  1.8 sy,  0.0 ni, 76.8 id,  5.4 wa,  0.0 hi,  0.0 si,  0.0 st
-%Cpu1  : 10.7 us,  5.4 sy,  0.0 ni, 66.1 id, 16.1 wa,  0.0 hi,  1.8 si,  0.0 st
-%Cpu2  : 19.6 us,  8.9 sy,  0.0 ni, 32.1 id, 37.5 wa,  0.0 hi,  1.8 si,  0.0 st
-%Cpu3  : 12.3 us, 15.8 sy,  0.0 ni, 47.4 id, 22.8 wa,  0.0 hi,  1.8 si,  0.0 st
-MiB Mem :  15760.6 total,    167.5 free,   5356.4 used,  10236.7 buff/cache
-MiB Swap:   8084.0 total,   6892.6 free,   1191.4 used.   8831.2 avail Mem
-
-    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
-2569667 dirsrv    20   0 9702244   2.8g   1.0g S  84.2  18.0 653:31.18 ns-slapd
-1909603 root       0 -20       0      0      0 I   1.8   0.0  15:20.46 kworker/1:2H-xfs-log/dm-0
-2768966 root      20   0   68692   5180   4444 S   1.8   0.0   0:06.67 ldapsearch
-2770444 root      20   0  275592   5012   3944 R   1.8   0.0   0:00.07 top
-      1 root      20   0  242900  12616   7984 S   0.0   0.1   6:56.61 systemd
-      2 root      20   0       0      0      0 S   0.0   0.0   0:02.39 kthreadd
-      3 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_gp
-      4 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_par_gp
-      5 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 slub_flushwq
-     10 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 mm_percpu_wq
-     11 root      20   0       0      0      0 S   0.0   0.0   0:00.00 rcu_tasks_rude_
-     12 root      20   0       0      0      0 S   0.0   0.0   0:00.00 rcu_tasks_trace
-     13 root      20   0       0      0      0 S   0.0   0.0   0:26.44 ksoftirqd/0
-     14 root      20   0       0      0      0 I   0.0   0.0   7:43.81 rcu_sched
-     15 root      rt   0       0      0      0 S   0.0   0.0   0:01.63 migration/0
-     16 root      rt   0       0      0      0 S   0.0   0.0   0:00.91 watchdog/0
-     17 root      20   0       0      0      0 S   0.0   0.0   0:00.00 cpuhp/0
-     18 root      20   0       0      0      0 S   0.0   0.0   0:00.00 cpuhp/1
-     19 root      rt   0       0      0      0 S   0.0   0.0   0:00.78 watchdog/1
-     20 root      rt   0       0      0      0 S   0.0   0.0   0:01.76 migration/1
-     21 root      20   0       0      0      0 S   0.0   0.0   0:23.73 ksoftirqd/1
-     23 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/1:0H-events_highpri
-     24 root      20   0       0      0      0 S   0.0   0.0   0:00.00 cpuhp/2
-     25 root      rt   0       0      0      0 S   0.0   0.0   0:01.15 watchdog/2
-     26 root      rt   0       0      0      0 S   0.0   0.0   0:01.58 migration/2
-     27 root      20   0       0      0      0 S   0.0   0.0   0:23.86 ksoftirqd/2
-     29 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/2:0H-events_highpri
-     30 root      20   0       0      0      0 S   0.0   0.0   0:00.00 cpuhp/3
-     31 root      rt   0       0      0      0 S   0.0   0.0   0:01.18 watchdog/3
-     32 root      rt   0       0      0      0 S   0.0   0.0   0:01.72 migration/3
-     33 root      20   0       0      0      0 S   0.0   0.0   0:23.47 ksoftirqd/3
-     35 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/3:0H-events_highpri
-     40 root      20   0       0      0      0 S   0.0   0.0   0:00.00 kdevtmpfs
-     41 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 netns
-     42 root      20   0       0      0      0 S   0.0   0.0   0:04.61 kauditd
-     43 root      20   0       0      0      0 S   0.0   0.0   0:02.78 khungtaskd
-     44 root      20   0       0      0      0 S   0.0   0.0   0:00.00 oom_reaper
-     45 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 writeback
-     46 root      20   0       0      0      0 S   0.0   0.0   0:05.63 kcompactd0
-     47 root      25   5       0      0      0 S   0.0   0.0   0:00.00 ksmd
-     48 root      39  19       0      0      0 S   0.0   0.0   0:55.65 khugepaged
-     49 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 crypto
-     50 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kintegrityd
-     51 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kblockd
-     52 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 blkcg_punt_bio
-     53 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 tpm_dev_wq
-     54 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 md
-     55 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 md_bitmap
-     56 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 edac-poller
-     57 root      rt   0       0      0      0 S   0.0   0.0   0:00.00 watchdogd
-     59 root       0 -20       0      0      0 I   0.0   0.0  39:26.32 kworker/0:1H-kblockd
-     79 root      20   0       0      0      0 S   0.0   0.0   9:45.08 kswapd0
-    141 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kthrotld
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# free -h
-              total        used        free      shared  buff/cache   available
-Mem:           15Gi       5.2Gi       266Mi       1.2Gi       9.9Gi       8.6Gi
-Swap:         7.9Gi       1.2Gi       6.7Gi
-[root@cpeg-ipareplica ~]#
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=ca,ou=requests,o=ipaca" \
+  -s one "(dateOfCreate>=20260409190000Z)" dn \
+  2>/dev/null | grep "^dn:" | wc -l
 
 
 # Get the complete list of request IDs linked to active VALID certs
