@@ -1,7 +1,9 @@
-keytool -import -trustcacerts -alias plnwdc19a \
-  -file dc_cert.pem \
-  -keystore $JAVA_HOME/lib/security/cacerts \
-  -storepass changeit
+# From the SonarQube host, try binding manually with the same creds
+ldapsearch -H ldaps://plnwdc19a.calix.local:636 \
+  -D "CN=svc-sonar,OU=ServiceAccounts,DC=calix,DC=local" \
+  -w 'yourpassword' \
+  -b "ou=calix users,dc=calix,dc=local" \
+  "(sAMAccountName=someuser)" cn
 
 [root@cpeg-ipareplica ~]# ps -p 2779346
     PID TTY          TIME CMD
