@@ -1,5 +1,52 @@
-ipa-replica-install --setup-ca --setup-dns --no-forwarders --no-ntp \
-  --server cpeg-ipareplica.ipa.calix.local --domain ipa.calix.local \
-  --realm IPA.CALIX.LOCAL --principal admin \
-  --admin-password 'vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU=' \
-  --skip-conncheck --force-join
+Configuring client side components
+This program will set up IPA client.
+Version 4.12.2
+
+Client hostname: pln-ipamaster.ipa.calix.local
+Realm: IPA.CALIX.LOCAL
+DNS Domain: ipa.calix.local
+IPA Server: cpeg-ipareplica.ipa.calix.local
+BaseDN: dc=ipa,dc=calix,dc=local
+
+Skipping chrony configuration
+Successfully retrieved CA cert
+    Subject:     CN=Certificate Authority,O=IPA.CALIX.LOCAL
+    Issuer:      CN=Certificate Authority,O=IPA.CALIX.LOCAL
+    Valid From:  2018-06-30 07:39:50+00:00
+    Valid Until: 2038-06-30 07:39:50+00:00
+
+Enrolled in IPA realm IPA.CALIX.LOCAL
+Created /etc/ipa/default.conf
+Configured /etc/sssd/sssd.conf
+Systemwide CA database updated.
+Adding SSH public key from /etc/ssh/ssh_host_ed25519_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
+SSSD enabled
+Configured /etc/openldap/ldap.conf
+Configured /etc/ssh/ssh_config
+Configured /etc/ssh/sshd_config.d/04-ipa.conf
+Configuring ipa.calix.local as NIS domain.
+Configured /etc/krb5.conf for IPA realm IPA.CALIX.LOCAL
+Client configuration complete.
+The ipa-client-install command was successful
+
+Removing client side components
+Unenrolling client from IPA server
+Removing Kerberos service principals from /etc/krb5.keytab
+Disabling client Kerberos and LDAP configurations
+Redundant SSSD configuration file /etc/sssd/sssd.conf was moved to /etc/sssd/sssd.conf.deleted
+Restoring client configuration files
+Restoring ipa.calix.local as NIS domain.
+nscd daemon is not installed, skip configuration
+nslcd daemon is not installed, skip configuration
+Systemwide CA database updated.
+Client uninstall complete.
+The ipa-client-install command was successful
+
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
+
+While reading from '/etc/ipa/installer.conf' [line  4]: option 'startup_timeout' in section 'global' already exists
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster ~]#
