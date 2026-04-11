@@ -1,10 +1,11 @@
-wc -l /tmp/protected_request_ids.txt 2>/dev/null || echo "still running"
-
-
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(dateOfCreate>=20260409190000Z)" dn \
-  2>/dev/null | grep "^dn:" | wc -l
+[root@cpeg-ipareplica ~]# wc -l /tmp/protected_request_ids.txt 2>/dev/null || echo "still running"
+0 /tmp/protected_request_ids.txt
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "ou=ca,ou=requests,o=ipaca" \
+>   -s one "(dateOfCreate>=20260409190000Z)" dn \
+>   2>/dev/null | grep "^dn:" | wc -l
+4
+[root@cpeg-ipareplica ~]#
 
 
 # Get the complete list of request IDs linked to active VALID certs
