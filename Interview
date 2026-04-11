@@ -16,7 +16,12 @@ ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   "(objectclass=*)" nsds5replicaLastInitStatus nsds5replicaLastInitEnd \
   2>/dev/null
 
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o=ipaca,cn=mapping tree,cn=config" \
-  "(objectclass=*)" nsds5replicaLastInitStatus nsds5replicaUpdateInProgress \
-  2>/dev/null | grep -E "nsds5replica"
+[root@cpeg-ipareplica ~]# ^C
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o=ipaca,cn=mapping tree,cn=config" \
+>   "(objectclass=*)" nsds5replicaLastInitStatus nsds5replicaUpdateInProgress \
+>   2>/dev/null | grep -E "nsds5replica"
+# requesting: nsds5replicaLastInitStatus nsds5replicaUpdateInProgress
+[root@cpeg-ipareplica ~]#
