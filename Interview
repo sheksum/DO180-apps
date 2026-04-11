@@ -1,22 +1,14 @@
-ASL SSF: 0
-SASL/EXTERNAL authentication started
-SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-SASL SSF: 0
-Sat Apr 11 15:37:31 UTC 2026 -- DONE. Total deleted: 857722
-^C
-[1]+  Done                    nohup bash -c '
-  total=$(wc -l < /tmp/sjc_certs_to_delete.txt)
-  count=0
-  while IFS= read -r dn; do
-    ldapdelete -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket "$dn" 2>&1
-    count=$((count + 1))
-    if (( count % 1000 == 0 )); then
-      echo "$(date) -- Deleted $count of $total"
-    fi
-  done < /tmp/sjc_certs_to_delete.txt
-  echo "$(date) -- DONE. Total deleted: $count"
-' > /tmp/sjc_delete.log 2>&1
-[root@cpeg-ipareplica ~]#
+# CA still healthy
+curl -sk https://cpeg-ipareplica.ipa.calix.local/ca/admin/ca/getStatus
+
+# Cert repository count - should be tiny now
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(objectclass=*)" certStatus \
+  2>/dev/null | grep "^certStatus:" | sort | uniq -c | sort -rn
+
+# IPA still serving
+kinit admin && ipa user-find admin
 
 
 [root@cpeg-ipareplica ~]# ps -p 2779346
