@@ -1,6 +1,20 @@
-ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
-dn: cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-changetype: modify
-replace: nsds5task
-nsds5task: CLEANALLRUV54
-EOF
+[root@cpeg-ipareplica ~]# ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
+> dn: cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+> changetype: modify
+> replace: nsds5task
+> nsds5task: CLEANALLRUV54
+> EOF
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+modifying entry "cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config"
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket   -b "dc=ipa,dc=calix,dc=local"   "(&(nsuniqueid=ffffffff-ffffffff-ffffffff-ffffffff)(objectclass=nstombstone))"   nsds50ruv 2>/dev/null | grep -i "nsds50ruv\|pln"
+# requesting: nsds50ruv
+nsds50ruv: {replicageneration} 66ade489000000140000
+nsds50ruv: {replica 20 ldap://cpeg-ipareplica.ipa.calix.local:389} 66ade48b000
+nsds50ruv: {replica 12 ldap://ric-ipareplica.ipa.calix.local:389}
+nsds50ruv: {replica 11 ldap://ric-ipareplica01.ipa.calix.local:389}
+nsds50ruv: {replica 10 ldap://nan-ipareplica01.ipa.calix.local:389}
+[root@cpeg-ipareplica ~]#
