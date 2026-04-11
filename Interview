@@ -1,8 +1,6 @@
-sonarqube@plnx-sonarqube [conf] $ grep -A5 "jdk.tls.disabledAlgorithms=SSLv3" $JAVA_HOME/conf/security/java.security
-jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1, DTLSv1.0, RC4, DES, \
-    MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL, \
-    ECDH
- 
+# sonar.properties
+sonar.web.javaAdditionalOpts=-Djdk.tls.disabledAlgorithms="SSLv3, TLSv1, TLSv1.1, DTLSv1.0, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL"
+sonar.ce.javaAdditionalOpts=-Djdk.tls.disabledAlgorithms="SSLv3, TLSv1, TLSv1.1, DTLSv1.0, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL"
 #
 # Legacy algorithms for Secure Socket Layer/Transport Layer Security (SSL/TLS)
 sonarqube@plnx-sonarqube [conf] $
