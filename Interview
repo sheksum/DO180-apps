@@ -1,9 +1,12 @@
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=ca,ou=requests,o=ipaca" \
->   -s one "(requestState=complete)" dn \
->   2>/dev/null | grep "^dn:" | wc -l
-858256
-[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# systemctl stop pki-tomcat@pki-tomcat
+Failed to stop pki-tomcat@pki-tomcat.service: Unit pki-tomcat@pki-tomcat.service not loaded.
+[root@cpeg-ipareplica ~]# systemctl list-unit-files | grep tomcat
+pki-tomcatd-nuxwdog@.service                disabled
+pki-tomcatd@.service                        indirect
+tomcat.service                              disabled
+tomcat@.service                             disabled
+pki-tomcatd-nuxwdog.target                  disabled
+pki-tomcatd.target                          disabled
 [root@cpeg-ipareplica ~]#
 
 
