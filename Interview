@@ -1,35 +1,3 @@
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipa-server-install --uninstall --ignore-topology-disconnect
-WARNING:
-IPA server is not configured on this system. If you want to install the
-IPA server, please install it using 'ipa-server-install'.
-
-This is a NON REVERSIBLE operation and will delete all data and configuration!
-It is highly recommended to take a backup of existing data and configuration using ipa-backup utility before proceeding.
-
-Are you sure you want to continue with the uninstall procedure? [no]: yes
-
-WARNING: Failed to connect to Directory Server to find information about
-replication agreements. Uninstallation will continue despite the possible
-existing replication agreements.
-
-If this server is the last instance of CA,
-KRA, or DNSSEC master, uninstallation may result in data loss.
-Are you sure you want to continue with the uninstall procedure? [no]: yes
-failed to uninstall ACME instance CalledProcessError(Command ['/usr/sbin/pkidestroy', '-i', 'pki-tomcat', '--force', '-s', 'ACME', '--log-file', '/var/log/pki/pki-acme-destroy.20260411221216.log', '--remove-conf', '--remove-logs'] returned non-zero exit status 1: 'ERROR: No such instance: pki-tomcat\n')
-Shutting down all IPA services
-Unconfiguring directory server
-[Errno 2] No such file or directory: '/var/lib/ipa/sysupgrade/sysupgrade.state'
-The ipa-server-install command failed. See /var/log/ipaserver-uninstall.log for more information
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# systemctl stop dirsrv@IPA-CALIX-LOCAL 2>/dev/null
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# dsctl IPA-CALIX-LOCAL remove --do-it
-No such instance 'IPA-CALIX-LOCAL'
-Unable to access instance information. Are you running as the correct user? (usually dirsrv or root)
-[root@pln-ipamaster ~]# dsctl IPA-CALIX-LOCAL remove --do-it^C
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ss -tlnp | grep -E "389|636"
-[root@pln-ipamaster ~]#
+mkdir -p /var/lib/ipa/sysrestore
+mkdir -p /var/lib/ipa/sysupgrade
+touch /var/lib/ipa/sysupgrade/sysupgrade.state
