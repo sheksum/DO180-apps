@@ -1,69 +1,14 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=certificateRepository,ou=ca,o=ipaca" \
->   -s one "(certStatus=VALID)" metaInfo \
->   2>/dev/null | grep "requestId" | awk '{print $NF}' | sort -n > /tmp/protected_request_ids.txt
-[root@cpeg-ipareplica ~]# wc -l /tmp/protected_request_ids.txt
-857839 /tmp/protected_request_ids.txt
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# head -20 /tmp/protected_request_ids.txt
-requestId:1
-requestId:1304
-requestId:1305
-requestId:1306
-requestId:1307
-requestId:1308
-requestId:1309
-requestId:1310
-requestId:1311
-requestId:1312
-requestId:1313
-requestId:1314
-requestId:1315
-requestId:1316
-requestId:1317
-requestId:1318
-requestId:1339
-requestId:1340
-requestId:1341
-requestId:1342
-[root@cpeg-ipareplica ~]# tail -20 /tmp/protected_request_ids.txt
-requestId:40847814
-requestId:40847815
-requestId:40847816
-requestId:40847817
-requestId:40847818
-requestId:40847819
-requestId:40847820
-requestId:40847821
-requestId:40847822
-requestId:40847823
-requestId:49920001
-requestId:9970062
-requestId:9970063
-requestId:9970064
-requestId:9970065
-requestId:9970066
-requestId:9970067
-requestId:9990022
-requestId:9990023
-requestId:9990024
-[root@cpeg-ipareplica ~]# grep -v '^[0-9]' /tmp/protected_request_ids.txt | head -10
-requestId:1
-requestId:1304
-requestId:1305
-requestId:1306
-requestId:1307
-requestId:1308
-requestId:1309
-requestId:1310
-requestId:1311
-requestId:1312
-[root@cpeg-ipareplica ~]#
+# Total enrolled hosts
+ipa host-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
 
+# Total enrolled services
+ipa service-find --sizelimit=0 2>/dev/null | grep "Number of entries returned"
+
+# How many unique CNs are in the VALID cert repository
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(certStatus=VALID)" subjectName \
+  2>/dev/null | grep "^subjectName:" | sort -u | wc -l
 
 
 [root@cpeg-ipareplica ~]# wc -l /tmp/protected_request_ids.txt 2>/dev/null || echo "still running"
