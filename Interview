@@ -1,7 +1,17 @@
-# Remove replication agreements
-ipa-replica-manage del pln-ipamaster.ipa.calix.local --force
-ipa-csreplica-manage del pln-ipamaster.ipa.calix.local --force
+[root@cpeg-ipareplica ~]# ipa-replica-manage del pln-ipamaster.ipa.calix.local --force
+Updating DNS system records
+ipa: WARNING: Ignoring topology connectivity errors.
+ipa: WARNING: Ignoring these warnings and proceeding with removal
+ipa: WARNING: Failed to cleanup pln-ipamaster.ipa.calix.local DNS entries: no matching entry found
+ipa: WARNING: You may need to manually remove them from the tree
+--------------------------------------------------
+Deleted IPA server "pln-ipamaster.ipa.calix.local"
+--------------------------------------------------
+[root@cpeg-ipareplica ~]# ipa-csreplica-manage del pln-ipamaster.ipa.calix.local --force
+Directory Manager password:
 
+Removal of IPA CS replication agreement and replication data is deprecated with managed IPA replication topology. Please use the `ipa-replica-manage del` command.
+[root@cpeg-ipareplica ~]#
 # Remove host entry — revokes all certs and removes keytabs
 ipa host-del pln-ipamaster.ipa.calix.local --updatedns
 
