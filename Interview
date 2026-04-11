@@ -2,6 +2,8 @@ echo | openssl s_client -connect plnwdc19a.calix.local:636 2>/dev/null \
   | openssl x509 -noout -text | grep -A1 "Subject Alternative"
 
 -Dcom.sun.jndi.ldap.object.disableEndpointIdentification=true
+grep "sonar.version" /opt/sonarqube/lib/sonar-application-*.jar 2>/dev/null || \
+  cat /opt/sonarqube/conf/sonar.properties | grep -i version
 
 
 # sonar.properties
