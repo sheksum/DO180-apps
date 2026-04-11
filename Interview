@@ -1,26 +1,4 @@
-# 1. Installer timeout
-cat >> /etc/ipa/installer.conf << EOF
-startup_timeout=7200
-replication_wait_timeout=3600
-EOF
-
-# 2. Python constants patch
-sed -i 's/startup_timeout = [0-9]*/startup_timeout = 7200/' \
-  /usr/lib/python3.9/site-packages/ipalib/constants.py
-
-# 3. pki-tomcatd timeout + heap
-mkdir -p /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/
-cat > /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf << EOF
-[Service]
-TimeoutStartSec=7200
-Environment=JAVA_OPTS=-Xms512m -Xmx4096m -XX:MaxPermSize=256m
-EOF
-systemctl daemon-reload
-
-# 4. Time skew fix
-cat > /usr/share/ipa/replica-prevent-time-skew.ldif << EOF
-dn: cn=config
-changetype: modify
-replace: nsslapd-ignore-time-skew
-nsslapd-ignore-time-skew: on
-EOF
+kinit admin
+ipa host-add pln-ipamaster.ipa.calix.local --ip-address=10.172.248.55
+ipa service-add HTTP/pln-ipamaster.ipa.calix.local
+ipa service-add ldap/pln-ipamaster.ipa.calix.local
