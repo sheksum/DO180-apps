@@ -1,4 +1,3 @@
-rm -rf /var/lib/ipa /var/log/ipa* /var/log/ipareplica* /var/log/ipaserver*
-rm -rf /var/lib/pki /etc/pki/pki-tomcat
-rm -rf /etc/ipa
-rm -rf /root/.dogtag
+cat /etc/ipa/installer.conf
+cat /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/timeout.conf
+cat /usr/share/ipa/replica-prevent-time-skew.ldif
