@@ -9,7 +9,10 @@ nsslapd-lookthroughlimit: -1
 EOF
 
 
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o=ipaca,cn=mapping tree,cn=config" \
-  "(objectclass=*)" nsds5replicaLastInitStatus nsds5replicaUpdateInProgress \
-  2>/dev/null | grep -E "^nsds5replica"
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o=ipaca,cn=mapping tree,cn=config" \
+>   "(objectclass=*)" nsds5replicaLastInitStatus nsds5replicaUpdateInProgress \
+>   2>/dev/null | grep -E "^nsds5replica"
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
