@@ -1,13 +1,7 @@
-echo "$(date) - IPA backup completed" >> $LOG_FILE
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# sed -i 's|/usr/sbin/ipa-backup|/usr/sbin/ipa-backup --online|' /root/tools/ipa_backup.sh
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# grep "ipa-backup" /root/tools/ipa_backup.sh
-#Run the ipa-backup command (this will stop IPA, perform the backup, and restart IPA)
-/usr/sbin/ipa-backup --online >> $LOG_FILE 2>&1
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+sed -i 's|/usr/sbin/ipa-backup --online|/usr/sbin/ipa-backup --data --online|' /root/tools/ipa_backup.sh
+
+# Verify
+grep "ipa-backup" /root/tools/ipa_backup.sh
 
 
 # CA still healthy
