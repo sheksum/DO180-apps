@@ -1,26 +1,127 @@
-ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
-dn: cn=config
-changetype: modify
-replace: nsslapd-sizelimit
-nsslapd-sizelimit: -1
--
-replace: nsslapd-lookthroughlimit
-nsslapd-lookthroughlimit: -1
-EOF
+Custodia uses 'cpeg-ipareplica.ipa.calix.local' as master peer.
+Configuring ipa-custodia
+  [1/4]: Generating ipa-custodia config file
+  [2/4]: Generating ipa-custodia keys
+  [3/4]: starting ipa-custodia
+  [4/4]: configuring ipa-custodia to start on boot
+Done configuring ipa-custodia.
+Configuring certificate server (pki-tomcatd). Estimated time: 3 minutes
+  [1/33]: creating certificate server db
+  [2/33]: ignore time skew for initial replication
+  [3/33]: setting up initial replication
+Starting replication, please wait until this has completed.
+Update in progress, 1076 seconds elapsed
+[ldap://cpeg-ipareplica.ipa.calix.local:389] reports: Update failed! Status: [Error (-1) connection error: Unknown connection error (-1) - Total update aborted]
 
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o=ipaca,cn=mapping tree,cn=config" \
->   "(objectclass=*)" nsds5replicaLastInitStatus nsds5replicaUpdateInProgress \
->   2>/dev/null | grep -E "^nsds5replica"
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config" \
->   "(objectclass=*)" nsds5replicaLastInitStatus nsds5replicaUpdateInProgress \
->   2>/dev/null | grep -E "^nsds5replica"
-nsds5replicaLastInitStatus: Error (0) Total update in progress
-nsds5replicaUpdateInProgress: FALSE
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+  [error] RuntimeError: Failed to start replication
+Your system may be partly configured.
+Run /usr/sbin/ipa-server-install --uninstall to clean up.
 
+Failed to start replication
+The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
+[root@pln-ipamaster ~]#
+
+[root@pln-ipamaster ~]# tail -f /var/log/ipareplica-install.log
+2026-04-11T21:28:02Z DEBUG Add or update replica config cn=replica,cn=o\=ipaca,cn=mapping tree,cn=config
+2026-04-11T21:28:02Z DEBUG Added replica config cn=replica,cn=o\=ipaca,cn=mapping tree,cn=config
+2026-04-11T21:28:02Z DEBUG update_entry modlist [(2, 'nsslapd-changelogmaxage', [b'30d'])]
+2026-04-11T21:28:02Z DEBUG Add or update replica config cn=replica,cn=o\=ipaca,cn=mapping tree,cn=config
+2026-04-11T21:28:02Z DEBUG update_entry modlist [(2, 'nsDS5ReplicaBindDnGroupCheckInterval', [b'2']), (2, 'nsds5ReplicaBackoffMax', [b'3']), (2, 'nsds5ReplicaReleaseTimeout', [b'20'])]
+2026-04-11T21:28:02Z DEBUG Update replica config cn=replica,cn=o\=ipaca,cn=mapping tree,cn=config
+2026-04-11T21:28:03Z DEBUG Waiting up to 3600 seconds for replication (ldap://cpeg-ipareplica.ipa.calix.local:389) cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\=ipaca,cn=mapping tree,cn=config (objectclass=*)
+2026-04-11T21:28:03Z DEBUG Entry found [LDAPEntry(ipapython.dn.DN('cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o\=ipaca,cn=mapping tree,cn=config'), {'objectClass': [b'nsds5replicationagreement', b'top'], 'cn': [b'caTopln-ipamaster.ipa.calix.local'], 'nsDS5ReplicaHost': [b'pln-ipamaster.ipa.calix.local'], 'nsDS5ReplicaPort': [b'389'], 'nsds5replicaTimeout': [b'120'], 'nsDS5ReplicaRoot': [b'o=ipaca'], 'description': [b'me to pln-ipamaster.ipa.calix.local'], 'nsDS5ReplicatedAttributeList': [b'(objectclass=*) $ EXCLUDE memberof idnssoaserial entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount passwordgraceusertime'], 'nsDS5ReplicaTransportInfo': [b'LDAP'], 'nsDS5ReplicaBindMethod': [b'SASL/GSSAPI'], 'nsds5ReplicaStripAttrs': [b'modifiersName modifyTimestamp internalModifiersName internalModifyTimestamp'], 'nsDS5ReplicatedAttributeListTotal': [b'(objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount passwordgraceusertime'], 'nsds5replicareapactive': [b'0'], 'nsds5replicaLastUpdateStart': [b'19700101000000Z'], 'nsds5replicaLastUpdateEnd': [b'19700101000000Z'], 'nsds5replicaChangesSentSinceStartup': [b''], 'nsds5replicaLastUpdateStatus': [b'Error (0) No replication sessions started since server startup'], 'nsds5replicaLastUpdateStatusJSON': [b'{"state": "green", "ldap_rc": "0", "ldap_rc_text": "success", "repl_rc": "0", "repl_rc_text": "replica acquired", "date": "2026-04-11T21:28:03Z", "message": "Error (0) No replication sessions started since server startup"}'], 'nsds5replicaUpdateInProgress': [b'FALSE'], 'nsds5replicaLastInitStart': [b'19700101000000Z'], 'nsds5replicaLastInitEnd': [b'19700101000000Z']})]
+2026-04-11T21:28:03Z DEBUG Waiting up to 3600 seconds for replication (ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket) cn=caTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=o\=ipaca,cn=mapping tree,cn=config (objectclass=*)
+2026-04-11T21:28:03Z DEBUG Entry found [LDAPEntry(ipapython.dn.DN('cn=caTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=o\=ipaca,cn=mapping tree,cn=config'), {'objectClass': [b'nsds5replicationagreement', b'top'], 'cn': [b'caTocpeg-ipareplica.ipa.calix.local'], 'nsDS5ReplicaHost': [b'cpeg-ipareplica.ipa.calix.local'], 'nsDS5ReplicaPort': [b'389'], 'nsds5replicaTimeout': [b'120'], 'nsDS5ReplicaRoot': [b'o=ipaca'], 'description': [b'me to cpeg-ipareplica.ipa.calix.local'], 'nsDS5ReplicatedAttributeList': [b'(objectclass=*) $ EXCLUDE memberof idnssoaserial entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount passwordgraceusertime'], 'nsDS5ReplicaTransportInfo': [b'LDAP'], 'nsDS5ReplicaBindMethod': [b'SASL/GSSAPI'], 'nsds5ReplicaStripAttrs': [b'modifiersName modifyTimestamp internalModifiersName internalModifyTimestamp'], 'nsDS5ReplicatedAttributeListTotal': [b'(objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount passwordgraceusertime'], 'nsds5replicareapactive': [b'0'], 'nsds5replicaLastUpdateStart': [b'19700101000000Z'], 'nsds5replicaLastUpdateEnd': [b'19700101000000Z'], 'nsds5replicaChangesSentSinceStartup': [b''], 'nsds5replicaLastUpdateStatus': [b'Error (0) No replication sessions started since server startup'], 'nsds5replicaLastUpdateStatusJSON': [b'{"state": "green", "ldap_rc": "0", "ldap_rc_text": "success", "repl_rc": "0", "repl_rc_text": "replica acquired", "date": "2026-04-11T21:28:03Z", "message": "Error (0) No replication sessions started since server startup"}'], 'nsds5replicaUpdateInProgress': [b'FALSE'], 'nsds5replicaLastInitStart': [b'19700101000000Z'], 'nsds5replicaLastInitEnd': [b'19700101000000Z']})]
+2026-04-11T21:46:01Z DEBUG Traceback (most recent call last):
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/service.py", line 688, in start_creation
+    run_step(full_msg, method)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/service.py", line 674, in run_step
+    method()
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/cainstance.py", line 1287, in __setup_replication
+    repl.setup_cs_replication(self.master_host)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/replication.py", line 2076, in setup_cs_replication
+    raise RuntimeError("Failed to start replication")
+RuntimeError: Failed to start replication
+
+2026-04-11T21:46:01Z DEBUG   [error] RuntimeError: Failed to start replication
+2026-04-11T21:46:01Z DEBUG Removing /root/.dogtag/pki-tomcat/ca
+2026-04-11T21:46:01Z DEBUG   File "/usr/lib/python3.9/site-packages/ipapython/admintool.py", line 219, in execute
+    return_value = self.run()
+  File "/usr/lib/python3.9/site-packages/ipapython/install/cli.py", line 343, in run
+    return cfgr.run()
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 360, in run
+    return self.execute()
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 386, in execute
+    for rval in self._executor():
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 435, in __runner
+    exc_handler(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 468, in _handle_execute_exception
+    self._handle_exception(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 458, in _handle_exception
+    six.reraise(*exc_info)
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 425, in __runner
+    step()
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 419, in step_next
+    return next(self.__gen)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/util.py", line 81, in run_generator_with_yield_from
+    six.reraise(*exc_info)
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/util.py", line 59, in run_generator_with_yield_from
+    value = gen.send(prev_value)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 663, in _configure
+    next(executor)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 435, in __runner
+    exc_handler(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 468, in _handle_execute_exception
+    self._handle_exception(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 526, in _handle_exception
+    self.__parent._handle_exception(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 458, in _handle_exception
+    six.reraise(*exc_info)
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 523, in _handle_exception
+    super(ComponentBase, self)._handle_exception(exc_info)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 458, in _handle_exception
+    six.reraise(*exc_info)
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 425, in __runner
+    step()
+  File "/usr/lib/python3.9/site-packages/ipapython/install/core.py", line 419, in step_next
+    return next(self.__gen)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/util.py", line 81, in run_generator_with_yield_from
+    six.reraise(*exc_info)
+  File "/usr/lib/python3.9/site-packages/six.py", line 709, in reraise
+    raise value
+  File "/usr/lib/python3.9/site-packages/ipapython/install/util.py", line 59, in run_generator_with_yield_from
+    value = gen.send(prev_value)
+  File "/usr/lib/python3.9/site-packages/ipapython/install/common.py", line 65, in _install
+    for unused in self._installer(self.parent):
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/server/__init__.py", line 687, in main
+    replica_install(self)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/server/replicainstall.py", line 387, in decorated
+    func(installer)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/server/replicainstall.py", line 1446, in install
+    ca.install(False, config, options, custodia=custodia)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/ca.py", line 546, in install
+    install_step_0(standalone, replica_config, options, custodia=custodia)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/ca.py", line 621, in install_step_0
+    ca.configure_instance(
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/cainstance.py", line 522, in configure_instance
+    self.start_creation(runtime=runtime)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/service.py", line 688, in start_creation
+    run_step(full_msg, method)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/service.py", line 674, in run_step
+    method()
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/cainstance.py", line 1287, in __setup_replication
+    repl.setup_cs_replication(self.master_host)
+  File "/usr/lib/python3.9/site-packages/ipaserver/install/replication.py", line 2076, in setup_cs_replication
+    raise RuntimeError("Failed to start replication")
+
+2026-04-11T21:46:01Z DEBUG The ipa-replica-install command failed, exception: RuntimeError: Failed to start replication
+2026-04-11T21:46:01Z ERROR Failed to start replication
+2026-04-11T21:46:01Z ERROR The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
