@@ -9,8 +9,9 @@ nsslapd-lookthroughlimit: -1
 EOF
 
 
-tail -f /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | grep -i "ipaca\|repl\|init"
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=mapping tree,cn=config" \
-  "(nsslapd-state=Backend)" nsslapd-backend nsslapd-suffix \
-  2>/dev/null | grep -E "suffix|backend"
+[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=mapping tree,cn=config" \
+>   "(nsslapd-state=Backend)" nsslapd-backend nsslapd-suffix \
+>   2>/dev/null | grep -E "suffix|backend"
+# requesting: nsslapd-backend nsslapd-suffix
+[root@cpeg-ipareplica ~]#
