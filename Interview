@@ -1,47 +1,35 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# curl -sk https://cpeg-ipareplica.ipa.calix.local/ca/admin/ca/getStatus
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><XMLResponse><State>1</State><Type>CA</Type><Status>running</Status><Version>10.15.0-1.module+el8.10.0+21280+cce842b8</Version></XMLResponse>[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-
-[root@pln-ipamaster ~]#
-[root@pln-ipamaster ~]# ipa-server-install --uninstall
+[root@pln-ipamaster ~]# ipa-server-install --uninstall --ignore-topology-disconnect
 
 This is a NON REVERSIBLE operation and will delete all data and configuration!
 It is highly recommended to take a backup of existing data and configuration using ipa-backup utility before proceeding.
 
 Are you sure you want to continue with the uninstall procedure? [no]: yes
-Server removal aborted:
-
-Replication topology in suffix 'domain' is disconnected:
-Topology does not allow server pln-ipamaster.ipa.calix.local to replicate with servers:
-    sjc-ipareplica01.ipa.calix.local
-    nan-ipareplica01.ipa.calix.local
-    ric-ipareplica01.ipa.calix.local
-    ric-ipareplica.ipa.calix.local
-    cpeg-ipareplica.ipa.calix.local.
-The ipa-server-install command failed. See /var/log/ipaserver-uninstall.log for more information
+Updating DNS system records
+Forcing removal of pln-ipamaster.ipa.calix.local
+Ignoring topology connectivity errors.
+Failed to cleanup pln-ipamaster.ipa.calix.local DNS entries: no matching entry found
+You may need to manually remove them from the tree
+--------------------------------------------------
+Deleted IPA server "pln-ipamaster.ipa.calix.local"
+--------------------------------------------------
+Unconfiguring ACME
+Unconfiguring CA
+Shutting down all IPA services
+Unconfiguring web server
+Unconfiguring krb5kdc
+Unconfiguring kadmin
+Unconfiguring directory server
+Unconfiguring ipa-custodia
+Unconfiguring ipa-otpd
+Removing IPA client configuration
+Disabling client Kerberos and LDAP configurations
+Redundant SSSD configuration file /etc/sssd/sssd.conf was moved to /etc/sssd/sssd.conf.deleted
+Restoring client configuration files
+Restoring ipa.calix.local as NIS domain.
+nscd daemon is not installed, skip configuration
+nslcd daemon is not installed, skip configuration
+Systemwide CA database updated.
+Client uninstall complete.
+The ipa-client-install command was successful
+The ipa-server-install command was successful
 [root@pln-ipamaster ~]#
-
-ssh pln-ipamaster.ipa.calix.local
-ipa-server-install --uninstall
-
-
-Dug into the CA database and confirmed all 707,842 certificate requests are organic — 7 years of accumulation since 2018, nothing suspicious
-Found and stopped a certmonger renewal spiral — 8 SJC café machines were hammering the CA through sjc-ipareplica01, generating ~13k requests just today. Stopped certmonger on all 8 and confirmed the flood is gone
-Cleaned out 1,165 expired and revoked-expired certificates from the cert repository
-Closed the Red Hat support case — confirmed we're going with the clean install path
-Looped in Ric Rocheleau on the SJC machines and notified the owners
-
-
-In flight:
-
-About to run the bulk delete on the 707k completed requests — doing a final safety check right now to make sure we don't accidentally touch any request records tied to active system certs
-
-
-Still ahead:
-
-Shut down the 8 SJC machines
-Fresh install of pln-ipamaster once the database is clean
-Revisit the Vault PKI / calix.local subordinate CA decision before kicking off the install
-Update the handoff doc with everything we found today
