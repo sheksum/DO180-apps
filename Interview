@@ -1,10 +1,14 @@
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=ca,ou=requests,o=ipaca" \
-  -s one "(requestState=complete)" dn \
-  2>/dev/null | grep "^dn:" | sed 's/^dn: //' > /tmp/completed_requests_to_delete.txt
-
-wc -l /tmp/completed_requests_to_delete.txt
-
+cn=40847813,ou=ca,ou=requests,o=ipaca
+cn=40847814,ou=ca,ou=requests,o=ipaca
+cn=40847815,ou=ca,ou=requests,o=ipaca
+cn=40847816,ou=ca,ou=requests,o=ipaca
+cn=40847817,ou=ca,ou=requests,o=ipaca
+cn=40847818,ou=ca,ou=requests,o=ipaca
+cn=40847819,ou=ca,ou=requests,o=ipaca
+cn=40847820,ou=ca,ou=requests,o=ipaca
+cn=40847821,ou=ca,ou=requests,o=ipaca
+cn=40847822,ou=ca,ou=requests,o=ipaca
+cn=40847823,ou=ca,ou=requests,o=ipaca
 
 [root@cpeg-ipareplica ~]#
 [root@cpeg-ipareplica ~]#
@@ -14,6 +18,10 @@ wc -l /tmp/completed_requests_to_delete.txt
 73458 /tmp/completed_requests_to_delete.txt
 [root@cpeg-ipareplica ~]#
 
+
+[root@cpeg-ipareplica ~]# wc -l /tmp/completed_requests_to_delete.txt
+858256 /tmp/completed_requests_to_delete.txt
+[root@cpeg-ipareplica ~]#
 
 
 # Back up first
