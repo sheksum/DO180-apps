@@ -1,37 +1,19 @@
 [root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
 >   -b "ou=certificateRepository,ou=ca,o=ipaca" \
 >   -s one "(|(subjectName=CN=sjccafe-vshah.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-cafereg04.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-llin.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-myousuf.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-ccafe25.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-shchandr.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-ccafereg01.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-incognito02.calix.local,O=IPA.CALIX.LOCAL))" dn \
->   2>/dev/null | grep "^dn:" | wc -l
-857722
+>   2>/dev/null | grep "^dn:" | sed 's/^dn: //' > /tmp/sjc_certs_to_delete.txt
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# wc -l /tmp/sjc_certs_to_delete.txt
+857722 /tmp/sjc_certs_to_delete.txt
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# head -5 /tmp/sjc_certs_to_delete.txt
+cn=1073676316,ou=certificateRepository,ou=ca,o=ipaca
+cn=1073676317,ou=certificateRepository,ou=ca,o=ipaca
+cn=1073676318,ou=certificateRepository,ou=ca,o=ipaca
+cn=1073676319,ou=certificateRepository,ou=ca,o=ipaca
+cn=1073676320,ou=certificateRepository,ou=ca,o=ipaca
 [root@cpeg-ipareplica ~]#
 
-
-Good question — a few layers of defense:
-1. Enable cert pruning on pln-ipamaster (IPA 4.12 supports it)
-Since pln will be on RHEL 9 / IPA 4.12, the ipa-acme-manage pruning feature is available. Set it up on day one:
-bashipa-acme-manage pruning --enable
-ipa-acme-manage pruning --certretention=30 --certretentionunit=day
-ipa-acme-manage pruning --requestretention=30 --requestretentionunit=day
-This automatically removes expired certs and completed requests older than 30 days on a schedule.
-2. Monitor certmonger on clients
-Add a simple check to your monitoring — alert if any host submits more than 5 cert requests per day. That would have caught this spiral immediately.
-3. Decommission EOL systems from IPA properly
-CentOS 6 machines should have been unenrolled from IPA before being abandoned. Add a runbook step: before decommissioning any host, run ipa-client-install --uninstall on it first.
-4. Regular cert database health checks
-A monthly cron job on the IPA master to report cert counts per subject — anything over 10 per host triggers an alert.
-5. Fix the ACI permissions issue
-The root cause of the spiral was certmonger getting Insufficient write privilege and retrying forever. That ACI issue needs to be fixed on pln so certmonger can write renewed certs back to LDAP without looping.
-The biggest win is #1 — pruning enabled on pln from day one prevents this from ever building up again. Want to add that to the post-install checklist in the handoff doc?
-
-
-# First collect all the DNs to a file
-ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "ou=certificateRepository,ou=ca,o=ipaca" \
-  -s one "(|(subjectName=CN=sjccafe-vshah.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-cafereg04.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-llin.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-myousuf.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-ccafe25.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-shchandr.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-ccafereg01.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-incognito02.calix.local,O=IPA.CALIX.LOCAL))" dn \
-  2>/dev/null | grep "^dn:" | sed 's/^dn: //' > /tmp/sjc_certs_to_delete.txt
-
-wc -l /tmp/sjc_certs_to_delete.txt
-head -5 /tmp/sjc_certs_to_delete.txt
 
 
 # Get the complete list of request IDs linked to active VALID certs
