@@ -9,22 +9,7 @@ nsslapd-lookthroughlimit: -1
 EOF
 
 
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=mapping tree,cn=config" \
->   "(objectclass=*)" cn \
->   2>/dev/null | grep "^cn:"
-cn: mapping tree
-cn: cn=changelog
-cn: dc=ipa,dc=calix,dc=local
-cn: dc\=ipa\,dc\=calix\,dc\=local
-cn: o=ipaca
-cn: replica
-cn: replica
-cn: cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local
-cn: cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local
-cn: cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local
-cn: meTopln-ipamaster.ipa.calix.local
-cn: caTopln-ipamaster.ipa.calix.local
-[root@cpeg-ipareplica ~]#
-
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=caTopln-ipamaster.ipa.calix.local,cn=replica,cn=o=ipaca,cn=mapping tree,cn=config" \
+  "(objectclass=*)" nsds5replicaLastInitStatus nsds5replicaUpdateInProgress \
+  2>/dev/null | grep -E "^nsds5replica"
