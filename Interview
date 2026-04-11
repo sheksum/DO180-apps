@@ -1,35 +1,32 @@
-[root@pln-ipamaster ~]# ipa-server-install --uninstall --ignore-topology-disconnect
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ipa server-find
+---------------------
+5 IPA servers matched
+---------------------
+  Server name: cpeg-ipareplica.ipa.calix.local
+  Min domain level: 1
+  Max domain level: 1
 
-This is a NON REVERSIBLE operation and will delete all data and configuration!
-It is highly recommended to take a backup of existing data and configuration using ipa-backup utility before proceeding.
+  Server name: nan-ipareplica01.ipa.calix.local
+  Min domain level: 0
+  Max domain level: 1
+  Service weight: 100
 
-Are you sure you want to continue with the uninstall procedure? [no]: yes
-Updating DNS system records
-Forcing removal of pln-ipamaster.ipa.calix.local
-Ignoring topology connectivity errors.
-Failed to cleanup pln-ipamaster.ipa.calix.local DNS entries: no matching entry found
-You may need to manually remove them from the tree
---------------------------------------------------
-Deleted IPA server "pln-ipamaster.ipa.calix.local"
---------------------------------------------------
-Unconfiguring ACME
-Unconfiguring CA
-Shutting down all IPA services
-Unconfiguring web server
-Unconfiguring krb5kdc
-Unconfiguring kadmin
-Unconfiguring directory server
-Unconfiguring ipa-custodia
-Unconfiguring ipa-otpd
-Removing IPA client configuration
-Disabling client Kerberos and LDAP configurations
-Redundant SSSD configuration file /etc/sssd/sssd.conf was moved to /etc/sssd/sssd.conf.deleted
-Restoring client configuration files
-Restoring ipa.calix.local as NIS domain.
-nscd daemon is not installed, skip configuration
-nslcd daemon is not installed, skip configuration
-Systemwide CA database updated.
-Client uninstall complete.
-The ipa-client-install command was successful
-The ipa-server-install command was successful
-[root@pln-ipamaster ~]#
+  Server name: ric-ipareplica.ipa.calix.local
+  Min domain level: 0
+  Max domain level: 1
+  Service weight: 2000
+
+  Server name: ric-ipareplica01.ipa.calix.local
+  Min domain level: 0
+  Max domain level: 1
+  Service weight: 100
+
+  Server name: sjc-ipareplica01.ipa.calix.local
+  Min domain level: 0
+  Max domain level: 1
+  Service weight: 100
+----------------------------
+Number of entries returned 5
+----------------------------
+[root@cpeg-ipareplica ~]#
