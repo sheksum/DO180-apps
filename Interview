@@ -1,5 +1,8 @@
 grep -A5 "jdk.tls.disabledAlgorithms=SSLv3" $JAVA_HOME/conf/security/java.security
 
+sonar.web.javaAdditionalOpts=-Djdk.tls.client.protocols=TLSv1.2
+sonar.ce.javaAdditionalOpts=-Djdk.tls.client.protocols=TLSv1.2
+
 Connecting to 10.172.248.32
 write:errno=104
 CONNECTED(00000003)
