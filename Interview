@@ -1,11 +1,15 @@
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "o=ipaca" \
->   "(&(nsuniqueid=ffffffff-ffffffff-ffffffff-ffffffff)(objectclass=nstombstone))" \
->   nsds50ruv 2>/dev/null | grep -i "nsds50ruv\|pln"
-# requesting: nsds50ruv
-nsds50ruv: {replicageneration} 679275a4000000150000
-nsds50ruv: {replica 21 ldap://cpeg-ipareplica.ipa.calix.local:389} 679275ad000
-nsds50ruv: {replica 53 ldap://pln-ipamaster.ipa.calix.local:389} 69c478af00000
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# [
+# Clean RUV for domain suffix
+ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
+dn: cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+changetype: modify
+replace: nsds5task
+nsds5task: CLEANRUV53
+EOF
+
+# Clean RUV for CA suffix
+ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket << EOF
+dn: cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config
+changetype: modify
+replace: nsds5task
+nsds5task: CLEANRUV53
+EOF
