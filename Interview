@@ -6,15 +6,14 @@
 [root@cpeg-ipareplica ~]#
 
 
+# First collect all the DNs to a file
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "ou=certificateRepository,ou=ca,o=ipaca" \
+  -s one "(|(subjectName=CN=sjccafe-vshah.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-cafereg04.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-llin.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-myousuf.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-ccafe25.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjccafe-shchandr.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-ccafereg01.calix.local,O=IPA.CALIX.LOCAL)(subjectName=CN=sjclnx-incognito02.calix.local,O=IPA.CALIX.LOCAL))" dn \
+  2>/dev/null | grep "^dn:" | sed 's/^dn: //' > /tmp/sjc_certs_to_delete.txt
 
-[root@cpeg-ipareplica ~]# wc -l /tmp/protected_request_ids.txt 2>/dev/null || echo "still running"
-0 /tmp/protected_request_ids.txt
-[root@cpeg-ipareplica ~]# ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "ou=ca,ou=requests,o=ipaca" \
->   -s one "(dateOfCreate>=20260409190000Z)" dn \
->   2>/dev/null | grep "^dn:" | wc -l
-4
-[root@cpeg-ipareplica ~]#
+wc -l /tmp/sjc_certs_to_delete.txt
+head -5 /tmp/sjc_certs_to_delete.txt
 
 
 # Get the complete list of request IDs linked to active VALID certs
