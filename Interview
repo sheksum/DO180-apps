@@ -1,6 +1,8 @@
 [root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# wc -l /tmp/sjc_delete.log
-1699527 /tmp/sjc_delete.log
+[root@cpeg-ipareplica ~]# wc -l /tmp/sjc_delete.log && ps -p 2779346
+1828406 /tmp/sjc_delete.log
+    PID TTY          TIME CMD
+2779346 pts/3    00:02:18 bash
 [root@cpeg-ipareplica ~]#
 
 
