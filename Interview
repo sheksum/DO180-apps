@@ -1,3 +1,18 @@
+[hsuma@cpeg-ipareplica /]$ sudo su -
+Last login: Sat Apr 11 19:10:34 UTC 2026 on pts/5
+[root@cpeg-ipareplica ~]# ipactl status
+Directory Service: RUNNING
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+named Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+pki-tomcatd Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa-dnskeysyncd Service: RUNNING
+ipa: INFO: The ipactl command was successful
+[root@cpeg-ipareplica ~]#
+
 ssh pln-ipamaster.ipa.calix.local
 ipa-server-install --uninstall
 
