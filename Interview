@@ -1,3 +1,4 @@
+[root@pln-ipamaster ~]# ipa-replica-install --setup-ca --setup-dns --no-forwarders --no-ntp   --server cpeg-ipareplica.ipa.calix.local --domain ipa.calix.local   --realm IPA.CALIX.LOCAL --principal admin   --admin-password 'vV+DyEsStenbkQq5TxLP5ly2wq/X4CPXW38mpDpCHUU='   --skip-conncheck --force-join
 Configuring client side components
 This program will set up IPA client.
 Version 4.12.2
@@ -8,7 +9,6 @@ DNS Domain: ipa.calix.local
 IPA Server: cpeg-ipareplica.ipa.calix.local
 BaseDN: dc=ipa,dc=calix,dc=local
 
-Removed old keys for realm IPA.CALIX.LOCAL from /etc/krb5.keytab
 Skipping chrony configuration
 Successfully retrieved CA cert
     Subject:     CN=Certificate Authority,O=IPA.CALIX.LOCAL
@@ -44,9 +44,14 @@ traffic and performance degradation. Refer to ipa-adtrust-install(1) man page
 for details.
 
 Do you want to run the ipa-sidgen task? [no]:
+Disabled p11-kit-proxy
+Configuring directory server (dirsrv). Estimated time: 30 seconds
+  [1/40]: creating directory server instance
+Validate installation settings ...
+  [error] AssertionError: Another instance named 'IPA-CALIX-LOCAL' may already exist
 Your system may be partly configured.
 Run /usr/sbin/ipa-server-install --uninstall to clean up.
 
-[Errno 2] No such file or directory: '/var/lib/ipa/sysrestore/sysrestore.state'
+Another instance named 'IPA-CALIX-LOCAL' may already exist
 The ipa-replica-install command failed. See /var/log/ipareplica-install.log for more information
 [root@pln-ipamaster ~]#
