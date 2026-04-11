@@ -9,6 +9,8 @@ sed -i 's/, ECDH//' $JAVA_HOME/conf/security/java.security
 
 # Verify the change looks right
 grep -A5 "jdk.tls.disabledAlgorithms=SSLv3" $JAVA_HOME/conf/security/java.security
+
+
 sonarqube@plnx-sonarqube [conf] $ grep -E "jdk.tls.disabledAlgorithms|jdk.tls.legacyAlgorithms" \
   $JAVA_HOME/conf/security/java.security
 #   jdk.tls.disabledAlgorithms=MD5, SSLv3, DSA, RSA keySize < 2048, \
