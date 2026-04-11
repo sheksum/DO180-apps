@@ -1,17 +1,27 @@
-[hsuma@cpeg-ipareplica /]$ sudo su -
-Last login: Sat Apr 11 19:10:34 UTC 2026 on pts/5
-[root@cpeg-ipareplica ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-named Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa-dnskeysyncd Service: RUNNING
-ipa: INFO: The ipactl command was successful
 [root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# curl -sk https://cpeg-ipareplica.ipa.calix.local/ca/admin/ca/getStatus
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><XMLResponse><State>1</State><Type>CA</Type><Status>running</Status><Version>10.15.0-1.module+el8.10.0+21280+cce842b8</Version></XMLResponse>[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# ipa-server-install --uninstall
+
+This is a NON REVERSIBLE operation and will delete all data and configuration!
+It is highly recommended to take a backup of existing data and configuration using ipa-backup utility before proceeding.
+
+Are you sure you want to continue with the uninstall procedure? [no]: yes
+Server removal aborted:
+
+Replication topology in suffix 'domain' is disconnected:
+Topology does not allow server pln-ipamaster.ipa.calix.local to replicate with servers:
+    sjc-ipareplica01.ipa.calix.local
+    nan-ipareplica01.ipa.calix.local
+    ric-ipareplica01.ipa.calix.local
+    ric-ipareplica.ipa.calix.local
+    cpeg-ipareplica.ipa.calix.local.
+The ipa-server-install command failed. See /var/log/ipaserver-uninstall.log for more information
+[root@pln-ipamaster ~]#
 
 ssh pln-ipamaster.ipa.calix.local
 ipa-server-install --uninstall
