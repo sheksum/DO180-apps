@@ -1,6 +1,4 @@
-# sonar.properties
-sonar.web.javaAdditionalOpts=-Dhttps.protocols=TLSv1.2 -Djdk.tls.client.protocols=TLSv1.2
-
+grep -A5 "jdk.tls.disabledAlgorithms=SSLv3" $JAVA_HOME/conf/security/java.security
 
 Connecting to 10.172.248.32
 write:errno=104
