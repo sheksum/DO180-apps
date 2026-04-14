@@ -1,0 +1,224 @@
+# OCP Capacity Reporter
+
+A lightweight, repeatable node inventory and capacity reporting tool for OpenShift clusters.
+Extracts node resource data from the OpenShift API, generates a formatted Excel report,
+and distributes it via email to stakeholders.
+
+-----
+
+## Overview
+
+This script queries OpenShift cluster nodes and Machine/MachineSet objects to produce
+an accurate per-node inventory report including business unit ownership, node role,
+provisioned CPU cores, and memory. Output is a formatted `.xlsx` file with green header
+row, alternating row colors, auto-filters, and frozen header — ready for stakeholder distribution.
+
+> **Note:** This script is currently run manually per cluster. Full automation via a
+> scheduled CronJob with service account authentication and multi-cluster looping
+> is planned for the next phase. See the [Automation Roadmap](#automation-roadmap) section.
+
+-----
+
+## Requirements
+
+- Python 3.6+
+- `oc` CLI in PATH and authenticated to the target cluster
+- `openpyxl` Python library
+
+```bash
+python3 -m pip install openpyxl --user
+```
+
+-----
+
+## Usage
+
+### Basic run (current cluster context)
+
+```bash
+python3 ocp-capacity-report.py
+```
+
+### Override cluster name
+
+```bash
+python3 ocp-capacity-report.py --cluster-name ocpprod
+```
+
+### Custom output directory
+
+```bash
+python3 ocp-capacity-report.py --out /home/asuma/reports
+```
+
+### Append to existing report (multi-cluster)
+
+```bash
+# First cluster - creates the file
+python3 ocp-capacity-report.py
+
+# Subsequent clusters - appends to same file
+python3 ocp-capacity-report.py --append
+```
+
+### Send report via email
+
+```bash
+python3 ocp-capacity-report.py --email user@cscglobal.com
+```
+
+### Send to multiple recipients
+
+```bash
+python3 ocp-capacity-report.py --email user1@cscglobal.com,user2@cscglobal.com,user3@cscglobal.com
+```
+
+### Full multi-cluster run with email
+
+```bash
+# Login and collect each cluster, append to same file
+oc login --token=<token> --server=https://api.ocpuat.csc.local:6443
+python3 ocp-capacity-report.py
+
+oc login --token=<token> --server=https://api.ocpprod.csc.local:6443
+python3 ocp-capacity-report.py --append
+
+oc login --token=<token> --server=https://api.ocpcom.csc.local:6443
+python3 ocp-capacity-report.py --append --email user1@cscglobal.com,user2@cscglobal.com
+```
+
+-----
+
+## Output
+
+### Files generated
+
+```
+reports/
+  ocp-capacity-2026-04.csv    # Raw CSV (Excel-compatible)
+  ocp-capacity-2026-04.xlsx   # Formatted Excel workbook
+```
+
+### Excel schema
+
+|Column       |Description                          |
+|-------------|-------------------------------------|
+|Month        |Report month (MM)                    |
+|Year         |Report year (YYYY)                   |
+|Cluster      |Cluster name (e.g. ocpuat, ocpprod)  |
+|business_unit|BU derived from node labels or name  |
+|size         |Node size (large, medium, small, n/a)|
+|Role         |compute, infra, or control           |
+|node         |Full node hostname                   |
+|Cores        |Provisioned vCPU cores               |
+|Memory (GiB) |Provisioned memory in GiB            |
+|OS           |RHCOS version string                 |
+|Kernel       |Kernel version                       |
+|Kubelet      |Kubelet version                      |
+|MachineSet   |MachineSet name                      |
+
+### Business unit derivation
+
+BU is resolved in the following priority order:
+
+1. Node label `cscglobal.com/chargeback.businessUnit`
+1. Node label `cscglobal.com/owner.businessUnit`
+1. Node label `machine.openshift.io/cluster-api-machineset` (parsed)
+1. Node name segment (e.g. `ocpuat-7bqb4-cls-large-xxxxx` → `cls`)
+1. Fallback: `shared`
+
+Control plane nodes always resolve to `shared`.
+
+### CPU and memory source
+
+CPU and memory are sourced from `providerSpec.value` in the MachineSet or Machine
+object (`vcpuSockets * vcpusPerSocket` and `memorySize`) — not from kernel-reported
+node capacity. This ensures values match provisioned specs (e.g. `96 GiB`, `8 cores`)
+rather than kernel-reserved figures (e.g. `94.2 GiB`).
+
+Lookup priority:
+
+1. Individual Machine object keyed by node name (covers control plane)
+1. MachineSet object keyed by MachineSet name (covers compute/infra pools)
+1. Fallback to node capacity if neither is found
+
+-----
+
+## Email Delivery
+
+The script uses the local Postfix relay via `/usr/sbin/sendmail` — no SMTP
+credentials required. Postfix on the bastion is configured with
+`inet_interfaces = loopback-only` and relays through the internal mail infrastructure.
+
+The `.xlsx` file is attached to the email. Delivery may take a few minutes depending
+on the internal relay.
+
+-----
+
+## Automation Roadmap
+
+The following work is planned to fully automate this reporting process:
+
+### Phase 1 — Service Account Setup (per cluster)
+
+Create a read-only service account in each cluster:
+
+```bash
+oc create serviceaccount capacity-reporter -n default
+oc adm policy add-cluster-role-to-user view -z capacity-reporter -n default
+oc create token capacity-reporter -n default --duration=8760h
+```
+
+Store tokens in a cluster config file on the bastion:
+
+```
+~/.ocp-reporter/clusters.conf
+
+# Format: clustername|api-url|token
+ocpuat|https://api.ocpuat.csc.local:6443|<token>
+ocpprod|https://api.ocpprod.csc.local:6443|<token>
+ocpcom|https://api.ocpcom.csc.local:6443|<token>
+ocpdev|https://api.ocpdev.csc.local:6443|<token>
+```
+
+### Phase 2 — Multi-cluster loop
+
+Add `--clusters` flag to loop through all clusters automatically:
+
+```bash
+python3 ocp-capacity-report.py \
+  --clusters-config ~/.ocp-reporter/clusters.conf \
+  --email user1@cscglobal.com,user2@cscglobal.com
+```
+
+The script will login to each cluster, collect data, append to a single report,
+and send one combined email at the end.
+
+### Phase 3 — Scheduled CronJob
+
+Deploy as a CronJob on a management bastion or OCP cluster running on the
+1st of each month:
+
+```bash
+# /etc/cron.d/ocp-capacity-reporter
+0 7 1 * * asuma /usr/bin/python3 /home/asuma/ocp-capacity-report.py \
+  --clusters-config /home/asuma/.ocp-reporter/clusters.conf \
+  --out /home/asuma/reports \
+  --email user1@cscglobal.com,user2@cscglobal.com
+```
+
+Historical reports are retained in `~/reports/` with monthly filenames
+(`ocp-capacity-YYYY-MM.xlsx`) for trend analysis.
+
+-----
+
+## Troubleshooting
+
+|Symptom                    |Fix                                                                                                                                                                   |
+|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|`No module named openpyxl` |`python3 -m pip install openpyxl --user`                                                                                                                              |
+|All nodes show `shared/n/a`|Check node labels: `oc get node <name> -o json | python3 -c "import json,sys; [print(k,'=',v) for k,v in sorted(json.load(sys.stdin)['metadata']['labels'].items())]"`|
+|Memory shows decimals      |MachineSet lookup failed — check RBAC: `oc get machinesets -n openshift-machine-api`                                                                                  |
+|Email not received         |Check mail queue: `mailq` and logs: `sudo tail -50 /var/log/maillog`                                                                                                  |
+|Cluster name shows full ID |Auto-strip of 5-char suffix failed — use `--cluster-name ocpuat` override                                                                                             |
+|`oc` command fails         |Verify login: `oc whoami`                                                                                                                                             |
