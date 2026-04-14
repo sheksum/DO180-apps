@@ -1,0 +1,5 @@
+So I'm still in my second week, but I've been digging in pretty heavily. I've been going through the provisioning_playbooks project and tracing how everything connects — from the job templates in AAP, through configure_rhel, down to how the individual roles actually run on the hosts.
+
+I'm starting to get a good picture of the full flow. I do want to make sure I have it right before I speak too definitively on any of it.
+
+What I can say is — I'll get a doc together that maps all of this out and have it ready for review. That way we have something concrete we can all look at and correct where needed.
