@@ -1,61 +1,381 @@
-# Localhost baseline (known fast)
-for i in 1 2 3 4 5; do
-  time ldapsearch -x -H ldap://localhost -s base -b "" "(objectclass=*)" >/dev/null 2>&1
-done
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# for i in 1 2 3 4 5; do
+>   time ldapsearch -x -H ldap://localhost -s base -b "" "(objectclass=*)" >/dev/null 2>&1
+> done
 
-# FQDN from cpeg itself (this is the key test)
-for i in 1 2 3 4 5; do
-  time ldapsearch -x -H ldap://cpeg-ipareplica.ipa.calix.local -s base -b "" "(objectclass=*)" >/dev/null 2>&1
-done
+real	0m0.013s
+user	0m0.002s
+sys	0m0.007s
 
-# IP from cpeg itself
-for i in 1 2 3 4 5; do
-  time ldapsearch -x -H ldap://172.23.49.10 -s base -b "" "(objectclass=*)" >/dev/null 2>&1
-done
+real	0m0.008s
+user	0m0.002s
+sys	0m0.002s
+
+real	0m0.013s
+user	0m0.006s
+sys	0m0.004s
+
+real	0m0.007s
+user	0m0.001s
+sys	0m0.003s
+
+real	0m0.015s
+user	0m0.007s
+sys	0m0.003s
+[root@cpeg-ipareplica ~]# for i in 1 2 3 4 5; do
+>   time ldapsearch -x -H ldap://cpeg-ipareplica.ipa.calix.local -s base -b "" "(objectclass=*)" >/dev/null 2>&1
+> done
+
+real	0m0.013s
+user	0m0.003s
+sys	0m0.003s
+
+real	0m0.011s
+user	0m0.002s
+sys	0m0.006s
+
+real	0m0.011s
+user	0m0.002s
+sys	0m0.002s
+
+real	0m0.007s
+user	0m0.004s
+sys	0m0.000s
+
+real	0m0.006s
+user	0m0.003s
+sys	0m0.001s
+[root@cpeg-ipareplica ~]# for i in 1 2 3 4 5; do
+>   time ldapsearch -x -H ldap://172.23.49.10 -s base -b "" "(objectclass=*)" >/dev/null 2>&1
+> done
+
+real	0m0.009s
+user	0m0.001s
+sys	0m0.004s
+
+real	0m0.007s
+user	0m0.001s
+sys	0m0.003s
+
+real	0m0.007s
+user	0m0.003s
+sys	0m0.001s
+
+real	0m0.007s
+user	0m0.002s
+sys	0m0.002s
+
+real	0m0.009s
+user	0m0.001s
+sys	0m0.003s
+[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-threadnumber
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+nsslapd-threadnumber: 16
+[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-maxthreadsperconn
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+Error: 97 - 1 - 53 - Server is unwilling to perform - [] - Unauthenticated binds are not allowed
+[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-maxthreadsperconn
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+nsslapd-maxthreadsperconn: 5
+[root@cpeg-ipareplica ~]# nproc
+16
+[root@cpeg-ipareplica ~]# ps -p $(pidof ns-slapd) -o pid,%cpu,%mem,rss,nlwp,stat
+    PID %CPU %MEM   RSS NLWP STAT
+   3307 64.6  9.7 4771868 40 Rsl
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# awk -v cutoff="$(date -d '5 minutes ago' '+%H:%M:%S')" '
+>   /etime=/ {
+>     for (i=1; i<=NF; i++) {
+>       if ($i ~ /etime=/) {
+>         split($i, a, "=")
+>         if (a[2]+0 >= 1) print
+>       }
+>     }
+>   }' /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -50
+[17/Apr/2026:16:40:45.697393787 +0000] conn=4433851 op=9 RESULT err=0 tag=101 nentries=1 wtime=0.000248983 optime=1.702904961 etime=1.703151159 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:40:59.222025244 +0000] conn=4433016 op=16 RESULT err=0 tag=101 nentries=1 wtime=0.000211000 optime=1.053506022 etime=1.053713480 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:41:17.845031916 +0000] conn=4433204 op=11 RESULT err=0 tag=101 nentries=1 wtime=0.000139483 optime=1.687385110 etime=1.687517518 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:41:26.638284876 +0000] conn=4436278 op=14 RESULT err=0 tag=101 nentries=267 wtime=0.000116874 optime=1.199670341 etime=1.199784837 notes=P details="Paged Search" pr_idx=1 pr_cookie=-1
+[17/Apr/2026:16:41:32.474365256 +0000] conn=4437462 op=6 RESULT err=0 tag=101 nentries=1 wtime=0.000151339 optime=1.699025111 etime=1.699173100 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:41:51.522692244 +0000] conn=4431600 op=11 ABANDON targetop=8 msgid=9 nentries=0 etime=6.0001554146
+[17/Apr/2026:16:41:51.523704160 +0000] conn=4431600 op=12 ABANDON targetop=9 msgid=10 nentries=0 etime=5.0999755273
+[17/Apr/2026:16:41:51.527168399 +0000] conn=4431600 op=13 ABANDON targetop=10 msgid=11 nentries=0 etime=6.0000883217
+[17/Apr/2026:16:41:52.811451856 +0000] conn=4436557 op=14 RESULT err=0 tag=101 nentries=1 wtime=0.000351026 optime=1.593660551 etime=1.594008868 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:41:54.886728189 +0000] conn=4430070 op=19 RESULT err=0 tag=101 nentries=1 wtime=0.000179634 optime=1.074038954 etime=1.074215118 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:41:55.989688687 +0000] conn=4437687 op=19 RESULT err=0 tag=101 nentries=1 wtime=0.000297127 optime=1.316432152 etime=1.316725700 notes=P details="Paged Search" pr_idx=2 pr_cookie=-1
+[17/Apr/2026:16:41:55.989927840 +0000] conn=4437687 op=8 RESULT err=0 tag=101 nentries=1 wtime=0.000426311 optime=1.535332922 etime=1.535756963 notes=P details="Paged Search" pr_idx=1 pr_cookie=-1
+[17/Apr/2026:16:42:03.664459505 +0000] conn=4434341 op=38 RESULT err=0 tag=101 nentries=1 wtime=0.000103833 optime=1.471634802 etime=1.471735862 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:42:06.680400967 +0000] conn=4431346 op=13 ABANDON targetop=12 msgid=13 nentries=0 etime=6.0006777109
+[17/Apr/2026:16:42:16.973949016 +0000] conn=4437131 op=16 RESULT err=0 tag=101 nentries=1 wtime=0.000336430 optime=1.460219846 etime=1.460553874 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:42:22.162299514 +0000] conn=4436486 op=16 RESULT err=0 tag=101 nentries=1 wtime=0.000245869 optime=1.086904071 etime=1.087146823 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:42:25.622344070 +0000] conn=4433630 op=17 RESULT err=0 tag=101 nentries=1 wtime=0.000185413 optime=1.119532606 etime=1.119708080 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:42:25.805585175 +0000] conn=4433848 op=17 RESULT err=0 tag=101 nentries=1 wtime=0.000114173 optime=1.704906261 etime=1.705017769 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:42:29.426443939 +0000] conn=4435404 op=20 RESULT err=0 tag=101 nentries=1 wtime=0.000233292 optime=1.385836509 etime=1.386067190 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:42:29.901748555 +0000] conn=4432881 op=9 RESULT err=0 tag=101 nentries=1 wtime=0.000140677 optime=1.667273745 etime=1.667411321 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:43:03.796627602 +0000] conn=4435956 op=52 RESULT err=0 tag=101 nentries=1 wtime=0.000281501 optime=1.341922182 etime=1.342200881 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:43:06.596999418 +0000] conn=4438337 op=7 RESULT err=0 tag=101 nentries=1 wtime=0.000237174 optime=1.649796206 etime=1.650032423 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:43:08.797076349 +0000] conn=4436068 op=27 RESULT err=0 tag=101 nentries=1 wtime=0.000295420 optime=1.129980673 etime=1.130273426 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:43:15.729499539 +0000] conn=4432759 op=9 RESULT err=0 tag=101 nentries=1 wtime=0.000350991 optime=1.598310298 etime=1.598652254 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:43:20.298530826 +0000] conn=4434508 op=11 RESULT err=0 tag=101 nentries=1 wtime=0.000277200 optime=1.596863259 etime=1.597137500 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:43:25.739664313 +0000] conn=4430818 op=46 RESULT err=0 tag=101 nentries=1 wtime=0.000131354 optime=1.129107909 etime=1.129237284 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:43:33.684818947 +0000] conn=4437538 op=13 RESULT err=0 tag=101 nentries=1 wtime=0.000170820 optime=1.659781224 etime=1.659949007 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:43:35.088259288 +0000] conn=4431473 op=40 ABANDON targetop=38 msgid=39 nentries=0 etime=6.0001459695
+[17/Apr/2026:16:43:37.969773103 +0000] conn=4431473 op=41 ABANDON targetop=39 msgid=40 nentries=0 etime=6.0004398222
+[17/Apr/2026:16:43:52.023296863 +0000] conn=4432027 op=24 RESULT err=0 tag=101 nentries=1 wtime=0.000124196 optime=1.012857485 etime=1.012979067 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:44:09.635734583 +0000] conn=4434824 op=142 RESULT err=0 tag=101 nentries=1 wtime=0.000151667 optime=3.804080932 etime=3.804229775 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:44:09.635802131 +0000] conn=4434824 op=143 RESULT err=0 tag=101 nentries=1 wtime=0.000243562 optime=3.269942508 etime=3.270178290 notes=P details="Paged Search" pr_idx=1 pr_cookie=-1
+[17/Apr/2026:16:44:12.684093380 +0000] conn=4434824 op=162 RESULT err=0 tag=101 nentries=1 wtime=0.000419721 optime=1.894428208 etime=1.894845281 notes=P details="Paged Search" pr_idx=3 pr_cookie=-1
+[17/Apr/2026:16:44:12.684148146 +0000] conn=4434824 op=160 RESULT err=0 tag=101 nentries=1 wtime=0.000115131 optime=1.897338450 etime=1.897450685 notes=P details="Paged Search" pr_idx=1 pr_cookie=-1
+[17/Apr/2026:16:44:12.684199399 +0000] conn=4434824 op=163 RESULT err=0 tag=101 nentries=1 wtime=0.000096313 optime=1.893335307 etime=1.893428465 notes=P details="Paged Search" pr_idx=4 pr_cookie=-1
+[17/Apr/2026:16:44:12.684231636 +0000] conn=4434824 op=161 RESULT err=0 tag=101 nentries=1 wtime=0.000117254 optime=1.896394952 etime=1.896510490 notes=P details="Paged Search" pr_idx=2 pr_cookie=-1
+[17/Apr/2026:16:44:12.685506372 +0000] conn=4434824 op=159 RESULT err=0 tag=101 nentries=1 wtime=0.001916925 optime=1.900570166 etime=1.902484521 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:44:13.712424098 +0000] conn=4434824 op=167 RESULT err=0 tag=101 nentries=1 wtime=0.000621507 optime=1.021678852 etime=1.022297507 notes=P details="Paged Search" pr_idx=3 pr_cookie=-1
+[17/Apr/2026:16:44:13.712472396 +0000] conn=4434824 op=165 RESULT err=0 tag=101 nentries=1 wtime=0.000116066 optime=1.024591497 etime=1.024704667 notes=P details="Paged Search" pr_idx=1 pr_cookie=-1
+[17/Apr/2026:16:44:13.720508146 +0000] conn=4434824 op=168 RESULT err=0 tag=101 nentries=1 wtime=0.000280993 optime=1.026493865 etime=1.026772106 notes=P details="Paged Search" pr_idx=4 pr_cookie=-1
+[17/Apr/2026:16:44:44.152714668 +0000] conn=4434941 op=11 RESULT err=0 tag=101 nentries=1 wtime=0.000175015 optime=1.722392275 etime=1.722563509 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:45:12.774471344 +0000] conn=4432293 op=32 RESULT err=0 tag=101 nentries=1 wtime=0.000101198 optime=1.045698742 etime=1.045797332 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:45:18.479570241 +0000] conn=4437781 op=40 RESULT err=0 tag=101 nentries=1 wtime=0.000318727 optime=1.097602432 etime=1.097885401 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:45:26.027343591 +0000] conn=4435449 op=12 RESULT err=0 tag=101 nentries=1 wtime=0.000329565 optime=1.648928463 etime=1.649250239 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:45:29.324464552 +0000] conn=4432975 op=61 RESULT err=0 tag=101 nentries=1 wtime=0.000287947 optime=1.460983597 etime=1.461263360 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:46:23.029967496 +0000] conn=4437368 op=9 RESULT err=0 tag=101 nentries=1 wtime=0.000308764 optime=1.646529561 etime=1.646830710 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:46:28.814427152 +0000] conn=4436827 op=17 RESULT err=0 tag=101 nentries=1 wtime=0.000161349 optime=1.085404556 etime=1.085558379 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:46:30.609283553 +0000] conn=4440127 op=5 RESULT err=0 tag=101 nentries=1 wtime=0.000165351 optime=1.069506454 etime=1.069669103 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:46:45.260048367 +0000] conn=4435704 op=30 RESULT err=0 tag=101 nentries=1 wtime=0.000153838 optime=1.450171231 etime=1.450317569 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[17/Apr/2026:16:46:47.098529709 +0000] conn=4436963 op=9 RESULT err=0 tag=101 nentries=1 wtime=0.000150167 optime=1.642959949 etime=1.643107395 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
+[root@cpeg-ipareplica ~]# grep "fd=.* slot=" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -1000 | awk '{print substr($1,2,20)}' | awk -F: '{print $1":"$2}' | sort | uniq -c | tail -10
+   1000 17/Apr/2026:16
+[root@cpeg-ipareplica ~]# grep "fd=.* slot=" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -2000 | awk -F'from ' '{print $2}' | awk -F: '{print $1}' | sort | uniq -c | sort -rn | head -10
+     54 10.168.1.221 to 172.23.49.10
+     16 10.168.2.86 to 172.23.49.10
+     14 10.174.8.130 to 172.23.49.10
+     13 172.23.49.10 to 172.23.49.10
+     12 10.174.9.4 to 172.23.49.10
+     12 10.174.9.49 to 172.23.49.10
+     12 10.174.8.84 to 172.23.49.10
+     12 10.174.8.79 to 172.23.49.10
+     12 10.174.8.212 to 172.23.49.10
+     12 10.174.8.120 to 172.23.49.10
+[root@cpeg-ipareplica ~]# ps -T -p $(pidof ns-slapd) -o pid,tid,stat,wchan:30,cmd | head -40
+    PID     TID STAT WCHAN                          CMD
+   3307    3307 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3407 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3408 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3409 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3410 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3411 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3496 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3501 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3505 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3506 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3507 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3508 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3509 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3510 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3512 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3513 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3514 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3515 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3516 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3517 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3518 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3519 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3520 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3521 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3522 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3523 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3524 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3525 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3526 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3527 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    3529 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    4225 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    4228 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307    4524 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307   53954 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307 1011326 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307 1011327 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307 1011329 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+   3307 1017490 Ssl  -                              /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+[root@cpeg-ipareplica ~]# which pstack gdb
+/usr/bin/which: no pstack in (/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin)
+/usr/bin/which: no gdb in (/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin)
+[root@cpeg-ipareplica ~]# ss -tan | awk '$4 ~ /:389$/ {print $1}' | sort | uniq -c
+   1645 ESTAB
+      2 LAST-ACK
+      1 LISTEN
+      2 TIME-WAIT
+[root@cpeg-ipareplica ~]# nstat -z | grep -iE "drop|retrans|overflow|listen"
+TcpRetransSegs                  12624063           0.0
+TcpExtLockDroppedIcmps          0                  0.0
+TcpExtListenOverflows           600                0.0
+TcpExtListenDrops               600                0.0
+TcpExtTCPLostRetransmit         7674552            0.0
+TcpExtTCPFastRetrans            3035816            0.0
+TcpExtTCPSlowStartRetrans       2059359            0.0
+TcpExtTCPBacklogDrop            0                  0.0
+TcpExtPFMemallocDrop            0                  0.0
+TcpExtTCPMinTTLDrop             0                  0.0
+TcpExtTCPDeferAcceptDrop        70337              0.0
+TcpExtTCPTimeWaitOverflow       0                  0.0
+TcpExtTCPReqQFullDrop           0                  0.0
+TcpExtTCPRetransFail            0                  0.0
+TcpExtTCPOFODrop                0                  0.0
+TcpExtTCPFastOpenListenOverflow 0                  0.0
+TcpExtTCPSynRetrans             14165              0.0
+TcpExtTCPZeroWindowDrop         0                  0.0
+TcpExtTCPRcvQDrop               0                  0.0
+MPTcpExtMPTCPRetrans            0                  0.0
+MPTcpExtAddAddrDrop             0                  0.0
+MPTcpExtRmAddrDrop              0                  0.0
+[root@cpeg-ipareplica ~]# dmesg -T | grep -iE "oom|drop|tcp|ens|bond" | tail -20
+[Sat Apr 11 21:08:09 2026] ACPI: Added _OSI(3.0 _SCP Extensions)
+[Sat Apr 11 21:08:09 2026] tcp_listen_portaddr_hash hash table entries: 32768 (order: 7, 524288 bytes, vmalloc)
+[Sat Apr 11 21:08:09 2026] TCP established hash table entries: 524288 (order: 10, 4194304 bytes, vmalloc)
+[Sat Apr 11 21:08:09 2026] TCP bind hash table entries: 65536 (order: 8, 1048576 bytes, vmalloc)
+[Sat Apr 11 21:08:09 2026] TCP: Hash tables configured (established 524288 bind 65536)
+[Sat Apr 11 21:08:09 2026] MPTCP token hash table entries: 65536 (order: 8, 1572864 bytes, vmalloc)
+[Sat Apr 11 21:08:09 2026] drop_monitor: Initializing network drop monitor service
+[Sat Apr 11 21:08:10 2026] vmxnet3 0000:0b:00.0 ens192: renamed from eth0
+[Sat Apr 11 21:08:10 2026] sd 0:0:0:0: [sda] Mode Sense: 3b 00 00 00
+[Sat Apr 11 21:08:10 2026] sd 0:0:1:0: [sdb] Mode Sense: 3b 00 00 00
+[Sat Apr 11 21:08:10 2026] sd 0:0:2:0: [sdc] Mode Sense: 3b 00 00 00
+[Sat Apr 11 21:08:10 2026] sd 0:0:3:0: [sdd] Mode Sense: 3b 00 00 00
+[Sat Apr 11 21:08:13 2026] RPC: Registered tcp transport module.
+[Sat Apr 11 21:08:13 2026] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[Sat Apr 11 21:08:16 2026] IPv6: ADDRCONF(NETDEV_UP): ens192: link is not ready
+[Sat Apr 11 21:08:16 2026] vmxnet3 0000:0b:00.0 ens192: intr type 3, mode 0, 9 vectors allocated
+[Sat Apr 11 21:08:16 2026] vmxnet3 0000:0b:00.0 ens192: NIC Link is Up 10000 Mbps
+[Sat Apr 11 21:08:23 2026] TCP: request_sock_TCP: Possible SYN flooding on port 0.0.0.0:88. Sending cookies.
+[Thu Apr 16 19:20:30 2026] TCP: request_sock_TCP: Possible SYN flooding on port 0.0.0.0:88. Sending cookies.
+[Fri Apr 17 13:00:40 2026] sd 0:0:4:0: [sde] Mode Sense: 3b 00 00 00
+[root@cpeg-ipareplica ~]# ipa-replica-manage list
+sjc-ipareplica01.ipa.calix.local: master
+nan-ipareplica01.ipa.calix.local: master
+ric-ipareplica01.ipa.calix.local: master
+ric-ipareplica.ipa.calix.local: master
+cpeg-ipareplica.ipa.calix.local: master
+[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
+Directory Manager password:
+
+Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 20
+	ric-ipareplica.ipa.calix.local:389: 12
+	ric-ipareplica01.ipa.calix.local:389: 11
+	nan-ipareplica01.ipa.calix.local:389: 10
+Certificate Server Replica Update Vectors:
+	cpeg-ipareplica.ipa.calix.local:389: 21
+[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local repl-agmt list --suffix="dc=ipa,dc=calix,dc=local"
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+cn: cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local
+description: cpeg-ipareplica.ipa.calix.local to nan-ipareplica01.ipa.calix.local
+ipaReplTopoManagedAgreementState: managed agreement - generated by topology plugin
+nsDS5ReplicaBindMethod: SASL/GSSAPI
+nsDS5ReplicaHost: nan-ipareplica01.ipa.calix.local
+nsDS5ReplicaPort: 389
+nsDS5ReplicaRoot: dc=ipa,dc=calix,dc=local
+nsDS5ReplicaTransportInfo: LDAP
+nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserial entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+nsds50ruv: {replicageneration} 66ade489000000140000
+nsds50ruv: {replica 10 ldap://nan-ipareplica01.ipa.calix.local:389} 69bb87f60000000a0000 69e352e70000000a0000
+nsds50ruv: {replica 20 ldap://cpeg-ipareplica.ipa.calix.local:389} 66ade48b000000140000 699f3f63000100140000
+nsds50ruv: {replica 12 ldap://ric-ipareplica.ipa.calix.local:389}
+nsds50ruv: {replica 11 ldap://ric-ipareplica01.ipa.calix.local:389}
+nsds50ruv: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 69c472fa000000340000 69c472fa000000340000
+nsds5ReplicaEnabled: on
+nsds5ReplicaStripAttrs: modifiersName modifyTimestamp internalModifiersName internalModifyTimestamp
+nsds5replicaChangesSentSinceStartup:: MjA6MC8xNzgwMDg2IDU2OjEvMCA1Nzo3LzAg
+nsds5replicaLastInitEnd: 19700101000000Z
+nsds5replicaLastInitStart: 19700101000000Z
+nsds5replicaLastUpdateEnd: 19700101000000Z
+nsds5replicaLastUpdateStart: 20260417164743Z
+nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Incremental update started
+nsds5replicaLastUpdateStatusJSON: {"state": "green", "ldap_rc": "0", "ldap_rc_text": "Success", "repl_rc": "0", "repl_rc_text": "replica acquired", "date": "2026-04-17T16:47:43Z", "message": "Error (0) Replica acquired successfully: Incremental update started"}
+nsds5replicaTimeout: 300
+nsds5replicaUpdateInProgress: TRUE
+nsds5replicareapactive: 0
+nsruvReplicaLastModified: {replica 10 ldap://nan-ipareplica01.ipa.calix.local:389} 00000000
+nsruvReplicaLastModified: {replica 20 ldap://cpeg-ipareplica.ipa.calix.local:389} 00000000
+nsruvReplicaLastModified: {replica 12 ldap://ric-ipareplica.ipa.calix.local:389} 00000000
+nsruvReplicaLastModified: {replica 11 ldap://ric-ipareplica01.ipa.calix.local:389} 00000000
+nsruvReplicaLastModified: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 00000000
+objectClass: nsds5replicationagreement
+objectClass: ipaReplTopoManagedAgreement
+objectClass: top
 
 
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+cn: cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local
+description: cpeg-ipareplica.ipa.calix.local to ric-ipareplica01.ipa.calix.local
+ipaReplTopoManagedAgreementState: managed agreement - generated by topology plugin
+nsDS5ReplicaBindMethod: SASL/GSSAPI
+nsDS5ReplicaHost: ric-ipareplica01.ipa.calix.local
+nsDS5ReplicaPort: 389
+nsDS5ReplicaRoot: dc=ipa,dc=calix,dc=local
+nsDS5ReplicaTransportInfo: LDAP
+nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserial entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount passwordgraceusertime
+nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount passwordgraceusertime
+nsds50ruv: {replicageneration} 66ade489000000140000
+nsds50ruv: {replica 11 ldap://ric-ipareplica01.ipa.calix.local:389} 69a03f9d0000000b0000 69e3a1220000000b0000
+nsds50ruv: {replica 12 ldap://ric-ipareplica.ipa.calix.local:389}
+nsds50ruv: {replica 20 ldap://cpeg-ipareplica.ipa.calix.local:389} 66ade48b000000140000 ffffffff6f0a00140000
+nsds50ruv: {replica 10 ldap://nan-ipareplica01.ipa.calix.local:389}
+nsds50ruv: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 69c472fa000000340000 69c472fa000000340000
+nsds50ruv: {replica 56} 69e14312000000380000 69e14312000000380000
+nsds5ReplicaEnabled: on
+nsds5ReplicaStripAttrs: modifiersname modifytimestamp internalmodifiersname internalmodifytimestamp
+nsds5replicaChangesSentSinceStartup:: MjA6MTc0MjU3LzAgNTY6MS8wIDU3OjcvMCA=
+nsds5replicaLastInitEnd: 19700101000000Z
+nsds5replicaLastInitStart: 19700101000000Z
+nsds5replicaLastUpdateEnd: 19700101000000Z
+nsds5replicaLastUpdateStart: 20260417164744Z
+nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Incremental update started
+nsds5replicaLastUpdateStatusJSON: {"state": "green", "ldap_rc": "0", "ldap_rc_text": "Success", "repl_rc": "0", "repl_rc_text": "replica acquired", "date": "2026-04-17T16:47:44Z", "message": "Error (0) Replica acquired successfully: Incremental update started"}
+nsds5replicaTimeout: 300
+nsds5replicaUpdateInProgress: TRUE
+nsds5replicareapactive: 0
+nsruvReplicaLastModified: {replica 11 ldap://ric-ipareplica01.ipa.calix.local:389} 00000000
+nsruvReplicaLastModified: {replica 12 ldap://ric-ipareplica.ipa.calix.local:389} 00000000
+nsruvReplicaLastModified: {replica 20 ldap://cpeg-ipareplica.ipa.calix.local:389} 00000000
+nsruvReplicaLastModified: {replica 10 ldap://nan-ipareplica01.ipa.calix.local:389} 00000000
+nsruvReplicaLastModified: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 00000000
+nsruvReplicaLastModified: {replica 56} 00000000
+objectClass: nsds5replicationagreement
+objectClass: ipaReplTopoManagedAgreement
+objectClass: top
 
-dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-threadnumber
-dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-maxthreadsperconn
-nproc
 
-ps -p $(pidof ns-slapd) -o pid,%cpu,%mem,rss,nlwp,stat
-
-# Show any operations taking >1 second in last 5 minutes
-awk -v cutoff="$(date -d '5 minutes ago' '+%H:%M:%S')" '
-  /etime=/ {
-    for (i=1; i<=NF; i++) {
-      if ($i ~ /etime=/) {
-        split($i, a, "=")
-        if (a[2]+0 >= 1) print
-      }
-    }
-  }' /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -50
-
-# Number of connections being opened per minute
-grep "fd=.* slot=" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -1000 | awk '{print substr($1,2,20)}' | awk -F: '{print $1":"$2}' | sort | uniq -c | tail -10
-
-# Are any single source IPs opening many rapid connections?
-grep "fd=.* slot=" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -2000 | awk -F'from ' '{print $2}' | awk -F: '{print $1}' | sort | uniq -c | sort -rn | head -10
-
-# Snapshot DS thread states
-ps -T -p $(pidof ns-slapd) -o pid,tid,stat,wchan:30,cmd | head -40
-
-# Stack trace (if gdb or pstack is available)
-which pstack gdb
-
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+cn: cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local
+description: cpeg-ipareplica.ipa.calix.local to sjc-ipareplica01.ipa.calix.local
+ipaReplTopoManagedAgreementState: managed agreement - generated by topology plugin
+nsDS5ReplicaBindMethod: SASL/GSSAPI
+nsDS5ReplicaHost: sjc-ipareplica01.ipa.calix.local
+nsDS5ReplicaPort: 389
+nsDS5ReplicaRoot: dc=ipa,dc=calix,dc=local
+nsDS5ReplicaTransportInfo: LDAP
+nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserial entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+nsds5ReplicaEnabled: on
+nsds5ReplicaStripAttrs: modifiersName modifyTimestamp internalModifiersName internalModifyTimestamp
+nsds5replicaChangesSentSinceStartup:
+nsds5replicaLastInitEnd: 19700101000000Z
+nsds5replicaLastInitStart: 19700101000000Z
+nsds5replicaLastUpdateEnd: 19700101000000Z
+nsds5replicaLastUpdateStart: 19700101000000Z
+nsds5replicaLastUpdateStatus: Error (6) Replication error acquiring replica: Unable to acquire replica: there is no replicated area on the consumer server. Replication is aborting. (no such replica)
+nsds5replicaLastUpdateStatusJSON: {"state": "red", "ldap_rc": "0", "ldap_rc_text": "Success", "repl_rc": "6", "repl_rc_text": "no such replica", "date": "2026-04-17T15:59:00Z", "message": "Error (6) Replication error acquiring replica: Unable to acquire replica: there is no replicated area on the consumer server. Replication is aborting. (no such replica)"}
+nsds5replicaTimeout: 300
+nsds5replicaUpdateInProgress: FALSE
+nsds5replicareapactive: 0
+objectClass: nsds5replicationagreement
+objectClass: ipaReplTopoManagedAgreement
+objectClass: top
 
 
-# Current socket states
-ss -tan | awk '$4 ~ /:389$/ {print $1}' | sort | uniq -c
-
-# Any TCP retransmits/drops?
-nstat -z | grep -iE "drop|retrans|overflow|listen"
-
-# Check kernel dmesg for network issues
-dmesg -T | grep -iE "oom|drop|tcp|ens|bond" | tail -20
-
-
-ipa-replica-manage list
-ipa-replica-manage list-ruv
-dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local repl-agmt list --suffix="dc=ipa,dc=calix,dc=local"
+[root@cpeg-ipareplica ~]#
