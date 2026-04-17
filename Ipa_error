@@ -1,7 +1,10 @@
-# Check what cleanallruv tasks are currently running (should be empty)
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=cleanallruv,cn=tasks,cn=config" dn 2>&1 | grep -i "^dn:"
-
-# Check what abort-cleanallruv tasks exist
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=abort cleanallruv,cn=tasks,cn=config" dn 2>&1 | grep -i "^dn:"
+[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=cleanallruv,cn=tasks,cn=config" dn 2>&1 | grep -i "^dn:"
+dn: cn=cleanallruv,cn=tasks,cn=config
+dn: cn=clean 57,cn=cleanallruv,cn=tasks,cn=config
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=abort cleanallruv,cn=tasks,cn=config" dn 2>&1 | grep -i "^dn:"
+dn: cn=abort cleanallruv,cn=tasks,cn=config
+[root@cpeg-ipareplica ~]#
