@@ -1,9 +1,39 @@
-# Check 1: Any tasks currently running?
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=cleanallruv,cn=tasks,cn=config" nsTaskCurrentItem nsTaskStatus 2>&1 | grep -iE "^dn:|nsTask"
+-bash-4.2$
+-bash-4.2$ sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=cleanallruv,cn=tasks,cn=config" nsTaskCurrentItem nsTaskStatus 2>&1 | grep -iE "^dn:|nsTask"
+# requesting: nsTaskCurrentItem nsTaskStatus
+dn: cn=cleanallruv,cn=tasks,cn=config
+-bash-4.2$
+-bash-4.2$
+-bash-4.2$
+-bash-4.2$ sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+>   repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | \
+>   grep -E "^dn:|nsds5replicaLastUpdateStatus:" | grep -v sjc
+-bash-4.2$ hostname
+sjc-ipareplica01.ipa.calix.local
+-bash-4.2$
 
 
-# Check 2: Replication agreement status for nan and ric (green?)
-sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
-  repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | \
-  grep -E "^dn:|nsds5replicaLastUpdateStatus:" | grep -v sjc
+=====
+
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=cleanallruv,cn=tasks,cn=config" nsTaskCurrentItem nsTaskStatus 2>&1 | grep -iE "^dn:|nsTask"
+# requesting: nsTaskCurrentItem nsTaskStatus
+dn: cn=cleanallruv,cn=tasks,cn=config
+dn: cn=clean 57,cn=cleanallruv,cn=tasks,cn=config
+nsTaskCurrentItem: 15
+nsTaskStatus: Successfully cleaned rid(57)
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+>   repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | \
+>   grep -E "^dn:|nsds5replicaLastUpdateStatus:" | grep -v sjc
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Incremental update started
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Incremental update started
+nsds5replicaLastUpdateStatus: Error (6) Replication error acquiring replica: Unable to acquire replica: there is no replicated area on the consumer server. Replication is aborting. (no such replica)
+[root@cpeg-ipareplica ~]#
