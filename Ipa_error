@@ -1,17 +1,51 @@
-# On cpeg - check history for ipa-replica-manage or dsconf commands
-sudo grep -E "ipa-replica-manage|dsconf.*repl" /root/.bash_history /home/*/.bash_history 2>/dev/null | head -50
+[root@cpeg-ipareplica ~]# sudo ipa host-show pln-petipareplica.ipa.calix.local 2>&1
+ipa: ERROR: pln-petipareplica.ipa.calix.local: host not found
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# sudo ipa-replica-manage list 2>&1 | grep -i pet
+[root@cpeg-ipareplica ~]# sudo ldapsearch -Y GSSAPI -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" 2>&1 | grep -i pet
+[root@cpeg-ipareplica ~]# ping -c 2 pln-petipareplica.ipa.calix.local
+PING pln-petipareplica.ipa.calix.local (10.172.248.57) 56(84) bytes of data.
+64 bytes from pln-petipareplica.ipa.calix.local (10.172.248.57): icmp_seq=1 ttl=56 time=47.7 ms
+64 bytes from pln-petipareplica.ipa.calix.local (10.172.248.57): icmp_seq=2 ttl=56 time=47.8 ms
 
-# Check systemd journal for ipa commands that ran in the last 30 days
-sudo journalctl --since "30 days ago" | grep -iE "ipa-replica-manage|replica.*remove|cleanallruv" | head -30
+--- pln-petipareplica.ipa.calix.local ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1002ms
+rtt min/avg/max/mdev = 47.688/47.755/47.822/0.067 ms
+[root@cpeg-ipareplica ~]#
 
-# Check if there's a ChatGPT session you can pull up
-# (you might have the conversation saved in ChatGPT web history)
 
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]# sudo grep -E "ipa-replica-manage|dsconf.*repl" /root/.bash_history /home/*/.bash_history 2>/dev/null | head -50
+/root/.bash_history:ipa-replica-manage re-initialize --from cpeg-ipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage re-initialize --from cpeg-ipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage re-initialize --from cpeg-ipareplica.ipa.calix.local --verbose
+/root/.bash_history:ipa-replica-manage re-initialize --from cpeg-ipareplica.ipa.calix.local --verbose
+/root/.bash_history:ipa-replica-manage re-initialize --from cpeg-ipareplica.ipa.calix.local --verbose
+/root/.bash_history:ipa-replica-manage status
+/root/.bash_history:Once the server is a healthy replica again (verified with ipa-replica-manage list), the DuplicateEntry error should be gone because the previous del --force finally scrubbed the old CA records.
+/root/.bash_history:ipa-replica-manage list -v pln-petipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage force-sync --from=cpeg-ipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage list -v pln-petipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage re-initialize --from cpeg-ipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage re-initialize --from cpeg-ipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage re-initialize --from cpeg-ipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage list
+/root/.bash_history:ipa-replica-manage status cpeg-ipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage list cpeg-ipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage list-ruv cpeg-ipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage list-ruv
+/root/.bash_history:ipa-replica-manage force-sync --from cpeg-ipareplica.ipa.calix.local
+/root/.bash_history:ipa-replica-manage re-initialize --from cpeg-ipareplica.ipa.calix.local
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]# sudo journalctl --since "30 days ago" | grep -iE "ipa-replica-manage|replica.*remove|cleanallruv" | head -30
 
-ping -c 2 pln-petipareplica.ipa.calix.local
-ssh pln-petipareplica.ipa.calix.local "hostname; uptime; ipactl status 2>&1 | head -10"
-
-# Is there any lingering reference to pln-petipareplica on cpeg?
-sudo ipa host-show pln-petipareplica.ipa.calix.local 2>&1
-sudo ipa-replica-manage list 2>&1 | grep -i pet
-sudo ldapsearch -Y GSSAPI -b "cn=masters,cn=ipa,cn=etc,dc=ipa,dc=calix,dc=local" 2>&1 | grep -i pet
+Apr 17 14:34:59 pln-petipareplica.ipa.calix.local systemd[1]: Removed slice User Slice of UID 0.
+Apr 17 15:35:01 pln-petipareplica.ipa.calix.local systemd[1]: Removed slice User Slice of UID 0.
+Apr 17 16:35:00 pln-petipareplica.ipa.calix.local systemd[1]: Removed slice User Slice of UID 0.
+Apr 17 17:34:38 pln-petipareplica.ipa.calix.local sudo[3926868]:     root : TTY=pts/1 ; PWD=/root ; USER=root ; COMMAND=/bin/grep -E ipa-replica-manage|dsconf.*repl /root/.bash_history /home/deploy/.bash_history /home/mmanisha/.bash_history /home/vsekar/.bash_history
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]#
