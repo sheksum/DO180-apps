@@ -1,16 +1,13 @@
-[root@cpeg-ipareplica ~]# sudo grep "17/Apr/2026:15:09:3" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -20
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
->   repl-agmt list --suffix="o=ipaca" 2>&1 | grep -E "^dn:|nsds5replicaHost"
-Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# nc -zv pln-ipamaster.ipa.calix.local 389 2>&1
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Could not resolve hostname "pln-ipamaster.ipa.calix.local": Name or service not known. QUITTING.
-[root@cpeg-ipareplica ~]#
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=config" "(objectClass=nsds5ReplicationAgreement)" \
+  dn nsds5replicaHost nsds5ReplicaEnabled 2>&1 | grep -E "^dn:|nsds5replicaHost|nsds5ReplicaEnabled"
 
 
-[root@pln-ipamaster ~]# sudo systemctl is-active dirsrv@*
-active
-[root@pln-ipamaster ~]#
+# On pln-ipamaster
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=config" "(objectClass=nsds5ReplicationAgreement)" \
+  dn nsds5replicaHost nsds5ReplicaEnabled 2>&1 | grep -E "^dn:|nsds5replicaHost|nsds5ReplicaEnabled"
+
+# Check its replica ID
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=config" "(objectClass=nsds5replica)" nsDS5ReplicaId 2>&1 | grep -E "^dn:|ReplicaId"
