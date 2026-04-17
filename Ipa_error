@@ -1,11 +1,42 @@
-# Confirm 57 is truly gone from all RUV lists (should see no "replica 57")
-sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
-  repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | grep -E "replica 5[0-9]"
+[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+>   repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | grep -E "replica 5[0-9]"
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+nsds50ruv: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 69c472fa000000340000 69c472fa000000340000
+nsruvReplicaLastModified: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 00000000
+nsds50ruv: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 69c472fa000000340000 69c472fa000000340000
+nsds50ruv: {replica 56} 69e14312000000380000 69e14312000000380000
+nsruvReplicaLastModified: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 00000000
+nsruvReplicaLastModified: {replica 56} 00000000
+[root@cpeg-ipareplica ~]#
 
-# Check the replication tasks log for any timing details
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=tasks,cn=config" "(cn=clean*)" cn nsTaskCreated nsTaskStatus nsTaskExitCode 2>&1 | grep -iE "^cn:|^nsTask"
 
-# Current replication state summary
-sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
-  replication monitor 2>&1 | head -80
+[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket   -b "cn=tasks,cn=config" "(cn=clean*)" cn nsTaskCreated nsTaskStatus nsTaskExitCode 2>&1 | grep -iE "^cn:|^nsTask"
+cn: cleanallruv
+cn: clean 57
+nsTaskCreated: 20260417155815Z
+nsTaskStatus: Successfully cleaned rid(57)
+nsTaskExitCode: 0
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+>   replication monitor 2>&1 | head -80
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+
+
+Enter a password for  on nan-ipareplica01.ipa.calix.local:389:
+Enter a bind DN for nan-ipareplica01.ipa.calix.local:389:
+
+Enter a password for  on ric-ipareplica01.ipa.calix.local:389:
+Enter a bind DN for ric-ipareplica01.ipa.calix.local:389:
+^C
+[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local   replication monitor 2>&1 | head -80
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+
+
+Enter a password for  on nan-ipareplica01.ipa.calix.local:389:
+Enter a bind DN for nan-ipareplica01.ipa.calix.local:389:
+
+Enter a password for  on ric-ipareplica01.ipa.calix.local:389:
+Enter a bind DN for ric-ipareplica01.ipa.calix.local:389:
+
+Enter a password for  on sjc-ipareplica01.ipa.calix.local:389:
