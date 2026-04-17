@@ -1,25 +1,20 @@
-FQDN: sjc-ipareplica01.ipa.calix.local
-IP:   192.168.99.34
+# On sjc
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config" \
+  2>&1 | grep -v "^$" | head -30
 
-Processor: Intel(R) Xeon(R) CPU E5-2697 v4 @ 2.30GHz
-Memory:    7.80 GiB
+# Check if sjc has replication agreements back to cpeg
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=config" "(objectClass=nsds5ReplicationAgreement)" \
+  nsds5replicaHost nsds5replicaLastUpdateStatus nsds5ReplicaEnabled \
+  2>&1 | grep -v "^$" | head -40
 
--------------------------------------------------
-Could not chdir to home directory /home/hsuma: No such file or directory
-/usr/local/bin/ca_import_firefox_snap.sh: line 10: /home/hsuma/.ca_import_firefox_snap_done: No such file or directory
-/usr/local/bin/ca_import_google_snap.sh: line 9: /home/hsuma/.ca_import_google_snap_done: No such file or directory
-/usr/local/bin/ca_import_openssl_user.sh: line 5: /home/hsuma/.ca_import_openssl_user_done: No such file or directory
--bash-4.2$
--bash-4.2$
--bash-4.2$
--bash-4.2$ sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=config" "(objectClass=nsds5replica)" nsds5replicaroot nsds5replicaid dn 2>&1 | \
->   grep -iE "^dn:|nsds5replica"
-# filter: (objectClass=nsds5replica)
-# requesting: nsds5replicaroot nsds5replicaid dn
-dn: cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-nsds5replicaroot: dc=ipa,dc=calix,dc=local
-nsds5replicaid: 30
--bash-4.2$ hostname
-sjc-ipareplica01.ipa.calix.local
--bash-4.2$
+# Check replication plugin status
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=Multimaster Replication Plugin,cn=plugins,cn=config" nsslapd-pluginEnabled \
+  2>&1 | grep -i "pluginEnabled"
+
+# Check sjc's RUV for the suffix
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "dc=ipa,dc=calix,dc=local" "(objectclass=nsTombstone)" \
+  nsds50ruv nsds50ruvReplicaLastModified 2>&1 | head -20
