@@ -1,22 +1,7 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
->   repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | grep -E "^nsds50ruv|replica 52|replica 56"
-Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
-nsds50ruv: {replicageneration} 66ade489000000140000
-nsds50ruv: {replica 10 ldap://nan-ipareplica01.ipa.calix.local:389} 69bb87f60000000a0000 69e352e70000000a0000
-nsds50ruv: {replica 20 ldap://cpeg-ipareplica.ipa.calix.local:389} 66ade48b000000140000 699f3f63000100140000
-nsds50ruv: {replica 12 ldap://ric-ipareplica.ipa.calix.local:389}
-nsds50ruv: {replica 11 ldap://ric-ipareplica01.ipa.calix.local:389}
-nsds50ruv: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 69c472fa000000340000 69c472fa000000340000
-nsruvReplicaLastModified: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 00000000
-nsds50ruv: {replicageneration} 66ade489000000140000
-nsds50ruv: {replica 11 ldap://ric-ipareplica01.ipa.calix.local:389} 69a03f9d0000000b0000 69e3a1220000000b0000
-nsds50ruv: {replica 12 ldap://ric-ipareplica.ipa.calix.local:389}
-nsds50ruv: {replica 20 ldap://cpeg-ipareplica.ipa.calix.local:389} 66ade48b000000140000 ffffffff6f0a00140000
-nsds50ruv: {replica 10 ldap://nan-ipareplica01.ipa.calix.local:389}
-nsds50ruv: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 69c472fa000000340000 69c472fa000000340000
-nsds50ruv: {replica 56} 69e14312000000380000 69e14312000000380000
-nsruvReplicaLastModified: {replica 52 ldap://pln-ipamaster.ipa.calix.local:389} 00000000
-nsruvReplicaLastModified: {replica 56} 00000000
-[root@cpeg-ipareplica ~]#
+# Check what cleanallruv tasks are currently running (should be empty)
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=cleanallruv,cn=tasks,cn=config" dn 2>&1 | grep -i "^dn:"
+
+# Check what abort-cleanallruv tasks exist
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=abort cleanallruv,cn=tasks,cn=config" dn 2>&1 | grep -i "^dn:"
