@@ -1,10 +1,24 @@
-# On cpeg
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=config" "(objectClass=nsds5replica)" nsDS5ReplicaId dn 2>&1 | grep -iE "^dn:|nsDS5ReplicaId"
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]# ls -la /var/lib/ipa/sysrestore/ | head -20
+total 0
+drwx--x--x.  2 root root   6 Apr 17 17:39 .
+drwxr-xr-x. 10 root root 129 Apr 17 17:39 ..
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]# sudo stat /var/lib/ipa/sysrestore/sysrestore.index
+stat: cannot statx '/var/lib/ipa/sysrestore/sysrestore.index': No such file or directory
+[root@pln-petipareplica ~]# sudo cat /var/lib/ipa/sysrestore/sysrestore.state 2>&1 | head -30
+cat: /var/lib/ipa/sysrestore/sysrestore.state: No such file or directory
+[root@pln-petipareplica ~]# sudo journalctl --since "2026-02-20" --until "2026-03-01" | grep -iE "ipa-replica-install|ipa-server-install" | head -20
+[root@pln-petipareplica ~]#
 
-
-# On pln-petipareplica
-ls -la /var/lib/ipa/sysrestore/ | head -20
-sudo stat /var/lib/ipa/sysrestore/sysrestore.index
-sudo cat /var/lib/ipa/sysrestore/sysrestore.state 2>&1 | head -30
-sudo journalctl --since "2026-02-20" --until "2026-03-01" | grep -iE "ipa-replica-install|ipa-server-install" | head -20
+[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=config" "(objectClass=nsds5replica)" nsDS5ReplicaId dn 2>&1 | grep -iE "^dn:|nsDS5ReplicaId"
+# requesting: nsDS5ReplicaId dn
+dn: cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+nsDS5ReplicaId: 20
+dn: cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config
+nsDS5ReplicaId: 21
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
