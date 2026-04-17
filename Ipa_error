@@ -1,38 +1,12 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index get --attr=gidNumber userRoot
-Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
-dn: cn=gidnumber,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
-cn: gidnumber
-nsIndexType: eq
-nsMatchingRule: integerOrderingMatch
-nsSystemIndex: false
-objectClass: nsIndex
-objectClass: top
+# Size of the gidNumber index vs expected
+ls -lah /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/gidNumber.db*
+ls -lah /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/id2entry.db*
+
+# Do a direct ldapsearch matching the slow filter and see what etime comes back
+time ldapsearch -x -H ldap://localhost -D "cn=Directory Manager" -W \
+  -b "cn=accounts,dc=ipa,dc=calix,dc=local" \
+  "(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" \
+  dn 2>&1 | tail -5
 
 
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index get --attr=cn userRoot
-Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
-dn: cn=cn,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
-cn: cn
-nsIndexType: pres
-nsIndexType: eq
-nsIndexType: sub
-nsSystemIndex: false
-objectClass: top
-objectClass: nsIndex
-
-
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index get --attr=objectClass userRoot
-Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
-dn: cn=objectclass,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
-cn: objectclass
-nsIndexType: eq
-nsSystemIndex: true
-objectClass: top
-objectClass: nsIndex
-
-
-[root@cpeg-ipareplica ~]#
+grep -i enumerate /etc/sssd/sssd.conf
