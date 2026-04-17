@@ -1,6 +1,64 @@
-ipactl status 2>&1
-rpm -qa | grep -E "ipa-server|389-ds-base" | sort
-ls -la /etc/dirsrv/ 2>&1
-ls -la /var/lib/ipa/sysrestore/ 2>&1
-ss -tlnp | grep -E ":389|:88|:464"
-cat /etc/ipa/default.conf 2>&1 | head -15
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]# ipactl status 2>&1
+Directory Service: STOPPED
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+ipa-otpd Service: RUNNING
+1 service(s) are not running
+[root@pln-petipareplica ~]# rpm -qa | grep -E "ipa-server|389-ds-base" | sort
+389-ds-base-1.4.3.39-3.module+el8.10.0+21535+f663b039.x86_64
+389-ds-base-libs-1.4.3.39-3.module+el8.10.0+21535+f663b039.x86_64
+ipa-server-4.9.13-8.module+el8.10.0+21432+ee17c097.x86_64
+ipa-server-common-4.9.13-8.module+el8.10.0+21432+ee17c097.noarch
+ipa-server-dns-4.9.13-8.module+el8.10.0+21432+ee17c097.noarch
+[root@pln-petipareplica ~]# ls -la /etc/dirsrv/ 2>&1
+total 20
+drwxr-xr-x.   5 root   root     80 Feb 25 00:35 .
+drwxr-xr-x. 159 root   root   8192 Mar 29 23:30 ..
+drwxr-xr-x.   2 root   root     55 Feb 24 20:25 config
+-rw-------.   1 dirsrv dirsrv  212 Feb 25 00:35 ds.keytab
+drwxr-xr-x.   2 root   root     25 Feb 24 20:25 schema
+drwxr-x---.   3 dirsrv dirsrv 4096 Apr 10 19:57 slapd-IPA-CALIX-LOCAL
+[root@pln-petipareplica ~]# ls -la /var/lib/ipa/sysrestore/ 2>&1
+total 68
+drwx--x--x.  2 root root 4096 Feb 25 00:36 .
+drwxr-xr-x. 10 root root  169 Feb 25 00:36 ..
+-rw-r--r--.  1 root root  599 Feb 25 00:32 00f6cb1c1b759ebeae9ceba36a5896e902b7a30d57341379bdef62b8f728104d-krb5.ini
+-rw-r--r--.  1 root root  369 Feb 25 00:36 1a05280c77625661bfd6272b6194adc290e3d877706ba81a38cc1119f805075c-default.conf
+-rw-r--r--.  1 root root  898 Feb 25 00:33 1a42fdfabc5673e68856ca9998e5bcfa4e14da150a749cfcd60ba27c129e02f3-krb5.conf
+-rw-r--r--.  1 root root   77 Feb 25 00:32 250b9ce0d2879c9052634727c71258781362cb6d4f290327a5450f3e8675dae8-krb.con
+-rw-r--r--.  1 root root  292 Feb 25 00:33 2c556b382535cb447c3872108ab0b8e044d43ea0bc24b8209337891685cf48c0-default.conf
+-rw-r--r--.  1 root root  189 Feb 25 00:32 2df5ccd73ad6c90bf5eb26830b4db713fa7f4a45a5348e7aefe3b8f381231191-freeipa-server
+-rw-r--r--.  1 root root   54 Feb 25 00:34 475fbab9e854489eee0963f49f700cfc2da856e3976dc8cb36ccae8b773d1a8f-freeipa
+-rw-------.  1 root root  436 Feb 25 00:31 66509480f4da6b20e5d96c4ca89702b36a72548808ad6c6639424d689ae383be-kdc.conf
+-rw-r--r--.  1 root root  371 Feb 25 00:36 7b3d91027a3e35bc9368227f83d94f5dba0f705a7b15fb707f1001f44a24ee25-default.conf
+-rw-r--r--.  1 root root 8720 Feb 25 00:31 c12f09eda85f55cc678d02b74d448b3768d3492c79fe7c93130b36da3c525e11-ssl.conf
+-rw-rw----.  1 root root    0 Feb 25 00:31 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-nss.conf
+-rw-r--r--.  1 root root   14 Feb 25 00:32 edf95267244d57b6c953ea3ad197c12e2e342e237d2b31d2d75e5aeac3e06e03-krb5kdc
+-rw-r--r--.  1 root root   99 Feb 25 00:32 fedd11140312309ae229eb01ab83d3d07197bfa57a22893de8919c6fac77dc10-krbrealm.con
+-rw-r--r--.  1 root root 1483 Feb 25 00:36 sysrestore.index
+-rw-r--r--.  1 root root  500 Feb 25 00:41 sysrestore.state
+[root@pln-petipareplica ~]# ss -tlnp | grep -E ":389|:88|:464"
+LISTEN 0      5                 0.0.0.0:464        0.0.0.0:*    users:(("kadmind",pid=4863,fd=9))
+LISTEN 0      5                 0.0.0.0:88         0.0.0.0:*    users:(("krb5kdc",pid=11321,fd=9),("krb5kdc",pid=11320,fd=9),("krb5kdc",pid=11319,fd=9),("krb5kdc",pid=11318,fd=9))
+LISTEN 0      5                    [::]:464           [::]:*    users:(("kadmind",pid=4863,fd=10))
+LISTEN 0      5                    [::]:88            [::]:*    users:(("krb5kdc",pid=11321,fd=10),("krb5kdc",pid=11320,fd=10),("krb5kdc",pid=11319,fd=10),("krb5kdc",pid=11318,fd=10))
+[root@pln-petipareplica ~]# cat /etc/ipa/default.conf 2>&1 | head -15
+[global]
+basedn = dc=ipa,dc=calix,dc=local
+host = pln-petipareplica.ipa.calix.local
+realm = IPA.CALIX.LOCAL
+domain = ipa.calix.local
+xmlrpc_uri = https://pln-petipareplica.ipa.calix.local/ipa/xml
+ldap_uri = ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket
+mode = production
+enable_ra = True
+ra_plugin = dogtag
+dogtag_version = 10
+ca_host = cpeg-ipareplica.ipa.calix.local
+
+
+[root@pln-petipareplica ~]#
