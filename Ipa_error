@@ -1,39 +1,18 @@
-[root@cpeg-ipareplica ~]# ipa-replica-manage list-ruv
-Directory Manager password:
+ping -c 2 sjc-ipareplica01.ipa.calix.local
+ssh sjc-ipareplica01.ipa.calix.local "ipactl status | head -5"
 
-Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 20
-	ric-ipareplica.ipa.calix.local:389: 12
-	ric-ipareplica01.ipa.calix.local:389: 11
-	nan-ipareplica01.ipa.calix.local:389: 10
-Certificate Server Replica Update Vectors:
-	cpeg-ipareplica.ipa.calix.local:389: 21
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa-replica-manage clean-dangling-ruv
-Directory Manager password:
 
-Failed to obtain information from 'sjc-ipareplica01.ipa.calix.local': 'nsds50ruv'
-[root@cpeg-ipareplica ~]# grep "conn=4434824 op=14[2-9]\|conn=4434824 op=15[0-9]\|conn=4434824 op=16[0-9]" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -40
-[root@cpeg-ipareplica ~]# grep "notes=U" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -20
-[17/Apr/2026:16:52:03.083317352 +0000] conn=4438787 op=18 RESULT err=0 tag=101 nentries=5 wtime=0.000386005 optime=0.005525052 etime=0.005908927 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:52:05.023062601 +0000] conn=4436544 op=18 RESULT err=0 tag=101 nentries=5 wtime=0.000370331 optime=0.003747391 etime=0.004116225 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:52:12.229658320 +0000] conn=4441179 op=15 RESULT err=0 tag=101 nentries=5 wtime=0.000145783 optime=0.004473752 etime=0.004614391 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:52:12.562650113 +0000] conn=4442067 op=18 RESULT err=0 tag=101 nentries=5 wtime=0.000351193 optime=0.002374090 etime=0.002723781 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:52:16.100857275 +0000] conn=4436386 op=49 RESULT err=0 tag=101 nentries=5 wtime=0.000625109 optime=1.289094011 etime=1.289717487 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:52:23.786188251 +0000] conn=4440183 op=24 RESULT err=0 tag=101 nentries=5 wtime=0.000590153 optime=0.010757913 etime=0.011346513 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:52:31.999148987 +0000] conn=4436658 op=26 RESULT err=0 tag=101 nentries=5 wtime=0.000284858 optime=0.009136589 etime=0.009419936 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:52:45.440160981 +0000] conn=4437146 op=9 RESULT err=0 tag=101 nentries=5 wtime=0.000263513 optime=0.750100865 etime=0.750362786 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:01.142682438 +0000] conn=4438702 op=20 RESULT err=0 tag=101 nentries=5 wtime=0.000116678 optime=0.003659330 etime=0.003774500 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:01.547867368 +0000] conn=4441755 op=18 RESULT err=0 tag=101 nentries=5 wtime=0.000161537 optime=0.002488599 etime=0.002648608 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:12.201941617 +0000] conn=4438778 op=24 RESULT err=0 tag=101 nentries=5 wtime=0.000625208 optime=0.004094582 etime=0.004718091 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:13.991380497 +0000] conn=4438716 op=20 RESULT err=0 tag=101 nentries=5 wtime=0.000284025 optime=0.005586949 etime=0.005866219 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:19.977755130 +0000] conn=4439594 op=23 RESULT err=0 tag=101 nentries=5 wtime=0.000378313 optime=0.003875067 etime=0.004251972 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:25.368263979 +0000] conn=4439954 op=11 RESULT err=0 tag=101 nentries=5 wtime=0.000301205 optime=0.194293509 etime=0.194592998 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:28.165367738 +0000] conn=4436944 op=20 RESULT err=0 tag=101 nentries=5 wtime=0.000570531 optime=0.005552918 etime=0.006121841 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:29.802713585 +0000] conn=4438587 op=16 RESULT err=0 tag=101 nentries=5 wtime=0.000329595 optime=0.003544424 etime=0.003872484 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:30.147891483 +0000] conn=4439436 op=36 RESULT err=0 tag=101 nentries=5 wtime=0.000338166 optime=0.003799400 etime=0.004136071 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:30.228329805 +0000] conn=4443830 op=1 RESULT err=0 tag=101 nentries=5 wtime=0.000208879 optime=0.101061894 etime=0.101260983 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:32.967216357 +0000] conn=4440886 op=19 RESULT err=0 tag=101 nentries=5 wtime=0.000364386 optime=0.003867441 etime=0.004230280 notes=U details="Partially Unindexed Filter"
-[17/Apr/2026:16:53:38.292061536 +0000] conn=4443883 op=4 RESULT err=0 tag=101 nentries=5 wtime=0.000396278 optime=0.007217827 etime=0.007609545 notes=U details="Partially Unindexed Filter"
-[root@cpeg-ipareplica ~]#
+# Pull the slow 1.29s op above — find its SRCH line
+grep -B1 "conn=4436386 op=49 " /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -5
+
+# Get 10 recent unindexed SRCH patterns
+grep "notes=U" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -20 | awk '{for(i=1;i<=NF;i++) if($i~/conn=|op=/) printf "%s ",$i; print ""}' | while read conn op rest; do
+  grep "$conn $op SRCH " /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -1
+done
+
+
+# Example — if the filter is on attribute "foo":
+dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index add --attr=foo --index-type=eq --index-type=pres userRoot
+
+
+dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index reindex --wait userRoot
