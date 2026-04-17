@@ -1,3 +1,148 @@
- # From plnx-admin
-dig @10.172.248.30 NS ipa.calix.local
-dig @10.172.248.30 SOA ipa.calix.local
+hsuma@plnx-admin:~$ dig @10.172.248.30 NS ipa.calix.local
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> @10.172.248.30 NS ipa.calix.local
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 11268
+;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4000
+;; QUESTION SECTION:
+;ipa.calix.local.		IN	NS
+
+;; AUTHORITY SECTION:
+calix.local.		900	IN	SOA	plnwdc19a.calix.local. hostmaster. 30737186 900 600 86400 3600
+
+;; Query time: 0 msec
+;; SERVER: 10.172.248.30#53(10.172.248.30) (UDP)
+;; WHEN: Fri Apr 17 12:20:16 CDT 2026
+;; MSG SIZE  rcvd: 100
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ dig @10.172.248.30 SOA ipa.calix.local
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> @10.172.248.30 SOA ipa.calix.local
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 15154
+;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4000
+;; QUESTION SECTION:
+;ipa.calix.local.		IN	SOA
+
+;; AUTHORITY SECTION:
+calix.local.		60	IN	SOA	plnwdc19a.calix.local. hostmaster. 30737186 900 600 86400 3600
+
+;; ADDITIONAL SECTION:
+plnwdc19a.calix.local.	3079	IN	A	10.172.248.32
+
+;; Query time: 4 msec
+;; SERVER: 10.172.248.30#53(10.172.248.30) (UDP)
+;; WHEN: Fri Apr 17 12:20:21 CDT 2026
+;; MSG SIZE  rcvd: 116
+
+hsuma@plnx-admin:~$ dig @10.172.248.32 SOA ipa.calix.local
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> @10.172.248.32 SOA ipa.calix.local
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 54398
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4000
+;; QUESTION SECTION:
+;ipa.calix.local.		IN	SOA
+
+;; AUTHORITY SECTION:
+calix.local.		3600	IN	SOA	plnwdc19a.calix.local. hostmaster. 30737186 900 600 86400 3600
+
+;; ADDITIONAL SECTION:
+plnwdc19a.calix.local.	3600	IN	A	10.172.248.32
+
+;; Query time: 0 msec
+;; SERVER: 10.172.248.32#53(10.172.248.32) (UDP)
+;; WHEN: Fri Apr 17 12:20:27 CDT 2026
+;; MSG SIZE  rcvd: 116
+
+hsuma@plnx-admin:~$ dig @10.172.248.33 SOA ipa.calix.local
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> @10.172.248.33 SOA ipa.calix.local
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 63988
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4000
+;; QUESTION SECTION:
+;ipa.calix.local.		IN	SOA
+
+;; AUTHORITY SECTION:
+calix.local.		3600	IN	SOA	plnwdc19b.calix.local. hostmaster. 30737186 900 600 86400 3600
+
+;; ADDITIONAL SECTION:
+plnwdc19b.calix.local.	3600	IN	A	10.172.248.33
+
+;; Query time: 0 msec
+;; SERVER: 10.172.248.33#53(10.172.248.33) (UDP)
+;; WHEN: Fri Apr 17 12:20:33 CDT 2026
+;; MSG SIZE  rcvd: 116
+
+hsuma@plnx-admin:~$ dig @10.172.248.31 SOA ipa.calix.local
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> @10.172.248.31 SOA ipa.calix.local
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 44754
+;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4000
+;; QUESTION SECTION:
+;ipa.calix.local.		IN	SOA
+
+;; AUTHORITY SECTION:
+calix.local.		60	IN	SOA	plnwdc19a.calix.local. hostmaster. 30737186 900 600 86400 3600
+
+;; ADDITIONAL SECTION:
+plnwdc19a.calix.local.	725	IN	A	10.172.248.32
+
+;; Query time: 0 msec
+;; SERVER: 10.172.248.31#53(10.172.248.31) (UDP)
+;; WHEN: Fri Apr 17 12:20:37 CDT 2026
+;; MSG SIZE  rcvd: 116
+
+hsuma@plnx-admin:~$ dig @10.172.248.38 SOA ipa.calix.local
+
+
+
+;; communications error to 10.172.248.38#53: timed out
+;; communications error to 10.172.248.38#53: timed out
+;; communications error to 10.172.248.38#53: timed out
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> @10.172.248.38 SOA ipa.calix.local
+; (1 server found)
+;; global options: +cmd
+;; no servers could be reached
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
