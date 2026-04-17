@@ -1,2 +1,4 @@
-sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
-  repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | grep -E "replica 5[0-9]"
+[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+>   repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | grep -E "replica 5[0-9]"
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+[root@cpeg-ipareplica ~]#
