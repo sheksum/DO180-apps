@@ -1,7 +1,25 @@
-grep "conn=3771795" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -5
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# grep "conn=3771795" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -5
+[17/Apr/2026:15:42:03.951492119 +0000] conn=3771795 op=42257 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multimaster-extop"
+[17/Apr/2026:15:42:03.952564151 +0000] conn=3771795 op=42257 RESULT err=0 tag=120 nentries=0 wtime=0.000649455 optime=0.001086575 etime=0.001733450
+[17/Apr/2026:15:42:04.019729169 +0000] conn=3771795 op=42258 EXT oid="2.16.840.1.113730.3.5.5" name="replication-multimaster-extop"
+[17/Apr/2026:15:42:04.020784328 +0000] conn=3771795 op=42258 RESULT err=0 tag=120 nentries=0 wtime=0.000110712 optime=0.001059879 etime=0.001168748
+[17/Apr/2026:15:42:07.087521764 +0000] conn=3771795 op=42259 EXT oid="2.16.840.1.113730.3.5.12" name="replication-multimaster-extop"
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# time ldapsearch -x -H ldap://cpeg-ipareplica.ipa.calix.local -s base -b "" supportedLDAPVersion 2>&1 | tail -3
 
-# From cpeg itself
-time ldapsearch -x -H ldap://cpeg-ipareplica.ipa.calix.local -s base -b "" supportedLDAPVersion 2>&1 | tail -3
+# numResponses: 2
+# numEntries: 1
 
-# Current listen backlog and active conns on 389
-ss -tan | awk '$4 ~ /:389$/ {print $1}' | sort | uniq -c
+real	0m0.011s
+user	0m0.004s
+sys	0m0.006s
+[root@cpeg-ipareplica ~]# ss -tan | awk '$4 ~ /:389$/ {print $1}' | sort | uniq -c
+      2 CLOSE-WAIT
+   1632 ESTAB
+      1 LISTEN
+      1 TIME-WAIT
+[root@cpeg-ipareplica ~]#
