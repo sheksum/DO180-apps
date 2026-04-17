@@ -1,10 +1,7 @@
-[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=cleanallruv,cn=tasks,cn=config" dn 2>&1 | grep -i "^dn:"
-dn: cn=cleanallruv,cn=tasks,cn=config
-dn: cn=clean 57,cn=cleanallruv,cn=tasks,cn=config
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=abort cleanallruv,cn=tasks,cn=config" dn 2>&1 | grep -i "^dn:"
-dn: cn=abort cleanallruv,cn=tasks,cn=config
-[root@cpeg-ipareplica ~]#
+# What's the state of the clean 57 task?
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=clean 57,cn=cleanallruv,cn=tasks,cn=config" 2>&1 | grep -v "^$"
+
+# Also check what the abort-cleanallruv container has
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=abort cleanallruv,cn=tasks,cn=config" 2>&1 | grep -v "^$" | head -30
