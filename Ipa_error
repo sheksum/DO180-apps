@@ -1,14 +1,47 @@
-# Watch the error log in real time
-sudo tail -20 /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors
 
-# Count pln-ipamaster errors in the last minute
-sudo grep -c "meTopln-ipamaster" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors
-sudo grep "meTopln-ipamaster" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -5
+[root@cpeg-ipareplica ~]# sudo tail -20 /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors
+[17/Apr/2026:20:20:55.566100012 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:20:57.595230451 +0000] - ERR - NSMMReplicationPlugin - multimaster_extop_StartNSDS50ReplicationRequest - conn=3771795 op=48137 replica="dc=ipa,dc=calix,dc=local": Unable to acquire replica: error: permission denied
+[17/Apr/2026:20:20:57.807166409 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:20:58.257641773 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:21:00.048193735 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:21:00.662587406 +0000] - ERR - NSMMReplicationPlugin - multimaster_extop_StartNSDS50ReplicationRequest - conn=3771795 op=48138 replica="dc=ipa,dc=calix,dc=local": Unable to acquire replica: error: permission denied
+[17/Apr/2026:20:21:01.329986072 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:21:02.288951025 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:21:03.729091697 +0000] - ERR - NSMMReplicationPlugin - multimaster_extop_StartNSDS50ReplicationRequest - conn=3771795 op=48139 replica="dc=ipa,dc=calix,dc=local": Unable to acquire replica: error: permission denied
+[17/Apr/2026:20:21:04.403758356 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:21:04.530587171 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:21:06.796023273 +0000] - ERR - NSMMReplicationPlugin - multimaster_extop_StartNSDS50ReplicationRequest - conn=3771795 op=48140 replica="dc=ipa,dc=calix,dc=local": Unable to acquire replica: error: permission denied
+[17/Apr/2026:20:21:06.835646325 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:21:07.478565920 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:21:09.076639415 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:21:09.862074061 +0000] - ERR - NSMMReplicationPlugin - multimaster_extop_StartNSDS50ReplicationRequest - conn=3771795 op=48141 replica="dc=ipa,dc=calix,dc=local": Unable to acquire replica: error: permission denied
+[17/Apr/2026:20:21:10.551149734 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:21:11.318561267 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:20:21:12.927716315 +0000] - ERR - NSMMReplicationPlugin - multimaster_extop_StartNSDS50ReplicationRequest - conn=3771795 op=48142 replica="dc=ipa,dc=calix,dc=local": Unable to acquire replica: error: permission denied
+[17/Apr/2026:20:21:13.624408072 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# sudo grep -c "meTopln-ipamaster" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors
+24662
+[root@cpeg-ipareplica ~]# sudo grep "meTopln-ipamaster" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | tail -5
+[17/Apr/2026:15:58:05.962862500 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:15:58:08.331615865 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:15:58:10.699851893 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:15:58:13.068719186 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
+[17/Apr/2026:15:58:14.759181509 +0000] - ERR - ipa-topology-plugin - ipa_topo_agmt_del: cn=meTopln-ipamaster.ipa.calix.local
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
 
 
-# This needs to run on pln-ipamaster, not cpeg
-ssh root@pln-ipamaster
-# Then:
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+
+
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
   -b "cn=config" "(objectClass=nsds5ReplicationAgreement)" \
   dn nsds5replicaHost nsds5ReplicaEnabled 2>&1 | grep -E "^dn:|nsds5replicaHost|nsds5ReplicaEnabled"
+# requesting: dn nsds5replicaHost nsds5ReplicaEnabled
+dn: cn=meTocpeg-ipareplica.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix
+nsds5replicaHost: cpeg-ipareplica.ipa.calix.local
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
+[root@pln-ipamaster ~]#
