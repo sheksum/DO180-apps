@@ -1,11 +1,8 @@
-[root@cpeg-ipareplica ~]# ipa-replica-manage clean-ruv 52
-Directory Manager password:
+ipa-replica-manage list-ruv
+ipa-replica-manage clean-dangling-ruv
 
-Replica ID 52 not found
-[root@cpeg-ipareplica ~]# grep "conn=4431600 " /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -10
-[root@cpeg-ipareplica ~]# grep "conn=4434824 " /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -20
-[17/Apr/2026:16:50:39.503374649 +0000] conn=4434824 op=200 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(objectClass=ipaHost)(fqdn=stash.calix.local))" attrs="objectClass cn fqdn serverHostName memberOf ipaSshPubKey ipaUniqueID"
-[17/Apr/2026:16:50:39.503733603 +0000] conn=4434824 op=200 RESULT err=0 tag=101 nentries=0 wtime=0.000359672 optime=0.000360772 etime=0.000718642 notes=P details="Paged Search" pr_idx=0 pr_cookie=-1
-[17/Apr/2026:16:51:20.278616288 +0000] conn=4434824 op=201 UNBIND
-[17/Apr/2026:16:51:20.278634926 +0000] conn=4434824 op=201 fd=935 closed error - U1
-[root@cpeg-ipareplica ~]#
+
+grep "conn=4434824 op=14[2-9]\|conn=4434824 op=15[0-9]\|conn=4434824 op=16[0-9]" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -40
+
+
+grep "notes=U" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -20
