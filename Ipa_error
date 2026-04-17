@@ -1,19 +1,6 @@
-[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
->   repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | grep -E "^dn:|nsds5replicaHost|nsds5ReplicaEnabled"
-Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-nsds5ReplicaEnabled: on
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-nsds5ReplicaEnabled: on
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-nsds5ReplicaEnabled: off
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa-replica-manage list
-sjc-ipareplica01.ipa.calix.local: master
-nan-ipareplica01.ipa.calix.local: master
-ric-ipareplica01.ipa.calix.local: master
-ric-ipareplica.ipa.calix.local: master
-cpeg-ipareplica.ipa.calix.local: master
-[root@cpeg-ipareplica ~]# sudo grep "17/Apr/2026:15:09:3" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -20
-[root@cpeg-ipareplica ~]#
+sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+  repl-agmt list --suffix="o=ipaca" 2>&1 | grep -E "^dn:|nsds5replicaHost"
+
+# From cpeg or anywhere reachable
+nc -zv pln-ipamaster.ipa.calix.local 389 2>&1
+ssh root@pln-ipamaster "sudo systemctl is-active dirsrv@*" 2>&1
