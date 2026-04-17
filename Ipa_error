@@ -1,1 +1,6 @@
-dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-enable-turbo-mode
+[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-enable-turbo-mode
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+nsslapd-enable-turbo-mode: on
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
