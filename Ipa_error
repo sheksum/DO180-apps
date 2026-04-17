@@ -1,6 +1,2 @@
-[root@cpeg-ipareplica ~]# ss -tan 'state established' 'sport = :389' | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -rn | head -20
-Error: an inet prefix is expected rather than "state".
-Cannot parse dst/src address.
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+grep -E "maxdescriptors|nsslapd-maxdescriptors" /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
+cat /proc/3307/limits | grep -i "open files"
