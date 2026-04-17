@@ -1,39 +1,19 @@
-hsuma@plnx-admin:~$ sudo systemctl status sssd
-● sssd.service - System Security Services Daemon
-     Loaded: loaded (/lib/systemd/system/sssd.service; enabled; vendor preset: enabled)
-     Active: active (running) since Fri 2026-04-17 12:55:55 CDT; 13s ago
-   Main PID: 2849929 (sssd)
-      Tasks: 7 (limit: 9388)
-     Memory: 64.6M
-        CPU: 425ms
-     CGroup: /system.slice/sssd.service
-             ├─2849929 /usr/sbin/sssd -i --logger=files
-             ├─2849930 /usr/libexec/sssd/sssd_be --domain ipa.calix.local --uid 0 --gid 0 --logger=files
-             ├─2849931 /usr/libexec/sssd/sssd_nss --uid 0 --gid 0 --logger=files
-             ├─2849932 /usr/libexec/sssd/sssd_pam --uid 0 --gid 0 --logger=files
-             ├─2849933 /usr/libexec/sssd/sssd_ssh --uid 0 --gid 0 --logger=files
-             ├─2849934 /usr/libexec/sssd/sssd_sudo --uid 0 --gid 0 --logger=files
-             └─2849935 /usr/libexec/sssd/sssd_pac --uid 0 --gid 0 --logger=files
+# LDAP reachability
+time ldapsearch -x -H ldap://cpeg-ipareplica.ipa.calix.local -s base -b "" "(objectclass=*)" 2>&1 | tail -3
 
-Apr 17 12:55:54 plnx-admin.calix.local systemd[1]: Starting System Security Services Daemon...
-Apr 17 12:55:55 plnx-admin.calix.local sssd[2849929]: Starting up
-Apr 17 12:55:55 plnx-admin.calix.local sssd_be[2849930]: Starting up
-Apr 17 12:55:55 plnx-admin.calix.local sssd_sudo[2849934]: Starting up
-Apr 17 12:55:55 plnx-admin.calix.local sssd_nss[2849931]: Starting up
-Apr 17 12:55:55 plnx-admin.calix.local sssd_ssh[2849933]: Starting up
-Apr 17 12:55:55 plnx-admin.calix.local sssd_pam[2849932]: Starting up
-Apr 17 12:55:55 plnx-admin.calix.local sssd_pac[2849935]: Starting up
-Apr 17 12:55:55 plnx-admin.calix.local systemd[1]: Started System Security Services Daemon.
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ sudo sssctl domain-status ipa.calix.local
-Online status: Offline
+# Kerberos reachability
+nc -zv cpeg-ipareplica.ipa.calix.local 88
+nc -zv cpeg-ipareplica.ipa.calix.local 389
 
-Active servers:
-IPA: cpeg-ipareplica.ipa.calix.local
+# Check latest SSSD log after the restart
+sudo tail -100 /var/log/sssd/sssd_ipa.calix.local.log | grep -v "^ "
 
-Discovered IPA servers:
-- cpeg-ipareplica.ipa.calix.local
-- pln-petipareplica.ipa.calix.local
 
-hsuma@plnx-admin:~$
+# Kick sssd_be to retry online check immediately (uses dbus)
+sudo sss_cache -E
+sudo systemctl restart sssd
+sleep 10
+sudo sssctl domain-status ipa.calix.local
+
+
+sudo cat /etc/sssd/sssd.conf
