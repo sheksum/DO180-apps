@@ -1,17 +1,5 @@
-[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
->   repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | \
->   grep -E "^dn:|nsds5replicaHost|nsds5replicaLastUpdateStatus:|nsds5ReplicaEnabled|nsds5replicaUpdateInProgress"
-Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-nsds5ReplicaEnabled: on
-nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Incremental update started
-nsds5replicaUpdateInProgress: TRUE
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-nsds5ReplicaEnabled: on
-nsds5replicaLastUpdateStatus: Error (0) Replica acquired successfully: Incremental update started
-nsds5replicaUpdateInProgress: TRUE
-dn: cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-nsds5ReplicaEnabled: on
-nsds5replicaLastUpdateStatus: Error (6) Replication error acquiring replica: Unable to acquire replica: there is no replicated area on the consumer server. Replication is aborting. (no such replica)
-nsds5replicaUpdateInProgress: FALSE
-[root@cpeg-ipareplica ~]#
+# On sjc (you showed earlier you have root access)
+ssh sjc-ipareplica01.ipa.calix.local
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=config" "(objectClass=nsds5replica)" nsds5replicaroot nsds5replicaid dn 2>&1 | \
+  grep -iE "^dn:|nsds5replica"
