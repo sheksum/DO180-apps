@@ -1,8 +1,38 @@
-dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index delete --attr=foo userRoot
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index get --attr=gidNumber userRoot
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+dn: cn=gidnumber,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+cn: gidnumber
+nsIndexType: eq
+nsMatchingRule: integerOrderingMatch
+nsSystemIndex: false
+objectClass: nsIndex
+objectClass: top
 
 
-dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index get --attr=gidNumber userRoot
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index get --attr=cn userRoot
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+dn: cn=cn,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+cn: cn
+nsIndexType: pres
+nsIndexType: eq
+nsIndexType: sub
+nsSystemIndex: false
+objectClass: top
+objectClass: nsIndex
 
 
-dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index get --attr=cn userRoot
-dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index get --attr=objectClass userRoot
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index get --attr=objectClass userRoot
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+dn: cn=objectclass,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+cn: objectclass
+nsIndexType: eq
+nsSystemIndex: true
+objectClass: top
+objectClass: nsIndex
+
+
+[root@cpeg-ipareplica ~]#
