@@ -1,39 +1,40 @@
-[root@cpeg-ipareplica ~]# ls -lah /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/gidNumber.db*
-ls: cannot access '/var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/gidNumber.db*': No such file or directory
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ls -lah /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/id2entry.db*
--rw-------. 1 dirsrv dirsrv 59M Apr 17 17:00 /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/id2entry.db
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# time ldapsearch -x -H ldap://localhost -D "cn=Directory Manager" -W \
->   -b "cn=accounts,dc=ipa,dc=calix,dc=local" \
->   "(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" \
->   dn 2>&1 | tail -5
-Enter LDAP Password:
-ldap_bind: Server is unwilling to perform (53)
-	additional info: Unauthenticated binds are not allowed
+      2 10.174.9.23
+      2 10.174.8.249
+      2 10.174.8.244
+      2 10.174.8.206
+      2 10.174.8.201
+      2 10.174.8.152
+      2 10.174.8.140
+      2 10.174.8.134
+      2 10.174.40.17
+      2 10.174.250.69
+      2 10.174.250.37
+      2 10.174.250.27
+      2 10.174.249.113
+      2 10.174.24.61
+      2 10.174.24.119
+      2 10.174.16.88
+      2 10.174.16.142
 
-real	2m1.305s
-user	0m0.003s
-sys	0m0.011s
-[root@cpeg-ipareplica ~]# time ldapsearch -x -H ldap://localhost -D "cn=Directory Manager" -W   -b "cn=accounts,dc=ipa,dc=calix,dc=local"   "(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))"   dn 2>&1 | tail -5
-Enter LDAP Password:
-ldap_bind: Server is unwilling to perform (53)
-	additional info: Unauthenticated binds are not allowed
 
-real	0m10.035s
-user	0m0.005s
-sys	0m0.006s
-[root@cpeg-ipareplica ~]# time ldapsearch -x -H ldap://localhost -D "cn=Directory Manager" -W   -b "cn=accounts,dc=ipa,dc=calix,dc=local"   "(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))"   dn 2>&1 | tail -5
-search: 2
-result: 0 Success
+# Pick a random slow-query client IP from the access log and check its SSSD config
+# From earlier data, the slow queries were coming from many clients. Let's pick one.
+grep "conn=4436386 " /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | grep -oP 'from \K[^:]+' | head -1
 
-# numResponses: 6
-# numEntries: 5
+# On the client
+grep -E "enumerate|ldap_group|ldap_user_search_base" /etc/sssd/sssd.conf
 
-real	0m4.365s
-user	0m0.001s
-sys	0m0.005s
-[root@cpeg-ipareplica ~]# grep -i enumerate /etc/sssd/sssd.conf
-[root@cpeg-ipareplica ~]#
+
+# On a client that's generating this query frequently
+# Find the caller
+sudo sssctl domain-status ipa.calix.local
+sudo systemctl status sssd-nss
+# Check the negative cache
+sudo getent group 2200
+# Try to identify what's querying gid 2200
+sudo strace -f -e trace=getgrgid -p $(pgrep -f nss_sss | head -1) 2>&1 | head -20
+
+# On cpeg - pick a specific client that's hitting us
+grep "conn=[0-9]* .*gidNumber=2200" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -5
+# Then for one conn=N, see all its ops
+grep "conn=<N> " /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -30
