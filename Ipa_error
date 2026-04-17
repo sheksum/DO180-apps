@@ -1,13 +1,1 @@
-[root@cpeg-ipareplica ~]# ss -tan | awk '$4 ~ /:389$/ && $1 == "ESTAB" {print $5}' | awk -F: '{print $1}' | sort | uniq -c | sort -rn | head -20
-   1644 [
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# time ldapsearch -x -H ldap://localhost -b "cn=users,cn=accounts,dc=ipa,dc=calix,dc=local" -s one "(uid=hsuma)" dn 2>&1 | tail -3
-
-# numResponses: 2
-# numEntries: 1
-
-real	0m0.011s
-user	0m0.001s
-sys	0m0.008s
-[root@cpeg-ipareplica ~]#
+ss -Htan state established '( sport = :389 )' | awk '{print $4}' | sed -E 's/^\[::ffff:([^]]+)\]:.*/\1/; s/:[0-9]+$//' | sort | uniq -c | sort -rn | head -20
