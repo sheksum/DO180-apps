@@ -1,24 +1,8 @@
-[root@cpeg-ipareplica ~]# ss -Htan state established '( sport = :389 )' | awk '{print $4}' | sed -E 's/^\[::ffff:([^]]+)\]:.*/\1/; s/:[0-9]+$//' | sort | uniq -c | sort -rn | head -20
-      2 10.174.9.48
-      2 10.174.9.45
-      2 10.174.9.32
-      2 10.174.9.23
-      2 10.174.8.249
-      2 10.174.8.244
-      2 10.174.8.206
-      2 10.174.8.201
-      2 10.174.8.152
-      2 10.174.8.140
-      2 10.174.8.134
-      2 10.174.40.17
-      2 10.174.250.69
-      2 10.174.250.37
-      2 10.174.250.27
-      2 10.174.249.113
-      2 10.174.24.61
-      2 10.174.24.119
-      2 10.174.16.88
-      2 10.174.16.142
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+# Get current value (record it before changing)
+dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-listen-backlog-size
+
+# Change it
+dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config replace nsslapd-listen-backlog-size=<value>
+
+# Verify
+dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-listen-backlog-size
