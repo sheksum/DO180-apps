@@ -1,33 +1,7 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipa-replica-manage del pln-ipamaster.ipa.calix.local --force --cleanup
-Updating DNS system records
-ipa: WARNING: Forcing removal of pln-ipamaster.ipa.calix.local
-ipa: WARNING: Ignoring topology connectivity errors.
-ipa: WARNING: Ignoring these warnings and proceeding with removal
-ipa: WARNING: Failed to cleanup pln-ipamaster.ipa.calix.local DNS entries: no matching entry found
-ipa: WARNING: You may need to manually remove them from the tree
---------------------------------------------------
-Deleted IPA server "pln-ipamaster.ipa.calix.local"
---------------------------------------------------
-[root@cpeg-ipareplica ~]# ipa-replica-manage del pln-ipamaster.ipa.calix.local --force
-Updating DNS system records
-pln-ipamaster.ipa.calix.local: server not found
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# systemctl status dirsrv@IPA-CALIX-LOCAL --no-pager | tail -15
-    Tasks: 40 (limit: 306918)
-   Memory: 10.9G
-   CGroup: /system.slice/system-dirsrv.slice/dirsrv@IPA-CALIX-LOCAL.service
-           └─3307 /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+grep "conn=3771795" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -5
 
-Apr 17 15:58:19 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:58:19.436218936 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-Apr 17 15:58:19 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:58:19.946829331 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-Apr 17 15:58:22 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:58:22.334780051 +0000] - ERR - NSMMReplicationPlugin - multimaster_extop_StartNSDS50ReplicationRequest - conn=3771795 op=42860 replica="dc=ipa,dc=calix,dc=local": Unable to acquire replica: error: permission denied
-Apr 17 15:58:24 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:58:24.365275469 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-Apr 17 15:58:24 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:58:24.558338404 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-Apr 17 15:58:25 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:58:25.401748064 +0000] - ERR - NSMMReplicationPlugin - multimaster_extop_StartNSDS50ReplicationRequest - conn=3771795 op=42861 replica="dc=ipa,dc=calix,dc=local": Unable to acquire replica: error: permission denied
-Apr 17 15:58:26 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:58:26.606498015 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-Apr 17 15:58:27 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:58:27.631926077 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-Apr 17 15:58:28 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:58:28.469276463 +0000] - ERR - NSMMReplicationPlugin - multimaster_extop_StartNSDS50ReplicationRequest - conn=3771795 op=42862 replica="dc=ipa,dc=calix,dc=local": Unable to acquire replica: error: permission denied
-Apr 17 15:58:28 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:58:28.847485975 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[root@cpeg-ipareplica ~]#
+# From cpeg itself
+time ldapsearch -x -H ldap://cpeg-ipareplica.ipa.calix.local -s base -b "" supportedLDAPVersion 2>&1 | tail -3
+
+# Current listen backlog and active conns on 389
+ss -tan | awk '$4 ~ /:389$/ {print $1}' | sort | uniq -c
