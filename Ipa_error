@@ -3,7 +3,44 @@ sudo grep ipa_server /etc/sssd/sssd.conf
 sudo sss_cache -E
 sudo systemctl restart sssd
 
-for i in $(seq 1 30); do
+for i in $(seq 1 50); do
   echo "$(date +%H:%M:%S) $(sudo sssctl domain-status ipa.calix.local | grep 'Online status')"
   sleep 30
 done
+
+
+
+(2026-04-17 14:54:35): [be[ipa.calix.local]] [generic_ext_search_handler] (0x0020): sdap_get_generic_ext_recv request failed: [5]: Input/output error
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [sdap_handle_release] (0x2000): Trace: sh[0x55cc2dccdf60], connected[1], ops[0x55cc2ddceb00], ldap[0x55cc2dd704b0], destructor_lock[0], release_memory[0]
+   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [remove_connection_callback] (0x4000): Successfully removed connection callback.
+   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [sdap_op_destructor] (0x1000): Abandoning operation 83
+   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [generic_ext_search_handler] (0x0020): sdap_get_generic_ext_recv request failed: [5]: Input/output error
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 14:54:35): [be[ipa.calix.local]] [ipa_pam_access_handler_done] (0x0020): Unable to fetch HBAC rules [5]: Input/output error
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [ipa_hbac_servicegroup_info_done] (0x0080): Error [5][Input/output error]
+   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [sdap_id_op_destroy] (0x4000): releasing operation connection
+   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [ipa_pam_access_handler_done] (0x0020): Unable to fetch HBAC rules [5]: Input/output error
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+[root@cpeg-ipareplica ~]#
+
+
+hsuma@plnx-admin:~$ for i in $(seq 1 50); do
+  echo "$(date +%H:%M:%S) $(sudo sssctl domain-status ipa.calix.local | grep 'Online status')"
+  sleep 30
+done
+14:50:31 Online status: Online
+14:51:01 Online status: Online
+14:51:32 Online status: Online
+14:52:02 Online status: Online
+14:52:33 Online status: Online
+14:53:03 Online status: Online
+14:53:34 Online status: Online
+14:54:04 Online status: Online
+sudo: PAM account management error: Unknown error -1
+sudo: a password is required
+14:54:35
+14:55:05 Online status: Online
