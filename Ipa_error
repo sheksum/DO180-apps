@@ -1,9 +1,2 @@
-sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
-  repl-tasks cleanallruv --suffix="dc=ipa,dc=calix,dc=local" \
-  --replica-id=52 --force-cleaning
-
-
-# Check the new task's status
 sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=clean 52,cn=cleanallruv,cn=tasks,cn=config" \
-  nsTaskCurrentItem nsTaskStatus nsTaskExitCode 2>&1 | grep -iE "^dn:|nsTask"
+  -b "cn=clean 52,cn=cleanallruv,cn=tasks,cn=config" 2>&1 | grep -v "^$"
