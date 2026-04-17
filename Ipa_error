@@ -1,24 +1,3 @@
-[root@pln-petipareplica ~]#
-[root@pln-petipareplica ~]# ls -la /var/lib/ipa/sysrestore/ | head -20
-total 0
-drwx--x--x.  2 root root   6 Apr 17 17:39 .
-drwxr-xr-x. 10 root root 129 Apr 17 17:39 ..
-[root@pln-petipareplica ~]#
-[root@pln-petipareplica ~]#
-[root@pln-petipareplica ~]# sudo stat /var/lib/ipa/sysrestore/sysrestore.index
-stat: cannot statx '/var/lib/ipa/sysrestore/sysrestore.index': No such file or directory
-[root@pln-petipareplica ~]# sudo cat /var/lib/ipa/sysrestore/sysrestore.state 2>&1 | head -30
-cat: /var/lib/ipa/sysrestore/sysrestore.state: No such file or directory
-[root@pln-petipareplica ~]# sudo journalctl --since "2026-02-20" --until "2026-03-01" | grep -iE "ipa-replica-install|ipa-server-install" | head -20
-[root@pln-petipareplica ~]#
-
-[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=config" "(objectClass=nsds5replica)" nsDS5ReplicaId dn 2>&1 | grep -iE "^dn:|nsDS5ReplicaId"
-# requesting: nsDS5ReplicaId dn
-dn: cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
-nsDS5ReplicaId: 20
-dn: cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config
-nsDS5ReplicaId: 21
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+# On cpeg - check for any references to replica 52 in replication agreements
+sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+  repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | grep -E "^nsds50ruv|replica 52|replica 56"
