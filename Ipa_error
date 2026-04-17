@@ -1,12 +1,39 @@
-# Size of the gidNumber index vs expected
-ls -lah /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/gidNumber.db*
-ls -lah /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/id2entry.db*
+[root@cpeg-ipareplica ~]# ls -lah /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/gidNumber.db*
+ls: cannot access '/var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/gidNumber.db*': No such file or directory
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ls -lah /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/id2entry.db*
+-rw-------. 1 dirsrv dirsrv 59M Apr 17 17:00 /var/lib/dirsrv/slapd-IPA-CALIX-LOCAL/db/userRoot/id2entry.db
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# time ldapsearch -x -H ldap://localhost -D "cn=Directory Manager" -W \
+>   -b "cn=accounts,dc=ipa,dc=calix,dc=local" \
+>   "(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" \
+>   dn 2>&1 | tail -5
+Enter LDAP Password:
+ldap_bind: Server is unwilling to perform (53)
+	additional info: Unauthenticated binds are not allowed
 
-# Do a direct ldapsearch matching the slow filter and see what etime comes back
-time ldapsearch -x -H ldap://localhost -D "cn=Directory Manager" -W \
-  -b "cn=accounts,dc=ipa,dc=calix,dc=local" \
-  "(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" \
-  dn 2>&1 | tail -5
+real	2m1.305s
+user	0m0.003s
+sys	0m0.011s
+[root@cpeg-ipareplica ~]# time ldapsearch -x -H ldap://localhost -D "cn=Directory Manager" -W   -b "cn=accounts,dc=ipa,dc=calix,dc=local"   "(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))"   dn 2>&1 | tail -5
+Enter LDAP Password:
+ldap_bind: Server is unwilling to perform (53)
+	additional info: Unauthenticated binds are not allowed
 
+real	0m10.035s
+user	0m0.005s
+sys	0m0.006s
+[root@cpeg-ipareplica ~]# time ldapsearch -x -H ldap://localhost -D "cn=Directory Manager" -W   -b "cn=accounts,dc=ipa,dc=calix,dc=local"   "(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))"   dn 2>&1 | tail -5
+search: 2
+result: 0 Success
 
-grep -i enumerate /etc/sssd/sssd.conf
+# numResponses: 6
+# numEntries: 5
+
+real	0m4.365s
+user	0m0.001s
+sys	0m0.005s
+[root@cpeg-ipareplica ~]# grep -i enumerate /etc/sssd/sssd.conf
+[root@cpeg-ipareplica ~]#
