@@ -1,13 +1,15 @@
-[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
->   repl-agmt disable --suffix="dc=ipa,dc=calix,dc=local" \
->   cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local
-Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
-Agreement has been disabled
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=config" "(&(objectClass=nsds5ReplicationAgreement)(cn=*sjc*))" \
->   nsds5ReplicaEnabled 2>&1 | grep -i "Enabled"
-# requesting: nsds5ReplicaEnabled
-nsds5ReplicaEnabled: off
-[root@cpeg-ipareplica ~]#
+cat > /tmp/clean52.ldif <<'EOF'
+dn: cn=clean 52, cn=cleanallruv, cn=tasks, cn=config
+objectclass: extensibleObject
+replica-base-dn: dc=ipa,dc=calix,dc=local
+replica-id: 52
+replica-force-cleaning: yes
+cn: clean 52
+EOF
+
+sudo ldapmodify -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket -a -f /tmp/clean52.ldif
+
+
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=clean 52,cn=cleanallruv,cn=tasks,cn=config" \
+  nsTaskCurrentItem nsTaskStatus nsTaskExitCode 2>&1 | grep -iE "^dn:|nsTask"
