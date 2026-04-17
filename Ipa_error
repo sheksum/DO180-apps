@@ -1,38 +1,4 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# grep -E "maxdescriptors|nsslapd-maxdescriptors" /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# cat /proc/3307/limits | grep -i "open files"
-Max open files            262144               262144               files
-[root@cpeg-ipareplica ~]# (2026-04-17 11:05:35): [be[ipa.calix.local]] [fo_get_server_hostent] (0x0020): [RID#35373] Bug: Trying to get hostent from a name-less server
-   *  ... skipping repetitive backtrace ...
-(2026-04-17 11:05:35): [be[ipa.calix.local]] [write_krb5info_file_from_fo_server] (0x0020): [RID#35373] Server without name and address found in list.
-   *  ... skipping repetitive backtrace ...
-(2026-04-17 11:05:41): [be[ipa.calix.local]] [generic_ext_search_handler] (0x0020): [RID#35373] sdap_get_generic_ext_recv failed: [110]: Connection timed out [ldap_search_timeout]
-********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [krb5_add_krb5info_offline_callback] (0x4000): [RID#35373] Removal callback already available for service [IPA].
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [unique_filename_destructor] (0x2000): [RID#35373] Unlinking [/var/lib/sss/pubconf/.krb5info_dummy_X3fQ0t]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [unlink_dbg] (0x2000): [RID#35373] File already removed: [/var/lib/sss/pubconf/.krb5info_dummy_X3fQ0t]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sssd_async_socket_init_send] (0x4000): [RID#35373] Using file descriptor [23] for the connection.
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sssd_async_socket_init_send] (0x0400): [RID#35373] Setting 6 seconds timeout [ldap_network_timeout] for connecting
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_ldap_connect_callback_add] (0x4000): [RID#35373] New connection to [ldap://cpeg-ipareplica.ipa.calix.local:389/??base] with fd [23]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_rootdse_send] (0x4000): [RID#35373] Getting rootdse
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_print_server] (0x2000): [RID#35373] Searching 172.23.49.10:389
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x0400): [RID#35373] calling ldap_search_ext with [(objectclass=*)][].
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [*]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [altServer]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [namingContexts]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [supportedControl]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [supportedExtension]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [supportedFeatures]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [supportedLDAPVersion]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [supportedSASLMechanisms]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [domainControllerFunctionality]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [defaultNamingContext]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [lastUSN]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35373] Requesting attrs: [highestCommittedUSN]
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x2000): [RID#35373] ldap_search_ext called, msgid = 1
-   *  (2026-04-17 11:05:35): [be[ipa.calix.local]] [sdap_op_add] (0x2000): [RID#35373] New operation 1 timeout 6
-   *  (2026-04-17 11:05:41): [be[ipa.calix.local]] [sdap_op_timeout] (0x1000): [RID#35373] Issuing timeout [ldap_opt_timeout] for message id 1
-   *  (2026-04-17 11:05:41): [be[ipa.calix.local]] [sdap_op_destructor] (0x1000): [RID#35373] Abandoning operation 1
-   *  (2026-04-17 11:05:41): [be[ipa.calix.local]] [generic_ext_search_handler] (0x0020): [RID#35373] sdap_get_generic_ext_recv failed: [110]: Connection timed out [ldap_search_timeout]
-********************** BACKTRACE DUMP ENDS HERE *********************************
+ss -tan | awk '$4 ~ /:389$/ && $1 == "ESTAB" {print $5}' | awk -F: '{print $1}' | sort | uniq -c | sort -rn | head -20
+
+
+time ldapsearch -x -H ldap://localhost -b "cn=users,cn=accounts,dc=ipa,dc=calix,dc=local" -s one "(uid=hsuma)" dn 2>&1 | tail -3
