@@ -1,2 +1,68 @@
-# On cpeg
-   ipa dnsrecord-del ipa.calix.local pln-petipareplica --a-rec=10.172.248.57
+   *  (2026-04-17 12:41:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35840] Requesting attrs: [highestCommittedUSN]
+   *  (2026-04-17 12:41:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x2000): [RID#35840] ldap_search_ext called, msgid = 1
+   *  (2026-04-17 12:41:26): [be[ipa.calix.local]] [sdap_op_add] (0x2000): [RID#35840] New operation 1 timeout 6
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [sdap_op_timeout] (0x1000): [RID#35840] Issuing timeout [ldap_opt_timeout] for message id 1
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [sdap_op_destructor] (0x1000): [RID#35840] Abandoning operation 1
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [generic_ext_search_handler] (0x0020): [RID#35840] sdap_get_generic_ext_recv failed: [110]: Connection timed out [ldap_search_timeout]
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 12:41:32): [be[ipa.calix.local]] [fo_get_server_hostent] (0x0020): [RID#35840] Bug: Trying to get hostent from a name-less server
+   *  ... skipping repetitive backtrace ...
+(2026-04-17 12:41:32): [be[ipa.calix.local]] [write_krb5info_file_from_fo_server] (0x0020): [RID#35840] Server without name and address found in list.
+   *  ... skipping repetitive backtrace ...
+(2026-04-17 12:41:32): [be[ipa.calix.local]] [sssd_async_connect_done] (0x0020): [RID#35840] connect failed [111][Connection refused].
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [krb5_add_krb5info_offline_callback] (0x4000): [RID#35840] Removal callback already available for service [IPA].
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [unique_filename_destructor] (0x2000): [RID#35840] Unlinking [/var/lib/sss/pubconf/.krb5info_dummy_Bp4fGz]
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [unlink_dbg] (0x2000): [RID#35840] File already removed: [/var/lib/sss/pubconf/.krb5info_dummy_Bp4fGz]
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [sssd_async_socket_init_send] (0x4000): [RID#35840] Using file descriptor [23] for the connection.
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [sssd_async_socket_init_send] (0x0400): [RID#35840] Setting 6 seconds timeout [ldap_network_timeout] for connecting
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [sssd_async_connect_done] (0x0020): [RID#35840] connect failed [111][Connection refused].
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 12:41:32): [be[ipa.calix.local]] [sssd_async_socket_init_done] (0x0020): [RID#35840] sdap_async_sys_connect request failed: [111]: Connection refused.(2026-04-17 12:41:32): [be[ipa.calix.local]] [sss_ldap_init_sys_connect_done] (0x0020): [RID#35840] sssd_async_socket_init request failed: [111]: Connection refused.
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [sssd_async_socket_init_done] (0x0020): [RID#35840] sdap_async_sys_connect request failed: [111]: Connection refused.   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [sssd_async_socket_state_destructor] (0x0400): [RID#35840] closing socket [23]
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [sss_ldap_init_sys_connect_done] (0x0020): [RID#35840] sssd_async_socket_init request failed: [111]: Connection refused.
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 12:41:32): [be[ipa.calix.local]] [sdap_sys_connect_done] (0x0020): [RID#35840] sdap_async_connect_call request failed: [111]: Connection refused.
+(2026-04-17 12:41:32): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0020): [RID#35840] No available servers for service 'IPA'
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [sdap_sys_connect_done] (0x0020): [RID#35840] sdap_async_connect_call request failed: [111]: Connection refused.
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [sdap_handle_release] (0x2000): [RID#35840] Trace: sh[0x55a24198eec0], connected[0], ops[(nil)], ldap[(nil)], destructor_lock[0], release_memory[0]
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [_be_fo_set_port_status] (0x8000): [RID#35840] Setting status: PORT_NOT_WORKING. Called from: ../src/providers/ldap/sdap_async_connection.c: sdap_cli_connect_done: 1633
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [fo_set_port_status] (0x0100): [RID#35840] Marking port 0 of server 'pln-petipareplica.ipa.calix.local' as 'not working'
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [fo_set_port_status] (0x0400): [RID#35840] Marking port 0 of duplicate server 'pln-petipareplica.ipa.calix.local' as 'not working'
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0100): [RID#35840] Trying to resolve service 'IPA'
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [get_port_status] (0x1000): [RID#35840] Port status of port 0 for server '(no name)' is 'not working'
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [get_port_status] (0x0080): [RID#35840] SSSD is unable to complete the full connection request, this internal status does not necessarily indicate network port issues.
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [get_server_status] (0x1000): [RID#35840] Status of server 'cpeg-ipareplica.ipa.calix.local' is 'name resolved'
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [get_port_status] (0x1000): [RID#35840] Port status of port 0 for server 'cpeg-ipareplica.ipa.calix.local' is 'not working'
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [get_port_status] (0x0080): [RID#35840] SSSD is unable to complete the full connection request, this internal status does not necessarily indicate network port issues.
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [get_server_status] (0x1000): [RID#35840] Status of server 'pln-petipareplica.ipa.calix.local' is 'name resolved'
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [get_port_status] (0x1000): [RID#35840] Port status of port 0 for server 'pln-petipareplica.ipa.calix.local' is 'not working'
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [get_port_status] (0x0080): [RID#35840] SSSD is unable to complete the full connection request, this internal status does not necessarily indicate network port issues.
+   *  (2026-04-17 12:41:32): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0020): [RID#35840] No available servers for service 'IPA'
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 12:41:32): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:41:32): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:41:32): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:41:32): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:41:32): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:42:03): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:42:03): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:42:03): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:42:03): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:42:04): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:42:34): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:42:34): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:42:34): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:42:34): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:42:35): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#    ipa dnsrecord-del ipa.calix.local pln-petipareplica --a-rec=10.172.248.57
+ipa: ERROR: pln-petipareplica: DNS resource record not found
+[root@cpeg-ipareplica ~]#
