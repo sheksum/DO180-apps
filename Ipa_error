@@ -1,33 +1,62 @@
-sudo sed -i 's|^ipa_server = _srv_, cpeg-ipareplica.ipa.calix.local|ipa_server = cpeg-ipareplica.ipa.calix.local|' /etc/sssd/sssd.conf
-sudo grep ipa_server /etc/sssd/sssd.conf
-sudo sss_cache -E
-sudo systemctl restart sssd
 
-for i in $(seq 1 50); do
-  echo "$(date +%H:%M:%S) $(sudo sssctl domain-status ipa.calix.local | grep 'Online status')"
-  sleep 30
-done
-
-
-
-(2026-04-17 14:54:35): [be[ipa.calix.local]] [generic_ext_search_handler] (0x0020): sdap_get_generic_ext_recv request failed: [5]: Input/output error
+(2026-04-17 15:09:33): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0020): [RID#131] No available servers for service 'IPA'
 ********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
-   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [sdap_handle_release] (0x2000): Trace: sh[0x55cc2dccdf60], connected[1], ops[0x55cc2ddceb00], ldap[0x55cc2dd704b0], destructor_lock[0], release_memory[0]
-   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [remove_connection_callback] (0x4000): Successfully removed connection callback.
-   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [sdap_op_destructor] (0x1000): Abandoning operation 83
-   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [generic_ext_search_handler] (0x0020): sdap_get_generic_ext_recv request failed: [5]: Input/output error
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [_be_fo_set_port_status] (0x8000): [RID#131] Setting status: PORT_NOT_WORKING. Called from: ../src/providers/ldap/sdap_async_connection.c: sdap_cli_rootdse_done: 1710
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [fo_set_port_status] (0x0100): [RID#131] Marking port 0 of server 'cpeg-ipareplica.ipa.calix.local' as 'not working'
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [fo_set_port_status] (0x0400): [RID#131] Marking port 0 of duplicate server 'cpeg-ipareplica.ipa.calix.local' as 'not working'
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [sdap_handle_release] (0x2000): [RID#131] Trace: sh[0x55cc2dd24580], connected[1], ops[(nil)], ldap[0x55cc2ddc8a40], destructor_lock[0], release_memory[0]
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [remove_connection_callback] (0x4000): [RID#131] Successfully removed connection callback.
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0100): [RID#131] Trying to resolve service 'IPA'
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [get_server_status] (0x1000): [RID#131] Status of server 'cpeg-ipareplica.ipa.calix.local' is 'working'
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [get_port_status] (0x1000): [RID#131] Port status of port 0 for server 'cpeg-ipareplica.ipa.calix.local' is 'not working'
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [get_port_status] (0x0080): [RID#131] SSSD is unable to complete the full connection request, this internal status does not necessarily indicate network port issues.
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [get_server_status] (0x1000): [RID#131] Status of server 'cpeg-ipareplica.ipa.calix.local' is 'working'
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [get_port_status] (0x1000): [RID#131] Port status of port 0 for server 'cpeg-ipareplica.ipa.calix.local' is 'not working'
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [get_port_status] (0x0080): [RID#131] SSSD is unable to complete the full connection request, this internal status does not necessarily indicate network port issues.
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0020): [RID#131] No available servers for service 'IPA'
 ********************** BACKTRACE DUMP ENDS HERE *********************************
 
-(2026-04-17 14:54:35): [be[ipa.calix.local]] [ipa_pam_access_handler_done] (0x0020): Unable to fetch HBAC rules [5]: Input/output error
+(2026-04-17 15:09:33): [be[ipa.calix.local]] [sdap_id_op_connect_done] (0x0040): [RID#131] Failed to connect, going offline (5 [Input/output error])
 ********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
-   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [ipa_hbac_servicegroup_info_done] (0x0080): Error [5][Input/output error]
-   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [sdap_id_op_destroy] (0x4000): releasing operation connection
-   *  (2026-04-17 14:54:35): [be[ipa.calix.local]] [ipa_pam_access_handler_done] (0x0020): Unable to fetch HBAC rules [5]: Input/output error
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [be_resolve_server_done] (0x1000): [RID#131] Server [NULL] resolution failed: [5]: Input/output error
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [sdap_id_op_connect_done] (0x0040): [RID#131] Failed to connect, going offline (5 [Input/output error])
 ********************** BACKTRACE DUMP ENDS HERE *********************************
 
-[root@cpeg-ipareplica ~]#
+(2026-04-17 15:09:33): [be[ipa.calix.local]] [ipa_id_get_account_info_orig_done] (0x0040): [RID#131] sdap_handle_acct request failed: 11
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [be_mark_offline] (0x2000): [RID#131] Going offline!
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [be_mark_offline] (0x2000): [RID#131] Initialize check_if_online_ptask.
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [be_ptask_create] (0x0400): [RID#131] Periodic task [Check if online (periodic)] was created
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [be_ptask_schedule] (0x0400): [RID#131] Task [Check if online (periodic)]: scheduling task 87 seconds from now [1776456660]
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [be_run_offline_cb] (0x0080): [RID#131] Going offline. Running callbacks.
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [sdap_id_op_connect_done] (0x4000): [RID#131] notify offline to op #1
+   *  (2026-04-17 15:09:33): [be[ipa.calix.local]] [ipa_id_get_account_info_orig_done] (0x0040): [RID#131] sdap_handle_acct request failed: 11
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 15:09:33): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:09:33): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:09:45): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:09:45): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:09:45): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:09:45): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:09:45): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:09:59): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:10:16): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:10:16): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:10:16): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:10:16): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:10:16): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:10:47): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:10:47): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:10:47): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:10:47): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:10:48): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 15:11:06): [be[ipa.calix.local]] [generic_ext_search_handler] (0x0020): [RID#156] sdap_get_generic_ext_recv failed: [110]: Connection timed out [ldap_search_timeout]
+   *  ... skipping repetitive backtrace ...
+(2026-04-17 15:11:06): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0020): [RID#156] No available servers for service 'IPA'
 
 
+hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$ for i in $(seq 1 50); do
   echo "$(date +%H:%M:%S) $(sudo sssctl domain-status ipa.calix.local | grep 'Online status')"
   sleep 30
@@ -44,3 +73,35 @@ sudo: PAM account management error: Unknown error -1
 sudo: a password is required
 14:54:35
 14:55:05 Online status: Online
+14:55:35 Online status: Online
+14:56:06 Online status: Online
+14:56:36 Online status: Online
+14:57:07 Online status: Online
+14:57:37 Online status: Online
+14:58:08 Online status: Online
+14:58:38 Online status: Online
+14:59:08 Online status: Online
+14:59:39 Online status: Online
+15:00:09 Online status: Online
+15:00:40 Online status: Online
+15:01:10 Online status: Online
+15:01:41 Online status: Online
+15:02:11 Online status: Online
+15:02:42 Online status: Online
+15:03:12 Online status: Online
+15:03:42 Online status: Online
+15:04:13 Online status: Online
+15:04:43 Online status: Online
+15:05:14 Online status: Online
+15:05:44 Online status: Online
+15:06:15 Online status: Online
+15:06:45 Online status: Online
+15:07:16 Online status: Online
+15:07:46 Online status: Online
+15:08:17 Online status: Online
+15:08:47 Online status: Online
+15:09:17 Online status: Online
+15:09:48 Online status: Offline
+15:10:18 Online status: Offline
+15:10:48 Online status: Offline
+15:11:18 Online status: Online
