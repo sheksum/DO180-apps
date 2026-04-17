@@ -1,2 +1,20 @@
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=cleanallruv,cn=tasks,cn=config" dn 2>&1 | grep "^dn:"
+[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+>   repl-tasks cleanallruv --suffix="dc=ipa,dc=calix,dc=local" \
+>   --replica-id=52 --force-cleaning
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+(2026-04-17 13:28:32): [be[ipa.calix.local]] [fo_get_server_hostent] (0x0020): Bug: Trying to get hostent from a name-less server
+   *  ... skipping repetitive backtrace ...
+(2026-04-17 13:28:32): [be[ipa.calix.local]] [write_krb5info_file_from_fo_server] (0x0020): Server without name and address found in list.
+
+   *  ... skipping repetitive backtrace ...
+(2026-04-17 13:37:25): [be[ipa.calix.local]] [fo_get_server_hostent] (0x0020): [RID#146] Bug: Trying to get hostent from a name-less server
+   *  ... skipping repetitive backtrace ...
+(2026-04-17 13:37:25): [be[ipa.calix.local]] [write_krb5info_file_from_fo_server] (0x0020): [RID#146] Server without name and address found in list.
+^C
+
+Exiting...
+[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=cleanallruv,cn=tasks,cn=config" dn 2>&1 | grep "^dn:"
+dn: cn=cleanallruv,cn=tasks,cn=config
+dn: cn=clean 57,cn=cleanallruv,cn=tasks,cn=config
+[root@cpeg-ipareplica ~]#
