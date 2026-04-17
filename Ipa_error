@@ -1,23 +1,377 @@
-# 1. What DNS servers is this client using?
-cat /etc/resolv.conf
-resolvectl status 2>/dev/null || systemd-resolve --status 2>/dev/null
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ cat /etc/resolv.conf
+# This is /run/systemd/resolve/stub-resolv.conf managed by man:systemd-resolved(8).
+# Do not edit.
+#
+# This file might be symlinked as /etc/resolv.conf. If you're looking at
+# /etc/resolv.conf and seeing this text, you have followed the symlink.
+#
+# This is a dynamic resolv.conf file for connecting local clients to the
+# internal DNS stub resolver of systemd-resolved. This file lists all
+# configured search domains.
+#
+# Run "resolvectl status" to see details about the uplink DNS servers
+# currently in use.
+#
+# Third party programs should typically not access this file directly, but only
+# through the symlink at /etc/resolv.conf. To manage man:resolv.conf(5) in a
+# different way, replace this symlink by a static file or a different symlink.
+#
+# See man:systemd-resolved.service(8) for details about the supported modes of
+# operation for /etc/resolv.conf.
 
-# 2. Try the SRV query directly
-dig +short SRV _ldap._tcp.ipa.calix.local
-dig SRV _ldap._tcp.ipa.calix.local
+nameserver 127.0.0.53
+options edns0 trust-ad
+search calix.local caal.dev ipa.calix.local
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ resolvectl status 2>/dev/null || systemd-resolve --status 2>/dev/null
+Global
+       Protocols: -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+resolv.conf mode: stub
 
-# 3. Try against cpeg (which runs IPA DNS)
-dig @172.23.49.10 SRV _ldap._tcp.ipa.calix.local
+Link 2 (ens33)
+    Current Scopes: DNS
+         Protocols: +DefaultRoute +LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+Current DNS Server: 10.172.248.32
+       DNS Servers: 10.172.248.30 10.172.248.31 10.172.248.32 172.23.49.10 192.168.97.10
+        DNS Domain: caal.dev calix.local ipa.calix.local
+hsuma@plnx-admin:~$ dig +short SRV _ldap._tcp.ipa.calix.local
+hsuma@plnx-admin:~$ dig SRV _ldap._tcp.ipa.calix.local
 
-# 4. What other IPA SRV records should exist?
-dig @172.23.49.10 SRV _kerberos._tcp.ipa.calix.local
-dig @172.23.49.10 SRV _kerberos._udp.ipa.calix.local
-dig @172.23.49.10 SRV _kpasswd._tcp.ipa.calix.local
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> SRV _ldap._tcp.ipa.calix.local
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 6773
+;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
 
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 65494
+;; QUESTION SECTION:
+;_ldap._tcp.ipa.calix.local.	IN	SRV
 
-# What's in the ipa.calix.local zone?
-ipa dnsrecord-find ipa.calix.local | grep -iE "srv|_ldap|_kerberos"
+;; AUTHORITY SECTION:
+calix.local.		3600	IN	SOA	plnwdc19a.calix.local. hostmaster. 30737186 900 600 86400 3600
 
-# Or specifically
-ipa dnsrecord-show ipa.calix.local "_ldap._tcp"
-ipa dnsrecord-show ipa.calix.local "_kerberos._tcp"
+;; Query time: 0 msec
+;; SERVER: 127.0.0.53#53(127.0.0.53) (UDP)
+;; WHEN: Fri Apr 17 12:17:33 CDT 2026
+;; MSG SIZE  rcvd: 111
+
+hsuma@plnx-admin:~$ dig @172.23.49.10 SRV _ldap._tcp.ipa.calix.local
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> @172.23.49.10 SRV _ldap._tcp.ipa.calix.local
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 52784
+;; flags: qr aa rd; QUERY: 1, ANSWER: 5, AUTHORITY: 5, ADDITIONAL: 6
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 9d9d486ad22eb667878f680a69e26b35d0c2d4a8b3e61062 (good)
+;; QUESTION SECTION:
+;_ldap._tcp.ipa.calix.local.	IN	SRV
+
+;; ANSWER SECTION:
+_ldap._tcp.ipa.calix.local. 86400 IN	SRV	0 100 389 ric-ipareplica01.ipa.calix.local.
+_ldap._tcp.ipa.calix.local. 86400 IN	SRV	0 100 389 cpeg-ipareplica.ipa.calix.local.
+_ldap._tcp.ipa.calix.local. 86400 IN	SRV	0 100 389 nan-ipareplica01.ipa.calix.local.
+_ldap._tcp.ipa.calix.local. 86400 IN	SRV	0 100 389 sjc-ipareplica01.ipa.calix.local.
+_ldap._tcp.ipa.calix.local. 86400 IN	SRV	0 2000 389 ric-ipareplica.ipa.calix.local.
+
+;; AUTHORITY SECTION:
+ipa.calix.local.	86400	IN	NS	ric-ipareplica.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	cpeg-ipareplica.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	nan-ipareplica01.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	sjc-ipareplica01.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	ric-ipareplica01.ipa.calix.local.
+
+;; ADDITIONAL SECTION:
+sjc-ipareplica01.ipa.calix.local. 86400	IN A	192.168.99.34
+nan-ipareplica01.ipa.calix.local. 86400	IN A	192.168.33.198
+ric-ipareplica01.ipa.calix.local. 86400	IN A	192.168.49.62
+ric-ipareplica.ipa.calix.local.	86400 IN A	192.168.49.63
+cpeg-ipareplica.ipa.calix.local. 1200 IN A	172.23.49.10
+
+;; Query time: 56 msec
+;; SERVER: 172.23.49.10#53(172.23.49.10) (UDP)
+;; WHEN: Fri Apr 17 12:17:41 CDT 2026
+;; MSG SIZE  rcvd: 490
+
+hsuma@plnx-admin:~$ dig @172.23.49.10 SRV _kerberos._tcp.ipa.calix.local
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> @172.23.49.10 SRV _kerberos._tcp.ipa.calix.local
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 57108
+;; flags: qr aa rd; QUERY: 1, ANSWER: 5, AUTHORITY: 5, ADDITIONAL: 6
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 585c8c44875cf1550877db4669e26b3d4a9a4adcc0fe1519 (good)
+;; QUESTION SECTION:
+;_kerberos._tcp.ipa.calix.local.	IN	SRV
+
+;; ANSWER SECTION:
+_kerberos._tcp.ipa.calix.local.	86400 IN SRV	0 100 88 ric-ipareplica01.ipa.calix.local.
+_kerberos._tcp.ipa.calix.local.	86400 IN SRV	0 100 88 sjc-ipareplica01.ipa.calix.local.
+_kerberos._tcp.ipa.calix.local.	86400 IN SRV	0 100 88 nan-ipareplica01.ipa.calix.local.
+_kerberos._tcp.ipa.calix.local.	86400 IN SRV	0 100 88 cpeg-ipareplica.ipa.calix.local.
+_kerberos._tcp.ipa.calix.local.	86400 IN SRV	0 2000 88 ric-ipareplica.ipa.calix.local.
+
+;; AUTHORITY SECTION:
+ipa.calix.local.	86400	IN	NS	cpeg-ipareplica.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	sjc-ipareplica01.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	nan-ipareplica01.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	ric-ipareplica.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	ric-ipareplica01.ipa.calix.local.
+
+;; ADDITIONAL SECTION:
+sjc-ipareplica01.ipa.calix.local. 86400	IN A	192.168.99.34
+nan-ipareplica01.ipa.calix.local. 86400	IN A	192.168.33.198
+ric-ipareplica01.ipa.calix.local. 86400	IN A	192.168.49.62
+ric-ipareplica.ipa.calix.local.	86400 IN A	192.168.49.63
+cpeg-ipareplica.ipa.calix.local. 1200 IN A	172.23.49.10
+
+;; Query time: 52 msec
+;; SERVER: 172.23.49.10#53(172.23.49.10) (UDP)
+;; WHEN: Fri Apr 17 12:17:49 CDT 2026
+;; MSG SIZE  rcvd: 494
+
+hsuma@plnx-admin:~$ dig @172.23.49.10 SRV _kerberos._udp.ipa.calix.local
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> @172.23.49.10 SRV _kerberos._udp.ipa.calix.local
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 1600
+;; flags: qr aa rd; QUERY: 1, ANSWER: 5, AUTHORITY: 5, ADDITIONAL: 6
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 29d7011a33cdb6bd9bf1493369e26b431e82677fc441680b (good)
+;; QUESTION SECTION:
+;_kerberos._udp.ipa.calix.local.	IN	SRV
+
+;; ANSWER SECTION:
+_kerberos._udp.ipa.calix.local.	86400 IN SRV	0 100 88 ric-ipareplica01.ipa.calix.local.
+_kerberos._udp.ipa.calix.local.	86400 IN SRV	0 100 88 nan-ipareplica01.ipa.calix.local.
+_kerberos._udp.ipa.calix.local.	86400 IN SRV	0 100 88 cpeg-ipareplica.ipa.calix.local.
+_kerberos._udp.ipa.calix.local.	86400 IN SRV	0 100 88 sjc-ipareplica01.ipa.calix.local.
+_kerberos._udp.ipa.calix.local.	86400 IN SRV	0 2000 88 ric-ipareplica.ipa.calix.local.
+
+;; AUTHORITY SECTION:
+ipa.calix.local.	86400	IN	NS	nan-ipareplica01.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	sjc-ipareplica01.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	cpeg-ipareplica.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	ric-ipareplica.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	ric-ipareplica01.ipa.calix.local.
+
+;; ADDITIONAL SECTION:
+sjc-ipareplica01.ipa.calix.local. 86400	IN A	192.168.99.34
+nan-ipareplica01.ipa.calix.local. 86400	IN A	192.168.33.198
+ric-ipareplica01.ipa.calix.local. 86400	IN A	192.168.49.62
+ric-ipareplica.ipa.calix.local.	86400 IN A	192.168.49.63
+cpeg-ipareplica.ipa.calix.local. 1200 IN A	172.23.49.10
+
+;; Query time: 48 msec
+;; SERVER: 172.23.49.10#53(172.23.49.10) (UDP)
+;; WHEN: Fri Apr 17 12:17:55 CDT 2026
+;; MSG SIZE  rcvd: 494
+
+hsuma@plnx-admin:~$ dig @172.23.49.10 SRV _kpasswd._tcp.ipa.calix.local
+
+; <<>> DiG 9.18.39-0ubuntu0.22.04.2-Ubuntu <<>> @172.23.49.10 SRV _kpasswd._tcp.ipa.calix.local
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 4376
+;; flags: qr aa rd; QUERY: 1, ANSWER: 5, AUTHORITY: 5, ADDITIONAL: 6
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 469e4a8725b0e866820bb0de69e26b491814a8ef103c9b50 (good)
+;; QUESTION SECTION:
+;_kpasswd._tcp.ipa.calix.local.	IN	SRV
+
+;; ANSWER SECTION:
+_kpasswd._tcp.ipa.calix.local. 86400 IN	SRV	0 100 464 cpeg-ipareplica.ipa.calix.local.
+_kpasswd._tcp.ipa.calix.local. 86400 IN	SRV	0 100 464 nan-ipareplica01.ipa.calix.local.
+_kpasswd._tcp.ipa.calix.local. 86400 IN	SRV	0 100 464 ric-ipareplica01.ipa.calix.local.
+_kpasswd._tcp.ipa.calix.local. 86400 IN	SRV	0 2000 464 ric-ipareplica.ipa.calix.local.
+_kpasswd._tcp.ipa.calix.local. 86400 IN	SRV	0 100 464 sjc-ipareplica01.ipa.calix.local.
+
+;; AUTHORITY SECTION:
+ipa.calix.local.	86400	IN	NS	ric-ipareplica01.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	ric-ipareplica.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	sjc-ipareplica01.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	nan-ipareplica01.ipa.calix.local.
+ipa.calix.local.	86400	IN	NS	cpeg-ipareplica.ipa.calix.local.
+
+;; ADDITIONAL SECTION:
+sjc-ipareplica01.ipa.calix.local. 86400	IN A	192.168.99.34
+nan-ipareplica01.ipa.calix.local. 86400	IN A	192.168.33.198
+ric-ipareplica01.ipa.calix.local. 86400	IN A	192.168.49.62
+ric-ipareplica.ipa.calix.local.	86400 IN A	192.168.49.63
+cpeg-ipareplica.ipa.calix.local. 1200 IN A	172.23.49.10
+
+;; Query time: 52 msec
+;; SERVER: 172.23.49.10#53(172.23.49.10) (UDP)
+;; WHEN: Fri Apr 17 12:18:01 CDT 2026
+;; MSG SIZE  rcvd: 493
+
+hsuma@plnx-admin:~$ ipa dnsrecord-find ipa.calix.local | grep -iE "srv|_ldap|_kerberos"
+  Record name: _kerberos
+  URI record: 0 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 0 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 0 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 0 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 0 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  URI record: 0 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 0 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 0 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 0 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 0 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  Record name: _kerberos.MIN_location._locations
+  URI record: 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  URI record: 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  Record name: _kerberos._tcp.MIN_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._tcp.MIN_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 464 nan-ipareplica01.ipa.calix.local., 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 50 100 464 sjc-ipareplica01.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  Record name: _ldap._tcp.MIN_location._locations
+  SRV record: 50 100 389 nan-ipareplica01.ipa.calix.local., 50 2000 389 ric-ipareplica.ipa.calix.local., 50 100 389 ric-ipareplica01.ipa.calix.local., 50 100 389 sjc-ipareplica01.ipa.calix.local., 50 100 389 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos._udp.MIN_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._udp.MIN_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 464 nan-ipareplica01.ipa.calix.local., 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 50 100 464 sjc-ipareplica01.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 123 slc-ipareplica01.ipa.calix.local., 50 2000 123 slc-ipareplica.ipa.calix.local.
+  Record name: _kerberos.NAN_location._locations
+  URI record: 0 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  URI record: 0 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  Record name: _kerberos._tcp.NAN_location._locations
+  SRV record: 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._tcp.NAN_location._locations
+  SRV record: 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 50 100 464 sjc-ipareplica01.ipa.calix.local., 0 100 464 nan-ipareplica01.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  Record name: _ldap._tcp.NAN_location._locations
+  SRV record: 50 2000 389 ric-ipareplica.ipa.calix.local., 50 100 389 ric-ipareplica01.ipa.calix.local., 50 100 389 sjc-ipareplica01.ipa.calix.local., 0 100 389 nan-ipareplica01.ipa.calix.local., 50 100 389 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos._udp.NAN_location._locations
+  SRV record: 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._udp.NAN_location._locations
+  SRV record: 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 50 100 464 sjc-ipareplica01.ipa.calix.local., 0 100 464 nan-ipareplica01.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 123 slc-ipareplica01.ipa.calix.local., 50 2000 123 slc-ipareplica.ipa.calix.local.
+  Record name: _kerberos.PET_location._locations
+  URI record: 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  URI record: 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  Record name: _kerberos._tcp.PET_location._locations
+  SRV record: 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._tcp.PET_location._locations
+  SRV record: 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 464 sjc-ipareplica01.ipa.calix.local., 50 100 464 nan-ipareplica01.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  Record name: _ldap._tcp.PET_location._locations
+  SRV record: 50 100 389 sjc-ipareplica01.ipa.calix.local., 50 100 389 nan-ipareplica01.ipa.calix.local., 50 100 389 ric-ipareplica01.ipa.calix.local., 50 2000 389 ric-ipareplica.ipa.calix.local., 50 100 389 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos._udp.PET_location._locations
+  SRV record: 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._udp.PET_location._locations
+  SRV record: 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 464 sjc-ipareplica01.ipa.calix.local., 50 100 464 nan-ipareplica01.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 123 slc-ipareplica01.ipa.calix.local., 50 2000 123 slc-ipareplica.ipa.calix.local.
+  Record name: _kerberos.PLN_location._locations
+  URI record: 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local."
+  URI record: 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local."
+  Record name: _kerberos._tcp.PLN_location._locations
+  SRV record: 50 100 88 cpeg-ipareplica.ipa.calix.local., 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local.
+  Record name: _kerberos-master._tcp.PLN_location._locations
+  SRV record: 50 100 88 cpeg-ipareplica.ipa.calix.local., 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local.
+  SRV record: 50 100 464 cpeg-ipareplica.ipa.calix.local., 50 100 464 nan-ipareplica01.ipa.calix.local., 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 50 100 464 sjc-ipareplica01.ipa.calix.local.
+  Record name: _ldap._tcp.PLN_location._locations
+  SRV record: 50 100 389 cpeg-ipareplica.ipa.calix.local., 50 100 389 nan-ipareplica01.ipa.calix.local., 50 2000 389 ric-ipareplica.ipa.calix.local., 50 100 389 ric-ipareplica01.ipa.calix.local., 50 100 389 sjc-ipareplica01.ipa.calix.local.
+  Record name: _kerberos._udp.PLN_location._locations
+  SRV record: 50 100 88 cpeg-ipareplica.ipa.calix.local., 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local.
+  Record name: _kerberos-master._udp.PLN_location._locations
+  SRV record: 50 100 88 cpeg-ipareplica.ipa.calix.local., 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local.
+  SRV record: 50 100 464 cpeg-ipareplica.ipa.calix.local., 50 100 464 nan-ipareplica01.ipa.calix.local., 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 50 100 464 sjc-ipareplica01.ipa.calix.local.
+  Record name: _kerberos.RIC_location._locations
+  URI record: 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 0 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 0 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 0 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  URI record: 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 0 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 0 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 0 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  Record name: _kerberos._tcp.RIC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 0 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._tcp.RIC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 0 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 464 nan-ipareplica01.ipa.calix.local., 0 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 sjc-ipareplica01.ipa.calix.local., 0 100 464 ric-ipareplica01.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  Record name: _ldap._tcp.RIC_location._locations
+  SRV record: 50 100 389 nan-ipareplica01.ipa.calix.local., 0 2000 389 ric-ipareplica.ipa.calix.local., 50 100 389 sjc-ipareplica01.ipa.calix.local., 0 100 389 ric-ipareplica01.ipa.calix.local., 50 100 389 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos._udp.RIC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 0 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._udp.RIC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 0 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 464 nan-ipareplica01.ipa.calix.local., 0 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 sjc-ipareplica01.ipa.calix.local., 0 100 464 ric-ipareplica01.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 123 slc-ipareplica01.ipa.calix.local., 50 2000 123 slc-ipareplica.ipa.calix.local.
+  Record name: _kerberos.SJC_location._locations
+  URI record: 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  URI record: 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 0 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  Record name: _kerberos._tcp.SJC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 0 100 88 sjc-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._tcp.SJC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 0 100 88 sjc-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 464 nan-ipareplica01.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 0 100 464 sjc-ipareplica01.ipa.calix.local., 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  Record name: _ldap._tcp.SJC_location._locations
+  SRV record: 50 100 389 nan-ipareplica01.ipa.calix.local., 50 100 389 ric-ipareplica01.ipa.calix.local., 0 100 389 sjc-ipareplica01.ipa.calix.local., 50 2000 389 ric-ipareplica.ipa.calix.local., 50 100 389 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos._udp.SJC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 0 100 88 sjc-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._udp.SJC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 0 100 88 sjc-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 464 nan-ipareplica01.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 0 100 464 sjc-ipareplica01.ipa.calix.local., 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 123 slc-ipareplica01.ipa.calix.local., 50 2000 123 slc-ipareplica.ipa.calix.local.
+  Record name: _kerberos.SLC_location._locations
+  URI record: 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  URI record: 50 100 "krb5srv:m:tcp:nan-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:nan-ipareplica01.ipa.calix.local.", 50 2000 "krb5srv:m:tcp:ric-ipareplica.ipa.calix.local.", 50 2000 "krb5srv:m:udp:ric-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:tcp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:ric-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:udp:sjc-ipareplica01.ipa.calix.local.", 50 100 "krb5srv:m:tcp:cpeg-ipareplica.ipa.calix.local.", 50 100 "krb5srv:m:udp:cpeg-ipareplica.ipa.calix.local."
+  Record name: _kerberos._tcp.SLC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._tcp.SLC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 464 nan-ipareplica01.ipa.calix.local., 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 50 100 464 sjc-ipareplica01.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  Record name: _ldap._tcp.SLC_location._locations
+  SRV record: 50 100 389 nan-ipareplica01.ipa.calix.local., 50 2000 389 ric-ipareplica.ipa.calix.local., 50 100 389 ric-ipareplica01.ipa.calix.local., 50 100 389 sjc-ipareplica01.ipa.calix.local., 50 100 389 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos._udp.SLC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._udp.SLC_location._locations
+  SRV record: 50 100 88 nan-ipareplica01.ipa.calix.local., 50 2000 88 ric-ipareplica.ipa.calix.local., 50 100 88 ric-ipareplica01.ipa.calix.local., 50 100 88 sjc-ipareplica01.ipa.calix.local., 50 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 50 100 464 nan-ipareplica01.ipa.calix.local., 50 2000 464 ric-ipareplica.ipa.calix.local., 50 100 464 ric-ipareplica01.ipa.calix.local., 50 100 464 sjc-ipareplica01.ipa.calix.local., 50 100 464 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 0 2000 123 slc-ipareplica.ipa.calix.local., 0 100 123 slc-ipareplica01.ipa.calix.local.
+  Record name: _kerberos._tcp
+  SRV record: 0 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 nan-ipareplica01.ipa.calix.local., 0 100 88 ric-ipareplica01.ipa.calix.local., 0 2000 88 ric-ipareplica.ipa.calix.local., 0 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._tcp
+  SRV record: 0 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 nan-ipareplica01.ipa.calix.local., 0 100 88 ric-ipareplica01.ipa.calix.local., 0 2000 88 ric-ipareplica.ipa.calix.local., 0 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 0 100 464 sjc-ipareplica01.ipa.calix.local., 0 100 464 nan-ipareplica01.ipa.calix.local., 0 100 464 ric-ipareplica01.ipa.calix.local., 0 2000 464 ric-ipareplica.ipa.calix.local., 0 100 464 cpeg-ipareplica.ipa.calix.local.
+  Record name: _ldap._tcp
+  SRV record: 0 100 389 sjc-ipareplica01.ipa.calix.local., 0 100 389 nan-ipareplica01.ipa.calix.local., 0 100 389 ric-ipareplica01.ipa.calix.local., 0 2000 389 ric-ipareplica.ipa.calix.local., 0 100 389 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos._udp
+  SRV record: 0 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 nan-ipareplica01.ipa.calix.local., 0 100 88 ric-ipareplica01.ipa.calix.local., 0 2000 88 ric-ipareplica.ipa.calix.local., 0 100 88 cpeg-ipareplica.ipa.calix.local.
+  Record name: _kerberos-master._udp
+  SRV record: 0 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 nan-ipareplica01.ipa.calix.local., 0 100 88 ric-ipareplica01.ipa.calix.local., 0 2000 88 ric-ipareplica.ipa.calix.local., 0 100 88 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 0 100 464 sjc-ipareplica01.ipa.calix.local., 0 100 464 nan-ipareplica01.ipa.calix.local., 0 100 464 ric-ipareplica01.ipa.calix.local., 0 2000 464 ric-ipareplica.ipa.calix.local., 0 100 464 cpeg-ipareplica.ipa.calix.local.
+  SRV record: 0 100 123 slc-ipareplica01.ipa.calix.local., 0 2000 123 slc-ipareplica.ipa.calix.local.
+
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ ipa dnsrecord-show ipa.calix.local "_ldap._tcp"
+  Record name: _ldap._tcp
+  SRV record: 0 100 389 sjc-ipareplica01.ipa.calix.local., 0 100 389 nan-ipareplica01.ipa.calix.local., 0 100 389 ric-ipareplica01.ipa.calix.local., 0 2000 389 ric-
+              ipareplica.ipa.calix.local., 0 100 389 cpeg-ipareplica.ipa.calix.local.
+hsuma@plnx-admin:~$ ipa dnsrecord-show ipa.calix.local "_kerberos._tcp"
+  Record name: _kerberos._tcp
+  SRV record: 0 100 88 sjc-ipareplica01.ipa.calix.local., 0 100 88 nan-ipareplica01.ipa.calix.local., 0 100 88 ric-ipareplica01.ipa.calix.local., 0 2000 88 ric-
+              ipareplica.ipa.calix.local., 0 100 88 cpeg-ipareplica.ipa.calix.local.
+hsuma@plnx-admin:~$
