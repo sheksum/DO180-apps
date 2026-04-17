@@ -1,18 +1,93 @@
-ping -c 2 sjc-ipareplica01.ipa.calix.local
-ssh sjc-ipareplica01.ipa.calix.local "ipactl status | head -5"
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ping -c 2 sjc-ipareplica01.ipa.calix.local
+PING sjc-ipareplica01.ipa.calix.local (192.168.99.34) 56(84) bytes of data.
+64 bytes from 192.168.99.34 (192.168.99.34): icmp_seq=1 ttl=59 time=27.5 ms
+64 bytes from 192.168.99.34 (192.168.99.34): icmp_seq=2 ttl=59 time=23.4 ms
 
+--- sjc-ipareplica01.ipa.calix.local ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+rtt min/avg/max/mdev = 23.405/25.444/27.484/2.045 ms
+[root@cpeg-ipareplica ~]# exit
+logout
+[hsuma@cpeg-ipareplica /]$ ssh sjc-ipareplica01.ipa.calix.local "ipactl status | head -5"
+Could not create directory '/home/hsuma/.ssh'.
+^C
+[hsuma@cpeg-ipareplica /]$ ssh sjc-ipareplica01.ipa.calix.local
+Could not create directory '/home/hsuma/.ssh'.
+Last login: Thu Apr  9 14:34:12 2026 from 10.172.248.105
+-------------------------------------------------
+Welcome to the host named sjc-ipareplica01
+CentOS 7.9.2009 x86_64
+-------------------------------------------------
+Puppet: 5.5.17
+Facter: 3.11.10
 
-# Pull the slow 1.29s op above — find its SRCH line
-grep -B1 "conn=4436386 op=49 " /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -5
+FQDN: sjc-ipareplica01.ipa.calix.local
+IP:   192.168.99.34
 
-# Get 10 recent unindexed SRCH patterns
-grep "notes=U" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -20 | awk '{for(i=1;i<=NF;i++) if($i~/conn=|op=/) printf "%s ",$i; print ""}' | while read conn op rest; do
-  grep "$conn $op SRCH " /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -1
-done
+Processor: Intel(R) Xeon(R) CPU E5-2697 v4 @ 2.30GHz
+Memory:    7.80 GiB
 
-
-# Example — if the filter is on attribute "foo":
-dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index add --attr=foo --index-type=eq --index-type=pres userRoot
-
-
-dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index reindex --wait userRoot
+-------------------------------------------------
+Could not chdir to home directory /home/hsuma: No such file or directory
+/usr/local/bin/ca_import_firefox_snap.sh: line 10: /home/hsuma/.ca_import_firefox_snap_done: No such file or directory
+/usr/local/bin/ca_import_google_snap.sh: line 9: /home/hsuma/.ca_import_google_snap_done: No such file or directory
+/usr/local/bin/ca_import_openssl_user.sh: line 5: /home/hsuma/.ca_import_openssl_user_done: No such file or directory
+-bash-4.2$ sudo su -
+Last login: Thu Apr  9 14:34:18 UTC 2026 on pts/1
+[root@sjc-ipareplica01 ~]# ipactl status
+Directory Service: RUNNING
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+named Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa-dnskeysyncd Service: RUNNING
+ipa: INFO: The ipactl command was successful
+[root@sjc-ipareplica01 ~]# exit
+logout
+-bash-4.2$ exit
+logout
+Connection to sjc-ipareplica01.ipa.calix.local closed.
+[hsuma@cpeg-ipareplica /]$
+[hsuma@cpeg-ipareplica /]$
+[hsuma@cpeg-ipareplica /]$
+[hsuma@cpeg-ipareplica /]$
+[hsuma@cpeg-ipareplica /]$ sudo su -
+Last login: Fri Apr 17 15:49:23 UTC 2026 on pts/0
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# grep -B1 "conn=4436386 op=49 " /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -5
+[17/Apr/2026:16:52:14.771551830 +0000] conn=4443168 op=13 RESULT err=0 tag=101 nentries=0 wtime=0.000140166 optime=0.000254563 etime=0.000393509
+[17/Apr/2026:16:52:14.811768748 +0000] conn=4436386 op=49 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+--
+[17/Apr/2026:16:52:16.100707412 +0000] conn=4443187 op=0 RESULT err=0 tag=101 nentries=1 wtime=0.000325233 optime=0.002937364 etime=0.003259696
+[17/Apr/2026:16:52:16.100857275 +0000] conn=4436386 op=49 RESULT err=0 tag=101 nentries=5 wtime=0.000625109 optime=1.289094011 etime=1.289717487 notes=U details="Partially Unindexed Filter"
+[root@cpeg-ipareplica ~]# grep "notes=U" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -20 | awk '{for(i=1;i<=NF;i++) if($i~/conn=|op=/) printf "%s ",$i; print ""}' | while read conn op rest; do
+>   grep "$conn $op SRCH " /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -1
+> done
+[17/Apr/2026:16:55:37.962278549 +0000] conn=4437251 op=24 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:55:49.460647428 +0000] conn=4442630 op=10 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:55:51.480220718 +0000] conn=4441245 op=17 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:55:52.885161384 +0000] conn=4438876 op=30 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:08.467339767 +0000] conn=4439996 op=41 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:08.831033615 +0000] conn=4438222 op=50 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:04.427510821 +0000] conn=4439118 op=8 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:12.835669805 +0000] conn=4442745 op=8 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:13.394056716 +0000] conn=4443745 op=16 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:14.442327981 +0000] conn=4442713 op=10 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:21.294199685 +0000] conn=4438370 op=12 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:25.794484608 +0000] conn=4444976 op=15 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:30.280239016 +0000] conn=4442658 op=17 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:39.143266891 +0000] conn=4444649 op=8 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:49.988914097 +0000] conn=4438870 op=17 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:55.180965389 +0000] conn=4439745 op=16 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:56.734376417 +0000] conn=4445609 op=4 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:57.478500145 +0000] conn=4442504 op=8 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:56:58.398841159 +0000] conn=4443712 op=28 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[17/Apr/2026:16:57:00.891286376 +0000] conn=4441533 op=23 SRCH base="cn=accounts,dc=ipa,dc=calix,dc=local" scope=2 filter="(&(gidNumber=2200)(|(objectClass=ipaUserGroup)(objectClass=posixGroup))(cn=*)(&(gidNumber=*)(!(gidNumber=0))))" attrs="objectClass posixgroup cn userPassword gidNumber member ipaUniqueID ipaNTSecurityIdentifier modifyTimestamp entryusn ipaExternalMember"
+[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local backend index add --attr=foo --index-type=eq --index-type=pres userRoot
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+Successfully added index
+[root@cpeg-ipareplica ~]#
