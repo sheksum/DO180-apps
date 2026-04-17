@@ -1,6 +1,61 @@
-[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-enable-turbo-mode
-Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
-nsslapd-enable-turbo-mode: on
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
+# Localhost baseline (known fast)
+for i in 1 2 3 4 5; do
+  time ldapsearch -x -H ldap://localhost -s base -b "" "(objectclass=*)" >/dev/null 2>&1
+done
+
+# FQDN from cpeg itself (this is the key test)
+for i in 1 2 3 4 5; do
+  time ldapsearch -x -H ldap://cpeg-ipareplica.ipa.calix.local -s base -b "" "(objectclass=*)" >/dev/null 2>&1
+done
+
+# IP from cpeg itself
+for i in 1 2 3 4 5; do
+  time ldapsearch -x -H ldap://172.23.49.10 -s base -b "" "(objectclass=*)" >/dev/null 2>&1
+done
+
+
+
+dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-threadnumber
+dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-maxthreadsperconn
+nproc
+
+ps -p $(pidof ns-slapd) -o pid,%cpu,%mem,rss,nlwp,stat
+
+# Show any operations taking >1 second in last 5 minutes
+awk -v cutoff="$(date -d '5 minutes ago' '+%H:%M:%S')" '
+  /etime=/ {
+    for (i=1; i<=NF; i++) {
+      if ($i ~ /etime=/) {
+        split($i, a, "=")
+        if (a[2]+0 >= 1) print
+      }
+    }
+  }' /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -50
+
+# Number of connections being opened per minute
+grep "fd=.* slot=" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -1000 | awk '{print substr($1,2,20)}' | awk -F: '{print $1":"$2}' | sort | uniq -c | tail -10
+
+# Are any single source IPs opening many rapid connections?
+grep "fd=.* slot=" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | tail -2000 | awk -F'from ' '{print $2}' | awk -F: '{print $1}' | sort | uniq -c | sort -rn | head -10
+
+# Snapshot DS thread states
+ps -T -p $(pidof ns-slapd) -o pid,tid,stat,wchan:30,cmd | head -40
+
+# Stack trace (if gdb or pstack is available)
+which pstack gdb
+
+
+
+# Current socket states
+ss -tan | awk '$4 ~ /:389$/ {print $1}' | sort | uniq -c
+
+# Any TCP retransmits/drops?
+nstat -z | grep -iE "drop|retrans|overflow|listen"
+
+# Check kernel dmesg for network issues
+dmesg -T | grep -iE "oom|drop|tcp|ens|bond" | tail -20
+
+
+ipa-replica-manage list
+ipa-replica-manage list-ruv
+dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local repl-agmt list --suffix="dc=ipa,dc=calix,dc=local"
