@@ -1,2 +1,18 @@
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=clean 52,cn=cleanallruv,cn=tasks,cn=config" 2>&1 | grep -v "^$"
+[hsuma@cpeg-ipareplica /]$
+[hsuma@cpeg-ipareplica /]$ sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=clean 52,cn=cleanallruv,cn=tasks,cn=config" 2>&1 | grep -v "^$"
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+# extended LDIF
+#
+# LDAPv3
+# base <cn=clean 52,cn=cleanallruv,cn=tasks,cn=config> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+# search result
+search: 2
+result: 0 Success
+# numResponses: 1
+[hsuma@cpeg-ipareplica /]$
