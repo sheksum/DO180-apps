@@ -1,7 +1,19 @@
-# On cpeg
-jobs
-ps -ef | grep -E "tail|journalctl|wall" | grep -v grep
-grep -E "^(ForwardToConsole|MaxLevelConsole|TTYPath)" /etc/systemd/journald.conf
-# Also what's writing to your pty
-fuser /dev/$(tty | sed 's|/dev/||')  2>/dev/null
-who -a | head -10
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# jobs
+[root@cpeg-ipareplica ~]# ps -ef | grep -E "tail|journalctl|wall" | grep -v grep
+root        1391       1  0 Apr11 ?        00:00:00 /usr/libexec/platform-python -s /usr/sbin/firewalld --nofork --nopid
+[root@cpeg-ipareplica ~]# grep -E "^(ForwardToConsole|MaxLevelConsole|TTYPath)" /etc/systemd/journald.conf
+[root@cpeg-ipareplica ~]# (2026-04-17 12:48:47): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:48:47): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:48:47): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:48:48): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+(2026-04-17 12:48:48): [be[ipa.calix.local]] [sbus_issue_request_done] (0x0040): sssd.dataprovider.getAccountInfo: Error [1432158212]: SSSD is offline
+
+[root@cpeg-ipareplica ~]# fuser /dev/$(tty | sed 's|/dev/||')  2>/dev/null
+ 1007749 1018585 1018587 1018588[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# who -a | head -10
+           system boot  2026-04-11 21:08
+           run-level 5  2026-04-11 21:08
+hsuma    + pts/0        2026-04-17 15:37   .       1007709 (10.172.248.105)
+           pts/1        2026-04-12 02:01             11976 id=ts/1  term=0 exit=0
+[root@cpeg-ipareplica ~]#
