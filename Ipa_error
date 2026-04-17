@@ -1,3 +1,15 @@
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=config" "(objectClass=nsds5ReplicationAgreement)" \
-  nsds5replicaHost nsds5ReplicaEnabled 2>&1 | grep -iE "^dn:|nsds5"
+[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=config" "(objectClass=nsds5ReplicationAgreement)" \
+>   nsds5replicaHost nsds5ReplicaEnabled 2>&1 | grep -iE "^dn:|nsds5"
+# filter: (objectClass=nsds5ReplicationAgreement)
+# requesting: nsds5replicaHost nsds5ReplicaEnabled
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn=
+nsds5replicaHost: nan-ipareplica01.ipa.calix.local
+nsds5ReplicaEnabled: on
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local,cn=
+nsds5replicaHost: ric-ipareplica01.ipa.calix.local
+nsds5ReplicaEnabled: on
+dn: cn=cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local,cn=
+nsds5replicaHost: sjc-ipareplica01.ipa.calix.local
+nsds5ReplicaEnabled: on
+[root@cpeg-ipareplica ~]#
