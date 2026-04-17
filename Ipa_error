@@ -1,40 +1,6 @@
-[root@cpeg-ipareplica ~]# systemctl status dirsrv@IPA-CALIX-LOCAL.service  --no-pager | head -20
-● dirsrv@IPA-CALIX-LOCAL.service - 389 Directory Server IPA-CALIX-LOCAL.
-   Loaded: loaded (/usr/lib/systemd/system/dirsrv@.service; enabled; vendor preset: disabled)
-  Drop-In: /usr/lib/systemd/system/dirsrv@.service.d
-           └─custom.conf
-           /etc/systemd/system/dirsrv@IPA-CALIX-LOCAL.service.d
-           └─ipa-env.conf
-   Active: active (running) since Sat 2026-04-11 21:08:22 UTC; 5 days ago
- Main PID: 3307 (ns-slapd)
-   Status: "slapd started: Ready to process requests"
-    Tasks: 41 (limit: 306918)
-   Memory: 10.9G
-   CGroup: /system.slice/system-dirsrv.slice/dirsrv@IPA-CALIX-LOCAL.service
-           └─3307 /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-IPA-CALIX-LOCAL -i /run/dirsrv/slapd-IPA-CALIX-LOCAL.pid
+ipa-replica-manage del pln-ipamaster.ipa.calix.local --force --cleanup
 
-Apr 17 15:56:13 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:56:13.186266638 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-Apr 17 15:56:13 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:56:13.377150738 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-Apr 17 15:56:15 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:56:15.551234737 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-Apr 17 15:56:15 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:56:15.554836730 +0000] - ERR - agmt="cn=meTopln-ipamaster.ipa.calix.local" (pln-ipamaster:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-Apr 17 15:56:16 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:56:16.452286701 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local" (nan-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-Apr 17 15:56:19 cpeg-ipareplica.ipa.calix.local ns-slapd[3307]: [17/Apr/2026:15:56:19.929648980 +0000] - ERR - agmt="cn=cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local" (ric-ipareplica01:389) - clcache_load_buffer - Can't locate CSN ffffffff6f0b00140000 in the changelog (DB rc=-30988). If replication stops, the consumer may need to be reinitialized.
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ss -tlnp | grep :389
-LISTEN 0      128                     *:389              *:*    users:(("ns-slapd",pid=3307,fd=7))
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-named Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa-dnskeysyncd Service: RUNNING
-ipa: INFO: The ipactl command was successful
-[root@cpeg-ipareplica ~]#
+
+ipa-replica-manage del pln-ipamaster.ipa.calix.local --force
+
+systemctl status dirsrv@IPA-CALIX-LOCAL --no-pager | tail -15
