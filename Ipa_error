@@ -1,20 +1,99 @@
-# On sjc
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config" \
-  2>&1 | grep -v "^$" | head -30
+-bash-4.2$ sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config" \
+>   2>&1 | grep -v "^$" | head -30
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+# extended LDIF
+#
+# LDAPv3
+# base <cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+# replica, dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal, mapping tree, config
+dn: cn=replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+cn: replica
+nsDS5Flags: 1
+nsDS5ReplicaBindDN: cn=replication manager,cn=config
+nsDS5ReplicaBindDnGroupCheckInterval: 60
+nsDS5ReplicaId: 30
+nsDS5ReplicaName: 62299182-7d0511e8-8a6ee2ac-9aa32d12
+nsDS5ReplicaRoot: dc=ipa,dc=calix,dc=local
+nsDS5ReplicaType: 3
+nsState:: //8AAAAAAAAH8J1pAAAAAAAAAAAAAAAAzxBilgAAAAAAAAAAAAAAAA==
+nsds5ReplicaBackoffMax: 300
+nsds5ReplicaLegacyConsumer: off
+nsds5ReplicaReleaseTimeout: 60
+nsDS5ReplicaBindDNGroup: cn=replication managers,cn=sysaccounts,cn=etc,dc=ipa,
+ dc=calix,dc=local
+objectClass: top
+objectClass: nsds5replica
+objectClass: extensibleobject
+nsds5ReplicaChangeCount: 0
+-bash-4.2$
+-bash-4.2$
+-bash-4.2$ sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=config" "(objectClass=nsds5ReplicationAgreement)" \
+>   nsds5replicaHost nsds5replicaLastUpdateStatus nsds5ReplicaEnabled \
+>   2>&1 | grep -v "^$" | head -40
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+# extended LDIF
+#
+# LDAPv3
+# base <cn=config> with scope subtree
+# filter: (objectClass=nsds5ReplicationAgreement)
+# requesting: nsds5replicaHost nsds5replicaLastUpdateStatus nsds5ReplicaEnabled
+#
+# sjc-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local, replica,
+  dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal, mapping tree, config
+dn: cn=sjc-ipareplica01.ipa.calix.local-to-cpeg-ipareplica.ipa.calix.local,cn=
+ replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+nsds5replicaHost: cpeg-ipareplica.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (0) No replication sessions started since
+ server startup
+nsds5ReplicaEnabled: on
+# sjc-ipareplica01.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local, replica
+ , dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal, mapping tree, config
+dn: cn=sjc-ipareplica01.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local,cn
+ =replica,cn=dc\3Dipa\2Cdc\3Dcalix\2Cdc\3Dlocal,cn=mapping tree,cn=config
+nsds5replicaHost: nan-ipareplica01.ipa.calix.local
+nsds5replicaLastUpdateStatus: Error (0) No replication sessions started since
+ server startup
+nsds5ReplicaEnabled: off
+# search result
+search: 2
+result: 0 Success
+# numResponses: 3
+# numEntries: 2
+-bash-4.2$ sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "cn=Multimaster Replication Plugin,cn=plugins,cn=config" nsslapd-pluginEnabled \
+>   2>&1 | grep -i "pluginEnabled"
+# requesting: nsslapd-pluginEnabled
+nsslapd-pluginEnabled: on
+-bash-4.2$ sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+>   -b "dc=ipa,dc=calix,dc=local" "(objectclass=nsTombstone)" \
+>   nsds50ruv nsds50ruvReplicaLastModified 2>&1 | head -20
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+# extended LDIF
+#
+# LDAPv3
+# base <dc=ipa,dc=calix,dc=local> with scope subtree
+# filter: (objectclass=nsTombstone)
+# requesting: nsds50ruv nsds50ruvReplicaLastModified
+#
 
-# Check if sjc has replication agreements back to cpeg
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=config" "(objectClass=nsds5ReplicationAgreement)" \
-  nsds5replicaHost nsds5replicaLastUpdateStatus nsds5ReplicaEnabled \
-  2>&1 | grep -v "^$" | head -40
+# 9daa5a0e-7c3811e8-ac65e1cc-91559c32, kadmin/pet-ipamaster.ipa.calix.local@IPA
+ .CALIX.LOCAL, IPA.CALIX.LOCAL, kerberos, ipa.calix.local
+dn: nsuniqueid=9daa5a0e-7c3811e8-ac65e1cc-91559c32,krbPrincipalName=kadmin/pet
+ -ipamaster.ipa.calix.local@IPA.CALIX.LOCAL,cn=IPA.CALIX.LOCAL,cn=kerberos,dc=
+ ipa,dc=calix,dc=local
 
-# Check replication plugin status
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "cn=Multimaster Replication Plugin,cn=plugins,cn=config" nsslapd-pluginEnabled \
-  2>&1 | grep -i "pluginEnabled"
-
-# Check sjc's RUV for the suffix
-sudo ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
-  -b "dc=ipa,dc=calix,dc=local" "(objectclass=nsTombstone)" \
-  nsds50ruv nsds50ruvReplicaLastModified 2>&1 | head -20
+# 9daa5a11-7c3811e8-ac65e1cc-91559c32, kiprop/pet-ipamaster.ipa.calix.local@IPA
+ .CALIX.LOCAL, IPA.CALIX.LOCAL, kerberos, ipa.calix.local
+dn: nsuniqueid=9daa5a11-7c3811e8-ac65e1cc-91559c32,krbPrincipalName=kiprop/pet
+-bash-4.2$
