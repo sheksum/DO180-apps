@@ -1,6 +1,11 @@
-dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-listen-backlog-size
-ss -tlnp | grep :389
-
-sysctl net.core.somaxconn
-
-sysctl -w net.core.somaxconn=1024
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local config get nsslapd-listen-backlog-size
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+nsslapd-listen-backlog-size: 1024
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# ss -tlnp | grep :389
+LISTEN 0      128                     *:389              *:*    users:(("ns-slapd",pid=3307,fd=7))
+[root@cpeg-ipareplica ~]# sysctl net.core.somaxconn
+net.core.somaxconn = 1024
+[root@cpeg-ipareplica ~]#
