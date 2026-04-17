@@ -1,2 +1,6 @@
-grep -E "maxdescriptors|nsslapd-maxdescriptors" /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
-cat /proc/3307/limits | grep -i "open files"
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# grep -E "maxdescriptors|nsslapd-maxdescriptors" /etc/dirsrv/slapd-IPA-CALIX-LOCAL/dse.ldif
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# cat /proc/3307/limits | grep -i "open files"
+Max open files            262144               262144               files
+[root@cpeg-ipareplica ~]#
