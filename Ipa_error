@@ -1,68 +1,11 @@
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=clean 57,cn=cleanallruv,cn=tasks,cn=config" 2>&1 | grep -v "^$"
-SASL/EXTERNAL authentication started
-SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-SASL SSF: 0
-# extended LDIF
-#
-# LDAPv3
-# base <cn=clean 57,cn=cleanallruv,cn=tasks,cn=config> with scope subtree
-# filter: (objectclass=*)
-# requesting: ALL
-#
-# clean 57, cleanallruv, tasks, config
-dn: cn=clean 57,cn=cleanallruv,cn=tasks,cn=config
-objectClass: extensibleobject
-objectClass: top
-replica-base-dn: dc=ipa,dc=calix,dc=local
-replica-id: 57
-replica-force-cleaning: yes
-cn: clean 57
-nsTaskCurrentItem: 15
-nsTaskTotalItems: 1
-nsTaskCreated: 20260417155815Z
-nsTaskWarning: 0
-nsTaskLog:: Q2xlYW5pbmcgcmlkICg1NykuLi4KV2FpdGluZyB0byBwcm9jZXNzIGFsbCB0aGUgdX
- BkYXRlcyBmcm9tIHRoZSBkZWxldGVkIHJlcGxpY2EuLi4KV2FpdGluZyBmb3IgYWxsIHRoZSByZXB
- saWNhcyB0byBiZSBvbmxpbmUuLi4KV2FpdGluZyBmb3IgYWxsIHRoZSByZXBsaWNhcyB0byByZWNl
- aXZlIGFsbCB0aGUgZGVsZXRlZCByZXBsaWNhIHVwZGF0ZXMuLi4KU2VuZGluZyBjbGVhbkFsbFJVV
- iB0YXNrIHRvIGFsbCB0aGUgcmVwbGljYXMuLi4KQ2xlYW5pbmcgbG9jYWwgcnV2J3MuLi4KV2FpdG
- luZyBmb3IgYWxsIHRoZSByZXBsaWNhcyB0byBiZSBjbGVhbmVkLi4uCldhaXRpbmcgZm9yIGFsbCB
- 0aGUgcmVwbGljYXMgdG8gZmluaXNoIGNsZWFuaW5nLi4uCk9yaWdpbmFsIHRhc2sgZGVsZXRlcyBL
- ZWVwIGFsaXZlIGVudHJ5ICg1NykuClJlbW92ZWQgS2VlcC1BbGl2ZSBlbnRyeSAoY249cmVwbCBrZ
- WVwIGFsaXZlIDU3LGRjPWlwYSxkYz1jYWxpeCxkYz1sb2NhbCkKQ2xlYW5pbmcgYWdtdC4uLgpDbG
- VhbmluZyBhZ210Li4uCkNsZWFuaW5nIGFnbXQuLi4KQ2xlYW5lZCByZXBsaWNhdGlvbiBhZ3JlZW1
- lbnRzLgpTdWNjZXNzZnVsbHkgY2xlYW5lZCByaWQoNTcp
-nsTaskStatus: Successfully cleaned rid(57)
-nsTaskExitCode: 0
-# search result
-search: 2
-result: 0 Success
-# numResponses: 2
-# numEntries: 1
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]#
-[root@cpeg-ipareplica ~]# sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
->   -b "cn=abort cleanallruv,cn=tasks,cn=config" 2>&1 | grep -v "^$" | head -30
-SASL/EXTERNAL authentication started
-SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-SASL SSF: 0
-# extended LDIF
-#
-# LDAPv3
-# base <cn=abort cleanallruv,cn=tasks,cn=config> with scope subtree
-# filter: (objectclass=*)
-# requesting: ALL
-#
-# abort cleanallruv, tasks, config
-dn: cn=abort cleanallruv,cn=tasks,cn=config
-objectClass: top
-objectClass: extensibleObject
-cn: abort cleanallruv
-# search result
-search: 2
-result: 0 Success
-# numResponses: 2
-# numEntries: 1
-[root@cpeg-ipareplica ~]#
+# Confirm 57 is truly gone from all RUV lists (should see no "replica 57")
+sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+  repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | grep -E "replica 5[0-9]"
+
+# Check the replication tasks log for any timing details
+sudo ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "cn=tasks,cn=config" "(cn=clean*)" cn nsTaskCreated nsTaskStatus nsTaskExitCode 2>&1 | grep -iE "^cn:|^nsTask"
+
+# Current replication state summary
+sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+  replication monitor 2>&1 | head -80
