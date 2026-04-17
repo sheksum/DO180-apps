@@ -1,0 +1,177 @@
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [get_server_status] (0x1000): [RID#35372] Status of server 'cpeg-ipareplica.ipa.calix.local' is 'name not resolved'
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [get_port_status] (0x1000): [RID#35372] Port status of port 0 for server 'cpeg-ipareplica.ipa.calix.local' is 'neutral'
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [fo_resolve_service_activate_timeout] (0x2000): [RID#35372] Resolve timeout [dns_resolver_timeout] set to 6 seconds
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [get_server_status] (0x1000): [RID#35372] Status of server 'cpeg-ipareplica.ipa.calix.local' is 'name not resolved'
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [resolv_is_address] (0x4000): [RID#35372] [cpeg-ipareplica.ipa.calix.local] does not look like an IP address
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [resolv_gethostbyname_step] (0x2000): [RID#35372] Querying files
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [resolv_gethostbyname_files_send] (0x0100): [RID#35372] Trying to resolve A record of 'cpeg-ipareplica.ipa.calix.local' in files
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [set_server_common_status] (0x0100): [RID#35372] Marking server 'cpeg-ipareplica.ipa.calix.local' as 'resolving name'
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [resolv_gethostbyname_step] (0x2000): [RID#35372] Querying files
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [resolv_gethostbyname_files_send] (0x0100): [RID#35372] Trying to resolve AAAA record of 'cpeg-ipareplica.ipa.calix.local' in files
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [resolv_gethostbyname_next] (0x0200): [RID#35372] No more address families to retry
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [resolv_gethostbyname_step] (0x2000): [RID#35372] Querying DNS
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [resolv_gethostbyname_dns_query] (0x0100): [RID#35372] Trying to resolve A record of 'cpeg-ipareplica.ipa.calix.local' in DNS
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [schedule_request_timeout] (0x2000): [RID#35372] Scheduling a timeout of 3 seconds
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [schedule_timeout_watcher] (0x2000): [RID#35372] Scheduling DNS timeout watcher
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [unschedule_timeout_watcher] (0x4000): [RID#35372] Unscheduling DNS timeout watcher
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [resolv_gethostbyname_dns_parse] (0x1000): [RID#35372] Parsing an A reply
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [request_watch_destructor] (0x0400): [RID#35372] Deleting request watch
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [set_server_common_status] (0x0100): [RID#35372] Marking server 'cpeg-ipareplica.ipa.calix.local' as 'name resolved'
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [be_resolve_server_process] (0x1000): [RID#35372] Saving the first resolved server
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [be_resolve_server_process] (0x0200): [RID#35372] Found address for server cpeg-ipareplica.ipa.calix.local: [172.23.49.10] TTL 1504
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [ipa_resolve_callback] (0x0400): [RID#35372] Constructed uri 'ldap://cpeg-ipareplica.ipa.calix.local'
+   *  (2026-04-17 10:50:25): [be[ipa.calix.local]] [fo_get_server_hostent] (0x0020): [RID#35372] Bug: Trying to get hostent from a name-less server
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 10:50:26): [be[ipa.calix.local]] [write_krb5info_file_from_fo_server] (0x0020): [RID#35372] Server without name and address found in list.
+ar
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# (2026-04-17 10:50:32): [be[ipa.calix.local]] [generic_ext_search_handler] (0x0020): [RID#35372] sdap_get_generic_ext_recv failed: [110]: Connection timed out [ldap_search_timeout]
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [write_krb5info_file_from_fo_server] (0x0020): [RID#35372] Server without name and address found in list.
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [krb5_add_krb5info_offline_callback] (0x4000): [RID#35372] Removal callback already available for service [IPA].
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [unique_filename_destructor] (0x2000): [RID#35372] Unlinking [/var/lib/sss/pubconf/.krb5info_dummy_uf3GyJ]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [unlink_dbg] (0x2000): [RID#35372] File already removed: [/var/lib/sss/pubconf/.krb5info_dummy_uf3GyJ]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sssd_async_socket_init_send] (0x4000): [RID#35372] Using file descriptor [23] for the connection.
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sssd_async_socket_init_send] (0x0400): [RID#35372] Setting 6 seconds timeout [ldap_network_timeout] for connecting
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_ldap_connect_callback_add] (0x4000): [RID#35372] New connection to [ldap://cpeg-ipareplica.ipa.calix.local:389/??base] with fd [23]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_rootdse_send] (0x4000): [RID#35372] Getting rootdse
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_print_server] (0x2000): [RID#35372] Searching 172.23.49.10:389
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x0400): [RID#35372] calling ldap_search_ext with [(objectclass=*)][].
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [*]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [altServer]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [namingContexts]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [supportedControl]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [supportedExtension]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [supportedFeatures]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [supportedLDAPVersion]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [supportedSASLMechanisms]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [domainControllerFunctionality]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [defaultNamingContext]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [lastUSN]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x1000): [RID#35372] Requesting attrs: [highestCommittedUSN]
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_get_generic_ext_step] (0x2000): [RID#35372] ldap_search_ext called, msgid = 1
+   *  (2026-04-17 10:50:26): [be[ipa.calix.local]] [sdap_op_add] (0x2000): [RID#35372] New operation 1 timeout 6
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [sdap_op_timeout] (0x1000): [RID#35372] Issuing timeout [ldap_opt_timeout] for message id 1
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [sdap_op_destructor] (0x1000): [RID#35372] Abandoning operation 1
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [generic_ext_search_handler] (0x0020): [RID#35372] sdap_get_generic_ext_recv failed: [110]: Connection timed out [ldap_search_timeout]
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 10:50:32): [be[ipa.calix.local]] [fo_get_server_hostent] (0x0020): [RID#35372] Bug: Trying to get hostent from a name-less server
+   *  ... skipping repetitive backtrace ...
+(2026-04-17 10:50:32): [be[ipa.calix.local]] [write_krb5info_file_from_fo_server] (0x0020): [RID#35372] Server without name and address found in list.
+   *  ... skipping repetitive backtrace ...
+(2026-04-17 10:50:32): [be[ipa.calix.local]] [sssd_async_connect_done] (0x0020): [RID#35372] connect failed [111][Connection refused].
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [krb5_add_krb5info_offline_callback] (0x4000): [RID#35372] Removal callback already available for service [IPA].
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [unique_filename_destructor] (0x2000): [RID#35372] Unlinking [/var/lib/sss/pubconf/.krb5info_dummy_hVh9Zd]
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [unlink_dbg] (0x2000): [RID#35372] File already removed: [/var/lib/sss/pubconf/.krb5info_dummy_hVh9Zd]
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [sssd_async_socket_init_send] (0x4000): [RID#35372] Using file descriptor [23] for the connection.
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [sssd_async_socket_init_send] (0x0400): [RID#35372] Setting 6 seconds timeout [ldap_network_timeout] for connecting
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [sssd_async_connect_done] (0x0020): [RID#35372] connect failed [111][Connection refused].
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 10:50:32): [be[ipa.calix.local]] [sssd_async_socket_init_done] (0x0020): [RID#35372] sdap_async_sys_connect request failed: [111]: Connection refused.(2026-04-17 10:50:32): [be[ipa.calix.local]] [sss_ldap_init_sys_connect_done] (0x0020): [RID#35372] sssd_async_socket_init request failed: [111]: Connection refused.
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [sssd_async_socket_init_done] (0x0020): [RID#35372] sdap_async_sys_connect request failed: [111]: Connection refused.   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [sssd_async_socket_state_destructor] (0x0400): [RID#35372] closing socket [23]
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [sss_ldap_init_sys_connect_done] (0x0020): [RID#35372] sssd_async_socket_init request failed: [111]: Connection refused.
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 10:50:32): [be[ipa.calix.local]] [sdap_sys_connect_done] (0x0020): [RID#35372] sdap_async_connect_call request failed: [111]: Connection refused.
+(2026-04-17 10:50:32): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0020): [RID#35372] No available servers for service 'IPA'
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [sdap_sys_connect_done] (0x0020): [RID#35372] sdap_async_connect_call request failed: [111]: Connection refused.
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [sdap_handle_release] (0x2000): [RID#35372] Trace: sh[0x55a241cc12d0], connected[0], ops[(nil)], ldap[(nil)], destructor_lock[0], release_memory[0]
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [_be_fo_set_port_status] (0x8000): [RID#35372] Setting status: PORT_NOT_WORKING. Called from: ../src/providers/ldap/sdap_async_connection.c: sdap_cli_connect_done: 1633
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [fo_set_port_status] (0x0100): [RID#35372] Marking port 0 of server 'pln-petipareplica.ipa.calix.local' as 'not working'
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [fo_set_port_status] (0x0400): [RID#35372] Marking port 0 of duplicate server 'pln-petipareplica.ipa.calix.local' as 'not working'
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0100): [RID#35372] Trying to resolve service 'IPA'
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [get_port_status] (0x1000): [RID#35372] Port status of port 0 for server '(no name)' is 'not working'
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [get_port_status] (0x0080): [RID#35372] SSSD is unable to complete the full connection request, this internal status does not necessarily indicate network port issues.
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [get_server_status] (0x1000): [RID#35372] Status of server 'cpeg-ipareplica.ipa.calix.local' is 'name resolved'
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [get_port_status] (0x1000): [RID#35372] Port status of port 0 for server 'cpeg-ipareplica.ipa.calix.local' is 'not working'
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [get_port_status] (0x0080): [RID#35372] SSSD is unable to complete the full connection request, this internal status does not necessarily indicate network port issues.
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [get_server_status] (0x1000): [RID#35372] Status of server 'pln-petipareplica.ipa.calix.local' is 'name resolved'
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [get_port_status] (0x1000): [RID#35372] Port status of port 0 for server 'pln-petipareplica.ipa.calix.local' is 'not working'
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [get_port_status] (0x0080): [RID#35372] SSSD is unable to complete the full connection request, this internal status does not necessarily indicate network port issues.
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0020): [RID#35372] No available servers for service 'IPA'
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_discover_srv_done] (0x0040): [RID#35373] SRV query failed [4]: Domain name not found
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [be_resolve_server_done] (0x1000): [RID#35372] Server [NULL] resolution failed: [5]: Input/output error
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [dp_req_done] (0x0400): [RID#35372] DP Request [Online Check #35372]: Request handler finished [0]: Success
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [_dp_req_recv] (0x0400): [RID#35372] DP Request [Online Check #35372]: Receiving request data.
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [dp_req_destructor] (0x0400): [RID#35372] DP Request [Online Check #35372]: Request removed.
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [dp_req_destructor] (0x0400): [RID#35372] Number of active DP request: 0
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [be_check_online_done] (0x0400): [RID#35372] Backend is offline
+   *  (2026-04-17 10:50:32): [be[ipa.calix.local]] [be_check_online_done] (0x2000): [RID#35372] Schedule check_if_online_delayed in 2s.
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [be_run_unconditional_online_cb] (0x4000): [RID#35372] List of unconditional online callbacks is empty, nothing to do.
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [check_if_online_delayed] (0x2000): [RID#35372] Trying to go back online!
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_reset_services] (0x1000): [RID#35372] Resetting all servers in all services
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [set_srv_data_status] (0x0100): [RID#35372] Marking SRV lookup of service 'IPA' as 'neutral'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_set_port_status] (0x0100): [RID#35372] Marking port 0 of server '(no name)' as 'neutral'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [set_server_common_status] (0x0100): [RID#35372] Marking server 'cpeg-ipareplica.ipa.calix.local' as 'name not resolved'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_set_port_status] (0x0100): [RID#35372] Marking port 0 of server 'cpeg-ipareplica.ipa.calix.local' as 'neutral'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_set_port_status] (0x0400): [RID#35372] Marking port 0 of duplicate server 'cpeg-ipareplica.ipa.calix.local' as 'neutral'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [set_server_common_status] (0x0100): [RID#35372] Marking server 'pln-petipareplica.ipa.calix.local' as 'name not resolved'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_set_port_status] (0x0100): [RID#35372] Marking port 0 of server 'pln-petipareplica.ipa.calix.local' as 'neutral'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_set_port_status] (0x0400): [RID#35372] Marking port 0 of duplicate server 'pln-petipareplica.ipa.calix.local' as 'neutral'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [dp_attach_req] (0x0400): [RID#35373] DP Request [Online Check #35373]: REQ_TRACE: New request. Flags [0000].
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [dp_attach_req] (0x0400): [RID#35373] Number of active DP request: 1
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0100): [RID#35373] Trying to resolve service 'IPA'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [get_port_status] (0x1000): [RID#35373] Port status of port 0 for server '(no name)' is 'neutral'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_resolve_service_activate_timeout] (0x2000): [RID#35373] Resolve timeout [dns_resolver_timeout] set to 6 seconds
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolve_srv_send] (0x0200): [RID#35373] The status of SRV lookup is neutral
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_discover_srv_next_domain] (0x0400): [RID#35373] SRV resolution of service 'ldap'. Will use DNS discovery domain 'ipa.calix.local'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_getsrv_send] (0x0100): [RID#35373] Trying to resolve SRV record of '_ldap._tcp.ipa.calix.local'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [check_if_online_delayed] (0x2000): [RID#35372] Check online req created.
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [schedule_request_timeout] (0x2000): [RID#35373] Scheduling a timeout of 3 seconds
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [schedule_timeout_watcher] (0x2000): [RID#35373] Scheduling DNS timeout watcher
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [unschedule_timeout_watcher] (0x4000): [RID#35373] Unscheduling DNS timeout watcher
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [request_watch_destructor] (0x0400): [RID#35373] Deleting request watch
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_discover_srv_done] (0x0040): [RID#35373] SRV query failed [4]: Domain name not found
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 10:50:34): [be[ipa.calix.local]] [resolve_srv_done] (0x0040): [RID#35373] Unable to resolve SRV [1432158237]: SRV record not found
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_set_port_status] (0x0100): [RID#35373] Marking port 0 of server '(no name)' as 'not working'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolve_srv_done] (0x0040): [RID#35373] Unable to resolve SRV [1432158237]: SRV record not found
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_get_server_hostent] (0x0020): [RID#35373] Bug: Trying to get hostent from a name-less server
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [set_srv_data_status] (0x0100): [RID#35373] Marking SRV lookup of service 'IPA' as 'not resolved'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [be_resolve_server_process] (0x0080): [RID#35373] Couldn't resolve server (SRV lookup meta-server), resolver returned [1432158237]: SRV record not found
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [be_resolve_server_process] (0x1000): [RID#35373] Trying with the next one!
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_resolve_service_send] (0x0100): [RID#35373] Trying to resolve service 'IPA'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [get_server_status] (0x1000): [RID#35373] Status of server 'cpeg-ipareplica.ipa.calix.local' is 'name not resolved'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [get_port_status] (0x1000): [RID#35373] Port status of port 0 for server 'cpeg-ipareplica.ipa.calix.local' is 'neutral'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_resolve_service_activate_timeout] (0x2000): [RID#35373] Resolve timeout [dns_resolver_timeout] set to 6 seconds
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [get_server_status] (0x1000): [RID#35373] Status of server 'cpeg-ipareplica.ipa.calix.local' is 'name not resolved'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_is_address] (0x4000): [RID#35373] [cpeg-ipareplica.ipa.calix.local] does not look like an IP address
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_gethostbyname_step] (0x2000): [RID#35373] Querying files
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_gethostbyname_files_send] (0x0100): [RID#35373] Trying to resolve A record of 'cpeg-ipareplica.ipa.calix.local' in files
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [set_server_common_status] (0x0100): [RID#35373] Marking server 'cpeg-ipareplica.ipa.calix.local' as 'resolving name'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_gethostbyname_step] (0x2000): [RID#35373] Querying files
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_gethostbyname_files_send] (0x0100): [RID#35373] Trying to resolve AAAA record of 'cpeg-ipareplica.ipa.calix.local' in files
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_gethostbyname_next] (0x0200): [RID#35373] No more address families to retry
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_gethostbyname_step] (0x2000): [RID#35373] Querying DNS
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_gethostbyname_dns_query] (0x0100): [RID#35373] Trying to resolve A record of 'cpeg-ipareplica.ipa.calix.local' in DNS
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [schedule_request_timeout] (0x2000): [RID#35373] Scheduling a timeout of 3 seconds
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [schedule_timeout_watcher] (0x2000): [RID#35373] Scheduling DNS timeout watcher
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [unschedule_timeout_watcher] (0x4000): [RID#35373] Unscheduling DNS timeout watcher
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [resolv_gethostbyname_dns_parse] (0x1000): [RID#35373] Parsing an A reply
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [request_watch_destructor] (0x0400): [RID#35373] Deleting request watch
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [set_server_common_status] (0x0100): [RID#35373] Marking server 'cpeg-ipareplica.ipa.calix.local' as 'name resolved'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [be_resolve_server_process] (0x1000): [RID#35373] Saving the first resolved server
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [be_resolve_server_process] (0x0200): [RID#35373] Found address for server cpeg-ipareplica.ipa.calix.local: [172.23.49.10] TTL 1496
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [ipa_resolve_callback] (0x0400): [RID#35373] Constructed uri 'ldap://cpeg-ipareplica.ipa.calix.local'
+   *  (2026-04-17 10:50:34): [be[ipa.calix.local]] [fo_get_server_hostent] (0x0020): [RID#35373] Bug: Trying to get hostent from a name-less server
+********************** BACKTRACE DUMP ENDS HERE *********************************
+
+(2026-04-17 10:50:34): [be[ipa.calix.local]] [write_krb5info_file_from_fo_server] (0x0020): [RID#35373] Server without name and address found in list.
