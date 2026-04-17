@@ -1,19 +1,76 @@
-# LDAP reachability
-time ldapsearch -x -H ldap://cpeg-ipareplica.ipa.calix.local -s base -b "" "(objectclass=*)" 2>&1 | tail -3
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ time ldapsearch -x -H ldap://cpeg-ipareplica.ipa.calix.local -s base -b "" "(objectclass=*)" 2>&1 | tail -3
 
-# Kerberos reachability
-nc -zv cpeg-ipareplica.ipa.calix.local 88
-nc -zv cpeg-ipareplica.ipa.calix.local 389
+# numResponses: 2
+# numEntries: 1
 
-# Check latest SSSD log after the restart
-sudo tail -100 /var/log/sssd/sssd_ipa.calix.local.log | grep -v "^ "
+real	0m0.166s
+user	0m0.007s
+sys	0m0.005s
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ nc -zv cpeg-ipareplica.ipa.calix.local 88
+Connection to cpeg-ipareplica.ipa.calix.local (172.23.49.10) 88 port [tcp/kerberos] succeeded!
+hsuma@plnx-admin:~$ nc -zv cpeg-ipareplica.ipa.calix.local 389
+Connection to cpeg-ipareplica.ipa.calix.local (172.23.49.10) 389 port [tcp/ldap] succeeded!
+hsuma@plnx-admin:~$ sudo tail -100 /var/log/sssd/sssd_ipa.calix.local.log | grep -v "^ "
+********************** BACKTRACE DUMP ENDS HERE *********************************
 
+(2026-04-17 12:57:18): [be[ipa.calix.local]] [resolve_srv_done] (0x0040): [RID#31] Unable to resolve SRV [1432158237]: SRV record not found
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+********************** BACKTRACE DUMP ENDS HERE *********************************
 
-# Kick sssd_be to retry online check immediately (uses dbus)
-sudo sss_cache -E
-sudo systemctl restart sssd
-sleep 10
-sudo sssctl domain-status ipa.calix.local
+(2026-04-17 12:57:18): [be[ipa.calix.local]] [fo_get_server_hostent] (0x0020): [RID#31] Bug: Trying to get hostent from a name-less server
+********************** PREVIOUS MESSAGE WAS TRIGGERED BY THE FOLLOWING BACKTRACE:
+********************** BACKTRACE DUMP ENDS HERE *********************************
 
+(2026-04-17 12:57:18): [be[ipa.calix.local]] [write_krb5info_file_from_fo_server] (0x0020): [RID#31] Server without name and address found in list.
+hsuma@plnx-admin:~$ sudo sss_cache -E
+hsuma@plnx-admin:~$ sudo systemctl restart sssd
+hsuma@plnx-admin:~$ sleep 10
+hsuma@plnx-admin:~$ sudo sssctl domain-status ipa.calix.local
+Online status: Online
 
-sudo cat /etc/sssd/sssd.conf
+Active servers:
+IPA: cpeg-ipareplica.ipa.calix.local
+
+Discovered IPA servers:
+- cpeg-ipareplica.ipa.calix.local
+- pln-petipareplica.ipa.calix.local
+
+hsuma@plnx-admin:~$ sudo cat /etc/sssd/sssd.conf
+[domain/ipa.calix.local]
+
+id_provider = ipa
+dns_discovery_domain = ipa.calix.local
+ipa_server = _srv_, cpeg-ipareplica.ipa.calix.local, pln-petipareplica.ipa.calix.local
+ipa_domain = ipa.calix.local
+ipa_hostname = plnx-admin.calix.local
+auth_provider = ipa
+chpass_provider = ipa
+access_provider = ipa
+cache_credentials = True
+ldap_tls_cacert = /etc/ipa/ca.crt
+krb5_store_password_if_offline = True
+[sssd]
+services = nss, pam, ssh, sudo
+
+domains = ipa.calix.local
+[nss]
+homedir_substring = /home
+
+[pam]
+
+[sudo]
+
+[autofs]
+
+[ssh]
+
+[pac]
+
+[ifp]
+
+[session_recording]
+
+hsuma@plnx-admin:~$
