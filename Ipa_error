@@ -1,9 +1,9 @@
-# Did the HTTP principal get created?
-ipa service-find HTTP/pln-ipamaster.ipa.calix.local 2>&1
+# What does the log say this time?
+sudo tail -50 /var/log/sssd/sssd_ipa.calix.local.log
 
-# Is there a master entry for pln-ipamaster?
-ipa-replica-manage list 2>&1
+# Is cpeg currently reachable?
+time ldapsearch -x -H ldap://cpeg-ipareplica.ipa.calix.local -s base -b "" "(objectclass=*)" 2>&1 | tail -3
 
-# Check the install log tail
-
-sudo tail -200 /var/log/ipareplica-install.log | grep -iE "error|warn|keytab|http|sasl|acl|insufficient"
+uptime
+ss -s | head -5
+sudo grep -c "ERR" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors | head -1
