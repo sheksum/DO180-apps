@@ -1,6 +1,16 @@
-sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
-  repl-agmt list --suffix="o=ipaca" 2>&1 | grep -E "^dn:|nsds5replicaHost"
+[root@cpeg-ipareplica ~]# sudo grep "17/Apr/2026:15:09:3" /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/access | head -20
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+>   repl-agmt list --suffix="o=ipaca" 2>&1 | grep -E "^dn:|nsds5replicaHost"
+Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]#
+[root@cpeg-ipareplica ~]# nc -zv pln-ipamaster.ipa.calix.local 389 2>&1
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Could not resolve hostname "pln-ipamaster.ipa.calix.local": Name or service not known. QUITTING.
+[root@cpeg-ipareplica ~]#
 
-# From cpeg or anywhere reachable
-nc -zv pln-ipamaster.ipa.calix.local 389 2>&1
-ssh root@pln-ipamaster "sudo systemctl is-active dirsrv@*" 2>&1
+
+[root@pln-ipamaster ~]# sudo systemctl is-active dirsrv@*
+active
+[root@pln-ipamaster ~]#
