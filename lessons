@@ -1,0 +1,20 @@
+kinit admin
+ipactl status
+ipa server-find
+ipa host-find --sizelimit=0 | grep "Number of entries"
+ipa config-show
+ipa-replica-manage list
+ipa-replica-manage -v list cpeg-ipareplica.ipa.calix.local
+ldapsearch -Y EXTERNAL -H ldapi://%2Frun%2Fslapd-IPA-CALIX-LOCAL.socket \
+  -b "dc=ipa,dc=calix,dc=local" \
+  "(&(nsuniqueid=ffffffff-ffffffff-ffffffff-ffffffff)(objectclass=nstombstone))" \
+  nsds50ruv 2>/dev/null | grep "nsds50ruv"
+
+Opening (5 min)
+Start with a question before touching the slides.
+“Quick question for the group — how does a new engineer today get SSH access to a Linux server at Calix? What actually happens?”
+Let them answer. Then:
+“What happens when that engineer leaves? How do we make sure their access is gone everywhere — across all 4,668 enrolled hosts?”
+Let that land. Then introduce IPA with RH’s own framing from the docs:
+“Red Hat describes IdM as a centralized and unified way to manage identity stores, authentication, policies, and authorization in a Linux-based domain. The goal according to RH is to significantly reduce the administrative overhead of managing different services individually using different tools on different machines. That’s exactly the problem we just described.”
+Point them to the reference: https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/planning_identity_management/overview-of-identity-management-and-access-control-planning-identity-management
