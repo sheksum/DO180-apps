@@ -1,24 +1,3 @@
-# Local-only replication status on cpeg
 sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
-  replication status --suffix="dc=ipa,dc=calix,dc=local"
-
-# Or check the agreement-by-agreement status
-sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
-  repl-agmt status --suffix="dc=ipa,dc=calix,dc=local" \
-  cpeg-ipareplica.ipa.calix.local-to-nan-ipareplica01.ipa.calix.local
-
-sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
-  repl-agmt status --suffix="dc=ipa,dc=calix,dc=local" \
-  cpeg-ipareplica.ipa.calix.local-to-ric-ipareplica01.ipa.calix.local
-
-sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
-  repl-agmt status --suffix="dc=ipa,dc=calix,dc=local" \
-  cpeg-ipareplica.ipa.calix.local-to-sjc-ipareplica01.ipa.calix.local
-
-
-[root@cpeg-ipareplica ~]# sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
->   replication status --suffix="dc=ipa,dc=calix,dc=local"
-Enter password for cn=Directory Manager on ldap://cpeg-ipareplica.ipa.calix.local:
-Enter bind DN for the replicated suffix (dc=ipa,dc=calix,dc=local) on nan-ipareplica01.ipa.calix.local:389 :
-Enter password for () to the replicated suffix (dc=ipa,dc=calix,dc=local) on nan-ipareplica01.ipa.calix.local:389 :
-Enter bind DN for the replicated suffix (dc=ipa,dc=calix,dc=local) on ric-ipareplica01.ipa.calix.local:389 :
+  repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | \
+  grep -E "^dn:|nsds5replicaHost|nsds5replicaLastUpdateStatus:|nsds5ReplicaEnabled|nsds5replicaUpdateInProgress"
