@@ -1,13 +1,11 @@
-ls -la /home/svcunixrhocp/ocp-install/
-cat /home/svcunixrhocp/ocp-install/install-config.yaml.bak 2>/dev/null | head -80
-
-
-sudo ls -la /home/svcunixrhocp/ocp-install/
-sudo head -80 /home/svcunixrhocp/ocp-install/install-config.yaml.bak
+# How many certs rendered into the file (number only, no cert content)
 sudo grep -c 'BEGIN CERTIFICATE' /home/svcunixrhocp/ocp-install/install-config.yaml.bak
-sudo grep -A 2 additionalTrust /home/svcunixrhocp/ocp-install/install-config.yaml.bak
 
+# Does the additionalTrustBundle block exist and what's the policy value
+sudo grep -n '^additionalTrust\|^apiVersion\|^baseDomain' /home/svcunixrhocp/ocp-install/install-config.yaml.bak
 
-sudo head -10 /runner/project/templates/install-config.yaml.j2 2>/dev/null
-# Or find where AAP stashed it:
-sudo find / -name 'install-config.yaml.j2' 2>/dev/null
+# File size and line count (confirms it's not truncated)
+sudo wc -l /home/svcunixrhocp/ocp-install/install-config.yaml.bak
+
+# Check that the block scalar content is indented (view just the first 2 lines after additionalTrustBundle: | )
+sudo sed -n '/additionalTrustBundle:/,+2p' /home/svcunixrhocp/ocp-install/install-config.yaml.bak | sed 's/[A-Za-z0-9+/=]/X/g'
