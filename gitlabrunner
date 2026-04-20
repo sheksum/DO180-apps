@@ -1,0 +1,757 @@
+# GitLab CE Instance Setup on Kubernetes
+
+**TTM Technologies — Hillsborough RKE2 Cluster**  
+**Date:** April 2026  
+**Author:** Alhaji Suma
+
+-----
+
+## Overview
+
+This document covers the deployment of a GitLab Community Edition instance on the Hillsborough RKE2 Kubernetes cluster. The instance is accessible at `gitlab.apps.ttmtech.com` and is LDAP integrated against TTM Active Directory.
+
+-----
+
+## Prerequisites
+
+### Cluster Details
+
+|Component        |Value                                                    |
+|-----------------|---------------------------------------------------------|
+|Cluster Type     |RKE2 v1.35.0                                             |
+|Control Plane    |aamhilcp01, aamhilcp02, aamhilcp03 (RHEL 9.7)            |
+|Workers          |aamhilwk01, aamhilwk02, aamhilwk03, aamhilwk04 (RHEL 9.7)|
+|Ingress          |rke2-ingress-nginx                                       |
+|Load Balancer    |HAProxy at 10.45.17.118                                  |
+|Internal Registry|img-registry.ttmtech.local:5000                          |
+
+### Tools Required
+
+```bash
+# Helm must be installed
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# Add GitLab Helm repo
+helm repo add gitlab https://charts.gitlab.io/
+helm repo update
+```
+
+-----
+
+## Step 1 — Storage Setup
+
+### 1.1 Add Dedicated Disks to Worker Nodes
+
+Add an 800GB thin-provisioned disk to each worker node at the hypervisor level, then on each worker:
+
+```bash
+# Find the new disk
+lsblk
+
+# Partition (sdc on wk02/wk03/wk04, sdd on wk01)
+fdisk /dev/sdc
+# n → p → 1 → Enter → Enter → w
+
+# Format
+mkfs.xfs /dev/sdc1
+
+# Get UUID
+blkid /dev/sdc1
+
+# Mount
+mkdir -p /mnt/longhorn-data
+echo "UUID=<uuid> /mnt/longhorn-data xfs defaults 0 0" >> /etc/fstab
+mount -a
+
+# Verify
+df -h /mnt/longhorn-data
+```
+
+### 1.2 Add Disk to Longhorn
+
+```bash
+kubectl edit node.longhorn.io aamhilwk01.ttmtech.local -n longhorn-system
+```
+
+Add under `spec.disks`:
+
+```yaml
+spec:
+  disks:
+    default-disk-fd0300000000:
+      allowScheduling: false    # disable OS disk for new volumes
+      evictionRequested: false
+      path: /var/lib/longhorn/
+      storageReserved: 0
+    longhorn-data:              # new dedicated disk
+      allowScheduling: true
+      evictionRequested: false
+      path: /mnt/longhorn-data
+      storageReserved: 10737418240
+      tags:
+        - data
+```
+
+Repeat for all 4 worker nodes.
+
+-----
+
+## Step 2 — MinIO Object Storage
+
+### 2.1 Deploy MinIO
+
+```bash
+helm repo add minio https://charts.min.io
+helm repo update
+
+kubectl create namespace minio-system
+
+helm install minio minio/minio \
+  -n minio-system \
+  -f minio-values.yaml
+```
+
+### 2.2 MinIO Values (minio-values.yaml)
+
+```yaml
+rootUser: admin
+rootPassword: "<generated-with-openssl-rand-base64-24>"
+
+persistence:
+  enabled: true
+  storageClass: longhorn
+  size: 200Gi
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hostname: minio-api.apps.ttmtech.com
+  tls: true
+  extraTls:
+    - hosts:
+        - minio-api.apps.ttmtech.com
+      secretName: wildcard-apps-ttmtech-tls
+
+consoleIngress:
+  enabled: true
+  ingressClassName: nginx
+  hostname: minio-console.apps.ttmtech.com
+  tls: true
+  extraTls:
+    - hosts:
+        - minio-console.apps.ttmtech.com
+      secretName: wildcard-apps-ttmtech-tls
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "2Gi"
+    cpu: "1"
+```
+
+### 2.3 Create GitLab Buckets
+
+Install mc client:
+
+```bash
+curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+chmod +x mc
+mv mc /usr/local/bin/mc
+
+# Add hosts entry if DNS not yet created
+echo "10.45.17.118 minio-api.apps.ttmtech.com" >> /etc/hosts
+
+# Set alias
+mc alias set gitlabminio https://minio-api.apps.ttmtech.com admin <password> --insecure
+
+# Create buckets
+mc mb gitlabminio/gitlab-registry-storage
+mc mb gitlabminio/gitlab-lfs-storage
+mc mb gitlabminio/gitlab-artifacts-storage
+mc mb gitlabminio/gitlab-uploads-storage
+mc mb gitlabminio/gitlab-packages-storage
+mc mb gitlabminio/gitlab-backup-storage
+mc mb gitlabminio/gitlab-tmp-storage
+
+# Verify
+mc ls gitlabminio
+```
+
+### 2.4 Create GitLab Service Account
+
+Log into the MinIO console at `https://minio-console.apps.ttmtech.com`:
+
+1. Go to **Access Keys** → **Create Access Key**
+1. Name it `gitlab-service-account`
+1. Copy and save both the Access Key and Secret Key
+
+-----
+
+## Step 3 — Image Mirroring (Air-Gapped)
+
+The cluster has no internet access. All images must be pulled on an internet-connected machine and pushed to the internal registry.
+
+### 3.1 Configure RKE2 Registry on All Nodes
+
+File: `/etc/rancher/rke2/registries.yaml`
+
+```yaml
+mirrors:
+  registry.k8s.io:
+    endpoint:
+      - "https://img-registry.ttmtech.local"
+  docker.io:
+    endpoint:
+      - "https://img-registry.ttmtech.local"
+  ghcr.io:
+    endpoint:
+      - "https://img-registry.ttmtech.local"
+  quay.io:
+    endpoint:
+      - "https://img-registry.ttmtech.local"
+  registry.gitlab.com:
+    endpoint:
+      - "http://img-registry.ttmtech.local:5000"
+  img-registry.ttmtech.local:5000:
+    endpoint:
+      - "http://img-registry.ttmtech.local:5000"
+configs:
+  "img-registry.ttmtech.local":
+    tls:
+      insecure_skip_verify: true
+```
+
+Copy to all nodes and restart rke2:
+
+```bash
+for node in aamhilcp01 aamhilcp03 aamhilwk01 aamhilwk02 aamhilwk03 aamhilwk04; do
+  scp /etc/rancher/rke2/registries.yaml asvc.rhautomation@${node}.ttmtech.local:/tmp/
+  ssh asvc.rhautomation@${node}.ttmtech.local "sudo cp /tmp/registries.yaml /etc/rancher/rke2/registries.yaml"
+done
+
+# Restart control planes
+ssh asvc.rhautomation@aamhilcp01.ttmtech.local "sudo systemctl restart rke2-server"
+ssh asvc.rhautomation@aamhilcp03.ttmtech.local "sudo systemctl restart rke2-server"
+
+# Restart workers
+for node in aamhilwk01 aamhilwk02 aamhilwk03 aamhilwk04; do
+  ssh asvc.rhautomation@${node}.ttmtech.local "sudo systemctl restart rke2-agent"
+  sleep 30
+done
+```
+
+### 3.2 Pull and Save Images (Internet-Connected Machine)
+
+```bash
+cat > ~/pull-save-gitlab.sh << 'EOF'
+#!/bin/bash
+SAVE_DIR="/var/lib/longhorn/gitlab-images"
+mkdir -p $SAVE_DIR
+
+images=(
+  "docker.io/bitnamilegacy/postgres-exporter:0.15.0-debian-11-r7"
+  "docker.io/bitnamilegacy/postgresql:16.6.0"
+  "docker.io/bitnamilegacy/redis:7.2.4-debian-12-r9"
+  "docker.io/bitnamilegacy/redis-exporter:1.58.0-debian-12-r4"
+  "registry.gitlab.com/gitlab-org/build/cng/certificates:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitaly:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-base:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry:v4.38.0-gitlab"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-exporter:16.6.0"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-kas:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:v14.47.0"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ce:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/kubectl:v18.10.3"
+)
+
+for image in "${images[@]}"; do
+  name=$(echo $image | awk -F'/' '{print $NF}' | tr ':' '-')
+  echo "Pulling $image..."
+  podman pull $image
+  podman save -o $SAVE_DIR/$name.tar $image
+done
+
+tar -czf /var/lib/longhorn/gitlab-images.tar.gz $SAVE_DIR/
+echo "Done: $(du -sh /var/lib/longhorn/gitlab-images.tar.gz)"
+EOF
+
+chmod +x ~/pull-save-gitlab.sh
+~/pull-save-gitlab.sh
+```
+
+### 3.3 SCP to Registry Server
+
+```bash
+scp /var/lib/longhorn/gitlab-images.tar.gz root@img-registry.apps.ttmtech.com:/root/
+```
+
+### 3.4 Load and Push on Registry Server
+
+```bash
+cat > ~/load-push-gitlab.sh << 'EOF'
+#!/bin/bash
+INTERNAL_REGISTRY="img-registry.ttmtech.local:5000"
+
+cd /root
+tar -xzf gitlab-images.tar.gz
+cd /root/var/lib/longhorn/gitlab-images
+
+for tar in *.tar; do
+  podman load -i $tar
+done
+
+images=(
+  "docker.io/bitnamilegacy/postgres-exporter:0.15.0-debian-11-r7"
+  "docker.io/bitnamilegacy/postgresql:16.6.0"
+  "docker.io/bitnamilegacy/redis:7.2.4-debian-12-r9"
+  "docker.io/bitnamilegacy/redis-exporter:1.58.0-debian-12-r4"
+  "registry.gitlab.com/gitlab-org/build/cng/certificates:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitaly:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-base:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry:v4.38.0-gitlab"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-exporter:16.6.0"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-kas:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:v14.47.0"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ce:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce:v18.10.3"
+  "registry.gitlab.com/gitlab-org/build/cng/kubectl:v18.10.3"
+)
+
+for image in "${images[@]}"; do
+  name=$(echo $image | awk -F'/' '{print $NF}')
+  podman tag $image $INTERNAL_REGISTRY/gitlab/$name
+  podman push $INTERNAL_REGISTRY/gitlab/$name --tls-verify=false
+done
+EOF
+
+chmod +x ~/load-push-gitlab.sh
+~/load-push-gitlab.sh
+```
+
+-----
+
+## Step 4 — Kubernetes Secrets
+
+Create all required secrets before deploying GitLab:
+
+```bash
+kubectl create namespace gitlab
+
+# Wildcard TLS certificate
+kubectl create secret tls wildcard-apps-ttmtech-tls \
+  -n gitlab \
+  --cert=/root/rke2-artifacts/cert.pem \
+  --key=/root/rke2-artifacts/key.pem
+
+# Object storage connection
+cat > /tmp/rails.yaml << 'EOF'
+provider: AWS
+region: us-east-1
+aws_access_key_id: <gitlab-service-account-access-key>
+aws_secret_access_key: <gitlab-service-account-secret-key>
+endpoint: "https://minio-api.apps.ttmtech.com"
+path_style: true
+EOF
+
+kubectl create secret generic gitlab-rails-storage \
+  -n gitlab \
+  --from-file=connection=/tmp/rails.yaml
+rm /tmp/rails.yaml
+
+# Registry storage
+cat > /tmp/registry.yaml << 'EOF'
+s3:
+  bucket: gitlab-registry-storage
+  accesskey: <gitlab-service-account-access-key>
+  secretkey: <gitlab-service-account-secret-key>
+  regionendpoint: https://minio-api.apps.ttmtech.com
+  region: us-east-1
+  v4auth: true
+  pathstyle: true
+EOF
+
+kubectl create secret generic gitlab-registry-storage \
+  -n gitlab \
+  --from-file=config=/tmp/registry.yaml
+rm /tmp/registry.yaml
+
+# Initial root password
+kubectl create secret generic gitlab-gitlab-initial-root-password \
+  -n gitlab \
+  --from-literal=password="$(openssl rand -base64 12)"
+
+# SMTP password (empty - relay requires no auth)
+kubectl create secret generic gitlab-smtp-password \
+  -n gitlab \
+  --from-literal=password=""
+
+# LDAP service account password
+kubectl create secret generic gitlab-ldap-secret \
+  -n gitlab \
+  --from-literal=password="<ldap-service-account-password>"
+```
+
+-----
+
+## Step 5 — GitLab Helm Deployment
+
+### 5.1 GitLab Values (gitlab-values.yaml)
+
+```yaml
+global:
+  edition: ce
+  hosts:
+    domain: apps.ttmtech.com
+    https: true
+  ingress:
+    class: nginx
+    configureCertmanager: false
+    tls:
+      secretName: wildcard-apps-ttmtech-tls
+  minio:
+    enabled: false
+  smtp:
+    enabled: true
+    address: smtp.ttmtech.local
+    port: 25
+    tls: false
+    openssl_verify_mode: none
+    authentication: ""
+    password:
+      secret: gitlab-smtp-password
+      key: password
+  email:
+    from: gitlab@ttmtech.com
+    display_name: GitLab
+    reply_to: noreply@ttmtech.com
+  certificates:
+    image:
+      repository: img-registry.ttmtech.local:5000/gitlab/certificates
+  kubectl:
+    image:
+      repository: img-registry.ttmtech.local:5000/gitlab/kubectl
+  gitlabBase:
+    image:
+      repository: img-registry.ttmtech.local:5000/gitlab/gitlab-base
+  appConfig:
+    object_store:
+      enabled: true
+      proxy_download: true
+      connection:
+        secret: gitlab-rails-storage
+        key: connection
+    lfs:
+      bucket: gitlab-lfs-storage
+    artifacts:
+      bucket: gitlab-artifacts-storage
+    uploads:
+      bucket: gitlab-uploads-storage
+    packages:
+      bucket: gitlab-packages-storage
+    backups:
+      bucket: gitlab-backup-storage
+      tmpBucket: gitlab-tmp-storage
+    ldap:
+      enabled: true
+      servers:
+        main:
+          label: 'TTM Active Directory'
+          host: 'aamhildc01.ttmtech.local'
+          port: 389
+          uid: 'sAMAccountName'
+          bind_dn: 'CN=SVC LDAP,OU=Services,OU=AAM-PA-FG-Users,OU=FG,OU=PAM2,DC=TTMTECH,DC=local'
+          password:
+            secret: gitlab-ldap-secret
+            key: password
+          encryption: 'plain'
+          active_directory: true
+          allow_username_or_email_login: false
+          lowercase_usernames: false
+          block_auto_created_users: false
+          base: 'DC=TTMTECH,DC=local'
+          user_filter: ''
+
+installCertmanager: false
+
+certmanager:
+  installCRDs: false
+
+nginx-ingress:
+  enabled: false
+
+prometheus:
+  install: false
+
+redis:
+  image:
+    registry: img-registry.ttmtech.local:5000
+    repository: gitlab/redis
+  metrics:
+    image:
+      registry: img-registry.ttmtech.local:5000
+      repository: gitlab/redis-exporter
+
+postgresql:
+  image:
+    registry: img-registry.ttmtech.local:5000
+    repository: gitlab/postgresql
+  metrics:
+    image:
+      registry: img-registry.ttmtech.local:5000
+      repository: gitlab/postgres-exporter
+
+registry:
+  image:
+    repository: img-registry.ttmtech.local:5000/gitlab/gitlab-container-registry
+  storage:
+    secret: gitlab-registry-storage
+    key: config
+
+gitlab:
+  gitaly:
+    image:
+      repository: img-registry.ttmtech.local:5000/gitlab/gitaly
+  gitlab-shell:
+    image:
+      repository: img-registry.ttmtech.local:5000/gitlab/gitlab-shell
+  gitlab-exporter:
+    image:
+      repository: img-registry.ttmtech.local:5000/gitlab/gitlab-exporter
+  kas:
+    image:
+      repository: img-registry.ttmtech.local:5000/gitlab/gitlab-kas
+  sidekiq:
+    image:
+      repository: img-registry.ttmtech.local:5000/gitlab/gitlab-sidekiq-ce
+  migrations:
+    image:
+      repository: img-registry.ttmtech.local:5000/gitlab/gitlab-toolbox-ce
+  toolbox:
+    image:
+      repository: img-registry.ttmtech.local:5000/gitlab/gitlab-toolbox-ce
+    backups:
+      objectStorage:
+        config:
+          secret: gitlab-rails-storage
+          key: connection
+  webservice:
+    image:
+      repository: img-registry.ttmtech.local:5000/gitlab/gitlab-webservice-ce
+    workhorse:
+      image: img-registry.ttmtech.local:5000/gitlab/gitlab-workhorse-ce
+
+gitlab-runner:
+  install: false
+```
+
+### 5.2 Deploy
+
+```bash
+helm upgrade --install gitlab gitlab/gitlab \
+  -n gitlab \
+  --timeout 1200s \
+  -f ~/gitlab/gitlab-values.yaml
+```
+
+### 5.3 Monitor Deployment
+
+```bash
+kubectl get pods -n gitlab -w
+```
+
+Expected healthy pods:
+
+```
+gitlab-gitaly              1/1 Running
+gitlab-gitlab-exporter     1/1 Running
+gitlab-gitlab-shell        1/1 Running
+gitlab-kas                 1/1 Running
+gitlab-migrations          Completed
+gitlab-postgresql          2/2 Running
+gitlab-redis               2/2 Running
+gitlab-registry            1/1 Running
+gitlab-sidekiq             1/1 Running
+gitlab-toolbox             1/1 Running
+gitlab-webservice          2/2 Running
+```
+
+-----
+
+## Step 6 — Post-Deployment
+
+### 6.1 Fix Ingress Class
+
+After deployment patch all ingresses to use nginx:
+
+```bash
+for ingress in gitlab-kas gitlab-registry gitlab-webservice-default; do
+  kubectl patch ingress $ingress -n gitlab \
+    --type=json \
+    -p='[{"op":"replace","path":"/spec/ingressClassName","value":"nginx"}]'
+done
+```
+
+> **Note:** This is now permanent in the values file via `global.ingress.class: nginx`
+
+### 6.2 CoreDNS — Internal DNS Resolution
+
+The GitLab registry pod needs to resolve `minio-api.apps.ttmtech.com` internally:
+
+```bash
+kubectl edit configmap rke2-coredns-rke2-coredns -n kube-system
+```
+
+Add hosts block to the Corefile before the `forward` line:
+
+```
+hosts {
+  10.45.17.118 minio-api.apps.ttmtech.com
+  fallthrough
+}
+```
+
+Restart CoreDNS to pick up the change:
+
+```bash
+kubectl rollout restart deployment rke2-coredns-rke2-coredns -n kube-system
+```
+
+### 6.3 Disable Open Registration
+
+1. Log into `https://gitlab.apps.ttmtech.com` as root
+1. Admin Area → Settings → General → Sign-up restrictions
+1. Uncheck **Sign-up enabled**
+1. Click **Save changes**
+
+-----
+
+## Step 7 — HAProxy Configuration
+
+Add the following to `/etc/haproxy/haproxy.cfg` on the HAProxy server:
+
+```
+# ACLs
+acl is_gitlab        hdr(host) -i gitlab.apps.ttmtech.com
+acl is_registry      hdr(host) -i registry.apps.ttmtech.com
+acl is_minio_api     hdr(host) -i minio.apps.ttmtech.com minio-api.apps.ttmtech.com
+acl is_minio_console hdr(host) -i minio-console.apps.ttmtech.com
+
+# Routing
+use_backend gitlab_backend        if is_gitlab
+use_backend registry_backend      if is_registry
+use_backend minio_api_backend     if is_minio_api
+use_backend minio_console_backend if is_minio_console
+
+# Backends
+backend gitlab_backend
+    mode http
+    balance roundrobin
+    http-request set-header Host gitlab.apps.ttmtech.com
+    server wk01 10.45.10.171:443 check ssl verify none maxconn 700
+    server wk02 10.45.10.172:443 check ssl verify none maxconn 700
+    server wk03 10.45.10.173:443 check ssl verify none maxconn 700
+    server wk04 10.45.10.174:443 check ssl verify none maxconn 700
+
+backend registry_backend
+    mode http
+    balance roundrobin
+    http-request set-header Host registry.apps.ttmtech.com
+    server wk01 10.45.10.171:443 check ssl verify none maxconn 700
+    server wk02 10.45.10.172:443 check ssl verify none maxconn 700
+    server wk03 10.45.10.173:443 check ssl verify none maxconn 700
+    server wk04 10.45.10.174:443 check ssl verify none maxconn 700
+
+backend minio_api_backend
+    mode http
+    balance roundrobin
+    http-request set-header Host minio-api.apps.ttmtech.com
+    server wk01 10.45.10.171:443 check ssl verify none maxconn 700
+    server wk02 10.45.10.172:443 check ssl verify none maxconn 700
+    server wk03 10.45.10.173:443 check ssl verify none maxconn 700
+    server wk04 10.45.10.174:443 check ssl verify none maxconn 700
+
+backend minio_console_backend
+    mode http
+    balance roundrobin
+    http-request set-header Host minio-console.apps.ttmtech.com
+    server wk01 10.45.10.171:443 check ssl verify none maxconn 700
+    server wk02 10.45.10.172:443 check ssl verify none maxconn 700
+    server wk03 10.45.10.173:443 check ssl verify none maxconn 700
+    server wk04 10.45.10.174:443 check ssl verify none maxconn 700
+```
+
+```bash
+systemctl reload haproxy
+```
+
+-----
+
+## Step 8 — DNS Records
+
+The following DNS A records point to the HAProxy VIP `10.45.17.118`:
+
+|Hostname                      |IP          |
+|------------------------------|------------|
+|gitlab.apps.ttmtech.com       |10.45.17.118|
+|registry.apps.ttmtech.com     |10.45.17.118|
+|minio-api.apps.ttmtech.com    |10.45.17.118|
+|minio-console.apps.ttmtech.com|10.45.17.118|
+|kas.apps.ttmtech.com          |10.45.17.118|
+
+-----
+
+## Troubleshooting
+
+### Check Pod Status
+
+```bash
+kubectl get pods -n gitlab
+kubectl get pods -n minio-system
+```
+
+### Check Logs
+
+```bash
+kubectl logs -n gitlab -l app=webservice --tail=50
+kubectl logs -n gitlab -l app=sidekiq --tail=50
+```
+
+### Test LDAP
+
+```bash
+# Test bind from control plane
+ldapsearch -x -H ldap://aamhildc01.ttmtech.local \
+  -D "svc.ldap@ttmtech.local" \
+  -w "<password>" \
+  -b "DC=TTMTECH,DC=local" \
+  "(sAMAccountName=<username>)" dn
+
+# Test from toolbox pod
+kubectl exec -it <toolbox-pod> -n gitlab -- bash
+gitlab-rake gitlab:ldap:check
+```
+
+### Retrieve Root Password
+
+```bash
+kubectl get secret gitlab-gitlab-initial-root-password \
+  -n gitlab \
+  -o jsonpath='{.data.password}' | base64 -d
+```
+
+### Common Issues
+
+|Issue                |Resolution                                       |
+|---------------------|-------------------------------------------------|
+|Ingress returning 404|Patch ingress class to `nginx`                   |
+|Registry pod crashing|Check CoreDNS resolves minio-api.apps.ttmtech.com|
+|LDAP login failing   |Verify bind DN and password with ldapsearch      |
+|ImagePullBackOff     |Image not in internal registry — mirror it       |
+|PVC stuck in Pending |Check Longhorn disk capacity on worker nodes     |
