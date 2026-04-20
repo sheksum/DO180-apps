@@ -1,15 +1,37 @@
-[root@eimxhdhmpefp002 ~]# sudo grep -c 'BEGIN CERTIFICATE' /home/svcunixrhocp/ocp-install/install-config.yaml.bak
-2
-You have new mail in /var/spool/mail/root
-[root@eimxhdhmpefp002 ~]# sudo grep -n '^additionalTrust\|^apiVersion\|^baseDomain' /home/svcunixrhocp/ocp-install/install-config.yaml.bak
-1:apiVersion: v1
-2:baseDomain: cscglobal.com
-3:additionalTrustBundle: |
-72:additionalTrustBundlePolicy: Always
-[root@eimxhdhmpefp002 ~]# sudo wc -l /home/svcunixrhocp/ocp-install/install-config.yaml.bak
-140 /home/svcunixrhocp/ocp-install/install-config.yaml.bak
-[root@eimxhdhmpefp002 ~]# sudo sed -n '/additionalTrustBundle:/,+2p' /home/svcunixrhocp/ocp-install/install-config.yaml.bak | sed 's/[A-Za-z0-9+/=]/X/g'
-XXXXXXXXXXXXXXXXXXXXX: |
-  -----XXXXX XXXXXXXXXXX-----
-  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-[root@eimxhdhmpefp002 ~]#
+# Extract just the bundle portion from the rendered file
+sudo sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' \
+  /home/svcunixrhocp/ocp-install/install-config.yaml.bak \
+  | sed 's/^  //' > /tmp/rendered-bundle.pem
+
+grep -c 'BEGIN CERTIFICATE' /tmp/rendered-bundle.pem
+
+# Validate PC's cert using ONLY this bundle
+curl --cacert /tmp/rendered-bundle.pem -sSI https://us2-prismcentral01.cscinfo.com:9440/ 2>&1 | head -5
+
+
+
+# Is install-config.yaml still there, or did it get consumed?
+sudo ls -la /home/svcunixrhocp/ocp-install/
+
+# Try create manifests manually to reproduce cleanly
+sudo -u svcunixrhocp bash -c '
+  cd /home/svcunixrhocp/ocp-install
+  # Restore from backup if needed
+  [ ! -f install-config.yaml ] && cp install-config.yaml.bak install-config.yaml
+  openshift-install create manifests --dir . --log-level=debug 2>&1 | tail -50
+'
+
+sudo python3 -c "
+import yaml
+with open('/home/svcunixrhocp/ocp-install/install-config.yaml.bak') as f:
+    data = yaml.safe_load(f)
+bundle = data.get('additionalTrustBundle', '')
+print('Policy:', data.get('additionalTrustBundlePolicy'))
+print('Bundle length (chars):', len(bundle))
+print('Bundle line count:', bundle.count(chr(10)))
+print('Starts with -----BEGIN:', bundle.startswith('-----BEGIN'))
+print('Cert count:', bundle.count('BEGIN CERTIFICATE'))
+print('First 30 chars repr:', repr(bundle[:30]))
+print('Last 30 chars repr:', repr(bundle[-30:]))
+"
+
