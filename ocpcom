@@ -1,6 +1,14 @@
-# From eimxhdhmpefp002, using the CA bundle you just extracted
-curl --cacert /tmp/pc-chain.pem -u '<pc_user>' \
-  https://us2-prismcentral01.cscinfo.com:9440/api/nutanix/v3/categories/AppType/Openshift
+# cd rhocp_ansible_install_cluster_ahv
 
-curl --cacert /tmp/pc-chain.pem -u '<pc_user>' \
-  https://us2-prismcentral01.cscinfo.com:9440/api/nutanix/v3/categories/OpenshiftClusters/ocpdrbubble
+# See the whole layout
+find . -path ./.git -prune -o -type f -print | head -50
+
+# Find where PC username / cluster-specific vars live
+grep -rn 'rhocp_pc_username\|rhocp_cluster_name\|rhocp_prism_central_fqdn\|ocpdrbubble' \
+  --include='*.yml' --include='*.yaml' .
+
+# Confirm the dir variable bug
+grep -rn 'rhocp_install_dir\|rhocp_install_path' --include='*.yml' --include='*.yaml' .
+
+# Check if additionalTrustBundle is referenced anywhere
+grep -rn 'additionalTrust\|trust_bundle\|ca_bundle\|ca_cert' .
