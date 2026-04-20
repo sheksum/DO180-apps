@@ -1,13 +1,41 @@
-[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$ head -6 templates/install-config.yaml.j2
-apiVersion: v1
-baseDomain: {{ rhocp_base_domain }}
-additionalTrustBundle: |
-{{ rhocp_additional_trust_bundle | indent(2, True) }}
-additionalTrustBundlePolicy: Always
-compute:
-[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$
-[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$
-[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$ grep -n 'rhocp_install_dir\|create manifests' install-cluster.yml
-94:      cmd: "openshift-install create manifests --dir ./{{ rhocp_install_dir }}"
-[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$
+sed -i 's|openshift-install create manifests --dir \./{{ rhocp_install_dir }}|openshift-install create manifests --dir {{ rhocp_install_path }}|' install-cluster.yml
+
+
+grep -n 'rhocp_install_dir\|create manifests' install-cluster.yml
+
+
+cat > /tmp/render-test.yml <<'EOF'
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    rhocp_base_domain: cscglobal.com
+    rhocp_cluster_name: ocpdrbubble
+    rhocp_architecture: amd64
+    rhocp_control_plane_vcpu: 8
+    rhocp_control_plane_memory: 32768
+    rhocp_cluster_network: 10.128.0.0/14
+    rhocp_machine_network: 10.163.1.0/24
+    rhocp_service_network: 172.30.0.0/16
+    rhocp_api_vip: 10.163.1.10
+    rhocp_ingress_vip: 10.163.1.11
+    rhocp_prism_central_fqdn: us2-prismcentral01.cscinfo.com
+    rhocp_pc_username: dummy
+    rhocp_pc_password: dummy
+    rhocp_pe_endpoint: dummy
+    rhocp_ntnx_pe_uuid: dummy
+    rhocp_ntnx_pe_subnet_uuid: dummy
+    rhocp_pull_secret: '{}'
+    rhocp_core_ssh_key: 'ssh-rsa AAAA dummy'
+    rhocp_additional_trust_bundle: "{{ lookup('file', '/tmp/csc-ca-bundle.pem') }}"
+  tasks:
+    - template:
+        src: templates/install-config.yaml.j2
+        dest: /tmp/install-config.yaml
+EOF
+
+ansible-playbook /tmp/render-test.yml
+
+python3 -c "import yaml; yaml.safe_load(open('/tmp/install-config.yaml')); print('VALID YAML')"
+sed -n '/additionalTrustBundle:/,/additionalTrustBundlePolicy:/p' /tmp/install-config.yaml
 
