@@ -1,5 +1,13 @@
-cat /tmp/pc-cert-2.pem /tmp/pc-cert-3.pem > /tmp/csc-ca-bundle.pem
+[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$ head -6 templates/install-config.yaml.j2
+apiVersion: v1
+baseDomain: {{ rhocp_base_domain }}
+additionalTrustBundle: |
+{{ rhocp_additional_trust_bundle | indent(2, True) }}
+additionalTrustBundlePolicy: Always
+compute:
+[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$
+[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$
+[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$ grep -n 'rhocp_install_dir\|create manifests' install-cluster.yml
+94:      cmd: "openshift-install create manifests --dir ./{{ rhocp_install_dir }}"
+[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$
 
-grep -c 'BEGIN CERTIFICATE' /tmp/csc-ca-bundle.pem
-
-curl --cacert /tmp/csc-ca-bundle.pem -sSI https://us2-prismcentral01.cscinfo.com:9440/ | head -3
