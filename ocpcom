@@ -1,66 +1,88 @@
-[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$ find . -path ./.git -prune -o -type f -print | head -50
-./.gitignore
-./README.md
-./auth-operator-check.yaml
-./change_requests/CHG0086257/implementation_playbook.yaml
-./change_requests/CHG0086257/pre_implementation_playbook.yaml
-./cluster-health-check.yaml
-./day2operations.yml
-./destroy-cluster.yml
-./files/csc-robot-sa-crb.yaml
-./files/csc-robot-sa.yaml
-./install-cluster.yml
-./ocp-storage-alert.yml
-./requirements.txt
-./requirements.yml
-./scale-machineset.yaml
-./templates/99-master-ntnx-csi-enable-iscsid.yaml.j2
-./templates/99-worker-ntnx-csi-enable-iscsid.yaml.j2
-./templates/csc-robot-sa-secret.yaml.j2
-./templates/iam.yaml.j2
-./templates/install-config.yaml.j2
-./templates/openshift-cloud-controller-manager-cloud-config.yaml.j2
-./templates/openshift-cloud-controller-manager-nutanix-credentials-credentials.yaml.j2
-[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$ grep -rn 'rhocp_pc_username\|rhocp_cluster_name\|rhocp_prism_central_fqdn\|ocpdrbubble' \
-  --include='*.yml' --include='*.yaml' .
-./change_requests/CHG0086257/implementation_playbook.yaml:30:        cmd: "oc login --token={{ rhocp_csc_robot_sa_token }} https://api.{{ rhocp_cluster_name}}.cscglobal.com:6443 --insecure-skip-tls-verify"
-./change_requests/CHG0086257/pre_implementation_playbook.yaml:30:        cmd: "oc login --token={{ rhocp_csc_robot_sa_token }} https://api.{{ rhocp_cluster_ame }}.cscglobal.com:6443 --insecure-skip-tls-verify"
-./cluster-health-check.yaml:8:    api_url: "https://api.{{ rhocp_cluster_name }}.cscglobal.com:6443/healthz"
-./cluster-health-check.yaml:9:    ingress_url: "https://router-openshift-ingress.apps.{{ rhocp_cluster_name }}.cscglobal.com/healthz"
-./cluster-health-check.yaml:11:    email_subject: "{{ rhocp_cluster_name | upper}} Health Check Results"
-./cluster-health-check.yaml:34:        cmd: "oc login --token={{ rhocp_csc_robot_sa_token }} https://api.{{ rhocp_cluster_name }}.cscglobal.com:6443 --insecre-skip-tls-verify"
-./cluster-health-check.yaml:126:          <h2>{{ rhocp_cluster_name | upper }} Cluster Health Check Results - {{ ansible_date_time.date }} {{ ansible_date_tme.time }}</h2>
-./cluster-health-check.yaml:176:          Please find the attached health check results for the {{ rhocp_cluster_name }} cluster generated on {{ ansible_dat_time.date }} at {{ ansible_date_time.time }}.<br><br>
-./day2operations.yml:20:      cmd: "oc login --token={{ rhocp_csc_robot_sa_token }} https://api.{{ rhocp_cluster_name }}.cscglobal.com:6443 --insecure-skip-ls-verify"
-./destroy-cluster.yml:8:      cmd: "oc login --token={{ rhocp_csc_robot_sa_token }} https://api.{{ rhocp_cluster_name }}.cscglobal.com:6443 --insecure-skip-ls-verify"
-./install-cluster.yml:147:      update the credential named rhocp_csc_robot_sa_{{ rhocp_cluster_name }}_SVC in AAP'
-./scale-machineset.yaml:11:        cmd: "oc login --token={{ rhocp_csc_robot_sa_token }} https://api.{{ rhocp_cluster_name }}.cscglobal.com:6443 --insecure-kip-tls-verify"
-[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$ grep -rn 'rhocp_install_dir\|rhocp_install_path' --include='*.yml' --include='*.yaml' .
-./destroy-cluster.yml:71:      cmd: "openshift-install destroy cluster --log-level=debug --dir={{ rhocp_install_path }}"
-./destroy-cluster.yml:74:      cmd: "tail -35 {{ rhocp_install_path }}/.openshift_install.log"
-./destroy-cluster.yml:84:      path: "{{ rhocp_install_path }}"
-./install-cluster.yml:45:      path: "{{ rhocp_install_path }}"
-./install-cluster.yml:52:      dest: "{{ rhocp_install_path }}/install-config.yaml"
-./install-cluster.yml:56:      src: "{{ rhocp_install_path }}/install-config.yaml"
-./install-cluster.yml:57:      dest: "{{ rhocp_install_path }}/install-config.yaml.bak"
-./install-cluster.yml:63:      path: "{{ rhocp_install_path }}/iam"
-./install-cluster.yml:70:      dest: "{{ rhocp_install_path }}/iam/iam.yaml"
-./install-cluster.yml:74:      path: "{{ rhocp_install_path }}/credential_requests"
-./install-cluster.yml:83:        --install-config={{ rhocp_install_path }}/install-config.yaml
-./install-cluster.yml:84:        --to={{ rhocp_install_path }}/credential_requests
-./install-cluster.yml:89:        --credentials-requests-dir={{ rhocp_install_path }}/credential_requests
-./install-cluster.yml:90:        --output-dir={{ rhocp_install_path }}/ccoctl
-./install-cluster.yml:91:        --credentials-source-filepath={{ rhocp_install_path }}/iam/iam.yaml
-./install-cluster.yml:94:      cmd: "openshift-install create manifests --dir ./{{ rhocp_install_dir }}"
-./install-cluster.yml:98:      src: "{{ rhocp_install_path }}/ccoctl/manifests/"
-./install-cluster.yml:99:      dest: "{{ rhocp_install_path }}/manifests/"
-./install-cluster.yml:105:      dest: "{{ rhocp_install_path }}/openshift/99-master-ntnx-csi-enable-iscsid.yaml"
-./install-cluster.yml:110:      dest: "{{ rhocp_install_path }}/openshift/99-worker-ntnx-csi-enable-iscsid.yaml"
-./install-cluster.yml:115:      dest: "{{ rhocp_install_path }}/manifests/openshift-cloud-controller-manager-cloud-config.yaml"
-./install-cluster.yml:120:      dest: "{{ rhocp_install_path }}/manifests/openshift-cloud-controller-manager-nutanix-credentials-credentials.yaml"
-./install-cluster.yml:127:      cmd: "openshift-install create cluster --log-level=debug --dir={{ rhocp_install_path }}"
-./install-cluster.yml:131:      src: "{{ rhocp_install_path }}/auth/kubeconfig"
-./install-cluster.yml:154:      cmd: "tail -12 {{ rhocp_install_path }}/.openshift_install.log"
-[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$ grep -rn 'additionalTrust\|trust_bundle\|ca_bundle\|ca_cert' .
-./templates/install-config.yaml.j2:1:additionalTrustBundlePolicy: Proxyonly
-[asuma@eimxhdhmpefp002 rhocp_ansible_install_cluster_ahv]$
+cd ~/rhocp_ansible_install_cluster_ahv
+
+# Back up the original template
+cp templates/install-config.yaml.j2 templates/install-config.yaml.j2.bak
+
+
+additionalTrustBundlePolicy: Proxyonly
+apiVersion: v1
+baseDomain: {{ rhocp_base_domain }}
+
+to
+
+apiVersion: v1
+baseDomain: {{ rhocp_base_domain }}
+additionalTrustBundle: |
+{{ rhocp_additional_trust_bundle | indent(2, True) }}
+additionalTrustBundlePolicy: Always
+
+
+# Find the CSC CAs in the system trust store
+for f in /etc/pki/ca-trust/source/anchors/*.pem /etc/pki/ca-trust/source/anchors/*.crt 2>/dev/null; do
+  [ -f "$f" ] || continue
+  subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
+  if echo "$subj" | grep -qi 'corporation service'; then
+    echo "=== $f ==="
+    echo "$subj"
+  fi
+done
+
+awk '/BEGIN CERTIFICATE/{n++} {print > "/tmp/ca-"n".pem"}' \
+  /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+
+for f in /tmp/ca-*.pem; do
+  subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
+  if echo "$subj" | grep -qi 'corporation service'; then
+    echo "=== $f ==="
+    echo "$subj"
+  fi
+done
+
+
+cd ~/rhocp_ansible_install_cluster_ahv
+
+cat > /tmp/render-test.yml <<'EOF'
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    rhocp_base_domain: cscglobal.com
+    rhocp_cluster_name: ocpdrbubble
+    rhocp_architecture: amd64
+    rhocp_control_plane_vcpu: 8
+    rhocp_control_plane_memory: 32768
+    rhocp_cluster_network: 10.128.0.0/14
+    rhocp_machine_network: 10.163.1.0/24
+    rhocp_service_network: 172.30.0.0/16
+    rhocp_api_vip: 10.163.1.10
+    rhocp_ingress_vip: 10.163.1.11
+    rhocp_prism_central_fqdn: us2-prismcentral01.cscinfo.com
+    rhocp_pc_username: dummy
+    rhocp_pc_password: dummy
+    rhocp_pe_endpoint: dummy
+    rhocp_ntnx_pe_uuid: dummy
+    rhocp_ntnx_pe_subnet_uuid: dummy
+    rhocp_pull_secret: '{}'
+    rhocp_core_ssh_key: 'ssh-rsa AAAA dummy'
+    rhocp_additional_trust_bundle: "{{ lookup('file', '/tmp/csc-ca-bundle.pem') }}"
+  tasks:
+    - template:
+        src: templates/install-config.yaml.j2
+        dest: /tmp/install-config.yaml
+EOF
+
+# Build the bundle file with both CAs (adjust paths to what you found in step 2)
+cat /tmp/ca-<issuing>.pem /tmp/ca-<root>.pem > /tmp/csc-ca-bundle.pem
+
+ansible-playbook /tmp/render-test.yml
+
+# Check it's valid YAML
+python3 -c "import yaml; yaml.safe_load(open('/tmp/install-config.yaml'))" && echo "VALID YAML"
+
+# Eyeball the trust bundle section (should show proper 2-space indent)
+sed -n '/additionalTrustBundle:/,/additionalTrustBundlePolicy:/p' /tmp/install-config.yaml
+
+
+
+
+
