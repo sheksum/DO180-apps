@@ -1,4 +1,5 @@
-for f in /tmp/pc-cert-*.pem; do
-  echo "=== $f ==="
-  openssl x509 -in "$f" -noout -subject -issuer 2>/dev/null
-done
+cat /tmp/pc-cert-2.pem /tmp/pc-cert-3.pem > /tmp/csc-ca-bundle.pem
+
+grep -c 'BEGIN CERTIFICATE' /tmp/csc-ca-bundle.pem
+
+curl --cacert /tmp/csc-ca-bundle.pem -sSI https://us2-prismcentral01.cscinfo.com:9440/ | head -3
