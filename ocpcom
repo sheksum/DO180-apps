@@ -1,173 +1,71 @@
-# From eimxhdhmpefp002 - pull the full chain PC presents
-openssl s_client -connect us2-prismcentral01.cscinfo.com:9440 \
-  -servername us2-prismcentral01.cscinfo.com -showcerts </dev/null 2>/dev/null \
-  | sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' \
-  > /tmp/pc-chain.pem
-
-# See what's in it
-awk '/BEGIN CERT/{i++} {print > "/tmp/pc-cert-"i".pem"}' /tmp/pc-chain.pem
-for f in /tmp/pc-cert-*.pem; do
-  echo "=== $f ==="
-  openssl x509 -in "$f" -noout -subject -issuer
-done
-
----
-- name: 'Deploy OCP Cluster on Nutanix IPI'
-  hosts: "{{ rhocp_select_cluster }}"
-
-  tasks:
-  - name: 'Download and extract ccoctl-linux.tar.gz to /usr/local/bin'
-    ansible.builtin.unarchive:
-      src: https://mirror.openshift.com/pub/openshift-v4/{{ ansible_architecture }}/clients/ocp/{{ rhocp_version }}/ccoctl-linux.tar.gz
-      dest: /usr/local/bin
-      remote_src: true
-      mode: u+rwx
-    become: true
-    become_user: root
-
-  - name: 'Download and extract openshift-client-linux.tar.gz to /usr/local/bin'
-    ansible.builtin.unarchive:
-      src: https://mirror.openshift.com/pub/openshift-v4/{{ ansible_architecture }}/clients/ocp/{{ rhocp_version }}/openshift-client-linux.tar.gz
-      dest: /usr/local/bin
-      remote_src: true
-      mode: u+rwx
-    become: true
-    become_user: root
-
-  - name: 'Download and extract openshift-install-linux.tar.gz to /usr/local/bin'
-    ansible.builtin.unarchive:
-      src: https://mirror.openshift.com/pub/openshift-v4/{{ ansible_architecture }}/clients/ocp/{{ rhocp_version }}/openshift-install-linux.tar.gz
-      dest: /usr/local/bin
-      remote_src: true
-      mode: u+rwx
-    become: true
-    become_user: root
-
-  - name: 'Get OpenShift release image version'
-    ansible.builtin.shell:
-      cmd: "openshift-install version | awk '/release image/ {print $3}'"
-    register: release_image_output
-    changed_when: false
-
-  - name: 'Set release image variable'
-    ansible.builtin.set_fact:
-      release_image: "{{ release_image_output.stdout }}"
-
-  - name: 'Create ocp-install installation directory'
-    ansible.builtin.file:
-      path: "{{ rhocp_install_path }}"
-      state: directory
-      mode: '0755'
-
-  - name: 'Create install-config.yaml from template'
-    ansible.builtin.template:
-      src: templates/install-config.yaml.j2
-      dest: "{{ rhocp_install_path }}/install-config.yaml"
-    
-  - name: 'Create backup of install-config.yaml'
-    ansible.builtin.copy:
-      src: "{{ rhocp_install_path }}/install-config.yaml"
-      dest: "{{ rhocp_install_path }}/install-config.yaml.bak"
-      backup: yes
-      remote_src: yes
-      
-  - name: 'Create iam directory'
-    ansible.builtin.file:
-      path: "{{ rhocp_install_path }}/iam"
-      state: directory
-      mode: '0755'
-
-  - name: 'Create iam.yaml from template'
-    ansible.builtin.template:
-      src: templates/iam.yaml.j2
-      dest: "{{ rhocp_install_path }}/iam/iam.yaml"
-
-  - name: 'Create credential_requests directory'
-    ansible.builtin.file:
-      path: "{{ rhocp_install_path }}/credential_requests"
-      state: directory
-      mode: '0755'
-
-  - name: 'Extract the list of CredentialsRequest custom resources (CRs) from the OpenShift Container'
-    ansible.builtin.shell:
-      cmd: >
-        oc adm release extract --from={{ release_image }}
-        --credentials-requests --included
-        --install-config={{ rhocp_install_path }}/install-config.yaml
-        --to={{ rhocp_install_path }}/credential_requests
-  - name: 'Use the ccoctl tool to process all CredentialsRequest objects'
-    ansible.builtin.shell:
-      cmd: >
-        ccoctl nutanix create-shared-secrets
-        --credentials-requests-dir={{ rhocp_install_path }}/credential_requests
-        --output-dir={{ rhocp_install_path }}/ccoctl
-        --credentials-source-filepath={{ rhocp_install_path }}/iam/iam.yaml
-  - name: 'Create manifests using openshift-install'
-    ansible.builtin.shell:
-      cmd: "openshift-install create manifests --dir ./{{ rhocp_install_dir }}"
-
-  - name: 'Copy the generated credential files'
-    ansible.builtin.copy:
-      src: "{{ rhocp_install_path }}/ccoctl/manifests/"
-      dest: "{{ rhocp_install_path }}/manifests/"
-      remote_src: true
-
-  - name: 'Create MachineConfig to enable the icscid service on the master nodes'
-    ansible.builtin.template:
-      src: templates/99-master-ntnx-csi-enable-iscsid.yaml.j2
-      dest: "{{ rhocp_install_path }}/openshift/99-master-ntnx-csi-enable-iscsid.yaml"
-
-  - name: 'Create MachineConfig to enable the icscid service on the worker nodes'
-    ansible.builtin.template:
-      src: templates/99-worker-ntnx-csi-enable-iscsid.yaml.j2
-      dest: "{{ rhocp_install_path }}/openshift/99-worker-ntnx-csi-enable-iscsid.yaml"
-
-  - name: 'Create cloud-config ConfigMap'
-    ansible.builtin.template:
-      src: templates/openshift-cloud-controller-manager-cloud-config.yaml.j2
-      dest: "{{ rhocp_install_path }}/manifests/openshift-cloud-controller-manager-cloud-config.yaml"
-
-  - name: 'Create cloud-config secret'
-    ansible.builtin.template:
-      src: templates/openshift-cloud-controller-manager-nutanix-credentials-credentials.yaml.j2
-      dest: "{{ rhocp_install_path }}/manifests/openshift-cloud-controller-manager-nutanix-credentials-credentials.yaml"
-
-  - name: |
-      'Run openshift-install create cluster.  This task will take 25-45 minutes.
-      To watch the progress, tail the .openshift-install.log in the install directory
-      on the bastion host.'
-    ansible.builtin.shell:
-      cmd: "openshift-install create cluster --log-level=debug --dir={{ rhocp_install_path }}"
-  
-  - name: 'Copy kubeconfig to ~/.kube/config'
-    ansible.builtin.copy:
-      src: "{{ rhocp_install_path }}/auth/kubeconfig"
-      dest: "~/.kube/config"
-      remote_src: true
-
-  - name: 'Create csc-robot-sa service account'
-    redhat.openshift.k8s:
-      state: present
-      definition: "{{ lookup('file', './files/csc-robot-sa.yaml') | from_yaml }}"
-
-  - name: 'Create csc-robot-sa cluster role binding'
-    redhat.openshift.k8s:
-      state: present
-      definition: "{{ lookup('file', './files/csc-robot-sa-crb.yaml') | from_yaml }}"
-      
-  - name: |
-      'Pull the token for the csc-robot-sa.  View the output of this command and using the token,
-      update the credential named rhocp_csc_robot_sa_{{ rhocp_cluster_name }}_SVC in AAP'
-    ansible.builtin.shell:
-      cmd: "oc create token csc-robot-sa --duration=$((3650*24))h -n default"
-    register: csc_robot_sa_token
-
-  - name: 'Register last 12 lines of .openshift_install.log'
-    ansible.builtin.shell:
-      cmd: "tail -12 {{ rhocp_install_path }}/.openshift_install.log"
-    register: install_log_output
-    changed_when: false
-
-  - name: 'Display tail of .openshift_install.log'
-    debug:
-      msg: "{{install_log_output.stdout}}"
+additionalTrustBundlePolicy: Proxyonly
+apiVersion: v1
+baseDomain: {{ rhocp_base_domain }}
+compute:
+- architecture: {{ rhocp_architecture }}
+  hyperthreading: Enabled
+  name: worker
+  platform:
+    nutanix:
+      categories:
+      - key: AppType
+        value: Openshift
+      - key: OpenshiftClusters
+        value: {{ rhocp_cluster_name }}
+  replicas: 3
+controlPlane:
+  architecture: {{ rhocp_architecture }}
+  hyperthreading: Enabled
+  name: master
+  platform:
+    nutanix:
+      cpus: 1
+      coresPerSocket: {{ rhocp_control_plane_vcpu }}
+      memoryMiB: {{ rhocp_control_plane_memory }}
+      categories:
+      - key: AppType
+        value: Openshift
+      - key: OpenshiftClusters
+        value: {{ rhocp_cluster_name }}
+  replicas: 3
+credentialsMode: Manual
+metadata:
+  creationTimestamp: null
+  name: {{ rhocp_cluster_name }}
+networking:
+  clusterNetwork:
+  - cidr: {{ rhocp_cluster_network }}
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: {{ rhocp_machine_network }}
+  networkType: OVNKubernetes
+  serviceNetwork:
+  - {{ rhocp_service_network }}
+platform:
+  nutanix:
+    apiVIPs:
+    - {{ rhocp_api_vip }}
+    ingressVIPs:
+    - {{ rhocp_ingress_vip }}
+    prismCentral:
+      endpoint:
+        address: {{ rhocp_prism_central_fqdn }}
+        port: 9440
+      password: {{ rhocp_pc_password }}
+      username: {{ rhocp_pc_username }}
+    prismElements:
+    - endpoint:
+        address: {{ rhocp_pe_endpoint }}
+        port: 9440
+      uuid: {{ rhocp_ntnx_pe_uuid }}
+    subnetUUIDs:
+    - {{ rhocp_ntnx_pe_subnet_uuid }}
+    defaultMachinePlatform:
+      bootType: Legacy
+      categories:
+      - key: AppType
+        value: Openshift
+publish: External
+pullSecret: {{ rhocp_pull_secret }}
+sshKey: |+
+  {{ rhocp_core_ssh_key }}
