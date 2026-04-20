@@ -1,19 +1,25 @@
-# On the target host (eimxhdhmpefp002)
-sudo cp /tmp/pc-cert-2.pem /etc/pki/ca-trust/source/anchors/csc-issuing-ca.crt
-sudo cp /tmp/pc-cert-3.pem /etc/pki/ca-trust/source/anchors/csc-root-ca.crt
-sudo update-ca-trust extract
-
-# Verify openssl now trusts PC without -cacert:
-openssl s_client -connect us2-prismcentral01.cscinfo.com:9440 \
-  -servername us2-prismcentral01.cscinfo.com </dev/null 2>&1 | grep -i 'verify'
-
-
-sudo trust list | grep -i 'corporation service'
-
-time="2026-04-20T16:51:57-04:00" level=debug msg="I0420 16:51:57.647708 3285243 machine_controller_noderef.go:82] \"Infrastructure provider reporting spec.providerID, matching Kubernetes node is not yet available\" controller=\"machine\" controllerGroup=\"cluster.x-k8s.io\" controllerKind=\"Machine\" Machine=\"openshift-cluster-api-guests/ocpdrbubble-wrpkv-master-2\" namespace=\"openshift-cluster-api-guests\" name=\"ocpdrbubble-wrpkv-master-2\" reconcileID=\"26377bec-6744-45ed-9c5e-3af954887cdd\" Cluster=\"openshift-cluster-api-guests/ocpdrbubble-wrpkv\" Cluster=\"openshift-cluster-api-guests/ocpdrbubble-wrpkv\" NutanixMachine=\"openshift-cluster-api-guests/ocpdrbubble-wrpkv-master-2\" providerID=\"nutanix://a8f1aeec-a93f-4423-b08e-3d2f2f9069f3\""
-time="2026-04-20T16:51:57-04:00" level=debug msg="{\"level\":\"info\",\"ts\":\"2026-04-20T16:51:57-04:00\",\"msg\":\"Reconciling the NutanixMachine.\",\"controller\":\"nutanixmachine\",\"controllerGroup\":\"infrastructure.cluster.x-k8s.io\",\"controllerKind\":\"NutanixMachine\",\"NutanixMachine\":{\"name\":\"ocpdrbubble-wrpkv-master-2\",\"namespace\":\"openshift-cluster-api-guests\"},\"namespace\":\"openshift-cluster-api-guests\",\"name\":\"ocpdrbubble-wrpkv-master-2\",\"reconcileID\":\"7e0d72a5-601e-4916-a27c-24a273eb1607\"}"
-time="2026-04-20T16:51:57-04:00" level=debug msg="{\"level\":\"info\",\"ts\":\"2026-04-20T16:51:57-04:00\",\"msg\":\"Fetched the owner Machine: ocpdrbubble-wrpkv-master-2\",\"controller\":\"nutanixmachine\",\"controllerGroup\":\"infrastructure.cluster.x-k8s.io\",\"controllerKind\":\"NutanixMachine\",\"NutanixMachine\":{\"name\":\"ocpdrbubble-wrpkv-master-2\",\"namespace\":\"openshift-cluster-api-guests\"},\"namespace\":\"openshift-cluster-api-guests\",\"name\":\"ocpdrbubble-wrpkv-master-2\",\"reconcileID\":\"7e0d72a5-601e-4916-a27c-24a273eb1607\"}"
-time="2026-04-20T16:51:57-04:00" level=debug msg="{\"level\":\"info\",\"ts\":\"2026-04-20T16:51:57-04:00\",\"msg\":\"Handling NutanixMachine reconciling\",\"controller\":\"nutanixmachine\",\"controllerGroup\":\"infrastructure.cluster.x-k8s.io\",\"controllerKind\":\"NutanixMachine\",\"NutanixMachine\":{\"name\":\"ocpdrbubble-wrpkv-master-2\",\"namespace\":\"openshift-cluster-api-guests\"},\"namespace\":\"openshift-cluster-api-guests\",\"name\":\"ocpdrbubble-wrpkv-master-2\",\"reconcileID\":\"7e0d72a5-601e-4916-a27c-24a273eb1607\"}"
-time="2026-04-20T16:51:57-04:00" level=debug msg="{\"level\":\"info\",\"ts\":\"2026-04-20T16:51:57-04:00\",\"msg\":\"The NutanixMachine is ready, providerID: nutanix://a8f1aeec-a93f-4423-b08e-3d2f2f9069f3\",\"controller\":\"nutanixmachine\",\"controllerGroup\":\"infrastructure.cluster.x-k8s.io\",\"controllerKind\":\"NutanixMachine\",\"NutanixMachine\":{\"name\":\"ocpdrbubble-wrpkv-master-2\",\"namespace\":\"openshift-cluster-api-guests\"},\"namespace\":\"openshift-cluster-api-guests\",\"name\":\"ocpdrbubble-wrpkv-master-2\",\"reconcileID\":\"7e0d72a5-601e-4916-a27c-24a273eb1607\"}"
-time="2026-04-20T16:51:57-04:00" level=debug msg="I0420 16:51:57.662868 3285243 machine_controller_noderef.go:82] \"Infrastructure provider reporting spec.providerID, matching Kubernetes node is not yet available\" controller=\"machine\" controllerGroup=\"cluster.x-k8s.io\" controllerKind=\"Machine\" Machine=\"openshift-cluster-api-guests/ocpdrbubble-wrpkv-master-2\" namespace=\"openshift-cluster-api-guests\" name=\"ocpdrbubble-wrpkv-master-2\" reconcileID=\"0f1caed3-0fe2-4c95-be09-9980424276bc\" Cluster=\"openshift-cluster-api-guests/ocpdrbubble-wrpkv\" Cluster=\"openshift-cluster-api-guests/ocpdrbubble-wrpkv\" NutanixMachine=\"openshift-cluster-api-guests/ocpdrbubble-wrpkv-master-2\" providerID=\"nutanix://a8f1aeec-a93f-4423-b08e-3d2f2f9069f3\""
-
+time="2026-04-20T17:14:01-04:00" level=debug msg="    Loading Platform..."
+time="2026-04-20T17:14:01-04:00" level=debug msg="  Loading Cluster Name..."
+time="2026-04-20T17:14:01-04:00" level=debug msg="    Loading Base Domain..."
+time="2026-04-20T17:14:01-04:00" level=debug msg="    Loading Platform..."
+time="2026-04-20T17:14:01-04:00" level=debug msg="  Loading Pull Secret..."
+time="2026-04-20T17:14:01-04:00" level=debug msg="  Loading Platform..."
+time="2026-04-20T17:14:01-04:00" level=debug msg="Using Install Config loaded from state file"
+time="2026-04-20T17:14:01-04:00" level=debug msg="Loading Agent Config..."
+time="2026-04-20T17:14:01-04:00" level=info msg="Waiting up to 40m0s (until 5:54PM EDT) for the cluster at https://api.ocpdrbubble.cscglobal.com:6443 to initialize..."
+time="2026-04-20T17:14:01-04:00" level=debug msg="Still waiting for the cluster to initialize: Multiple errors are preventing progress:\n* Cluster operators authentication, image-registry, ingress, machine-api, monitoring, openshift-apiserver, openshift-samples, operator-lifecycle-manager-packageserver are not available\n* Could not update imagestream \"openshift/driver-toolkit\" (617 of 906): resource may have been deleted\n* Could not update oauthclient \"console\" (550 of 906): the server does not recognize this resource, check extension API servers\n* Could not update role \"openshift-console-operator/prometheus-k8s\" (823 of 906): resource may have been deleted\n* Could not update role \"openshift-console/prometheus-k8s\" (827 of 906): resource may have been deleted"
+time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30"
+time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 4 of 906 done (0% complete)"
+time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 33 of 906 done (3% complete)"
+time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 75 of 906 done (8% complete)"
+time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 82 of 906 done (9% complete)"
+time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 83 of 906 done (9% complete)"
+time="2026-04-20T17:14:34-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 648 of 906 done (71% complete)"
+time="2026-04-20T17:14:35-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 681 of 906 done (75% complete)"
+time="2026-04-20T17:14:35-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 710 of 906 done (78% complete)"
+time="2026-04-20T17:14:36-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 711 of 906 done (78% complete)"
+time="2026-04-20T17:14:36-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 717 of 906 done (79% complete)"
+time="2026-04-20T17:14:37-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 732 of 906 done (80% complete)"
+time="2026-04-20T17:14:49-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 851 of 906 done (93% complete)"
+time="2026-04-20T17:15:04-04:00" level=debug msg="Still waiting for the cluster to initialize: Multiple errors are preventing progress:\n* Cluster operators authentication, console, ingress, machine-api, monitoring, openshift-samples are not available\n* Could not update role \"openshift-console-operator/prometheus-k8s\" (823 of 906): resource may have been deleted\n* Could not update role \"openshift-console/prometheus-k8s\" (827 of 906): resource may have been deleted"
+time="2026-04-20T17:15:34-04:00" level=debug msg="Still waiting for the cluster to initialize: Cluster operators authentication, console, ingress, machine-api, monitoring are not available"
