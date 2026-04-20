@@ -12,3 +12,46 @@ Ncat: TIMEOUT.
 * Closing connection 0
 curl: (28) Connection timed out after 10001 milliseconds
 [asuma@dlasuma001 ~]$
+
+
+
+Success. Logging you in...
+[asuma@eimxhdhmpefp002 ~]$ curl -kv --max-time 10 https://us2-prismcentral01.cscinfo.com:9440/ 2>&1 | head -30
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 10.106.145.30:9440...
+* Connected to us2-prismcentral01.cscinfo.com (10.106.145.30) port 9440 (#0)
+* ALPN, offering h2
+* ALPN, offering http/1.1
+*  CAfile: /etc/pki/tls/certs/ca-bundle.crt
+* TLSv1.0 (OUT), TLS header, Certificate Status (22):
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+* TLSv1.2 (IN), TLS header, Certificate Status (22):
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [100 bytes data]
+* TLSv1.2 (IN), TLS header, Certificate Status (22):
+{ [5 bytes data]
+* TLSv1.2 (IN), TLS handshake, Certificate (11):
+{ [4432 bytes data]
+* TLSv1.2 (IN), TLS header, Certificate Status (22):
+{ [5 bytes data]
+* TLSv1.2 (IN), TLS handshake, Server key exchange (12):
+{ [333 bytes data]
+* TLSv1.2 (IN), TLS header, Certificate Status (22):
+{ [5 bytes data]
+* TLSv1.2 (IN), TLS handshake, Server finished (14):
+{ [4 bytes data]
+* TLSv1.2 (OUT), TLS header, Certificate Status (22):
+} [5 bytes data]
+* TLSv1.2 (OUT), TLS handshake, Client key exchange (16):
+[asuma@eimxhdhmpefp002 ~]$ echo | openssl s_client -connect us2-prismcentral01.cscinfo.com:9440 -servername us2-prismcentral01.cscinfo.com 2>/dev/null | openssl x509 -noout -issuer -subject -dates
+issuer=C=US, ST=Delaware, L=Wilmington, O=Corporation Service Company, CN=Corporation Service Company Issuing CA
+subject=C=US, ST=Delaware, O=Corporation Service Company, OU=Shared Services, CN=us2-prismcentral01.cscinfo.com
+notBefore=Oct 31 10:00:59 2025 GMT
+notAfter=Oct 31 10:00:59 2026 GMT
+[asuma@eimxhdhmpefp002 ~]$ timeout 5 bash -c '</dev/tcp/10.106.145.30/9440' && echo "TCP OK" || echo "TCP BLOCKED/TIMEOUT"
+TCP OK
+[asuma@eimxhdhmpefp002 ~]$
