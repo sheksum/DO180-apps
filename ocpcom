@@ -1,13 +1,13 @@
-Personal GHE PAT for asuma. Used to access asuma's personal fork of 
-rhocp_ansible_install_cluster_ahv for testing the Nutanix CA trust 
-bundle fix on branch haji/fix-nutanix-ca-bundle.
-
-Test project pointing at asuma's personal fork. Validates fix for 
-Nutanix install failure where additionalTrustBundle was missing from 
-install-config.yaml, causing x509 errors during 'openshift-install 
-create manifests'. Delete after fix is merged to INFRA main.
-
-
-Test template using HAJ TEST project to validate Nutanix CA bundle 
-fix before merging to main. Identical to the production template 
-except for the SCM source.
+rhocp_api_vip: 10.110.163.1
+rhocp_cluster_name: ocpdrbubble
+rhocp_control_plane_memory: '32768'
+# ... rest of existing vars ...
+rhocp_additional_trust_bundle: |
+  -----BEGIN CERTIFICATE-----
+  MIIF...
+  ...
+  -----END CERTIFICATE-----
+  -----BEGIN CERTIFICATE-----
+  MIIE...
+  ...
+  -----END CERTIFICATE-----
