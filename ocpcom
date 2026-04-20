@@ -1,4 +1,13 @@
-TASK [Create manifests using openshift-install] ********************************
-fatal: [eimxhdhmpefp002.wil.csc.local]: FAILED! => {"changed": true, "cmd": "openshift-install create manifests --dir /home/svcunixrhocp/ocp-install", "delta": "0:00:00.505402", "end": "2026-04-20 16:26:15.388384", "msg": "non-zero return code", "rc": 1, "start": "2026-04-20 16:26:14.882982", "stderr": "level=fatal msg=failed to fetch Master Machines: failed to generate asset \"Master Machines\": failed to create master machine objects: [platform.nutanix.categories: Invalid value: v1.NutanixCategory{Key:\"AppType\", Value:\"Openshift\"}: Failed to find the category with key \"AppType\" and value \"Openshift\". error: Get \"https://us2-prismcentral01.cscinfo.com:9440/api/nutanix/v3/categories/AppType/Openshift\": tls: failed to verify certificate: x509: certificate signed by unknown authority, platform.nutanix.categories: Invalid value: v1.NutanixCategory{Key:\"OpenshiftClusters\", Value:\"ocpdrbubble\"}: Failed to find the category with key \"OpenshiftClusters\" and value \"ocpdrbubble\". error: Get \…
-PLAY RECAP *********************************************************************
-eimxhdhmpefp002.wil.csc.local : ok=14   changed=7    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+ls -la /home/svcunixrhocp/ocp-install/
+cat /home/svcunixrhocp/ocp-install/install-config.yaml.bak 2>/dev/null | head -80
+
+
+sudo ls -la /home/svcunixrhocp/ocp-install/
+sudo head -80 /home/svcunixrhocp/ocp-install/install-config.yaml.bak
+sudo grep -c 'BEGIN CERTIFICATE' /home/svcunixrhocp/ocp-install/install-config.yaml.bak
+sudo grep -A 2 additionalTrust /home/svcunixrhocp/ocp-install/install-config.yaml.bak
+
+
+sudo head -10 /runner/project/templates/install-config.yaml.j2 2>/dev/null
+# Or find where AAP stashed it:
+sudo find / -name 'install-config.yaml.j2' 2>/dev/null
