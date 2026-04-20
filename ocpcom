@@ -1,4 +1,39 @@
-oc get machines -n openshift-machine-api
-oc get machinesets -n openshift-machine-api
-oc describe pod -n openshift-ingress router-default-b96c758c7-qj7cs | grep -A 20 Events
-oc get nodes
+[svcunixrhocp@eimxhdhmpefp002 ocp-install]$ oc get machines -n openshift-machine-api
+NAME                             PHASE     TYPE   REGION               ZONE                  AGE
+ocpdrbubble-wrpkv-master-0       Running   AHV    us2-prismcentral01   us2-pvntx74-cluster   27m
+ocpdrbubble-wrpkv-master-1       Running   AHV    us2-prismcentral01   us2-pvntx74-cluster   27m
+ocpdrbubble-wrpkv-master-2       Running   AHV    us2-prismcentral01   us2-pvntx74-cluster   27m
+ocpdrbubble-wrpkv-worker-2rfgv   Running   AHV    us2-prismcentral01   us2-pvntx74-cluster   18m
+ocpdrbubble-wrpkv-worker-5fktq   Running   AHV    us2-prismcentral01   us2-pvntx74-cluster   18m
+ocpdrbubble-wrpkv-worker-fnk8n   Running   AHV    us2-prismcentral01   us2-pvntx74-cluster   18m
+[svcunixrhocp@eimxhdhmpefp002 ocp-install]$
+[svcunixrhocp@eimxhdhmpefp002 ocp-install]$
+[svcunixrhocp@eimxhdhmpefp002 ocp-install]$ oc get machinesets -n openshift-machine-api
+NAME                       DESIRED   CURRENT   READY   AVAILABLE   AGE
+ocpdrbubble-wrpkv-worker   3         3         3       3           27m
+[svcunixrhocp@eimxhdhmpefp002 ocp-install]$
+[svcunixrhocp@eimxhdhmpefp002 ocp-install]$ oc describe pod -n openshift-ingress router-default-b96c758c7-qj7cs | grep -A 20 Events
+Events:
+  Type     Reason            Age                  From               Message
+  ----     ------            ----                 ----               -------
+  Warning  FailedScheduling  19m                  default-scheduler  0/3 nodes are available: 3 node(s) had untolerated taint {node-role.kubernetes.io/master: }. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+  Warning  FailedScheduling  11m (x2 over 16m)    default-scheduler  0/3 nodes are available: 3 node(s) had untolerated taint {node-role.kubernetes.io/master: }. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+  Warning  FailedScheduling  9m36s (x2 over 14m)  default-scheduler  0/3 nodes are available: 3 node(s) had untolerated taint {node-role.kubernetes.io/master: }. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+  Warning  FailedScheduling  6m11s                default-scheduler  0/3 nodes are available: 3 node(s) had untolerated taint {node-role.kubernetes.io/master: }. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+  Warning  FailedScheduling  2m12s                default-scheduler  0/3 nodes are available: 3 node(s) had untolerated taint {node-role.kubernetes.io/master: }. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+  Normal   Scheduled         18s                  default-scheduler  Successfully assigned openshift-ingress/router-default-b96c758c7-qj7cs to ocpdrbubble-wrpkv-worker-5fktq
+  Normal   Pulling           18s                  kubelet            Pulling image "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:0af23bc26a1d8a64483ea2831a0d222b44b3a6e33f6763d01cd04843a6aadef4"
+  Normal   Pulled            15s                  kubelet            Successfully pulled image "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:0af23bc26a1d8a64483ea2831a0d222b44b3a6e33f6763d01cd04843a6aadef4" in 3.476s (3.476s including waiting). Image size: 481585257 bytes.
+  Normal   Created           15s                  kubelet            Created container: router
+  Normal   Started           15s                  kubelet            Started container router
+[svcunixrhocp@eimxhdhmpefp002 ocp-install]$
+[svcunixrhocp@eimxhdhmpefp002 ocp-install]$ oc get nodes
+NAME                             STATUS   ROLES                  AGE   VERSION
+ocpdrbubble-wrpkv-master-0       Ready    control-plane,master   23m   v1.31.14
+ocpdrbubble-wrpkv-master-1       Ready    control-plane,master   23m   v1.31.14
+ocpdrbubble-wrpkv-master-2       Ready    control-plane,master   23m   v1.31.14
+ocpdrbubble-wrpkv-worker-2rfgv   Ready    worker                 81s   v1.31.14
+ocpdrbubble-wrpkv-worker-5fktq   Ready    worker                 82s   v1.31.14
+ocpdrbubble-wrpkv-worker-fnk8n   Ready    worker                 82s   v1.31.14
+[svcunixrhocp@eimxhdhmpefp002 ocp-install]$
+
