@@ -1,41 +1,45 @@
-sed -i 's|openshift-install create manifests --dir \./{{ rhocp_install_dir }}|openshift-install create manifests --dir {{ rhocp_install_path }}|' install-cluster.yml
+cd ~/rhocp_ansible_install_cluster_ahv
 
+python3 <<'EOF'
+from jinja2 import Template
 
-grep -n 'rhocp_install_dir\|create manifests' install-cluster.yml
+with open('/tmp/csc-ca-bundle.pem') as f:
+    ca_bundle = f.read()
 
+with open('templates/install-config.yaml.j2') as f:
+    tmpl = Template(f.read())
 
-cat > /tmp/render-test.yml <<'EOF'
-- hosts: localhost
-  connection: local
-  gather_facts: false
-  vars:
-    rhocp_base_domain: cscglobal.com
-    rhocp_cluster_name: ocpdrbubble
-    rhocp_architecture: amd64
-    rhocp_control_plane_vcpu: 8
-    rhocp_control_plane_memory: 32768
-    rhocp_cluster_network: 10.128.0.0/14
-    rhocp_machine_network: 10.163.1.0/24
-    rhocp_service_network: 172.30.0.0/16
-    rhocp_api_vip: 10.163.1.10
-    rhocp_ingress_vip: 10.163.1.11
-    rhocp_prism_central_fqdn: us2-prismcentral01.cscinfo.com
-    rhocp_pc_username: dummy
-    rhocp_pc_password: dummy
-    rhocp_pe_endpoint: dummy
-    rhocp_ntnx_pe_uuid: dummy
-    rhocp_ntnx_pe_subnet_uuid: dummy
-    rhocp_pull_secret: '{}'
-    rhocp_core_ssh_key: 'ssh-rsa AAAA dummy'
-    rhocp_additional_trust_bundle: "{{ lookup('file', '/tmp/csc-ca-bundle.pem') }}"
-  tasks:
-    - template:
-        src: templates/install-config.yaml.j2
-        dest: /tmp/install-config.yaml
+rendered = tmpl.render(
+    rhocp_base_domain='cscglobal.com',
+    rhocp_cluster_name='ocpdrbubble',
+    rhocp_architecture='amd64',
+    rhocp_control_plane_vcpu=8,
+    rhocp_control_plane_memory=32768,
+    rhocp_cluster_network='10.128.0.0/14',
+    rhocp_machine_network='10.163.1.0/24',
+    rhocp_service_network='172.30.0.0/16',
+    rhocp_api_vip='10.163.1.10',
+    rhocp_ingress_vip='10.163.1.11',
+    rhocp_prism_central_fqdn='us2-prismcentral01.cscinfo.com',
+    rhocp_pc_username='dummy',
+    rhocp_pc_password='dummy',
+    rhocp_pe_endpoint='dummy',
+    rhocp_ntnx_pe_uuid='dummy',
+    rhocp_ntnx_pe_subnet_uuid='dummy',
+    rhocp_pull_secret='{}',
+    rhocp_core_ssh_key='ssh-rsa AAAA dummy',
+    rhocp_additional_trust_bundle=ca_bundle,
+)
+
+with open('/tmp/install-config.yaml', 'w') as f:
+    f.write(rendered)
+
+print("Rendered to /tmp/install-config.yaml")
 EOF
 
-ansible-playbook /tmp/render-test.yml
 
 python3 -c "import yaml; yaml.safe_load(open('/tmp/install-config.yaml')); print('VALID YAML')"
 sed -n '/additionalTrustBundle:/,/additionalTrustBundlePolicy:/p' /tmp/install-config.yaml
+
+pip3 install --user jinja2
 
