@@ -1,56 +1,11 @@
-cd ~/rhocp_ansible_install_cluster_ahv
+# On the target host (eimxhdhmpefp002)
+sudo cp /tmp/pc-cert-2.pem /etc/pki/ca-trust/source/anchors/csc-issuing-ca.crt
+sudo cp /tmp/pc-cert-3.pem /etc/pki/ca-trust/source/anchors/csc-root-ca.crt
+sudo update-ca-trust extract
 
-python3 <<'EOF'
-from jinja2 import Template
-import yaml
-
-with open('/tmp/csc-ca-bundle.pem') as f:
-    ca_bundle = f.read()
-
-with open('templates/install-config.yaml.j2') as f:
-    tmpl = Template(f.read())
-
-rendered = tmpl.render(
-    rhocp_base_domain='cscglobal.com',
-    rhocp_cluster_name='ocpdrbubble',
-    rhocp_architecture='amd64',
-    rhocp_control_plane_vcpu=8,
-    rhocp_control_plane_memory=32768,
-    rhocp_cluster_network='10.128.0.0/14',
-    rhocp_machine_network='10.110.162.0/23',
-    rhocp_service_network='172.30.0.0/16',
-    rhocp_api_vip='10.110.163.1',
-    rhocp_ingress_vip='10.110.163.2',
-    rhocp_prism_central_fqdn='us2-prismcentral01.cscinfo.com',
-    rhocp_pc_username='dummy',
-    rhocp_pc_password='dummy',
-    rhocp_pe_endpoint='dummy',
-    rhocp_ntnx_pe_uuid='dummy',
-    rhocp_ntnx_pe_subnet_uuid='dummy',
-    rhocp_pull_secret='{}',
-    rhocp_core_ssh_key='ssh-rsa AAAA dummy',
-    rhocp_additional_trust_bundle=ca_bundle,
-)
-
-# Parse the rendered YAML back to check the bundle extraction
-data = yaml.safe_load(rendered)
-bundle = data.get('additionalTrustBundle', '')
-print('--- Parse check ---')
-print('Policy:', data.get('additionalTrustBundlePolicy'))
-print('Bundle length (chars):', len(bundle))
-print('Cert count:', bundle.count('BEGIN CERTIFICATE'))
-print('Starts with -----BEGIN:', bundle.startswith('-----BEGIN'))
-print('Has extra indent (starts with space):', bundle.startswith(' '))
-print('First 40 repr:', repr(bundle[:40]))
-print('Last 40 repr:', repr(bundle[-40:]))
-
-# Write the parsed bundle out and test it against PC
-with open('/tmp/parsed-bundle.pem', 'w') as f:
-    f.write(bundle)
-print()
-print('Wrote parsed bundle to /tmp/parsed-bundle.pem - test with:')
-print('curl --cacert /tmp/parsed-bundle.pem -sSI https://us2-prismcentral01.cscinfo.com:9440/')
-EOF
+# Verify openssl now trusts PC without -cacert:
+openssl s_client -connect us2-prismcentral01.cscinfo.com:9440 \
+  -servername us2-prismcentral01.cscinfo.com </dev/null 2>&1 | grep -i 'verify'
 
 
-curl --cacert /tmp/parsed-bundle.pem -sSI https://us2-prismcentral01.cscinfo.com:9440/ 2>&1 | head -5
+sudo trust list | grep -i 'corporation service'
