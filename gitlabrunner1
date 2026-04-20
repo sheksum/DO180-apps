@@ -1,0 +1,366 @@
+# GitLab Runner on Kubernetes Setup Guide
+
+**TTM Technologies — Hillsborough RKE2 Cluster**  
+**Date:** April 2026  
+**Author:** Alhaji Suma
+
+-----
+
+## Overview
+
+This document covers the deployment of a GitLab Runner on the Hillsborough RKE2 Kubernetes cluster, registered against the existing GitLab instance at `gitlab.ttmtech.com`. The runner enables CI/CD pipelines to execute on the Hillsborough cluster.
+
+-----
+
+## Architecture
+
+```
+gitlab.ttmtech.com          ← existing GitLab (unchanged)
+    ↓ dispatches jobs
+Hillsborough K8s cluster    ← runner manager pod polls for jobs
+    ↓ spawns ephemeral pods
+Job pods execute pipelines  ← images from internal registry
+    ↓ reports results back
+gitlab.ttmtech.com          ← job succeeded/failed
+```
+
+### Key Facts
+
+|Property         |Value                                                                      |
+|-----------------|---------------------------------------------------------------------------|
+|GitLab Instance  |gitlab.ttmtech.com                                                         |
+|Runner Namespace |gitlab-runner                                                              |
+|Concurrent Jobs  |4                                                                          |
+|Executor         |Kubernetes                                                                 |
+|Internal Registry|img-registry.ttmtech.local:5000                                            |
+|Default Job Image|img-registry.ttmtech.local:5000/gitlab/gitlab-base:v18.10.3                |
+|Helper Image     |img-registry.ttmtech.local:5000/gitlab/gitlab-runner-helper:x86_64-v18.10.1|
+
+-----
+
+## Prerequisites
+
+### Helm
+
+```bash
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+helm repo add gitlab https://charts.gitlab.io/
+helm repo update
+```
+
+### Required Images in Internal Registry
+
+Pull on an internet-connected machine, SCP to registry server, then push:
+
+```bash
+# On internet-connected machine
+podman pull docker.io/gitlab/gitlab-runner:latest
+podman pull registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v18.10.1
+podman pull docker.io/alpine:3.21
+podman pull docker.io/ubuntu:22.04
+
+podman save -o /var/lib/longhorn/gitlab-runner.tar docker.io/gitlab/gitlab-runner:latest
+podman save -o /var/lib/longhorn/gitlab-runner-helper.tar registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v18.10.1
+podman save -o /var/lib/longhorn/alpine.tar docker.io/alpine:3.21
+podman save -o /var/lib/longhorn/ubuntu.tar docker.io/ubuntu:22.04
+
+tar -czf /var/lib/longhorn/runner-images.tar.gz \
+  /var/lib/longhorn/gitlab-runner.tar \
+  /var/lib/longhorn/gitlab-runner-helper.tar \
+  /var/lib/longhorn/alpine.tar \
+  /var/lib/longhorn/ubuntu.tar
+
+# SCP to registry server
+scp /var/lib/longhorn/runner-images.tar.gz root@img-registry.apps.ttmtech.com:/root/
+```
+
+On the registry server:
+
+```bash
+cd /root
+tar -xzf runner-images.tar.gz
+
+podman load -i /var/lib/longhorn/gitlab-runner.tar
+podman load -i /var/lib/longhorn/gitlab-runner-helper.tar
+podman load -i /var/lib/longhorn/alpine.tar
+podman load -i /var/lib/longhorn/ubuntu.tar
+
+REGISTRY="img-registry.ttmtech.local:5000"
+
+podman tag docker.io/gitlab/gitlab-runner:latest $REGISTRY/gitlab/gitlab-runner:latest
+podman tag registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v18.10.1 $REGISTRY/gitlab/gitlab-runner-helper:x86_64-v18.10.1
+podman tag docker.io/alpine:3.21 $REGISTRY/gitlab/alpine:3.21
+podman tag docker.io/ubuntu:22.04 $REGISTRY/gitlab/ubuntu:22.04
+
+podman push $REGISTRY/gitlab/gitlab-runner:latest --tls-verify=false
+podman push $REGISTRY/gitlab/gitlab-runner-helper:x86_64-v18.10.1 --tls-verify=false
+podman push $REGISTRY/gitlab/alpine:3.21 --tls-verify=false
+podman push $REGISTRY/gitlab/ubuntu:22.04 --tls-verify=false
+```
+
+-----
+
+## Step 1 — Create Runner Token
+
+Since admin UI access to `gitlab.ttmtech.com` is not available, the runner token is created via the GitLab Rails console on the server. This is the standard GitLab method for creating instance runners from the command line.
+
+```bash
+ssh root@aamhilgitlab01
+
+gitlab-rails runner "
+runner = Ci::Runner.new(
+  runner_type: :instance_type,
+  description: 'hillsborough-k8s-runner',
+  run_untagged: true,
+  active: true
+)
+runner.save!
+puts 'Token: ' + runner.token
+"
+```
+
+> **Note:** Save the token — it is used in the Helm values below.
+
+This creates a brand new instance runner without modifying any existing runners or settings.
+
+-----
+
+## Step 2 — TLS Certificate
+
+`gitlab.ttmtech.com` uses a DigiCert wildcard certificate. The runner needs to trust the DigiCert CA chain to communicate with GitLab securely.
+
+```bash
+# Download DigiCert intermediate CA
+curl -o /tmp/digicert-ca.pem \
+  https://cacerts.digicert.com/DigiCertGlobalG2TLSRSASHA2562020CA1-1.crt.pem
+
+# Download DigiCert root CA
+curl -o /tmp/digicert-root.pem \
+  https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem
+
+# Get full cert chain from server
+openssl s_client -connect gitlab.ttmtech.com:443 -showcerts </dev/null 2>/dev/null | \
+  sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' > /tmp/gitlab-fullchain.pem
+
+# Combine into one file
+cat /tmp/gitlab-fullchain.pem /tmp/digicert-ca.pem /tmp/digicert-root.pem > /tmp/gitlab-combined.pem
+
+# Create Kubernetes secret
+kubectl create namespace gitlab-runner
+
+kubectl create secret generic gitlab-ttmtech-ca \
+  -n gitlab-runner \
+  --from-file=gitlab.ttmtech.com.crt=/tmp/gitlab-combined.pem
+```
+
+Verify the cert works from inside the runner pod:
+
+```bash
+kubectl exec -it <runner-pod> -n gitlab-runner -- bash
+openssl s_client -connect gitlab.ttmtech.com:443 \
+  -CAfile /home/gitlab-runner/.gitlab-runner/certs/gitlab.ttmtech.com.crt
+# Should show: Verify return code: 0 (ok)
+```
+
+-----
+
+## Step 3 — Deploy Runner
+
+### 3.1 Runner Values (gitlab-runner-values.yaml)
+
+```yaml
+gitlabUrl: https://gitlab.ttmtech.com
+runnerToken: "<token-from-step-1>"
+
+concurrent: 4
+
+rbac:
+  create: true
+  serviceAccount:
+    create: true
+
+image:
+  registry: img-registry.ttmtech.local:5000
+  image: gitlab/gitlab-runner
+  tag: latest
+
+securityContext:
+  allowPrivilegeEscalation: true
+  runAsNonRoot: false
+  runAsUser: 0
+  privileged: true
+
+podSecurityContext:
+  runAsNonRoot: false
+  runAsUser: 0
+  fsGroup: 0
+
+certsSecretName: gitlab-ttmtech-ca
+
+runners:
+  config: |
+    [[runners]]
+      tls-ca-file = "/home/gitlab-runner/.gitlab-runner/certs/gitlab.ttmtech.com.crt"
+      [runners.kubernetes]
+        namespace = "gitlab-runner"
+        image = "img-registry.ttmtech.local:5000/gitlab/gitlab-base:v18.10.3"
+        helper_image = "img-registry.ttmtech.local:5000/gitlab/gitlab-runner-helper:x86_64-v18.10.1"
+        pull_policy = "if-not-present"
+        cpu_request = "500m"
+        cpu_limit = "2"
+        memory_request = "512Mi"
+        memory_limit = "4Gi"
+```
+
+### 3.2 Deploy
+
+```bash
+helm upgrade --install gitlab-runner gitlab/gitlab-runner \
+  -n gitlab-runner \
+  -f ~/gitlab-runner-values.yaml
+```
+
+### 3.3 Verify
+
+```bash
+# Check pod is running
+kubectl get pods -n gitlab-runner
+
+# Check logs - should show "Runner registered successfully"
+kubectl logs -n gitlab-runner -l app=gitlab-runner
+```
+
+Expected output:
+
+```
+Verifying runner... is alive
+Runner registered successfully
+Configuration loaded  builds=0 max_builds=4
+```
+
+-----
+
+## Step 4 — Test Pipeline
+
+Create a test project on `gitlab.ttmtech.com` and add a `.gitlab-ci.yml`:
+
+```yaml
+stages:
+  - test
+
+test-hillsborough-runner:
+  stage: test
+  image: img-registry.ttmtech.local:5000/gitlab/ubuntu:22.04
+  script:
+    - echo "Running on Hillsborough K8s cluster"
+    - hostname
+    - date
+```
+
+Trigger the pipeline and verify:
+
+1. Job appears in GitLab UI as running
+1. Pod spawns on cluster: `kubectl get pods -n gitlab-runner -w`
+1. Job completes with `Job succeeded`
+1. Pod is automatically cleaned up
+
+-----
+
+## Available Base Images
+
+|Image                                                        |Use Case           |
+|-------------------------------------------------------------|-------------------|
+|`img-registry.ttmtech.local:5000/gitlab/gitlab-base:v18.10.3`|Default GitLab base|
+|`img-registry.ttmtech.local:5000/gitlab/alpine:3.21`         |Lightweight builds |
+|`img-registry.ttmtech.local:5000/gitlab/ubuntu:22.04`        |Ubuntu-based builds|
+
+-----
+
+## Using the Runner
+
+### Tagging Jobs (Recommended)
+
+To explicitly route jobs to the Hillsborough runner add the `hil-k8s` tag:
+
+```yaml
+build:
+  stage: build
+  tags:
+    - hil-k8s
+  image: img-registry.ttmtech.local:5000/gitlab/ubuntu:22.04
+  script:
+    - make build
+```
+
+> **Note:** Without tags any untagged job on `gitlab.ttmtech.com` can land on this runner. Using the `hil-k8s` tag ensures explicit routing.
+
+### Increasing Concurrent Jobs
+
+To increase from 4 to 8 concurrent jobs update the values file and upgrade:
+
+```yaml
+concurrent: 8
+```
+
+```bash
+helm upgrade --install gitlab-runner gitlab/gitlab-runner \
+  -n gitlab-runner \
+  -f ~/gitlab-runner-values.yaml
+```
+
+-----
+
+## Troubleshooting
+
+### Check Runner Status
+
+```bash
+# Pod status
+kubectl get pods -n gitlab-runner
+
+# Logs
+kubectl logs -n gitlab-runner -l app=gitlab-runner -f
+
+# Watch job pods during pipeline
+kubectl get pods -n gitlab-runner -w
+```
+
+### Common Issues
+
+|Issue                                          |Resolution                                                                       |
+|-----------------------------------------------|---------------------------------------------------------------------------------|
+|`x509: certificate signed by unknown authority`|Verify `gitlab-ttmtech-ca` secret exists and `certsSecretName` is set in values  |
+|`403 Forbidden`                                |Runner token is project/group type not instance type — recreate via rails console|
+|`ImagePullBackOff`                             |Image not in internal registry — pull and push from internet-connected machine   |
+|Runner pod restarting                          |Check security context — `runAsUser: 0` and `privileged: true` required          |
+|Jobs not picked up                             |Verify runner shows as online in gitlab.ttmtech.com Admin Area → CI/CD → Runners |
+
+### Recreate Runner Token if Needed
+
+```bash
+ssh root@aamhilgitlab01
+
+# List all runners
+gitlab-rails runner "
+Ci::Runner.all.each {|r| puts r.id.to_s + ' | ' + r.description.to_s + ' | ' + r.runner_type.to_s}
+"
+
+# Create new instance runner
+gitlab-rails runner "
+runner = Ci::Runner.new(
+  runner_type: :instance_type,
+  description: 'hillsborough-k8s-runner',
+  run_untagged: true,
+  active: true
+)
+runner.save!
+puts runner.token
+"
+```
+
+### Verify Images in Registry
+
+```bash
+curl http://img-registry.ttmtech.local:5000/v2/_catalog | python3 -m json.tool | grep gitlab
+```
