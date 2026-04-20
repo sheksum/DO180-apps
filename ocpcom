@@ -1,25 +1,22 @@
-time="2026-04-20T17:14:01-04:00" level=debug msg="    Loading Platform..."
-time="2026-04-20T17:14:01-04:00" level=debug msg="  Loading Cluster Name..."
-time="2026-04-20T17:14:01-04:00" level=debug msg="    Loading Base Domain..."
-time="2026-04-20T17:14:01-04:00" level=debug msg="    Loading Platform..."
-time="2026-04-20T17:14:01-04:00" level=debug msg="  Loading Pull Secret..."
-time="2026-04-20T17:14:01-04:00" level=debug msg="  Loading Platform..."
-time="2026-04-20T17:14:01-04:00" level=debug msg="Using Install Config loaded from state file"
-time="2026-04-20T17:14:01-04:00" level=debug msg="Loading Agent Config..."
-time="2026-04-20T17:14:01-04:00" level=info msg="Waiting up to 40m0s (until 5:54PM EDT) for the cluster at https://api.ocpdrbubble.cscglobal.com:6443 to initialize..."
-time="2026-04-20T17:14:01-04:00" level=debug msg="Still waiting for the cluster to initialize: Multiple errors are preventing progress:\n* Cluster operators authentication, image-registry, ingress, machine-api, monitoring, openshift-apiserver, openshift-samples, operator-lifecycle-manager-packageserver are not available\n* Could not update imagestream \"openshift/driver-toolkit\" (617 of 906): resource may have been deleted\n* Could not update oauthclient \"console\" (550 of 906): the server does not recognize this resource, check extension API servers\n* Could not update role \"openshift-console-operator/prometheus-k8s\" (823 of 906): resource may have been deleted\n* Could not update role \"openshift-console/prometheus-k8s\" (827 of 906): resource may have been deleted"
-time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30"
-time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 4 of 906 done (0% complete)"
-time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 33 of 906 done (3% complete)"
-time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 75 of 906 done (8% complete)"
-time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 82 of 906 done (9% complete)"
-time="2026-04-20T17:14:19-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 83 of 906 done (9% complete)"
-time="2026-04-20T17:14:34-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 648 of 906 done (71% complete)"
-time="2026-04-20T17:14:35-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 681 of 906 done (75% complete)"
-time="2026-04-20T17:14:35-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 710 of 906 done (78% complete)"
-time="2026-04-20T17:14:36-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 711 of 906 done (78% complete)"
-time="2026-04-20T17:14:36-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 717 of 906 done (79% complete)"
-time="2026-04-20T17:14:37-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 732 of 906 done (80% complete)"
-time="2026-04-20T17:14:49-04:00" level=debug msg="Still waiting for the cluster to initialize: Working towards 4.18.30: 851 of 906 done (93% complete)"
-time="2026-04-20T17:15:04-04:00" level=debug msg="Still waiting for the cluster to initialize: Multiple errors are preventing progress:\n* Cluster operators authentication, console, ingress, machine-api, monitoring, openshift-samples are not available\n* Could not update role \"openshift-console-operator/prometheus-k8s\" (823 of 906): resource may have been deleted\n* Could not update role \"openshift-console/prometheus-k8s\" (827 of 906): resource may have been deleted"
-time="2026-04-20T17:15:34-04:00" level=debug msg="Still waiting for the cluster to initialize: Cluster operators authentication, console, ingress, machine-api, monitoring are not available"
+lsudo -u svcunixrhocp bash
+export KUBECONFIG=/home/svcunixrhocp/ocp-install/auth/kubeconfig
+
+# Overall picture
+oc get co
+
+# Find the unhealthy ones fast
+oc get co | grep -vE 'True\s+False\s+False'
+
+# Node status
+oc get nodes
+
+# Ingress specifically (often the slow one)
+oc get pods -n openshift-ingress
+oc describe co ingress | tail -30
+
+
+# Is the ingress VIP reachable?
+curl -kI https://console-openshift-console.apps.ocpdrbubble.cscglobal.com 2>&1 | head -5
+
+# Does the VIP route?
+ping -c 3 10.110.163.2
