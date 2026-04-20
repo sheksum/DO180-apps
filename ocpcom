@@ -1,11 +1,15 @@
-# How many certs rendered into the file (number only, no cert content)
-sudo grep -c 'BEGIN CERTIFICATE' /home/svcunixrhocp/ocp-install/install-config.yaml.bak
-
-# Does the additionalTrustBundle block exist and what's the policy value
-sudo grep -n '^additionalTrust\|^apiVersion\|^baseDomain' /home/svcunixrhocp/ocp-install/install-config.yaml.bak
-
-# File size and line count (confirms it's not truncated)
-sudo wc -l /home/svcunixrhocp/ocp-install/install-config.yaml.bak
-
-# Check that the block scalar content is indented (view just the first 2 lines after additionalTrustBundle: | )
-sudo sed -n '/additionalTrustBundle:/,+2p' /home/svcunixrhocp/ocp-install/install-config.yaml.bak | sed 's/[A-Za-z0-9+/=]/X/g'
+[root@eimxhdhmpefp002 ~]# sudo grep -c 'BEGIN CERTIFICATE' /home/svcunixrhocp/ocp-install/install-config.yaml.bak
+2
+You have new mail in /var/spool/mail/root
+[root@eimxhdhmpefp002 ~]# sudo grep -n '^additionalTrust\|^apiVersion\|^baseDomain' /home/svcunixrhocp/ocp-install/install-config.yaml.bak
+1:apiVersion: v1
+2:baseDomain: cscglobal.com
+3:additionalTrustBundle: |
+72:additionalTrustBundlePolicy: Always
+[root@eimxhdhmpefp002 ~]# sudo wc -l /home/svcunixrhocp/ocp-install/install-config.yaml.bak
+140 /home/svcunixrhocp/ocp-install/install-config.yaml.bak
+[root@eimxhdhmpefp002 ~]# sudo sed -n '/additionalTrustBundle:/,+2p' /home/svcunixrhocp/ocp-install/install-config.yaml.bak | sed 's/[A-Za-z0-9+/=]/X/g'
+XXXXXXXXXXXXXXXXXXXXX: |
+  -----XXXXX XXXXXXXXXXX-----
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+[root@eimxhdhmpefp002 ~]#
