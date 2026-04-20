@@ -1,0 +1,1 @@
+echo | openssl s_client -connect us2-prismcentral01.cscinfo.com:9440 -servername us2-prismcentral01.cscinfo.com 2>/dev/null | openssl x509 -noout -issuer -subject -dates
