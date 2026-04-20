@@ -1,15 +1,8 @@
-echo | openssl s_client -connect us2-prismcentral01.cscinfo.com:9440 -servername us2-prismcentral01.cscinfo.com 2>/dev/null | openssl x509 -noout -issuer -subject -dates
+# Quick TCP reachability test (5s timeout)
+timeout 5 bash -c '</dev/tcp/10.106.145.30/9440' && echo "TCP OK" || echo "TCP BLOCKED/TIMEOUT"
 
+# If you have nc:
+nc -zv -w 5 10.106.145.30 9440
 
-[asuma@dlasuma001 ~]$ echo | openssl s_client -connect us2-prismcentral01.cscinfo.com:9440 -servername us2-prismcentral01.cscinfo.com 2>/dev/null | openssl x509 -noout -issuer -subject -dates
-^C
-[asuma@dlasuma001 ~]$ getent us2-prismcentral01.cscinfo.com
-Unknown database: us2-prismcentral01.cscinfo.com
-Try `getent --help' or `getent --usage' for more information.
-[asuma@dlasuma001 ~]$ getent hosts us2-prismcentral01.cscinfo.com
-10.106.145.30   us2-prismcentral01.cscinfo.com
-[asuma@dlasuma001 ~]$
-[asuma@dlasuma001 ~]$ dig +short us2-prismcentral01.cscinfo.com
-10.106.145.30
-[asuma@dlasuma001 ~]$
-
+# Curl with hard timeout
+curl -kv --max-time 10 https://us2-prismcentral01.cscinfo.com:9440/ 2>&1 | head -30
