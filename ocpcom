@@ -1,8 +1,14 @@
-# Quick TCP reachability test (5s timeout)
-timeout 5 bash -c '</dev/tcp/10.106.145.30/9440' && echo "TCP OK" || echo "TCP BLOCKED/TIMEOUT"
-
-# If you have nc:
-nc -zv -w 5 10.106.145.30 9440
-
-# Curl with hard timeout
-curl -kv --max-time 10 https://us2-prismcentral01.cscinfo.com:9440/ 2>&1 | head -30
+[asuma@dlasuma001 ~]$ timeout 5 bash -c '</dev/tcp/10.106.145.30/9440' && echo "TCP OK" || echo "TCP BLOCKED/TIMEOUT"
+TCP BLOCKED/TIMEOUT
+[asuma@dlasuma001 ~]$ nc -zv -w 5 10.106.145.30 9440
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: TIMEOUT.
+[asuma@dlasuma001 ~]$ curl -kv --max-time 10 https://us2-prismcentral01.cscinfo.com:9440/ 2>&1 | head -30
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 10.106.145.30:9440...
+  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0* Connection timed out after 10001 milliseconds
+  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0
+* Closing connection 0
+curl: (28) Connection timed out after 10001 milliseconds
+[asuma@dlasuma001 ~]$
