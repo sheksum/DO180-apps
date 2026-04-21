@@ -1,0 +1,19 @@
+OCP-AI Platform Delivery
+Built and delivered the OCP-AI bare-metal OpenShift platform purpose-built for Calix AI workloads. The platform runs on Dell PowerEdge R760xa GPU servers with NVIDIA H100L GPUs across three isolated environments. AgentMesh has been onboarded and is serving live production traffic. Owned end-to-end including bare-metal bringup, networking, GitOps automation, identity and access management, Vault PKI, and full platform documentation.
+IPA/IdM Migration
+Migrating Red Hat Identity Management from the Petaluma datacenter to Plano as part of the datacenter consolidation. Completed certificate database cleanup and working with Red Hat support on a clean fresh install approach for the new Plano master.
+Red Hat Satellite
+Building out the Satellite Capsule Server in the Plano DMZ to support content delivery for managed systems across both datacenters.
+
+
+Performance Goal:
+Maintain and advance professional certifications to stay current with evolving cloud, Kubernetes, and security technologies.
+Goal Measurement(s):
+Certification Renewals
+Renew the following certifications before their expiration dates:
+	•	AWS Certified Solutions Architect Associate (May 31, 2026)
+	•	CKA Certified Kubernetes Administrator (June 23, 2026)
+	•	CompTIA Security+ CE (June 18, 2026)
+	•	Red Hat Specialist in Containers and Kubernetes (September 4, 2026)
+	•	Red Hat Certified System Administrator (September 4, 2026)
+Status: In Progress
