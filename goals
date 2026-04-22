@@ -1,62 +1,37 @@
-# === Verify HAProxy HA status (the critical one) ===
-ping -c 2 aamhilran01.ttmtech.local
-ping -c 2 aamslc4hap01.ttmtech.local
-getent hosts aamslc4hap01.ttmtech.local aamhilran01.ttmtech.local
-# From HAProxy box itself if you have access:
-# systemctl status haproxy keepalived
-# cat /etc/haproxy/haproxy.cfg | head -60
-# ip addr | grep -E 'inet 10\.200\.248'
+# === "How do we know the HAProxy isn't a SPOF?" ===
+ping -c1 aamslc4hap01.ttmtech.local
+# If you can SSH to it:
+# ssh aamslc4hap01 'systemctl status haproxy keepalived 2>&1 | head'
+# ssh aamslc4hap01 'ip -br addr'
 
-# === Secrets encryption status with verbose flag ===
-sudo /var/lib/rancher/rke2/bin/rke2 secrets-encrypt status 2>&1
-sudo ls /var/lib/rancher/rke2/server/cred/ 2>/dev/null
-sudo grep -r 'encrypt' /etc/rancher/rke2/ 2>/dev/null
+# === "Is the cluster under memory pressure?" ===
+kubectl top nodes
+kubectl describe nodes | grep -A5 'Conditions' | grep -E 'Pressure|Ready' | head -20
 
-# === The actual etcd health (new method) ===
-sudo crictl --runtime-endpoint unix:///run/k3s/containerd/containerd.sock ps | grep etcd
-# If that works, grab the container id and:
-# sudo crictl --runtime-endpoint unix:///run/k3s/containerd/containerd.sock exec -it <id> sh -c 'ETCDCTL_API=3 etcdctl ...'
+# === "What's actually broken right now?" ===
+kubectl get pods -A | grep -vE 'Running|Completed' | head -20
+kubectl get events -A --sort-by='.lastTimestamp' | grep -iE 'warning|error|failed' | tail -20
 
-# Or simplest — from the etcd static pod definition, bind-mount is there:
-sudo ls /var/lib/rancher/rke2/server/db/etcd/
-sudo ETCDCTL_API=3 /var/lib/rancher/rke2/bin/etcdctl \
-  --endpoints=https://127.0.0.1:2379 \
-  --cacert=/var/lib/rancher/rke2/server/tls/etcd/server-ca.crt \
-  --cert=/var/lib/rancher/rke2/server/tls/etcd/server-client.crt \
-  --key=/var/lib/rancher/rke2/server/tls/etcd/server-client.key \
-  endpoint status --cluster -w table 2>&1
+# === "How old are our etcd backups?" ===
+sudo ls -lht /var/lib/rancher/rke2/server/db/snapshots/ | head -5
 
-# Local snapshot listing
-sudo ls -lh /var/lib/rancher/rke2/server/db/snapshots/ | tail -5
-sudo ls /var/lib/rancher/rke2/server/db/snapshots/ | wc -l
+# === "Who logged in recently?" (audit log)
+sudo grep -h '"verb":"create"' /var/log/kubernetes/audit/audit.log 2>/dev/null | \
+  jq -r '.user.username' 2>/dev/null | sort | uniq -c | sort -rn | head
 
-# === Longhorn settings pulled correctly (previous cmd got tangled) ===
-kubectl -n longhorn-system get setting | head -40
-kubectl -n longhorn-system get setting default-replica-count -o jsonpath='{.value}{"\n"}'
-kubectl -n longhorn-system get setting backup-target -o jsonpath='{.value}{"\n"}'
-kubectl -n longhorn-system get setting replica-soft-anti-affinity -o jsonpath='{.value}{"\n"}'
-# Degraded volume detail
-kubectl -n longhorn-system get volume.longhorn.io pvc-005aa67a-6204-41b5-9d3f-9ab198340242 -o yaml | grep -A2 'conditions\|robustness\|replicas'
+# === "What's the biggest consumer of cluster resources?" ===
+kubectl top pods -A --sort-by=memory | head -15
+kubectl top pods -A --sort-by=cpu | head -15
 
-# === Where does zuva-postgres sit? ===
-kubectl -n aitk-zuva get pod -o wide | grep postgres
-kubectl -n aitk-zuva get cluster zuva-postgres -o yaml | grep -E 'instances|affinity|backup|storage' | head -30
+# === Degraded Longhorn volume — what's the impact? ===
+kubectl -n longhorn-system get volume.longhorn.io -o json | \
+  jq -r '.items[] | select(.status.robustness == "degraded") | 
+    "\(.metadata.name) used by \(.status.kubernetesStatus.namespace)/\(.status.kubernetesStatus.workloadsStatus[0].workloadName // "unknown")"'
 
-# === Kafka storage detail — is it truly ephemeral or was JSON misleading? ===
-kubectl -n kafka get kafka aitk-kafka-cluster -o yaml | grep -A8 'kafka:' | head -40
-kubectl -n kafka get pvc
+# === Are we tracking any real security events? ===
+sudo tail -1000 /var/log/kubernetes/audit/audit.log 2>/dev/null | \
+  jq -r 'select(.verb=="create" and .objectRef.resource=="pods" and .responseStatus.code==201) | 
+    "\(.requestReceivedTimestamp)\t\(.user.username)\t\(.objectRef.namespace)"' 2>/dev/null | tail -10
 
-# === Fluent-bit — what's it shipping logs to? ===
-kubectl -n logging get cm fluent-bit-config -o yaml 2>/dev/null | grep -E 'Host|Name|output' | head -30
-kubectl -n logging get svc
-
-# === Istio — is it actually in-path or just installed? ===
-kubectl get ns -o json | jq -r '.items[] | select(.metadata.labels["istio-injection"] == "enabled") | .metadata.name'
-kubectl get pods -A -o json | jq -r '.items[] | select([.spec.containers[].name] | any(. == "istio-proxy")) | .metadata.namespace' | sort -u
-
-# === Default SA tokens on user namespaces ===
-kubectl get sa default -A -o json 2>/dev/null | jq -r '.items[] | select((.automountServiceAccountToken // true) == true) | .metadata.namespace' | grep -Ev '^(kube-|cattle-|longhorn|rancher)' | head
-
-# === Ingress-nginx exposure ===
-kubectl -n kube-system get svc rke2-ingress-nginx-controller 2>/dev/null
-kubectl -n kube-system describe ds rke2-ingress-nginx-controller | grep -iE 'host|port' | head
+# === Istio in-path check (you said istio-system exists 37d) ===
+kubectl get ns -L istio-injection
