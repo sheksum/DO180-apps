@@ -6,7 +6,7 @@ kubectl get ns
 
 # From a control-plane (server) node — RKE2 specifics
 sudo systemctl status rke2-server
-rke2 --version
+
 cat /etc/rancher/rke2/config.yaml               # the install-time config — critical artifact
 sudo ls /var/lib/rancher/rke2/server/manifests/ # auto-deployed HelmCharts/manifests
 sudo ls /var/lib/rancher/rke2/agent/            # on workers: /etc/rancher + agent dir
@@ -15,7 +15,7 @@ sudo ls /var/lib/rancher/rke2/agent/            # on workers: /etc/rancher + age
 kubectl get ns cattle-system 2>/dev/null && echo "Rancher-managed"
 kubectl -n cattle-system get pods
 kubectl get clusters.management.cattle.io -A 2>/dev/null   # Rancher CRD
-kubectl get clusters.provisioning.cattle.io -A 2>/dev/null
+
 
 # RKE2 bundled components — know what's baked in vs added
 kubectl get pods -n kube-system
@@ -39,3 +39,296 @@ sudo /var/lib/rancher/rke2/bin/kubectl -n kube-system exec -it etcd-$(hostname) 
     --endpoints=https://127.0.0.1:2379 \
     --cacert=/var/lib/rancher/rke2/server/tls/etcd/server-ca.crt \
     --cert=/var/lib/rancher/rke2/server/
+
+
+
+
+[root@aamslc4kbc01 ~]# kubectl version
+Client Version: v1.35.0
+Kustomize Version: v5.7.1
+Server Version: v1.34.4+rke2r1
+[root@aamslc4kbc01 ~]# kubectl cluster-info
+Kubernetes control plane is running at https://127.0.0.1:6443
+CoreDNS is running at https://127.0.0.1:6443/api/v1/namespaces/kube-system/services/rke2-coredns-rke2-coredns:udp-53/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+[root@aamslc4kbc01 ~]# kubectl get nodes -o wide --show-labels
+NAME                         STATUS   ROLES                AGE   VERSION          INTERNAL-IP     EXTERNAL-IP   OS-IMAGE                              KERNEL-VERSION                 CONTAINER-RUNTIME         LABELS
+aamslc4kbc01.ttmtech.local   Ready    control-plane,etcd   96d   v1.34.4+rke2r1   10.200.248.21   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=rke2,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=aamslc4kbc01.ttmtech.local,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=true,node-role.kubernetes.io/etcd=true,node.kubernetes.io/instance-type=rke2
+aamslc4kbc02.ttmtech.local   Ready    control-plane,etcd   96d   v1.34.4+rke2r1   10.200.248.22   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=rke2,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=aamslc4kbc02.ttmtech.local,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=true,node-role.kubernetes.io/etcd=true,node.kubernetes.io/instance-type=rke2
+aamslc4kbc03.ttmtech.local   Ready    control-plane,etcd   96d   v1.34.4+rke2r1   10.200.248.23   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=rke2,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=aamslc4kbc03.ttmtech.local,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=true,node-role.kubernetes.io/etcd=true,node.kubernetes.io/instance-type=rke2
+aamslc4kbg01.ttmtech.local   Ready    <none>               94d   v1.34.4+rke2r1   10.200.248.61   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1   accelerator=nvidia,beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=rke2,beta.kubernetes.io/os=linux,feature.node.kubernetes.io/cpu-cpuid.ADX=true,feature.node.kubernetes.io/cpu-cpuid.AESNI=true,feature.node.kubernetes.io/cpu-cpuid.AVX2=true,feature.node.kubernetes.io/cpu-cpuid.AVX=true,feature.node.kubernetes.io/cpu-cpuid.CETSS=true,feature.node.kubernetes.io/cpu-cpuid.CLZERO=true,feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8=true,feature.node.kubernetes.io/cpu-cpuid.FMA3=true,feature.node.kubernetes.io/cpu-cpuid.FXSR=true,feature.node.kubernetes.io/cpu-cpuid.FXSROPT=true,feature.node.kubernetes.io/cpu-cpuid.IBPB=true,feature.node.kubernetes.io/cpu-cpuid.LAHF=true,feature.node.kubernetes.io/cpu-cpuid.MCAOVERFLOW=true,feature.node.kubernetes.io/cpu-cpuid.MOVBE=true,feature.node.kubernetes.io/cpu-cpuid.MOVU=true,feature.node.kubernetes.io/cpu-cpuid.OSXSAVE=true,feature.node.kubernetes.io/cpu-cpuid.PSFD=true,feature.node.kubernetes.io/cpu-cpuid.SHA=true,feature.node.kubernetes.io/cpu-cpuid.SPEC_CTRL_SSBD=true,feature.node.kubernetes.io/cpu-cpuid.SSE4A=true,feature.node.kubernetes.io/cpu-cpuid.SUCCOR=true,feature.node.kubernetes.io/cpu-cpuid.SYSCALL=true,feature.node.kubernetes.io/cpu-cpuid.SYSEE=true,feature.node.kubernetes.io/cpu-cpuid.TOPEXT=true,feature.node.kubernetes.io/cpu-cpuid.TSA_VERW_CLEAR=true,feature.node.kubernetes.io/cpu-cpuid.VAES=true,feature.node.kubernetes.io/cpu-cpuid.VPCLMULQDQ=true,feature.node.kubernetes.io/cpu-cpuid.WBNOINVD=true,feature.node.kubernetes.io/cpu-cpuid.X87=true,feature.node.kubernetes.io/cpu-cpuid.XGETBV1=true,feature.node.kubernetes.io/cpu-cpuid.XSAVE=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEC=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT=true,feature.node.kubernetes.io/cpu-cpuid.XSAVES=true,feature.node.kubernetes.io/cpu-hardware_multithreading=false,feature.node.kubernetes.io/cpu-model.family=25,feature.node.kubernetes.io/cpu-model.id=1,feature.node.kubernetes.io/cpu-model.vendor_id=AMD,feature.node.kubernetes.io/kernel-config.NO_HZ=true,feature.node.kubernetes.io/kernel-config.NO_HZ_FULL=true,feature.node.kubernetes.io/kernel-version.full=5.14.0-611.30.1.el9_7.x86_64,feature.node.kubernetes.io/kernel-version.major=5,feature.node.kubernetes.io/kernel-version.minor=14,feature.node.kubernetes.io/kernel-version.revision=0,feature.node.kubernetes.io/pci-10de.present=true,feature.node.kubernetes.io/pci-15ad.present=true,feature.node.kubernetes.io/pci-8086.present=true,feature.node.kubernetes.io/storage-nonrotationaldisk=true,feature.node.kubernetes.io/system-os_release.ID=rhel,feature.node.kubernetes.io/system-os_release.VERSION_ID.major=9,feature.node.kubernetes.io/system-os_release.VERSION_ID.minor=7,feature.node.kubernetes.io/system-os_release.VERSION_ID=9.7,kubernetes.io/accelerator=nvidia-gpu,kubernetes.io/arch=amd64,kubernetes.io/hostname=aamslc4kbg01.ttmtech.local,kubernetes.io/os=linux,node.kubernetes.io/instance-type=rke2,node.longhorn.io/create-default-disk=true,nodepool=gpu,nvidia.com/cuda.driver-version.full=580.105.08,nvidia.com/cuda.driver-version.major=580,nvidia.com/cuda.driver-version.minor=105,nvidia.com/cuda.driver-version.revision=08,nvidia.com/cuda.driver.major=580,nvidia.com/cuda.driver.minor=105,nvidia.com/cuda.driver.rev=08,nvidia.com/cuda.runtime-version.full=13.0,nvidia.com/cuda.runtime-version.major=13,nvidia.com/cuda.runtime-version.minor=0,nvidia.com/cuda.runtime.major=13,nvidia.com/cuda.runtime.minor=0,nvidia.com/gfd.timestamp=1775352099,nvidia.com/gpu.compute.major=9,nvidia.com/gpu.compute.minor=0,nvidia.com/gpu.count=8,nvidia.com/gpu.deploy.container-toolkit=true,nvidia.com/gpu.deploy.dcgm-exporter=true,nvidia.com/gpu.deploy.dcgm=true,nvidia.com/gpu.deploy.device-plugin=true,nvidia.com/gpu.deploy.driver=true,nvidia.com/gpu.deploy.gpu-feature-discovery=true,nvidia.com/gpu.deploy.mig-manager=true,nvidia.com/gpu.deploy.node-status-exporter=true,nvidia.com/gpu.deploy.nvsm=true,nvidia.com/gpu.deploy.operator-validator=true,nvidia.com/gpu.family=hopper,nvidia.com/gpu.machine=VMware201,nvidia.com/gpu.memory=143771,nvidia.com/gpu.mode=compute,nvidia.com/gpu.present=true,nvidia.com/gpu.product=NVIDIA-H200-NVL,nvidia.com/gpu.replicas=1,nvidia.com/gpu.sharing-strategy=none,nvidia.com/gpu=true,nvidia.com/mig-3g.71gb.count=1,nvidia.com/mig-3g.71gb.engines.copy=3,nvidia.com/mig-3g.71gb.engines.decoder=3,nvidia.com/mig-3g.71gb.engines.encoder=0,nvidia.com/mig-3g.71gb.engines.jpeg=3,nvidia.com/mig-3g.71gb.engines.ofa=0,nvidia.com/mig-3g.71gb.memory=71424,nvidia.com/mig-3g.71gb.multiprocessors=60,nvidia.com/mig-3g.71gb.product=NVIDIA-H200-NVL-MIG-3g.71gb,nvidia.com/mig-3g.71gb.replicas=1,nvidia.com/mig-3g.71gb.sharing-strategy=none,nvidia.com/mig-3g.71gb.slices.ci=3,nvidia.com/mig-3g.71gb.slices.gi=3,nvidia.com/mig-4g.71gb.count=1,nvidia.com/mig-4g.71gb.engines.copy=4,nvidia.com/mig-4g.71gb.engines.decoder=4,nvidia.com/mig-4g.71gb.engines.encoder=0,nvidia.com/mig-4g.71gb.engines.jpeg=4,nvidia.com/mig-4g.71gb.engines.ofa=0,nvidia.com/mig-4g.71gb.memory=71424,nvidia.com/mig-4g.71gb.multiprocessors=64,nvidia.com/mig-4g.71gb.product=NVIDIA-H200-NVL-MIG-4g.71gb,nvidia.com/mig-4g.71gb.replicas=1,nvidia.com/mig-4g.71gb.sharing-strategy=none,nvidia.com/mig-4g.71gb.slices.ci=4,nvidia.com/mig-4g.71gb.slices.gi=4,nvidia.com/mig.capable=true,nvidia.com/mig.config.state=failed,nvidia.com/mig.config=custom-gpu4-deephat-bge,nvidia.com/mig.strategy=mixed,nvidia.com/mps.capable=false,nvidia.com/vgpu.present=false
+aamslc4kbw01.ttmtech.local   Ready    <none>               96d   v1.34.4+rke2r1   10.200.248.41   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=rke2,beta.kubernetes.io/os=linux,feature.node.kubernetes.io/cpu-cpuid.ADX=true,feature.node.kubernetes.io/cpu-cpuid.AESNI=true,feature.node.kubernetes.io/cpu-cpuid.AVX2=true,feature.node.kubernetes.io/cpu-cpuid.AVX=true,feature.node.kubernetes.io/cpu-cpuid.CLZERO=true,feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8=true,feature.node.kubernetes.io/cpu-cpuid.FMA3=true,feature.node.kubernetes.io/cpu-cpuid.FXSR=true,feature.node.kubernetes.io/cpu-cpuid.FXSROPT=true,feature.node.kubernetes.io/cpu-cpuid.HYPERVISOR=true,feature.node.kubernetes.io/cpu-cpuid.IBPB=true,feature.node.kubernetes.io/cpu-cpuid.LAHF=true,feature.node.kubernetes.io/cpu-cpuid.MCAOVERFLOW=true,feature.node.kubernetes.io/cpu-cpuid.MOVBE=true,feature.node.kubernetes.io/cpu-cpuid.MOVU=true,feature.node.kubernetes.io/cpu-cpuid.OSXSAVE=true,feature.node.kubernetes.io/cpu-cpuid.SHA=true,feature.node.kubernetes.io/cpu-cpuid.SSE4A=true,feature.node.kubernetes.io/cpu-cpuid.SUCCOR=true,feature.node.kubernetes.io/cpu-cpuid.SYSCALL=true,feature.node.kubernetes.io/cpu-cpuid.SYSEE=true,feature.node.kubernetes.io/cpu-cpuid.X87=true,feature.node.kubernetes.io/cpu-cpuid.XSAVE=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEC=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT=true,feature.node.kubernetes.io/cpu-cpuid.XSAVES=true,feature.node.kubernetes.io/cpu-hardware_multithreading=false,feature.node.kubernetes.io/cpu-model.family=25,feature.node.kubernetes.io/cpu-model.id=1,feature.node.kubernetes.io/cpu-model.vendor_id=AMD,feature.node.kubernetes.io/kernel-config.NO_HZ=true,feature.node.kubernetes.io/kernel-config.NO_HZ_FULL=true,feature.node.kubernetes.io/kernel-version.full=5.14.0-611.30.1.el9_7.x86_64,feature.node.kubernetes.io/kernel-version.major=5,feature.node.kubernetes.io/kernel-version.minor=14,feature.node.kubernetes.io/kernel-version.revision=0,feature.node.kubernetes.io/pci-15ad.present=true,feature.node.kubernetes.io/pci-8086.present=true,feature.node.kubernetes.io/storage-nonrotationaldisk=true,feature.node.kubernetes.io/system-os_release.ID=rhel,feature.node.kubernetes.io/system-os_release.VERSION_ID.major=9,feature.node.kubernetes.io/system-os_release.VERSION_ID.minor=7,feature.node.kubernetes.io/system-os_release.VERSION_ID=9.7,kubernetes.io/arch=amd64,kubernetes.io/hostname=aamslc4kbw01.ttmtech.local,kubernetes.io/os=linux,node.kubernetes.io/instance-type=rke2,node.longhorn.io/create-default-disk=true
+aamslc4kbw02.ttmtech.local   Ready    <none>               96d   v1.34.4+rke2r1   10.200.248.42   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=rke2,beta.kubernetes.io/os=linux,feature.node.kubernetes.io/cpu-cpuid.ADX=true,feature.node.kubernetes.io/cpu-cpuid.AESNI=true,feature.node.kubernetes.io/cpu-cpuid.AVX2=true,feature.node.kubernetes.io/cpu-cpuid.AVX=true,feature.node.kubernetes.io/cpu-cpuid.CLZERO=true,feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8=true,feature.node.kubernetes.io/cpu-cpuid.FMA3=true,feature.node.kubernetes.io/cpu-cpuid.FXSR=true,feature.node.kubernetes.io/cpu-cpuid.FXSROPT=true,feature.node.kubernetes.io/cpu-cpuid.HYPERVISOR=true,feature.node.kubernetes.io/cpu-cpuid.IBPB=true,feature.node.kubernetes.io/cpu-cpuid.LAHF=true,feature.node.kubernetes.io/cpu-cpuid.MCAOVERFLOW=true,feature.node.kubernetes.io/cpu-cpuid.MOVBE=true,feature.node.kubernetes.io/cpu-cpuid.MOVU=true,feature.node.kubernetes.io/cpu-cpuid.OSXSAVE=true,feature.node.kubernetes.io/cpu-cpuid.SHA=true,feature.node.kubernetes.io/cpu-cpuid.SSE4A=true,feature.node.kubernetes.io/cpu-cpuid.SUCCOR=true,feature.node.kubernetes.io/cpu-cpuid.SYSCALL=true,feature.node.kubernetes.io/cpu-cpuid.SYSEE=true,feature.node.kubernetes.io/cpu-cpuid.X87=true,feature.node.kubernetes.io/cpu-cpuid.XSAVE=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEC=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT=true,feature.node.kubernetes.io/cpu-cpuid.XSAVES=true,feature.node.kubernetes.io/cpu-hardware_multithreading=false,feature.node.kubernetes.io/cpu-model.family=25,feature.node.kubernetes.io/cpu-model.id=1,feature.node.kubernetes.io/cpu-model.vendor_id=AMD,feature.node.kubernetes.io/kernel-config.NO_HZ=true,feature.node.kubernetes.io/kernel-config.NO_HZ_FULL=true,feature.node.kubernetes.io/kernel-version.full=5.14.0-611.30.1.el9_7.x86_64,feature.node.kubernetes.io/kernel-version.major=5,feature.node.kubernetes.io/kernel-version.minor=14,feature.node.kubernetes.io/kernel-version.revision=0,feature.node.kubernetes.io/pci-15ad.present=true,feature.node.kubernetes.io/pci-8086.present=true,feature.node.kubernetes.io/storage-nonrotationaldisk=true,feature.node.kubernetes.io/system-os_release.ID=rhel,feature.node.kubernetes.io/system-os_release.VERSION_ID.major=9,feature.node.kubernetes.io/system-os_release.VERSION_ID.minor=7,feature.node.kubernetes.io/system-os_release.VERSION_ID=9.7,kubernetes.io/arch=amd64,kubernetes.io/hostname=aamslc4kbw02.ttmtech.local,kubernetes.io/os=linux,node.kubernetes.io/instance-type=rke2,node.longhorn.io/create-default-disk=true
+aamslc4kbw03.ttmtech.local   Ready    <none>               96d   v1.34.4+rke2r1   10.200.248.43   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=rke2,beta.kubernetes.io/os=linux,feature.node.kubernetes.io/cpu-cpuid.ADX=true,feature.node.kubernetes.io/cpu-cpuid.AESNI=true,feature.node.kubernetes.io/cpu-cpuid.AVX2=true,feature.node.kubernetes.io/cpu-cpuid.AVX=true,feature.node.kubernetes.io/cpu-cpuid.CLZERO=true,feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8=true,feature.node.kubernetes.io/cpu-cpuid.FMA3=true,feature.node.kubernetes.io/cpu-cpuid.FXSR=true,feature.node.kubernetes.io/cpu-cpuid.FXSROPT=true,feature.node.kubernetes.io/cpu-cpuid.HYPERVISOR=true,feature.node.kubernetes.io/cpu-cpuid.IBPB=true,feature.node.kubernetes.io/cpu-cpuid.LAHF=true,feature.node.kubernetes.io/cpu-cpuid.MCAOVERFLOW=true,feature.node.kubernetes.io/cpu-cpuid.MOVBE=true,feature.node.kubernetes.io/cpu-cpuid.MOVU=true,feature.node.kubernetes.io/cpu-cpuid.OSXSAVE=true,feature.node.kubernetes.io/cpu-cpuid.SHA=true,feature.node.kubernetes.io/cpu-cpuid.SSE4A=true,feature.node.kubernetes.io/cpu-cpuid.SUCCOR=true,feature.node.kubernetes.io/cpu-cpuid.SYSCALL=true,feature.node.kubernetes.io/cpu-cpuid.SYSEE=true,feature.node.kubernetes.io/cpu-cpuid.X87=true,feature.node.kubernetes.io/cpu-cpuid.XSAVE=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEC=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT=true,feature.node.kubernetes.io/cpu-cpuid.XSAVES=true,feature.node.kubernetes.io/cpu-hardware_multithreading=false,feature.node.kubernetes.io/cpu-model.family=25,feature.node.kubernetes.io/cpu-model.id=1,feature.node.kubernetes.io/cpu-model.vendor_id=AMD,feature.node.kubernetes.io/kernel-config.NO_HZ=true,feature.node.kubernetes.io/kernel-config.NO_HZ_FULL=true,feature.node.kubernetes.io/kernel-version.full=5.14.0-611.30.1.el9_7.x86_64,feature.node.kubernetes.io/kernel-version.major=5,feature.node.kubernetes.io/kernel-version.minor=14,feature.node.kubernetes.io/kernel-version.revision=0,feature.node.kubernetes.io/pci-15ad.present=true,feature.node.kubernetes.io/pci-8086.present=true,feature.node.kubernetes.io/storage-nonrotationaldisk=true,feature.node.kubernetes.io/system-os_release.ID=rhel,feature.node.kubernetes.io/system-os_release.VERSION_ID.major=9,feature.node.kubernetes.io/system-os_release.VERSION_ID.minor=7,feature.node.kubernetes.io/system-os_release.VERSION_ID=9.7,kubernetes.io/arch=amd64,kubernetes.io/hostname=aamslc4kbw03.ttmtech.local,kubernetes.io/os=linux,node.kubernetes.io/instance-type=rke2,node.longhorn.io/create-default-disk=true
+aamslc4kbw04.ttmtech.local   Ready    <none>               35d   v1.34.5+rke2r1   10.200.248.44   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.38.1.el9_7.x86_64   containerd://2.1.5-k3s1   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=rke2,beta.kubernetes.io/os=linux,feature.node.kubernetes.io/cpu-cpuid.ADX=true,feature.node.kubernetes.io/cpu-cpuid.AESNI=true,feature.node.kubernetes.io/cpu-cpuid.AVX2=true,feature.node.kubernetes.io/cpu-cpuid.AVX=true,feature.node.kubernetes.io/cpu-cpuid.CETSS=true,feature.node.kubernetes.io/cpu-cpuid.CLZERO=true,feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8=true,feature.node.kubernetes.io/cpu-cpuid.FMA3=true,feature.node.kubernetes.io/cpu-cpuid.FXSR=true,feature.node.kubernetes.io/cpu-cpuid.FXSROPT=true,feature.node.kubernetes.io/cpu-cpuid.HYPERVISOR=true,feature.node.kubernetes.io/cpu-cpuid.IBPB=true,feature.node.kubernetes.io/cpu-cpuid.LAHF=true,feature.node.kubernetes.io/cpu-cpuid.MCAOVERFLOW=true,feature.node.kubernetes.io/cpu-cpuid.MOVBE=true,feature.node.kubernetes.io/cpu-cpuid.MOVU=true,feature.node.kubernetes.io/cpu-cpuid.OSXSAVE=true,feature.node.kubernetes.io/cpu-cpuid.PSFD=true,feature.node.kubernetes.io/cpu-cpuid.SHA=true,feature.node.kubernetes.io/cpu-cpuid.SPEC_CTRL_SSBD=true,feature.node.kubernetes.io/cpu-cpuid.SSE4A=true,feature.node.kubernetes.io/cpu-cpuid.SUCCOR=true,feature.node.kubernetes.io/cpu-cpuid.SYSCALL=true,feature.node.kubernetes.io/cpu-cpuid.SYSEE=true,feature.node.kubernetes.io/cpu-cpuid.TOPEXT=true,feature.node.kubernetes.io/cpu-cpuid.VAES=true,feature.node.kubernetes.io/cpu-cpuid.VPCLMULQDQ=true,feature.node.kubernetes.io/cpu-cpuid.WBNOINVD=true,feature.node.kubernetes.io/cpu-cpuid.X87=true,feature.node.kubernetes.io/cpu-cpuid.XGETBV1=true,feature.node.kubernetes.io/cpu-cpuid.XSAVE=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEC=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT=true,feature.node.kubernetes.io/cpu-cpuid.XSAVES=true,feature.node.kubernetes.io/cpu-hardware_multithreading=false,feature.node.kubernetes.io/cpu-model.family=25,feature.node.kubernetes.io/cpu-model.id=1,feature.node.kubernetes.io/cpu-model.vendor_id=AMD,feature.node.kubernetes.io/kernel-config.NO_HZ=true,feature.node.kubernetes.io/kernel-config.NO_HZ_FULL=true,feature.node.kubernetes.io/kernel-version.full=5.14.0-611.38.1.el9_7.x86_64,feature.node.kubernetes.io/kernel-version.major=5,feature.node.kubernetes.io/kernel-version.minor=14,feature.node.kubernetes.io/kernel-version.revision=0,feature.node.kubernetes.io/pci-15ad.present=true,feature.node.kubernetes.io/pci-8086.present=true,feature.node.kubernetes.io/storage-nonrotationaldisk=true,feature.node.kubernetes.io/system-os_release.ID=rhel,feature.node.kubernetes.io/system-os_release.VERSION_ID.major=9,feature.node.kubernetes.io/system-os_release.VERSION_ID.minor=7,feature.node.kubernetes.io/system-os_release.VERSION_ID=9.7,kubernetes.io/arch=amd64,kubernetes.io/hostname=aamslc4kbw04.ttmtech.local,kubernetes.io/os=linux,node.kubernetes.io/instance-type=rke2,node.longhorn.io/create-default-disk=true
+aamslc4kbw05.ttmtech.local   Ready    <none>               35d   v1.34.5+rke2r1   10.200.248.45   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.38.1.el9_7.x86_64   containerd://2.1.5-k3s1   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=rke2,beta.kubernetes.io/os=linux,feature.node.kubernetes.io/cpu-cpuid.ADX=true,feature.node.kubernetes.io/cpu-cpuid.AESNI=true,feature.node.kubernetes.io/cpu-cpuid.AVX2=true,feature.node.kubernetes.io/cpu-cpuid.AVX=true,feature.node.kubernetes.io/cpu-cpuid.CLZERO=true,feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8=true,feature.node.kubernetes.io/cpu-cpuid.FMA3=true,feature.node.kubernetes.io/cpu-cpuid.FXSR=true,feature.node.kubernetes.io/cpu-cpuid.FXSROPT=true,feature.node.kubernetes.io/cpu-cpuid.HYPERVISOR=true,feature.node.kubernetes.io/cpu-cpuid.IBPB=true,feature.node.kubernetes.io/cpu-cpuid.LAHF=true,feature.node.kubernetes.io/cpu-cpuid.MCAOVERFLOW=true,feature.node.kubernetes.io/cpu-cpuid.MOVBE=true,feature.node.kubernetes.io/cpu-cpuid.MOVU=true,feature.node.kubernetes.io/cpu-cpuid.OSXSAVE=true,feature.node.kubernetes.io/cpu-cpuid.SHA=true,feature.node.kubernetes.io/cpu-cpuid.SSE4A=true,feature.node.kubernetes.io/cpu-cpuid.SUCCOR=true,feature.node.kubernetes.io/cpu-cpuid.SYSCALL=true,feature.node.kubernetes.io/cpu-cpuid.SYSEE=true,feature.node.kubernetes.io/cpu-cpuid.X87=true,feature.node.kubernetes.io/cpu-cpuid.XSAVE=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEC=true,feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT=true,feature.node.kubernetes.io/cpu-cpuid.XSAVES=true,feature.node.kubernetes.io/cpu-hardware_multithreading=false,feature.node.kubernetes.io/cpu-model.family=25,feature.node.kubernetes.io/cpu-model.id=1,feature.node.kubernetes.io/cpu-model.vendor_id=AMD,feature.node.kubernetes.io/kernel-config.NO_HZ=true,feature.node.kubernetes.io/kernel-config.NO_HZ_FULL=true,feature.node.kubernetes.io/kernel-version.full=5.14.0-611.38.1.el9_7.x86_64,feature.node.kubernetes.io/kernel-version.major=5,feature.node.kubernetes.io/kernel-version.minor=14,feature.node.kubernetes.io/kernel-version.revision=0,feature.node.kubernetes.io/pci-15ad.present=true,feature.node.kubernetes.io/pci-8086.present=true,feature.node.kubernetes.io/storage-nonrotationaldisk=true,feature.node.kubernetes.io/system-os_release.ID=rhel,feature.node.kubernetes.io/system-os_release.VERSION_ID.major=9,feature.node.kubernetes.io/system-os_release.VERSION_ID.minor=7,feature.node.kubernetes.io/system-os_release.VERSION_ID=9.7,kubernetes.io/arch=amd64,kubernetes.io/hostname=aamslc4kbw05.ttmtech.local,kubernetes.io/os=linux,node.kubernetes.io/instance-type=rke2,node.longhorn.io/create-default-disk=true
+[root@aamslc4kbc01 ~]# kubectl get ns
+NAME                          STATUS   AGE
+aitk-console                  Active   31d
+aitk-zuva                     Active   31d
+api                           Active   93d
+audit-log-exporter            Active   93d
+cattle-dashboards             Active   76d
+cattle-fleet-system           Active   40d
+cattle-impersonation-system   Active   76d
+cattle-local-user-passwords   Active   76d
+cattle-monitoring-system      Active   76d
+cattle-system                 Active   40d
+cerbos                        Active   93d
+cert-manager                  Active   93d
+cnpg-system                   Active   93d
+codestral-inference           Active   9d
+credits                       Active   93d
+deephat-v2-hf-inference       Active   47d
+default                       Active   96d
+devstral-small-2-inference    Active   9d
+dex                           Active   31d
+embeddings                    Active   93d
+external-poller               Active   93d
+external-secrets              Active   93d
+external-sync                 Active   93d
+field-discovery               Active   31d
+gemma4-31b-inference          Active   3d20h
+glm-flash-inference           Active   17d
+gpu-operator                  Active   93d
+hatchet                       Active   64d
+istio-system                  Active   37d
+kafka                         Active   38d
+keda                          Active   38d
+kindo-deps                    Active   93d
+kindo-system                  Active   93d
+kube-node-lease               Active   96d
+kube-public                   Active   96d
+kube-system                   Active   96d
+litellm                       Active   93d
+llama-4-maverick-inference    Active   45d
+local                         Active   76d
+logging                       Active   78d
+longhorn                      Active   93d
+longhorn-system               Active   93d
+mcp                           Active   64d
+minio-operator                Active   93d
+nango                         Active   64d
+nemotron-inference            Active   29d
+next                          Active   93d
+pgweb                         Active   93d
+presidio                      Active   93d
+prisma-migrations             Active   93d
+qdrant                        Active   93d
+rabbitmq-system               Active   93d
+redis-operator                Active   93d
+sandbox                       Active   64d
+speaches                      Active   93d
+ssoready                      Active   93d
+task-worker-ts                Active   93d
+text-embeddings               Active   75d
+unleash                       Active   93d
+[root@aamslc4kbc01 ~]# 
+
+[root@aamslc4kbc01 ~]# sudo systemctl status rke2-server
+● rke2-server.service - Rancher Kubernetes Engine v2 (server)
+     Loaded: loaded (/usr/lib/systemd/system/rke2-server.service; enabled; preset: disabled)
+     Active: active (running) since Fri 2026-03-06 05:53:03 PST; 1 month 16 days ago
+       Docs: https://github.com/rancher/rke2#readme
+    Process: 1812 ExecStartPre=/sbin/modprobe br_netfilter (code=exited, status=0/SUCCESS)
+    Process: 1826 ExecStartPre=/sbin/modprobe overlay (code=exited, status=0/SUCCESS)
+   Main PID: 1836 (rke2)
+      Tasks: 294
+     Memory: 23.2G (peak: 23.5G)
+        CPU: 4d 15h 59min 51.157s
+     CGroup: /system.slice/rke2-server.service
+             ├─   1836 "/usr/bin/rke2 server"
+             ├─   2189 containerd -c /var/lib/rancher/rke2/agent/etc/containerd/config.toml
+             ├─   2313 kubelet --volume-plugin-dir=/var/lib/kubelet/volumeplugins --file-check-frequency=5s --sync-frequency=30s --cloud-provider=external --config-dir=/var/lib/rancher/rke2/agent/etc>
+             ├─   2381 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id 358dfebd73b2052dd3527eeed9f2ca6261cb2d1677d47d26aba1cb5c5f47f5bc -addre>
+             ├─   2411 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id c8ac2a6d1ed8d6069f00e998f254f32e725aafe3e169d73968db9e09373f344e -addre>
+             ├─   2443 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id 2f2e98225964817bb146cd0690f30912186d5d884d785fb252381d820b3ca901 -addre>
+             ├─   2485 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id d1a047413bd8ae26da505fc7b38c5e448850dd87bde5e027e5aa7c7efe33d25b -addre>
+             ├─   2526 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id d01df7a803224e30fa0048912c0f0c62abbe6955afe6d5f4211413fe5b57e7e3 -addre>
+             ├─   8428 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id 65a0a8856082ae78fcfd9cbb1812a0f74cd212af2f16335fd8d790a2063865c0 -addre>
+             ├─   9716 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id 3a09ce2a918e24542fcc4e64b5d5823449113d92ae4dd370ae9c7276b5d1632f -addre>
+             ├─  10002 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id 1a909ee04272a248cbea640a786bafe7818f0029c3cccd6041bbabc16bd3c229 -addre>
+             ├─ 145329 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id 12afcde0186b75125a17c66239eafcb8770ae57e57db1c711a8b4de54bb7cc78 -addre>
+             ├─ 969393 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id dc04680a6d58895a91e52f2e0ac53e966bf81f6e54ebe97ba4d7f0f11ce73272 -addre>
+             ├─ 971169 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id 8d1d25c0a01a2bc6112cf797576e5b22093d6d48bfd290c30744755f6862467d -addre>
+             └─1024564 /var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/containerd-shim-runc-v2 -namespace k8s.io -id 4fafdf6dd6a76a6549226b967986d6682af7dbfa63f188995dcf0b0950a6d2da -addre>
+
+Apr 22 08:09:19 aamslc4kbc01.ttmtech.local rke2[1836]: time="2026-04-22T08:09:19-07:00" level=info msg="Checking if S3 bucket rke2-etcd-backups exists"
+Apr 22 08:09:19 aamslc4kbc01.ttmtech.local rke2[1836]: time="2026-04-22T08:09:19-07:00" level=warning msg="Unable to initialize S3 client: bucket rke2-etcd-backups does not exist"
+Apr 22 08:09:19 aamslc4kbc01.ttmtech.local rke2[1836]: time="2026-04-22T08:09:19-07:00" level=info msg="Reconciliation of ETCDSnapshotFile resources complete"
+Apr 22 08:09:19 aamslc4kbc01.ttmtech.local rke2[1836]: time="2026-04-22T08:09:19-07:00" level=error msg="Failed to record snapshots for cluster: failed to initialize S3 client: bucket rke2-etcd-backu>
+Apr 22 08:09:20 aamslc4kbc01.ttmtech.local rke2[1836]: time="2026-04-22T08:09:20-07:00" level=info msg="Reconciling ETCDSnapshotFile resources"
+Apr 22 08:09:20 aamslc4kbc01.ttmtech.local rke2[1836]: time="2026-04-22T08:09:20-07:00" level=info msg="Attempting to create new S3 client for endpoint=\"http://minio.kbai.ttmtech.local:9000\" bucket>
+Apr 22 08:09:20 aamslc4kbc01.ttmtech.local rke2[1836]: time="2026-04-22T08:09:20-07:00" level=info msg="Checking if S3 bucket rke2-etcd-backups exists"
+Apr 22 08:09:20 aamslc4kbc01.ttmtech.local rke2[1836]: time="2026-04-22T08:09:20-07:00" level=warning msg="Unable to initialize S3 client: bucket rke2-etcd-backups does not exist"
+Apr 22 08:09:20 aamslc4kbc01.ttmtech.local rke2[1836]: time="2026-04-22T08:09:20-07:00" level=info msg="Reconciliation of ETCDSnapshotFile resources complete"
+Apr 22 08:09:20 aamslc4kbc01.ttmtech.local rke2[1836]: time="2026-04-22T08:09:20-07:00" level=error msg="Failed to record snapshots for cluster: failed to initialize S3 client: bucket rke2-etcd-backu>
+lines 1-37/37 (END)
+
+
+[root@aamslc4kbc01 ~]# rke2 --version
+rke2 version v1.34.4+rke2r1 (c6b97dc03cefec17e8454a6f45b29f4e3d0a81d6)
+go version go1.24.12 X:boringcrypto
+[root@aamslc4kbc01 ~]# 
+
+
+[root@aamslc4kbc01 ~]# cat /etc/rancher/rke2/config.yaml 
+#######################
+# First Control Plane #
+#######################
+
+token: "<redacted>"
+tls-san:
+  - api.kbai.ttmtech.local
+  - master-0.kbai.ttmtech.local
+  - master-1.kbai.ttmtech.local
+  - master-2.kbai.ttmtech.local
+node-taint:
+  - "node-role.kubernetes.io/control-plane=true:NoSchedule"
+
+# etcd backups (local)
+etcd-snapshot-schedule-cron: "0 * * * *"
+etcd-snapshot-retention: 100
+
+# etcd backups to S3/MinIO (optional)
+etcd-s3: true
+etcd-s3-endpoint: "minio.kbai.ttmtech.local:9000"
+etcd-s3-bucket: "rke2-etcd-backups"
+etcd-s3-access-key: "admin"
+etcd-s3-secret-key: "<redacted>"
+etcd-s3-region: "us-east-1"
+etcd-s3-folder: "rke2-etcd-backups"
+etcd-s3-insecure: true
+etcd-s3-skip-ssl-verify: true
+
+kube-apiserver-arg:
+  - "audit-policy-file=/etc/kubernetes/audit/policy.yaml"
+  - "audit-log-path=/var/log/kubernetes/audit/audit.log"
+  - "audit-log-maxage=7"
+  - "audit-log-maxbackup=3"
+  - "audit-log-maxsize=100"
+[root@aamslc4kbc01 ~]# 
+
+[root@aamslc4kbc01 ~]# sudo ls /var/lib/rancher/rke2/server/manifests/
+rke2-canal.yaml    rke2-ingress-nginx.yaml   rke2-runtimeclasses.yaml           rke2-snapshot-controller.yaml
+rke2-coredns.yaml  rke2-metrics-server.yaml  rke2-snapshot-controller-crd.yaml  rke2-snapshot-validation-webhook.yaml
+[root@aamslc4kbc01 ~]# 
+
+
+[root@aamslc4kbw01 ~]# sudo ls /var/lib/rancher/rke2/agent/   
+client-ca.crt       client-kubelet.key     client-kube-proxy.key       client-rke2-controller.key  etc     kubelet.kubeconfig    logs           rke2controller.kubeconfig  serving-kubelet.crt
+client-kubelet.crt  client-kube-proxy.crt  client-rke2-controller.crt  containerd                  images  kubeproxy.kubeconfig  pod-manifests  server-ca.crt              serving-kubelet.key
+[root@aamslc4kbw01 ~]# 
+
+
+[root@aamslc4kbc01 ~]# kubectl get ns cattle-system 2>/dev/null && echo "Rancher-managed"
+NAME            STATUS   AGE
+cattle-system   Active   40d
+Rancher-managed
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n cattle-system get pods
+NAME                                        READY   STATUS    RESTARTS   AGE
+cattle-cluster-agent-65d6d9f7c5-4vbcp       1/1     Running   0          40d
+cattle-cluster-agent-65d6d9f7c5-rf44v       1/1     Running   0          40d
+rancher-webhook-86cdcdf944-9lstx            1/1     Running   0          40d
+system-upgrade-controller-65d9b4b8b-4k9zm   1/1     Running   0          40d
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get clusters.management.cattle.io -A 2>/dev/null
+NAME    AGE
+local   76d
+[root@aamslc4kbc01 ~]# kubectl get clusters.provisioning.cattle.io -A 2>/dev/null
+[root@aamslc4kbc01 ~]# kubectl get pods -n kube-system
+NAME                                                    READY   STATUS      RESTARTS      AGE
+cloud-controller-manager-aamslc4kbc01.ttmtech.local     1/1     Running     5 (47d ago)   47d
+cloud-controller-manager-aamslc4kbc02.ttmtech.local     1/1     Running     3 (47d ago)   47d
+cloud-controller-manager-aamslc4kbc03.ttmtech.local     1/1     Running     2 (47d ago)   47d
+etcd-aamslc4kbc01.ttmtech.local                         1/1     Running     1             47d
+etcd-aamslc4kbc02.ttmtech.local                         1/1     Running     1             47d
+etcd-aamslc4kbc03.ttmtech.local                         1/1     Running     1             47d
+helm-install-rke2-canal-2qk2m                           0/1     Completed   0             47d
+helm-install-rke2-coredns-pmt72                         0/1     Completed   0             47d
+helm-install-rke2-ingress-nginx-9rb7f                   0/1     Completed   0             47d
+helm-install-rke2-metrics-server-xndsf                  0/1     Completed   0             47d
+helm-install-rke2-runtimeclasses-tzmpq                  0/1     Completed   0             47d
+helm-install-rke2-snapshot-controller-72mkj             0/1     Completed   0             47d
+helm-install-rke2-snapshot-controller-crd-sfrcj         0/1     Completed   0             47d
+kube-apiserver-aamslc4kbc01.ttmtech.local               1/1     Running     2 (47d ago)   47d
+kube-apiserver-aamslc4kbc02.ttmtech.local               1/1     Running     2             47d
+kube-apiserver-aamslc4kbc03.ttmtech.local               1/1     Running     3             47d
+kube-controller-manager-aamslc4kbc01.ttmtech.local      1/1     Running     5 (47d ago)   47d
+kube-controller-manager-aamslc4kbc02.ttmtech.local      1/1     Running     2 (47d ago)   47d
+kube-controller-manager-aamslc4kbc03.ttmtech.local      1/1     Running     2 (47d ago)   47d
+kube-proxy-aamslc4kbc01.ttmtech.local                   1/1     Running     1 (47d ago)   47d
+kube-proxy-aamslc4kbc02.ttmtech.local                   1/1     Running     0             47d
+kube-proxy-aamslc4kbc03.ttmtech.local                   1/1     Running     0             47d
+kube-proxy-aamslc4kbg01.ttmtech.local                   1/1     Running     0             16d
+kube-proxy-aamslc4kbw01.ttmtech.local                   1/1     Running     0             47d
+kube-proxy-aamslc4kbw02.ttmtech.local                   1/1     Running     0             47d
+kube-proxy-aamslc4kbw03.ttmtech.local                   1/1     Running     0             47d
+kube-proxy-aamslc4kbw04.ttmtech.local                   1/1     Running     0             35d
+kube-proxy-aamslc4kbw05.ttmtech.local                   1/1     Running     0             35d
+kube-scheduler-aamslc4kbc01.ttmtech.local               1/1     Running     1 (47d ago)   47d
+kube-scheduler-aamslc4kbc02.ttmtech.local               1/1     Running     1 (47d ago)   47d
+kube-scheduler-aamslc4kbc03.ttmtech.local               1/1     Running     1 (47d ago)   47d
+rke2-canal-65tcf                                        2/2     Running     0             35d
+rke2-canal-f52lb                                        2/2     Running     2 (47d ago)   47d
+rke2-canal-m44t5                                        2/2     Running     0             19d
+rke2-canal-pbmj7                                        2/2     Running     2 (47d ago)   47d
+rke2-canal-pnq2f                                        2/2     Running     2 (47d ago)   47d
+rke2-canal-qbzrz                                        2/2     Running     2 (47d ago)   47d
+rke2-canal-wqgrp                                        2/2     Running     2 (47d ago)   47d
+rke2-canal-wvgwk                                        2/2     Running     0             35d
+rke2-canal-xtc2s                                        2/2     Running     2 (47d ago)   47d
+rke2-coredns-rke2-coredns-9bf97f8f9-b6rnn               1/1     Running     0             21d
+rke2-coredns-rke2-coredns-9bf97f8f9-pz49v               1/1     Running     0             21d
+rke2-coredns-rke2-coredns-autoscaler-6c58bf4677-wncxz   1/1     Running     1 (47d ago)   47d
+rke2-ingress-nginx-controller-fckxs                     1/1     Running     0             15d
+rke2-ingress-nginx-controller-g5stm                     1/1     Running     0             15d
+rke2-ingress-nginx-controller-gp84z                     1/1     Running     0             15d
+rke2-ingress-nginx-controller-kzsjg                     1/1     Running     0             15d
+rke2-ingress-nginx-controller-txqbz                     1/1     Running     0             15d
+rke2-metrics-server-6f97557bd-p5bbn                     1/1     Running     0             47d
+rke2-snapshot-controller-bc4c494bf-dp786                1/1     Running     1 (47d ago)   47d
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get nodes -l node-role.kubernetes.io/control-plane=true -o wide
+NAME                         STATUS   ROLES                AGE   VERSION          INTERNAL-IP     EXTERNAL-IP   OS-IMAGE                              KERNEL-VERSION                 CONTAINER-RUNTIME
+aamslc4kbc01.ttmtech.local   Ready    control-plane,etcd   96d   v1.34.4+rke2r1   10.200.248.21   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamslc4kbc02.ttmtech.local   Ready    control-plane,etcd   96d   v1.34.4+rke2r1   10.200.248.22   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamslc4kbc03.ttmtech.local   Ready    control-plane,etcd   96d   v1.34.4+rke2r1   10.200.248.23   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get nodes -o json | jq -r '.items[] | "\(.metadata.name)\t\(.status.nodeInfo.kubeletVersion)\t\(.metadata.labels["topology.kubernetes.io/zone"] // "NO_ZONE")\t\(.metadata.labels["node-role.kubernetes.io/control-plane"] // "worker")"'
+aamslc4kbc01.ttmtech.local      v1.34.4+rke2r1  NO_ZONE true
+aamslc4kbc02.ttmtech.local      v1.34.4+rke2r1  NO_ZONE true
+aamslc4kbc03.ttmtech.local      v1.34.4+rke2r1  NO_ZONE true
+aamslc4kbg01.ttmtech.local      v1.34.4+rke2r1  NO_ZONE worker
+aamslc4kbw01.ttmtech.local      v1.34.4+rke2r1  NO_ZONE worker
+aamslc4kbw02.ttmtech.local      v1.34.4+rke2r1  NO_ZONE worker
+aamslc4kbw03.ttmtech.local      v1.34.4+rke2r1  NO_ZONE worker
+aamslc4kbw04.ttmtech.local      v1.34.5+rke2r1  NO_ZONE worker
+aamslc4kbw05.ttmtech.local      v1.34.5+rke2r1  NO_ZONE worker
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# grep -E 'server|tls-san' /etc/rancher/rke2/config.yaml
+tls-san:
+kube-apiserver-arg:
+[root@aamslc4kbc01 ~]# kubectl -n kube-system get pods -l component=etcd -o wide
+NAME                              READY   STATUS    RESTARTS   AGE   IP              NODE                         NOMINATED NODE   READINESS GATES
+etcd-aamslc4kbc01.ttmtech.local   1/1     Running   1          47d   10.200.248.21   aamslc4kbc01.ttmtech.local   <none>           <none>
+etcd-aamslc4kbc02.ttmtech.local   1/1     Running   1          47d   10.200.248.22   aamslc4kbc02.ttmtech.local   <none>           <none>
+etcd-aamslc4kbc03.ttmtech.local   1/1     Running   1          47d   10.200.248.23   aamslc4kbc03.ttmtech.local   <none>           <none>
+[root@aamslc4kbc01 ~]# sudo /var/lib/rancher/rke2/bin/kubectl -n kube-system exec -it etcd-$(hostname) -- sh -c '
+  ETCDCTL_API=3 etcdctl \
+    --endpoints=https://127.0.0.1:2379 \
+    --cacert=/var/lib/rancher/rke2/server/tls/etcd/server-ca.crt \
+    --cert=/var/lib/rancher/rke2/server/
+> '
+E0422 08:14:36.839589 2057912 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
+E0422 08:14:36.840281 2057912 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
+E0422 08:14:36.841879 2057912 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
+E0422 08:14:36.842433 2057912 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+[root@aamslc4kbc01 ~]# 
