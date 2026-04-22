@@ -1,8 +1,9 @@
-# Is the fleet-agent actually running and healthy?
-kubectl -n cattle-fleet-system get pods
-# Any GitRepos defined anywhere?
-kubectl get gitrepos.fleet.cattle.io -A
-# Any Bundles (compiled from GitRepos)?
-kubectl get bundles.fleet.cattle.io -A
-# Any Flux CRDs present?
-kubectl get crd | grep -iE 'flux|argo'
+[root@aamslc4kbc01 ~]# kubectl -n cattle-fleet-system get pods
+NAME                         READY   STATUS    RESTARTS   AGE
+fleet-agent-b497bff4-zc9cm   1/1     Running   0          41d
+[root@aamslc4kbc01 ~]# kubectl get gitrepos.fleet.cattle.io -A
+error: the server doesn't have a resource type "gitrepos"
+[root@aamslc4kbc01 ~]# kubectl get bundles.fleet.cattle.io -A
+error: the server doesn't have a resource type "bundles"
+[root@aamslc4kbc01 ~]# kubectl get crd | grep -iE 'flux|argo'
+[root@aamslc4kbc01 ~]# 
