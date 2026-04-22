@@ -1,60 +1,348 @@
-[root@aamslc4kbc01 ~]# kubectl get certificate -A
-NAMESPACE    NAME              READY   SECRET           AGE
-api          api-cert          False   api-tls          93d
-default      longhorn-cert     False   longhorn-tls     94d
-kindo-deps   pgweb-cert        False   pgweb-tls        94d
-kindo-deps   selfsigned-cert   False   selfsigned-tls   94d
-next         next-cert         False   next-tls         93d
-ssoready     ssoready-tls      False   ssoready-tls     7d4h
-[root@aamslc4kbc01 ~]# kubectl get certificate -A -o json | jq -r '
-  .items[]
-  | select(.status.conditions[]? | select(.type=="Ready") | .status == "False")
-  | "\(.metadata.namespace)/\(.metadata.name)\treason=\(.status.conditions[] | select(.type=="Ready") | .reason)\tmessage=\(.status.conditions[] | select(.type=="Ready") | .message)"
-'
-api/api-cert    reason=DoesNotExist     message=Issuing certificate as Secret does not exist
-default/longhorn-cert   reason=DoesNotExist     message=Issuing certificate as Secret does not exist
-kindo-deps/pgweb-cert   reason=DoesNotExist     message=Issuing certificate as Secret does not exist
-kindo-deps/selfsigned-cert      reason=DoesNotExist     message=Issuing certificate as Secret does not exist
-next/next-cert  reason=DoesNotExist     message=Issuing certificate as Secret does not exist
-ssoready/ssoready-tls   reason=DoesNotExist     message=Issuing certificate as Secret does not exist
-[root@aamslc4kbc01 ~]# kubectl get clusterissuer
-No resources found
-[root@aamslc4kbc01 ~]# kubectl get issuer -A
-No resources found
-[root@aamslc4kbc01 ~]# kubectl -n cert-manager get pods
-NAME                                       READY   STATUS    RESTARTS      AGE
-cert-manager-6c6f677fd9-5rk9l              1/1     Running   1 (47d ago)   69d
-cert-manager-cainjector-7b845fff6f-88s66   1/1     Running   2 (47d ago)   69d
-cert-manager-webhook-599c48f5bd-9v6rq      1/1     Running   1 (47d ago)   69d
-[root@aamslc4kbc01 ~]# kubectl -n cert-manager logs -l app=cert-manager --tail=50 2>/dev/null | grep -iE 'error|fail' | tail -20
-I0415 15:23:50.071652       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificates.cert-manager.io \"ssoready-tls\": the object has been modified; please apply your changes to the latest version and try again"
-I0415 15:23:50.148594       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificates.cert-manager.io \"ssoready-tls\": the object has been modified; please apply your changes to the latest version and try again"
-I0415 15:23:50.184085       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
-I0415 15:23:50.185955       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
-I0415 15:23:50.186212       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
-I0415 15:23:50.186253       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
-I0415 16:21:03.719438       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificates.cert-manager.io \"ssoready-tls\": the object has been modified; please apply your changes to the latest version and try again"
-I0415 16:21:03.816032       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificates.cert-manager.io \"ssoready-tls\": the object has been modified; please apply your changes to the latest version and try again"
-I0415 16:21:03.842430       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
-I0415 16:21:03.844074       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
-I0415 16:21:03.844569       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
-I0415 16:21:03.845136       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# kubectl get secret -A -o json | jq -r '
-  .items[]
-  | select(.type=="kubernetes.io/tls" and (.metadata.name | test("wildcard")))
-  | "\(.metadata.namespace)/\(.metadata.name)"
-'
-aitk-console/wildcard-tls
-dex/wildcard-tls
-field-discovery/wildcard-tls
-istio-system/wildcard-tls
-kube-system/wildcard-tls
-nango/wildcard-tls
-[root@aamslc4kbc01 ~]# kubectl -n cattle-system get secret tls-rancher -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -noout -dates -subject -issuer 2>/dev/null
-notBefore=Mar 12 18:34:00 2026 GMT
-notAfter=Mar  9 18:34:00 2036 GMT
-subject=O=dynamiclistener-org, CN=dynamiclistener-ca@1773344040
-issuer=O=dynamiclistener-org, CN=dynamiclistener-ca@1773344040
+[root@aamslc4kbc01 ~]# kubectl get pods -A
+NAMESPACE                    NAME                                                              READY   STATUS             RESTARTS       AGE
+aitk-console                 console-5758bbff9c-zkf5m                                          2/2     Running            0              21d
+aitk-console                 oauth2-proxy-6476895588-8c468                                     1/1     Running            0              21d
+aitk-console                 usage-api-5dfb575d97-lmrnf                                        1/1     Running            0              21d
+aitk-zuva                    aitk-custom-auth-68fd97b578-8p2p2                                 1/1     Running            0              32d
+aitk-zuva                    aitk-custom-auth-68fd97b578-nzhvs                                 1/1     Running            0              32d
+aitk-zuva                    aitk-custom-auth-68fd97b578-zckbx                                 1/1     Running            0              32d
+aitk-zuva                    aitk-extract-api-cleaner-deployment-547dc7b786-thjrm              1/1     Running            0              32d
+aitk-zuva                    aitk-extract-api-deployment-594b58c555-5t7lr                      2/2     Running            0              32d
+aitk-zuva                    aitk-extract-api-deployment-594b58c555-qvlqn                      2/2     Running            0              32d
+aitk-zuva                    aitk-extract-api-status-listener-deployment-75bbdc548c-qfm5n      1/1     Running            0              32d
+aitk-zuva                    aitk-extract-fields-listener-deployment-557f84bcbb-94bkz          1/1     Running            0              18d
+aitk-zuva                    aitk-extract-fields-listener-deployment-557f84bcbb-9p25z          1/1     Running            0              18d
+aitk-zuva                    aitk-extract-fields-listener-deployment-557f84bcbb-zcvvj          1/1     Running            0              18d
+aitk-zuva                    aitk-extract-ocr-status-listener-deployment-7599b7b957-5chmq      1/1     Running            0              18d
+aitk-zuva                    aitk-extract-ocr-status-listener-deployment-7599b7b957-7qjht      1/1     Running            0              18d
+aitk-zuva                    aitk-extract-ocr-status-listener-deployment-7599b7b957-b7vd7      1/1     Running            0              18d
+aitk-zuva                    aitk-extract-overflow-deployment-bd6996bb5-9lj9v                  1/1     Running            0              11d
+aitk-zuva                    aitk-extract-overflow-deployment-bd6996bb5-ctvj9                  1/1     Running            0              11d
+aitk-zuva                    aitk-extract-overflow-deployment-bd6996bb5-dmncz                  0/1     Pending            0              11d
+aitk-zuva                    aitk-extract-redis-deployment-778b467744-sl52c                    1/1     Running            0              32d
+aitk-zuva                    aitk-extract-status-redis-deployment-68d8775485-jljk5             1/1     Running            0              32d
+aitk-zuva                    aitk-extract-worker-deployment-988f6fbc5-p45j8                    1/1     Running            0              11d
+aitk-zuva                    aitk-extract-worker-deployment-988f6fbc5-zhq4t                    1/1     Running            0              11d
+aitk-zuva                    aitk-extract-worker-deployment-988f6fbc5-zxfq8                    1/1     Running            0              11d
+aitk-zuva                    aitk-files-cleaner-deployment-868f774f56-fz95d                    1/1     Running            0              32d
+aitk-zuva                    aitk-files-deployment-5f76947fcb-2r7kl                            2/2     Running            0              32d
+aitk-zuva                    aitk-files-deployment-5f76947fcb-442fl                            2/2     Running            0              32d
+aitk-zuva                    aitk-files-deployment-5f76947fcb-5rs7w                            2/2     Running            0              32d
+aitk-zuva                    aitk-files-deployment-5f76947fcb-nf6rf                            2/2     Running            1 (32d ago)    32d
+aitk-zuva                    aitk-files-deployment-5f76947fcb-pwksd                            2/2     Running            0              32d
+aitk-zuva                    aitk-files-reaper-deployment-65fff54fdf-6557d                     1/1     Running            0              32d
+aitk-zuva                    aitk-mlc-api-cleaner-deployment-7f77c75cd5-th7mh                  1/1     Running            0              32d
+aitk-zuva                    aitk-mlc-api-deployment-6b4fc476bf-75x45                          2/2     Running            0              32d
+aitk-zuva                    aitk-mlc-api-status-listener-deployment-54db588cdb-z4pgt          1/1     Running            0              32d
+aitk-zuva                    aitk-mlc-ocr-listener-deployment-767fc55cbd-dl6dv                 1/1     Running            0              32d
+aitk-zuva                    aitk-mlc-redis-deployment-76bc669f74-6g7wt                        1/1     Running            0              32d
+aitk-zuva                    aitk-mlc-request-listener-deployment-7d99f685df-p9r26             1/1     Running            0              32d
+aitk-zuva                    aitk-mlc-worker-deployment-68ccd54779-rtlzr                       1/1     Running            0              25d
+aitk-zuva                    aitk-normalization-795b79bbb8-6m295                               1/1     Running            0              32d
+aitk-zuva                    aitk-ocr-api-deployment-9477dd958-qrp4g                           2/2     Running            0              32d
+aitk-zuva                    aitk-ocr-api-deployment-9477dd958-sdd5s                           2/2     Running            0              32d
+aitk-zuva                    aitk-ocr-cleaner-deployment-5fb547c74c-65hrl                      1/1     Running            0              32d
+aitk-zuva                    aitk-ocr-controller-deployment-5fd47dfcb8-d6bdh                   1/1     Running            0              32d
+aitk-zuva                    aitk-ocr-dc-job-orchestrator-deployment-74cc57d469-94w8x          1/1     Running            0              32d
+aitk-zuva                    aitk-ocr-dc-job-orchestrator-overflow-deployment-b648b5575zqhrt   1/1     Running            0              32d
+aitk-zuva                    aitk-ocr-file-upload-listener-deployment-5489445c77-ts48s         1/1     Running            0              32d
+aitk-zuva                    aitk-ocr-results-listener-deployment-7c59cf58bf-5h9sv             1/1     Running            0              32d
+aitk-zuva                    aitk-sfs-api-deployment-57cc6c9977-5rxvz                          2/2     Running            0              32d
+aitk-zuva                    aitk-sfs-api-deployment-57cc6c9977-dwpkp                          2/2     Running            0              32d
+aitk-zuva                    aitk-sfs-indexer-29614845-r2svf                                   0/1     Completed          0              10m
+aitk-zuva                    aitk-sfs-train-status-listener-deployment-5464c49fdd-cx5kt        1/1     Running            0              32d
+aitk-zuva                    aitk-usage-extract-status-listener-deployment-6596f66ff-rgd62     1/1     Running            0              25d
+aitk-zuva                    aitk-usage-field-create-listener-deployment-87d79b46b-bd4dd       1/1     Running            0              32d
+aitk-zuva                    aitk-usage-file-upload-listener-deployment-7b756f48d4-g7nzn       2/2     Running            0              32d
+aitk-zuva                    aitk-usage-mlc-status-listener-deployment-fd99bfff9-7x7rb         1/1     Running            0              32d
+aitk-zuva                    aitk-usage-normalization-listener-deployment-758cb597b7-q7zzj     1/1     Running            0              25d
+aitk-zuva                    aitk-usage-ocr-status-listener-deployment-8447b8fd75-wsh8c        1/1     Running            0              25d
+aitk-zuva                    aitk-usage-train-status-listener-deployment-cd5bd4dc5-jtw2f       1/1     Running            0              32d
+aitk-zuva                    field-loader-articles-and-bylaws-1.10.3-tsfls                     0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-bond-indentures-00-7f-1.10.3-9x4hc                   0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-bond-indentures-80-ff-1.10.3-98p6h                   0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-brexit-credit-agreements-1.10.3-6hcsv                0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-brexit-general-commercial-1.10.3-6jjzd               0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-brp-credit-agreements-00-7f-1.10.3-p4pfw             0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-brp-credit-agreements-80-ff-1.10.3-d8cdq             0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-brp-equipment-1.10.3-42dmz                           0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-brp-equipment-leases-1.10.3-d8kxc                    0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-brp-general-commercial-1.10.3-r5zvb                  0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-brp-real-estate-1.10.3-tw28t                         0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-brp-real-estate-leases-1.10.3-bcvfb                  0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-business-associate-agreements-1.10.3-b5fj7           0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-commitment-letters-1.10.3-g268w                      0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-corporate-organization-1.10.3-6tcc6                  0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-creditfacility-agreements-00-3f-1.10.3-knrm2         0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-creditfacility-agreements-40-7f-1.10.3-fm2d5         0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-creditfacility-agreements-80-bf-1.10.3-jpmwn         0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-creditfacility-agreements-c0-ff-1.10.3-89rg9         0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-data-protection-1.10.3-pxj9n                         0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-deutschland-arbeitsrecht-1.10.3-g7q28                0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-deutschland-gesellschaftsrecht-1.10.3-gv4n7          0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-deutschland-gewerblicher-rechtsschutz-1.10.3-trt9t   0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-deutschland-immobilienrecht-1.10.3-wpf55             0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-deutschland-vertriebsrecht-1.10.3-rhqf6              0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-executive-employment-agreements-1.10.3-76bd5         0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-francais-fusions-et-acquisitions-1.10.3-cr2lw        0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-franchise-agreements-1.10.3-svq2h                    0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-franchise-disclosure-documents-1.10.3-82wjf          0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-general-commercial-00-5f-1.10.3-xcspq                0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-general-commercial-60-af-1.10.3-5956c                0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-general-commercial-b0-ff-1.10.3-6hqk8                0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-ibor-credit-agreements-1.10.3-vxcm5                  0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-ibor-indentures-1.10.3-wlb5n                         0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-ip-and-licensing-00-7f-1.10.3-btcsj                  0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-ip-and-licensing-80-ff-1.10.3-zlj5p                  0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-isda-1.10.3-l2s6l                                    0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-isda-credit-support-annexes-1.10.3-sm7wn             0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-lease-accounting-equipment-1.10.3-q9vj5              0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-lease-accounting-real-estate-1.10.3-r6vwq            0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-lpallc-1.10.3-8kpd8                                  0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-ma-deal-points-private-target-00-7f-1.10.3-2bcgh     0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-ma-deal-points-private-target-80-ff-1.10.3-9zwpg     0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-ma-deal-points-public-target-1.10.3-gtbhs            0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-ma-due-diligence-1.10.3-54tnp                        0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-option-agreements-1.10.3-h6w8k                       0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-portuguese-1.10.3-c29zr                              0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-privacy-policy-1.10.3-p9tqm                          0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-procurement-00-7f-1.10.3-g9g87                       0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-procurement-80-ff-1.10.3-9qrx6                       0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-procurement-lpallc-1.10.3-9vmrs                      0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-real-estate-00-7f-1.10.3-s8d8v                       0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-real-estate-80-ff-1.10.3-xf6w4                       0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-real-estate-england-1.10.3-x2ss8                     0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-recession-planning-bond-indentures-1.10.3-jn7gk      0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-recession-planning-isda-1.10.3-ktwq6                 0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-restrictive-covenant-agreements-nda-1.10.3-tjb6h     0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-revenue-recognition-1.10.3-vmjbj                     0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-saas-agreements-1.10.3-5wcd8                         0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-tpd-dependent-1.10.3-5sd8r                           0/1     Completed          0              7d19h
+aitk-zuva                    field-loader-ucc-financing-statements-1.10.3-twn9w                0/1     Completed          0              7d19h
+aitk-zuva                    zuva-postgres-1                                                   1/1     Running            0              32d
+aitk-zuva                    zuva-postgres-2                                                   1/1     Running            0              32d
+api                          api-fc7684b4b-rtxpf                                               1/1     Running            0              25h
+audit-log-exporter           audit-log-exporter-5c64bcc8c4-pp9ql                               1/1     Running            0              7d6h
+cattle-fleet-system          fleet-agent-b497bff4-zc9cm                                        1/1     Running            0              41d
+cattle-monitoring-system     alertmanager-rancher-monitoring-alertmanager-0                    2/2     Running            0              41d
+cattle-monitoring-system     prometheus-rancher-monitoring-prometheus-0                        3/3     Running            0              41d
+cattle-monitoring-system     rancher-monitoring-grafana-6c564cfdb6-smcq4                       3/3     Running            5 (28h ago)    41d
+cattle-monitoring-system     rancher-monitoring-kube-state-metrics-d856c8cbb-mwb2x             1/1     Running            0              41d
+cattle-monitoring-system     rancher-monitoring-operator-776765b5d5-cpt9m                      1/1     Running            0              41d
+cattle-monitoring-system     rancher-monitoring-prometheus-adapter-6fb658d549-xjwvh            1/1     Running            0              41d
+cattle-monitoring-system     rancher-monitoring-prometheus-node-exporter-4wfdz                 1/1     Running            0              35d
+cattle-monitoring-system     rancher-monitoring-prometheus-node-exporter-f74ds                 1/1     Running            0              41d
+cattle-monitoring-system     rancher-monitoring-prometheus-node-exporter-grs49                 1/1     Running            0              41d
+cattle-monitoring-system     rancher-monitoring-prometheus-node-exporter-gww27                 1/1     Running            0              41d
+cattle-monitoring-system     rancher-monitoring-prometheus-node-exporter-kpbpp                 1/1     Running            0              17d
+cattle-monitoring-system     rancher-monitoring-prometheus-node-exporter-mfvnz                 1/1     Running            0              41d
+cattle-monitoring-system     rancher-monitoring-prometheus-node-exporter-nnnmd                 1/1     Running            0              41d
+cattle-monitoring-system     rancher-monitoring-prometheus-node-exporter-qn7bq                 1/1     Running            0              35d
+cattle-monitoring-system     rancher-monitoring-prometheus-node-exporter-wv27x                 1/1     Running            0              41d
+cattle-system                cattle-cluster-agent-65d6d9f7c5-4vbcp                             1/1     Running            0              41d
+cattle-system                cattle-cluster-agent-65d6d9f7c5-rf44v                             1/1     Running            0              41d
+cattle-system                rancher-webhook-86cdcdf944-9lstx                                  1/1     Running            0              41d
+cattle-system                system-upgrade-controller-65d9b4b8b-4k9zm                         1/1     Running            0              41d
+cerbos                       cerbos-5855ccf5bf-nnjnx                                           1/1     Running            0              7d6h
+cert-manager                 cert-manager-6c6f677fd9-5rk9l                                     1/1     Running            1 (47d ago)    69d
+cert-manager                 cert-manager-cainjector-7b845fff6f-88s66                          1/1     Running            2 (47d ago)    69d
+cert-manager                 cert-manager-webhook-599c48f5bd-9v6rq                             1/1     Running            1 (47d ago)    69d
+cnpg-system                  cloudnative-pg-54c8747cdb-8vl6z                                   1/1     Running            5 (47d ago)    69d
+codestral-inference          codestral-22b-664b7b7c4b-2mfdb                                    1/1     Running            0              9d
+credits                      credits-5996979d65-9sgpz                                          1/1     Running            0              7d6h
+deephat-v2-hf-inference      deephat-v2-2h100-6957df78f5-8d87t                                 1/1     Running            0              4d3h
+devstral-small-2-inference   devstral-small-2-988f5c7bb-5hxxz                                  1/1     Running            0              4d3h
+dex                          dex-55f654fc49-s25lp                                              1/1     Running            0              21d
+external-poller              external-poller-29614320-mwswr                                    0/1     Completed          0              8h
+external-poller              external-poller-29614500-dx4hw                                    0/1     Completed          0              5h55m
+external-poller              external-poller-29614680-qhv6q                                    0/1     Completed          0              175m
+external-sync                external-sync-files-5648579fb4-tg8ts                              1/1     Running            0              7d6h
+external-sync                external-sync-files-priority-6b5f6d544d-s9l8p                     1/1     Running            0              7d6h
+field-discovery              field-library-api-7957f4f9f5-ghk4t                                2/2     Running            0              30d
+field-discovery              field-repo-indexer-ats-29614845-8wg9d                             0/1     Completed          0              10m
+field-discovery              oauth2-proxy-5b48d6b777-gvvdf                                     1/1     Running            0              21d
+gemma4-31b-inference         gemma-4-31b-it-76bcf56747-kr99m                                   1/1     Running            0              18h
+gpu-operator                 gpu-feature-discovery-4bqsb                                       1/1     Running            0              17d
+gpu-operator                 gpu-operator-7569f8b499-sh64v                                     1/1     Running            4 (47d ago)    69d
+gpu-operator                 gpu-operator-node-feature-discovery-gc-55ffc49ccc-t6hnv           1/1     Running            1 (47d ago)    69d
+gpu-operator                 gpu-operator-node-feature-discovery-master-6b5787f695-p4lc9       1/1     Running            3 (47d ago)    69d
+gpu-operator                 gpu-operator-node-feature-discovery-worker-2jkn9                  1/1     Running            3 (47d ago)    94d
+gpu-operator                 gpu-operator-node-feature-discovery-worker-bhgch                  1/1     Running            0              47d
+gpu-operator                 gpu-operator-node-feature-discovery-worker-dtxsg                  1/1     Running            0              35d
+gpu-operator                 gpu-operator-node-feature-discovery-worker-fr95z                  1/1     Running            0              19d
+gpu-operator                 gpu-operator-node-feature-discovery-worker-h44k4                  1/1     Running            7 (47d ago)    94d
+gpu-operator                 gpu-operator-node-feature-discovery-worker-mdngz                  1/1     Running            0              35d
+gpu-operator                 nvidia-container-toolkit-daemonset-vt4s9                          1/1     Running            7 (19d ago)    94d
+gpu-operator                 nvidia-cuda-validator-n5zb5                                       0/1     Completed          0              17d
+gpu-operator                 nvidia-dcgm-exporter-8vvhb                                        1/1     Running            0              17d
+gpu-operator                 nvidia-device-plugin-daemonset-sfhv6                              1/1     Running            0              17d
+gpu-operator                 nvidia-mig-manager-lzx5p                                          1/1     Running            0              16d
+gpu-operator                 nvidia-operator-validator-98n8l                                   1/1     Running            0              17d
+hatchet                      hatchet-api-d5cfd85b6-pzv5m                                       1/1     Running            0              7d6h
+hatchet                      hatchet-engine-7865664c8f-rfss9                                   1/1     Running            1 (7d5h ago)   7d6h
+hatchet                      hatchet-frontend-588c8ddf7b-6g4t7                                 1/1     Running            0              7d6h
+istio-system                 istio-ingressgateway-56b69bf4db-lh9xm                             1/1     Running            0              37d
+istio-system                 istiod-1-27-0-7f5f77fd9-82nlw                                     1/1     Running            0              37d
+kafka                        aitk-kafka-cluster-entity-operator-7759f9cbff-9rn9b               2/2     Running            0              32d
+kafka                        aitk-kafka-cluster-kafka-0                                        1/1     Running            0              32d
+kafka                        aitk-kafka-cluster-kafka-1                                        1/1     Running            0              32d
+kafka                        aitk-kafka-cluster-kafka-2                                        1/1     Running            0              32d
+kafka                        aitk-kafka-cluster-zookeeper-0                                    1/1     Running            0              32d
+kafka                        aitk-kafka-cluster-zookeeper-1                                    1/1     Running            0              32d
+kafka                        aitk-kafka-cluster-zookeeper-2                                    1/1     Running            0              32d
+kafka                        strimzi-cluster-operator-686f95745c-7pcp4                         1/1     Running            0              38d
+keda                         keda-admission-webhooks-674cbfffd9-z8qjf                          1/1     Running            0              38d
+keda                         keda-admission-webhooks-864788bf84-8vb96                          0/1     ImagePullBackOff   0              37d
+keda                         keda-operator-6f6c88cbdb-zksvl                                    0/1     ImagePullBackOff   0              37d
+keda                         keda-operator-749fd98ccf-rgfgh                                    1/1     Running            1 (38d ago)    38d
+keda                         keda-operator-metrics-apiserver-57bbc6f7d8-pwqmt                  1/1     Running            0              38d
+keda                         keda-operator-metrics-apiserver-59f6f87689-m9bx6                  0/1     ImagePullBackOff   0              37d
+kindo-deps                   minio-pool-0-0                                                    2/2     Running            0              47d
+kindo-deps                   minio-pool-0-1                                                    2/2     Running            0              47d
+kindo-deps                   minio-pool-0-2                                                    2/2     Running            0              47d
+kindo-deps                   minio-pool-0-3                                                    2/2     Running            0              47d
+kindo-deps                   postgres-3                                                        1/1     Running            0              47d
+kindo-deps                   postgres-4                                                        1/1     Running            0              47d
+kindo-deps                   postgres-5                                                        1/1     Running            0              47d
+kindo-deps                   rabbitmq-server-0                                                 1/1     Running            0              47d
+kindo-deps                   rabbitmq-server-1                                                 1/1     Running            0              47d
+kindo-deps                   rabbitmq-server-2                                                 1/1     Running            0              47d
+kindo-deps                   redis-0                                                           1/1     Running            0              47d
+kindo-deps                   redis-1                                                           1/1     Running            0              47d
+kindo-deps                   redis-2                                                           1/1     Running            0              47d
+kindo-deps                   redis-sentinel-sentinel-0                                         1/1     Running            1 (47d ago)    61d
+kindo-deps                   redis-sentinel-sentinel-1                                         1/1     Running            1 (47d ago)    61d
+kindo-deps                   redis-sentinel-sentinel-2                                         1/1     Running            1 (47d ago)    61d
+kube-system                  cloud-controller-manager-aamslc4kbc01.ttmtech.local               1/1     Running            5 (47d ago)    47d
+kube-system                  cloud-controller-manager-aamslc4kbc02.ttmtech.local               1/1     Running            3 (47d ago)    47d
+kube-system                  cloud-controller-manager-aamslc4kbc03.ttmtech.local               1/1     Running            2 (47d ago)    47d
+kube-system                  etcd-aamslc4kbc01.ttmtech.local                                   1/1     Running            1              47d
+kube-system                  etcd-aamslc4kbc02.ttmtech.local                                   1/1     Running            1              47d
+kube-system                  etcd-aamslc4kbc03.ttmtech.local                                   1/1     Running            1              47d
+kube-system                  helm-install-rke2-canal-2qk2m                                     0/1     Completed          0              47d
+kube-system                  helm-install-rke2-coredns-pmt72                                   0/1     Completed          0              47d
+kube-system                  helm-install-rke2-ingress-nginx-9rb7f                             0/1     Completed          0              47d
+kube-system                  helm-install-rke2-metrics-server-xndsf                            0/1     Completed          0              47d
+kube-system                  helm-install-rke2-runtimeclasses-tzmpq                            0/1     Completed          0              47d
+kube-system                  helm-install-rke2-snapshot-controller-72mkj                       0/1     Completed          0              47d
+kube-system                  helm-install-rke2-snapshot-controller-crd-sfrcj                   0/1     Completed          0              47d
+kube-system                  kube-apiserver-aamslc4kbc01.ttmtech.local                         1/1     Running            2 (47d ago)    47d
+kube-system                  kube-apiserver-aamslc4kbc02.ttmtech.local                         1/1     Running            2              47d
+kube-system                  kube-apiserver-aamslc4kbc03.ttmtech.local                         1/1     Running            3              47d
+kube-system                  kube-controller-manager-aamslc4kbc01.ttmtech.local                1/1     Running            5 (47d ago)    47d
+kube-system                  kube-controller-manager-aamslc4kbc02.ttmtech.local                1/1     Running            2 (47d ago)    47d
+kube-system                  kube-controller-manager-aamslc4kbc03.ttmtech.local                1/1     Running            2 (47d ago)    47d
+kube-system                  kube-proxy-aamslc4kbc01.ttmtech.local                             1/1     Running            1 (47d ago)    47d
+kube-system                  kube-proxy-aamslc4kbc02.ttmtech.local                             1/1     Running            0              47d
+kube-system                  kube-proxy-aamslc4kbc03.ttmtech.local                             1/1     Running            0              47d
+kube-system                  kube-proxy-aamslc4kbg01.ttmtech.local                             1/1     Running            0              16d
+kube-system                  kube-proxy-aamslc4kbw01.ttmtech.local                             1/1     Running            0              47d
+kube-system                  kube-proxy-aamslc4kbw02.ttmtech.local                             1/1     Running            0              47d
+kube-system                  kube-proxy-aamslc4kbw03.ttmtech.local                             1/1     Running            0              47d
+kube-system                  kube-proxy-aamslc4kbw04.ttmtech.local                             1/1     Running            0              35d
+kube-system                  kube-proxy-aamslc4kbw05.ttmtech.local                             1/1     Running            0              35d
+kube-system                  kube-scheduler-aamslc4kbc01.ttmtech.local                         1/1     Running            1 (47d ago)    47d
+kube-system                  kube-scheduler-aamslc4kbc02.ttmtech.local                         1/1     Running            1 (47d ago)    47d
+kube-system                  kube-scheduler-aamslc4kbc03.ttmtech.local                         1/1     Running            1 (47d ago)    47d
+kube-system                  rke2-canal-65tcf                                                  2/2     Running            0              35d
+kube-system                  rke2-canal-f52lb                                                  2/2     Running            2 (47d ago)    47d
+kube-system                  rke2-canal-m44t5                                                  2/2     Running            0              19d
+kube-system                  rke2-canal-pbmj7                                                  2/2     Running            2 (47d ago)    47d
+kube-system                  rke2-canal-pnq2f                                                  2/2     Running            2 (47d ago)    47d
+kube-system                  rke2-canal-qbzrz                                                  2/2     Running            2 (47d ago)    47d
+kube-system                  rke2-canal-wqgrp                                                  2/2     Running            2 (47d ago)    47d
+kube-system                  rke2-canal-wvgwk                                                  2/2     Running            0              35d
+kube-system                  rke2-canal-xtc2s                                                  2/2     Running            2 (47d ago)    47d
+kube-system                  rke2-coredns-rke2-coredns-9bf97f8f9-b6rnn                         1/1     Running            0              21d
+kube-system                  rke2-coredns-rke2-coredns-9bf97f8f9-pz49v                         1/1     Running            0              21d
+kube-system                  rke2-coredns-rke2-coredns-autoscaler-6c58bf4677-wncxz             1/1     Running            1 (47d ago)    47d
+kube-system                  rke2-ingress-nginx-controller-fckxs                               1/1     Running            0              15d
+kube-system                  rke2-ingress-nginx-controller-g5stm                               1/1     Running            0              15d
+kube-system                  rke2-ingress-nginx-controller-gp84z                               1/1     Running            0              15d
+kube-system                  rke2-ingress-nginx-controller-kzsjg                               1/1     Running            0              15d
+kube-system                  rke2-ingress-nginx-controller-txqbz                               1/1     Running            0              15d
+kube-system                  rke2-metrics-server-6f97557bd-p5bbn                               1/1     Running            0              47d
+kube-system                  rke2-snapshot-controller-bc4c494bf-dp786                          1/1     Running            1 (47d ago)    47d
+litellm                      litellm-75cbdfc574-94rmk                                          1/1     Running            0              7d6h
+llama-4-maverick-inference   llama-4-maverick-8677df4dc4-k9wx2                                 1/1     Running            0              16d
+logging                      fluent-bit-84vvd                                                  1/1     Running            1 (47d ago)    68d
+logging                      fluent-bit-8k8m9                                                  1/1     Running            1 (47d ago)    68d
+logging                      fluent-bit-fsw5g                                                  1/1     Running            1 (47d ago)    68d
+logging                      fluent-bit-h4pwh                                                  1/1     Running            0              16d
+logging                      fluent-bit-hs6h5                                                  1/1     Running            1 (47d ago)    68d
+logging                      fluent-bit-j22ct                                                  1/1     Running            0              35d
+logging                      fluent-bit-m9xqz                                                  1/1     Running            1 (47d ago)    68d
+logging                      fluent-bit-s69wh                                                  1/1     Running            1 (47d ago)    68d
+logging                      fluent-bit-vtpfd                                                  1/1     Running            0              35d
+longhorn                     csi-attacher-5857549d6f-cvzpn                                     1/1     Running            2 (47d ago)    69d
+longhorn                     csi-attacher-5857549d6f-fncbh                                     1/1     Running            2 (47d ago)    69d
+longhorn                     csi-attacher-5857549d6f-wphkw                                     1/1     Running            3 (47d ago)    69d
+longhorn                     csi-provisioner-57f9d44448-48xnc                                  1/1     Running            2 (47d ago)    69d
+longhorn                     csi-provisioner-57f9d44448-bbjbf                                  1/1     Running            4 (47d ago)    69d
+longhorn                     csi-provisioner-57f9d44448-v42cb                                  1/1     Running            2 (47d ago)    69d
+longhorn                     csi-resizer-547f8b9dc8-464hn                                      1/1     Running            4 (47d ago)    69d
+longhorn                     csi-resizer-547f8b9dc8-9qbgh                                      1/1     Running            2 (47d ago)    69d
+longhorn                     csi-resizer-547f8b9dc8-fgjr7                                      1/1     Running            2 (47d ago)    69d
+longhorn                     csi-snapshotter-8558df8679-bq2rk                                  1/1     Running            4 (47d ago)    69d
+longhorn                     csi-snapshotter-8558df8679-dpgjr                                  1/1     Running            2 (47d ago)    69d
+longhorn                     csi-snapshotter-8558df8679-lch7s                                  1/1     Running            2 (47d ago)    69d
+longhorn                     engine-image-ei-3154f3aa-57jnh                                    1/1     Running            0              35d
+longhorn                     engine-image-ei-3154f3aa-8v87r                                    1/1     Running            2 (47d ago)    94d
+longhorn                     engine-image-ei-3154f3aa-fqsqw                                    1/1     Running            2 (47d ago)    94d
+longhorn                     engine-image-ei-3154f3aa-qdhtt                                    1/1     Running            2 (47d ago)    94d
+longhorn                     engine-image-ei-3154f3aa-s2jn4                                    1/1     Running            0              35d
+longhorn                     instance-manager-546e807f0deaeca0cc0608da3c7865fc                 1/1     Running            0              47d
+longhorn                     instance-manager-6172d56ee97a4d14a640a07d6da0a80e                 1/1     Running            0              47d
+longhorn                     instance-manager-7e3d45b327b221ddfa1426ccbb628d93                 1/1     Running            0              47d
+longhorn                     instance-manager-80b384422cbc9233bc52ac2bbe4cb9c3                 1/1     Running            0              35d
+longhorn                     instance-manager-9e3b69c26f43f84eb11747d889ee386b                 1/1     Running            0              17d
+longhorn                     instance-manager-c2d92e5045fc54f5fec8c717c49c6770                 1/1     Running            0              35d
+longhorn                     longhorn-csi-plugin-29scb                                         3/3     Running            0              47d
+longhorn                     longhorn-csi-plugin-4ssfv                                         3/3     Running            0              35d
+longhorn                     longhorn-csi-plugin-596qz                                         3/3     Running            9 (47d ago)    94d
+longhorn                     longhorn-csi-plugin-h6vt6                                         3/3     Running            0              35d
+longhorn                     longhorn-csi-plugin-w9jpw                                         3/3     Running            9 (47d ago)    94d
+longhorn                     longhorn-driver-deployer-756fd7867b-sfhxj                         1/1     Running            0              47d
+longhorn                     longhorn-manager-6b4qr                                            2/2     Running            4 (47d ago)    94d
+longhorn                     longhorn-manager-75tmd                                            2/2     Running            0              17d
+longhorn                     longhorn-manager-78r4n                                            2/2     Running            4 (47d ago)    94d
+longhorn                     longhorn-manager-9rj9q                                            2/2     Running            0              35d
+longhorn                     longhorn-manager-t2ch8                                            2/2     Running            4 (47d ago)    94d
+longhorn                     longhorn-manager-wbk9r                                            2/2     Running            0              35d
+longhorn                     longhorn-ui-7c54575f4d-4vdw4                                      1/1     Running            1 (47d ago)    69d
+longhorn                     longhorn-ui-7c54575f4d-jn7sr                                      1/1     Running            1 (47d ago)    69d
+mcp                          mcp-sentinelone-9b8c88656-xzwvm                                   1/1     Running            0              24h
+mcp                          mcp-unified-84749fb85c-whzps                                      1/1     Running            0              7d6h
+minio-operator               minio-operator-8479f6867d-fj86x                                   1/1     Running            1 (47d ago)    69d
+minio-operator               minio-operator-8479f6867d-xj22z                                   1/1     Running            1 (47d ago)    69d
+nango                        nango-69d7464f-928wf                                              1/1     Running            0              25h
+nango                        nango-cols                                                        0/1     Completed          0              25h
+nango                        nango-connect-ui-67d878677d-vqv4b                                 1/1     Running            0              7d6h
+next                         next-c8df49bbc-wbfql                                              1/1     Running            0              25h
+pgweb                        kindo-pgweb-744d5d778-njgr6                                       1/1     Running            1 (47d ago)    69d
+presidio                     presidio-presidio-analyzer-6fcd8656f6-tqvvg                       1/1     Running            1 (47d ago)    69d
+presidio                     presidio-presidio-analyzer-857c68996-wrhbl                        0/1     ImagePullBackOff   0              7d6h
+presidio                     presidio-presidio-anonymizer-685876c8c9-jgthw                     0/1     ImagePullBackOff   0              7d6h
+presidio                     presidio-presidio-anonymizer-79bdb6d98d-nhg8c                     1/1     Running            1 (47d ago)    69d
+prisma-migrations            prisma-migrations-54l6k                                           0/1     Completed          0              7d4h
+qdrant                       qdrant-0                                                          1/1     Running            0              7d2h
+qdrant                       qdrant-1                                                          1/1     Running            0              7d2h
+qdrant                       qdrant-2                                                          1/1     Running            0              7d2h
+rabbitmq-system              rabbitmq-operator-rabbitmq-cluster-operator-5d9fb85b98-dn7bk      1/1     Running            4 (47d ago)    69d
+rabbitmq-system              rabbitmq-operator-rabbitmq-messaging-topology-operator-fb524jhg   1/1     Running            2 (47d ago)    69d
+redis-operator               redis-operator-55b8dcc667-4cs5t                                   1/1     Running            3 (47d ago)    69d
+sandbox                      sbx-2c3dbf1c-archive-1776891300387-jf77b                          1/1     Running            0              2s
+speaches                     speaches-7f575478b-ktl4n                                          1/1     Running            0              7d6h
+ssoready                     ssoready-admin-7fdf9889fb-xj5fc                                   1/1     Running            0              7d4h
+ssoready                     ssoready-api-7d977ccfb6-72c2t                                     1/1     Running            0              7d4h
+ssoready                     ssoready-app-85bf89569b-j48fw                                     1/1     Running            0              7d4h
+ssoready                     ssoready-auth-5fc897b68b-htfc6                                    1/1     Running            0              7d4h
+task-worker-ts               task-worker-ts-6595d798cc-bqx9g                                   1/1     Running            0              25h
+task-worker-ts               task-worker-ts-6595d798cc-gd55d                                   1/1     Running            0              25h
+task-worker-ts               task-worker-ts-large-6cc56fbf64-5g9f7                             1/1     Running            0              25h
+task-worker-ts               task-worker-ts-large-6cc56fbf64-g78k7                             1/1     Running            0              25h
+text-embeddings              text-embeddings-99b547544-9jqz7                                   1/1     Running            0              16d
+unleash                      unleash-7df4df4b48-bcxwh                                          1/1     Running            0              7d3h
+unleash                      unleash-7df4df4b48-wbwd9                                          1/1     Running            0              7d3h
+unleash                      unleash-edge-5b84bb94b7-nmjr2                                     1/1     Running            0              7d3h
 [root@aamslc4kbc01 ~]# 
