@@ -1,21 +1,16 @@
-Hey Team
-Looking for feedback, and timing on this.  When do you think we can get moving?
+Hi Brian,
+
+I’m on board with this.
+
+I’ll be out starting May 4th, so Gene is the right person to drive the build. It’s in his area and keeps things moving while I’m away. I’ll sit down with him before I go to walk through the networking and storage patterns from OCP-AI so he’s not starting from scratch. Deonna and I will also align on the storage side before I leave.
+
+Rather than guessing on timing over email, I’ll set up a call with the team so we can walk through the scope properly and then come back with timelines based on that.
+
+On staging, I’d lean yes but keep it small. For the older services we’re moving onto this, staging is usually where edge cases show up that dev won’t catch and prod can’t absorb. Easiest approach is to start with a namespace alongside dev and split it out later if needed.
+
+One thing to flag early: three nodes is really the HA floor, not a comfortable steady state. If we take a node down for patching, we’re immediately tight. Worth having expansion on the roadmap from day one.
+
+We can hash out DR scope, GitOps tooling, and auth on the call.
+
 Thanks,
-Brian
- 
-From: Brian Wing  Sent: Tuesday, April 14, 2026 11:15 AM To: Deonna Thornton <deonna.thornton@calix.com>; Vinoth Kumar Sekar <vinoth.sekar@calix.com>; Gene Siepka <gene.siepka@calix.com>; Haj Suma <haj.suma@calix.com> Cc: Kishore Kumar <kishore.kumar@calix.com> Subject: 3 Blades for RKE2/Rancher
- 
-Let’s do this.
- I was just looking at our pln-vcenter clusters, and I would like to propose repurposing the following hosts for our initial buildout of RKE2/Rancher.
- 
-From PLN-COMMON-INFRA, one of either plnucs3-3 or plnucs3-2, this would leave 2 nodes from 2 chassis.  We could/should move some of the VMs into PLN-LAB cluster that are higher priority applications, e.g. Atlassian servers, and core domain services, IPA, etc.
- 
-From PLN-LAB-M5, plnucs2-3 and plnucs2-8, again if needed. We could shift VMs to either PLN-LAB or PLN-LAB-M6 (DRS/EVC should allow this migration without impacting VM uptime)
- 
-This would give us 3 M5 Blades, all with the same CPU Xeon Gold 6240 and 1.5TB each RAM.
- 
-Additionally, we will need to work on planning any new networking that would be required to support this.  E.g., new storage VLANs and need to allocate some storage space to the K8S cluster.
- 
-The goal would be to stand up the core services required to run K8S, and then to have a POC of hosting of services, with a plan for a Dev and Prod environment.  @Gene Siepka @Haj Suma let me know if we need a staging environment, our applications hosting will differ from a typical cloud application stack as we’re running some “old-school” servers and services, but we should do our best to align with good DevOps practices.  Let’s see what we can do to build this out with infrastructure as code so we can have a resilient approach for DR, and expansion of the environment as we onboard future resources.
- 
-Let me know your thoughts or concerns.
+Haj
