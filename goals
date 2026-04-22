@@ -1,6 +1,28 @@
-[root@aamslc4kbc01 ~]# getent hosts rancher.kbai.ttmtech.com
-10.200.248.81   aamslc4kbr01.ttmtech.local rancher.kbai.ttmtech.com
-[root@aamslc4kbc01 ~]# dig rancher.kbai.ttmtech.com +short
-aamslc4kbr01.ttmtech.local.
-10.200.248.81
-[root@aamslc4kbc01 ~]# 
+# On aamslc4hap01
+sudo docker exec minio_local mc admin user list local 2>/dev/null
+# Or at minimum, confirm the creds in config.yaml still work
+cat /etc/rancher/rke2/config.yaml | grep -E 'etcd-s3-access|etcd-s3-secret'
+# Then test (from any box that can reach minio)
+mc alias set test http://minio.kbai.ttmtech.local:9000 admin <redacted>
+mc admin info test
+
+
+# On a control plane node, check the API server's actual args
+sudo grep -o 'encryption-provider-config[^ ]*' /var/lib/rancher/rke2/agent/pod-manifests/kube-apiserver.yaml 2>/dev/null
+# Or check the running apiserver process
+ps auxww | grep kube-apiserver | grep -o '[-]-encryption-provider-config[^ ]*'
+# If nothing returns, encryption IS off
+
+
+# Pods that definitely have runAsNonRoot=false AND runAsUser=0 OR unset
+kubectl get pods -A -o json | jq -r '
+  .items[]
+  | select(.metadata.namespace | test("^(kube-system|cattle-|longhorn|gpu-operator)$") | not)
+  | select([.spec.containers[]? | (.securityContext.runAsNonRoot == true)] | all | not)
+  | "\(.metadata.namespace)/\(.metadata.name)"
+' | sort -u | wc -l
+
+
+kubectl get clusterrolebinding globaladmin-u-tkgqh2nzao -o yaml
+kubectl get clusterrolebinding globaladmin-u-qramgckz4l -o yaml
+# Confirm roleRef.name == "cluster-admin"
