@@ -1,13 +1,8 @@
-[root@aamslc4kbc01 ~]# kubectl -n external-secrets get pods
-kubectl get externalsecret -A
-kubectl get secretstore -A
-kubectl get clustersecretstore
-No resources found in external-secrets namespace.
-NAMESPACE         NAME                             STORETYPE     STORE               REFRESH INTERVAL   STATUS   READY
-aitk-console      aitk-external-secret             SecretStore   secret-store        1m                          
-aitk-zuva         aitk-external-secret             SecretStore   aitk-secret-store   1m                          
-field-discovery   field-library-external-secrets   SecretStore   secret-store        1m                          
-field-discovery   llm-external-secrets             SecretStore   secret-store        1m                          
-No resources found
-No resources found
-[root@aamslc4kbc01 ~]# 
+# Is the fleet-agent actually running and healthy?
+kubectl -n cattle-fleet-system get pods
+# Any GitRepos defined anywhere?
+kubectl get gitrepos.fleet.cattle.io -A
+# Any Bundles (compiled from GitRepos)?
+kubectl get bundles.fleet.cattle.io -A
+# Any Flux CRDs present?
+kubectl get crd | grep -iE 'flux|argo'
