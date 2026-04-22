@@ -1,3 +1,1 @@
-df -h
-lvs 2>/dev/null
 sudo du -sh /var/lib/kubelet/pods/*/volumes/kubernetes.io~empty-dir/* 2>/dev/null | sort -rh | head -5
