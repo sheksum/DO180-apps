@@ -1,125 +1,1009 @@
-# ==== Investigate the VIP / DNS / LB situation ====
-getent hosts api.kbai.ttmtech.local
-dig api.kbai.ttmtech.local +short
-dig api.kbai.ttmtech.local +noall +answer
-
-# What do WORKERS think the server URL is?
-for n in aamslc4kbw01 aamslc4kbw02 aamslc4kbw03 aamslc4kbw04 aamslc4kbw05 aamslc4kbg01; do
+[root@aamslc4kbc01 ~]# getent hosts api.kbai.ttmtech.local
+10.200.248.30   aamslc4hap01.ttmtech.local api.kbai.ttmtech.local
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# dig api.kbai.ttmtech.local +short
+aamslc4hap01.ttmtech.local.
+10.200.248.30
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# dig api.kbai.ttmtech.local +noall +answer
+api.kbai.ttmtech.local. 3600    IN      CNAME   aamslc4hap01.ttmtech.local.
+aamslc4hap01.ttmtech.local. 3600 IN     A       10.200.248.30
+[root@aamslc4kbc01 ~]# for n in aamslc4kbw01 aamslc4kbw02 aamslc4kbw03 aamslc4kbw04 aamslc4kbw05 aamslc4kbg01; do
   echo "=== $n ==="
   ssh $n "grep -E '^server' /etc/rancher/rke2/config.yaml 2>/dev/null; cat /etc/rancher/rke2/config.yaml.d/*.yaml 2>/dev/null | grep -E '^server'"
 done
+=== aamslc4kbw01 ===
+Authorized users only. All activity may be monitored and reported.
+root@aamslc4kbw01's password: 
 
-# What does DNS resolve master-0/1/2 to? (tls-san entries)
-for h in master-0 master-1 master-2 api; do
+[root@aamslc4kbc01 ~]# ^C
+[root@aamslc4kbc01 ~]# for n in aamslc4kbw01 aamslc4kbw02 aamslc4kbw03 aamslc4kbw04 aamslc4kbw05 aamslc4kbg01; do   echo "=== $n ===";   ssh $n "grep -E '^server' /etc/rancher/rke2/config.yaml 2>/dev/null; cat /etc/rancher/rke2/config.yaml.d/*.yaml 2>/dev/null | grep -E '^server'"; done^C
+[root@aamslc4kbc01 ~]# exit
+logout
+[asvc.rhautomation@aamslc4kbc01 ~]$ for n in aamslc4kbw01 aamslc4kbw02 aamslc4kbw03 aamslc4kbw04 aamslc4kbw05 aamslc4kbg01; do   echo "=== $n ===";   ssh $n "grep -E '^server' /etc/rancher/rke2/config.yaml 2>/dev/null; cat /etc/rancher/rke2/config.yaml.d/*.yaml 2>/dev/null | grep -E '^server'"; done
+=== aamslc4kbw01 ===
+The authenticity of host 'aamslc4kbw01 (10.200.248.41)' can't be established.
+ED25519 key fingerprint is SHA256:aDDwdukZQ819pfL12QnlL5nrRhRjMeBHfj61gKchOi4.
+This host key is known by the following other names/addresses:
+    ~/.ssh/known_hosts:1: aamhilran01.ttmtech.local
+    ~/.ssh/known_hosts:4: aamhilcp01
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'aamslc4kbw01' (ED25519) to the list of known hosts.
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbw01's password: 
+=== aamslc4kbw02 ===
+The authenticity of host 'aamslc4kbw02 (10.200.248.42)' can't be established.
+ED25519 key fingerprint is SHA256:aDDwdukZQ819pfL12QnlL5nrRhRjMeBHfj61gKchOi4.
+This host key is known by the following other names/addresses:
+    ~/.ssh/known_hosts:1: aamhilran01.ttmtech.local
+    ~/.ssh/known_hosts:4: aamhilcp01
+    ~/.ssh/known_hosts:5: aamslc4kbw01
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'aamslc4kbw02' (ED25519) to the list of known hosts.
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbw02's password: 
+=== aamslc4kbw03 ===
+The authenticity of host 'aamslc4kbw03 (10.200.248.43)' can't be established.
+ED25519 key fingerprint is SHA256:aDDwdukZQ819pfL12QnlL5nrRhRjMeBHfj61gKchOi4.
+This host key is known by the following other names/addresses:
+    ~/.ssh/known_hosts:1: aamhilran01.ttmtech.local
+    ~/.ssh/known_hosts:4: aamhilcp01
+    ~/.ssh/known_hosts:5: aamslc4kbw01
+    ~/.ssh/known_hosts:6: aamslc4kbw02
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'aamslc4kbw03' (ED25519) to the list of known hosts.
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbw03's password: 
+=== aamslc4kbw04 ===
+The authenticity of host 'aamslc4kbw04 (10.200.248.44)' can't be established.
+ED25519 key fingerprint is SHA256:aDDwdukZQ819pfL12QnlL5nrRhRjMeBHfj61gKchOi4.
+This host key is known by the following other names/addresses:
+    ~/.ssh/known_hosts:1: aamhilran01.ttmtech.local
+    ~/.ssh/known_hosts:4: aamhilcp01
+    ~/.ssh/known_hosts:5: aamslc4kbw01
+    ~/.ssh/known_hosts:6: aamslc4kbw02
+    ~/.ssh/known_hosts:7: aamslc4kbw03
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'aamslc4kbw04' (ED25519) to the list of known hosts.
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbw04's password: 
+=== aamslc4kbw05 ===
+The authenticity of host 'aamslc4kbw05 (10.200.248.45)' can't be established.
+ED25519 key fingerprint is SHA256:aDDwdukZQ819pfL12QnlL5nrRhRjMeBHfj61gKchOi4.
+This host key is known by the following other names/addresses:
+    ~/.ssh/known_hosts:1: aamhilran01.ttmtech.local
+    ~/.ssh/known_hosts:4: aamhilcp01
+    ~/.ssh/known_hosts:5: aamslc4kbw01
+    ~/.ssh/known_hosts:6: aamslc4kbw02
+    ~/.ssh/known_hosts:7: aamslc4kbw03
+    ~/.ssh/known_hosts:8: aamslc4kbw04
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'aamslc4kbw05' (ED25519) to the list of known hosts.
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbw05's password: 
+=== aamslc4kbg01 ===
+The authenticity of host 'aamslc4kbg01 (10.200.248.61)' can't be established.
+ED25519 key fingerprint is SHA256:aDDwdukZQ819pfL12QnlL5nrRhRjMeBHfj61gKchOi4.
+This host key is known by the following other names/addresses:
+    ~/.ssh/known_hosts:1: aamhilran01.ttmtech.local
+    ~/.ssh/known_hosts:4: aamhilcp01
+    ~/.ssh/known_hosts:5: aamslc4kbw01
+    ~/.ssh/known_hosts:6: aamslc4kbw02
+    ~/.ssh/known_hosts:7: aamslc4kbw03
+    ~/.ssh/known_hosts:8: aamslc4kbw04
+    ~/.ssh/known_hosts:9: aamslc4kbw05
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'aamslc4kbg01' (ED25519) to the list of known hosts.
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbg01's password: 
+Permission denied, please try again.
+asvc.rhautomation@aamslc4kbg01's password: 
+[asvc.rhautomation@aamslc4kbc01 ~]$ 
+[asvc.rhautomation@aamslc4kbc01 ~]$ 
+[asvc.rhautomation@aamslc4kbc01 ~]$ 
+[asvc.rhautomation@aamslc4kbc01 ~]$ for n in aamslc4kbw01 aamslc4kbw02 aamslc4kbw03 aamslc4kbw04 aamslc4kbw05 aamslc4kbg01; do   echo "=== $n ===";   ssh $n "grep -E '^server' /etc/rancher/rke2/config.yaml 2>/dev/null; cat /etc/rancher/rke2/config.yaml.d/*.yaml 2>/dev/null | grep -E '^server'"; done
+=== aamslc4kbw01 ===
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbw01's password: 
+=== aamslc4kbw02 ===
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbw02's password: 
+=== aamslc4kbw03 ===
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbw03's password: 
+=== aamslc4kbw04 ===
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbw04's password: 
+=== aamslc4kbw05 ===
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbw05's password: 
+=== aamslc4kbg01 ===
+Authorized users only. All activity may be monitored and reported.
+asvc.rhautomation@aamslc4kbg01's password: 
+[asvc.rhautomation@aamslc4kbc01 ~]$ 
+[asvc.rhautomation@aamslc4kbc01 ~]$ 
+[asvc.rhautomation@aamslc4kbc01 ~]$ 
+[asvc.rhautomation@aamslc4kbc01 ~]$ 
+[asvc.rhautomation@aamslc4kbc01 ~]$ sudo su 
+[root@aamslc4kbc01 asvc.rhautomation]# exit
+exit
+[asvc.rhautomation@aamslc4kbc01 ~]$ sudo su -
+Last login: Wed Apr 22 08:34:21 PDT 2026 on pts/1
+[root@aamslc4kbc01 ~]# export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# for h in master-0 master-1 master-2 api; do
   echo "$h.kbai.ttmtech.local -> $(getent hosts $h.kbai.ttmtech.local | awk '{print $1}')"
 done
-
-# ==== CIS profile verification ====
-grep -i '^profile:' /etc/rancher/rke2/config.yaml
-# Confirm etcd runs as root (NOT etcd user) — this is a CIS miss
-sudo /var/lib/rancher/rke2/bin/crictl inspect $(sudo /var/lib/rancher/rke2/bin/crictl ps --name etcd -q | head -1) | grep -iE 'runAsUser|runAsGroup|uid|gid' | head
+master-0.kbai.ttmtech.local -> 10.200.248.21
+master-1.kbai.ttmtech.local -> 10.200.248.22
+master-2.kbai.ttmtech.local -> 10.200.248.23
+api.kbai.ttmtech.local -> 10.200.248.30
+[root@aamslc4kbc01 ~]# grep -i '^profile:' /etc/rancher/rke2/config.yaml
+[root@aamslc4kbc01 ~]# sudo /var/lib/rancher/rke2/bin/crictl inspect $(sudo /var/lib/rancher/rke2/bin/crictl ps --name etcd -q | head -1) | grep -iE 'runAsUser|runAsGroup|uid|gid' | head
 id etcd 2>/dev/null || echo "no etcd host user — CIS fail"
-
-# ==== Pod Security Admission — cluster-wide default ====
-grep -i admission /etc/rancher/rke2/config.yaml
+WARN[0000] Config "/etc/crictl.yaml" does not exist, trying next: "/var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/crictl.yaml" 
+WARN[0000] runtime connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead. 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/containerd/containerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/containerd/containerd.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/crio/crio.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/crio/crio.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+FATA[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+WARN[0000] Config "/etc/crictl.yaml" does not exist, trying next: "/var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/crictl.yaml" 
+WARN[0000] runtime connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead. 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/containerd/containerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/containerd/containerd.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/crio/crio.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/crio/crio.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+FATA[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+no etcd host user — CIS fail
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# sudo /var/lib/rancher/rke2/bin/crictl inspect $(sudo /var/lib/rancher/rke2/bin/crictl ps --name etcd -q | head -1) | grep -iE 'runAsUser|runAsGroup|uid|gid' | head
+WARN[0000] Config "/etc/crictl.yaml" does not exist, trying next: "/var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/crictl.yaml" 
+WARN[0000] runtime connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead. 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/containerd/containerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/containerd/containerd.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/crio/crio.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/crio/crio.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+FATA[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+WARN[0000] Config "/etc/crictl.yaml" does not exist, trying next: "/var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/crictl.yaml" 
+WARN[0000] runtime connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead. 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/containerd/containerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/containerd/containerd.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/crio/crio.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/crio/crio.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+FATA[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# sudo /var/lib/rancher/rke2/bin/crictl inspect $(sudo /var/lib/rancher/rke2/bin/crictl ps --name etcd -q | head -1) | grep -iE 'runAsUser|runAsGroup|uid|gid' | head
+id etcd 2>/dev/null || echo "no etcd host user — CIS fail"
+WARN[0000] Config "/etc/crictl.yaml" does not exist, trying next: "/var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/crictl.yaml" 
+WARN[0000] runtime connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead. 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/containerd/containerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/containerd/containerd.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/crio/crio.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/crio/crio.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+FATA[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+WARN[0000] Config "/etc/crictl.yaml" does not exist, trying next: "/var/lib/rancher/rke2/data/v1.34.4-rke2r1-0d52262ea640/bin/crictl.yaml" 
+WARN[0000] runtime connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead. 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/containerd/containerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/containerd/containerd.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///run/crio/crio.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/crio/crio.sock: connect: no such file or directory" 
+ERRO[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+FATA[0000] validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/cri-dockerd.sock": rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /var/run/cri-dockerd.sock: connect: no such file or directory" 
+no etcd host user — CIS fail
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# grep -i admission /etc/rancher/rke2/config.yaml
 sudo ls /etc/rancher/rke2/
 sudo cat /etc/rancher/rke2/rke2-pss.yaml 2>/dev/null
 kubectl get ns -o json | jq -r '.items[] | "\(.metadata.name)\tenforce=\(.metadata.labels["pod-security.kubernetes.io/enforce"] // "NONE")"' | column -t
-
-# ==== Secrets encryption at rest ====
-sudo /var/lib/rancher/rke2/bin/rke2 secrets-encrypt status 2>/dev/null
-
-# ==== Audit log — is anything actually being written? ====
-sudo cat /etc/kubernetes/audit/policy.yaml 2>/dev/null
+config.yaml  rke2-pss.yaml  rke2.yaml
+apiVersion: apiserver.config.k8s.io/v1
+kind: AdmissionConfiguration
+plugins:
+- name: PodSecurity
+  configuration:
+    apiVersion: pod-security.admission.config.k8s.io/v1beta1
+    kind: PodSecurityConfiguration
+    defaults:
+      enforce: "privileged"
+      enforce-version: "latest"
+    exemptions:
+      usernames: []
+      runtimeClasses: []
+      namespaces: []aitk-console                 enforce=NONE
+aitk-zuva                    enforce=NONE
+api                          enforce=NONE
+audit-log-exporter           enforce=NONE
+cattle-dashboards            enforce=NONE
+cattle-fleet-system          enforce=NONE
+cattle-impersonation-system  enforce=NONE
+cattle-local-user-passwords  enforce=NONE
+cattle-monitoring-system     enforce=NONE
+cattle-system                enforce=NONE
+cerbos                       enforce=NONE
+cert-manager                 enforce=NONE
+cnpg-system                  enforce=NONE
+codestral-inference          enforce=NONE
+credits                      enforce=NONE
+deephat-v2-hf-inference      enforce=NONE
+default                      enforce=NONE
+devstral-small-2-inference   enforce=NONE
+dex                          enforce=NONE
+embeddings                   enforce=NONE
+external-poller              enforce=NONE
+external-secrets             enforce=NONE
+external-sync                enforce=NONE
+field-discovery              enforce=NONE
+gemma4-31b-inference         enforce=NONE
+glm-flash-inference          enforce=NONE
+gpu-operator                 enforce=NONE
+hatchet                      enforce=NONE
+istio-system                 enforce=NONE
+kafka                        enforce=NONE
+keda                         enforce=NONE
+kindo-deps                   enforce=NONE
+kindo-system                 enforce=NONE
+kube-node-lease              enforce=NONE
+kube-public                  enforce=NONE
+kube-system                  enforce=NONE
+litellm                      enforce=NONE
+llama-4-maverick-inference   enforce=NONE
+local                        enforce=NONE
+logging                      enforce=NONE
+longhorn                     enforce=NONE
+longhorn-system              enforce=NONE
+mcp                          enforce=NONE
+minio-operator               enforce=NONE
+nango                        enforce=NONE
+nemotron-inference           enforce=NONE
+next                         enforce=NONE
+pgweb                        enforce=NONE
+presidio                     enforce=NONE
+prisma-migrations            enforce=NONE
+qdrant                       enforce=NONE
+rabbitmq-system              enforce=NONE
+redis-operator               enforce=NONE
+sandbox                      enforce=NONE
+speaches                     enforce=NONE
+ssoready                     enforce=NONE
+task-worker-ts               enforce=NONE
+text-embeddings              enforce=NONE
+unleash                      enforce=NONE
+[root@aamslc4kbc01 ~]# sudo /var/lib/rancher/rke2/bin/rke2 secrets-encrypt status 2>/dev/null
+[root@aamslc4kbc01 ~]# sudo cat /etc/kubernetes/audit/policy.yaml 2>/dev/null
 sudo ls -lh /var/log/kubernetes/audit/ 2>/dev/null
 sudo tail -5 /var/log/kubernetes/audit/audit.log 2>/dev/null | head
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  # Don't log read-only health checks
+  - level: None
+    nonResourceURLs:
+      - /healthz*
+      - /version
+      - /readyz
+      - /livez
 
-# ==== RBAC — cluster-admins ====
-kubectl get clusterrolebinding -o json | jq -r '
+  # Don't log system components checking status
+  - level: None
+    users:
+      - system:kube-proxy
+      - system:kube-scheduler
+      - system:kube-controller-manager
+    verbs: [get, list, watch]
+
+  # Log secrets/configmaps/RBAC at RequestResponse
+  - level: RequestResponse
+    resources:
+      - group: ""
+        resources: [secrets, configmaps]
+      - group: "rbac.authorization.k8s.io"
+        resources: [clusterroles, clusterrolebindings, roles, rolebindings]
+
+  # Log pod exec/attach/portforward
+  - level: RequestResponse
+    resources:
+      - group: ""
+        resources: [pods/exec, pods/attach, pods/portforward]
+
+  # Everything else at Metadata level
+  - level: Metadata
+    omitStages:
+      - RequestReceived
+total 457M
+-rw------- 1 root root 100M Apr 22 04:42 audit-2026-04-22T11-42-48.894.log
+-rw------- 1 root root 100M Apr 22 06:02 audit-2026-04-22T13-02-50.563.log
+-rw------- 1 root root 100M Apr 22 07:22 audit-2026-04-22T14-22-52.332.log
+-rw------- 1 root root  94M Apr 22 08:36 audit.log
+{"kind":"Event","apiVersion":"audit.k8s.io/v1","level":"Metadata","auditID":"de59708b-db59-41bb-8afa-5a7f63f8d531","stage":"ResponseComplete","requestURI":"/apis/coordination.k8s.io/v1/namespaces/cattle-fleet-system/leases/fleet-agent","verb":"update","user":{"username":"system:serviceaccount:cattle-fleet-system:fleet-agent","uid":"472cfd71-8a6e-4dbd-8ea3-c42d456822de","groups":["system:serviceaccounts","system:serviceaccounts:cattle-fleet-system","system:authenticated"],"extra":{"authentication.kubernetes.io/credential-id":["JTI=47efa89e-39ba-4ffb-8f92-5876a6154f4f"],"authentication.kubernetes.io/node-name":["aamslc4kbw03.ttmtech.local"],"authentication.kubernetes.io/node-uid":["e3fbcfc8-2f7b-4d37-86ac-3ef4bb52ac28"],"authentication.kubernetes.io/pod-name":["fleet-agent-b497bff4-zc9cm"],"authentication.kubernetes.io/pod-uid":["0b014557-b951-4a7f-b25c-b229e04f5145"]}},"sourceIPs":["10.200.248.43"],"userAgent":"fleetagent/v0.0.0 (linux/amd64) kubernetes/$Format","objectRef":{"resource":"leases","namespace":"cattle-fleet-system","name":"fleet-agent","uid":"e39425d7-cc23-4dff-a8e5-2b0324e465ee","apiGroup":"coordination.k8s.io","apiVersion":"v1","resourceVersion":"94993166"},"responseStatus":{"metadata":{},"code":200},"requestReceivedTimestamp":"2026-04-22T15:36:08.497017Z","stageTimestamp":"2026-04-22T15:36:08.500082Z","annotations":{"authorization.k8s.io/decision":"allow","authorization.k8s.io/reason":"RBAC: allowed by ClusterRoleBinding \"cattle-fleet-system-fleet-agent-role-binding\" of ClusterRole \"cattle-fleet-system-fleet-agent-role\" to ServiceAccount \"fleet-agent/cattle-fleet-system\""}}
+{"kind":"Event","apiVersion":"audit.k8s.io/v1","level":"Metadata","auditID":"13421034-08f5-49a6-a903-2f12ab181cc3","stage":"ResponseComplete","requestURI":"/apis/coordination.k8s.io/v1/namespaces/kafka/leases/strimzi-cluster-operator","verb":"get","user":{"username":"system:serviceaccount:kafka:strimzi-cluster-operator","uid":"4e99eac7-eb69-4194-bd1f-d415c217d2b2","groups":["system:serviceaccounts","system:serviceaccounts:kafka","system:authenticated"],"extra":{"authentication.kubernetes.io/credential-id":["JTI=73d06111-7fe2-40e1-afd7-dcf0db270476"],"authentication.kubernetes.io/node-name":["aamslc4kbw03.ttmtech.local"],"authentication.kubernetes.io/node-uid":["e3fbcfc8-2f7b-4d37-86ac-3ef4bb52ac28"],"authentication.kubernetes.io/pod-name":["strimzi-cluster-operator-686f95745c-7pcp4"],"authentication.kubernetes.io/pod-uid":["571e919e-46b4-4af5-af33-047e93cbdc3e"]}},"sourceIPs":["10.200.248.43"],"userAgent":"strimzi-cluster-operator/0.45.1","objectRef":{"resource":"leases","namespace":"kafka","name":"strimzi-cluster-operator","apiGroup":"coordination.k8s.io","apiVersion":"v1"},"responseStatus":{"metadata":{},"code":200},"requestReceivedTimestamp":"2026-04-22T15:36:08.660294Z","stageTimestamp":"2026-04-22T15:36:08.661992Z","annotations":{"authorization.k8s.io/decision":"allow","authorization.k8s.io/reason":"RBAC: allowed by RoleBinding \"strimzi-cluster-operator-leader-election/kafka\" of ClusterRole \"strimzi-cluster-operator-leader-election\" to ServiceAccount \"strimzi-cluster-operator/kafka\""}}
+{"kind":"Event","apiVersion":"audit.k8s.io/v1","level":"Metadata","auditID":"1259a0a1-f3de-45b9-be46-81cc1d0657ce","stage":"ResponseComplete","requestURI":"/apis/coordination.k8s.io/v1/namespaces/kafka/leases/strimzi-cluster-operator","verb":"patch","user":{"username":"system:serviceaccount:kafka:strimzi-cluster-operator","uid":"4e99eac7-eb69-4194-bd1f-d415c217d2b2","groups":["system:serviceaccounts","system:serviceaccounts:kafka","system:authenticated"],"extra":{"authentication.kubernetes.io/credential-id":["JTI=73d06111-7fe2-40e1-afd7-dcf0db270476"],"authentication.kubernetes.io/node-name":["aamslc4kbw03.ttmtech.local"],"authentication.kubernetes.io/node-uid":["e3fbcfc8-2f7b-4d37-86ac-3ef4bb52ac28"],"authentication.kubernetes.io/pod-name":["strimzi-cluster-operator-686f95745c-7pcp4"],"authentication.kubernetes.io/pod-uid":["571e919e-46b4-4af5-af33-047e93cbdc3e"]}},"sourceIPs":["10.200.248.43"],"userAgent":"strimzi-cluster-operator/0.45.1","objectRef":{"resource":"leases","namespace":"kafka","name":"strimzi-cluster-operator","apiGroup":"coordination.k8s.io","apiVersion":"v1"},"responseStatus":{"metadata":{},"code":200},"requestReceivedTimestamp":"2026-04-22T15:36:08.662788Z","stageTimestamp":"2026-04-22T15:36:08.665345Z","annotations":{"authorization.k8s.io/decision":"allow","authorization.k8s.io/reason":"RBAC: allowed by RoleBinding \"strimzi-cluster-operator-leader-election/kafka\" of ClusterRole \"strimzi-cluster-operator-leader-election\" to ServiceAccount \"strimzi-cluster-operator/kafka\""}}
+{"kind":"Event","apiVersion":"audit.k8s.io/v1","level":"Metadata","auditID":"88964cc4-d742-4c49-a40f-f4101fd3aeb5","stage":"ResponseComplete","requestURI":"/apis/coordination.k8s.io/v1/namespaces/kube-system/leases/rke2-cloud-controller-manager?timeout=5s","verb":"get","user":{"username":"rke2-cloud-controller-manager","groups":["system:authenticated"],"extra":{"authentication.kubernetes.io/credential-id":["X509SHA256=33a46ab9e1c7c740b392f583abfbc575388ab10d1b1bd1480a6b2e646f207b26"]}},"sourceIPs":["127.0.0.1"],"userAgent":"cloud-controller-manager/v1.34.4 (linux/amd64) kubernetes/80cff1e/leader-election","objectRef":{"resource":"leases","namespace":"kube-system","name":"rke2-cloud-controller-manager","apiGroup":"coordination.k8s.io","apiVersion":"v1"},"responseStatus":{"metadata":{},"code":200},"requestReceivedTimestamp":"2026-04-22T15:36:09.005104Z","stageTimestamp":"2026-04-22T15:36:09.006699Z","annotations":{"authorization.k8s.io/decision":"allow","authorization.k8s.io/reason":"RBAC: allowed by ClusterRoleBinding \"rke2-cloud-controller-manager\" of ClusterRole \"rke2-cloud-controller-manager\" to User \"rke2-cloud-controller-manager\""}}
+{"kind":"Event","apiVersion":"audit.k8s.io/v1","level":"Metadata","auditID":"cef38996-1adc-450f-943d-fc421fa9929c","stage":"ResponseComplete","requestURI":"/api/v1/namespaces/kube-system?timeout=45s","verb":"get","user":{"username":"system:serviceaccount:cattle-system:cattle","uid":"4910d7d0-b6e7-4797-943f-8cfe310bf68e","groups":["system:serviceaccounts","system:serviceaccounts:cattle-system","system:authenticated"]},"sourceIPs":["10.200.248.23"],"userAgent":"rancher/v0.0.0 (linux/amd64) kubernetes/$Format cluster c-9qrq4","objectRef":{"resource":"namespaces","namespace":"kube-system","name":"kube-system","apiVersion":"v1"},"responseStatus":{"metadata":{},"code":200},"requestReceivedTimestamp":"2026-04-22T15:36:09.055220Z","stageTimestamp":"2026-04-22T15:36:09.056997Z","annotations":{"authentication.k8s.io/legacy-token":"system:serviceaccount:cattle-system:cattle","authentication.k8s.io/legacy-token-manual-secret":"cattle-token-867n4","authorization.k8s.io/decision":"allow","authorization.k8s.io/reason":"RBAC: allowed by ClusterRoleBinding \"cattle-admin-binding\" of ClusterRole \"cattle-admin\" to ServiceAccount \"cattle/cattle-system\""}}
+[root@aamslc4kbc01 ~]# kubectl get clusterrolebinding -o json | jq -r '
   .items[] | select(.roleRef.name=="cluster-admin") 
   | "\(.metadata.name)\t\(.subjects // [] | map("\(.kind):\(.namespace // "-")/\(.name)") | join(" , "))"' | column -t -s $'\t'
-
-# ==== NetworkPolicy coverage ====
-echo "Namespaces with ZERO NetworkPolicies:"
+cluster-admin                                  Group:-/system:masters
+globaladmin-u-qramgckz4l                       Group:-/adfs_group://TTMTECH\AAMHIL-SG-Rancher-AI_Access
+globaladmin-u-tkgqh2nzao                       Group:-/activedirectory_group://CN=AAMHIL-SG-Rancher-AI_Access,OU=HIL,OU=AAM-PA-AAA-SGroups,OU=AAM-PA-AAA,OU=PAM1,DC=TTMTECH,DC=local
+globaladmin-user-74v5t                         User:-/user-74v5t
+globaladmin-user-fstdc                         User:-/user-fstdc
+globaladmin-user-l6ftp                         User:-/user-l6ftp
+globaladmin-user-rxqls                         User:-/user-rxqls
+helm-kube-system-rke2-canal                    ServiceAccount:kube-system/helm-rke2-canal
+helm-kube-system-rke2-coredns                  ServiceAccount:kube-system/helm-rke2-coredns
+helm-kube-system-rke2-ingress-nginx            ServiceAccount:kube-system/helm-rke2-ingress-nginx
+helm-kube-system-rke2-metrics-server           ServiceAccount:kube-system/helm-rke2-metrics-server
+helm-kube-system-rke2-runtimeclasses           ServiceAccount:kube-system/helm-rke2-runtimeclasses
+helm-kube-system-rke2-snapshot-controller      ServiceAccount:kube-system/helm-rke2-snapshot-controller
+helm-kube-system-rke2-snapshot-controller-crd  ServiceAccount:kube-system/helm-rke2-snapshot-controller-crd
+longhorn-support-bundle                        ServiceAccount:longhorn/longhorn-support-bundle
+rancher-webhook                                ServiceAccount:cattle-system/rancher-webhook
+system-upgrade-controller                      ServiceAccount:cattle-system/system-upgrade-controller
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# echo "Namespaces with ZERO NetworkPolicies:"
 for ns in $(kubectl get ns -o name | cut -d/ -f2); do
   count=$(kubectl -n $ns get netpol --no-headers 2>/dev/null | wc -l)
   [ "$count" -eq 0 ] && echo "  $ns"
 done
 echo
 echo "All NetworkPolicies:"
-kubectl get netpol -A
+Namespaces with ZERO NetworkPolicies:
+  aitk-console
+  aitk-zuva
+  api
+  audit-log-exporter
+  cattle-dashboards
+  cattle-impersonation-system
+  cattle-local-user-passwords
+  cattle-monitoring-system
+  cattle-system
+  cerbos
+  cert-manager
+  cnpg-system
+  codestral-inference
+  credits
+  deephat-v2-hf-inference
+  default
+  devstral-small-2-inference
+  dex
+  embeddings
+  external-poller
+  external-secrets
+  external-sync
+  field-discovery
+  gemma4-31b-inference
+  glm-flash-inference
+  gpu-operator
+  hatchet
+  istio-system
+  keda
+  kindo-deps
+  kindo-system
+  kube-node-lease
+  kube-public
+  litellm
+  llama-4-maverick-inference
+  local
+  logging
+  longhorn
+  longhorn-system
+  mcp
+  minio-operator
+  nango
+  nemotron-inference
+  next
+  pgweb
+  presidio
+  prisma-migrations
+  qdrant
+  redis-operator
+  speaches
+  ssoready
+  task-worker-ts
+  text-embeddings
+  unleash
 
-# ==== Privileged / host-access pods ====
-kubectl get pods -A -o json | jq -r '
+All NetworkPolicies:
+[root@aamslc4kbc01 ~]# kubectl get netpol -A
+NAMESPACE             NAME                                                     POD-SELECTOR                                                                                                                                                                               AGE
+cattle-fleet-system   default-allow-all                                        <none>                                                                                                                                                                                     40d
+kafka                 aitk-kafka-cluster-entity-operator                       strimzi.io/cluster=aitk-kafka-cluster,strimzi.io/kind=Kafka,strimzi.io/name=aitk-kafka-cluster-entity-operator                                                                             31d
+kafka                 aitk-kafka-cluster-network-policy-kafka                  strimzi.io/cluster=aitk-kafka-cluster,strimzi.io/kind=Kafka,strimzi.io/name=aitk-kafka-cluster-kafka                                                                                       31d
+kafka                 aitk-kafka-cluster-network-policy-zookeeper              strimzi.io/cluster=aitk-kafka-cluster,strimzi.io/kind=Kafka,strimzi.io/name=aitk-kafka-cluster-zookeeper                                                                                   31d
+kube-system           rancher-monitoring-coredns-allow-all                     k8s-app=kube-dns                                                                                                                                                                           40d
+rabbitmq-system       rabbitmq-operator-rabbitmq-cluster-operator              app.kubernetes.io/component=rabbitmq-operator,app.kubernetes.io/instance=rabbitmq-operator,app.kubernetes.io/name=rabbitmq-cluster-operator,app.kubernetes.io/part-of=rabbitmq             93d
+rabbitmq-system       rabbitmq-operator-rabbitmq-messaging-topology-operator   app.kubernetes.io/component=messaging-topology-operator,app.kubernetes.io/instance=rabbitmq-operator,app.kubernetes.io/name=rabbitmq-cluster-operator,app.kubernetes.io/part-of=rabbitmq   93d
+sandbox               allow-egress-sandbox-007c7b46                            sandbox.kindo.ai/id-hash=007c7b46                                                                                                                                                          20d
+sandbox               allow-egress-sandbox-0091fad2                            sandbox.kindo.ai/id-hash=0091fad2                                                                                                                                                          3d17h
+sandbox               allow-egress-sandbox-011264cc                            sandbox.kindo.ai/id-hash=011264cc                                                                                                                                                          5d18h
+sandbox               allow-egress-sandbox-023c39a3                            sandbox.kindo.ai/id-hash=023c39a3                                                                                                                                                          36d
+sandbox               allow-egress-sandbox-04c239ee                            sandbox.kindo.ai/id-hash=04c239ee                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-07e61f98                            sandbox.kindo.ai/id-hash=07e61f98                                                                                                                                                          4d18h
+sandbox               allow-egress-sandbox-086ea81c                            sandbox.kindo.ai/id-hash=086ea81c                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-092e0506                            sandbox.kindo.ai/id-hash=092e0506                                                                                                                                                          18h
+sandbox               allow-egress-sandbox-1534dea1                            sandbox.kindo.ai/id-hash=1534dea1                                                                                                                                                          18d
+sandbox               allow-egress-sandbox-1ac55d83                            sandbox.kindo.ai/id-hash=1ac55d83                                                                                                                                                          39d
+sandbox               allow-egress-sandbox-1c1e6285                            sandbox.kindo.ai/id-hash=1c1e6285                                                                                                                                                          18d
+sandbox               allow-egress-sandbox-1cbcbfef                            sandbox.kindo.ai/id-hash=1cbcbfef                                                                                                                                                          26d
+sandbox               allow-egress-sandbox-1d45d1e7                            sandbox.kindo.ai/id-hash=1d45d1e7                                                                                                                                                          34d
+sandbox               allow-egress-sandbox-1e72faaf                            sandbox.kindo.ai/id-hash=1e72faaf                                                                                                                                                          14d
+sandbox               allow-egress-sandbox-1f713616                            sandbox.kindo.ai/id-hash=1f713616                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-20c7bfd3                            sandbox.kindo.ai/id-hash=20c7bfd3                                                                                                                                                          34d
+sandbox               allow-egress-sandbox-23a55ba1                            sandbox.kindo.ai/id-hash=23a55ba1                                                                                                                                                          28d
+sandbox               allow-egress-sandbox-27bac172                            sandbox.kindo.ai/id-hash=27bac172                                                                                                                                                          20d
+sandbox               allow-egress-sandbox-28143ead                            sandbox.kindo.ai/id-hash=28143ead                                                                                                                                                          46h
+sandbox               allow-egress-sandbox-2b6503b7                            sandbox.kindo.ai/id-hash=2b6503b7                                                                                                                                                          6d21h
+sandbox               allow-egress-sandbox-2c3dbf1c                            sandbox.kindo.ai/id-hash=2c3dbf1c                                                                                                                                                          42h
+sandbox               allow-egress-sandbox-2d05a39e                            sandbox.kindo.ai/id-hash=2d05a39e                                                                                                                                                          32d
+sandbox               allow-egress-sandbox-2e20d2ff                            sandbox.kindo.ai/id-hash=2e20d2ff                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-2f53a321                            sandbox.kindo.ai/id-hash=2f53a321                                                                                                                                                          27d
+sandbox               allow-egress-sandbox-2f553bda                            sandbox.kindo.ai/id-hash=2f553bda                                                                                                                                                          5d18h
+sandbox               allow-egress-sandbox-2f63b8b1                            sandbox.kindo.ai/id-hash=2f63b8b1                                                                                                                                                          4d19h
+sandbox               allow-egress-sandbox-2f82f947                            sandbox.kindo.ai/id-hash=2f82f947                                                                                                                                                          3d19h
+sandbox               allow-egress-sandbox-3284c180                            sandbox.kindo.ai/id-hash=3284c180                                                                                                                                                          34d
+sandbox               allow-egress-sandbox-32f51af0                            sandbox.kindo.ai/id-hash=32f51af0                                                                                                                                                          4d18h
+sandbox               allow-egress-sandbox-34f79b7c                            sandbox.kindo.ai/id-hash=34f79b7c                                                                                                                                                          173m
+sandbox               allow-egress-sandbox-3504fa8d                            sandbox.kindo.ai/id-hash=3504fa8d                                                                                                                                                          8d
+sandbox               allow-egress-sandbox-357fea5f                            sandbox.kindo.ai/id-hash=357fea5f                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-35da39a4                            sandbox.kindo.ai/id-hash=35da39a4                                                                                                                                                          8d
+sandbox               allow-egress-sandbox-3769ecd6                            sandbox.kindo.ai/id-hash=3769ecd6                                                                                                                                                          17d
+sandbox               allow-egress-sandbox-385d523d                            sandbox.kindo.ai/id-hash=385d523d                                                                                                                                                          18d
+sandbox               allow-egress-sandbox-39413efc                            sandbox.kindo.ai/id-hash=39413efc                                                                                                                                                          6d19h
+sandbox               allow-egress-sandbox-3baa5f90                            sandbox.kindo.ai/id-hash=3baa5f90                                                                                                                                                          6d21h
+sandbox               allow-egress-sandbox-3c3d00bb                            sandbox.kindo.ai/id-hash=3c3d00bb                                                                                                                                                          33d
+sandbox               allow-egress-sandbox-3d338833                            sandbox.kindo.ai/id-hash=3d338833                                                                                                                                                          34d
+sandbox               allow-egress-sandbox-4057e875                            sandbox.kindo.ai/id-hash=4057e875                                                                                                                                                          24d
+sandbox               allow-egress-sandbox-4080bcf0                            sandbox.kindo.ai/id-hash=4080bcf0                                                                                                                                                          2d22h
+sandbox               allow-egress-sandbox-427fd89f                            sandbox.kindo.ai/id-hash=427fd89f                                                                                                                                                          2d
+sandbox               allow-egress-sandbox-43710880                            sandbox.kindo.ai/id-hash=43710880                                                                                                                                                          20d
+sandbox               allow-egress-sandbox-46e8c988                            sandbox.kindo.ai/id-hash=46e8c988                                                                                                                                                          14d
+sandbox               allow-egress-sandbox-49a81236                            sandbox.kindo.ai/id-hash=49a81236                                                                                                                                                          18d
+sandbox               allow-egress-sandbox-4b3fa4ef                            sandbox.kindo.ai/id-hash=4b3fa4ef                                                                                                                                                          41h
+sandbox               allow-egress-sandbox-4f724ee7                            sandbox.kindo.ai/id-hash=4f724ee7                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-50509ebd                            sandbox.kindo.ai/id-hash=50509ebd                                                                                                                                                          20d
+sandbox               allow-egress-sandbox-52f1b782                            sandbox.kindo.ai/id-hash=52f1b782                                                                                                                                                          15d
+sandbox               allow-egress-sandbox-55f727b1                            sandbox.kindo.ai/id-hash=55f727b1                                                                                                                                                          21d
+sandbox               allow-egress-sandbox-59584882                            sandbox.kindo.ai/id-hash=59584882                                                                                                                                                          28d
+sandbox               allow-egress-sandbox-632cee8c                            sandbox.kindo.ai/id-hash=632cee8c                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-6819ddce                            sandbox.kindo.ai/id-hash=6819ddce                                                                                                                                                          28d
+sandbox               allow-egress-sandbox-6850fd42                            sandbox.kindo.ai/id-hash=6850fd42                                                                                                                                                          15d
+sandbox               allow-egress-sandbox-685b2dd7                            sandbox.kindo.ai/id-hash=685b2dd7                                                                                                                                                          20d
+sandbox               allow-egress-sandbox-6b8b69bd                            sandbox.kindo.ai/id-hash=6b8b69bd                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-6e2f8b67                            sandbox.kindo.ai/id-hash=6e2f8b67                                                                                                                                                          21h
+sandbox               allow-egress-sandbox-6e55971a                            sandbox.kindo.ai/id-hash=6e55971a                                                                                                                                                          32d
+sandbox               allow-egress-sandbox-740bb9e7                            sandbox.kindo.ai/id-hash=740bb9e7                                                                                                                                                          18d
+sandbox               allow-egress-sandbox-76e06351                            sandbox.kindo.ai/id-hash=76e06351                                                                                                                                                          27h
+sandbox               allow-egress-sandbox-7855f671                            sandbox.kindo.ai/id-hash=7855f671                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-78574cf2                            sandbox.kindo.ai/id-hash=78574cf2                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-78ecc925                            sandbox.kindo.ai/id-hash=78ecc925                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-79a3f51f                            sandbox.kindo.ai/id-hash=79a3f51f                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-7fd895cb                            sandbox.kindo.ai/id-hash=7fd895cb                                                                                                                                                          3d17h
+sandbox               allow-egress-sandbox-8200a66f                            sandbox.kindo.ai/id-hash=8200a66f                                                                                                                                                          3d19h
+sandbox               allow-egress-sandbox-8274c89a                            sandbox.kindo.ai/id-hash=8274c89a                                                                                                                                                          28d
+sandbox               allow-egress-sandbox-849af69d                            sandbox.kindo.ai/id-hash=849af69d                                                                                                                                                          4d16h
+sandbox               allow-egress-sandbox-859eb15f                            sandbox.kindo.ai/id-hash=859eb15f                                                                                                                                                          39h
+sandbox               allow-egress-sandbox-85bd0f96                            sandbox.kindo.ai/id-hash=85bd0f96                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-8ac58ca4                            sandbox.kindo.ai/id-hash=8ac58ca4                                                                                                                                                          34d
+sandbox               allow-egress-sandbox-8d59dc5e                            sandbox.kindo.ai/id-hash=8d59dc5e                                                                                                                                                          18d
+sandbox               allow-egress-sandbox-924755e4                            sandbox.kindo.ai/id-hash=924755e4                                                                                                                                                          20h
+sandbox               allow-egress-sandbox-9581741f                            sandbox.kindo.ai/id-hash=9581741f                                                                                                                                                          6d21h
+sandbox               allow-egress-sandbox-9865d700                            sandbox.kindo.ai/id-hash=9865d700                                                                                                                                                          16m
+sandbox               allow-egress-sandbox-9a56b87f                            sandbox.kindo.ai/id-hash=9a56b87f                                                                                                                                                          28d
+sandbox               allow-egress-sandbox-a00ef55e                            sandbox.kindo.ai/id-hash=a00ef55e                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-a08f8549                            sandbox.kindo.ai/id-hash=a08f8549                                                                                                                                                          18h
+sandbox               allow-egress-sandbox-a2f3d60a                            sandbox.kindo.ai/id-hash=a2f3d60a                                                                                                                                                          5d2h
+sandbox               allow-egress-sandbox-a54d8bf1                            sandbox.kindo.ai/id-hash=a54d8bf1                                                                                                                                                          6d22h
+sandbox               allow-egress-sandbox-a895482e                            sandbox.kindo.ai/id-hash=a895482e                                                                                                                                                          39h
+sandbox               allow-egress-sandbox-a9cfa3e3                            sandbox.kindo.ai/id-hash=a9cfa3e3                                                                                                                                                          27d
+sandbox               allow-egress-sandbox-aa7006d5                            sandbox.kindo.ai/id-hash=aa7006d5                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-add88cd0                            sandbox.kindo.ai/id-hash=add88cd0                                                                                                                                                          24d
+sandbox               allow-egress-sandbox-aed2e3aa                            sandbox.kindo.ai/id-hash=aed2e3aa                                                                                                                                                          18d
+sandbox               allow-egress-sandbox-b062b85e                            sandbox.kindo.ai/id-hash=b062b85e                                                                                                                                                          32d
+sandbox               allow-egress-sandbox-b1be5276                            sandbox.kindo.ai/id-hash=b1be5276                                                                                                                                                          2d22h
+sandbox               allow-egress-sandbox-b4855d65                            sandbox.kindo.ai/id-hash=b4855d65                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-b60b2f4f                            sandbox.kindo.ai/id-hash=b60b2f4f                                                                                                                                                          23h
+sandbox               allow-egress-sandbox-b7040689                            sandbox.kindo.ai/id-hash=b7040689                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-bb1a6297                            sandbox.kindo.ai/id-hash=bb1a6297                                                                                                                                                          24d
+sandbox               allow-egress-sandbox-bbe8da84                            sandbox.kindo.ai/id-hash=bbe8da84                                                                                                                                                          4d19h
+sandbox               allow-egress-sandbox-bd65243d                            sandbox.kindo.ai/id-hash=bd65243d                                                                                                                                                          21d
+sandbox               allow-egress-sandbox-c0c65b3d                            sandbox.kindo.ai/id-hash=c0c65b3d                                                                                                                                                          19d
+sandbox               allow-egress-sandbox-c0e3f023                            sandbox.kindo.ai/id-hash=c0e3f023                                                                                                                                                          9d
+sandbox               allow-egress-sandbox-c29d8f1c                            sandbox.kindo.ai/id-hash=c29d8f1c                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-d487d26e                            sandbox.kindo.ai/id-hash=d487d26e                                                                                                                                                          5d18h
+sandbox               allow-egress-sandbox-d8f3188a                            sandbox.kindo.ai/id-hash=d8f3188a                                                                                                                                                          55d
+sandbox               allow-egress-sandbox-d9f0f233                            sandbox.kindo.ai/id-hash=d9f0f233                                                                                                                                                          14d
+sandbox               allow-egress-sandbox-da31d3ac                            sandbox.kindo.ai/id-hash=da31d3ac                                                                                                                                                          34d
+sandbox               allow-egress-sandbox-dd398f07                            sandbox.kindo.ai/id-hash=dd398f07                                                                                                                                                          20d
+sandbox               allow-egress-sandbox-e2645f39                            sandbox.kindo.ai/id-hash=e2645f39                                                                                                                                                          2d
+sandbox               allow-egress-sandbox-e30f3df4                            sandbox.kindo.ai/id-hash=e30f3df4                                                                                                                                                          3d19h
+sandbox               allow-egress-sandbox-e381a0ab                            sandbox.kindo.ai/id-hash=e381a0ab                                                                                                                                                          21d
+sandbox               allow-egress-sandbox-e42fab00                            sandbox.kindo.ai/id-hash=e42fab00                                                                                                                                                          7d3h
+sandbox               allow-egress-sandbox-e6a4148e                            sandbox.kindo.ai/id-hash=e6a4148e                                                                                                                                                          4d22h
+sandbox               allow-egress-sandbox-e74d8d8b                            sandbox.kindo.ai/id-hash=e74d8d8b                                                                                                                                                          3d21h
+sandbox               allow-egress-sandbox-e864195c                            sandbox.kindo.ai/id-hash=e864195c                                                                                                                                                          33d
+sandbox               allow-egress-sandbox-ef1a4f54                            sandbox.kindo.ai/id-hash=ef1a4f54                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-f029c6ee                            sandbox.kindo.ai/id-hash=f029c6ee                                                                                                                                                          13d
+sandbox               allow-egress-sandbox-f04f8b27                            sandbox.kindo.ai/id-hash=f04f8b27                                                                                                                                                          12d
+sandbox               allow-egress-sandbox-f4511671                            sandbox.kindo.ai/id-hash=f4511671                                                                                                                                                          24d
+sandbox               allow-egress-sandbox-f6bf6c49                            sandbox.kindo.ai/id-hash=f6bf6c49                                                                                                                                                          8d
+sandbox               allow-egress-sandbox-f759bd8d                            sandbox.kindo.ai/id-hash=f759bd8d                                                                                                                                                          4d23h
+sandbox               allow-egress-sandbox-f76b23c3                            sandbox.kindo.ai/id-hash=f76b23c3                                                                                                                                                          24d
+sandbox               sandbox-default-deny-egress                              <none>                                                                                                                                                                                     55d
+[root@aamslc4kbc01 ~]# kubectl get pods -A -o json | jq -r '
   .items[] | select(
     (.spec.containers[]?.securityContext.privileged==true) or
     (.spec.hostNetwork==true) or
     (.spec.hostPID==true) or
     (.spec.volumes[]?.hostPath != null)
   ) | "\(.metadata.namespace)/\(.metadata.name)\tpriv=\([.spec.containers[]?.securityContext.privileged] | any)\thostNet=\(.spec.hostNetwork // false)\thostPID=\(.spec.hostPID // false)"' | sort -u
-
-# ==== Longhorn: which namespace is real, replica config, backup target ====
-kubectl -n longhorn get pods 2>/dev/null | head -5
-kubectl -n longhorn-system get pods 2>/dev/null | head -5
-kubectl get volumes.longhorn.io -A 2>/dev/null | awk '{print $1}' | sort -u
+cattle-monitoring-system/rancher-monitoring-prometheus-node-exporter-4wfdz      priv=false      hostNet=true    hostPID=true
+cattle-monitoring-system/rancher-monitoring-prometheus-node-exporter-f74ds      priv=false      hostNet=true    hostPID=true
+cattle-monitoring-system/rancher-monitoring-prometheus-node-exporter-grs49      priv=false      hostNet=true    hostPID=true
+cattle-monitoring-system/rancher-monitoring-prometheus-node-exporter-gww27      priv=false      hostNet=true    hostPID=true
+cattle-monitoring-system/rancher-monitoring-prometheus-node-exporter-kpbpp      priv=false      hostNet=true    hostPID=true
+cattle-monitoring-system/rancher-monitoring-prometheus-node-exporter-mfvnz      priv=false      hostNet=true    hostPID=true
+cattle-monitoring-system/rancher-monitoring-prometheus-node-exporter-nnnmd      priv=false      hostNet=true    hostPID=true
+cattle-monitoring-system/rancher-monitoring-prometheus-node-exporter-qn7bq      priv=false      hostNet=true    hostPID=true
+cattle-monitoring-system/rancher-monitoring-prometheus-node-exporter-wv27x      priv=false      hostNet=true    hostPID=true
+cattle-system/system-upgrade-controller-65d9b4b8b-4k9zm priv=false      hostNet=false   hostPID=false
+codestral-inference/codestral-22b-664b7b7c4b-2mfdb      priv=false      hostNet=false   hostPID=false
+deephat-v2-hf-inference/deephat-v2-2h100-6957df78f5-8d87t       priv=false      hostNet=false   hostPID=false
+devstral-small-2-inference/devstral-small-2-988f5c7bb-5hxxz     priv=false      hostNet=false   hostPID=false
+gemma4-31b-inference/gemma-4-31b-it-76bcf56747-kr99m    priv=false      hostNet=false   hostPID=false
+gpu-operator/gpu-feature-discovery-4bqsb        priv=true       hostNet=false   hostPID=false
+gpu-operator/gpu-operator-7569f8b499-sh64v      priv=false      hostNet=false   hostPID=false
+gpu-operator/gpu-operator-node-feature-discovery-worker-2jkn9   priv=false      hostNet=false   hostPID=false
+gpu-operator/gpu-operator-node-feature-discovery-worker-bhgch   priv=false      hostNet=false   hostPID=false
+gpu-operator/gpu-operator-node-feature-discovery-worker-dtxsg   priv=false      hostNet=false   hostPID=false
+gpu-operator/gpu-operator-node-feature-discovery-worker-fr95z   priv=false      hostNet=false   hostPID=false
+gpu-operator/gpu-operator-node-feature-discovery-worker-h44k4   priv=false      hostNet=false   hostPID=false
+gpu-operator/gpu-operator-node-feature-discovery-worker-mdngz   priv=false      hostNet=false   hostPID=false
+gpu-operator/nvidia-container-toolkit-daemonset-vt4s9   priv=true       hostNet=false   hostPID=true
+gpu-operator/nvidia-cuda-validator-n5zb5        priv=true       hostNet=false   hostPID=false
+gpu-operator/nvidia-dcgm-exporter-8vvhb priv=true       hostNet=false   hostPID=false
+gpu-operator/nvidia-device-plugin-daemonset-sfhv6       priv=true       hostNet=false   hostPID=false
+gpu-operator/nvidia-mig-manager-lzx5p   priv=true       hostNet=false   hostPID=true
+gpu-operator/nvidia-operator-validator-98n8l    priv=true       hostNet=false   hostPID=false
+kube-system/cloud-controller-manager-aamslc4kbc01.ttmtech.local priv=false      hostNet=true    hostPID=false
+kube-system/cloud-controller-manager-aamslc4kbc02.ttmtech.local priv=false      hostNet=true    hostPID=false
+kube-system/cloud-controller-manager-aamslc4kbc03.ttmtech.local priv=false      hostNet=true    hostPID=false
+kube-system/etcd-aamslc4kbc01.ttmtech.local     priv=false      hostNet=true    hostPID=false
+kube-system/etcd-aamslc4kbc02.ttmtech.local     priv=false      hostNet=true    hostPID=false
+kube-system/etcd-aamslc4kbc03.ttmtech.local     priv=false      hostNet=true    hostPID=false
+kube-system/helm-install-rke2-canal-2qk2m       priv=false      hostNet=true    hostPID=false
+kube-system/helm-install-rke2-coredns-pmt72     priv=false      hostNet=true    hostPID=false
+kube-system/kube-apiserver-aamslc4kbc01.ttmtech.local   priv=false      hostNet=true    hostPID=false
+kube-system/kube-apiserver-aamslc4kbc02.ttmtech.local   priv=false      hostNet=true    hostPID=false
+kube-system/kube-apiserver-aamslc4kbc03.ttmtech.local   priv=false      hostNet=true    hostPID=false
+kube-system/kube-controller-manager-aamslc4kbc01.ttmtech.local  priv=false      hostNet=true    hostPID=false
+kube-system/kube-controller-manager-aamslc4kbc02.ttmtech.local  priv=false      hostNet=true    hostPID=false
+kube-system/kube-controller-manager-aamslc4kbc03.ttmtech.local  priv=false      hostNet=true    hostPID=false
+kube-system/kube-proxy-aamslc4kbc01.ttmtech.local       priv=true       hostNet=true    hostPID=false
+kube-system/kube-proxy-aamslc4kbc02.ttmtech.local       priv=true       hostNet=true    hostPID=false
+kube-system/kube-proxy-aamslc4kbc03.ttmtech.local       priv=true       hostNet=true    hostPID=false
+kube-system/kube-proxy-aamslc4kbg01.ttmtech.local       priv=true       hostNet=true    hostPID=false
+kube-system/kube-proxy-aamslc4kbw01.ttmtech.local       priv=true       hostNet=true    hostPID=false
+kube-system/kube-proxy-aamslc4kbw02.ttmtech.local       priv=true       hostNet=true    hostPID=false
+kube-system/kube-proxy-aamslc4kbw03.ttmtech.local       priv=true       hostNet=true    hostPID=false
+kube-system/kube-proxy-aamslc4kbw04.ttmtech.local       priv=true       hostNet=true    hostPID=false
+kube-system/kube-proxy-aamslc4kbw05.ttmtech.local       priv=true       hostNet=true    hostPID=false
+kube-system/kube-scheduler-aamslc4kbc01.ttmtech.local   priv=false      hostNet=true    hostPID=false
+kube-system/kube-scheduler-aamslc4kbc02.ttmtech.local   priv=false      hostNet=true    hostPID=false
+kube-system/kube-scheduler-aamslc4kbc03.ttmtech.local   priv=false      hostNet=true    hostPID=false
+kube-system/rke2-canal-65tcf    priv=true       hostNet=true    hostPID=false
+kube-system/rke2-canal-f52lb    priv=true       hostNet=true    hostPID=false
+kube-system/rke2-canal-m44t5    priv=true       hostNet=true    hostPID=false
+kube-system/rke2-canal-pbmj7    priv=true       hostNet=true    hostPID=false
+kube-system/rke2-canal-pnq2f    priv=true       hostNet=true    hostPID=false
+kube-system/rke2-canal-qbzrz    priv=true       hostNet=true    hostPID=false
+kube-system/rke2-canal-wqgrp    priv=true       hostNet=true    hostPID=false
+kube-system/rke2-canal-wvgwk    priv=true       hostNet=true    hostPID=false
+kube-system/rke2-canal-xtc2s    priv=true       hostNet=true    hostPID=false
+llama-4-maverick-inference/llama-4-maverick-8677df4dc4-k9wx2    priv=false      hostNet=false   hostPID=false
+logging/fluent-bit-84vvd        priv=false      hostNet=false   hostPID=false
+logging/fluent-bit-8k8m9        priv=false      hostNet=false   hostPID=false
+logging/fluent-bit-fsw5g        priv=false      hostNet=false   hostPID=false
+logging/fluent-bit-h4pwh        priv=false      hostNet=false   hostPID=false
+logging/fluent-bit-hs6h5        priv=false      hostNet=false   hostPID=false
+logging/fluent-bit-j22ct        priv=false      hostNet=false   hostPID=false
+logging/fluent-bit-m9xqz        priv=false      hostNet=false   hostPID=false
+logging/fluent-bit-s69wh        priv=false      hostNet=false   hostPID=false
+logging/fluent-bit-vtpfd        priv=false      hostNet=false   hostPID=false
+longhorn/csi-attacher-5857549d6f-cvzpn  priv=false      hostNet=false   hostPID=false
+longhorn/csi-attacher-5857549d6f-fncbh  priv=false      hostNet=false   hostPID=false
+longhorn/csi-attacher-5857549d6f-wphkw  priv=false      hostNet=false   hostPID=false
+longhorn/csi-provisioner-57f9d44448-48xnc       priv=false      hostNet=false   hostPID=false
+longhorn/csi-provisioner-57f9d44448-bbjbf       priv=false      hostNet=false   hostPID=false
+longhorn/csi-provisioner-57f9d44448-v42cb       priv=false      hostNet=false   hostPID=false
+longhorn/csi-resizer-547f8b9dc8-464hn   priv=false      hostNet=false   hostPID=false
+longhorn/csi-resizer-547f8b9dc8-9qbgh   priv=false      hostNet=false   hostPID=false
+longhorn/csi-resizer-547f8b9dc8-fgjr7   priv=false      hostNet=false   hostPID=false
+longhorn/csi-snapshotter-8558df8679-bq2rk       priv=false      hostNet=false   hostPID=false
+longhorn/csi-snapshotter-8558df8679-dpgjr       priv=false      hostNet=false   hostPID=false
+longhorn/csi-snapshotter-8558df8679-lch7s       priv=false      hostNet=false   hostPID=false
+longhorn/engine-image-ei-3154f3aa-57jnh priv=true       hostNet=false   hostPID=false
+longhorn/engine-image-ei-3154f3aa-8v87r priv=true       hostNet=false   hostPID=false
+longhorn/engine-image-ei-3154f3aa-fqsqw priv=true       hostNet=false   hostPID=false
+longhorn/engine-image-ei-3154f3aa-qdhtt priv=true       hostNet=false   hostPID=false
+longhorn/engine-image-ei-3154f3aa-s2jn4 priv=true       hostNet=false   hostPID=false
+longhorn/instance-manager-546e807f0deaeca0cc0608da3c7865fc      priv=true       hostNet=false   hostPID=false
+longhorn/instance-manager-6172d56ee97a4d14a640a07d6da0a80e      priv=true       hostNet=false   hostPID=false
+longhorn/instance-manager-7e3d45b327b221ddfa1426ccbb628d93      priv=true       hostNet=false   hostPID=false
+longhorn/instance-manager-80b384422cbc9233bc52ac2bbe4cb9c3      priv=true       hostNet=false   hostPID=false
+longhorn/instance-manager-9e3b69c26f43f84eb11747d889ee386b      priv=true       hostNet=false   hostPID=false
+longhorn/instance-manager-c2d92e5045fc54f5fec8c717c49c6770      priv=true       hostNet=false   hostPID=false
+longhorn/longhorn-csi-plugin-29scb      priv=true       hostNet=false   hostPID=false
+longhorn/longhorn-csi-plugin-4ssfv      priv=true       hostNet=false   hostPID=false
+longhorn/longhorn-csi-plugin-596qz      priv=true       hostNet=false   hostPID=false
+longhorn/longhorn-csi-plugin-h6vt6      priv=true       hostNet=false   hostPID=false
+longhorn/longhorn-csi-plugin-w9jpw      priv=true       hostNet=false   hostPID=false
+longhorn/longhorn-manager-6b4qr priv=true       hostNet=false   hostPID=false
+longhorn/longhorn-manager-75tmd priv=true       hostNet=false   hostPID=false
+longhorn/longhorn-manager-78r4n priv=true       hostNet=false   hostPID=false
+longhorn/longhorn-manager-9rj9q priv=true       hostNet=false   hostPID=false
+longhorn/longhorn-manager-t2ch8 priv=true       hostNet=false   hostPID=false
+longhorn/longhorn-manager-wbk9r priv=true       hostNet=false   hostPID=false
+ssoready/ssoready-admin-7fdf9889fb-xj5fc        priv=true       hostNet=false   hostPID=false
+ssoready/ssoready-api-7d977ccfb6-72c2t  priv=true       hostNet=false   hostPID=false
+ssoready/ssoready-app-85bf89569b-j48fw  priv=true       hostNet=false   hostPID=false
+ssoready/ssoready-auth-5fc897b68b-htfc6 priv=true       hostNet=false   hostPID=false
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
 kubectl -n longhorn-system get setting default-replica-count backup-target backup-target-credential-secret replica-soft-anti-affinity -o custom-columns=NAME:.metadata.name,VALUE:.value 2>/dev/null
-
-# Volumes at risk (degraded or <2 replicas)
-kubectl get volumes.longhorn.io -A -o json 2>/dev/null | jq -r '
+NAME                                                READY   STATUS    RESTARTS      AGE
+csi-attacher-5857549d6f-cvzpn                       1/1     Running   2 (47d ago)   68d
+csi-attacher-5857549d6f-fncbh                       1/1     Running   2 (47d ago)   68d
+csi-attacher-5857549d6f-wphkw                       1/1     Running   3 (47d ago)   68d
+csi-provisioner-57f9d44448-48xnc                    1/1     Running   2 (47d ago)   68d
+longhorn
+NAMESPACE
+NAME   VALUE
+[root@aamslc4kbc01 ~]# kubectl get volumes.longhorn.io -A -o json 2>/dev/null | jq -r '
   .items[] 
   | "\(.metadata.name)\treplicas=\(.spec.numberOfReplicas)\tstate=\(.status.state)\trobustness=\(.status.robustness)\tsize=\(.spec.size)"' | head -30
-
-# ==== CNPG (Postgres) backup config ====
-kubectl get cluster.postgresql.cnpg.io -A
+cloned-pvc-46eea306-5363-46eb-a-31ae6e88        replicas=1      state=detached  robustness=unknown      size=10737418240
+pvc-0026c072-6b5e-4f6b-b622-59b33d250f15        replicas=3      state=attached  robustness=healthy      size=107374182400
+pvc-005aa67a-6204-41b5-9d3f-9ab198340242        replicas=3      state=attached  robustness=degraded     size=10737418240
+pvc-011575dd-8605-4860-84fb-420ca08d68d3        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-019414ec-e1d6-4e83-aeaa-fde4e01884d8        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-0336281c-2524-48ee-9904-3d2b82ab17ee        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-03acc336-c43b-4a82-85bf-ac0b88715e40        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-03f06520-2f2f-4174-a274-cb3f4e1b1f9a        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-0671f2fd-be36-48a8-8fc4-32f485929b2e        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-0763521f-dc7f-42c9-8c7d-af734b0c1050        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-07a3bd02-105b-4f1c-9f25-f36f39fe26eb        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-07c8a990-0c9d-41dd-b607-65c4baf8421e        replicas=3      state=attached  robustness=healthy      size=32212254720
+pvc-0e7191f3-ca1c-47e9-97c6-a933bf29e6d0        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-104d78a0-7586-4fc3-8bf2-23c610531695        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-11f30594-440e-4f27-b2ae-4174bc4d5fe4        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-1518306e-c4dc-4022-b78a-6032cd6120a0        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-165bf704-b34d-49ed-afc6-f4ef31b143a0        replicas=3      state=attached  robustness=healthy      size=32212254720
+pvc-190e0e23-4aa4-48fb-9bd6-d4aec446cd4c        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-19b50e72-df6d-4167-86b3-c2acffce62cb        replicas=3      state=attached  robustness=healthy      size=53687091200
+pvc-1a0dbf5b-52b4-4b29-b8d7-f253aad81512        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-1cb6e9de-1a9d-4b09-b651-b44bd2944633        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-1e57303f-d4c5-4f5a-a307-fa2951418748        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-1e5ee370-6497-4993-924c-6e6dcd5362a1        replicas=3      state=attached  robustness=healthy      size=107374182400
+pvc-1e99da9e-466d-498f-8f1a-73cd42154ec6        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-1f66a8fd-cecd-4b5b-bc7e-d021a6f59862        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-2081a47a-12a8-47dc-be23-b3e5a1487546        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-28062a50-c293-4dd8-b5fa-6e23a92f4b9b        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-2d33d443-b27e-4b34-88a5-2fd8c9c3a52d        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-2e058786-15e9-4968-ae9e-1f94d0c1891e        replicas=3      state=attached  robustness=healthy      size=10737418240
+pvc-2e9ca3a4-f714-4a24-baee-fa66d4abbeff        replicas=3      state=attached  robustness=healthy      size=10737418240
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get cluster.postgresql.cnpg.io -A
 kubectl get cluster.postgresql.cnpg.io -A -o json | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)\tinstances=\(.spec.instances)\tbackup=\(.spec.backup.barmanObjectStore.destinationPath // "NONE")"'
 kubectl get scheduledbackup.postgresql.cnpg.io -A
-
-# BUT — the Zuva postgres isn't CNPG. It's a raw statefulset/pod:
-kubectl -n aitk-zuva get pods | grep postgres
+NAMESPACE    NAME            AGE   INSTANCES   READY   STATUS                     PRIMARY
+aitk-zuva    zuva-postgres   31d   2           2       Cluster in healthy state   zuva-postgres-1
+kindo-deps   postgres        81d   3           3       Cluster in healthy state   postgres-5
+aitk-zuva/zuva-postgres instances=2     backup=NONE
+kindo-deps/postgres     instances=3     backup=s3://postgres-backups/cloudnative-pg/kindo-database
+NAMESPACE    NAME        AGE   CLUSTER    LAST BACKUP
+kindo-deps   db-backup   84d   postgres   3m27s
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n aitk-zuva get pods | grep postgres
 kubectl -n aitk-zuva get statefulset
 kubectl -n aitk-zuva get pvc
-# Is there ANY backup for zuva-postgres?
-
-# ==== Prometheus retention / HA / receivers ====
-kubectl -n cattle-monitoring-system get prometheus -o json 2>/dev/null | jq -r '.items[] | "replicas=\(.spec.replicas)\tretention=\(.spec.retention)\tretentionSize=\(.spec.retentionSize // "unset")\tremoteWrite=\((.spec.remoteWrite // []) | length)"'
+zuva-postgres-1                                                   1/1     Running     0             31d
+zuva-postgres-2                                                   1/1     Running     0             31d
+No resources found in aitk-zuva namespace.
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+zuva-postgres-1   Bound    pvc-7764ed82-11f8-4d3a-9c34-b546a70a3149   50Gi       RWO            longhorn       <unset>                 31d
+zuva-postgres-2   Bound    pvc-19b50e72-df6d-4167-86b3-c2acffce62cb   50Gi       RWO            longhorn       <unset>                 31d
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n cattle-monitoring-system get prometheus -o json 2>/dev/null | jq -r '.items[] | "replicas=\(.spec.replicas)\tretention=\(.spec.retention)\tretentionSize=\(.spec.retentionSize // "unset")\tremoteWrite=\((.spec.remoteWrite // []) | length)"'
 kubectl -n cattle-monitoring-system get alertmanager -o json 2>/dev/null | jq -r '.items[] | "replicas=\(.spec.replicas)"'
-
-# Alertmanager routing — is anything wired to a pager?
-kubectl -n cattle-monitoring-system get secret -o name | grep -i alertmanager
+replicas=1      retention=10d   retentionSize=unset     remoteWrite=0
+replicas=1
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n cattle-monitoring-system get secret -o name | grep -i alertmanager
 kubectl -n cattle-monitoring-system get secret alertmanager-rancher-monitoring-alertmanager -o jsonpath='{.data.alertmanager\.yaml}' 2>/dev/null | base64 -d | grep -iE 'receiver|pagerduty|slack|webhook|opsgenie|email' | head -20
-
-# Count of alert rules
-kubectl get prometheusrule -A --no-headers 2>/dev/null | wc -l
-
-# ==== Kafka / Strimzi HA ====
-kubectl -n kafka get kafka -o yaml 2>/dev/null | grep -E 'replicas|minInSyncReplicas|storage' | head -20
+secret/alertmanager-rancher-monitoring-alertmanager
+secret/alertmanager-rancher-monitoring-alertmanager-cluster-tls-config
+secret/alertmanager-rancher-monitoring-alertmanager-generated
+secret/alertmanager-rancher-monitoring-alertmanager-tls-assets-0
+secret/alertmanager-rancher-monitoring-alertmanager-web-config
+receivers:
+  receiver: "null"
+    receiver: "null"
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get prometheusrule -A --no-headers 2>/dev/null | wc -l
+30
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n kafka get kafka -o yaml 2>/dev/null | grep -E 'replicas|minInSyncReplicas|storage' | head -20
 kubectl -n kafka get pods -o wide
-
-# ==== MIG failure detail ====
-kubectl describe node aamslc4kbg01.ttmtech.local | grep -i mig
+        {"apiVersion":"kafka.strimzi.io/v1beta2","kind":"Kafka","metadata":{"annotations":{},"name":"aitk-kafka-cluster","namespace":"kafka"},"spec":{"entityOperator":{"topicOperator":{},"userOperator":{}},"kafka":{"authorization":{"type":"simple"},"config":{"default.replication.factor":3,"min.insync.replicas":2,"offsets.topic.replication.factor":3,"transaction.state.log.min.isr":2,"transaction.state.log.replication.factor":3},"listeners":[{"name":"plain","port":9092,"tls":false,"type":"internal"},{"authentication":{"type":"scram-sha-512"},"name":"tls","port":9093,"tls":false,"type":"internal"}],"replicas":3,"storage":{"type":"ephemeral"},"version":"3.9.1"},"zookeeper":{"replicas":3,"storage":{"type":"ephemeral"}}}}
+        min.insync.replicas: 2
+      replicas: 3
+      storage:
+      replicas: 3
+      storage:
+NAME                                                  READY   STATUS    RESTARTS   AGE   IP            NODE                         NOMINATED NODE   READINESS GATES
+aitk-kafka-cluster-entity-operator-7759f9cbff-9rn9b   2/2     Running   0          31d   10.42.4.72    aamslc4kbw04.ttmtech.local   <none>           <none>
+aitk-kafka-cluster-kafka-0                            1/1     Running   0          31d   10.42.4.71    aamslc4kbw04.ttmtech.local   <none>           <none>
+aitk-kafka-cluster-kafka-1                            1/1     Running   0          31d   10.42.8.231   aamslc4kbw05.ttmtech.local   <none>           <none>
+aitk-kafka-cluster-kafka-2                            1/1     Running   0          31d   10.42.6.242   aamslc4kbw03.ttmtech.local   <none>           <none>
+aitk-kafka-cluster-zookeeper-0                        1/1     Running   0          31d   10.42.4.70    aamslc4kbw04.ttmtech.local   <none>           <none>
+aitk-kafka-cluster-zookeeper-1                        1/1     Running   0          31d   10.42.8.230   aamslc4kbw05.ttmtech.local   <none>           <none>
+aitk-kafka-cluster-zookeeper-2                        1/1     Running   0          31d   10.42.6.241   aamslc4kbw03.ttmtech.local   <none>           <none>
+strimzi-cluster-operator-686f95745c-7pcp4             1/1     Running   0          38d   10.42.6.19    aamslc4kbw03.ttmtech.local   <none>           <none>
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl describe node aamslc4kbg01.ttmtech.local | grep -i mig
 kubectl -n gpu-operator logs -l app=nvidia-mig-manager --tail=30 2>/dev/null
 kubectl -n gpu-operator get pods
-
-# ==== GitOps / drift ====
-kubectl -n cattle-fleet-system get pods
+                    nvidia.com/gpu.deploy.mig-manager=true
+                    nvidia.com/mig-3g.71gb.count=1
+                    nvidia.com/mig-3g.71gb.engines.copy=3
+                    nvidia.com/mig-3g.71gb.engines.decoder=3
+                    nvidia.com/mig-3g.71gb.engines.encoder=0
+                    nvidia.com/mig-3g.71gb.engines.jpeg=3
+                    nvidia.com/mig-3g.71gb.engines.ofa=0
+                    nvidia.com/mig-3g.71gb.memory=71424
+                    nvidia.com/mig-3g.71gb.multiprocessors=60
+                    nvidia.com/mig-3g.71gb.product=NVIDIA-H200-NVL-MIG-3g.71gb
+                    nvidia.com/mig-3g.71gb.replicas=1
+                    nvidia.com/mig-3g.71gb.sharing-strategy=none
+                    nvidia.com/mig-3g.71gb.slices.ci=3
+                    nvidia.com/mig-3g.71gb.slices.gi=3
+                    nvidia.com/mig-4g.71gb.count=1
+                    nvidia.com/mig-4g.71gb.engines.copy=4
+                    nvidia.com/mig-4g.71gb.engines.decoder=4
+                    nvidia.com/mig-4g.71gb.engines.encoder=0
+                    nvidia.com/mig-4g.71gb.engines.jpeg=4
+                    nvidia.com/mig-4g.71gb.engines.ofa=0
+                    nvidia.com/mig-4g.71gb.memory=71424
+                    nvidia.com/mig-4g.71gb.multiprocessors=64
+                    nvidia.com/mig-4g.71gb.product=NVIDIA-H200-NVL-MIG-4g.71gb
+                    nvidia.com/mig-4g.71gb.replicas=1
+                    nvidia.com/mig-4g.71gb.sharing-strategy=none
+                    nvidia.com/mig-4g.71gb.slices.ci=4
+                    nvidia.com/mig-4g.71gb.slices.gi=4
+                    nvidia.com/mig.capable=true
+                    nvidia.com/mig.config=custom-gpu4-deephat-bge
+                    nvidia.com/mig.config.state=failed
+                    nvidia.com/mig.strategy=mixed
+                      {"cpu":"76300m","memory":"257Gi","nvidia.com/gpu":"7","nvidia.com/mig-3g.71gb":"1","nvidia.com/mig-4g.71gb":"1"}
+                      {"cpu":"89965m","memory":"246720Mi","nvidia.com/gpu":"7","nvidia.com/mig-3g.71gb":"1","nvidia.com/mig-4g.71gb":"1","pods":"19"}
+  nvidia.com/mig-3g.71gb:  1
+  nvidia.com/mig-4g.71gb:  1
+  nvidia.com/mig-3g.71gb:  1
+  nvidia.com/mig-4g.71gb:  1
+  gpu-operator                nvidia-mig-manager-lzx5p                             0 (0%)        0 (0%)      0 (0%)           0 (0%)         16d
+  nvidia.com/mig-3g.71gb  1               1
+  nvidia.com/mig-4g.71gb  1               1
+IS_HOST_DRIVER=true
+NVIDIA_DRIVER_ROOT=/
+DRIVER_ROOT_CTR_PATH=/host
+NVIDIA_DEV_ROOT=/
+DEV_ROOT_CTR_PATH=/host
+WITH_SHUTDOWN_HOST_GPU_CLIENTS=true
+Starting nvidia-mig-manager
+W0405 22:21:02.903441  389530 client_config.go:667] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work.
+time="2026-04-05T22:21:02Z" level=info msg="Waiting for change to 'nvidia.com/mig.config' label"
+time="2026-04-05T22:21:02Z" level=info msg="Updating to MIG config: custom-gpu4-deephat-bge"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/gpu.deploy.device-plugin=true'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/gpu.deploy.gpu-feature-discovery=true'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/gpu.deploy.dcgm-exporter=true'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/gpu.deploy.dcgm=true'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/gpu.deploy.nvsm=true'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/mig.config.state=failed'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Asserting that the requested configuration is present in the configuration file"
+time="2026-04-05T15:21:02-07:00" level=fatal msg="Error selecting MIG config: selected mig-config not present: custom-gpu4-deephat-bge"
+time="2026-04-05T22:21:02Z" level=info msg="Restarting any GPU clients previously shutdown on the host by restarting their systemd services"
+time="2026-04-05T22:21:02Z" level=info msg="Restarting any GPU clients previously shutdown in Kubernetes by reenabling their component-specific nodeSelector labels"
+time="2026-04-05T22:21:02Z" level=info msg="Changing the 'nvidia.com/mig.config.state' node label to 'failed'\n"
+time="2026-04-05T22:21:02Z" level=error msg="Error: failed to validate MIG configuration: exit status 1"
+time="2026-04-05T22:21:02Z" level=info msg="Waiting for change to 'nvidia.com/mig.config' label"
+NAME                                                          READY   STATUS      RESTARTS      AGE
+gpu-feature-discovery-4bqsb                                   1/1     Running     0             17d
+gpu-operator-7569f8b499-sh64v                                 1/1     Running     4 (47d ago)   68d
+gpu-operator-node-feature-discovery-gc-55ffc49ccc-t6hnv       1/1     Running     1 (47d ago)   68d
+gpu-operator-node-feature-discovery-master-6b5787f695-p4lc9   1/1     Running     3 (47d ago)   68d
+gpu-operator-node-feature-discovery-worker-2jkn9              1/1     Running     3 (47d ago)   93d
+gpu-operator-node-feature-discovery-worker-bhgch              1/1     Running     0             47d
+gpu-operator-node-feature-discovery-worker-dtxsg              1/1     Running     0             35d
+gpu-operator-node-feature-discovery-worker-fr95z              1/1     Running     0             19d
+gpu-operator-node-feature-discovery-worker-h44k4              1/1     Running     7 (47d ago)   93d
+gpu-operator-node-feature-discovery-worker-mdngz              1/1     Running     0             35d
+nvidia-container-toolkit-daemonset-vt4s9                      1/1     Running     7 (19d ago)   93d
+nvidia-cuda-validator-n5zb5                                   0/1     Completed   0             17d
+nvidia-dcgm-exporter-8vvhb                                    1/1     Running     0             17d
+nvidia-device-plugin-daemonset-sfhv6                          1/1     Running     0             17d
+nvidia-mig-manager-lzx5p                                      1/1     Running     0             16d
+nvidia-operator-validator-98n8l                               1/1     Running     0             17d
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n cattle-fleet-system get pods
 kubectl get gitrepos.fleet.cattle.io -A 2>/dev/null
 kubectl get bundles.fleet.cattle.io -A -o json 2>/dev/null | jq -r '.items[] | select(.status.summary.ready != .status.summary.desiredReady) | "\(.metadata.namespace)/\(.metadata.name)\t\(.status.summary)"'
-
-# ==== What manages the node taints/labels? (System upgrade plans?) ====
-kubectl get plans.upgrade.cattle.io -A 2>/dev/null
-
-==============
-=============
-===========
-
-# F-02c — the MIG failure, dig into why
-kubectl describe node aamslc4kbg01.ttmtech.local | grep -iE 'mig|nvidia'
+NAME                         READY   STATUS    RESTARTS   AGE
+fleet-agent-b497bff4-zc9cm   1/1     Running   0          40d
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get plans.upgrade.cattle.io -A 2>/dev/null
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl describe node aamslc4kbg01.ttmtech.local | grep -iE 'mig|nvidia'
 kubectl -n gpu-operator logs -l app=nvidia-mig-manager --tail=80 2>/dev/null
 kubectl -n gpu-operator get pods -o wide
 kubectl -n gpu-operator get clusterpolicy -o yaml 2>/dev/null | grep -A5 mig
-
-# F-02d — probe configuration on inference workloads
-for ns in codestral-inference deephat-v2-hf-inference devstral-small-2-inference \
+Labels:             accelerator=nvidia
+                    kubernetes.io/accelerator=nvidia-gpu
+                    nvidia.com/cuda.driver-version.full=580.105.08
+                    nvidia.com/cuda.driver-version.major=580
+                    nvidia.com/cuda.driver-version.minor=105
+                    nvidia.com/cuda.driver-version.revision=08
+                    nvidia.com/cuda.driver.major=580
+                    nvidia.com/cuda.driver.minor=105
+                    nvidia.com/cuda.driver.rev=08
+                    nvidia.com/cuda.runtime-version.full=13.0
+                    nvidia.com/cuda.runtime-version.major=13
+                    nvidia.com/cuda.runtime-version.minor=0
+                    nvidia.com/cuda.runtime.major=13
+                    nvidia.com/cuda.runtime.minor=0
+                    nvidia.com/gfd.timestamp=1775352099
+                    nvidia.com/gpu=true
+                    nvidia.com/gpu.compute.major=9
+                    nvidia.com/gpu.compute.minor=0
+                    nvidia.com/gpu.count=8
+                    nvidia.com/gpu.deploy.container-toolkit=true
+                    nvidia.com/gpu.deploy.dcgm=true
+                    nvidia.com/gpu.deploy.dcgm-exporter=true
+                    nvidia.com/gpu.deploy.device-plugin=true
+                    nvidia.com/gpu.deploy.driver=true
+                    nvidia.com/gpu.deploy.gpu-feature-discovery=true
+                    nvidia.com/gpu.deploy.mig-manager=true
+                    nvidia.com/gpu.deploy.node-status-exporter=true
+                    nvidia.com/gpu.deploy.nvsm=true
+                    nvidia.com/gpu.deploy.operator-validator=true
+                    nvidia.com/gpu.family=hopper
+                    nvidia.com/gpu.machine=VMware201
+                    nvidia.com/gpu.memory=143771
+                    nvidia.com/gpu.mode=compute
+                    nvidia.com/gpu.present=true
+                    nvidia.com/gpu.product=NVIDIA-H200-NVL
+                    nvidia.com/gpu.replicas=1
+                    nvidia.com/gpu.sharing-strategy=none
+                    nvidia.com/mig-3g.71gb.count=1
+                    nvidia.com/mig-3g.71gb.engines.copy=3
+                    nvidia.com/mig-3g.71gb.engines.decoder=3
+                    nvidia.com/mig-3g.71gb.engines.encoder=0
+                    nvidia.com/mig-3g.71gb.engines.jpeg=3
+                    nvidia.com/mig-3g.71gb.engines.ofa=0
+                    nvidia.com/mig-3g.71gb.memory=71424
+                    nvidia.com/mig-3g.71gb.multiprocessors=60
+                    nvidia.com/mig-3g.71gb.product=NVIDIA-H200-NVL-MIG-3g.71gb
+                    nvidia.com/mig-3g.71gb.replicas=1
+                    nvidia.com/mig-3g.71gb.sharing-strategy=none
+                    nvidia.com/mig-3g.71gb.slices.ci=3
+                    nvidia.com/mig-3g.71gb.slices.gi=3
+                    nvidia.com/mig-4g.71gb.count=1
+                    nvidia.com/mig-4g.71gb.engines.copy=4
+                    nvidia.com/mig-4g.71gb.engines.decoder=4
+                    nvidia.com/mig-4g.71gb.engines.encoder=0
+                    nvidia.com/mig-4g.71gb.engines.jpeg=4
+                    nvidia.com/mig-4g.71gb.engines.ofa=0
+                    nvidia.com/mig-4g.71gb.memory=71424
+                    nvidia.com/mig-4g.71gb.multiprocessors=64
+                    nvidia.com/mig-4g.71gb.product=NVIDIA-H200-NVL-MIG-4g.71gb
+                    nvidia.com/mig-4g.71gb.replicas=1
+                    nvidia.com/mig-4g.71gb.sharing-strategy=none
+                    nvidia.com/mig-4g.71gb.slices.ci=4
+                    nvidia.com/mig-4g.71gb.slices.gi=4
+                    nvidia.com/mig.capable=true
+                    nvidia.com/mig.config=custom-gpu4-deephat-bge
+                    nvidia.com/mig.config.state=failed
+                    nvidia.com/mig.strategy=mixed
+                    nvidia.com/mps.capable=false
+                    nvidia.com/vgpu.present=false
+                      {"cpu":"76300m","memory":"257Gi","nvidia.com/gpu":"7","nvidia.com/mig-3g.71gb":"1","nvidia.com/mig-4g.71gb":"1"}
+                      {"cpu":"89965m","memory":"246720Mi","nvidia.com/gpu":"7","nvidia.com/mig-3g.71gb":"1","nvidia.com/mig-4g.71gb":"1","pods":"19"}
+                    nvidia.com/gpu-driver-upgrade-enabled: true
+                      ["agent","--server","https://api.kbai.ttmtech.local:9345","--token","********","--node-label","accelerator=nvidia","--node-label","feature...
+Taints:             nvidia.com/gpu=true:NoSchedule
+  nvidia.com/gpu:          7
+  nvidia.com/mig-3g.71gb:  1
+  nvidia.com/mig-4g.71gb:  1
+  nvidia.com/gpu:          7
+  nvidia.com/mig-3g.71gb:  1
+  nvidia.com/mig-4g.71gb:  1
+  gpu-operator                nvidia-container-toolkit-daemonset-vt4s9             0 (0%)        0 (0%)      0 (0%)           0 (0%)         93d
+  gpu-operator                nvidia-dcgm-exporter-8vvhb                           0 (0%)        0 (0%)      0 (0%)           0 (0%)         17d
+  gpu-operator                nvidia-device-plugin-daemonset-sfhv6                 0 (0%)        0 (0%)      0 (0%)           0 (0%)         17d
+  gpu-operator                nvidia-mig-manager-lzx5p                             0 (0%)        0 (0%)      0 (0%)           0 (0%)         16d
+  gpu-operator                nvidia-operator-validator-98n8l                      0 (0%)        0 (0%)      0 (0%)           0 (0%)         17d
+  nvidia.com/gpu          7               7
+  nvidia.com/mig-3g.71gb  1               1
+  nvidia.com/mig-4g.71gb  1               1
+IS_HOST_DRIVER=true
+NVIDIA_DRIVER_ROOT=/
+DRIVER_ROOT_CTR_PATH=/host
+NVIDIA_DEV_ROOT=/
+DEV_ROOT_CTR_PATH=/host
+WITH_SHUTDOWN_HOST_GPU_CLIENTS=true
+Starting nvidia-mig-manager
+W0405 22:21:02.903441  389530 client_config.go:667] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work.
+time="2026-04-05T22:21:02Z" level=info msg="Waiting for change to 'nvidia.com/mig.config' label"
+time="2026-04-05T22:21:02Z" level=info msg="Updating to MIG config: custom-gpu4-deephat-bge"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/gpu.deploy.device-plugin=true'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/gpu.deploy.gpu-feature-discovery=true'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/gpu.deploy.dcgm-exporter=true'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/gpu.deploy.dcgm=true'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/gpu.deploy.nvsm=true'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Current value of 'nvidia.com/mig.config.state=failed'\n"
+time="2026-04-05T22:21:02Z" level=info msg="Asserting that the requested configuration is present in the configuration file"
+time="2026-04-05T15:21:02-07:00" level=fatal msg="Error selecting MIG config: selected mig-config not present: custom-gpu4-deephat-bge"
+time="2026-04-05T22:21:02Z" level=info msg="Restarting any GPU clients previously shutdown on the host by restarting their systemd services"
+time="2026-04-05T22:21:02Z" level=info msg="Restarting any GPU clients previously shutdown in Kubernetes by reenabling their component-specific nodeSelector labels"
+time="2026-04-05T22:21:02Z" level=info msg="Changing the 'nvidia.com/mig.config.state' node label to 'failed'\n"
+time="2026-04-05T22:21:02Z" level=error msg="Error: failed to validate MIG configuration: exit status 1"
+time="2026-04-05T22:21:02Z" level=info msg="Waiting for change to 'nvidia.com/mig.config' label"
+NAME                                                          READY   STATUS      RESTARTS      AGE   IP            NODE                         NOMINATED NODE   READINESS GATES
+gpu-feature-discovery-4bqsb                                   1/1     Running     0             17d   10.42.7.29    aamslc4kbg01.ttmtech.local   <none>           <none>
+gpu-operator-7569f8b499-sh64v                                 1/1     Running     4 (47d ago)   68d   10.42.3.13    aamslc4kbw01.ttmtech.local   <none>           <none>
+gpu-operator-node-feature-discovery-gc-55ffc49ccc-t6hnv       1/1     Running     1 (47d ago)   68d   10.42.3.20    aamslc4kbw01.ttmtech.local   <none>           <none>
+gpu-operator-node-feature-discovery-master-6b5787f695-p4lc9   1/1     Running     3 (47d ago)   68d   10.42.3.25    aamslc4kbw01.ttmtech.local   <none>           <none>
+gpu-operator-node-feature-discovery-worker-2jkn9              1/1     Running     3 (47d ago)   93d   10.42.3.11    aamslc4kbw01.ttmtech.local   <none>           <none>
+gpu-operator-node-feature-discovery-worker-bhgch              1/1     Running     0             47d   10.42.5.29    aamslc4kbw02.ttmtech.local   <none>           <none>
+gpu-operator-node-feature-discovery-worker-dtxsg              1/1     Running     0             35d   10.42.4.7     aamslc4kbw04.ttmtech.local   <none>           <none>
+gpu-operator-node-feature-discovery-worker-fr95z              1/1     Running     0             19d   10.42.7.17    aamslc4kbg01.ttmtech.local   <none>           <none>
+gpu-operator-node-feature-discovery-worker-h44k4              1/1     Running     7 (47d ago)   93d   10.42.6.9     aamslc4kbw03.ttmtech.local   <none>           <none>
+gpu-operator-node-feature-discovery-worker-mdngz              1/1     Running     0             35d   10.42.8.7     aamslc4kbw05.ttmtech.local   <none>           <none>
+nvidia-container-toolkit-daemonset-vt4s9                      1/1     Running     7 (19d ago)   93d   10.42.7.7     aamslc4kbg01.ttmtech.local   <none>           <none>
+nvidia-cuda-validator-n5zb5                                   0/1     Completed   0             17d   <none>        aamslc4kbg01.ttmtech.local   <none>           <none>
+nvidia-dcgm-exporter-8vvhb                                    1/1     Running     0             17d   10.42.7.21    aamslc4kbg01.ttmtech.local   <none>           <none>
+nvidia-device-plugin-daemonset-sfhv6                          1/1     Running     0             17d   10.42.7.27    aamslc4kbg01.ttmtech.local   <none>           <none>
+nvidia-mig-manager-lzx5p                                      1/1     Running     0             16d   10.42.7.186   aamslc4kbg01.ttmtech.local   <none>           <none>
+nvidia-operator-validator-98n8l                               1/1     Running     0             17d   10.42.7.26    aamslc4kbg01.ttmtech.local   <none>           <none>
+    mig:
+      strategy: mixed
+    migManager:
+      config:
+        default: all-disabled
+        name: default-mig-parted-config
+      enabled: true
+      gpuClientsConfig:
+        name: ""
+      image: k8s-mig-manager
+      imagePullPolicy: IfNotPresent
+      repository: nvcr.io/nvidia/cloud-native
+      version: v0.13.1
+    nodeStatusExporter:
+      enabled: false
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# for ns in codestral-inference deephat-v2-hf-inference devstral-small-2-inference \
           gemma4-31b-inference glm-flash-inference llama-4-maverick-inference \
           nemotron-inference text-embeddings; do
   echo "=== $ns ==="
@@ -130,12 +1014,44 @@ for ns in codestral-inference deephat-v2-hf-inference devstral-small-2-inference
     "liveness=\((.spec.template.spec.containers[0].livenessProbe // null) != null)\t" +
     "priorityClass=\(.spec.template.spec.priorityClassName // "NONE")"'
 done
-
-# What GPUs are actually allocated to what workload?
-kubectl describe node aamslc4kbg01.ttmtech.local | sed -n '/Allocated resources/,/^Events/p'
-
-# PriorityClasses in the cluster
-kubectl get priorityclass
+=== codestral-inference ===
+name=codestral-22b      startup=true    readiness=true  liveness=true   priorityClass=NONE
+=== deephat-v2-hf-inference ===
+name=deephat-v2-2h100   startup=true    readiness=true  liveness=true   priorityClass=inference-critical
+name=deephat-v2-b200    startup=true    readiness=true  liveness=true   priorityClass=NONE
+=== devstral-small-2-inference ===
+name=devstral-small-2   startup=true    readiness=true  liveness=true   priorityClass=NONE
+=== gemma4-31b-inference ===
+name=gemma-4-31b-it     startup=true    readiness=true  liveness=true   priorityClass=NONE
+=== glm-flash-inference ===
+=== llama-4-maverick-inference ===
+name=llama-4-maverick   startup=true    readiness=true  liveness=true   priorityClass=inference-critical
+=== nemotron-inference ===
+=== text-embeddings ===
+name=text-embeddings    startup=true    readiness=true  liveness=true   priorityClass=inference-critical
+[root@aamslc4kbc01 ~]# kubectl describe node aamslc4kbg01.ttmtech.local | sed -n '/Allocated resources/,/^Events/p'
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource                Requests        Limits
+  --------                --------        ------
+  cpu                     89965m (70%)    76300m (59%)
+  memory                  246720Mi (15%)  257Gi (17%)
+  ephemeral-storage       0 (0%)          0 (0%)
+  hugepages-1Gi           0 (0%)          0 (0%)
+  hugepages-2Mi           0 (0%)          0 (0%)
+  nvidia.com/gpu          7               7
+  nvidia.com/mig-3g.71gb  1               1
+  nvidia.com/mig-4g.71gb  1               1
+Events:                   <none>
+[root@aamslc4kbc01 ~]# kubectl get priorityclass
+NAME                      VALUE        GLOBAL-DEFAULT   AGE   PREEMPTIONPOLICY
+inference-critical        500000000    false            16d   PreemptLowerPriority
+longhorn-critical         1000000000   false            93d   PreemptLowerPriority
+sandbox-high              1000000      false            55d   PreemptLowerPriority
+sandbox-warmer            100          false            55d   Never
+system-cluster-critical   2000000000   false            96d   PreemptLowerPriority
+system-node-critical      2000001000   false            96d   PreemptLowerPriority
+[root@aamslc4kbc01 ~]# 
 
 
 
