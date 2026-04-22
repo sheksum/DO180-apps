@@ -1,15 +1,147 @@
-# What task-worker-ts does — environment and args
-kubectl -n task-worker-ts get deploy task-worker-ts -o yaml | sed -n '/env:/,/name:\|volumeMounts:/p' | head -40
-
-# What audit-log-exporter ships to
-kubectl -n audit-log-exporter get deploy audit-log-exporter -o yaml | sed -n '/env:/,/name:\|volumeMounts:/p' | head -40
-
-# What mcp-unified exposes
-kubectl -n mcp get deploy mcp-unified -o yaml | sed -n '/env:/,/name:\|volumeMounts:/p' | head -60
-
-# What external-poller and external-sync actually do
-kubectl -n external-sync get deploy external-sync-files -o yaml | sed -n '/env:/,/name:\|volumeMounts:/p' | head -40
-kubectl -n external-poller get cronjob -o yaml 2>/dev/null | grep -E 'schedule:|image:|args:' | head
-
-# What LiteLLM is configured to route to
-kubectl -n litellm get configmap litellm-config -o yaml 2>/dev/null | grep -E 'model_name:|model:|api_base:' | head -40
+[root@aamslc4kbc01 ~]# kubectl -n task-worker-ts get deploy task-worker-ts -o yaml | sed -n '/env:/,/name:\|volumeMounts:/p' | head -40
+      - env:
+        - name: WORKER_TYPE
+[root@aamslc4kbc01 ~]# kubectl -n audit-log-exporter get deploy audit-log-exporter -o yaml | sed -n '/env:/,/name:\|volumeMounts:/p' | head -40
+[root@aamslc4kbc01 ~]# kubectl -n audit-log-exporter get deploy audit-log-exporter -o yaml | sed -n '/env:/,/name:\|volumeMounts:/p' | head -40
+[root@aamslc4kbc01 ~]# kubectl -n audit-log-exporter get deploy audit-log-exporter -o yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "9"
+    meta.helm.sh/release-name: audit-log-exporter
+    meta.helm.sh/release-namespace: audit-log-exporter
+  creationTimestamp: "2026-01-19T07:23:21Z"
+  generation: 9
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: audit-log-exporter
+  namespace: audit-log-exporter
+  resourceVersion: "86356902"
+  uid: 30d13b08-992e-48f4-9ecd-70783483ad4e
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: audit-log-exporter
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: audit-log-exporter
+        kubectl.kubernetes.io/restartedAt: "2026-03-02T07:09:15-08:00"
+        prometheus.io/scrape: "true"
+      labels:
+        app: audit-log-exporter
+        version: 2026.03.13
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - audit-log-exporter
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+      containers:
+      - envFrom:
+        - secretRef:
+            name: audit-log-exporter-env
+        image: registry.kindo.ai/kindo-docker/audit-log-exporter:2026.03.13
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthcheck
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 3
+        name: audit-log-exporter
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthcheck
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 3
+        resources:
+          limits:
+            cpu: "1"
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 2Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: registry-credentials
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 60
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app: audit-log-exporter
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2026-03-06T14:04:02Z"
+    lastUpdateTime: "2026-03-06T14:04:02Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2026-01-22T02:05:56Z"
+    lastUpdateTime: "2026-04-15T14:39:08Z"
+    message: ReplicaSet "audit-log-exporter-5c64bcc8c4" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 9
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
+[root@aamslc4kbc01 ~]# kubectl -n mcp get deploy mcp-unified -o yaml | sed -n '/env:/,/name:\|volumeMounts:/p' | head -60
+      - env:
+        - name: OTEL_SERVICE_NAME
+[root@aamslc4kbc01 ~]# kubectl -n external-sync get deploy external-sync-files -o yaml | sed -n '/env:/,/name:\|volumeMounts:/p' | head -40
+      - env:
+        - name: RABBITMQ_CONTENT_PROCESSING_QUEUE
+[root@aamslc4kbc01 ~]# kubectl -n external-poller get cronjob -o yaml 2>/dev/null | grep -E 'schedule:|image:|args:' | head
+              image: registry.kindo.ai/kindo-docker/external-poller:2026.03.13
+    schedule: 0 0,3,6,9,12,15,18,21 * * *
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n litellm get configmap litellm-config -o yaml 2>/dev/null | grep -E 'model_name:|model:|api_base:' | head -40
+[root@aamslc4kbc01 ~]# 
