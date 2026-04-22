@@ -1,4 +1,35 @@
-for ns in aitk-console dex field-discovery istio-system kube-system nango; do
+[root@aamslc4kbc01 ~]# for ns in aitk-console dex field-discovery istio-system kube-system nango; do
   echo "=== $ns/wildcard-tls ==="
   kubectl -n $ns get secret wildcard-tls -o jsonpath='{.data.tls\.crt}' 2>/dev/null | base64 -d | openssl x509 -noout -dates -subject -issuer 2>/dev/null
 done
+=== aitk-console/wildcard-tls ===
+notBefore=Jan 28 00:00:00 2026 GMT
+notAfter=Aug 30 23:59:59 2026 GMT
+subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
+issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
+=== dex/wildcard-tls ===
+notBefore=Jan 28 00:00:00 2026 GMT
+notAfter=Aug 30 23:59:59 2026 GMT
+subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
+issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
+=== field-discovery/wildcard-tls ===
+notBefore=Jan 28 00:00:00 2026 GMT
+notAfter=Aug 30 23:59:59 2026 GMT
+subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
+issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
+=== istio-system/wildcard-tls ===
+notBefore=Jan 28 00:00:00 2026 GMT
+notAfter=Aug 30 23:59:59 2026 GMT
+subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
+issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
+=== kube-system/wildcard-tls ===
+notBefore=Jan 28 00:00:00 2026 GMT
+notAfter=Aug 30 23:59:59 2026 GMT
+subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
+issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
+=== nango/wildcard-tls ===
+notBefore=Jan 28 00:00:00 2026 GMT
+notAfter=Aug 30 23:59:59 2026 GMT
+subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
+issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
+[root@aamslc4kbc01 ~]# 
