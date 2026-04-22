@@ -1,205 +1,70 @@
-[root@aamslc4hap01 ~]# docker ps 
-CONTAINER ID   IMAGE                COMMAND                  CREATED        STATUS       PORTS                                                                                                                                                                                                                 NAMES
-becc95500613   minio/minio:latest   "/usr/bin/docker-ent…"   2 months ago   Up 6 weeks   0.0.0.0:9000-9001->9000-9001/tcp, [::]:9000-9001->9000-9001/tcp                                                                                                                                                       minio_local
-f8870faf3d41   haproxy-ttm:latest   "docker-entrypoint.s…"   3 months ago   Up 6 weeks   0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp, 0.0.0.0:6443->6443/tcp, [::]:6443->6443/tcp, 0.0.0.0:8404->8404/tcp, [::]:8404->8404/tcp, 0.0.0.0:9345->9345/tcp, [::]:9345->9345/tcp   haproxy
-[root@aamslc4hap01 ~]# cd /opt/
-adminscripts/ containerd/   sentinelone/  
-[root@aamslc4hap01 ~]# cd /opt/
-adminscripts/ containerd/   sentinelone/  
-[root@aamslc4hap01 ~]# cd /opt/adminscripts/
-[root@aamslc4hap01 adminscripts]# ls -ltr
-total 0
-[root@aamslc4hap01 adminscripts]# 
-[root@aamslc4hap01 adminscripts]# 
-[root@aamslc4hap01 adminscripts]# ip -br addr
-lo               UNKNOWN        127.0.0.1/8 ::1/128 
-eth0             UP             10.200.248.30/24 fe80::250:56ff:feab:d8b3/64 
-br-2c7621b54814  UP             172.18.0.1/16 fe80::5c50:6bff:feda:3c9/64 
-docker0          UP             172.17.0.1/16 fe80::50e1:e5ff:fe2d:e3b9/64 
-veth4a4fa60@if2  UP             fe80::b449:12ff:fe16:a4/64 
-veth3edd2f9@if2  UP             fe80::c1e:6dff:fecb:3d66/64 
-[root@aamslc4hap01 adminscripts]# 
+# === 1. Pods using hostPath into kubelet dirs or node filesystem ===
+kubectl get pods -A -o json | jq -r '
+  .items[] as $p
+  | $p.spec.volumes[]?
+  | select(.hostPath != null)
+  | "\($p.metadata.namespace)/\($p.metadata.name)\tpath=\(.hostPath.path)\tvol=\(.name)"
+' | grep -viE '^(kube-system|longhorn|gpu-operator|cattle-|logging|cnpg-system|minio-operator)' | sort
 
+# === 2. Pods with emptyDir volumes (potential model cache/scratch) ===
+kubectl get pods -A -o json | jq -r '
+  .items[] as $p
+  | $p.spec.volumes[]?
+  | select(.emptyDir != null)
+  | "\($p.metadata.namespace)/\($p.metadata.name)\tvol=\(.name)\tsizeLimit=\(.emptyDir.sizeLimit // "UNCAPPED")\tmedium=\(.emptyDir.medium // "disk")"
+' | grep -viE '^(kube-system|cattle-|longhorn|logging)' | sort | head -40
 
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# kubectl top nodes
-NAME                         CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
-aamslc4kbc01.ttmtech.local   390m         1%       13185Mi         20%         
-aamslc4kbc02.ttmtech.local   1040m        3%       12241Mi         19%         
-aamslc4kbc03.ttmtech.local   387m         1%       13031Mi         20%         
-aamslc4kbg01.ttmtech.local   3404m        2%       445234Mi        28%         
-aamslc4kbw01.ttmtech.local   2582m        8%       25485Mi         39%         
-aamslc4kbw02.ttmtech.local   1497m        4%       16684Mi         26%         
-aamslc4kbw03.ttmtech.local   2875m        8%       24758Mi         38%         
-aamslc4kbw04.ttmtech.local   565m         1%       23114Mi         36%         
-aamslc4kbw05.ttmtech.local   556m         1%       24230Mi         38%         
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# kubectl describe nodes | grep -A5 'Conditions' | grep -E 'Pressure|Ready' | head -20
-  MemoryPressure       False   Wed, 22 Apr 2026 09:16:51 -0700   Fri, 16 Jan 2026 02:29:11 -0800   KubeletHasSufficientMemory   kubelet has sufficient memory available
-  MemoryPressure       False   Wed, 22 Apr 2026 09:18:39 -0700   Thu, 12 Feb 2026 11:01:51 -0800   KubeletHasSufficientMemory   kubelet has sufficient memory available
-  MemoryPressure       False   Wed, 22 Apr 2026 09:19:15 -0700   Fri, 06 Mar 2026 05:54:24 -0800   KubeletHasSufficientMemory   kubelet has sufficient memory available
-  MemoryPressure       False   Wed, 22 Apr 2026 09:15:05 -0700   Thu, 02 Apr 2026 16:48:03 -0700   KubeletHasSufficientMemory   kubelet has sufficient memory available
-  DiskPressure         False   Wed, 22 Apr 2026 09:15:05 -0700   Sun, 05 Apr 2026 20:03:55 -0700   KubeletHasNoDiskPressure     kubelet has no disk pressure
-  MemoryPressure       False   Wed, 22 Apr 2026 09:15:07 -0700   Fri, 06 Mar 2026 05:57:18 -0800   KubeletHasSufficientMemory   kubelet has sufficient memory available
-  DiskPressure         False   Wed, 22 Apr 2026 09:15:07 -0700   Fri, 06 Mar 2026 05:57:18 -0800   KubeletHasNoDiskPressure     kubelet has no disk pressure
-  MemoryPressure       False   Wed, 22 Apr 2026 09:19:00 -0700   Fri, 06 Mar 2026 05:58:22 -0800   KubeletHasSufficientMemory   kubelet has sufficient memory available
-  DiskPressure         False   Wed, 22 Apr 2026 09:19:00 -0700   Fri, 06 Mar 2026 05:58:22 -0800   KubeletHasNoDiskPressure     kubelet has no disk pressure
-  MemoryPressure       False   Wed, 22 Apr 2026 09:18:38 -0700   Fri, 06 Mar 2026 05:57:25 -0800   KubeletHasSufficientMemory   kubelet has sufficient memory available
-  DiskPressure         False   Wed, 22 Apr 2026 09:18:38 -0700   Fri, 06 Mar 2026 05:57:25 -0800   KubeletHasNoDiskPressure     kubelet has no disk pressure
-  MemoryPressure       False   Wed, 22 Apr 2026 09:15:53 -0700   Tue, 17 Mar 2026 20:21:20 -0700   KubeletHasSufficientMemory   kubelet has sufficient memory available
-  DiskPressure         False   Wed, 22 Apr 2026 09:15:53 -0700   Tue, 17 Mar 2026 20:21:20 -0700   KubeletHasNoDiskPressure     kubelet has no disk pressure
-  MemoryPressure       False   Wed, 22 Apr 2026 09:19:09 -0700   Tue, 17 Mar 2026 20:25:07 -0700   KubeletHasSufficientMemory   kubelet has sufficient memory available
-  DiskPressure         False   Wed, 22 Apr 2026 09:19:09 -0700   Tue, 17 Mar 2026 20:25:07 -0700   KubeletHasNoDiskPressure     kubelet has no disk pressure
-[root@aamslc4kbc01 ~]# kubectl get pods -A | grep -vE 'Running|Completed' | head -20
-NAMESPACE                    NAME                                                              READY   STATUS             RESTARTS       AGE
-aitk-zuva                    aitk-extract-overflow-deployment-bd6996bb5-dmncz                  0/1     Pending            0              10d
-keda                         keda-admission-webhooks-864788bf84-8vb96                          0/1     ImagePullBackOff   0              36d
-keda                         keda-operator-6f6c88cbdb-zksvl                                    0/1     ImagePullBackOff   0              36d
-keda                         keda-operator-metrics-apiserver-59f6f87689-m9bx6                  0/1     ErrImagePull       0              36d
-presidio                     presidio-presidio-analyzer-857c68996-wrhbl                        0/1     ImagePullBackOff   0              7d2h
-presidio                     presidio-presidio-anonymizer-685876c8c9-jgthw                     0/1     ImagePullBackOff   0              7d2h
-[root@aamslc4kbc01 ~]# kubectl get events -A --sort-by='.lastTimestamp' | grep -iE 'warning|error|failed' | tail -20
-default           33s         Warning   VolumeFailedDelete                persistentvolume/pvc-a7317739-a808-4618-bc2d-d4f20dfa9398                           persistentvolume pvc-a7317739-a808-4618-bc2d-d4f20dfa9398 is still attached to node aamslc4kbw03.ttmtech.local
-default           32s         Warning   VolumeFailedDelete                persistentvolume/pvc-83d6c280-9c47-4052-a2b7-1151338938b9                           persistentvolume pvc-83d6c280-9c47-4052-a2b7-1151338938b9 is still attached to node aamslc4kbw03.ttmtech.local
-default           32s         Warning   VolumeFailedDelete                persistentvolume/pvc-de86d015-ca05-4b97-ae49-3ab68b0613fc                           persistentvolume pvc-de86d015-ca05-4b97-ae49-3ab68b0613fc is still attached to node aamslc4kbw03.ttmtech.local
-default           32s         Warning   VolumeFailedDelete                persistentvolume/pvc-b381ed35-d667-49c7-b542-68d4a5a3f133                           persistentvolume pvc-b381ed35-d667-49c7-b542-68d4a5a3f133 is still attached to node aamslc4kbw03.ttmtech.local
-default           32s         Warning   VolumeFailedDelete                persistentvolume/pvc-2faea9f7-783b-4774-9b0d-574d759efe10                           persistentvolume pvc-2faea9f7-783b-4774-9b0d-574d759efe10 is still attached to node aamslc4kbw03.ttmtech.local
-default           31s         Warning   VolumeFailedDelete                persistentvolume/pvc-7735b069-b083-4022-b08f-4e147a65d2f0                           persistentvolume pvc-7735b069-b083-4022-b08f-4e147a65d2f0 is still attached to node aamslc4kbw02.ttmtech.local
-default           31s         Warning   VolumeFailedDelete                persistentvolume/pvc-4450910f-2e6d-443b-8ab7-7514c601407a                           persistentvolume pvc-4450910f-2e6d-443b-8ab7-7514c601407a is still attached to node aamslc4kbw02.ttmtech.local
-default           31s         Warning   VolumeFailedDelete                persistentvolume/pvc-c73de718-ad7b-4b42-859f-4b1f1b8e4249                           persistentvolume pvc-c73de718-ad7b-4b42-859f-4b1f1b8e4249 is still attached to node aamslc4kbw03.ttmtech.local
-default           31s         Warning   VolumeFailedDelete                persistentvolume/pvc-1cb6e9de-1a9d-4b09-b651-b44bd2944633                           persistentvolume pvc-1cb6e9de-1a9d-4b09-b651-b44bd2944633 is still attached to node aamslc4kbw03.ttmtech.local
-default           30s         Warning   VolumeFailedDelete                persistentvolume/pvc-483635e0-4722-47d3-929b-ba9a2bc734bc                           persistentvolume pvc-483635e0-4722-47d3-929b-ba9a2bc734bc is still attached to node aamslc4kbw02.ttmtech.local
-default           30s         Warning   VolumeFailedDelete                persistentvolume/pvc-3f7df968-bb2c-477b-bcc8-63eb2bef3bfc                           persistentvolume pvc-3f7df968-bb2c-477b-bcc8-63eb2bef3bfc is still attached to node aamslc4kbw02.ttmtech.local
-default           29s         Warning   VolumeFailedDelete                persistentvolume/pvc-e02498fa-6f57-4328-82cf-902e037dbca7                           persistentvolume pvc-e02498fa-6f57-4328-82cf-902e037dbca7 is still attached to node aamslc4kbw02.ttmtech.local
-default           28s         Warning   VolumeFailedDelete                persistentvolume/pvc-e22422c1-88c1-42b4-8efd-da81a9ea7812                           persistentvolume pvc-e22422c1-88c1-42b4-8efd-da81a9ea7812 is still attached to node aamslc4kbw02.ttmtech.local
-default           27s         Warning   VolumeFailedDelete                persistentvolume/pvc-f03dd4cd-495c-4b78-bf25-3605dc8852c0                           persistentvolume pvc-f03dd4cd-495c-4b78-bf25-3605dc8852c0 is still attached to node aamslc4kbw03.ttmtech.local
-default           27s         Warning   VolumeFailedDelete                persistentvolume/pvc-57ebd085-5876-469e-a706-df81e3b3bbcf                           persistentvolume pvc-57ebd085-5876-469e-a706-df81e3b3bbcf is still attached to node aamslc4kbw03.ttmtech.local
-default           20s         Warning   VolumeFailedDelete                persistentvolume/pvc-329a2d32-8f0b-4626-9872-a360e7a686b6                           persistentvolume pvc-329a2d32-8f0b-4626-9872-a360e7a686b6 is still attached to node aamslc4kbw03.ttmtech.local
-default           14s         Warning   VolumeFailedDelete                persistentvolume/pvc-c7c8800a-5780-4ec6-8580-53f2eaec8b62                           persistentvolume pvc-c7c8800a-5780-4ec6-8580-53f2eaec8b62 is still attached to node aamslc4kbw03.ttmtech.local
-default           11s         Warning   VolumeFailedDelete                persistentvolume/pvc-c520eac4-633b-41cc-b849-0e1aa321db10                           persistentvolume pvc-c520eac4-633b-41cc-b849-0e1aa321db10 is still attached to node aamslc4kbw03.ttmtech.local
-default           5s          Warning   VolumeFailedDelete                persistentvolume/pvc-2e9ca3a4-f714-4a24-baee-fa66d4abbeff                           persistentvolume pvc-2e9ca3a4-f714-4a24-baee-fa66d4abbeff is still attached to node aamslc4kbw03.ttmtech.local
-default           3s          Warning   VolumeFailedDelete                persistentvolume/pvc-9f167ae3-d515-4cbc-9f32-efe059b08e6f                           persistentvolume pvc-9f167ae3-d515-4cbc-9f32-efe059b08e6f is still attached to node aamslc4kbw02.ttmtech.local
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# sudo ls -lht /var/lib/rancher/rke2/server/db/snapshots/ | head -5
-total 22G
--rw------- 1 root root 227M Apr 22 09:00 etcd-snapshot-aamslc4kbc01.ttmtech.local-1776873602
--rw------- 1 root root 227M Apr 22 08:00 etcd-snapshot-aamslc4kbc01.ttmtech.local-1776870003
--rw------- 1 root root 227M Apr 22 07:00 etcd-snapshot-aamslc4kbc01.ttmtech.local-1776866402
--rw------- 1 root root 227M Apr 22 06:00 etcd-snapshot-aamslc4kbc01.ttmtech.local-1776862801
-[root@aamslc4kbc01 ~]# sudo grep -h '"verb":"create"' /var/log/kubernetes/audit/audit.log 2>/dev/null | \
-  jq -r '.user.username' 2>/dev/null | sort | uniq -c | sort -rn | head
-   3755 system:serviceaccount:keda:keda-metrics-server
-     99 system:node:aamslc4kbw04.ttmtech.local
-     94 system:node:aamslc4kbw05.ttmtech.local
-     89 system:node:aamslc4kbw01.ttmtech.local
-     59 system:node:aamslc4kbc01.ttmtech.local
-     11 system:rke2-supervisor
-      4 system:serviceaccount:task-worker-ts:task-worker-ts
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# kubectl top pods -A --sort-by=memory | head -15
-kubectl top pods -A --sort-by=cpu | head -15
-NAMESPACE                    NAME                                                              CPU(cores)   MEMORY(bytes)   
-llama-4-maverick-inference   llama-4-maverick-8677df4dc4-k9wx2                                 12m          18299Mi         
-longhorn                     instance-manager-7e3d45b327b221ddfa1426ccbb628d93                 439m         7906Mi          
-longhorn                     instance-manager-c2d92e5045fc54f5fec8c717c49c6770                 89m          7421Mi          
-longhorn                     instance-manager-80b384422cbc9233bc52ac2bbe4cb9c3                 104m         7338Mi          
-gemma4-31b-inference         gemma-4-31b-it-76bcf56747-kr99m                                   1127m        6097Mi          
-longhorn                     instance-manager-546e807f0deaeca0cc0608da3c7865fc                 244m         5789Mi          
-deephat-v2-hf-inference      deephat-v2-2h100-6957df78f5-8d87t                                 5m           4875Mi          
-longhorn                     instance-manager-6172d56ee97a4d14a640a07d6da0a80e                 92m          4278Mi          
-kindo-deps                   minio-pool-0-0                                                    3m           4215Mi          
-kube-system                  kube-apiserver-aamslc4kbc02.ttmtech.local                         130m         3610Mi          
-kube-system                  kube-apiserver-aamslc4kbc03.ttmtech.local                         98m          3577Mi          
-kube-system                  kube-apiserver-aamslc4kbc01.ttmtech.local                         174m         3482Mi          
-kindo-deps                   postgres-5                                                        91m          3459Mi          
-codestral-inference          codestral-22b-664b7b7c4b-2mfdb                                    4m           3269Mi          
-NAMESPACE                    NAME                                                              CPU(cores)   MEMORY(bytes)   
-gpu-operator                 nvidia-device-plugin-daemonset-sfhv6                              1992m        46Mi            
-cnpg-system                  cloudnative-pg-54c8747cdb-8vl6z                                   1901m        466Mi           
-gemma4-31b-inference         gemma-4-31b-it-76bcf56747-kr99m                                   1127m        6097Mi          
-longhorn                     instance-manager-7e3d45b327b221ddfa1426ccbb628d93                 439m         7906Mi          
-longhorn                     instance-manager-546e807f0deaeca0cc0608da3c7865fc                 244m         5789Mi          
-cattle-monitoring-system     prometheus-rancher-monitoring-prometheus-0                        186m         2676Mi          
-kube-system                  kube-apiserver-aamslc4kbc01.ttmtech.local                         174m         3482Mi          
-kube-system                  kube-apiserver-aamslc4kbc02.ttmtech.local                         130m         3610Mi          
-longhorn                     instance-manager-80b384422cbc9233bc52ac2bbe4cb9c3                 104m         7338Mi          
-kube-system                  kube-apiserver-aamslc4kbc03.ttmtech.local                         98m          3577Mi          
-longhorn                     instance-manager-6172d56ee97a4d14a640a07d6da0a80e                 92m          4278Mi          
-kindo-deps                   postgres-5                                                        91m          3459Mi          
-longhorn                     instance-manager-c2d92e5045fc54f5fec8c717c49c6770                 89m          7421Mi          
-hatchet                      hatchet-engine-7865664c8f-rfss9                                   82m          104Mi           
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# kubectl -n longhorn-system get volume.longhorn.io -o json | \
-  jq -r '.items[] | select(.status.robustness == "degraded") | 
-    "\(.metadata.name) used by \(.status.kubernetesStatus.namespace)/\(.status.kubernetesStatus.workloadsStatus[0].workloadName // "unknown")"'
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# sudo tail -1000 /var/log/kubernetes/audit/audit.log 2>/dev/null | \
-  jq -r 'select(.verb=="create" and .objectRef.resource=="pods" and .responseStatus.code==201) | 
-    "\(.requestReceivedTimestamp)\t\(.user.username)\t\(.objectRef.namespace)"' 2>/dev/null | tail -10
-[root@aamslc4kbc01 ~]# kubectl get ns -L istio-injection
-NAME                          STATUS   AGE     ISTIO-INJECTION
-aitk-console                  Active   31d     
-aitk-zuva                     Active   31d     
-api                           Active   93d     
-audit-log-exporter            Active   93d     
-cattle-dashboards             Active   76d     
-cattle-fleet-system           Active   40d     
-cattle-impersonation-system   Active   76d     
-cattle-local-user-passwords   Active   76d     
-cattle-monitoring-system      Active   76d     
-cattle-system                 Active   40d     
-cerbos                        Active   93d     
-cert-manager                  Active   93d     
-cnpg-system                   Active   93d     
-codestral-inference           Active   9d      
-credits                       Active   93d     
-deephat-v2-hf-inference       Active   47d     
-default                       Active   96d     
-devstral-small-2-inference    Active   9d      
-dex                           Active   31d     
-embeddings                    Active   93d     
-external-poller               Active   93d     
-external-secrets              Active   93d     
-external-sync                 Active   93d     
-field-discovery               Active   31d     
-gemma4-31b-inference          Active   3d21h   
-glm-flash-inference           Active   17d     
-gpu-operator                  Active   93d     
-hatchet                       Active   64d     
-istio-system                  Active   37d     
-kafka                         Active   38d     
-keda                          Active   38d     
-kindo-deps                    Active   93d     
-kindo-system                  Active   93d     
-kube-node-lease               Active   96d     
-kube-public                   Active   96d     
-kube-system                   Active   96d     
-litellm                       Active   93d     
-llama-4-maverick-inference    Active   45d     
-local                         Active   76d     
-logging                       Active   78d     
-longhorn                      Active   93d     
-longhorn-system               Active   93d     
-mcp                           Active   64d     
-minio-operator                Active   93d     
-nango                         Active   64d     
-nemotron-inference            Active   29d     
-next                          Active   93d     
-pgweb                         Active   93d     
-presidio                      Active   93d     
-prisma-migrations             Active   93d     
-qdrant                        Active   93d     
-rabbitmq-system               Active   93d     
-redis-operator                Active   93d     
-sandbox                       Active   64d     
-speaches                      Active   93d     
-ssoready                      Active   93d     
-task-worker-ts                Active   93d     
-text-embeddings               Active   75d     
-unleash                       Active   93d     
-[root@aamslc4kbc01 ~]# 
+# === 3. Focus: inference namespaces — how are they handling model weights? ===
+for ns in codestral-inference deephat-v2-hf-inference devstral-small-2-inference \
+          gemma4-31b-inference glm-flash-inference llama-4-maverick-inference \
+          nemotron-inference text-embeddings embeddings speaches; do
+  echo "=== $ns ==="
+  kubectl -n $ns get pods -o json 2>/dev/null | jq -r '
+    .items[] as $p
+    | $p.spec.volumes[]?
+    | "\($p.metadata.name)\tvol=\(.name)\ttype=\(
+        if .hostPath then "hostPath:\(.hostPath.path)"
+        elif .emptyDir then "emptyDir:\(.emptyDir.sizeLimit // "uncapped")"
+        elif .persistentVolumeClaim then "pvc:\(.persistentVolumeClaim.claimName)"
+        elif .configMap then "configMap"
+        elif .secret then "secret"
+        elif .projected then "projected"
+        else "other"
+      end)"'
+done
+
+# === 4. DIRECTLY check disk usage on nodes — the smoking gun ===
+# On each node, check what's eating /var/lib/kubelet and the root disk
+for n in aamslc4kbw01 aamslc4kbw02 aamslc4kbw03 aamslc4kbw04 aamslc4kbw05 aamslc4kbg01; do
+  echo "=== $n ==="
+  ssh $n 'df -h / /var/lib 2>/dev/null | tail -3; echo "---"; sudo du -sh /var/lib/kubelet/pods/*/volumes/kubernetes.io~empty-dir/* 2>/dev/null | sort -rh | head -10'
+done
+
+# === 5. The GPU node specifically — biggest risk (models are huge) ===
+ssh aamslc4kbg01 'df -h; echo "---"; sudo du -sh /var/lib/kubelet/pods/*/volumes/* 2>/dev/null | sort -rh | head -20; echo "---"; sudo du -sh /var/lib/containerd 2>/dev/null'
+
+# === 6. Cross-reference: PVCs mounted by inference pods (the "right way" group) ===
+for ns in codestral-inference deephat-v2-hf-inference devstral-small-2-inference \
+          gemma4-31b-inference llama-4-maverick-inference text-embeddings; do
+  echo "=== $ns ==="
+  kubectl -n $ns get pvc 2>/dev/null
+done
+
+# === 7. Longhorn volume sizes for inference namespaces ===
+kubectl get pv -o json | jq -r '
+  .items[]
+  | select(.spec.claimRef.namespace | test("inference|embeddings|speaches"))
+  | "\(.spec.claimRef.namespace)/\(.spec.claimRef.name)\tsize=\(.spec.capacity.storage)\tclass=\(.spec.storageClassName)"
+'
+
+# === 8. Node filesystem growth over time (any ephemeral-storage eviction history?) ===
+kubectl get events -A --field-selector reason=Evicted 2>/dev/null | head
+kubectl describe nodes | grep -A2 'ephemeral-storage' | head -40
+
+# === 9. EphemeralStorage requests/limits — are they even set? ===
+kubectl get pods -A -o json | jq -r '
+  .items[]
+  | select(.metadata.namespace | test("inference|embedding|speaches|aitk"))
+  | .spec.containers[]
+  | "\(.name)\tephemeral-storage.req=\(.resources.requests."ephemeral-storage" // "NONE")\tephemeral-storage.lim=\(.resources.limits."ephemeral-storage" // "NONE")"
+' | sort -u | head
