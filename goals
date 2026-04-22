@@ -1,29 +1,60 @@
-# Current state of all certs
-kubectl get certificate -A
-
-# For each failing cert, the actual error reason
-kubectl get certificate -A -o json | jq -r '
+[root@aamslc4kbc01 ~]# kubectl get certificate -A
+NAMESPACE    NAME              READY   SECRET           AGE
+api          api-cert          False   api-tls          93d
+default      longhorn-cert     False   longhorn-tls     94d
+kindo-deps   pgweb-cert        False   pgweb-tls        94d
+kindo-deps   selfsigned-cert   False   selfsigned-tls   94d
+next         next-cert         False   next-tls         93d
+ssoready     ssoready-tls      False   ssoready-tls     7d4h
+[root@aamslc4kbc01 ~]# kubectl get certificate -A -o json | jq -r '
   .items[]
   | select(.status.conditions[]? | select(.type=="Ready") | .status == "False")
   | "\(.metadata.namespace)/\(.metadata.name)\treason=\(.status.conditions[] | select(.type=="Ready") | .reason)\tmessage=\(.status.conditions[] | select(.type=="Ready") | .message)"
 '
-
-# Any ClusterIssuer or Issuer configured at all?
-kubectl get clusterissuer
-kubectl get issuer -A
-
-# Cert-manager pods healthy?
-kubectl -n cert-manager get pods
-
-# Recent cert-manager logs - look for the actual failure
-kubectl -n cert-manager logs -l app=cert-manager --tail=50 2>/dev/null | grep -iE 'error|fail' | tail -20
-
-# What's actually serving TLS right now? (wildcard cert details)
-kubectl get secret -A -o json | jq -r '
+api/api-cert    reason=DoesNotExist     message=Issuing certificate as Secret does not exist
+default/longhorn-cert   reason=DoesNotExist     message=Issuing certificate as Secret does not exist
+kindo-deps/pgweb-cert   reason=DoesNotExist     message=Issuing certificate as Secret does not exist
+kindo-deps/selfsigned-cert      reason=DoesNotExist     message=Issuing certificate as Secret does not exist
+next/next-cert  reason=DoesNotExist     message=Issuing certificate as Secret does not exist
+ssoready/ssoready-tls   reason=DoesNotExist     message=Issuing certificate as Secret does not exist
+[root@aamslc4kbc01 ~]# kubectl get clusterissuer
+No resources found
+[root@aamslc4kbc01 ~]# kubectl get issuer -A
+No resources found
+[root@aamslc4kbc01 ~]# kubectl -n cert-manager get pods
+NAME                                       READY   STATUS    RESTARTS      AGE
+cert-manager-6c6f677fd9-5rk9l              1/1     Running   1 (47d ago)   69d
+cert-manager-cainjector-7b845fff6f-88s66   1/1     Running   2 (47d ago)   69d
+cert-manager-webhook-599c48f5bd-9v6rq      1/1     Running   1 (47d ago)   69d
+[root@aamslc4kbc01 ~]# kubectl -n cert-manager logs -l app=cert-manager --tail=50 2>/dev/null | grep -iE 'error|fail' | tail -20
+I0415 15:23:50.071652       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificates.cert-manager.io \"ssoready-tls\": the object has been modified; please apply your changes to the latest version and try again"
+I0415 15:23:50.148594       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificates.cert-manager.io \"ssoready-tls\": the object has been modified; please apply your changes to the latest version and try again"
+I0415 15:23:50.184085       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
+I0415 15:23:50.185955       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
+I0415 15:23:50.186212       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
+I0415 15:23:50.186253       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
+I0415 16:21:03.719438       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificates.cert-manager.io \"ssoready-tls\": the object has been modified; please apply your changes to the latest version and try again"
+I0415 16:21:03.816032       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificates.cert-manager.io \"ssoready-tls\": the object has been modified; please apply your changes to the latest version and try again"
+I0415 16:21:03.842430       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
+I0415 16:21:03.844074       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
+I0415 16:21:03.844569       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
+I0415 16:21:03.845136       1 controller.go:152] "re-queuing item due to optimistic locking on resource" logger="cert-manager.controller" error="Operation cannot be fulfilled on certificaterequests.cert-manager.io \"ssoready-tls-1\": the object has been modified; please apply your changes to the latest version and try again"
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get secret -A -o json | jq -r '
   .items[]
   | select(.type=="kubernetes.io/tls" and (.metadata.name | test("wildcard")))
   | "\(.metadata.namespace)/\(.metadata.name)"
 '
-
-# Check the wildcard cert's actual expiry - pick one
-kubectl -n cattle-system get secret tls-rancher -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -noout -dates -subject -issuer 2>/dev/null
+aitk-console/wildcard-tls
+dex/wildcard-tls
+field-discovery/wildcard-tls
+istio-system/wildcard-tls
+kube-system/wildcard-tls
+nango/wildcard-tls
+[root@aamslc4kbc01 ~]# kubectl -n cattle-system get secret tls-rancher -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -noout -dates -subject -issuer 2>/dev/null
+notBefore=Mar 12 18:34:00 2026 GMT
+notAfter=Mar  9 18:34:00 2036 GMT
+subject=O=dynamiclistener-org, CN=dynamiclistener-ca@1773344040
+issuer=O=dynamiclistener-org, CN=dynamiclistener-ca@1773344040
+[root@aamslc4kbc01 ~]# 
