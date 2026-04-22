@@ -1,50 +1,212 @@
-# 1. Total count of Longhorn volumes and their state
-kubectl get volumes.longhorn.io -A --no-headers 2>/dev/null | wc -l
-kubectl get volumes.longhorn.io -A -o json 2>/dev/null | jq -r '.items[] | .status.state' | sort | uniq -c
-kubectl get volumes.longhorn.io -A -o json 2>/dev/null | jq -r '.items[] | .status.robustness' | sort | uniq -c
-
-# 2. Total count of PVCs using Longhorn storage class
-kubectl get pvc -A -o json | jq -r '.items[] | select(.spec.storageClassName=="longhorn") | "\(.metadata.namespace)/\(.metadata.name)"' | wc -l
-kubectl get pvc -A -o json | jq -r '.items[] | select(.spec.storageClassName=="longhorn") | "\(.metadata.namespace)"' | sort | uniq -c | sort -rn
-
-# 3. PVCs NOT on longhorn (and what class are they using?)
-kubectl get pvc -A -o json | jq -r '.items[] | select(.spec.storageClassName!="longhorn") | "\(.metadata.namespace)/\(.metadata.name)\tclass=\(.spec.storageClassName // "NONE")"'
-
-# 4. All storage classes in the cluster — what's available beyond Longhorn?
-kubectl get storageclass
-kubectl get storageclass -o json | jq -r '.items[] | "\(.metadata.name)\tprovisioner=\(.provisioner)\tdefault=\(.metadata.annotations["storageclass.kubernetes.io/is-default-class"] // "false")"'
-
-# 5. Pods using hostPath (NOT Longhorn) — what workloads bypass storage entirely?
-kubectl get pods -A -o json | jq -r '
+[root@aamslc4kbc01 ~]# kubectl get volumes.longhorn.io -A --no-headers 2>/dev/null | wc -l
+143
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get volumes.longhorn.io -A -o json 2>/dev/null | jq -r '.items[] | .status.state' | sort | uniq -c
+    139 attached
+      4 detached
+[root@aamslc4kbc01 ~]# kubectl get volumes.longhorn.io -A -o json 2>/dev/null | jq -r '.items[] | .status.robustness' | sort | uniq -c
+      4 degraded
+    135 healthy
+      4 unknown
+[root@aamslc4kbc01 ~]# kubectl get pvc -A -o json | jq -r '.items[] | select(.spec.storageClassName=="longhorn") | "\(.metadata.namespace)/\(.metadata.name)"' | wc -l
+37
+[root@aamslc4kbc01 ~]# kubectl get pvc -A -o json | jq -r '.items[] | select(.spec.storageClassName=="longhorn") | "\(.metadata.namespace)"' | sort | uniq -c | sort -rn
+     18 sandbox
+     13 kindo-deps
+      3 qdrant
+      2 aitk-zuva
+      1 speaches
+[root@aamslc4kbc01 ~]# kubectl get pvc -A -o json | jq -r '.items[] | select(.spec.storageClassName=="longhorn") | "\(.metadata.namespace)"' | sort | uniq -c | sort -rn
+     18 sandbox
+     13 kindo-deps
+      3 qdrant
+      2 aitk-zuva
+      1 speaches
+[root@aamslc4kbc01 ~]# kubectl get pvc -A -o json | jq -r '.items[] | select(.spec.storageClassName!="longhorn") | "\(.metadata.namespace)/\(.metadata.name)\tclass=\(.spec.storageClassName // "NONE")"'
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get storageclass
+NAME                 PROVISIONER          RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+longhorn (default)   driver.longhorn.io   Delete          Immediate           true                   94d
+longhorn-static      driver.longhorn.io   Delete          Immediate           true                   94d
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get storageclass -o json | jq -r '.items[] | "\(.metadata.name)\tprovisioner=\(.provisioner)\tdefault=\(.metadata.annotations["storageclass.kubernetes.io/is-default-class"] // "false")"'
+longhorn        provisioner=driver.longhorn.io  default=true
+longhorn-static provisioner=driver.longhorn.io  default=false
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get pods -A -o json | jq -r '
   .items[] as $p
   | $p.spec.volumes[]?
   | select(.hostPath != null)
   | "\($p.metadata.namespace)/\($p.metadata.name)\tpath=\(.hostPath.path)"
 ' | grep -viE '^(kube-system|longhorn|gpu-operator|cattle-|logging|cnpg-system|minio-operator|rabbitmq-system|redis-operator)' | sort -u
-
-# 6. Pods using uncapped emptyDir (in-memory or disk scratch)
-kubectl get pods -A -o json | jq -r '
+codestral-inference/codestral-22b-664b7b7c4b-2mfdb      path=/var/lib/longhorn/models/codestral-cache
+deephat-v2-hf-inference/deephat-v2-2h100-6957df78f5-8d87t       path=/var/lib/longhorn/models/deephat-v2-cache
+devstral-small-2-inference/devstral-small-2-988f5c7bb-5hxxz     path=/var/lib/longhorn/models/devstral-small-2-cache
+gemma4-31b-inference/gemma-4-31b-it-76bcf56747-kr99m    path=/var/lib/longhorn/models/gemma4-cache
+llama-4-maverick-inference/llama-4-maverick-8677df4dc4-k9wx2    path=/var/lib/longhorn/maverick-cache
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get pods -A -o json | jq -r '
   .items[] as $p
   | $p.spec.volumes[]?
   | select(.emptyDir != null and .emptyDir.sizeLimit == null)
   | "\($p.metadata.namespace)/\($p.metadata.name)\tvol=\(.name)"
 ' | grep -viE '^(kube-system|cattle-|longhorn|logging)' | awk -F/ '{print $1}' | sort | uniq -c | sort -rn
-
-# 7. Longhorn settings — the key policy settings
-kubectl -n longhorn-system get setting -o json 2>/dev/null | jq -r '.items[] | select(.metadata.name | test("replica|backup|node|anti-affinity|data-locality|snapshot")) | "\(.metadata.name) = \(.value)"'
-# Also try the "longhorn" namespace in case that's the active one
-kubectl -n longhorn get setting -o json 2>/dev/null | jq -r '.items[] | select(.metadata.name | test("replica|backup|node|anti-affinity|data-locality|snapshot")) | "\(.metadata.name) = \(.value)"'
-
-# 8. Which namespace is actually hosting the live Longhorn installation?
-kubectl -n longhorn get pods -o name 2>/dev/null | wc -l
-kubectl -n longhorn-system get pods -o name 2>/dev/null | wc -l
-kubectl get crd | grep longhorn.io
-# and where does the CRD point?
-kubectl get volumes.longhorn.io -A -o json | jq -r '.items[0] | .metadata.namespace' 2>/dev/null
-
-# 9. Longhorn backup target — is anything wired up?
-kubectl get backuptarget.longhorn.io -A 2>/dev/null
-kubectl get recurringjob.longhorn.io -A 2>/dev/null
-
-# 10. Summary: what % of PVCs are Longhorn, what % are other
-kubectl get pvc -A -o json | jq -r '.items[].spec.storageClassName' | sort | uniq -c | sort -rn
+     68 aitk-zuva
+     22 kindo-deps
+      6 qdrant
+      6 kafka
+      6 istio-system
+      3 sandbox
+      3 nango
+      1 llama-4-maverick-inference
+      1 gemma4-31b-inference
+      1 devstral-small-2-inference
+      1 deephat-v2-hf-inference
+      1 codestral-inference
+      1 cnpg-system
+      1 cerbos
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n longhorn-system get setting -o json 2>/dev/null | jq -r '.items[] | select(.metadata.name | test("replica|backup|node|anti-affinity|data-locality|snapshot")) | "\(.metadata.name) = \(.value)"'
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n longhorn get setting -o json 2>/dev/null | jq -r '.items[] | select(.metadata.name | test("replica|backup|node|anti-affinity|data-locality|snapshot")) | "\(.metadata.name) = \(.value)"'
+allow-empty-node-selector-volume = true
+auto-cleanup-recurring-job-backup-snapshot = true
+auto-cleanup-snapshot-after-on-demand-backup-completed = false
+auto-cleanup-system-generated-snapshot = true
+auto-cleanup-when-delete-backup = false
+backup-compression-method = lz4
+backup-concurrent-limit = 2
+backup-execution-timeout = 1
+concurrent-automatic-engine-upgrade-per-node-limit = 0
+concurrent-backing-image-replenish-per-node-limit = 5
+concurrent-replica-rebuild-per-node-limit = 5
+concurrent-volume-backup-restore-per-node-limit = 5
+create-default-disk-labeled-nodes = true
+default-backup-block-size = 2
+default-data-locality = disabled
+default-replica-count = {"v1":"3","v2":"3"}
+disable-scheduling-on-cordoned-node = true
+disable-snapshot-purge = false
+engine-replica-timeout = {"v1":"8","v2":"8"}
+failed-backup-ttl = 1440
+fast-replica-rebuild-enabled = {"v1":"true","v2":"true"}
+freeze-filesystem-for-snapshot = {"v1":"false"}
+node-down-pod-deletion-policy = do-nothing
+node-drain-policy = block-if-contains-last-replica
+offline-replica-rebuilding = {"v1":"false","v2":"false"}
+remove-snapshots-during-filesystem-trim = false
+replica-auto-balance = disabled
+replica-auto-balance-disk-pressure-percentage = 90
+replica-disk-soft-anti-affinity = true
+replica-file-sync-http-client-timeout = 30
+replica-rebuilding-bandwidth-limit = {"v2":"0"}
+replica-replenishment-wait-interval = 600
+replica-soft-anti-affinity = false
+replica-zone-soft-anti-affinity = true
+snapshot-data-integrity = {"v1":"fast-check","v2":"fast-check"}
+snapshot-data-integrity-cronjob = {"v1":"0 0 */7 * *","v2":"0 0 */7 * *"}
+snapshot-data-integrity-immediate-check-after-snapshot-creation = {"v1":"false","v2":"false"}
+snapshot-max-count = 250
+support-bundle-node-collection-timeout = 30
+system-managed-components-node-selector = 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n longhorn get setting -o json 2>/dev/null | jq -r '.items[] | select(.metadata.name | test("replica|backup|node|anti-affinity|data-locality|snapshot")) | "\(.metadata.name) = \(.value)"'
+allow-empty-node-selector-volume = true
+auto-cleanup-recurring-job-backup-snapshot = true
+auto-cleanup-snapshot-after-on-demand-backup-completed = false
+auto-cleanup-system-generated-snapshot = true
+auto-cleanup-when-delete-backup = false
+backup-compression-method = lz4
+backup-concurrent-limit = 2
+backup-execution-timeout = 1
+concurrent-automatic-engine-upgrade-per-node-limit = 0
+concurrent-backing-image-replenish-per-node-limit = 5
+concurrent-replica-rebuild-per-node-limit = 5
+concurrent-volume-backup-restore-per-node-limit = 5
+create-default-disk-labeled-nodes = true
+default-backup-block-size = 2
+default-data-locality = disabled
+default-replica-count = {"v1":"3","v2":"3"}
+disable-scheduling-on-cordoned-node = true
+disable-snapshot-purge = false
+engine-replica-timeout = {"v1":"8","v2":"8"}
+failed-backup-ttl = 1440
+fast-replica-rebuild-enabled = {"v1":"true","v2":"true"}
+freeze-filesystem-for-snapshot = {"v1":"false"}
+node-down-pod-deletion-policy = do-nothing
+node-drain-policy = block-if-contains-last-replica
+offline-replica-rebuilding = {"v1":"false","v2":"false"}
+remove-snapshots-during-filesystem-trim = false
+replica-auto-balance = disabled
+replica-auto-balance-disk-pressure-percentage = 90
+replica-disk-soft-anti-affinity = true
+replica-file-sync-http-client-timeout = 30
+replica-rebuilding-bandwidth-limit = {"v2":"0"}
+replica-replenishment-wait-interval = 600
+replica-soft-anti-affinity = false
+replica-zone-soft-anti-affinity = true
+snapshot-data-integrity = {"v1":"fast-check","v2":"fast-check"}
+snapshot-data-integrity-cronjob = {"v1":"0 0 */7 * *","v2":"0 0 */7 * *"}
+snapshot-data-integrity-immediate-check-after-snapshot-creation = {"v1":"false","v2":"false"}
+snapshot-max-count = 250
+support-bundle-node-collection-timeout = 30
+system-managed-components-node-selector = 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n longhorn get pods -o name 2>/dev/null | wc -l
+37
+[root@aamslc4kbc01 ~]# kubectl -n longhorn-system get pods -o name 2>/dev/null | wc -l
+0
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get crd | grep longhorn.io
+backingimagedatasources.longhorn.io                               2026-01-18T18:18:31Z
+backingimagemanagers.longhorn.io                                  2026-01-18T18:18:31Z
+backingimages.longhorn.io                                         2026-01-18T18:18:31Z
+backupbackingimages.longhorn.io                                   2026-01-18T18:18:31Z
+backups.longhorn.io                                               2026-01-18T18:18:31Z
+backuptargets.longhorn.io                                         2026-01-18T18:18:31Z
+backupvolumes.longhorn.io                                         2026-01-18T18:18:31Z
+engineimages.longhorn.io                                          2026-01-18T18:18:31Z
+engines.longhorn.io                                               2026-01-18T18:18:31Z
+instancemanagers.longhorn.io                                      2026-01-18T18:18:31Z
+nodes.longhorn.io                                                 2026-01-18T18:18:31Z
+orphans.longhorn.io                                               2026-01-18T18:18:31Z
+recurringjobs.longhorn.io                                         2026-01-18T18:18:31Z
+replicas.longhorn.io                                              2026-01-18T18:18:31Z
+settings.longhorn.io                                              2026-01-18T18:18:31Z
+sharemanagers.longhorn.io                                         2026-01-18T18:18:31Z
+snapshots.longhorn.io                                             2026-01-18T18:18:31Z
+supportbundles.longhorn.io                                        2026-01-18T18:18:31Z
+systembackups.longhorn.io                                         2026-01-18T18:18:31Z
+systemrestores.longhorn.io                                        2026-01-18T18:18:31Z
+volumeattachments.longhorn.io                                     2026-01-18T18:18:31Z
+volumes.longhorn.io                                               2026-01-18T18:18:31Z
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get volumes.longhorn.io -A -o json | jq -r '.items[0] | .metadata.namespace' 2>/dev/n
+longhorn
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get backuptarget.longhorn.io -A 2>/dev/null
+NAMESPACE   NAME      URL   CREDENTIAL   LASTBACKUPAT   AVAILABLE   LASTSYNCEDAT
+longhorn    default                      5m0s           false       <no value>
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get recurringjob.longhorn.io -A 2>/dev/null
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get pvc -A -o json | jq -r '.items[].spec.storageClassName' | sort | uniq -c | sort -rn
+     37 longhorn
+[root@aamslc4kbc01 ~]# 
