@@ -1,1 +1,24 @@
-sudo du -sh /var/lib/kubelet/pods/*/volumes/kubernetes.io~empty-dir/* 2>/dev/null | sort -rh | head -5
+[asvc.rhautomation@aamslc4kbw01 ~]$ df -h
+Filesystem                           Size  Used Avail Use% Mounted on
+devtmpfs                             4.0M     0  4.0M   0% /dev
+tmpfs                                 32G   84K   32G   1% /dev/shm
+tmpfs                                 13G   17M   13G   1% /run
+efivarfs                             256K   33K  219K  13% /sys/firmware/efi/efivars
+/dev/mapper/rootvg-rootlv             10G  3.5G  6.6G  35% /
+/dev/sda3                            960M  501M  460M  53% /boot
+/dev/mapper/rootvg-homelv             10G  104M  9.9G   2% /home
+/dev/mapper/rootvg-tmplv              10G  104M  9.9G   2% /tmp
+/dev/mapper/rootvg-varlv              20G  9.3G   11G  47% /var
+/dev/sda2                            200M  7.4M  193M   4% /boot/efi
+/dev/mapper/docker_vg-docker_lv      100G  746M  100G   1% /var/lib/docker
+/dev/mapper/kubelet_vg-kubelet_lv    250G  1.9G  249G   1% /var/lib/kubelet
+/dev/mapper/rootvg-var_loglv          20G  2.6G   18G  13% /var/log
+/dev/mapper/kubelet_vg-longhorn_lv   2.0T  581G  1.5T  29% /var/lib/longhorn
+/dev/mapper/rancher_vg-rancher_lv    150G  100G   51G  67% /var/lib/rancher
+/dev/mapper/rootvg-var_tmplv          20G  175M   20G   1% /var/tmp
+/dev/mapper/rootvg-var_log_auditlv    20G 1013M   19G   5% /var/log/audit
+aamslc4nfs01.ttmtech.local:/srv/nfs  1.0T  7.7G 1016G   1% /mnt/nfs-backups
+tmpfs                                6.3G     0  6.3G   0% /run/user/1002
+[asvc.rhautomation@aamslc4kbw01 ~]$ lvs 2>/dev/null
+[asvc.rhautomation@aamslc4kbw01 ~]$ sudo du -sh /var/lib/kubelet/pods/*/volumes/kubernetes.io~empty-dir/* 2>/dev/null | sort -rh | head -5
+[asvc.rhautomation@aamslc4kbw01 ~]$ 
