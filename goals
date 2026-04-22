@@ -1,323 +1,144 @@
-[root@aamslc4kbc01 ~]# sudo /var/lib/rancher/rke2/bin/kubectl -n kube-system exec -it etcd-$(hostname -s).ttmtech.local -- sh -c '
-ETCDCTL_API=3 etcdctl \
-  --endpoints=https://127.0.0.1:2379 \
-  --cacert=/var/lib/rancher/rke2/server/tls/etcd/server-ca.crt \
-  --cert=/var/lib/rancher/rke2/server/tls/etcd/server-client.crt \
-  --key=/var/lib/rancher/rke2/server/tls/etcd/server-client.key \
-  endpoint status --cluster -w table'
-E0422 08:23:13.153508 2066568 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
-E0422 08:23:13.154431 2066568 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
-E0422 08:23:13.155929 2066568 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
-E0422 08:23:13.156352 2066568 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
-The connection to the server localhost:8080 was refused - did you specify the right host or port?
-[root@aamslc4kbc01 ~]# kubectl get nodes -A
-NAME                         STATUS   ROLES                AGE   VERSION
-aamslc4kbc01.ttmtech.local   Ready    control-plane,etcd   96d   v1.34.4+rke2r1
-aamslc4kbc02.ttmtech.local   Ready    control-plane,etcd   96d   v1.34.4+rke2r1
-aamslc4kbc03.ttmtech.local   Ready    control-plane,etcd   96d   v1.34.4+rke2r1
-aamslc4kbg01.ttmtech.local   Ready    <none>               94d   v1.34.4+rke2r1
-aamslc4kbw01.ttmtech.local   Ready    <none>               96d   v1.34.4+rke2r1
-aamslc4kbw02.ttmtech.local   Ready    <none>               96d   v1.34.4+rke2r1
-aamslc4kbw03.ttmtech.local   Ready    <none>               96d   v1.34.4+rke2r1
-aamslc4kbw04.ttmtech.local   Ready    <none>               35d   v1.34.5+rke2r1
-aamslc4kbw05.ttmtech.local   Ready    <none>               35d   v1.34.5+rke2r1
-[root@aamslc4kbc01 ~]# sudo /var/lib/rancher/rke2/bin/kubectl -n kube-system exec -it etcd-$(hostname -s).ttmtech.local -- sh -c '
-ETCDCTL_API=3 etcdctl \
-  --endpoints=https://127.0.0.1:2379 \
-  --cacert=/var/lib/rancher/rke2/server/tls/etcd/server-ca.crt \
-  --cert=/var/lib/rancher/rke2/server/tls/etcd/server-client.crt \
-  --key=/var/lib/rancher/rke2/server/tls/etcd/server-client.key \
-  alarm list'
-E0422 08:23:47.695763 2067254 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
-E0422 08:23:47.696451 2067254 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
-E0422 08:23:47.698168 2067254 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
-E0422 08:23:47.698825 2067254 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
-The connection to the server localhost:8080 was refused - did you specify the right host or port?
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# kubectl get pods -A | grep -Ei 'kube-vip|metallb|keepalived|haproxy'
-[root@aamslc4kbc01 ~]# sudo ls -la /var/lib/rancher/rke2/agent/pod-manifests/ 2>/dev/null
-total 40
-drwx------ 2 root root  173 Mar  6 05:52 .
-drwxr-x--- 7 root root 4096 Mar  6 05:52 ..
--rw-r--r-- 1 root root 3727 Mar  6 05:21 cloud-controller-manager.yaml
--rw-r--r-- 1 root root 3296 Mar  6 05:20 etcd.yaml
--rw-r--r-- 1 root root 9992 Mar  6 05:52 kube-apiserver.yaml
--rw-r--r-- 1 root root 6547 Mar  6 05:21 kube-controller-manager.yaml
--rw-r--r-- 1 root root 2342 Mar  6 05:51 kube-proxy.yaml
--rw-r--r-- 1 root root 3724 Mar  6 05:21 kube-scheduler.yaml
-[root@aamslc4kbc01 ~]# kubectl get nodes -o json | jq -r '.items[] | "\(.metadata.name)\tproviderID=\(.spec.providerID // "NONE")"'
-aamslc4kbc01.ttmtech.local      providerID=rke2://aamslc4kbc01.ttmtech.local
-aamslc4kbc02.ttmtech.local      providerID=rke2://aamslc4kbc02.ttmtech.local
-aamslc4kbc03.ttmtech.local      providerID=rke2://aamslc4kbc03.ttmtech.local
-aamslc4kbg01.ttmtech.local      providerID=rke2://aamslc4kbg01.ttmtech.local
-aamslc4kbw01.ttmtech.local      providerID=rke2://aamslc4kbw01.ttmtech.local
-aamslc4kbw02.ttmtech.local      providerID=rke2://aamslc4kbw02.ttmtech.local
-aamslc4kbw03.ttmtech.local      providerID=rke2://aamslc4kbw03.ttmtech.local
-aamslc4kbw04.ttmtech.local      providerID=rke2://aamslc4kbw04.ttmtech.local
-aamslc4kbw05.ttmtech.local      providerID=rke2://aamslc4kbw05.ttmtech.local
-[root@aamslc4kbc01 ~]# kubectl get nodes -o json | jq -r '.items[] | "\(.metadata.name)\t\(.status.nodeInfo.kubeletVersion)"' | sort -k2
-aamslc4kbc01.ttmtech.local      v1.34.4+rke2r1
-aamslc4kbc02.ttmtech.local      v1.34.4+rke2r1
-aamslc4kbc03.ttmtech.local      v1.34.4+rke2r1
-aamslc4kbg01.ttmtech.local      v1.34.4+rke2r1
-aamslc4kbw01.ttmtech.local      v1.34.4+rke2r1
-aamslc4kbw02.ttmtech.local      v1.34.4+rke2r1
-aamslc4kbw03.ttmtech.local      v1.34.4+rke2r1
-aamslc4kbw04.ttmtech.local      v1.34.5+rke2r1
-aamslc4kbw05.ttmtech.local      v1.34.5+rke2r1
-[root@aamslc4kbc01 ~]# USER_NS=$(kubectl get ns -o name | cut -d/ -f2 | grep -Ev '^(kube-|cattle-|longhorn|rancher|default$|cnpg-system|minio-operator|redis-operator|rabbitmq-system|cert-manager|external-secrets|gpu-operator|keda|istio-system|dex|ssoready|prisma-migrations|logging)$')
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# echo "=== Single-replica deployments in prod ns ==="
-for ns in $USER_NS; do
-  kubectl -n $ns get deploy -o json 2>/dev/null | jq -r --arg ns $ns '.items[] | select(.spec.replicas==1) | "\($ns)/\(.metadata.name)\treplicas=\(.spec.replicas)"'
+# ==== Investigate the VIP / DNS / LB situation ====
+getent hosts api.kbai.ttmtech.local
+dig api.kbai.ttmtech.local +short
+dig api.kbai.ttmtech.local +noall +answer
+
+# What do WORKERS think the server URL is?
+for n in aamslc4kbw01 aamslc4kbw02 aamslc4kbw03 aamslc4kbw04 aamslc4kbw05 aamslc4kbg01; do
+  echo "=== $n ==="
+  ssh $n "grep -E '^server' /etc/rancher/rke2/config.yaml 2>/dev/null; cat /etc/rancher/rke2/config.yaml.d/*.yaml 2>/dev/null | grep -E '^server'"
 done
-=== Single-replica deployments in prod ns ===
-aitk-console/console    replicas=1
-aitk-console/oauth2-proxy       replicas=1
-aitk-console/usage-api  replicas=1
-aitk-zuva/aitk-extract-api-cleaner-deployment   replicas=1
-aitk-zuva/aitk-extract-api-status-listener-deployment   replicas=1
-aitk-zuva/aitk-extract-redis-deployment replicas=1
-aitk-zuva/aitk-extract-status-redis-deployment  replicas=1
-aitk-zuva/aitk-files-cleaner-deployment replicas=1
-aitk-zuva/aitk-files-reaper-deployment  replicas=1
-aitk-zuva/aitk-mlc-api-cleaner-deployment       replicas=1
-aitk-zuva/aitk-mlc-api-deployment       replicas=1
-aitk-zuva/aitk-mlc-api-status-listener-deployment       replicas=1
-aitk-zuva/aitk-mlc-ocr-listener-deployment      replicas=1
-aitk-zuva/aitk-mlc-redis-deployment     replicas=1
-aitk-zuva/aitk-mlc-request-listener-deployment  replicas=1
-aitk-zuva/aitk-mlc-worker-deployment    replicas=1
-aitk-zuva/aitk-normalization    replicas=1
-aitk-zuva/aitk-ocr-cleaner-deployment   replicas=1
-aitk-zuva/aitk-ocr-controller-deployment        replicas=1
-aitk-zuva/aitk-ocr-dc-job-orchestrator-deployment       replicas=1
-aitk-zuva/aitk-ocr-dc-job-orchestrator-overflow-deployment      replicas=1
-aitk-zuva/aitk-ocr-file-upload-listener-deployment      replicas=1
-aitk-zuva/aitk-ocr-results-listener-deployment  replicas=1
-aitk-zuva/aitk-sfs-train-status-listener-deployment     replicas=1
-aitk-zuva/aitk-usage-extract-status-listener-deployment replicas=1
-aitk-zuva/aitk-usage-field-create-listener-deployment   replicas=1
-aitk-zuva/aitk-usage-file-upload-listener-deployment    replicas=1
-aitk-zuva/aitk-usage-mlc-status-listener-deployment     replicas=1
-aitk-zuva/aitk-usage-normalization-listener-deployment  replicas=1
-aitk-zuva/aitk-usage-ocr-status-listener-deployment     replicas=1
-aitk-zuva/aitk-usage-train-status-listener-deployment   replicas=1
-api/api replicas=1
-audit-log-exporter/audit-log-exporter   replicas=1
-cattle-fleet-system/fleet-agent replicas=1
-cattle-monitoring-system/rancher-monitoring-grafana     replicas=1
-cattle-monitoring-system/rancher-monitoring-kube-state-metrics  replicas=1
-cattle-monitoring-system/rancher-monitoring-operator    replicas=1
-cattle-monitoring-system/rancher-monitoring-prometheus-adapter  replicas=1
-cattle-system/rancher-webhook   replicas=1
-cattle-system/system-upgrade-controller replicas=1
-cerbos/cerbos   replicas=1
-codestral-inference/codestral-22b       replicas=1
-credits/credits replicas=1
-deephat-v2-hf-inference/deephat-v2-2h100        replicas=1
-devstral-small-2-inference/devstral-small-2     replicas=1
-external-sync/external-sync-files       replicas=1
-external-sync/external-sync-files-priority      replicas=1
-field-discovery/field-library-api       replicas=1
-field-discovery/oauth2-proxy    replicas=1
-gemma4-31b-inference/gemma-4-31b-it     replicas=1
-hatchet/hatchet-api     replicas=1
-hatchet/hatchet-engine  replicas=1
-hatchet/hatchet-frontend        replicas=1
-kafka/aitk-kafka-cluster-entity-operator        replicas=1
-kafka/strimzi-cluster-operator  replicas=1
-kube-system/rke2-coredns-rke2-coredns-autoscaler        replicas=1
-kube-system/rke2-metrics-server replicas=1
-kube-system/rke2-snapshot-controller    replicas=1
-litellm/litellm replicas=1
-llama-4-maverick-inference/llama-4-maverick     replicas=1
-mcp/mcp-sentinelone     replicas=1
-mcp/mcp-unified replicas=1
-nango/nango     replicas=1
-nango/nango-connect-ui  replicas=1
-next/next       replicas=1
-pgweb/kindo-pgweb       replicas=1
-presidio/presidio-presidio-analyzer     replicas=1
-presidio/presidio-presidio-anonymizer   replicas=1
-speaches/speaches       replicas=1
-text-embeddings/text-embeddings replicas=1
-unleash/unleash-edge    replicas=1
-[root@aamslc4kbc01 ~]# echo "=== Namespaces with ZERO PodDisruptionBudgets ==="
-for ns in $USER_NS; do
-  count=$(kubectl -n $ns get pdb --no-headers 2>/dev/null | wc -l)
-  [ "$count" -eq 0 ] && echo "$ns: NO PDBs"
+
+# What does DNS resolve master-0/1/2 to? (tls-san entries)
+for h in master-0 master-1 master-2 api; do
+  echo "$h.kbai.ttmtech.local -> $(getent hosts $h.kbai.ttmtech.local | awk '{print $1}')"
 done
-=== Namespaces with ZERO PodDisruptionBudgets ===
-aitk-console: NO PDBs
-cattle-dashboards: NO PDBs
-cattle-fleet-system: NO PDBs
-cattle-impersonation-system: NO PDBs
-cattle-local-user-passwords: NO PDBs
-cattle-monitoring-system: NO PDBs
-cattle-system: NO PDBs
-cerbos: NO PDBs
-codestral-inference: NO PDBs
-deephat-v2-hf-inference: NO PDBs
-devstral-small-2-inference: NO PDBs
-embeddings: NO PDBs
-external-poller: NO PDBs
-external-sync: NO PDBs
-field-discovery: NO PDBs
-gemma4-31b-inference: NO PDBs
-glm-flash-inference: NO PDBs
-hatchet: NO PDBs
-kindo-system: NO PDBs
-kube-node-lease: NO PDBs
-kube-public: NO PDBs
-kube-system: NO PDBs
-litellm: NO PDBs
-llama-4-maverick-inference: NO PDBs
-local: NO PDBs
-longhorn-system: NO PDBs
-nango: NO PDBs
-nemotron-inference: NO PDBs
-next: NO PDBs
-pgweb: NO PDBs
-presidio: NO PDBs
-qdrant: NO PDBs
-sandbox: NO PDBs
-speaches: NO PDBs
-text-embeddings: NO PDBs
-unleash: NO PDBs
-[root@aamslc4kbc01 ~]# echo "=== Pods missing readiness probes ==="
-kubectl get pods -A -o json | jq -r '
-  .items[]
-  | select(.metadata.namespace | test("^(kube-system|cattle-|longhorn|rancher)") | not)
-  | select(.spec.containers[] | .readinessProbe == null)
-  | "\(.metadata.namespace)/\(.metadata.name)"' | sort -u | head -40
-=== Pods missing readiness probes ===
-aitk-console/console-5758bbff9c-zkf5m
-aitk-console/oauth2-proxy-6476895588-8c468
-aitk-console/usage-api-5dfb575d97-lmrnf
-aitk-zuva/aitk-extract-api-cleaner-deployment-547dc7b786-thjrm
-aitk-zuva/aitk-extract-api-deployment-594b58c555-5t7lr
-aitk-zuva/aitk-extract-api-deployment-594b58c555-qvlqn
-aitk-zuva/aitk-extract-api-status-listener-deployment-75bbdc548c-qfm5n
-aitk-zuva/aitk-extract-fields-listener-deployment-557f84bcbb-94bkz
-aitk-zuva/aitk-extract-fields-listener-deployment-557f84bcbb-9p25z
-aitk-zuva/aitk-extract-fields-listener-deployment-557f84bcbb-zcvvj
-aitk-zuva/aitk-extract-ocr-status-listener-deployment-7599b7b957-5chmq
-aitk-zuva/aitk-extract-ocr-status-listener-deployment-7599b7b957-7qjht
-aitk-zuva/aitk-extract-ocr-status-listener-deployment-7599b7b957-b7vd7
-aitk-zuva/aitk-extract-overflow-deployment-bd6996bb5-9lj9v
-aitk-zuva/aitk-extract-overflow-deployment-bd6996bb5-ctvj9
-aitk-zuva/aitk-extract-overflow-deployment-bd6996bb5-dmncz
-aitk-zuva/aitk-extract-redis-deployment-778b467744-sl52c
-aitk-zuva/aitk-extract-status-redis-deployment-68d8775485-jljk5
-aitk-zuva/aitk-extract-worker-deployment-988f6fbc5-p45j8
-aitk-zuva/aitk-extract-worker-deployment-988f6fbc5-zhq4t
-aitk-zuva/aitk-extract-worker-deployment-988f6fbc5-zxfq8
-aitk-zuva/aitk-files-cleaner-deployment-868f774f56-fz95d
-aitk-zuva/aitk-files-deployment-5f76947fcb-2r7kl
-aitk-zuva/aitk-files-deployment-5f76947fcb-442fl
-aitk-zuva/aitk-files-deployment-5f76947fcb-5rs7w
-aitk-zuva/aitk-files-deployment-5f76947fcb-nf6rf
-aitk-zuva/aitk-files-deployment-5f76947fcb-pwksd
-aitk-zuva/aitk-files-reaper-deployment-65fff54fdf-6557d
-aitk-zuva/aitk-mlc-api-cleaner-deployment-7f77c75cd5-th7mh
-aitk-zuva/aitk-mlc-api-deployment-6b4fc476bf-75x45
-aitk-zuva/aitk-mlc-api-status-listener-deployment-54db588cdb-z4pgt
-aitk-zuva/aitk-mlc-ocr-listener-deployment-767fc55cbd-dl6dv
-aitk-zuva/aitk-mlc-redis-deployment-76bc669f74-6g7wt
-aitk-zuva/aitk-mlc-request-listener-deployment-7d99f685df-p9r26
-aitk-zuva/aitk-mlc-worker-deployment-68ccd54779-rtlzr
-aitk-zuva/aitk-ocr-api-deployment-9477dd958-qrp4g
-aitk-zuva/aitk-ocr-api-deployment-9477dd958-sdd5s
-aitk-zuva/aitk-ocr-cleaner-deployment-5fb547c74c-65hrl
-aitk-zuva/aitk-ocr-controller-deployment-5fd47dfcb8-d6bdh
-aitk-zuva/aitk-ocr-dc-job-orchestrator-deployment-74cc57d469-94w8x
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# echo "=== Pods missing resource requests/limits ==="
-kubectl get pods -A -o json | jq -r '
-  .items[]
-  | select(.metadata.namespace | test("^(kube-system|cattle-|longhorn)") | not)
-  | select(.spec.containers[] | .resources.requests == null or .resources.limits == null)
-  | "\(.metadata.namespace)/\(.metadata.name)"' | sort -u | head -40
-=== Pods missing resource requests/limits ===
-aitk-console/console-5758bbff9c-zkf5m
-aitk-console/oauth2-proxy-6476895588-8c468
-aitk-console/usage-api-5dfb575d97-lmrnf
-aitk-zuva/aitk-custom-auth-68fd97b578-8p2p2
-aitk-zuva/aitk-custom-auth-68fd97b578-nzhvs
-aitk-zuva/aitk-custom-auth-68fd97b578-zckbx
-aitk-zuva/aitk-extract-api-deployment-594b58c555-5t7lr
-aitk-zuva/aitk-extract-api-deployment-594b58c555-qvlqn
-aitk-zuva/aitk-files-deployment-5f76947fcb-2r7kl
-aitk-zuva/aitk-files-deployment-5f76947fcb-442fl
-aitk-zuva/aitk-files-deployment-5f76947fcb-5rs7w
-aitk-zuva/aitk-files-deployment-5f76947fcb-nf6rf
-aitk-zuva/aitk-files-deployment-5f76947fcb-pwksd
-aitk-zuva/aitk-mlc-api-deployment-6b4fc476bf-75x45
-aitk-zuva/aitk-normalization-795b79bbb8-6m295
-aitk-zuva/aitk-ocr-api-deployment-9477dd958-qrp4g
-aitk-zuva/aitk-ocr-api-deployment-9477dd958-sdd5s
-aitk-zuva/aitk-ocr-file-upload-listener-deployment-5489445c77-ts48s
-aitk-zuva/aitk-sfs-api-deployment-57cc6c9977-5rxvz
-aitk-zuva/aitk-sfs-api-deployment-57cc6c9977-dwpkp
-aitk-zuva/aitk-usage-file-upload-listener-deployment-7b756f48d4-g7nzn
-aitk-zuva/zuva-postgres-1
-aitk-zuva/zuva-postgres-2
-cert-manager/cert-manager-6c6f677fd9-5rk9l
-cert-manager/cert-manager-cainjector-7b845fff6f-88s66
-cert-manager/cert-manager-webhook-599c48f5bd-9v6rq
-cnpg-system/cloudnative-pg-54c8747cdb-8vl6z
-dex/dex-55f654fc49-s25lp
-field-discovery/field-library-api-7957f4f9f5-ghk4t
-field-discovery/oauth2-proxy-5b48d6b777-gvvdf
-gpu-operator/gpu-feature-discovery-4bqsb
-gpu-operator/nvidia-container-toolkit-daemonset-vt4s9
-gpu-operator/nvidia-cuda-validator-n5zb5
-gpu-operator/nvidia-dcgm-exporter-8vvhb
-gpu-operator/nvidia-device-plugin-daemonset-sfhv6
-gpu-operator/nvidia-mig-manager-lzx5p
-gpu-operator/nvidia-operator-validator-98n8l
-istio-system/istiod-1-27-0-7f5f77fd9-82nlw
-kafka/aitk-kafka-cluster-entity-operator-7759f9cbff-9rn9b
-kafka/aitk-kafka-cluster-kafka-0
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# echo "=== Deployments with NO pod anti-affinity or topology spread ==="
-for ns in $USER_NS; do
-  kubectl -n $ns get deploy -o json 2>/dev/null | jq -r --arg ns $ns '
-    .items[]
-    | select((.spec.replicas // 0) > 1)
-    | select(.spec.template.spec.affinity.podAntiAffinity == null and .spec.template.spec.topologySpreadConstraints == null)
-    | "\($ns)/\(.metadata.name)\tMULTI_REPLICA_NO_SPREAD"'
+
+# ==== CIS profile verification ====
+grep -i '^profile:' /etc/rancher/rke2/config.yaml
+# Confirm etcd runs as root (NOT etcd user) — this is a CIS miss
+sudo /var/lib/rancher/rke2/bin/crictl inspect $(sudo /var/lib/rancher/rke2/bin/crictl ps --name etcd -q | head -1) | grep -iE 'runAsUser|runAsGroup|uid|gid' | head
+id etcd 2>/dev/null || echo "no etcd host user — CIS fail"
+
+# ==== Pod Security Admission — cluster-wide default ====
+grep -i admission /etc/rancher/rke2/config.yaml
+sudo ls /etc/rancher/rke2/
+sudo cat /etc/rancher/rke2/rke2-pss.yaml 2>/dev/null
+kubectl get ns -o json | jq -r '.items[] | "\(.metadata.name)\tenforce=\(.metadata.labels["pod-security.kubernetes.io/enforce"] // "NONE")"' | column -t
+
+# ==== Secrets encryption at rest ====
+sudo /var/lib/rancher/rke2/bin/rke2 secrets-encrypt status 2>/dev/null
+
+# ==== Audit log — is anything actually being written? ====
+sudo cat /etc/kubernetes/audit/policy.yaml 2>/dev/null
+sudo ls -lh /var/log/kubernetes/audit/ 2>/dev/null
+sudo tail -5 /var/log/kubernetes/audit/audit.log 2>/dev/null | head
+
+# ==== RBAC — cluster-admins ====
+kubectl get clusterrolebinding -o json | jq -r '
+  .items[] | select(.roleRef.name=="cluster-admin") 
+  | "\(.metadata.name)\t\(.subjects // [] | map("\(.kind):\(.namespace // "-")/\(.name)") | join(" , "))"' | column -t -s $'\t'
+
+# ==== NetworkPolicy coverage ====
+echo "Namespaces with ZERO NetworkPolicies:"
+for ns in $(kubectl get ns -o name | cut -d/ -f2); do
+  count=$(kubectl -n $ns get netpol --no-headers 2>/dev/null | wc -l)
+  [ "$count" -eq 0 ] && echo "  $ns"
 done
-=== Deployments with NO pod anti-affinity or topology spread ===
-aitk-zuva/aitk-custom-auth      MULTI_REPLICA_NO_SPREAD
-aitk-zuva/aitk-extract-fields-listener-deployment       MULTI_REPLICA_NO_SPREAD
-aitk-zuva/aitk-extract-ocr-status-listener-deployment   MULTI_REPLICA_NO_SPREAD
-unleash/unleash MULTI_REPLICA_NO_SPREAD
-[root@aamslc4kbc01 ~]# echo "=== GPU-pinned workloads (need node failure plan) ==="
+echo
+echo "All NetworkPolicies:"
+kubectl get netpol -A
+
+# ==== Privileged / host-access pods ====
 kubectl get pods -A -o json | jq -r '
-  .items[]
-  | select(.spec.containers[].resources.limits."nvidia.com/gpu" != null or .spec.containers[].resources.limits."nvidia.com/mig-3g.71gb" != null or .spec.containers[].resources.limits."nvidia.com/mig-4g.71gb" != null)
-  | "\(.metadata.namespace)/\(.metadata.name)\tnode=\(.spec.nodeName)"'
-=== GPU-pinned workloads (need node failure plan) ===
-codestral-inference/codestral-22b-664b7b7c4b-2mfdb      node=aamslc4kbg01.ttmtech.local
-deephat-v2-hf-inference/deephat-v2-2h100-6957df78f5-8d87t       node=aamslc4kbg01.ttmtech.local
-devstral-small-2-inference/devstral-small-2-988f5c7bb-5hxxz     node=aamslc4kbg01.ttmtech.local
-gemma4-31b-inference/gemma-4-31b-it-76bcf56747-kr99m    node=aamslc4kbg01.ttmtech.local
-llama-4-maverick-inference/llama-4-maverick-8677df4dc4-k9wx2    node=aamslc4kbg01.ttmtech.local
-text-embeddings/text-embeddings-99b547544-9jqz7 node=aamslc4kbg01.ttmtech.local
-[root@aamslc4kbc01 ~]# kubectl -n kube-system get deploy rke2-coredns-rke2-coredns -o jsonpath='{.spec.replicas}{"\n"}'
-2
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# 
-[root@aamslc4kbc01 ~]# kubectl -n kube-system get pods -l app.kubernetes.io/name=rke2-ingress-nginx -o wide
-NAME                                  READY   STATUS    RESTARTS   AGE   IP            NODE                         NOMINATED NODE   READINESS GATES
-rke2-ingress-nginx-controller-fckxs   1/1     Running   0          15d   10.42.5.34    aamslc4kbw02.ttmtech.local   <none>           <none>
-rke2-ingress-nginx-controller-g5stm   1/1     Running   0          15d   10.42.4.2     aamslc4kbw04.ttmtech.local   <none>           <none>
-rke2-ingress-nginx-controller-gp84z   1/1     Running   0          15d   10.42.8.162   aamslc4kbw05.ttmtech.local   <none>           <none>
-rke2-ingress-nginx-controller-kzsjg   1/1     Running   0          15d   10.42.6.110   aamslc4kbw03.ttmtech.local   <none>           <none>
-rke2-ingress-nginx-controller-txqbz   1/1     Running   0          15d   10.42.3.200   aamslc4kbw01.ttmtech.local   <none>           <none>
-[root@aamslc4kbc01 ~]# 
+  .items[] | select(
+    (.spec.containers[]?.securityContext.privileged==true) or
+    (.spec.hostNetwork==true) or
+    (.spec.hostPID==true) or
+    (.spec.volumes[]?.hostPath != null)
+  ) | "\(.metadata.namespace)/\(.metadata.name)\tpriv=\([.spec.containers[]?.securityContext.privileged] | any)\thostNet=\(.spec.hostNetwork // false)\thostPID=\(.spec.hostPID // false)"' | sort -u
+
+# ==== Longhorn: which namespace is real, replica config, backup target ====
+kubectl -n longhorn get pods 2>/dev/null | head -5
+kubectl -n longhorn-system get pods 2>/dev/null | head -5
+kubectl get volumes.longhorn.io -A 2>/dev/null | awk '{print $1}' | sort -u
+kubectl -n longhorn-system get setting default-replica-count backup-target backup-target-credential-secret replica-soft-anti-affinity -o custom-columns=NAME:.metadata.name,VALUE:.value 2>/dev/null
+
+# Volumes at risk (degraded or <2 replicas)
+kubectl get volumes.longhorn.io -A -o json 2>/dev/null | jq -r '
+  .items[] 
+  | "\(.metadata.name)\treplicas=\(.spec.numberOfReplicas)\tstate=\(.status.state)\trobustness=\(.status.robustness)\tsize=\(.spec.size)"' | head -30
+
+# ==== CNPG (Postgres) backup config ====
+kubectl get cluster.postgresql.cnpg.io -A
+kubectl get cluster.postgresql.cnpg.io -A -o json | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)\tinstances=\(.spec.instances)\tbackup=\(.spec.backup.barmanObjectStore.destinationPath // "NONE")"'
+kubectl get scheduledbackup.postgresql.cnpg.io -A
+
+# BUT — the Zuva postgres isn't CNPG. It's a raw statefulset/pod:
+kubectl -n aitk-zuva get pods | grep postgres
+kubectl -n aitk-zuva get statefulset
+kubectl -n aitk-zuva get pvc
+# Is there ANY backup for zuva-postgres?
+
+# ==== Prometheus retention / HA / receivers ====
+kubectl -n cattle-monitoring-system get prometheus -o json 2>/dev/null | jq -r '.items[] | "replicas=\(.spec.replicas)\tretention=\(.spec.retention)\tretentionSize=\(.spec.retentionSize // "unset")\tremoteWrite=\((.spec.remoteWrite // []) | length)"'
+kubectl -n cattle-monitoring-system get alertmanager -o json 2>/dev/null | jq -r '.items[] | "replicas=\(.spec.replicas)"'
+
+# Alertmanager routing — is anything wired to a pager?
+kubectl -n cattle-monitoring-system get secret -o name | grep -i alertmanager
+kubectl -n cattle-monitoring-system get secret alertmanager-rancher-monitoring-alertmanager -o jsonpath='{.data.alertmanager\.yaml}' 2>/dev/null | base64 -d | grep -iE 'receiver|pagerduty|slack|webhook|opsgenie|email' | head -20
+
+# Count of alert rules
+kubectl get prometheusrule -A --no-headers 2>/dev/null | wc -l
+
+# ==== Kafka / Strimzi HA ====
+kubectl -n kafka get kafka -o yaml 2>/dev/null | grep -E 'replicas|minInSyncReplicas|storage' | head -20
+kubectl -n kafka get pods -o wide
+
+# ==== MIG failure detail ====
+kubectl describe node aamslc4kbg01.ttmtech.local | grep -i mig
+kubectl -n gpu-operator logs -l app=nvidia-mig-manager --tail=30 2>/dev/null
+kubectl -n gpu-operator get pods
+
+# ==== GitOps / drift ====
+kubectl -n cattle-fleet-system get pods
+kubectl get gitrepos.fleet.cattle.io -A 2>/dev/null
+kubectl get bundles.fleet.cattle.io -A -o json 2>/dev/null | jq -r '.items[] | select(.status.summary.ready != .status.summary.desiredReady) | "\(.metadata.namespace)/\(.metadata.name)\t\(.status.summary)"'
+
+# ==== What manages the node taints/labels? (System upgrade plans?) ====
+kubectl get plans.upgrade.cattle.io -A 2>/dev/null
+
+==============
+=============
+===========
+
+# F-02c — the MIG failure, dig into why
+kubectl describe node aamslc4kbg01.ttmtech.local | grep -iE 'mig|nvidia'
+kubectl -n gpu-operator logs -l app=nvidia-mig-manager --tail=80 2>/dev/null
+kubectl -n gpu-operator get pods -o wide
+kubectl -n gpu-operator get clusterpolicy -o yaml 2>/dev/null | grep -A5 mig
+
+# F-02d — probe configuration on inference workloads
+for ns in codestral-inference deephat-v2-hf-inference devstral-small-2-inference \
+          gemma4-31b-inference glm-flash-inference llama-4-maverick-inference \
+          nemotron-inference text-embeddings; do
+  echo "=== $ns ==="
+  kubectl -n $ns get deploy -o json 2>/dev/null | jq -r '.items[] | 
+    "name=\(.metadata.name)\t" +
+    "startup=\((.spec.template.spec.containers[0].startupProbe // null) != null)\t" +
+    "readiness=\((.spec.template.spec.containers[0].readinessProbe // null) != null)\t" +
+    "liveness=\((.spec.template.spec.containers[0].livenessProbe // null) != null)\t" +
+    "priorityClass=\(.spec.template.spec.priorityClassName // "NONE")"'
+done
+
+# What GPUs are actually allocated to what workload?
+kubectl describe node aamslc4kbg01.ttmtech.local | sed -n '/Allocated resources/,/^Events/p'
+
+# PriorityClasses in the cluster
+kubectl get priorityclass
+
+
+
+
+
+
