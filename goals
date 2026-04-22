@@ -1,16 +1,41 @@
-Hi Brian,
+# From any workstation with kubeconfig
+kubectl version
+kubectl cluster-info
+kubectl get nodes -o wide --show-labels
+kubectl get ns
 
-I’m on board with this.
+# From a control-plane (server) node — RKE2 specifics
+sudo systemctl status rke2-server
+rke2 --version
+cat /etc/rancher/rke2/config.yaml               # the install-time config — critical artifact
+sudo ls /var/lib/rancher/rke2/server/manifests/ # auto-deployed HelmCharts/manifests
+sudo ls /var/lib/rancher/rke2/agent/            # on workers: /etc/rancher + agent dir
 
-I’ll be out starting May 4th, so Gene is the right person to drive the build. It’s in his area and keeps things moving while I’m away. I’ll sit down with him before I go to walk through the networking and storage patterns from OCP-AI so he’s not starting from scratch. Deonna and I will also align on the storage side before I leave.
+# Is this cluster managed by Rancher, or standalone RKE2?
+kubectl get ns cattle-system 2>/dev/null && echo "Rancher-managed"
+kubectl -n cattle-system get pods
+kubectl get clusters.management.cattle.io -A 2>/dev/null   # Rancher CRD
+kubectl get clusters.provisioning.cattle.io -A 2>/dev/null
 
-Rather than guessing on timing over email, I’ll set up a call with the team so we can walk through the scope properly and then come back with timelines based on that.
+# RKE2 bundled components — know what's baked in vs added
+kubectl get pods -n kube-system
+# Expect: etcd-*, kube-apiserver-*, kube-controller-manager-*, kube-scheduler-*,
+#         rke2-canal-* (or cilium), rke2-coredns-*, rke2-ingress-nginx-*,
+#         rke2-metrics-server-*, rke2-snapshot-controller-*, helm-install-*
 
-On staging, I’d lean yes but keep it small. For the older services we’re moving onto this, staging is usually where edge cases show up that dev won’t catch and prod can’t absorb. Easiest approach is to start with a namespace alongside dev and split it out later if needed.
 
-One thing to flag early: three nodes is really the HA floor, not a comfortable steady state. If we take a node down for patching, we’re immediately tight. Worth having expansion on the roadmap from day one.
+# Server (control-plane) count — need 3 or 5, not 1 or 2
+kubectl get nodes -l node-role.kubernetes.io/control-plane=true -o wide
+kubectl get nodes -o json | jq -r '.items[] | "\(.metadata.name)\t\(.status.nodeInfo.kubeletVersion)\t\(.metadata.labels["topology.kubernetes.io/zone"] // "NO_ZONE")\t\(.metadata.labels["node-role.kubernetes.io/control-plane"] // "worker")"'
 
-We can hash out DR scope, GitOps tooling, and auth on the call.
+# Fixed registration address — is there one? If not, losing server[0] breaks joins
+grep -E 'server|tls-san' /etc/rancher/rke2/config.yaml
 
-Thanks,
-Haj
+# etcd — RKE2 runs etcd as a static pod
+kubectl -n kube-system get pods -l component=etcd -o wide
+# Direct etcdctl from a server node
+sudo /var/lib/rancher/rke2/bin/kubectl -n kube-system exec -it etcd-$(hostname) -- sh -c '
+  ETCDCTL_API=3 etcdctl \
+    --endpoints=https://127.0.0.1:2379 \
+    --cacert=/var/lib/rancher/rke2/server/tls/etcd/server-ca.crt \
+    --cert=/var/lib/rancher/rke2/server/
