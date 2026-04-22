@@ -1,35 +1,237 @@
-[root@aamslc4kbc01 ~]# for ns in aitk-console dex field-discovery istio-system kube-system nango; do
-  echo "=== $ns/wildcard-tls ==="
-  kubectl -n $ns get secret wildcard-tls -o jsonpath='{.data.tls\.crt}' 2>/dev/null | base64 -d | openssl x509 -noout -dates -subject -issuer 2>/dev/null
-done
-=== aitk-console/wildcard-tls ===
-notBefore=Jan 28 00:00:00 2026 GMT
-notAfter=Aug 30 23:59:59 2026 GMT
-subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
-issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
-=== dex/wildcard-tls ===
-notBefore=Jan 28 00:00:00 2026 GMT
-notAfter=Aug 30 23:59:59 2026 GMT
-subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
-issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
-=== field-discovery/wildcard-tls ===
-notBefore=Jan 28 00:00:00 2026 GMT
-notAfter=Aug 30 23:59:59 2026 GMT
-subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
-issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
-=== istio-system/wildcard-tls ===
-notBefore=Jan 28 00:00:00 2026 GMT
-notAfter=Aug 30 23:59:59 2026 GMT
-subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
-issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
-=== kube-system/wildcard-tls ===
-notBefore=Jan 28 00:00:00 2026 GMT
-notAfter=Aug 30 23:59:59 2026 GMT
-subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
-issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
-=== nango/wildcard-tls ===
-notBefore=Jan 28 00:00:00 2026 GMT
-notAfter=Aug 30 23:59:59 2026 GMT
-subject=C=US, ST=California, L=Santa Ana, O=TTM Technologies, Inc., CN=*.ttmtech.com
-issuer=C=US, O=DigiCert Inc, CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
+[root@aamslc4kbc01 ~]# kubectl get deployment -A
+NAMESPACE                    NAME                                                     READY   UP-TO-DATE   AVAILABLE   AGE
+aitk-console                 console                                                  1/1     1            1           31d
+aitk-console                 oauth2-proxy                                             1/1     1            1           31d
+aitk-console                 usage-api                                                1/1     1            1           31d
+aitk-zuva                    aitk-custom-auth                                         3/3     3            3           32d
+aitk-zuva                    aitk-extract-api-cleaner-deployment                      1/1     1            1           32d
+aitk-zuva                    aitk-extract-api-deployment                              2/2     2            2           32d
+aitk-zuva                    aitk-extract-api-status-listener-deployment              1/1     1            1           32d
+aitk-zuva                    aitk-extract-controller-deployment                       0/0     0            0           32d
+aitk-zuva                    aitk-extract-fields-listener-deployment                  3/3     3            3           32d
+aitk-zuva                    aitk-extract-ocr-status-listener-deployment              3/3     3            3           32d
+aitk-zuva                    aitk-extract-overflow-deployment                         2/3     3            2           32d
+aitk-zuva                    aitk-extract-redis-deployment                            1/1     1            1           32d
+aitk-zuva                    aitk-extract-status-redis-deployment                     1/1     1            1           32d
+aitk-zuva                    aitk-extract-worker-deployment                           3/3     3            3           32d
+aitk-zuva                    aitk-files-cleaner-deployment                            1/1     1            1           32d
+aitk-zuva                    aitk-files-deployment                                    5/5     5            5           32d
+aitk-zuva                    aitk-files-reaper-deployment                             1/1     1            1           32d
+aitk-zuva                    aitk-mlc-api-cleaner-deployment                          1/1     1            1           32d
+aitk-zuva                    aitk-mlc-api-deployment                                  1/1     1            1           32d
+aitk-zuva                    aitk-mlc-api-status-listener-deployment                  1/1     1            1           32d
+aitk-zuva                    aitk-mlc-ocr-listener-deployment                         1/1     1            1           32d
+aitk-zuva                    aitk-mlc-redis-deployment                                1/1     1            1           32d
+aitk-zuva                    aitk-mlc-request-listener-deployment                     1/1     1            1           32d
+aitk-zuva                    aitk-mlc-worker-deployment                               1/1     1            1           32d
+aitk-zuva                    aitk-normalization                                       1/1     1            1           32d
+aitk-zuva                    aitk-ocr-api-deployment                                  2/2     2            2           32d
+aitk-zuva                    aitk-ocr-cleaner-deployment                              1/1     1            1           32d
+aitk-zuva                    aitk-ocr-controller-deployment                           1/1     1            1           32d
+aitk-zuva                    aitk-ocr-dc-job-orchestrator-deployment                  1/1     1            1           32d
+aitk-zuva                    aitk-ocr-dc-job-orchestrator-overflow-deployment         1/1     1            1           32d
+aitk-zuva                    aitk-ocr-file-upload-listener-deployment                 1/1     1            1           32d
+aitk-zuva                    aitk-ocr-results-listener-deployment                     1/1     1            1           32d
+aitk-zuva                    aitk-sfs-api-deployment                                  2/2     2            2           32d
+aitk-zuva                    aitk-sfs-request-listener-deployment                     0/0     0            0           32d
+aitk-zuva                    aitk-sfs-train-status-listener-deployment                1/1     1            1           32d
+aitk-zuva                    aitk-train-request-listener-deployment                   0/0     0            0           32d
+aitk-zuva                    aitk-usage-extract-status-listener-deployment            1/1     1            1           32d
+aitk-zuva                    aitk-usage-field-create-listener-deployment              1/1     1            1           32d
+aitk-zuva                    aitk-usage-file-upload-listener-deployment               1/1     1            1           32d
+aitk-zuva                    aitk-usage-mlc-status-listener-deployment                1/1     1            1           32d
+aitk-zuva                    aitk-usage-normalization-listener-deployment             1/1     1            1           32d
+aitk-zuva                    aitk-usage-ocr-status-listener-deployment                1/1     1            1           32d
+aitk-zuva                    aitk-usage-train-status-listener-deployment              1/1     1            1           32d
+api                          api                                                      1/1     1            1           55d
+audit-log-exporter           audit-log-exporter                                       1/1     1            1           93d
+cattle-fleet-system          fleet-agent                                              1/1     1            1           41d
+cattle-monitoring-system     rancher-monitoring-grafana                               1/1     1            1           41d
+cattle-monitoring-system     rancher-monitoring-kube-state-metrics                    1/1     1            1           41d
+cattle-monitoring-system     rancher-monitoring-operator                              1/1     1            1           41d
+cattle-monitoring-system     rancher-monitoring-prometheus-adapter                    1/1     1            1           41d
+cattle-system                cattle-cluster-agent                                     2/2     2            2           41d
+cattle-system                rancher-webhook                                          1/1     1            1           41d
+cattle-system                system-upgrade-controller                                1/1     1            1           41d
+cerbos                       cerbos                                                   1/1     1            1           64d
+cert-manager                 cert-manager                                             1/1     1            1           94d
+cert-manager                 cert-manager-cainjector                                  1/1     1            1           94d
+cert-manager                 cert-manager-webhook                                     1/1     1            1           94d
+cnpg-system                  cloudnative-pg                                           1/1     1            1           94d
+codestral-inference          codestral-22b                                            1/1     1            1           9d
+credits                      credits                                                  1/1     1            1           93d
+deephat-v2-hf-inference      deephat-v2-2h100                                         1/1     1            1           47d
+deephat-v2-hf-inference      deephat-v2-b200                                          0/0     0            0           47d
+devstral-small-2-inference   devstral-small-2                                         1/1     1            1           9d
+dex                          dex                                                      1/1     1            1           31d
+external-secrets             external-secrets                                         0/0     0            0           37d
+external-secrets             external-secrets-cert-controller                         0/0     0            0           37d
+external-secrets             external-secrets-webhook                                 0/0     0            0           37d
+external-sync                external-sync-files                                      1/1     1            1           55d
+external-sync                external-sync-files-priority                             1/1     1            1           55d
+field-discovery              field-library-api                                        1/1     1            1           31d
+field-discovery              oauth2-proxy                                             1/1     1            1           31d
+gemma4-31b-inference         gemma-4-31b-it                                           1/1     1            1           4d2h
+gpu-operator                 gpu-operator                                             1/1     1            1           94d
+gpu-operator                 gpu-operator-node-feature-discovery-gc                   1/1     1            1           94d
+gpu-operator                 gpu-operator-node-feature-discovery-master               1/1     1            1           94d
+hatchet                      hatchet-api                                              1/1     1            1           64d
+hatchet                      hatchet-engine                                           1/1     1            1           64d
+hatchet                      hatchet-frontend                                         1/1     1            1           64d
+istio-system                 istio-ingressgateway                                     1/1     1            1           37d
+istio-system                 istiod-1-27-0                                            1/1     1            1           37d
+kafka                        aitk-kafka-cluster-entity-operator                       1/1     1            1           32d
+kafka                        strimzi-cluster-operator                                 1/1     1            1           38d
+keda                         keda-admission-webhooks                                  1/1     1            1           38d
+keda                         keda-operator                                            1/1     1            1           38d
+keda                         keda-operator-metrics-apiserver                          1/1     1            1           38d
+kube-system                  rke2-coredns-rke2-coredns                                2/2     2            2           96d
+kube-system                  rke2-coredns-rke2-coredns-autoscaler                     1/1     1            1           96d
+kube-system                  rke2-metrics-server                                      1/1     1            1           96d
+kube-system                  rke2-snapshot-controller                                 1/1     1            1           96d
+litellm                      litellm                                                  1/1     1            1           63d
+llama-4-maverick-inference   llama-4-maverick                                         1/1     1            1           26d
+longhorn                     csi-attacher                                             3/3     3            3           94d
+longhorn                     csi-provisioner                                          3/3     3            3           94d
+longhorn                     csi-resizer                                              3/3     3            3           94d
+longhorn                     csi-snapshotter                                          3/3     3            3           94d
+longhorn                     longhorn-driver-deployer                                 1/1     1            1           94d
+longhorn                     longhorn-ui                                              2/2     2            2           94d
+mcp                          mcp-sentinelone                                          1/1     1            1           25h
+mcp                          mcp-unified                                              1/1     1            1           7d6h
+minio-operator               minio-operator                                           2/2     2            2           94d
+nango                        nango                                                    1/1     1            1           64d
+nango                        nango-connect-ui                                         1/1     1            1           64d
+next                         next                                                     1/1     1            1           63d
+pgweb                        kindo-pgweb                                              1/1     1            1           94d
+presidio                     presidio-presidio-analyzer                               1/1     1            1           93d
+presidio                     presidio-presidio-anonymizer                             1/1     1            1           93d
+presidio                     presidio-presidio-image-redactor                         0/0     0            0           93d
+rabbitmq-system              rabbitmq-operator-rabbitmq-cluster-operator              1/1     1            1           94d
+rabbitmq-system              rabbitmq-operator-rabbitmq-messaging-topology-operator   1/1     1            1           94d
+redis-operator               redis-operator                                           1/1     1            1           94d
+speaches                     speaches                                                 1/1     1            1           7d6h
+ssoready                     ssoready-admin                                           1/1     1            1           93d
+ssoready                     ssoready-api                                             1/1     1            1           93d
+ssoready                     ssoready-app                                             1/1     1            1           93d
+ssoready                     ssoready-auth                                            1/1     1            1           93d
+task-worker-ts               task-worker-ts                                           2/2     2            2           64d
+task-worker-ts               task-worker-ts-large                                     2/2     2            2           64d
+text-embeddings              text-embeddings                                          1/1     1            1           75d
+unleash                      unleash                                                  2/2     2            2           93d
+unleash                      unleash-edge                                             1/1     1            1           7d3h
+[root@aamslc4kbc01 ~]# kubectl get service -A
+NAMESPACE                    NAME                                                             TYPE           CLUSTER-IP      EXTERNAL-IP                                                    PORT(S)                                        AGE
+aitk-console                 console                                                          ClusterIP      10.43.68.82     <none>                                                         8080/TCP                                       31d
+aitk-console                 oauth2-proxy                                                     ClusterIP      10.43.124.55    <none>                                                         4180/TCP                                       31d
+aitk-console                 usage-api                                                        ClusterIP      10.43.4.79      <none>                                                         8080/TCP                                       31d
+aitk-zuva                    aitk-custom-auth                                                 ClusterIP      10.43.50.204    <none>                                                         4800/TCP,4801/TCP                              32d
+aitk-zuva                    aitk-extract-api                                                 ClusterIP      10.43.16.248    <none>                                                         8080/TCP                                       32d
+aitk-zuva                    aitk-extract-redis-service                                       ClusterIP      10.43.133.132   <none>                                                         6379/TCP                                       32d
+aitk-zuva                    aitk-files                                                       ClusterIP      10.43.223.175   <none>                                                         80/TCP                                         32d
+aitk-zuva                    aitk-mlc-api                                                     ClusterIP      10.43.60.21     <none>                                                         8080/TCP                                       32d
+aitk-zuva                    aitk-mlc-redis-service                                           ClusterIP      10.43.192.69    <none>                                                         6379/TCP                                       32d
+aitk-zuva                    aitk-normalization                                               ClusterIP      10.43.40.120    <none>                                                         8080/TCP                                       32d
+aitk-zuva                    aitk-ocr-api                                                     ClusterIP      10.43.101.48    <none>                                                         8080/TCP                                       32d
+aitk-zuva                    aitk-sfs-api                                                     ClusterIP      10.43.166.91    <none>                                                         8080/TCP                                       32d
+aitk-zuva                    extract-status-redis-service                                     ClusterIP      10.43.36.90     <none>                                                         6379/TCP                                       32d
+aitk-zuva                    pgbouncer-extract                                                ClusterIP      10.43.245.42    <none>                                                         5432/TCP                                       32d
+aitk-zuva                    zuva-postgres-r                                                  ClusterIP      10.43.36.162    <none>                                                         5432/TCP                                       32d
+aitk-zuva                    zuva-postgres-ro                                                 ClusterIP      10.43.101.64    <none>                                                         5432/TCP                                       32d
+aitk-zuva                    zuva-postgres-rw                                                 ClusterIP      10.43.212.138   <none>                                                         5432/TCP                                       32d
+api                          api                                                              ClusterIP      10.43.116.225   <none>                                                         80/TCP                                         55d
+cattle-monitoring-system     alertmanager-operated                                            ClusterIP      None            <none>                                                         9093/TCP,9094/TCP,9094/UDP                     41d
+cattle-monitoring-system     prometheus-operated                                              ClusterIP      None            <none>                                                         9090/TCP                                       41d
+cattle-monitoring-system     rancher-monitoring-alertmanager                                  ClusterIP      10.43.147.210   <none>                                                         9093/TCP,8080/TCP                              41d
+cattle-monitoring-system     rancher-monitoring-grafana                                       ClusterIP      10.43.149.181   <none>                                                         80/TCP                                         41d
+cattle-monitoring-system     rancher-monitoring-kube-state-metrics                            ClusterIP      10.43.67.245    <none>                                                         8080/TCP                                       41d
+cattle-monitoring-system     rancher-monitoring-operator                                      ClusterIP      10.43.13.140    <none>                                                         443/TCP                                        41d
+cattle-monitoring-system     rancher-monitoring-prometheus                                    ClusterIP      10.43.8.86      <none>                                                         9090/TCP,8080/TCP                              41d
+cattle-monitoring-system     rancher-monitoring-prometheus-adapter                            ClusterIP      10.43.182.125   <none>                                                         443/TCP                                        41d
+cattle-monitoring-system     rancher-monitoring-prometheus-node-exporter                      ClusterIP      10.43.54.112    <none>                                                         9796/TCP                                       41d
+cattle-monitoring-system     rancher-monitoring-windows-exporter                              ClusterIP      10.43.36.209    <none>                                                         9796/TCP                                       41d
+cattle-system                cattle-cluster-agent                                             ClusterIP      10.43.61.51     <none>                                                         80/TCP,443/TCP                                 41d
+cattle-system                rancher-webhook                                                  ClusterIP      10.43.18.56     <none>                                                         443/TCP                                        41d
+cerbos                       cerbos                                                           ClusterIP      10.43.254.58    <none>                                                         3592/TCP,3593/TCP                              64d
+cert-manager                 cert-manager                                                     ClusterIP      10.43.45.194    <none>                                                         9402/TCP                                       94d
+cert-manager                 cert-manager-cainjector                                          ClusterIP      10.43.28.42     <none>                                                         9402/TCP                                       94d
+cert-manager                 cert-manager-webhook                                             ClusterIP      10.43.163.46    <none>                                                         443/TCP,9402/TCP                               94d
+cnpg-system                  cnpg-webhook-service                                             ClusterIP      10.43.13.233    <none>                                                         443/TCP                                        94d
+codestral-inference          codestral-22b                                                    ClusterIP      10.43.52.17     <none>                                                         80/TCP                                         9d
+credits                      credits                                                          ClusterIP      10.43.211.254   <none>                                                         80/TCP                                         93d
+deephat-v2-hf-inference      deephat-v2-2h100                                                 ClusterIP      10.43.201.44    <none>                                                         80/TCP                                         47d
+deephat-v2-hf-inference      deephat-v2-b200                                                  ClusterIP      10.43.24.20     <none>                                                         80/TCP                                         47d
+default                      kubernetes                                                       ClusterIP      10.43.0.1       <none>                                                         443/TCP                                        96d
+devstral-small-2-inference   devstral-small-2                                                 ClusterIP      10.43.217.92    <none>                                                         80/TCP                                         9d
+dex                          dex                                                              ClusterIP      10.43.172.43    <none>                                                         5556/TCP,5558/TCP                              31d
+external-secrets             external-secrets-webhook                                         ClusterIP      10.43.201.99    <none>                                                         443/TCP                                        37d
+field-discovery              field-library-api                                                ClusterIP      10.43.206.55    <none>                                                         8080/TCP                                       31d
+field-discovery              oauth2-proxy                                                     ClusterIP      10.43.213.30    <none>                                                         4180/TCP                                       31d
+gemma4-31b-inference         gemma-4-31b-it                                                   ClusterIP      10.43.93.188    <none>                                                         80/TCP                                         4d2h
+gpu-operator                 gpu-operator                                                     ClusterIP      10.43.73.245    <none>                                                         8080/TCP                                       94d
+gpu-operator                 nvidia-dcgm-exporter                                             ClusterIP      10.43.42.200    <none>                                                         9400/TCP                                       94d
+hatchet                      hatchet-api                                                      ClusterIP      10.43.140.241   <none>                                                         8080/TCP                                       64d
+hatchet                      hatchet-engine                                                   ClusterIP      10.43.105.142   <none>                                                         7070/TCP                                       64d
+hatchet                      hatchet-frontend                                                 ClusterIP      10.43.43.132    <none>                                                         8080/TCP                                       64d
+istio-system                 istio-ingressgateway                                             ClusterIP      10.43.240.62    <none>                                                         15021/TCP,80/TCP,443/TCP                       37d
+istio-system                 istiod-1-27-0                                                    ClusterIP      10.43.241.220   <none>                                                         15010/TCP,15012/TCP,443/TCP,15014/TCP          37d
+kafka                        aitk-kafka-cluster-kafka-bootstrap                               ClusterIP      10.43.77.211    <none>                                                         9091/TCP,9092/TCP,9093/TCP                     32d
+kafka                        aitk-kafka-cluster-kafka-brokers                                 ClusterIP      None            <none>                                                         9090/TCP,9091/TCP,8443/TCP,9092/TCP,9093/TCP   32d
+kafka                        aitk-kafka-cluster-zookeeper-client                              ClusterIP      10.43.53.148    <none>                                                         2181/TCP                                       32d
+kafka                        aitk-kafka-cluster-zookeeper-nodes                               ClusterIP      None            <none>                                                         2181/TCP,2888/TCP,3888/TCP                     32d
+keda                         keda-admission-webhooks                                          ClusterIP      10.43.122.173   <none>                                                         443/TCP                                        38d
+keda                         keda-operator                                                    ClusterIP      10.43.51.167    <none>                                                         9666/TCP                                       38d
+keda                         keda-operator-metrics-apiserver                                  ClusterIP      10.43.177.248   <none>                                                         443/TCP,8080/TCP                               38d
+kindo-deps                   minio                                                            ClusterIP      10.43.74.11     <none>                                                         80/TCP                                         94d
+kindo-deps                   minio-console                                                    ClusterIP      10.43.1.196     <none>                                                         9090/TCP                                       94d
+kindo-deps                   minio-hl                                                         ClusterIP      None            <none>                                                         9000/TCP                                       94d
+kindo-deps                   postgres-r                                                       ClusterIP      10.43.3.202     <none>                                                         5432/TCP                                       82d
+kindo-deps                   postgres-ro                                                      ClusterIP      10.43.229.68    <none>                                                         5432/TCP                                       82d
+kindo-deps                   postgres-rw                                                      ClusterIP      10.43.56.24     <none>                                                         5432/TCP                                       82d
+kindo-deps                   rabbitmq                                                         ClusterIP      10.43.35.155    <none>                                                         5672/TCP,15672/TCP,15692/TCP                   94d
+kindo-deps                   rabbitmq-nodes                                                   ClusterIP      None            <none>                                                         4369/TCP,25672/TCP                             94d
+kindo-deps                   redis                                                            ClusterIP      10.43.33.211    <none>                                                         6379/TCP                                       61d
+kindo-deps                   redis-additional                                                 ClusterIP      10.43.117.208   <none>                                                         6379/TCP                                       61d
+kindo-deps                   redis-headless                                                   ClusterIP      None            <none>                                                         6379/TCP                                       61d
+kindo-deps                   redis-master                                                     ClusterIP      10.43.109.129   <none>                                                         6379/TCP                                       61d
+kindo-deps                   redis-replica                                                    ClusterIP      10.43.212.71    <none>                                                         6379/TCP                                       61d
+kindo-deps                   redis-sentinel-sentinel                                          ClusterIP      10.43.183.119   <none>                                                         26379/TCP                                      61d
+kindo-deps                   redis-sentinel-sentinel-additional                               ClusterIP      10.43.234.232   <none>                                                         26379/TCP                                      61d
+kindo-deps                   redis-sentinel-sentinel-headless                                 ClusterIP      None            <none>                                                         26379/TCP                                      61d
+kube-system                  rancher-monitoring-coredns                                       ClusterIP      None            <none>                                                         9153/TCP                                       41d
+kube-system                  rancher-monitoring-kubelet                                       ClusterIP      None            <none>                                                         10250/TCP,10255/TCP,4194/TCP                   77d
+kube-system                  rke2-coredns-rke2-coredns                                        ClusterIP      10.43.0.10      <none>                                                         53/UDP,53/TCP                                  96d
+kube-system                  rke2-ingress-nginx-controller-admission                          ClusterIP      10.43.145.110   <none>                                                         443/TCP                                        96d
+kube-system                  rke2-metrics-server                                              ClusterIP      10.43.197.56    <none>                                                         443/TCP                                        96d
+litellm                      defaultbackend                                                   ExternalName   <none>          ingress-nginx-defaultbackend.ingress-nginx.svc.cluster.local   <none>                                         63d
+litellm                      litellm                                                          ClusterIP      10.43.218.184   <none>                                                         4000/TCP                                       63d
+llama-4-maverick-inference   llama-4-maverick                                                 ClusterIP      10.43.31.112    <none>                                                         80/TCP                                         26d
+longhorn                     longhorn-admission-webhook                                       ClusterIP      10.43.246.71    <none>                                                         9502/TCP                                       94d
+longhorn                     longhorn-backend                                                 ClusterIP      10.43.128.220   <none>                                                         9500/TCP                                       94d
+longhorn                     longhorn-frontend                                                ClusterIP      10.43.216.195   <none>                                                         80/TCP                                         94d
+longhorn                     longhorn-recovery-backend                                        ClusterIP      10.43.40.187    <none>                                                         9503/TCP                                       94d
+mcp                          mcp-sentinelone                                                  ClusterIP      10.43.25.191    <none>                                                         80/TCP                                         25h
+mcp                          mcp-unified                                                      ClusterIP      10.43.42.157    <none>                                                         5050/TCP                                       7d6h
+minio-operator               operator                                                         ClusterIP      10.43.250.234   <none>                                                         4221/TCP                                       94d
+minio-operator               sts                                                              ClusterIP      10.43.255.126   <none>                                                         4223/TCP                                       94d
+nango                        nango                                                            ClusterIP      10.43.24.147    <none>                                                         80/TCP                                         64d
+nango                        nango-connect-ui                                                 ClusterIP      10.43.155.24    <none>                                                         3009/TCP                                       64d
+next                         next                                                             ClusterIP      10.43.26.218    <none>                                                         80/TCP                                         63d
+pgweb                        kindo-pgweb                                                      ClusterIP      10.43.31.12     <none>                                                         80/TCP                                         94d
+presidio                     presidio-presidio-analyzer                                       ClusterIP      10.43.66.34     <none>                                                         80/TCP                                         93d
+presidio                     presidio-presidio-anonymizer                                     ClusterIP      10.43.220.100   <none>                                                         80/TCP                                         93d
+presidio                     presidio-presidio-image-redactor                                 ClusterIP      10.43.185.241   <none>                                                         80/TCP                                         93d
+qdrant                       qdrant                                                           ClusterIP      10.43.183.249   <none>                                                         6333/TCP,6334/TCP,6335/TCP                     7d3h
+qdrant                       qdrant-headless                                                  ClusterIP      None            <none>                                                         6333/TCP,6334/TCP,6335/TCP                     7d3h
+rabbitmq-system              rabbitmq-operator-rabbitmq-messaging-topology-operator-webhook   ClusterIP      10.43.65.194    <none>                                                         443/TCP                                        94d
+speaches                     speaches                                                         ClusterIP      10.43.17.89     <none>                                                         8000/TCP                                       7d6h
+ssoready                     ssoready-admin                                                   ClusterIP      10.43.232.208   <none>                                                         80/TCP                                         93d
+ssoready                     ssoready-api                                                     ClusterIP      10.43.255.191   <none>                                                         80/TCP                                         93d
+ssoready                     ssoready-app                                                     ClusterIP      10.43.248.165   <none>                                                         80/TCP                                         93d
+ssoready                     ssoready-auth                                                    ClusterIP      10.43.41.187    <none>                                                         80/TCP                                         93d
+task-worker-ts               task-worker-ts                                                   ClusterIP      10.43.244.249   <none>                                                         80/TCP                                         64d
+task-worker-ts               task-worker-ts-large                                             ClusterIP      10.43.62.47     <none>                                                         80/TCP                                         64d
+text-embeddings              text-embeddings                                                  ClusterIP      10.43.131.231   <none>                                                         80/TCP                                         75d
+unleash                      unleash                                                          ClusterIP      10.43.183.139   <none>                                                         4242/TCP                                       93d
+unleash                      unleash-edge                                                     ClusterIP      10.43.186.232   <none>                                                         3063/TCP                                       7d3h
 [root@aamslc4kbc01 ~]# 
