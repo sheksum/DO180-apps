@@ -1,2 +1,6 @@
-getent hosts rancher.kbai.ttmtech.com
-dig rancher.kbai.ttmtech.com +short
+[root@aamslc4kbc01 ~]# getent hosts rancher.kbai.ttmtech.com
+10.200.248.81   aamslc4kbr01.ttmtech.local rancher.kbai.ttmtech.com
+[root@aamslc4kbc01 ~]# dig rancher.kbai.ttmtech.com +short
+aamslc4kbr01.ttmtech.local.
+10.200.248.81
+[root@aamslc4kbc01 ~]# 
