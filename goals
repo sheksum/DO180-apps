@@ -1,24 +1,152 @@
-[asvc.rhautomation@aamslc4kbw01 ~]$ df -h
-Filesystem                           Size  Used Avail Use% Mounted on
-devtmpfs                             4.0M     0  4.0M   0% /dev
-tmpfs                                 32G   84K   32G   1% /dev/shm
-tmpfs                                 13G   17M   13G   1% /run
-efivarfs                             256K   33K  219K  13% /sys/firmware/efi/efivars
-/dev/mapper/rootvg-rootlv             10G  3.5G  6.6G  35% /
-/dev/sda3                            960M  501M  460M  53% /boot
-/dev/mapper/rootvg-homelv             10G  104M  9.9G   2% /home
-/dev/mapper/rootvg-tmplv              10G  104M  9.9G   2% /tmp
-/dev/mapper/rootvg-varlv              20G  9.3G   11G  47% /var
-/dev/sda2                            200M  7.4M  193M   4% /boot/efi
-/dev/mapper/docker_vg-docker_lv      100G  746M  100G   1% /var/lib/docker
-/dev/mapper/kubelet_vg-kubelet_lv    250G  1.9G  249G   1% /var/lib/kubelet
-/dev/mapper/rootvg-var_loglv          20G  2.6G   18G  13% /var/log
-/dev/mapper/kubelet_vg-longhorn_lv   2.0T  581G  1.5T  29% /var/lib/longhorn
-/dev/mapper/rancher_vg-rancher_lv    150G  100G   51G  67% /var/lib/rancher
-/dev/mapper/rootvg-var_tmplv          20G  175M   20G   1% /var/tmp
-/dev/mapper/rootvg-var_log_auditlv    20G 1013M   19G   5% /var/log/audit
-aamslc4nfs01.ttmtech.local:/srv/nfs  1.0T  7.7G 1016G   1% /mnt/nfs-backups
-tmpfs                                6.3G     0  6.3G   0% /run/user/1002
-[asvc.rhautomation@aamslc4kbw01 ~]$ lvs 2>/dev/null
-[asvc.rhautomation@aamslc4kbw01 ~]$ sudo du -sh /var/lib/kubelet/pods/*/volumes/kubernetes.io~empty-dir/* 2>/dev/null | sort -rh | head -5
-[asvc.rhautomation@aamslc4kbw01 ~]$ 
+# All ingresses in the cluster — the master list
+kubectl get ingress -A -o wide
+
+# Specifically management/admin UIs
+kubectl get ingress -A -o json | jq -r '
+  .items[]
+  | select(
+      .metadata.name + " " + (.metadata.namespace // "") + " " +
+      ([.spec.rules[]?.host // ""] | join(" "))
+      | test("longhorn|rancher|grafana|prom|alertmanager|minio|kibana|argo|kubernetes-dashboard|k8s-dashboard|consul|vault|harbor|hatchet|unleash|pgweb|nango|dex|ssoready|mcp|cerbos|kafka-ui|redpanda|keda|istio|kiali|jaeger|sandbox", "i")
+    )
+  | {
+      ns: .metadata.namespace,
+      name: .metadata.name,
+      hosts: [.spec.rules[]?.host],
+      auth_type:   .metadata.annotations["nginx.ingress.kubernetes.io/auth-type"],
+      auth_secret: .metadata.annotations["nginx.ingress.kubernetes.io/auth-secret"],
+      auth_url:    .metadata.annotations["nginx.ingress.kubernetes.io/auth-url"]
+    }
+'
+
+# NodePort and LoadBalancer services — these bypass ingress entirely
+kubectl get svc -A -o json | jq -r '.items[] | select(.spec.type=="NodePort" or .spec.type=="LoadBalancer") | "\(.metadata.namespace)/\(.metadata.name)\ttype=\(.spec.type)\tports=\([.spec.ports[] | "\(.port)→\(.targetPort)"] | join(","))"'
+
+
+
+
+
+# Rancher local admin password — is it still default?
+# (can't check from CLI easily — this is a "did anyone rotate the admin password" question for the team)
+
+# RabbitMQ default guest account
+kubectl -n rabbitmq-system get secret -o name | head
+kubectl get rabbitmqcluster -A 2>/dev/null
+
+# Grafana default admin
+kubectl -n cattle-monitoring-system get secret rancher-monitoring-grafana -o jsonpath='{.data.admin-user}' 2>/dev/null | base64 -d; echo
+
+
+
+kubectl get secrets -A -o json | jq -r '.items[] | select(.metadata.name | test("admin|default|initial"; "i")) | "\(.metadata.namespace)/\(.metadata.name)"'
+
+
+# Is the API server reachable from outside the TTM network?
+# The HAProxy on aamslc4hap01 listens on 6443 externally — who can route to 10.200.248.30?
+# This is a firewall question, not a kubectl question, but worth flagging.
+
+# Anonymous auth check
+grep -i 'anonymous-auth' /etc/rancher/rke2/config.yaml
+# Should be: false. If not set, default is false in newer K8s, but verify.
+
+# API server audit of 401/403 patterns in last 24h
+sudo grep -h 'responseStatus.*40[13]' /var/log/kubernetes/audit/audit.log 2>/dev/null | \
+  jq -r '[.user.username // "anonymous", .sourceIPs[0], .requestURI] | @tsv' 2>/dev/null | \
+  sort | uniq -c | sort -rn | head -20
+
+
+
+
+# Secrets stored as environment variables (not mounted from Secret) — plaintext in pod specs
+kubectl get pods -A -o json | jq -r '
+  .items[]
+  | .spec.containers[]?
+  | select(.env != null)
+  | .env[]
+  | select(.value != null and (.name | test("pass|secret|token|key|cred|auth"; "i")))
+  | "\(.name) has a plaintext value"
+' | sort -u | head -20
+
+# ConfigMaps containing secret-looking content
+kubectl get cm -A -o json | jq -r '
+  .items[]
+  | select((.data // {}) | to_entries[]? | (.value // "") | test("BEGIN.*PRIVATE KEY|password[^\\n]*=|secret[^\\n]*=|AKIA|api[_-]?key"; "i"))
+  | "\(.metadata.namespace)/\(.metadata.name)"
+' 2>/dev/null | head
+
+# Images with secrets baked in — can't check from outside, but ImagePullSecrets patterns
+kubectl get pods -A -o json | jq -r '.items[].spec | select(.imagePullSecrets != null) | .imagePullSecrets[].name' | sort | uniq -c | sort -rn | head
+
+
+
+
+# All ingresses with TLS config — any without?
+kubectl get ingress -A -o json | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)\thosts=\([.spec.rules[]?.host] | join(","))\ttls=\((.spec.tls // []) | length)"' | column -t
+
+# What's the cert-manager doing? Are certs actually being issued?
+kubectl get certificate -A 2>/dev/null
+kubectl get certificate -A -o json 2>/dev/null | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)\tready=\(.status.conditions[]? | select(.type=="Ready") | .status)"'
+
+# Expired or expiring certs
+kubectl get secret -A -o json | jq -r '.items[] | select(.type=="kubernetes.io/tls") | "\(.metadata.namespace)/\(.metadata.name)"'
+
+
+
+# Pods with exec capability from service accounts
+# Any RoleBinding or ClusterRoleBinding granting pods/exec?
+kubectl get clusterrole -o json | jq -r '
+  .items[] | select(.rules[]? | (.resources // []) | any(. == "pods/exec"))
+  | .metadata.name
+'
+
+# Any role allowing arbitrary secrets read?
+kubectl get clusterrole -o json | jq -r '
+  .items[] | select(.rules[]? | (.resources // []) | any(. == "secrets") and (.verbs // []) | any(. == "get" or . == "list" or . == "*"))
+  | .metadata.name
+' | head
+
+
+
+# Where do images come from? Internal registry or random dockerhub?
+kubectl get pods -A -o json | jq -r '.items[].spec.containers[].image' | awk -F/ '{if (NF==1) print "docker.io (implicit)"; else print $1}' | sort | uniq -c | sort -rn
+
+# Specifically — are we pulling from public Docker Hub in production?
+kubectl get pods -A -o json | jq -r '.items[].spec.containers[].image' | grep -v 'ttmtech\|rancher\|nvcr\|quay\|registry.k8s\|ghcr\|registry.gitlab' | sort -u | head -20
+
+# Images with :latest tag (non-reproducible deployments)
+kubectl get pods -A -o json | jq -r '.items[].spec.containers[] | select(.image | test(":latest$|^[^:]+$")) | "\(.image)"' | sort -u
+
+
+
+# Any egress policies outside sandbox?
+kubectl get netpol -A -o json | jq -r '.items[] | select(.spec.egress != null and .spec.egress != []) | "\(.metadata.namespace)/\(.metadata.name)\trules=\(.spec.egress | length)"'
+
+# Pods that talk to the internet — can we tell what they dial?
+# (only from node logs or network appliance — not a kubectl question)
+
+
+
+
+
+# Pods running with dangerous capabilities
+kubectl get pods -A -o json | jq -r '
+  .items[]
+  | select(.spec.containers[]?.securityContext.capabilities.add != null)
+  | "\(.metadata.namespace)/\(.metadata.name)\tadds=\([.spec.containers[]?.securityContext.capabilities.add[]?] | join(","))"
+' | sort -u | head
+
+# allowPrivilegeEscalation not disabled
+kubectl get pods -A -o json | jq -r '
+  .items[]
+  | select(.spec.containers[]? | .securityContext.allowPrivilegeEscalation != false)
+  | select(.metadata.namespace | test("kube-system|longhorn|gpu-operator|cattle") | not)
+  | "\(.metadata.namespace)/\(.metadata.name)"
+' | sort -u | wc -l
+
+# Containers running as root (runAsUser=0 or unset)
+kubectl get pods -A -o json | jq -r '
+  .items[]
+  | select(.metadata.namespace | test("kube-|cattle-|longhorn|gpu-operator") | not)
+  | select(.spec.containers[]? | (.securityContext.runAsUser // 0) == 0 and (.securityContext.runAsNonRoot // false) == false)
+  | "\(.metadata.namespace)/\(.metadata.name)"
+' | sort -u | wc -l
