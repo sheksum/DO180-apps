@@ -1,4 +1,13 @@
-kubectl -n external-secrets get pods
+[root@aamslc4kbc01 ~]# kubectl -n external-secrets get pods
 kubectl get externalsecret -A
 kubectl get secretstore -A
 kubectl get clustersecretstore
+No resources found in external-secrets namespace.
+NAMESPACE         NAME                             STORETYPE     STORE               REFRESH INTERVAL   STATUS   READY
+aitk-console      aitk-external-secret             SecretStore   secret-store        1m                          
+aitk-zuva         aitk-external-secret             SecretStore   aitk-secret-store   1m                          
+field-discovery   field-library-external-secrets   SecretStore   secret-store        1m                          
+field-discovery   llm-external-secrets             SecretStore   secret-store        1m                          
+No resources found
+No resources found
+[root@aamslc4kbc01 ~]# 
