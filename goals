@@ -1,9 +1,29 @@
-[root@aamslc4kbc01 ~]# kubectl -n cattle-fleet-system get pods
-NAME                         READY   STATUS    RESTARTS   AGE
-fleet-agent-b497bff4-zc9cm   1/1     Running   0          41d
-[root@aamslc4kbc01 ~]# kubectl get gitrepos.fleet.cattle.io -A
-error: the server doesn't have a resource type "gitrepos"
-[root@aamslc4kbc01 ~]# kubectl get bundles.fleet.cattle.io -A
-error: the server doesn't have a resource type "bundles"
-[root@aamslc4kbc01 ~]# kubectl get crd | grep -iE 'flux|argo'
-[root@aamslc4kbc01 ~]# 
+# Current state of all certs
+kubectl get certificate -A
+
+# For each failing cert, the actual error reason
+kubectl get certificate -A -o json | jq -r '
+  .items[]
+  | select(.status.conditions[]? | select(.type=="Ready") | .status == "False")
+  | "\(.metadata.namespace)/\(.metadata.name)\treason=\(.status.conditions[] | select(.type=="Ready") | .reason)\tmessage=\(.status.conditions[] | select(.type=="Ready") | .message)"
+'
+
+# Any ClusterIssuer or Issuer configured at all?
+kubectl get clusterissuer
+kubectl get issuer -A
+
+# Cert-manager pods healthy?
+kubectl -n cert-manager get pods
+
+# Recent cert-manager logs - look for the actual failure
+kubectl -n cert-manager logs -l app=cert-manager --tail=50 2>/dev/null | grep -iE 'error|fail' | tail -20
+
+# What's actually serving TLS right now? (wildcard cert details)
+kubectl get secret -A -o json | jq -r '
+  .items[]
+  | select(.type=="kubernetes.io/tls" and (.metadata.name | test("wildcard")))
+  | "\(.metadata.namespace)/\(.metadata.name)"
+'
+
+# Check the wildcard cert's actual expiry - pick one
+kubectl -n cattle-system get secret tls-rancher -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -noout -dates -subject -issuer 2>/dev/null
