@@ -1,8 +1,28 @@
-# All ingresses in the cluster — the master list
-kubectl get ingress -A -o wide
-
-# Specifically management/admin UIs
-kubectl get ingress -A -o json | jq -r '
+[root@aamslc4kbc01 ~]# kubectl get ingress -A -o wide
+NAMESPACE         NAME                     CLASS    HOSTS                                               ADDRESS                                                                 PORTS     AGE
+aitk-console      console-app-ingress      nginx    zuva-console.ttmtech.com                            10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   31d
+aitk-console      console-oauth2-ingress   nginx    zuva-console.ttmtech.com                            10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   31d
+api               api-async                <none>   api.kbai.ttmtech.com,api-uploads.kbai.ttmtech.com   10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   7d2h
+api               api-main                 <none>   api.kbai.ttmtech.com                                10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   7d2h
+api               api-upload               <none>   api-uploads.kbai.ttmtech.com                        10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   7d2h
+dex               dex                      nginx    dex.ttmtech.com                                     10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   31d
+field-discovery   fields-app-ingress       nginx    fields.ttmtech.com                                  10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   29d
+field-discovery   fields-oauth2-ingress    nginx    fields.ttmtech.com                                  10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   29d
+istio-system      zuva-to-istio-gateway    nginx    zuva.ttmtech.com                                    10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   31d
+kindo-deps        minio-s3                 nginx    minio-console.ttmtech.com                           10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   24d
+kindo-deps        minio-s3-api             nginx    s3.kbai.ttmtech.com                                 10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   26h
+nango             nango-api                nginx    integrations-api.kbai.ttmtech.com                   10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   14d
+nango             nango-connect-api        nginx    integrations-connect.kbai.ttmtech.com               10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   14d
+next              next                     <none>   athena.ttmtech.com,app.kbai.ttmtech.com             10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   7d2h
+pgweb             kindo-pgweb              nginx    pgweb.kbai.ttmtech.com                              10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80        93d
+ssoready          ssoready-admin           nginx    sso.kbai.ttmtech.com                                10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   7d1h
+ssoready          ssoready-api             nginx    sso-api.kbai.ttmtech.com                            10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   7d1h
+ssoready          ssoready-app             nginx    sso-app.kbai.ttmtech.com                            10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   7d1h
+ssoready          ssoready-auth            nginx    sso-auth.kbai.ttmtech.com                           10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   7d1h
+text-embeddings   text-embeddings          nginx    embeddings.kbai.ttmtech.com                         10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80        75d
+unleash           unleash                  nginx    unleash.kbai.ttmtech.com                            10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80        7d
+unleash           unleash-edge             nginx    unleash-edge.kbai.ttmtech.com                       10.200.248.41,10.200.248.42,10.200.248.43,10.200.248.44,10.200.248.45   80, 443   7d
+[root@aamslc4kbc01 ~]# kubectl get ingress -A -o json | jq -r '
   .items[]
   | select(
       .metadata.name + " " + (.metadata.namespace // "") + " " +
@@ -18,47 +38,401 @@ kubectl get ingress -A -o json | jq -r '
       auth_url:    .metadata.annotations["nginx.ingress.kubernetes.io/auth-url"]
     }
 '
-
-# NodePort and LoadBalancer services — these bypass ingress entirely
-kubectl get svc -A -o json | jq -r '.items[] | select(.spec.type=="NodePort" or .spec.type=="LoadBalancer") | "\(.metadata.namespace)/\(.metadata.name)\ttype=\(.spec.type)\tports=\([.spec.ports[] | "\(.port)→\(.targetPort)"] | join(","))"'
-
-
-
-
-
-# Rancher local admin password — is it still default?
-# (can't check from CLI easily — this is a "did anyone rotate the admin password" question for the team)
-
-# RabbitMQ default guest account
-kubectl -n rabbitmq-system get secret -o name | head
-kubectl get rabbitmqcluster -A 2>/dev/null
-
-# Grafana default admin
-kubectl -n cattle-monitoring-system get secret rancher-monitoring-grafana -o jsonpath='{.data.admin-user}' 2>/dev/null | base64 -d; echo
-
-
-
-kubectl get secrets -A -o json | jq -r '.items[] | select(.metadata.name | test("admin|default|initial"; "i")) | "\(.metadata.namespace)/\(.metadata.name)"'
-
-
-# Is the API server reachable from outside the TTM network?
-# The HAProxy on aamslc4hap01 listens on 6443 externally — who can route to 10.200.248.30?
-# This is a firewall question, not a kubectl question, but worth flagging.
-
-# Anonymous auth check
-grep -i 'anonymous-auth' /etc/rancher/rke2/config.yaml
-# Should be: false. If not set, default is false in newer K8s, but verify.
-
-# API server audit of 401/403 patterns in last 24h
-sudo grep -h 'responseStatus.*40[13]' /var/log/kubernetes/audit/audit.log 2>/dev/null | \
+{
+  "ns": "aitk-console",
+  "name": "console-app-ingress",
+  "hosts": [
+    "zuva-console.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": "http://oauth2-proxy.aitk-console.svc.cluster.local:4180/oauth2/auth"
+}
+{
+  "ns": "aitk-console",
+  "name": "console-oauth2-ingress",
+  "hosts": [
+    "zuva-console.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "api",
+  "name": "api-async",
+  "hosts": [
+    "api.kbai.ttmtech.com",
+    "api-uploads.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "api",
+  "name": "api-main",
+  "hosts": [
+    "api.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "api",
+  "name": "api-upload",
+  "hosts": [
+    "api-uploads.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "dex",
+  "name": "dex",
+  "hosts": [
+    "dex.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "field-discovery",
+  "name": "fields-app-ingress",
+  "hosts": [
+    "fields.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": "http://oauth2-proxy.field-discovery.svc.cluster.local:4180/oauth2/auth"
+}
+{
+  "ns": "field-discovery",
+  "name": "fields-oauth2-ingress",
+  "hosts": [
+    "fields.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "istio-system",
+  "name": "zuva-to-istio-gateway",
+  "hosts": [
+    "zuva.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "istio-system",
+  "name": "zuva-to-istio-gateway",
+  "hosts": [
+    "zuva.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "kindo-deps",
+  "name": "minio-s3",
+  "hosts": [
+    "minio-console.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "kindo-deps",
+  "name": "minio-s3",
+  "hosts": [
+    "minio-console.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "kindo-deps",
+  "name": "minio-s3-api",
+  "hosts": [
+    "s3.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "kindo-deps",
+  "name": "minio-s3-api",
+  "hosts": [
+    "s3.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "nango",
+  "name": "nango-api",
+  "hosts": [
+    "integrations-api.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "nango",
+  "name": "nango-api",
+  "hosts": [
+    "integrations-api.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "nango",
+  "name": "nango-connect-api",
+  "hosts": [
+    "integrations-connect.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "nango",
+  "name": "nango-connect-api",
+  "hosts": [
+    "integrations-connect.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "next",
+  "name": "next",
+  "hosts": [
+    "athena.ttmtech.com",
+    "app.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "pgweb",
+  "name": "kindo-pgweb",
+  "hosts": [
+    "pgweb.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "pgweb",
+  "name": "kindo-pgweb",
+  "hosts": [
+    "pgweb.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "ssoready",
+  "name": "ssoready-admin",
+  "hosts": [
+    "sso.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "ssoready",
+  "name": "ssoready-admin",
+  "hosts": [
+    "sso.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "ssoready",
+  "name": "ssoready-api",
+  "hosts": [
+    "sso-api.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "ssoready",
+  "name": "ssoready-api",
+  "hosts": [
+    "sso-api.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "ssoready",
+  "name": "ssoready-app",
+  "hosts": [
+    "sso-app.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "ssoready",
+  "name": "ssoready-app",
+  "hosts": [
+    "sso-app.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "ssoready",
+  "name": "ssoready-auth",
+  "hosts": [
+    "sso-auth.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "ssoready",
+  "name": "ssoready-auth",
+  "hosts": [
+    "sso-auth.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "text-embeddings",
+  "name": "text-embeddings",
+  "hosts": [
+    "embeddings.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "unleash",
+  "name": "unleash",
+  "hosts": [
+    "unleash.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "unleash",
+  "name": "unleash",
+  "hosts": [
+    "unleash.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "unleash",
+  "name": "unleash-edge",
+  "hosts": [
+    "unleash-edge.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+{
+  "ns": "unleash",
+  "name": "unleash-edge",
+  "hosts": [
+    "unleash-edge.kbai.ttmtech.com"
+  ],
+  "auth_type": null,
+  "auth_secret": null,
+  "auth_url": null
+}
+[root@aamslc4kbc01 ~]# kubectl get svc -A -o json | jq -r '.items[] | select(.spec.type=="NodePort" or .spec.type=="LoadBalancer") | "\(.metadata.namespace)/\(.metadata.name)\ttype=\(.spec.type)\tports=\([.spec.ports[] | "\(.port)→\(.targetPort)"] | join(","))"'
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n rabbitmq-system get secret -o name | head
+secret/rabbitmq-operator-rabbitmq-messaging-topology-operator-webhook
+secret/sh.helm.release.v1.rabbitmq-operator.v1
+secret/sh.helm.release.v1.rabbitmq-operator.v2
+secret/sh.helm.release.v1.rabbitmq-operator.v3
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get rabbitmqcluster -A 2>/dev/null
+NAMESPACE    NAME       ALLREPLICASREADY   RECONCILESUCCESS   AGE
+kindo-deps   rabbitmq   True               True               93d
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl -n cattle-monitoring-system get secret rancher-monitoring-grafana -o jsonpath='{.data.admin-user}' 2>/dev/null | base64 -d; echo
+admin
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get secrets -A -o json | jq -r '.items[] | select(.metadata.name | test("admin|default|initial"; "i")) | "\(.metadata.namespace)/\(.metadata.name)"'
+kindo-deps/rabbitmq-default-user
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# grep -i 'anonymous-auth' /etc/rancher/rke2/config.yaml
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# sudo grep -h 'responseStatus.*40[13]' /var/log/kubernetes/audit/audit.log 2>/dev/null | \
   jq -r '[.user.username // "anonymous", .sourceIPs[0], .requestURI] | @tsv' 2>/dev/null | \
   sort | uniq -c | sort -rn | head -20
-
-
-
-
-# Secrets stored as environment variables (not mounted from Secret) — plaintext in pod specs
-kubectl get pods -A -o json | jq -r '
+     51 system:serviceaccount:keda:keda-metrics-server  10.200.248.43   /apis/authorization.k8s.io/v1/subjectaccessreviews?timeout=10s
+     40 system:serviceaccount:redis-operator:redis-operator     10.200.248.41   /apis/coordination.k8s.io/v1/namespaces/redis-operator/leases/6cab913b.redis.opstreelabs.in?timeout=1m0s
+     22 system:serviceaccount:cattle-system:system-upgrade-controller   10.200.248.23   /apis/coordination.k8s.io/v1/namespaces/cattle-system/leases/system-upgrade-controller
+     19 system:serviceaccount:rabbitmq-system:rabbitmq-operator-rabbitmq-messaging-topology-operator    10.200.248.41   /apis/coordination.k8s.io/v1/namespaces/rabbitmq-system/leases/messaging-topology-operator-leader-election?timeout=5s
+     16 system:serviceaccount:rabbitmq-system:rabbitmq-operator-rabbitmq-cluster-operator       10.200.248.41   /apis/coordination.k8s.io/v1/namespaces/rabbitmq-system/leases/rabbitmq-cluster-operator-leader-election?timeout=5s
+     15 system:serviceaccount:redis-operator:redis-operator     10.200.248.41   /api/v1/namespaces/kindo-deps/secrets/kindo-redis-secret
+     15 system:rke2-supervisor  127.0.0.1       /apis/coordination.k8s.io/v1/namespaces/kube-system/leases/rke2?timeout=15m0s
+     13 system:rke2-supervisor  127.0.0.1       /apis/coordination.k8s.io/v1/namespaces/kube-system/leases/rke2-etcd?timeout=15m0s
+     12 system:serviceaccount:kafka:strimzi-cluster-operator    10.200.248.43   /api/v1/namespaces/kafka/secrets/aitk-kafka-cluster-entity-user-operator-certs
+     10 system:serviceaccount:aitk-zuva:zuva-postgres   10.200.248.44   /apis/postgresql.cnpg.io/v1/namespaces/aitk-zuva/clusters/zuva-postgres
+      9 system:serviceaccount:redis-operator:redis-operator     10.200.248.41   /api/v1/namespaces/kindo-deps/pods/redis-1
+      9 system:serviceaccount:kube-system:rke2-snapshot-controller      10.200.248.22   /apis/coordination.k8s.io/v1/namespaces/kube-system/leases/snapshot-controller-leader
+      8 system:node:aamslc4kbw01.ttmtech.local  10.200.248.41   /apis/coordination.k8s.io/v1/namespaces/kube-node-lease/leases/aamslc4kbw01.ttmtech.local?timeout=10s
+      7 system:serviceaccount:kube-system:rke2-ingress-nginx    10.200.248.44   /apis/coordination.k8s.io/v1/namespaces/kube-system/leases/rke2-ingress-nginx-leader
+      7 rke2-cloud-controller-manager   127.0.0.1       /apis/coordination.k8s.io/v1/namespaces/kube-system/leases/rke2-cloud-controller-manager?timeout=5s
+      6 system:serviceaccount:kindo-deps:postgres       10.200.248.41   /apis/postgresql.cnpg.io/v1/namespaces/kindo-deps/clusters/postgres
+      6 system:serviceaccount:kafka:strimzi-cluster-operator    10.200.248.43   /api/v1/namespaces/kafka/secrets?labelSelector=strimzi.io%2Fcluster%3Daitk-kafka-cluster%2Cstrimzi.io%2Fkind%3DKafka&resourceVersion=0
+      6 system:node:aamslc4kbc01.ttmtech.local  127.0.0.1       /apis/coordination.k8s.io/v1/namespaces/kube-node-lease/leases/aamslc4kbc01.ttmtech.local?timeout=10s
+      6 system:apiserver        ::1     /apis/coordination.k8s.io/v1/namespaces/kube-system/leases/apiserver-l5jn3bbnyczvnnrknxrbkhagx4
+      5 system:serviceaccount:redis-operator:redis-operator     10.200.248.41   /api/v1/namespaces/kindo-deps/pods/redis-0
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get pods -A -o json | jq -r '
   .items[]
   | .spec.containers[]?
   | select(.env != null)
@@ -66,87 +440,363 @@ kubectl get pods -A -o json | jq -r '
   | select(.value != null and (.name | test("pass|secret|token|key|cred|auth"; "i")))
   | "\(.name) has a plaintext value"
 ' | sort -u | head -20
-
-# ConfigMaps containing secret-looking content
-kubectl get cm -A -o json | jq -r '
+AITK_DELETED_TOKEN_CONTAINER_PREFIX has a plaintext value
+AITK_DELETED_TOKEN_CONTAINER_REGIONSHORT has a plaintext value
+AITK_REACT_APP_CUSTOM_AUTH_ENABLED has a plaintext value
+AITK_STORAGE_DELETED_TOKEN_CONTAINER_PREFIX has a plaintext value
+AUTH_PASS_CREDENTIALS has a plaintext value
+CATTLE_CREDENTIAL_NAME has a plaintext value
+DATABASE_PASSWORD has a plaintext value
+INIT_ADMIN_API_TOKENS has a plaintext value
+INIT_CLIENT_API_TOKENS has a plaintext value
+INIT_FRONTEND_API_TOKENS has a plaintext value
+PASS_DEVICE_SPECS has a plaintext value
+STRIMZI_CA_KEY_NAME has a plaintext value
+STRIMZI_CLUSTER_CA_CERT_SECRET_NAME has a plaintext value
+STRIMZI_EO_KEY_SECRET_NAME has a plaintext value
+TOKENS has a plaintext value
+UNLEASH_DEFAULT_ADMIN_PASSWORD has a plaintext value
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get cm -A -o json | jq -r '
   .items[]
   | select((.data // {}) | to_entries[]? | (.value // "") | test("BEGIN.*PRIVATE KEY|password[^\\n]*=|secret[^\\n]*=|AKIA|api[_-]?key"; "i"))
   | "\(.metadata.namespace)/\(.metadata.name)"
 ' 2>/dev/null | head
-
-# Images with secrets baked in — can't check from outside, but ImagePullSecrets patterns
-kubectl get pods -A -o json | jq -r '.items[].spec | select(.imagePullSecrets != null) | .imagePullSecrets[].name' | sort | uniq -c | sort -rn | head
-
-
-
-
-# All ingresses with TLS config — any without?
-kubectl get ingress -A -o json | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)\thosts=\([.spec.rules[]?.host] | join(","))\ttls=\((.spec.tls // []) | length)"' | column -t
-
-# What's the cert-manager doing? Are certs actually being issued?
-kubectl get certificate -A 2>/dev/null
-kubectl get certificate -A -o json 2>/dev/null | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)\tready=\(.status.conditions[]? | select(.type=="Ready") | .status)"'
-
-# Expired or expiring certs
-kubectl get secret -A -o json | jq -r '.items[] | select(.type=="kubernetes.io/tls") | "\(.metadata.namespace)/\(.metadata.name)"'
-
-
-
-# Pods with exec capability from service accounts
-# Any RoleBinding or ClusterRoleBinding granting pods/exec?
-kubectl get clusterrole -o json | jq -r '
+cerbos/cerbos-policies
+cerbos/cerbos-policies
+cerbos/cerbos-policies
+kafka/aitk-kafka-cluster-kafka-0
+kafka/aitk-kafka-cluster-kafka-1
+kafka/aitk-kafka-cluster-kafka-2
+kube-system/chart-content-rke2-metrics-server
+litellm/litellm-config
+litellm/litellm-custom-auth
+litellm/litellm-custom-guardrail
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get pods -A -o json | jq -r '.items[].spec | select(.imagePullSecrets != null) | .imagePullSecrets[].name' | sort | uniq -c | sort -rn | head
+    115 zuva-regcred
+    115 aitk-registry
+     37 registry-credentials
+      5 console-regcred
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get ingress -A -o json | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)\thosts=\([.spec.rules[]?.host] | join(","))\ttls=\((.spec.tls // []) | length)"' | column -t
+aitk-console/console-app-ingress       hosts=zuva-console.ttmtech.com                           tls=1
+aitk-console/console-oauth2-ingress    hosts=zuva-console.ttmtech.com                           tls=1
+api/api-async                          hosts=api.kbai.ttmtech.com,api-uploads.kbai.ttmtech.com  tls=1
+api/api-main                           hosts=api.kbai.ttmtech.com                               tls=1
+api/api-upload                         hosts=api-uploads.kbai.ttmtech.com                       tls=1
+dex/dex                                hosts=dex.ttmtech.com                                    tls=1
+field-discovery/fields-app-ingress     hosts=fields.ttmtech.com                                 tls=1
+field-discovery/fields-oauth2-ingress  hosts=fields.ttmtech.com                                 tls=1
+istio-system/zuva-to-istio-gateway     hosts=zuva.ttmtech.com                                   tls=1
+kindo-deps/minio-s3                    hosts=minio-console.ttmtech.com                          tls=1
+kindo-deps/minio-s3-api                hosts=s3.kbai.ttmtech.com                                tls=1
+nango/nango-api                        hosts=integrations-api.kbai.ttmtech.com                  tls=1
+nango/nango-connect-api                hosts=integrations-connect.kbai.ttmtech.com              tls=1
+next/next                              hosts=athena.ttmtech.com,app.kbai.ttmtech.com            tls=1
+pgweb/kindo-pgweb                      hosts=pgweb.kbai.ttmtech.com                             tls=0
+ssoready/ssoready-admin                hosts=sso.kbai.ttmtech.com                               tls=1
+ssoready/ssoready-api                  hosts=sso-api.kbai.ttmtech.com                           tls=1
+ssoready/ssoready-app                  hosts=sso-app.kbai.ttmtech.com                           tls=1
+ssoready/ssoready-auth                 hosts=sso-auth.kbai.ttmtech.com                          tls=1
+text-embeddings/text-embeddings        hosts=embeddings.kbai.ttmtech.com                        tls=0
+unleash/unleash                        hosts=unleash.kbai.ttmtech.com                           tls=0
+unleash/unleash-edge                   hosts=unleash-edge.kbai.ttmtech.com                      tls=1
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get certificate -A 2>/dev/null
+NAMESPACE    NAME              READY   SECRET           AGE
+api          api-cert          False   api-tls          93d
+default      longhorn-cert     False   longhorn-tls     93d
+kindo-deps   pgweb-cert        False   pgweb-tls        93d
+kindo-deps   selfsigned-cert   False   selfsigned-tls   93d
+next         next-cert         False   next-tls         93d
+ssoready     ssoready-tls      False   ssoready-tls     7d1h
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get certificate -A -o json 2>/dev/null | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)\tready=\(.status.conditions[]? | select(.type=="Ready") | .status)"' 
+api/api-cert    ready=False
+default/longhorn-cert   ready=False
+kindo-deps/pgweb-cert   ready=False
+kindo-deps/selfsigned-cert      ready=False
+next/next-cert  ready=False
+ssoready/ssoready-tls   ready=False
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get secret -A -o json | jq -r '.items[] | select(.type=="kubernetes.io/tls") | "\(.metadata.namespace)/\(.metadata.name)"'
+aitk-console/wildcard-tls
+aitk-zuva/zuva-postgres-replication
+aitk-zuva/zuva-postgres-server
+cattle-system/cattle-webhook-ca
+cattle-system/cattle-webhook-tls
+cattle-system/serving-cert
+cattle-system/tls-rancher
+cattle-system/tls-rancher-internal-ca
+cnpg-system/cnpg-webhook-cert
+dex/wildcard-tls
+field-discovery/wildcard-tls
+istio-system/wildcard-tls
+kindo-deps/postgres-replication
+kindo-deps/postgres-server
+kube-system/rke2-serving
+kube-system/wildcard-tls
+longhorn/longhorn-webhook-ca
+longhorn/longhorn-webhook-tls
+nango/wildcard-tls
+rabbitmq-system/rabbitmq-operator-rabbitmq-messaging-topology-operator-webhook
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get clusterrole -o json | jq -r '
   .items[] | select(.rules[]? | (.resources // []) | any(. == "pods/exec"))
   | .metadata.name
 '
-
-# Any role allowing arbitrary secrets read?
-kubectl get clusterrole -o json | jq -r '
+admin
+admin
+cloudnative-pg
+edit
+edit
+rabbitmq-operator-rabbitmq-cluster-operator-rabbitmq-system
+redis-operator
+system:aggregate-to-edit
+system:aggregate-to-edit
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get clusterrole -o json | jq -r '
   .items[] | select(.rules[]? | (.resources // []) | any(. == "secrets") and (.verbs // []) | any(. == "get" or . == "list" or . == "*"))
   | .metadata.name
 ' | head
-
-
-
-# Where do images come from? Internal registry or random dockerhub?
+jq: error (at <stdin>:18608): Cannot iterate over boolean (false)
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get pods -A -o json | jq -r '.items[].spec.containers[].image' | awk -F/ '{if (NF==1) print "docker.io (implicit)"; else print $1}' | sort | uniq -c | sort -rn
 kubectl get pods -A -o json | jq -r '.items[].spec.containers[].image' | awk -F/ '{if (NF==1) print "docker.io (implicit)"; else print $1}' | sort | uniq -c | sort -rn
-
-# Specifically — are we pulling from public Docker Hub in production?
-kubectl get pods -A -o json | jq -r '.items[].spec.containers[].image' | grep -v 'ttmtech\|rancher\|nvcr\|quay\|registry.k8s\|ghcr\|registry.gitlab' | sort -u | head -20
-
-# Images with :latest tag (non-reproducible deployments)
-kubectl get pods -A -o json | jq -r '.items[].spec.containers[] | select(.image | test(":latest$|^[^:]+$")) | "\(.image)"' | sort -u
-
-
-
-# Any egress policies outside sandbox?
-kubectl get netpol -A -o json | jq -r '.items[] | select(.spec.egress != null and .spec.egress != []) | "\(.metadata.namespace)/\(.metadata.name)\trules=\(.spec.egress | length)"'
-
-# Pods that talk to the internet — can we tell what they dial?
-# (only from node logs or network appliance — not a kubectl question)
-
-
-
-
-
-# Pods running with dangerous capabilities
-kubectl get pods -A -o json | jq -r '
+    138 docaicr.azurecr.io
+     53 longhornio
+     45 rancher
+     32 registry.kindo.ai
+     24 index.docker.io
+     22 quay.io
+     19 docker.io
+     11 ghcr.io
+      9 fluent
+      8 registry.k8s.io
+      8 nvcr.io
+      5 vllm
+      4 ssoready
+      4 minio
+      4 docker.io (implicit)
+      3 unleashorg
+      2 mcr.microsoft.com
+      1 sosedoff
+    138 docaicr.azurecr.io
+     53 longhornio
+     45 rancher
+     32 registry.kindo.ai
+     24 index.docker.io
+     22 quay.io
+     19 docker.io
+     11 ghcr.io
+      9 fluent
+      8 registry.k8s.io
+      8 nvcr.io
+      5 vllm
+      4 ssoready
+      4 minio
+      4 docker.io (implicit)
+      3 unleashorg
+      2 mcr.microsoft.com
+      1 sosedoff
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get pods -A -o json | jq -r '.items[].spec.containers[].image' | grep -v 'ttmtech\|rancher\|nvcr\|quay\|registry.k8s\|ghcr\|registry.gitlab' | sort -u | head -20
+docaicr.azurecr.io/aitk-console/aitk-console-api:1.103.2
+docaicr.azurecr.io/aitk-console/migrations:1.103.2
+docaicr.azurecr.io/aitk-custom-authorizer/aitk-custom-authorizer:1.7.5
+docaicr.azurecr.io/aitk-extract/aitk-extract-fields-listener-kafka:3.42.2
+docaicr.azurecr.io/aitk-extract/aitk-extract-ocr-status-listener:3.42.2
+docaicr.azurecr.io/aitk-extract/aitk-extract-worker:3.42.2
+docaicr.azurecr.io/aitk-extract-api/aitk-extract-api:3.51.3
+docaicr.azurecr.io/aitk-extract-api/aitk-extract-api-cleaner:3.51.3
+docaicr.azurecr.io/aitk-extract-api/aitk-extract-status-listener-kafka:3.51.3
+docaicr.azurecr.io/aitk-extract-api/migrations:3.51.3
+docaicr.azurecr.io/aitk-fields-loader/aitk-fields-loader:1.10.3
+docaicr.azurecr.io/aitk-fs/aitk-file-cleaner:5.23.0
+docaicr.azurecr.io/aitk-fs/aitk-file-reaper:5.23.0
+docaicr.azurecr.io/aitk-fs/aitk-fs:5.23.0
+docaicr.azurecr.io/aitk-fs/migrations:5.23.0
+docaicr.azurecr.io/aitk-mlc/aitk-mlc-ocr-listener:1.23.2
+docaicr.azurecr.io/aitk-mlc/aitk-mlc-request-listener:1.23.2
+docaicr.azurecr.io/aitk-mlc/aitk-mlc-worker:1.23.2
+docaicr.azurecr.io/aitk-mlc-api/aitk-mlc-api:1.33.1
+docaicr.azurecr.io/aitk-mlc-api/aitk-mlc-api-cleaner:1.33.1
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get pods -A -o json | jq -r '.items[].spec.containers[] | select(.image | test(":latest$|^[^:]+$")) | "\(.image)"' | sort -u
+mcr.microsoft.com/presidio-analyzer:latest
+mcr.microsoft.com/presidio-anonymizer:latest
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get netpol -A -o json | jq -r '.items[] | select(.spec.egress != null and .spec.egress != []) | "\(.metadata.namespace)/\(.metadata.name)\trules=\(.spec.egress | length)"'
+cattle-fleet-system/default-allow-all   rules=1
+kube-system/rancher-monitoring-coredns-allow-all        rules=1
+rabbitmq-system/rabbitmq-operator-rabbitmq-cluster-operator     rules=1
+rabbitmq-system/rabbitmq-operator-rabbitmq-messaging-topology-operator  rules=1
+sandbox/allow-egress-sandbox-007c7b46   rules=1
+sandbox/allow-egress-sandbox-0091fad2   rules=1
+sandbox/allow-egress-sandbox-011264cc   rules=1
+sandbox/allow-egress-sandbox-023c39a3   rules=1
+sandbox/allow-egress-sandbox-04c239ee   rules=1
+sandbox/allow-egress-sandbox-07e61f98   rules=1
+sandbox/allow-egress-sandbox-086ea81c   rules=1
+sandbox/allow-egress-sandbox-092e0506   rules=1
+sandbox/allow-egress-sandbox-1534dea1   rules=1
+sandbox/allow-egress-sandbox-1ac55d83   rules=1
+sandbox/allow-egress-sandbox-1c1e6285   rules=1
+sandbox/allow-egress-sandbox-1cbcbfef   rules=1
+sandbox/allow-egress-sandbox-1d45d1e7   rules=1
+sandbox/allow-egress-sandbox-1e72faaf   rules=1
+sandbox/allow-egress-sandbox-1f713616   rules=1
+sandbox/allow-egress-sandbox-20c7bfd3   rules=1
+sandbox/allow-egress-sandbox-2336d8c4   rules=1
+sandbox/allow-egress-sandbox-23a55ba1   rules=1
+sandbox/allow-egress-sandbox-27bac172   rules=1
+sandbox/allow-egress-sandbox-28143ead   rules=1
+sandbox/allow-egress-sandbox-2b6503b7   rules=1
+sandbox/allow-egress-sandbox-2c3dbf1c   rules=1
+sandbox/allow-egress-sandbox-2d05a39e   rules=1
+sandbox/allow-egress-sandbox-2e20d2ff   rules=1
+sandbox/allow-egress-sandbox-2f53a321   rules=1
+sandbox/allow-egress-sandbox-2f553bda   rules=1
+sandbox/allow-egress-sandbox-2f63b8b1   rules=1
+sandbox/allow-egress-sandbox-2f82f947   rules=1
+sandbox/allow-egress-sandbox-3284c180   rules=1
+sandbox/allow-egress-sandbox-32f51af0   rules=1
+sandbox/allow-egress-sandbox-34f79b7c   rules=1
+sandbox/allow-egress-sandbox-3504fa8d   rules=1
+sandbox/allow-egress-sandbox-357fea5f   rules=1
+sandbox/allow-egress-sandbox-35da39a4   rules=1
+sandbox/allow-egress-sandbox-3769ecd6   rules=1
+sandbox/allow-egress-sandbox-385d523d   rules=1
+sandbox/allow-egress-sandbox-39413efc   rules=1
+sandbox/allow-egress-sandbox-3baa5f90   rules=1
+sandbox/allow-egress-sandbox-3c3d00bb   rules=1
+sandbox/allow-egress-sandbox-3d338833   rules=1
+sandbox/allow-egress-sandbox-3f1de410   rules=1
+sandbox/allow-egress-sandbox-4057e875   rules=1
+sandbox/allow-egress-sandbox-4080bcf0   rules=1
+sandbox/allow-egress-sandbox-427fd89f   rules=1
+sandbox/allow-egress-sandbox-43710880   rules=1
+sandbox/allow-egress-sandbox-46e8c988   rules=1
+sandbox/allow-egress-sandbox-49a81236   rules=1
+sandbox/allow-egress-sandbox-4b3fa4ef   rules=1
+sandbox/allow-egress-sandbox-4f724ee7   rules=1
+sandbox/allow-egress-sandbox-50509ebd   rules=1
+sandbox/allow-egress-sandbox-52f1b782   rules=1
+sandbox/allow-egress-sandbox-55f727b1   rules=1
+sandbox/allow-egress-sandbox-59584882   rules=1
+sandbox/allow-egress-sandbox-632cee8c   rules=1
+sandbox/allow-egress-sandbox-6819ddce   rules=1
+sandbox/allow-egress-sandbox-6850fd42   rules=1
+sandbox/allow-egress-sandbox-685b2dd7   rules=1
+sandbox/allow-egress-sandbox-6b8b69bd   rules=1
+sandbox/allow-egress-sandbox-6e2f8b67   rules=1
+sandbox/allow-egress-sandbox-6e55971a   rules=1
+sandbox/allow-egress-sandbox-740bb9e7   rules=1
+sandbox/allow-egress-sandbox-76e06351   rules=1
+sandbox/allow-egress-sandbox-7855f671   rules=1
+sandbox/allow-egress-sandbox-78574cf2   rules=1
+sandbox/allow-egress-sandbox-78ecc925   rules=1
+sandbox/allow-egress-sandbox-79a3f51f   rules=1
+sandbox/allow-egress-sandbox-7fd895cb   rules=1
+sandbox/allow-egress-sandbox-8200a66f   rules=1
+sandbox/allow-egress-sandbox-8274c89a   rules=1
+sandbox/allow-egress-sandbox-849af69d   rules=1
+sandbox/allow-egress-sandbox-859eb15f   rules=1
+sandbox/allow-egress-sandbox-85bd0f96   rules=1
+sandbox/allow-egress-sandbox-8ac58ca4   rules=1
+sandbox/allow-egress-sandbox-8d59dc5e   rules=1
+sandbox/allow-egress-sandbox-924755e4   rules=1
+sandbox/allow-egress-sandbox-9581741f   rules=1
+sandbox/allow-egress-sandbox-9865d700   rules=1
+sandbox/allow-egress-sandbox-9a56b87f   rules=1
+sandbox/allow-egress-sandbox-a00ef55e   rules=1
+sandbox/allow-egress-sandbox-a08f8549   rules=1
+sandbox/allow-egress-sandbox-a2f3d60a   rules=1
+sandbox/allow-egress-sandbox-a54d8bf1   rules=1
+sandbox/allow-egress-sandbox-a895482e   rules=1
+sandbox/allow-egress-sandbox-a9cfa3e3   rules=1
+sandbox/allow-egress-sandbox-aa7006d5   rules=1
+sandbox/allow-egress-sandbox-add88cd0   rules=1
+sandbox/allow-egress-sandbox-aed2e3aa   rules=1
+sandbox/allow-egress-sandbox-b062b85e   rules=1
+sandbox/allow-egress-sandbox-b1be5276   rules=1
+sandbox/allow-egress-sandbox-b4855d65   rules=1
+sandbox/allow-egress-sandbox-b60b2f4f   rules=1
+sandbox/allow-egress-sandbox-b7040689   rules=1
+sandbox/allow-egress-sandbox-bb1a6297   rules=1
+sandbox/allow-egress-sandbox-bbe8da84   rules=1
+sandbox/allow-egress-sandbox-bd65243d   rules=1
+sandbox/allow-egress-sandbox-c0c65b3d   rules=1
+sandbox/allow-egress-sandbox-c0e3f023   rules=1
+sandbox/allow-egress-sandbox-c29d8f1c   rules=1
+sandbox/allow-egress-sandbox-d487d26e   rules=1
+sandbox/allow-egress-sandbox-d8f3188a   rules=1
+sandbox/allow-egress-sandbox-d9f0f233   rules=1
+sandbox/allow-egress-sandbox-da31d3ac   rules=1
+sandbox/allow-egress-sandbox-dd398f07   rules=1
+sandbox/allow-egress-sandbox-e2645f39   rules=1
+sandbox/allow-egress-sandbox-e30f3df4   rules=1
+sandbox/allow-egress-sandbox-e381a0ab   rules=1
+sandbox/allow-egress-sandbox-e42fab00   rules=1
+sandbox/allow-egress-sandbox-e6a4148e   rules=1
+sandbox/allow-egress-sandbox-e74d8d8b   rules=1
+sandbox/allow-egress-sandbox-e864195c   rules=1
+sandbox/allow-egress-sandbox-ef1a4f54   rules=1
+sandbox/allow-egress-sandbox-f029c6ee   rules=1
+sandbox/allow-egress-sandbox-f04f8b27   rules=1
+sandbox/allow-egress-sandbox-f4511671   rules=1
+sandbox/allow-egress-sandbox-f6bf6c49   rules=1
+sandbox/allow-egress-sandbox-f759bd8d   rules=1
+sandbox/allow-egress-sandbox-f76b23c3   rules=1
+sandbox/sandbox-default-deny-egress     rules=2
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get pods -A -o json | jq -r '
   .items[]
   | select(.spec.containers[]?.securityContext.capabilities.add != null)
   | "\(.metadata.namespace)/\(.metadata.name)\tadds=\([.spec.containers[]?.securityContext.capabilities.add[]?] | join(","))"
 ' | sort -u | head
-
-# allowPrivilegeEscalation not disabled
-kubectl get pods -A -o json | jq -r '
+kube-system/rke2-coredns-rke2-coredns-9bf97f8f9-b6rnn   adds=NET_BIND_SERVICE
+kube-system/rke2-coredns-rke2-coredns-9bf97f8f9-pz49v   adds=NET_BIND_SERVICE
+kube-system/rke2-ingress-nginx-controller-fckxs adds=NET_BIND_SERVICE
+kube-system/rke2-ingress-nginx-controller-g5stm adds=NET_BIND_SERVICE
+kube-system/rke2-ingress-nginx-controller-gp84z adds=NET_BIND_SERVICE
+kube-system/rke2-ingress-nginx-controller-kzsjg adds=NET_BIND_SERVICE
+kube-system/rke2-ingress-nginx-controller-txqbz adds=NET_BIND_SERVICE
+longhorn/longhorn-csi-plugin-29scb      adds=SYS_ADMIN
+longhorn/longhorn-csi-plugin-4ssfv      adds=SYS_ADMIN
+longhorn/longhorn-csi-plugin-596qz      adds=SYS_ADMIN
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl get pods -A -o json | jq -r '
   .items[]
   | select(.spec.containers[]? | .securityContext.allowPrivilegeEscalation != false)
   | select(.metadata.namespace | test("kube-system|longhorn|gpu-operator|cattle") | not)
   | "\(.metadata.namespace)/\(.metadata.name)"
 ' | sort -u | wc -l
-
-# Containers running as root (runAsUser=0 or unset)
-kubectl get pods -A -o json | jq -r '
+173
+[root@aamslc4kbc01 ~]# kubectl get pods -A -o json | jq -r '
   .items[]
   | select(.metadata.namespace | test("kube-|cattle-|longhorn|gpu-operator") | not)
   | select(.spec.containers[]? | (.securityContext.runAsUser // 0) == 0 and (.securityContext.runAsNonRoot // false) == false)
   | "\(.metadata.namespace)/\(.metadata.name)"
 ' | sort -u | wc -l
+194
+[root@aamslc4kbc01 ~]# 
