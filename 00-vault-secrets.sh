@@ -1,29 +1,18 @@
-[root@cpeg-ipareplica ~]# ipa dnsrecord-add ipa.calix.local pln-petipareplica --a-rec=10.172.248.57
-  Record name: pln-petipareplica
-  A record: 10.172.248.57
-[root@cpeg-ipareplica ~]# ipa dnszone-find | grep -i "248"
-[root@cpeg-ipareplica ~]# ipa dnszone-find | grep -i "pln-pet"
-[root@cpeg-ipareplica ~]#
+# From cpeg
+dig @172.23.49.10 pln-petipareplica.ipa.calix.local +short
+
+# From pln-petipareplica
+dig @172.23.49.10 pln-petipareplica.ipa.calix.local +short
 
 
+# Can pln-petipareplica reach cpeg?
+nc -zv cpeg-ipareplica.ipa.calix.local 389
+nc -zv cpeg-ipareplica.ipa.calix.local 88
+nc -zv cpeg-ipareplica.ipa.calix.local 464
 
-# On cpeg (already kinited as hsuma)
-# Add forward A record
-ipa dnsrecord-add ipa.calix.local pln-petipareplica --a-rec=10.172.248.57
+# Is pln-petipareplica's /etc/hosts clean?
+grep -i "pln\|cpeg" /etc/hosts
 
-# Add PTR record
-# First check what reverse zone exists
-ipa dnszone-find | grep -i "248"
-
-
-
-# On pln-petipareplica (after DNS is set up)
-ipa-replica-install \
-  --server=cpeg-ipareplica.ipa.calix.local \
-  --domain=ipa.calix.local \
-  --realm=IPA.CALIX.LOCAL \
-  --principal=admin \
-  --admin-password='<admin-password>' \
-  --no-ntp \
-  --skip-conncheck \
-  --unattended
+# Time sync sanity
+date
+timedatectl status | grep -i "NTP\|sync"
