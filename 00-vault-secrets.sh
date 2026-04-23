@@ -52,3 +52,53 @@ ldapsearch -x -H ldap://pln-petipareplica.ipa.calix.local \
 
 # Clean up
 ipa user-del testrepl
+
+[root@cpeg-ipareplica ~]# ipa user-add testrepl --first=Test --last=Replication
+ipa: ERROR: user with name "testrepl" already exists
+[root@cpeg-ipareplica ~]# ipa user-add testrepls --first=Test --last=Replication
+----------------------
+Added user "testrepls"
+----------------------
+  User login: testrepls
+  First name: Test
+  Last name: Replication
+  Full name: Test Replication
+  Display name: Test Replication
+  Initials: TR
+  Home directory: /home/testrepls
+  GECOS: Test Replication
+  Login shell: /bin/bash
+  Principal name: testrepls@IPA.CALIX.LOCAL
+  Principal alias: testrepls@IPA.CALIX.LOCAL
+  Email address: testrepls@calix.com
+  UID: 87855
+  GID: 87855
+  Password: False
+  Member of groups: sw
+  Kerberos keys available: False
+[root@cpeg-ipareplica ~]#
+
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]#
+[root@pln-petipareplica ~]# ldapsearch -x -H ldap://pln-petipareplica.ipa.calix.local \
+>   -b "cn=users,cn=accounts,dc=ipa,dc=calix,dc=local" "(uid=testrepls)" uid 2>&1 | tail -5
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 1
+[root@pln-petipareplica ~]# ldapsearch -x -H ldap://pln-petipareplica.ipa.calix.local   -b "cn=users,cn=accounts,dc=ipa,dc=calix,dc=local" "(uid=testreplsa)" uid 2>&1 | tail -5
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 1
+[root@pln-petipareplica ~]# ipa user-del testrepl
+ipa: ERROR: Ticket expired
+[root@pln-petipareplica ~]# kinit hsuma
+Password for hsuma@IPA.CALIX.LOCAL:
+[root@pln-petipareplica ~]# ipa user-del testrepls
+------------------------
+Deleted user "testrepls"
+------------------------
+[root@pln-petipareplica ~]#
