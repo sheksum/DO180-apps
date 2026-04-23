@@ -1,38 +1,157 @@
-Hey team, hoping most of you can make this.  I want to have a discussion about what our future K8S builds should look like.  Need some domain knowledge on what we do today for server builds and networking etc.  From the below I think we can come up with a list of stories/tasks for our build-out.  
+SSSD Service failure analysis
 
-If tomorrow is too early we can push to next week. 
+Create subtask
 
-Rough agenda of things I think we should decide on:
+Link work item
 
-Network connectivity : 
-Primary VLAN
-Storage VLAN
-HA/Bond
-???
-Operating System for K8S nodes
-RHEL / Ubuntu / others? (Assuming Ubuntu unless there's something better)
-LVM? 
-PXE / Kickstart or any build standards?
-Node name standards
-IPA needed on k8s nodes? 
-K8S install
-Assuming RKE2 via Rancher
-Cluster name? plnx-k8s-01.  plnx-rke2-01?
-From scratch RKE2 or Generate Manifest from existing Rancher? 
-Move existing Rancher config to new cluster?
-RBAC and Authentication with IPA
-K8s Addons
-ArgoCD or Rancher Fleet? 
-Trident Netapp plugin
-NMState ??
- 
-Logging / Monitoring 
-MetalLB?
-Cert-manager
-Ngnix Ingress is now deprecated. Traefik with GatewayAPI or something else
-External Secrets Operator 
-System Upgrade Controller
-First K8s Apps?
-Hashicorp Vault ?
-Netbox? 
-???
+
+Add form
+
+Create
+
+Attach Lucidchart Diagram
+
+Risk assessment
+
+Brian Wing
+raised this request
+via
+Jira
+
+Hide details
+View request in portal
+Description
+
+SSSD is failing causing developer loss of productivity.  Restarting the service does recover the systems, but we need to understand what is causing this.
+Affected services
+
+
+Add service
+Investigation reason
+
+
+Recurring incident
+Urgency
+
+High
+Impact
+
+Significant / Large
+Root cause
+
+
+None
+Workaround
+
+
+Restart of SSSD service typically recovers the system, without need of reboot.
+Flag
+
+
+None
+Additional Information
+
+
+None
+Change Justification
+
+None
+Linked work items
+
+relates to
+Work type: [System] Incident
+EOSM-56149
+
+RESOLVED
+
+
+Priority: P3-Medium
+
+Work type: [System] Incident
+EOSM-56147
+
+RESOLVED
+
+
+Priority: P3-Medium
+
+Work type: [System] Incident
+EOSM-55696
+
+RESOLVED
+
+
+Priority: P3-Medium
+
+Work type: [System] Incident
+EOSM-55707
+
+RESOLVED
+
+
+Priority: P4-Low
+
+Work type: [System] Service request
+EOSM-55902
+
+RESOLVED
+
+
+Priority: P4-Low
+
+Work type: [System] Incident
+EOSM-55635
+
+RESOLVED
+
+
+Priority: P3-Medium
+
+Work type: [System] Incident
+EOSM-46372
+
+CLOSED
+
+
+Priority: P3-Medium
+
+Work type: [System] Incident
+EOSM-56300
+
+RESOLVED
+
+
+Priority: P3-Medium
+
+Work type: [System] Incident
+EOSM-55679
+
+RESOLVED
+
+
+Priority: P3-Medium
+
+Work type: [System] Incident
+EOSM-55569
+
+RESOLVED
+
+
+Priority: P3-Medium
+
+Work type: [System] Incident
+EOSM-55341
+
+RESOLVED
+
+
+Priority: P3-Medium
+
+Work type: [System] Incident
+EOSM-56320
+
+RESOLVED
+
+
+Priority: P3-Medium
+
