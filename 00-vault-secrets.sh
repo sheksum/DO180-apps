@@ -1,8 +1,10 @@
 Title: SSSD fleet-wide instability caused by IPA replication health issues on master
 
-Severity: 2 (production - recurring SSSD failures across multiple client hosts, 15+ related incident tickets)
+Severity: 2 (production - recurring SSSD failures across multiple client hosts, 15+ related incident tickets, blocking in-progress master migration)
 
 Product: Red Hat Enterprise Linux 8 / Identity Management
+
+Previous Related Case: #04408743 (closed) - earlier phases of this migration
 
 Business Impact:
 Fleet of ~2000 SSSD clients configured against cpeg. Multiple hosts experience 
@@ -17,6 +19,24 @@ Environment:
 - Existing replicas: nan-ipareplica01, ric-ipareplica01 (appear green), sjc-ipareplica01 (broken)
 - Fleet: ~2000 SSSD clients configured against cpeg
 - History: migrated from CentOS master (pet-ipamaster) to RHEL master (cpeg-ipareplica)
+
+Migration Context:
+
+We are in the middle of migrating the IPA master role from cpeg-ipareplica 
+(RHEL 8, IPA 4.9.13) to a new master pln-ipamaster (RHEL 9.3, IPA 4.12.2) 
+as part of a datacenter consolidation from Petaluma to Plano. This migration 
+has been in progress for several months and has encountered multiple install 
+failures on pln-ipamaster.
+
+Previous Red Hat case #04408743 (Cesar Goslawski, Ryan Burres) addressed 
+earlier phases of this migration and is now closed. Today's issues are 
+encountered in the continuation of that work.
+
+Replica install attempts (pln-ipamaster, then pln-petipareplica as a simpler 
+test) all fail at wait_for_entry timeout points in the install, consistent 
+with replication propagation failures from cpeg. This is blocking both the 
+master migration and any attempt to add replication capacity to help with 
+the fleet SSSD flapping issue.
 
 Root Cause Investigation:
 Initial diagnosis identified multiple contributing factors:
@@ -65,6 +85,37 @@ What We Have Tried:
 3. Full uninstall of pln-petipareplica between attempts
 4. Pre-created host entry and HTTP service on cpeg before install
 5. Verified network connectivity, DNS resolution, time sync
+6. Removed _srv_ from test client sssd.conf (reduced flapping)
+
+Current State of Failed Install (pln-petipareplica):
+- DS, krb5kdc, kadmin, httpd all running (partial install)
+- Web UI login fails: kinit Pre-authentication failed, missing /var/kerberos/krb5kdc/kdc.crt
+- ipa CLI fails with "KDC has no support for encryption type"
+- KDC log shows CLIENT_NOT_FOUND for legitimate client hosts that exist on cpeg 
+  (confirming replication drift)
+
+Additional Context:
+Corporate network team recently enabled Palo Alto deep packet inspection. Timing 
+correlation with incident pattern is being investigated. SIGSEGV crash observed 
+in sssd_be on a SJC client host (CentOS 7) in sasl_gss_encode (libgssapiv2.so) 
+on April 22 - may be related to DPI interfering with SASL GSSAPI wrapped packets.
+
+What We Need:
+1. Urgent: identification of root cause of fleet SSSD flapping - is the changelog 
+   CSN corruption the source, or a symptom of something deeper?
+2. Guidance on repairing cpeg's changelog (missing CSN ffffffff6f0b00140000)
+3. Whether nan-ipareplica01 and ric-ipareplica01 need re-initialization
+4. Safe path to complete pln-petipareplica/pln-ipamaster replica install - this 
+   is blocking the in-progress master migration from cpeg to pln-ipamaster
+5. Assessment of whether Palo Alto DPI on SASL/GSSAPI traffic could be 
+   contributing to SSSD segfaults
+
+Attachments:
+- sosreport from cpeg
+- sosreport from pln-petipareplica
+- /var/log/ipareplica-install.log from pln-petipareplica
+- /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors from cpeg (last 24 hours)
+- sosreport from sjcx-admin-old (SIGSEGV crash, April 22)5. Verified network connectivity, DNS resolution, time sync
 6. Removed _srv_ from test client sssd.conf (reduced flapping)
 
 Current State of Failed Install (pln-petipareplica):
