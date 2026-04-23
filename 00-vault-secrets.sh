@@ -30,3 +30,6 @@ Long-term — after we've cleaned up the replica topology (fix/retire sjc, finis
 Happy to walk through this on a call if easier.
 Thanks,
 Haj
+
+Right now if any host on the corporate network asks corp DNS where to find an IPA server, corp DNS says 'I don't know.' Because ipa.calix.local is its own subdomain and corp DNS was never told that IPA's DNS servers are authoritative for it.
+Delegation just means adding a few records in corp DNS that say 'for anything under ipa.calix.local, go ask these specific servers.' It's a pointer."
