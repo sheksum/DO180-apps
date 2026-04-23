@@ -1,3 +1,12 @@
+[root@cpeg-ipareplica ~]# ipa dnsrecord-add ipa.calix.local pln-petipareplica --a-rec=10.172.248.57
+  Record name: pln-petipareplica
+  A record: 10.172.248.57
+[root@cpeg-ipareplica ~]# ipa dnszone-find | grep -i "248"
+[root@cpeg-ipareplica ~]# ipa dnszone-find | grep -i "pln-pet"
+[root@cpeg-ipareplica ~]#
+
+
+
 # On cpeg (already kinited as hsuma)
 # Add forward A record
 ipa dnsrecord-add ipa.calix.local pln-petipareplica --a-rec=10.172.248.57
