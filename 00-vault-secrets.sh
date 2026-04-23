@@ -1,8 +1,13 @@
-# Show the full redirect chain with headers
-curl -skI http://pgweb.kbai.ttmtech.com/
+[root@aamslc4kbc01 ~]# curl -skI http://pgweb.kbai.ttmtech.com/
+HTTP/1.1 404 Not Found
+Date: Thu, 23 Apr 2026 19:59:41 GMT
+Content-Type: text/plain
+Content-Length: 18
+Connection: keep-alive
 
-# Or verbose to see everything
-curl -skv http://pgweb.kbai.ttmtech.com/ 2>&1 | grep -E '^< HTTP|^< Location|^> GET' | head -10
-
-# And follow redirects to see the chain
-curl -skIL http://pgweb.kbai.ttmtech.com/ 2>&1 | grep -E '^HTTP|^Location' | head
+[root@aamslc4kbc01 ~]# curl -skv http://pgweb.kbai.ttmtech.com/ 2>&1 | grep -E '^< HTTP|^< Location|^> GET' | head -10
+> GET / HTTP/1.1
+< HTTP/1.1 200 OK
+[root@aamslc4kbc01 ~]# curl -skIL http://pgweb.kbai.ttmtech.com/ 2>&1 | grep -E '^HTTP|^Location' | head
+HTTP/1.1 404 Not Found
+[root@aamslc4kbc01 ~]# 
