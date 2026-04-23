@@ -1,7 +1,7 @@
-# What cert is actually served on HTTPS for pgweb?
-echo | openssl s_client -connect pgweb.kbai.ttmtech.com:443 -servername pgweb.kbai.ttmtech.com 2>/dev/null | openssl x509 -noout -subject -issuer -dates
+Thanks Haji – I’ll start reviewing with Vation and pull you in when needed.
 
-# Does the ingress-nginx controller have a default-ssl-certificate configured?
-kubectl -n kube-system get deploy rke2-ingress-nginx-controller -o yaml 2>/dev/null | grep -i default-ssl
-# Also check the DaemonSet (RKE2 runs ingress-nginx as a DaemonSet)
-kubectl -n kube-system get ds rke2-ingress-nginx-controller -o yaml 2>/dev/null | grep -iE 'default-ssl|ssl-certificate' | head
+FYI – Signed up for some consulting from Gitlab and starting the project within the next two weeks at most, would love to have you both for the first planning call and introduce Glen who will be running the project.  We’ve got some security , runner and image requirements for containers in the cluster so the runners have tools to work with. 
+What I’m hoping is you all can help with the runner/image/worker deployments in the project.
+
+Thanks
+Jim
