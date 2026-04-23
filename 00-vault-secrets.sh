@@ -32,3 +32,23 @@ for i in $(seq 1 60); do
   echo "$(date +%H:%M:%S) $(sudo sssctl domain-status ipa.calix.local | grep 'Online status')"
   sleep 30
 done
+
+
+# On cpeg
+sudo dsconf -D "cn=Directory Manager" ldap://cpeg-ipareplica.ipa.calix.local \
+  repl-agmt list --suffix="dc=ipa,dc=calix,dc=local" 2>&1 | \
+  grep -E "^dn:|nsds5replicaHost|nsds5ReplicaEnabled|nsds5replicaLastUpdateStatus:"
+
+
+  # On cpeg
+kinit admin
+ipa user-add testrepl --first=Test --last=Replication
+
+# Immediately query from pln-petipareplica
+ldapsearch -x -H ldap://pln-petipareplica.ipa.calix.local \
+  -b "cn=users,cn=accounts,dc=ipa,dc=calix,dc=local" "(uid=testrepl)" uid 2>&1 | tail -5
+
+# Should return the entry. If not, wait 30s and retry.
+
+# Clean up
+ipa user-del testrepl
