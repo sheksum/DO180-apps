@@ -22,3 +22,9 @@ ipa service-add HTTP/pln-petipareplica.ipa.calix.local
 # Verify all three
 ipa host-show pln-petipareplica.ipa.calix.local
 ipa service-show HTTP/pln-petipareplica.ipa.calix.local
+
+[root@cpeg-ipareplica ~]# ipa host-add pln-petipareplica.ipa.calix.local --ip-address=10.172.248.57 --force
+ipa: ERROR: IP address 10.172.248.57 is already assigned in domain ipa.calix.local..
+[root@cpeg-ipareplica ~]# ipa service-add HTTP/pln-petipareplica.ipa.calix.local
+ipa: ERROR: The host 'pln-petipareplica.ipa.calix.local' does not exist to add a service to.
+[root@cpeg-ipareplica ~]#
