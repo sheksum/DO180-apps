@@ -1,6 +1,5 @@
-Hi Jim,
-I've wrapped up the review of the kindo-ai cluster. The findings are in the attached document.
-Nothing was changed on the cluster during the review. Fourteen items are called out, grouped by area in the attachment.
-I'll begin review of the commercial environment tomorrow.
-Thanks,
-[your name]
+PAN DPI hasn’t been implemented yet in Petaluma, and site-to-site traffic is supposed to be excluded from DPI.
+ 
+Regarding delegation of DNS for ipa.calix.local, talk to me more about this.  What would you suggest be done for that?
+ 
+Thanks
