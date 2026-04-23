@@ -1,5 +1,5 @@
 # 1. Full sosreport (big, covers everything)
-sudo sos report --batch --tmp-dir=/tmp
+sudo sos report --batch --case-id=04431394
 
 # 2. DS errors log (last 24 hours is fine, or copy the whole thing)
 sudo cp /var/log/dirsrv/slapd-IPA-CALIX-LOCAL/errors /tmp/cpeg-ds-errors-$(date +%F).log
