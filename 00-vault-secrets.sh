@@ -1,20 +1,25 @@
-root@pln-landscape01:~# lsctl restart
-dpkg-query: no path found matching pattern /sbin/init
-== landscape-appserver ==
-== landscape-async-frontend ==
-== landscape-job-handler ==
-== landscape-msgserver ==
-== landscape-pingserver ==
-== landscape-api ==
-== landscape-package-upload ==
-== landscape-package-search ==
-== landscape-hostagent-messenger ==
-== landscape-hostagent-consumer ==
-== landscape-secrets-service ==
-root@pln-landscape01:~# ls /var/lib/landscape/landscape-repository/standalone/
-third-party  ubuntu-bionic-onprem  ubuntu-focal-onprem  ubuntu-jammy-onprem  ubuntu-noble-onprem  ubuntu-xenial-onprem
-root@pln-landscape01:~# ls /var/lib/landscape/landscape-repository/standalone/third-party/
-conf  db  dists  incoming  lists  locks  pool  temp
-root@pln-landscape01:~# ls /var/lib/landscape/landscape-repository/standalone/third-party/dists
-stable-firefox-onprem  stable-google-chrome-onprem  stable-grafana-onprem  stable-microsoft-vscode-onprem
-root@pln-landscape01:~#
+root@sdaxos-u22-mrollins:~# apt-get update
+Hit:1 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy-updates InRelease
+Hit:2 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy-security InRelease
+Hit:3 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy InRelease
+Hit:4 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-grafana-onprem InRelease
+Hit:5 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-google-chrome-onprem InRelease
+Hit:6 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-microsoft-vscode-onprem InRelease
+Get:7 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-mozilla-firefox-onprem InRelease [2,263 B]
+Hit:8 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy-docker-jammy-onprem InRelease
+Hit:9 https://packages.microsoft.com/repos/code stable InRelease
+Get:10 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-mozilla-firefox-onprem/main amd64 Packages [2,068 B]
+Fetched 4,331 B in 9s (495 B/s)
+Reading package lists... Done
+root@sdaxos-u22-mrollins:~# apt-get update
+Hit:1 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy-updates InRelease
+Hit:2 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy-security InRelease
+Hit:3 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy InRelease
+Hit:4 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-grafana-onprem InRelease
+Hit:5 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-google-chrome-onprem InRelease
+Hit:6 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-microsoft-vscode-onprem InRelease
+Hit:7 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-mozilla-firefox-onprem InRelease
+Hit:8 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy-docker-jammy-onprem InRelease
+Hit:9 https://packages.microsoft.com/repos/code stable InRelease
+Reading package lists... Done
+root@sdaxos-u22-mrollins:~#
