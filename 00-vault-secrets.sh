@@ -20,3 +20,15 @@ ipa-replica-manage list
 
 # Check DNS is also clean
 dig @172.23.49.10 pln-petipareplica.ipa.calix.local +short
+
+
+sudo sed -i 's|^ipa_server = cpeg-ipareplica.ipa.calix.local|ipa_server = cpeg-ipareplica.ipa.calix.local, pln-petipareplica.ipa.calix.local|' /etc/sssd/sssd.conf
+sudo grep ipa_server /etc/sssd/sssd.conf
+sudo sss_cache -E
+sudo systemctl restart sssd
+
+# Run for 30 min to confirm improvement
+for i in $(seq 1 60); do
+  echo "$(date +%H:%M:%S) $(sudo sssctl domain-status ipa.calix.local | grep 'Online status')"
+  sleep 30
+done
