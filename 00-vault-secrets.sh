@@ -1,74 +1,116 @@
-Cool.  First priority for Gitlab is runner/images/tools/security.   I’ll be sure to invite
+Eric – Thank you!
 
-From: Grider, Ben <ben.grider@ttmtech.com> 
-Sent: Friday, April 24, 2026 6:33 AM
-To: Himes, Jim <jim.himes@ttmtech.com>; Suma, Alhaji - C <Alhaji.Suma@ttmtech.com>
-Subject: RE: Restricted kindo-ai cluster review - findings attached
+Haji – Nice to meet you, looking forward to working with you.
 
-Not yet,  We’ve had Haji pretty busy so he has not had a chance to build the other instances yet.  It is on the list though once he gets his head above water.  We still need to build out the Commercial and SSZ instances which are next on his list.
 
--Ben
+From: Chan, Eric <eric.chan@ttmtech.com> 
+Sent: Friday, April 24, 2026 12:46 PM
+To: Himes, Jim <jim.himes@ttmtech.com>; Gardner, Glen - C <Glen.Gardner@ttmtech.com>; Suma, Alhaji - C <Alhaji.Suma@ttmtech.com>
+Subject: RE: Mock CI/CD Flow
 
-From: Himes, Jim <jim.himes@ttmtech.com> 
-Sent: Friday, April 24, 2026 8:28 AM
-To: Grider, Ben <ben.grider@ttmtech.com>; Suma, Alhaji - C <Alhaji.Suma@ttmtech.com>
-Subject: RE: Restricted kindo-ai cluster review - findings attached
+Aamhilapp83 is a windows server that we set up when trying this out.   I’ll request you to get added as an admin to the server.
 
-Well the corp.local instance of Gitlab is a given as of last week.  Adam will be allowed to use it under specific conditions, the issue of being push etc to domains. 
 
-What we are going to have to do is coordinate gitlab instance connections to runners in alternate domains.
-
-Do we have a K8s in corp.local?
-
-From: Grider, Ben <ben.grider@ttmtech.com> 
-Sent: Friday, April 24, 2026 5:50 AM
-To: Suma, Alhaji - C <Alhaji.Suma@ttmtech.com>; Himes, Jim <jim.himes@ttmtech.com>
-Subject: RE: Restricted kindo-ai cluster review - findings attached
-
-I was about to say the same thing,  please include us in the meetings and we will assist for sure.  I am going to start leveraging Gitlab on more Infrastructure projects and I would like to stay involved in how we have it setup and the options available to us.  I am also going to be working with the Windows and Network teams to start getting them more involved in version control with Gitlab as I am sure it will help them as well.
-
-Have you discussed Gitlab with Adam at all for the Oracle side of things?  They are currently using subversion in the SSZ as the code is shared between both commercial and restricted and I would love to put a GitLab instance in the SSZ to mirror what we have in Restricted so we could retire SVN for a Gitlab standard version control across all TTM environments.
-
-Thanks!
-
---Ben
-
-From: Suma, Alhaji - C <Alhaji.Suma@ttmtech.com> 
-Sent: Friday, April 24, 2026 7:47 AM
-To: Himes, Jim <jim.himes@ttmtech.com>
-Cc: Grider, Ben <ben.grider@ttmtech.com>
-Subject: RE: Restricted kindo-ai cluster review - findings attached
-
-Sure Jim  – I  can help with that 
 
 From: Himes, Jim <jim.himes@ttmtech.com> 
-Sent: Thursday, April 23, 2026 4:43 PM
-To: Suma, Alhaji - C <Alhaji.Suma@ttmtech.com>
-Cc: Grider, Ben <ben.grider@ttmtech.com>
-Subject: RE: Restricted kindo-ai cluster review - findings attached
+Sent: Friday, April 24, 2026 9:44 AM
+To: Gardner, Glen - C <Glen.Gardner@ttmtech.com>; Chan, Eric <eric.chan@ttmtech.com>; Suma, Alhaji - C <Alhaji.Suma@ttmtech.com>
+Subject: RE: Mock CI/CD Flow
 
-Thanks Haji – I’ll start reviewing with Vation and pull you in when needed.
+Haji meet Glen, Glen Haji
 
-FYI – Signed up for some consulting from Gitlab and starting the project within the next two weeks at most, would love to have you both for the first planning call and introduce Glen who will be running the project.  We’ve got some security , runner and image requirements for containers in the cluster so the runners have tools to work with. 
-What I’m hoping is you all can help with the runner/image/worker deployments in the project.
-
-Thanks
-Jim
+Haji set up the runners for us K8s cluster, if you would work with Haji Glen you’ll probably go faster.
+Eric participate as you like please.
 
 
-From: Suma, Alhaji - C <Alhaji.Suma@ttmtech.com> 
-Sent: Thursday, April 23, 2026 1:22 PM
-To: Himes, Jim <jim.himes@ttmtech.com>
-Cc: Grider, Ben <ben.grider@ttmtech.com>
-Subject: Restricted kindo-ai cluster review - findings attached
+From: Gardner, Glen - C <Glen.Gardner@ttmtech.com> 
+Sent: Friday, April 24, 2026 9:32 AM
+To: Himes, Jim <jim.himes@ttmtech.com>; Chan, Eric <eric.chan@ttmtech.com>
+Subject: RE: Mock CI/CD Flow
 
-Hi Jim,
+Eric – Do you happen to remember how you registered new runners on the runner machine - AAMHILAPP83? Do I have RDP/SSH or remote powershell access/authorization to register new runners?
 
-I've wrapped up the review of the kindo-ai cluster at the restricted environment. The findings are in the attached document.
 
-Nothing was changed on the cluster during the review. Fourteen items are called out, grouped by area in the attachment.
+From: Himes, Jim <jim.himes@ttmtech.com> 
+Sent: Friday, April 24, 2026 9:59 AM
+To: Gardner, Glen - C <Glen.Gardner@ttmtech.com>; Chan, Eric <eric.chan@ttmtech.com>
+Subject: RE: Mock CI/CD Flow
 
-I'll begin review of the commercial environment tomorrow.
+Go ahead.
 
-Thanks,
-Haji
+
+
+From: Gardner, Glen - C <Glen.Gardner@ttmtech.com> 
+Sent: Friday, April 24, 2026 6:58 AM
+To: Chan, Eric <eric.chan@ttmtech.com>; Himes, Jim <jim.himes@ttmtech.com>
+Subject: RE: Mock CI/CD Flow
+
+Ok, just wanted to make sure. Any objection to me creating a “test” automation project in our gdss group? This will allow me to begin to confirm some of the data I’ve gathered. I was thinking naming it CI-CD_Testing.
+
+
+From: Chan, Eric <eric.chan@ttmtech.com> 
+Sent: Thursday, April 23, 2026 1:31 PM
+To: Gardner, Glen - C <Glen.Gardner@ttmtech.com>; Himes, Jim <jim.himes@ttmtech.com>
+Subject: RE: Mock CI/CD Flow
+
+I don’t’ think you need to be admin.  Depends on what you want to do.  
+We were able to set up and connect a runner without being an administrator
+
+
+
+
+
+From: Gardner, Glen - C <Glen.Gardner@ttmtech.com> 
+Sent: Thursday, April 23, 2026 9:53 AM
+To: Chan, Eric <eric.chan@ttmtech.com>; Himes, Jim <jim.himes@ttmtech.com>
+Subject: RE: Mock CI/CD Flow
+
+I looked at that project and found the relevant information.
+
+It appears my GitLab account is provisioned as a standard user. Do I need to be configured as admin? If so, do I reach back out to Lorenzo?
+
+Just to be clear, my intent is information gathering only for now, I do not intend to make any changes.
+
+
+From: Chan, Eric <eric.chan@ttmtech.com> 
+Sent: Thursday, April 23, 2026 10:21 AM
+To: Gardner, Glen - C <Glen.Gardner@ttmtech.com>; Himes, Jim <jim.himes@ttmtech.com>
+Subject: RE: Mock CI/CD Flow
+
+Almost everything in the gdss group.
+We started to try the automation in the IPAS project if you want to look at that one
+
+
+
+From: Gardner, Glen - C <Glen.Gardner@ttmtech.com> 
+Sent: Thursday, April 23, 2026 6:29 AM
+To: Chan, Eric <eric.chan@ttmtech.com>; Himes, Jim <jim.himes@ttmtech.com>
+Subject: RE: Mock CI/CD Flow
+
+Eric - can you please provide a list of projects that need to be added to GitLab CI/CD automation to compile and copy artifacts over to IIS? I’d like to start collecting data to facilitate the implementation.
+
+
+From: Chan, Eric <eric.chan@ttmtech.com> 
+Sent: Monday, April 20, 2026 1:57 PM
+To: Gardner, Glen - C <Glen.Gardner@ttmtech.com>; Himes, Jim <jim.himes@ttmtech.com>
+Subject: RE: Mock CI/CD Flow
+
+Maybe a longer term goal to deploy apps in Kubernetes?
+
+Right now, just having the runner compile and copy artifacts over to IIS should be sufficient.
+
+
+
+From: Gardner, Glen - C <Glen.Gardner@ttmtech.com> 
+Sent: Monday, April 20, 2026 7:40 AM
+To: Chan, Eric <eric.chan@ttmtech.com>; Himes, Jim <jim.himes@ttmtech.com>
+Subject: Mock CI/CD Flow
+
+Wanted to share the attached document describing the CI/CD flow in the Kubernetes environment I mocked-up. I think this achieves the desired functionality:
+Step	Action	Where
+Developer	git push origin dev	~seconds
+Pipeline (dev)	compile + test + open MR	~2 minutes
+Review	Admin reviews and merges MR	Manual
+Pipeline (main)	compile + test + build image + deploy	~4 minutes
+Kubernetes	Pull image + start pod + serve traffic	~30 seconds
+
