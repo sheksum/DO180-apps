@@ -1,39 +1,42 @@
-root@sdaxos-u22-mrollins:~# cat <<EOF >/etc/apt/preferences.d/firefox
-Package: firefox*
-Pin: release n=stable-mozilla-firefox-onprem
-Pin-Priority: 1001
-EOF
-root@sdaxos-u22-mrollins:~#
-root@sdaxos-u22-mrollins:~# apt update
-Hit:1 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy-updates InRelease
-Hit:2 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy-security InRelease
-Hit:3 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy InRelease
-Hit:4 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-grafana-onprem InRelease
-Hit:5 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-google-chrome-onprem InRelease
-Hit:6 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-microsoft-vscode-onprem InRelease
-Hit:7 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-mozilla-firefox-onprem InRelease
-Hit:8 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy-docker-jammy-onprem InRelease
-Hit:9 https://packages.microsoft.com/repos/code stable InRelease
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-2 packages can be upgraded. Run 'apt list --upgradable' to see them.
-root@sdaxos-u22-mrollins:~# apt-cache policy firefox
-firefox:
-  Installed: (none)
-  Candidate: 150.0~build1
-  Version table:
-     1:1snap1-0ubuntu2 500
-        500 http://pln-landscape01.caal.dev/repository/standalone/ubuntu-jammy-onprem jammy/main amd64 Packages
-     150.0~build1 1001
-        500 http://pln-landscape01.caal.dev/repository/standalone/third-party stable-mozilla-firefox-onprem/main amd64 Packages
-root@sdaxos-u22-mrollins:~# apt-get install -s firefox
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following NEW packages will be installed:
-  firefox
-0 upgraded, 1 newly installed, 0 to remove and 2 not upgraded.
-Inst firefox (150.0~build1 stable-mozilla-firefox-onprem [amd64])
-Conf firefox (150.0~build1 stable-mozilla-firefox-onprem [amd64])
-root@sdaxos-u22-mrollins:~#
+
+Billy O'Shea 
+last week
+Internal note
+
+
+I’ve reviewed the request
+Rules #1 and #2 are acceptable for Linux patch management via Red Hat Satellite. DNS usage is understood given dynamic infrastructure, but must remain scoped specifically to designated patching hosts.
+Defender EDR outbound connectivity (Rule #4) should be treated as permanent, Linux‑only, and aligned with Microsoft’s documented Defender URLs.
+SSH access (Rule #3) is acceptable provided it is restricted to the specified management host and not broadly exposed.
+Expanding the source to the full subnet (10.172.16.0/28) is acceptable only if this VLAN is dedicated to patching/proxy infrastructure and not used for general‑purpose workloads.
+Approval Preconditions (Required)
+Since these Linux systems function as management and control‑plane infrastructure (patching and EDR), they must meet baseline security requirements prior to final approval or long‑term rule permanence.
+1. Comprehensive CIS Benchmark Review and Baseline Definition (Required)
+These systems are required to align with a CIS benchmark–based Linux baseline, with initial documentation being created in parallel by Jayway, and implementation coordinated with them.
+This is not intended to be a minimum or partial implementation.
+Specifically:
+The entire CIS benchmark for the applicable Linux OS must be reviewed control‑by‑control.
+For each CIS recommendation, the outcome must be explicitly documented as:
+Implemented, or
+Not Implemented — with a clear technical or operational justification.
+This review must result in a documented Linux hardening baseline that is:
+Explicit (no implied defaults)
+Auditable
+Reusable as a standard baseline for Linux infrastructure systems going forward, not just this host
+The expectation is deliberate decisions, not selective adoption. Controls that are not appropriate for this environment are acceptable, but the decision must be explicit and justified. This baseline should be treated as a prerequisite (or immediate post‑deployment requirement), not an optional follow‑up.
+2. Centralized Authentication and Privilege Management
+We acknowledge that centralized Linux authentication is not yet universally available across the environment and that many systems currently rely on local accounts and, at times, shared credentials — which is a known gap.
+For these systems:
+Centralized authentication (IPA), where available, must be used.
+If IPA is not immediately available:
+Local account usage must be minimized
+Root access must be restricted and auditable
+A documented plan and timeline must exist to migrate to centralized authentication once feasible
+Additionally:
+No shared local accounts
+No shared root credentials
+Privileged access must be performed via individual user accounts with sudo, ensuring accountability and auditability
+Alignment with the Jayway CIS baseline is a hard requirement and must be implemented before this request is considered finally approved or the rules treated as long‑term/permanent. A confirmation of implementation is sufficient at this stage; a full audit is not required.
+With these conditions clearly noted and tracked, I’m supportive of proceeding with the CAB.
+
+These conditions are not intended to delay the change, but to ensure that we do not introduce new persistent Linux infrastructure without aligning to the security standards we are actively trying to establish.
