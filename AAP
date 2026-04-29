@@ -1,28 +1,37 @@
-Wes Tank-Day
-11:08 AM
-So that's the high-level exec summary. These are the objectives. This is Jovan.
-Syed Bukhari
-11:08 AM
-Oh, you're trying to separate the workload. Okay. Oh, okay.
+Chad Hanson
+11:18 AM
+Is.
+Right.
+Right.
+Right.
 Jovan Ross
-11:08 AM
-So yeah, so we can we can level set on this just so that we're all on the same page. So typically, we always have workload separation in OpenShift. So every other cluster, each BU has their own nodes. And so their workload runs on their
+11:18 AM
+can be offered and continue to be offered by ET and run on ET elastic nodes. But how do you want to handle the chargeback from that, right? And so again, this could be entirely just based on and
+Chad Hanson
+11:18 AM
+Right.
+It's been great.
 Syed Bukhari
-11:09 AM
-Yeah, yeah.
+11:18 AM
+Mmh.
 Jovan Ross
-11:09 AM
-respective nodes. The way we provision things in OpenShift has been historically a little different than how we've provisioned things in VMs. So we have...
-We have made it in the past a little bit more difficult in that a team needed to have a budget line. They purchased their own licenses at first, and then later on, we moved into a chargeback model. And so it's a little more difficult than, hey, just give me a server. And we handle that on the chargeback.
+11:18 AM
+folded into the total chargeback that the elastic service kind of, you know, pushes out to the BUs. It could be done that way. And you could say, okay, well, all synthetics run on ET nodes, and we'll make that happen in the background as we.
+Chad Hanson
+11:18 AM
+Yeah.
+Jovan Ross
+11:19 AM
+we configure the workloads to run only on the ET nodes. Only thing there is they're running on the same infrastructure that you guys are running your ingest for the entire enterprise too. And so we can figure out whether we want to separate that, whether it's okay to run in the same place.
 Syed Bukhari
-11:09 AM
+11:19 AM
 Mhm.
-Jovan Ross
-11:09 AM
-on the back end later on like we do with VMs. So what's unique about this particular situation though is that as we were implementing the Elastic project, right, and the implementation, Elastic already had a number of nodes that they were running with inside of our common, our OCP com.
+Chad Hanson
+11:19 AM
+Tank.
 Syed Bukhari
-11:09 AM
-Mm.
+11:19 AM
+But.
 Jovan Ross
-11:10 AM
-Cluster.
+11:19 AM
+So that's another side of it right there. And then for future state, we're pointing to things like GitHub actions that are happening.
