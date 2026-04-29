@@ -1,16 +1,12 @@
-asvc.rhautomation@camslc4kbw01's password: 
-Filesystem                         Size  Used Avail Use% Mounted on
-/dev/mapper/kubelet_vg-kubelet_lv  150G  1.2G  149G   1% /var/lib/kubelet
-/dev/mapper/rancher_vg-rancher_lv  150G   52G   99G  35% /var/lib/rancher
-/dev/mapper/rootvg-varlv            20G  9.4G   11G  47% /var
-/dev/mapper/rootvg-rootlv           10G  3.5G  6.5G  36% /
-[root@camslc4kbc01 rke2-discovery-2026-04-29-0613]# ssh camslc4kbw01 'sudo du -sh /var/lib/kubelet/pods/ /var/lib/rancher/ 2>/dev/null'
-Authorized users only. All activity may be monitored and reported.
-root@camslc4kbw01's password: 
+# Which node is actually firing the evictions? Find the source.
+kubectl get events -A --field-selector reason=EvictionThresholdMet -o json 2>/dev/null | \
+  jq -r '.items[] | "\(.source.host)\t\(.message)\t\(.lastTimestamp)"' | sort | uniq -c | sort -rn | head
 
-[root@camslc4kbc01 rke2-discovery-2026-04-29-0613]# ssh asvc.rhautomation@camslc4kbw01 'sudo du -sh /var/lib/kubelet/pods/ /var/lib/rancher/ 2>/dev/null'
-Authorized users only. All activity may be monitored and reported.
-asvc.rhautomation@camslc4kbw01's password: 
-3.1G    /var/lib/kubelet/pods/
-50G     /var/lib/rancher/
-[root@camslc4kbc01 rke2-discovery-2026-04-29-0613]# 
+# Inode usage on the suspect node
+ssh asvc.rhautomation@camslc4kbw01 'sudo df -hi /var/lib/kubelet /var/lib/rancher /var /'
+
+# What kubelet thinks about its filesystems
+ssh asvc.rhautomation@camslc4kbw01 'sudo journalctl -u rke2-agent --since "1 hour ago" 2>/dev/null | grep -iE "evict|threshold|imagefs|nodefs|disk" | tail -20'
+
+# And what the kubelet config says about thresholds
+ssh asvc.rhautomation@camslc4kbw01 'cat /var/lib/rancher/rke2/agent/etc/kubelet.conf.d/*.conf 2>/dev/null | grep -iE "evict|imagefs|nodefs"'
