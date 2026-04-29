@@ -1,5 +1,28 @@
-So I'm still in my second week, but I've been digging in pretty heavily. I've been going through the provisioning_playbooks project and tracing how everything connects — from the job templates in AAP, through configure_rhel, down to how the individual roles actually run on the hosts.
-
-I'm starting to get a good picture of the full flow. I do want to make sure I have it right before I speak too definitively on any of it.
-
-What I can say is — I'll get a doc together that maps all of this out and have it ready for review. That way we have something concrete we can all look at and correct where needed.
+Wes Tank-Day
+11:08 AM
+So that's the high-level exec summary. These are the objectives. This is Jovan.
+Syed Bukhari
+11:08 AM
+Oh, you're trying to separate the workload. Okay. Oh, okay.
+Jovan Ross
+11:08 AM
+So yeah, so we can we can level set on this just so that we're all on the same page. So typically, we always have workload separation in OpenShift. So every other cluster, each BU has their own nodes. And so their workload runs on their
+Syed Bukhari
+11:09 AM
+Yeah, yeah.
+Jovan Ross
+11:09 AM
+respective nodes. The way we provision things in OpenShift has been historically a little different than how we've provisioned things in VMs. So we have...
+We have made it in the past a little bit more difficult in that a team needed to have a budget line. They purchased their own licenses at first, and then later on, we moved into a chargeback model. And so it's a little more difficult than, hey, just give me a server. And we handle that on the chargeback.
+Syed Bukhari
+11:09 AM
+Mhm.
+Jovan Ross
+11:09 AM
+on the back end later on like we do with VMs. So what's unique about this particular situation though is that as we were implementing the Elastic project, right, and the implementation, Elastic already had a number of nodes that they were running with inside of our common, our OCP com.
+Syed Bukhari
+11:09 AM
+Mm.
+Jovan Ross
+11:10 AM
+Cluster.
