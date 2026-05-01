@@ -1,2 +1,1 @@
-
 oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- wget -qO- --no-check-certificate https://localhost:24231/metrics 2>/dev/null | grep "vector_component_sent_events_total" | grep graylog
