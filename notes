@@ -1,5 +1,35 @@
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master03.calix.local "nc -zv -w 3 10.172.249.33 1517"
-Ncat: Version 7.92 ( https://nmap.org/ncat )
-Ncat: Connected to 10.172.249.33:1517.
-Ncat: 0 bytes sent, 0 bytes received in 0.01 seconds.
-hsuma@plnx-admin:~$
+# Delete the current one
+oc delete clusterlogforwarder instance -n openshift-logging
+
+# Create with the correct v6.x structure
+cat <<EOF | oc apply -f -
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: collector
+  namespace: openshift-logging
+spec:
+  managementState: Managed
+  serviceAccount:
+    name: cluster-logging
+  outputs:
+  - name: graylog-syslog
+    type: syslog
+    syslog:
+      rfc: RFC5424
+      severity: informational
+      facility: local6
+      url: tcp://10.172.249.33:1517
+  pipelines:
+  - name: infra-to-graylog
+    inputRefs:
+    - infrastructure
+    outputRefs:
+    - graylog-syslog
+EOF
+
+oc get clusterlogforwarder collector -n openshift-logging -o yaml | grep -A10 "conditions"
+
+oc get pods -n openshift-logging
+
+
