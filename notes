@@ -1,5 +1,1 @@
-hsuma@plnx-admin:~$ oc logs -n openshift-logging $(oc get pods -n openshift-logging -o name | grep instance | head -1) --tail=50 | grep -i "syslog\|graylog\|connect\|error\|fail\|send"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc logs -n openshift-logging $(oc get pods -n openshift-logging -o name | grep instance | head -1) --tail=50 | grep -i "syslog\|graylog\|connect\|error"
-hsuma@plnx-admin:~$
+oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep instance | head -1) -- ss -tnp | grep 1517
