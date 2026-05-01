@@ -1,7 +1,33 @@
+[root@aamhilcp02 ~]# kubectl cluster-info dump | grep -i "cluster-cidr\|pod-cidr" | head -3
+                            "--cluster-cidr=10.42.0.0/16",
+                            "--cluster-cidr=10.42.0.0/16",
+                            "--cluster-cidr=10.42.0.0/16",
+[root@aamhilcp02 ~]# kubectl get nodes -A -o wide
+NAME                       STATUS     ROLES                AGE   VERSION          INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                              KERNEL-VERSION                 CONTAINER-RUNTIME
+aamhilcp01.ttmtech.local   NotReady   control-plane,etcd   90d   v1.35.0+rke2r1   10.45.10.167   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.20.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamhilcp02.ttmtech.local   Ready      control-plane,etcd   90d   v1.35.0+rke2r1   10.45.10.168   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.20.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamhilcp03.ttmtech.local   Ready      control-plane,etcd   90d   v1.35.0+rke2r1   10.45.10.169   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.20.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamhilwk01.ttmtech.local   Ready      worker               69d   v1.35.0+rke2r1   10.45.10.171   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.38.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamhilwk02.ttmtech.local   Ready      worker               69d   v1.35.0+rke2r1   10.45.10.172   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.38.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamhilwk03.ttmtech.local   Ready      worker               69d   v1.35.0+rke2r1   10.45.10.173   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.38.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamhilwk04.ttmtech.local   Ready      worker               69d   v1.35.0+rke2r1   10.45.10.174   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.38.1.el9_7.x86_64   containerd://2.1.5-k3s1
+[root@aamhilcp02 ~]
 
-[ala.alhaji.suma@aamhillts01]~%
-[ala.alhaji.suma@aamhillts01]~% kubectl cluster-info dump | grep -i "cluster-cidr\|pod-cidr" | head -3
+
+[root@aamslc4kbc01 ~]# 
+[root@aamslc4kbc01 ~]# kubectl cluster-info dump | grep -i "cluster-cidr\|pod-cidr" | head -3
                             "--cluster-cidr=10.42.0.0/16",
                             "--cluster-cidr=10.42.0.0/16",
                             "--cluster-cidr=10.42.0.0/16",
-[ala.alhaji.suma@aamhillts01]~%
+[root@aamslc4kbc01 ~]# kubectl get nodes -A -o wide
+NAME                         STATUS   ROLES                AGE    VERSION          INTERNAL-IP     EXTERNAL-IP   OS-IMAGE                              KERNEL-VERSION                 CONTAINER-RUNTIME
+aamslc4kbc01.ttmtech.local   Ready    control-plane,etcd   105d   v1.34.4+rke2r1   10.200.248.21   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamslc4kbc02.ttmtech.local   Ready    control-plane,etcd   105d   v1.34.4+rke2r1   10.200.248.22   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamslc4kbc03.ttmtech.local   Ready    control-plane,etcd   105d   v1.34.4+rke2r1   10.200.248.23   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamslc4kbg01.ttmtech.local   Ready    <none>               103d   v1.34.4+rke2r1   10.200.248.61   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamslc4kbw01.ttmtech.local   Ready    <none>               105d   v1.34.4+rke2r1   10.200.248.41   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamslc4kbw02.ttmtech.local   Ready    <none>               105d   v1.34.4+rke2r1   10.200.248.42   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamslc4kbw03.ttmtech.local   Ready    <none>               105d   v1.34.4+rke2r1   10.200.248.43   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamslc4kbw04.ttmtech.local   Ready    <none>               44d    v1.34.5+rke2r1   10.200.248.44   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.38.1.el9_7.x86_64   containerd://2.1.5-k3s1
+aamslc4kbw05.ttmtech.local   Ready    <none>               44d    v1.34.5+rke2r1   10.200.248.45   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.38.1.el9_7.x86_64   containerd://2.1.5-k3s1
+[root@aamslc4kbc01 ~]# 
