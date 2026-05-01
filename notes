@@ -1,16 +1,191 @@
 hsuma@plnx-admin:~$ oc get pods -n openshift-logging -o wide | grep collector
-collector-cghkg                             1/1     Running   0          26m   10.128.1.18    ocp-ai-master02.calix.local   <none>           <none>
-collector-j7bw2                             1/1     Running   0          26m   10.129.1.206   ocp-ai-master01.calix.local   <none>           <none>
-collector-lxhl6                             1/1     Running   0          26m   10.130.1.113   ocp-ai-master03.calix.local   <none>           <none>
-hsuma@plnx-admin:~$ oc patch clusterlogforwarder collector -n openshift-logging --type merge -p '{"spec":{"collector":{"tolerations":[{"key":"nvidia.com/gpu","operator":"Equal","value":"true","effect":"NoSchedule"},{"key":"node-role.kubernetes.io/master","operator":"Exists","effect":"NoSchedule"},{"key":"node.kubernetes.io/disk-pressure","operator":"Exists","effect":"NoSchedule"}]}}}'
-clusterlogforwarder.observability.openshift.io/collector patched
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ sleep 30
-hsuma@plnx-admin:~$ oc get pods -n openshift-logging -o wide | grep collector
-collector-c6dpv                             1/1     Running   2 (15s ago)   98s   10.131.0.115   ocp-ai-gpu01.calix.local      <none>           <none>
-collector-jpgw6                             1/1     Running   0             98s   10.129.1.208   ocp-ai-master01.calix.local   <none>           <none>
-collector-knm9v                             1/1     Running   1 (59s ago)   98s   10.128.2.23    ocp-ai-gpu02.calix.local      <none>           <none>
-collector-q9lf8                             1/1     Running   0             98s   10.128.1.23    ocp-ai-master02.calix.local   <none>           <none>
-collector-vvnhr                             1/1     Running   0             98s   10.130.1.116   ocp-ai-master03.calix.local   <none>           <none>
+collector-c6dpv                             0/1     OOMKilled   2 (80s ago)   2m43s   10.131.0.115   ocp-ai-gpu01.calix.local      <none>           <none>
+collector-jpgw6                             1/1     Running     0             2m43s   10.129.1.208   ocp-ai-master01.calix.local   <none>           <none>
+collector-knm9v                             1/1     Running     2 (53s ago)   2m43s   10.128.2.23    ocp-ai-gpu02.calix.local      <none>           <none>
+collector-q9lf8                             1/1     Running     0             2m43s   10.128.1.23    ocp-ai-master02.calix.local   <none>           <none>
+collector-vvnhr                             1/1     Running     0             2m43s   10.130.1.116   ocp-ai-master03.calix.local   <none>           <none>
+hsuma@plnx-admin:~$ oc logs collector-c6dpv -n openshift-logging
+Creating the directory used for persisting Vector state /var/lib/vector/openshift-logging/collector
+Starting Vector process...
+hsuma@plnx-admin:~$ oc describe pod collector-c6dpv -n openshift-logging
+Name:                 collector-c6dpv
+Namespace:            openshift-logging
+Priority:             2000001000
+Priority Class Name:  system-node-critical
+Service Account:      cluster-logging
+Node:                 ocp-ai-gpu01.calix.local/10.172.248.153
+Start Time:           Fri, 01 May 2026 14:18:32 -0500
+Labels:               app.kubernetes.io/component=collector
+                      app.kubernetes.io/instance=collector
+                      app.kubernetes.io/managed-by=cluster-logging-operator
+                      app.kubernetes.io/name=vector
+                      app.kubernetes.io/part-of=cluster-logging
+                      app.kubernetes.io/version=6.3.0
+                      controller-revision-hash=84d5c44578
+                      pod-template-generation=2
+                      vector.dev/exclude=true
+Annotations:          k8s.ovn.org/pod-networks:
+                        {"default":{"ip_addresses":["10.131.0.115/23"],"mac_address":"0a:58:0a:83:00:73","gateway_ips":["10.131.0.1"],"routes":[{"dest":"10.128.0....
+                      k8s.v1.cni.cncf.io/network-status:
+                        [{
+                            "name": "ovn-kubernetes",
+                            "interface": "eth0",
+                            "ips": [
+                                "10.131.0.115"
+                            ],
+                            "mac": "0a:58:0a:83:00:73",
+                            "default": true,
+                            "dns": {}
+                        }]
+                      observability.openshift.io/secret-hash: 14695981039346656037
+                      openshift.io/scc: logging-scc
+                      seccomp.security.alpha.kubernetes.io/pod: runtime/default
+                      security.openshift.io/validated-scc-subject-type: serviceaccount
+Status:               Running
+SeccompProfile:       RuntimeDefault
+IP:                   10.131.0.115
+IPs:
+  IP:           10.131.0.115
+Controlled By:  DaemonSet/collector
+Containers:
+  collector:
+    Container ID:    cri-o://9e3b7b985237a8cf168ffff6347d365b385968fe05fce8faee6978eb16dfa0df
+    Image:           registry.redhat.io/openshift-logging/vector-rhel9@sha256:ba551a55aad2ce9eb0ddc18c781959de0c3cc86f2a3f79249e312f2a44f86bde
+    Image ID:        registry.redhat.io/openshift-logging/vector-rhel9@sha256:ba551a55aad2ce9eb0ddc18c781959de0c3cc86f2a3f79249e312f2a44f86bde
+    Port:            24231/TCP (metrics)
+    Host Port:       0/TCP (metrics)
+    SeccompProfile:  RuntimeDefault
+    Command:
+      sh
+    Args:
+      /usr/bin/run-vector.sh
+    State:          Running
+      Started:      Fri, 01 May 2026 14:21:31 -0500
+    Last State:     Terminated
+      Reason:       OOMKilled
+      Exit Code:    137
+      Started:      Fri, 01 May 2026 14:20:08 -0500
+      Finished:     Fri, 01 May 2026 14:21:06 -0500
+    Ready:          True
+    Restart Count:  3
+    Limits:
+      cpu:     6
+      memory:  2Gi
+    Requests:
+      cpu:     500m
+      memory:  64Mi
+    Environment:
+      COLLECTOR_CONF_HASH:      dd20b8e76652999d19808fc928073d25
+      K8S_NODE_NAME:             (v1:spec.nodeName)
+      NODE_IPV4:                 (v1:status.hostIP)
+      OPENSHIFT_CLUSTER_ID:     a755e1fd-ea30-48c8-ae58-28e16e760bae
+      POD_IP:                    (v1:status.podIP)
+      POD_IPS:                   (v1:status.podIPs)
+      TRUSTED_CA_HASH:          007f72593cd4f0037684b62adae711a0
+      VECTOR_LOG:               warn
+      KUBERNETES_SERVICE_HOST:  kubernetes.default.svc
+      VECTOR_SELF_NODE_NAME:     (v1:spec.nodeName)
+    Mounts:
+      /etc/collector/metrics from metrics (ro)
+      /etc/pki/ca-trust/extracted/pem/ from trusted-ca (ro)
+      /etc/vector from config (ro)
+      /tmp from tmp (rw)
+      /usr/bin/run-vector.sh from entrypoint (ro,path="run-vector.sh")
+      /var/lib/vector/openshift-logging/collector from datadir (rw)
+      /var/log/journal from varlogjournal (ro)
+      /var/log/pods from varlogpods (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-ssd8k (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  metrics:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  collector-metrics
+    Optional:    false
+  tmp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  varlogpods:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/log/pods
+    HostPathType:
+  varlogjournal:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/log/journal
+    HostPathType:
+  varlogaudit:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/log/audit
+    HostPathType:
+  varlogovn:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/log/ovn
+    HostPathType:
+  varlogoauthserver:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/log/oauth-server
+    HostPathType:
+  varlogoauthapiserver:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/log/oauth-apiserver
+    HostPathType:
+  varlogopenshiftapiserver:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/log/openshift-apiserver
+    HostPathType:
+  varlogkubeapiserver:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/log/kube-apiserver
+    HostPathType:
+  trusted-ca:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      collector-trustbundle
+    Optional:  false
+  config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      collector-config
+    Optional:  false
+  datadir:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/lib/vector/openshift-logging/collector
+    HostPathType:
+  entrypoint:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      collector-config
+    Optional:  false
+  kube-api-access-ssd8k:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+    ConfigMapName:           openshift-service-ca.crt
+    Optional:                false
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/os=linux
+Tolerations:                 node-role.kubernetes.io/master:NoSchedule op=Exists
+                             node.kubernetes.io/disk-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists
+                             node.kubernetes.io/pid-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/unreachable:NoExecute op=Exists
+                             node.kubernetes.io/unschedulable:NoSchedule op=Exists
+                             nvidia.com/gpu=true:NoSchedule
+Events:
+  Type     Reason          Age                  From               Message
+  ----     ------          ----                 ----               -------
+  Normal   Scheduled       3m16s                default-scheduler  Successfully assigned openshift-logging/collector-c6dpv to ocp-ai-gpu01.calix.local
+  Normal   AddedInterface  3m16s                multus             Add eth0 [10.131.0.115/23] from ovn-kubernetes
+  Normal   Pulling         3m16s                kubelet            Pulling image "registry.redhat.io/openshift-logging/vector-rhel9@sha256:ba551a55aad2ce9eb0ddc18c781959de0c3cc86f2a3f79249e312f2a44f86bde"
+  Normal   Pulled          3m11s                kubelet            Successfully pulled image "registry.redhat.io/openshift-logging/vector-rhel9@sha256:ba551a55aad2ce9eb0ddc18c781959de0c3cc86f2a3f79249e312f2a44f86bde" in 5.332s (5.332s including waiting). Image size: 322019767 bytes.
+  Warning  BackOff         28s (x3 over 113s)   kubelet            Back-off restarting failed container collector in pod collector-c6dpv_openshift-logging(a7837feb-6de6-4dd6-95cc-01abf7856551)
+  Normal   Created         17s (x4 over 3m11s)  kubelet            Created container: collector
+  Normal   Started         17s (x4 over 3m11s)  kubelet            Started container collector
+  Normal   Pulled          17s (x3 over 2m34s)  kubelet            Container image "registry.redhat.io/openshift-logging/vector-rhel9@sha256:ba551a55aad2ce9eb0ddc18c781959de0c3cc86f2a3f79249e312f2a44f86bde" already present on machine
 hsuma@plnx-admin:~$
