@@ -1,1 +1,24 @@
-Hey Athira, the privileged SCC has been granted to the beyla service account in pai-dev. You should be able to redeploy the DaemonSet now and the pods will come up without the SCC errors. Let me know if you run into any issues.
+
+ATHIRA JAYACHANDRAN 
+4 days ago
+
+
+Hi @Haj Suma / @Gene Siepka , I see Beyla can be deployed without enabling privileged access, but it needs specific capabilities to be enabled. Can you please give the required permissions to deploy.
+
+
+        securityContext:
+          capabilities:
+            add:
+            - BPF
+            - SYS_PTRACE
+            - NET_RAW
+            - CHECKPOINT_RESTORE
+            - DAC_READ_SEARCH
+            - PERFMON
+            - SYS_ADMIN
+            - NET_ADMIN
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsUser: 0
+      hostNetwork: true
