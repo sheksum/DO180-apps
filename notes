@@ -1,32 +1,19 @@
-oc delete clusterlogforwarder collector -n openshift-logging
-
-cat <<EOF | oc apply -f -
-apiVersion: observability.openshift.io/v1
-kind: ClusterLogForwarder
-metadata:
-  name: collector
-  namespace: openshift-logging
-spec:
-  managementState: Managed
-  serviceAccount:
-    name: cluster-logging
-  outputs:
-  - name: graylog-syslog
-    type: syslog
-    syslog:
-      rfc: RFC5424
-      severity: informational
-      facility: local6
-      url: tcp://10.172.249.33:1517
-  pipelines:
-  - name: infra-to-graylog
-    inputRefs:
-    - infrastructure
-    outputRefs:
-    - graylog-syslog
-EOF
-
-sleep 20
-oc get clusterlogforwarder collector -n openshift-logging -o yaml | grep -A10 "outputConditions"
-oc get pods -n openshift-logging | grep collector
-
+clusterlogforwarder.observability.openshift.io/collector created
+hsuma@plnx-admin:~$ sleep 20
+hsuma@plnx-admin:~$ oc get clusterlogforwarder collector -n openshift-logging -o yaml | grep -A10 "outputConditions"
+  outputConditions:
+  - lastTransitionTime: "2026-05-01T18:33:05Z"
+    message: output "graylog-syslog" is valid
+    reason: ValidationSuccess
+    status: "True"
+    type: observability.openshift.io/ValidOutput-graylog-syslog
+  pipelineConditions:
+  - lastTransitionTime: "2026-05-01T18:33:05Z"
+    message: pipeline "infra-to-graylog" is valid
+    reason: ValidationSuccess
+    status: "True"
+hsuma@plnx-admin:~$ oc get pods -n openshift-logging | grep collector
+collector-6mdwv                             1/1     Running   0          33s
+collector-hdb29                             1/1     Running   0          33s
+collector-lhmzd                             1/1     Running   0          33s
+hsuma@plnx-admin:~$
