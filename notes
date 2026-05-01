@@ -1,1 +1,2 @@
-ssh -i ~/.ssh/ocp-ai core@ocp-ai-master02.calix.local "ss -tnp | grep 1517"
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master02.calix.local "ss -tnp | grep 1517"
+hsuma@plnx-admin:~$
