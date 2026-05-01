@@ -1,11 +1,27 @@
-# Delete the ClusterLogForwarder first
-oc delete clusterlogforwarder collector -n openshift-logging
-
-# Delete the subscription
-oc delete subscription cluster-logging -n openshift-logging
-
-# Delete the CSV
-oc delete csv -n openshift-logging $(oc get csv -n openshift-logging -o name | grep cluster-logging)
-
-# Verify operator is gone
-oc get pods -n openshift-logging
+hsuma@plnx-admin:~$ oc delete clusterlogforwarder collector -n openshift-logging
+clusterlogforwarder.observability.openshift.io "collector" deleted from openshift-logging namespace
+hsuma@plnx-admin:~$ oc delete subscription cluster-logging -n openshift-logging
+subscription.operators.coreos.com "cluster-logging" deleted from openshift-logging namespace
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc delete csv -n openshift-logging $(oc get csv -n openshift-logging -o name | grep cluster-logging)
+error: there is no need to specify a resource type as a separate argument when passing arguments in resource/name form (e.g. 'oc get resource/<resource_name>' instead of 'oc get resource resource/<resource_name>'
+hsuma@plnx-admin:~$ oc get pods -n openshift-logging
+NAME                                        READY   STATUS    RESTARTS   AGE
+cluster-logging-operator-7f44d478d7-qd7wq   1/1     Running   0          36m
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get csv -n openshift-logging
+NAME                                         DISPLAY                                           VERSION               REPLACES                               PHASE
+cert-manager-operator.v1.19.0                cert-manager Operator for Red Hat OpenShift       1.19.0                cert-manager-operator.v1.18.1          Succeeded
+cloudnative-pg.v1.28.1                       CloudNativePG                                     1.28.1                cloudnative-pg.v1.28.0                 Succeeded
+cluster-logging.v6.5.0                       Red Hat OpenShift Logging                         6.5.0                                                        Succeeded
+metallb-operator.v4.20.0-202602261925        MetalLB Operator                                  4.20.0-202602261925                                          Succeeded
+openshift-external-secrets-operator.v1.1.0   External Secrets Operator for Red Hat OpenShift   1.1.0                 external-secrets-operator.v1.0.0       Succeeded
+openshift-gitops-operator.v1.20.3            Red Hat OpenShift GitOps                          1.20.3                openshift-gitops-operator.v1.20.2      Succeeded
+servicemeshoperator3.v3.2.2                  Red Hat OpenShift Service Mesh 3                  3.2.2                 servicemeshoperator3.v3.1.0            Succeeded
+trident-operator.v26.2.0                     NetApp Trident                                    26.2.0                trident-operator.v25.10.0-linux-only   Succeeded
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc delete csv -n openshift-logging  cluster-logging.v6.5.0
+clusterserviceversion.operators.coreos.com "cluster-logging.v6.5.0" deleted from openshift-logging namespace
+hsuma@plnx-admin:~$
