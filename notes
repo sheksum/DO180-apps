@@ -1,8 +1,16 @@
-oc get pods -n openshift-logging -o wide | grep collector
-
-
-oc patch clusterlogforwarder collector -n openshift-logging --type merge -p '{"spec":{"collector":{"tolerations":[{"key":"nvidia.com/gpu","operator":"Equal","value":"true","effect":"NoSchedule"},{"key":"node-role.kubernetes.io/master","operator":"Exists","effect":"NoSchedule"},{"key":"node.kubernetes.io/disk-pressure","operator":"Exists","effect":"NoSchedule"}]}}}'
-
-
-sleep 30
-oc get pods -n openshift-logging -o wide | grep collector
+hsuma@plnx-admin:~$ oc get pods -n openshift-logging -o wide | grep collector
+collector-cghkg                             1/1     Running   0          26m   10.128.1.18    ocp-ai-master02.calix.local   <none>           <none>
+collector-j7bw2                             1/1     Running   0          26m   10.129.1.206   ocp-ai-master01.calix.local   <none>           <none>
+collector-lxhl6                             1/1     Running   0          26m   10.130.1.113   ocp-ai-master03.calix.local   <none>           <none>
+hsuma@plnx-admin:~$ oc patch clusterlogforwarder collector -n openshift-logging --type merge -p '{"spec":{"collector":{"tolerations":[{"key":"nvidia.com/gpu","operator":"Equal","value":"true","effect":"NoSchedule"},{"key":"node-role.kubernetes.io/master","operator":"Exists","effect":"NoSchedule"},{"key":"node.kubernetes.io/disk-pressure","operator":"Exists","effect":"NoSchedule"}]}}}'
+clusterlogforwarder.observability.openshift.io/collector patched
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ sleep 30
+hsuma@plnx-admin:~$ oc get pods -n openshift-logging -o wide | grep collector
+collector-c6dpv                             1/1     Running   2 (15s ago)   98s   10.131.0.115   ocp-ai-gpu01.calix.local      <none>           <none>
+collector-jpgw6                             1/1     Running   0             98s   10.129.1.208   ocp-ai-master01.calix.local   <none>           <none>
+collector-knm9v                             1/1     Running   1 (59s ago)   98s   10.128.2.23    ocp-ai-gpu02.calix.local      <none>           <none>
+collector-q9lf8                             1/1     Running   0             98s   10.128.1.23    ocp-ai-master02.calix.local   <none>           <none>
+collector-vvnhr                             1/1     Running   0             98s   10.130.1.116   ocp-ai-master03.calix.local   <none>           <none>
+hsuma@plnx-admin:~$
