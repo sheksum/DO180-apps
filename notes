@@ -1,2 +1,7 @@
-# Quick verification - check if Vector reports any sent events
-oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- wget -qO- --no-check-certificate https://localhost:24231/metrics 2>/dev/null | grep "vector_component_sent_events_total" | grep graylog
+2026-05-01T18:39:09.616394Z DEBUG transform{component_kind="transform" component_id=output_graylog_syslog_parse_encoding component_type=remap}: vector::utilization: utilization=0.000515169114082186
+2026-05-01T18:39:11.340882Z DEBUG transform{component_kind="transform" component_id=input_infrastructure_container_meta component_type=remap}: vector::utilization: utilization=0.0027743784780669156
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- wget -qO- --no-check-certificate https://localhost:24231/metrics 2>/dev/null | grep "vector_component_sent_events_total" | grep graylog
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
