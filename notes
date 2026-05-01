@@ -1,1 +1,66 @@
-[  OK  ] Reached target Rescue Mode.[  98.273563] audit: type=1130 audit(1777653493.169:131): pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=rescue comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'Starting Record Runlevel Change in UTMP...[  OK  ] Finished Restore /run/initramfs on shutdown.[  98.280067] audit: type=1130 audit(1777653493.175:132): pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=dracut-shutdown comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'[  98.287262] audit: type=1129 audit(1777653493.183:133): pid=1025 uid=0 auid=4294967295 ses=4294967295 msg='old-level=N new-level=1 comm="systemd-update-utmp" exe="/usr/lib/systemd/systemd-update-utmp" hostname=? addr=? terminal=? res=success'[  OK  ] Finished Record Runlevel Change in UTMP.[  98.289803] audit: type=1130 audit(1777653493.185:134): pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=systemd-update-utmp-runlevel comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'[  98.290602] audit: type=1131 audit(1777653493.185:135): pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=systemd-update-utmp-runlevel comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'You are in rescue mode. After logging in, type "journalctl -xb" to viewsystem logs, "systemctl reboot" to reboot, "systemctl default" or "exit"to boot into default mode.Cannot open access to console, the root account is locked.See sulogin(8) man page for more details.Press Enter to continue.Reloading system manager configuration[ 122.355553] systemd-rc-local-generator[10461: /etc/rc.d/rc.local is not marked executable, skipping.[ 122.450243] audit: type=1334 audit(1777653517.346:136): prog-id=21 op=LOAD[ 122.451556] audit: type=1300 audit(1777653517.346:136): arch=c000003e syscall=321 success=yes exit=24 a0=5 a1=7fff6a85ab10 a2=90 a3=3 items=0 ppid=0 pid=1 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="systemd" exe="/usr/lib/systemd/systemd" key=(null)[ 122.455005] audit: type=1327 audit(1777653517.346:136): proctitle="/init"[ 122.455530] audit: type=1334 audit(1777653517.346:137): prog-id=22 op=LOAD[ 122.456108] audit: type=1300 audit(1777653517.346:137): arch=c000003e syscall=321 success=yes exit=25 a0=5 a1=7fff6a85ab10 a2=90 a3=3 items=0 ppid=0 pid=1 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="systemd" exe="/usr/lib/systemd/systemd" key=(null)[ 122.456777] audit: type=1327 audit(1777653517.346:137): proctitle="/init"[ 122.457137] audit: type=1334 audit(1777653517.346:138): prog-id=19 op=UNLOAD[ 122.457547] audit: type=1300 audit(1777653517.346:138): arch=c000003e syscall=3 success=yes exit=0 a0=34 a1=558ee7610010 a2=0 a3=7fff6a85abe0 items=0 ppid=0 pid=1 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="systemd" exe="/usr/lib/systemd/systemd" key=(null)[ 122.458296] audit: type=1327 audit(1777653517.346:138): proctitle="/init"[ 122.458624] audit: type=1334 audit(1777653517.346:139): prog-id=20 op=UNLOADStarting default.targetYou are in rescue mode. After logging in, type "journalctl -xb" to viewsystem logs, "systemctl reboot" to reboot, "systemctl default" or "exit"to boot into default mode.Cannot open access to console, the root account is locked.See sulogin(8) man page for more details.Press Enter to continue.
+[root@cpeg-ipareplica rsyslog.d]# cat ipa-logs.conf
+------------------------------------------------------------
+#Red HAT IdM (IPA) Unified Log Forwarding Configuration
+------------------------------------------------------------
+module(load="imfile")
+
+#389 Directory Server access
+input(
+  type="imfile"
+  File="/var/log/dirsrv/slapd-*/access"
+  Tag="dirsrv_access"
+  Severity="info"
+  Facility="local6"
+  readMode="2"
+  reopenOnTruncate="on"
+)
+
+#Kerberos KDC
+input(
+  type="imfile"
+  File="/var/log/krb5kdc.log"
+  Tag="krb5kdc"
+  Severity="info"
+  Facility="local6"
+  readMode="2"
+  reopenOnTruncate="on"
+)
+
+#IPA Framework / Command Audit via Apache mod_wsgi
+input(
+  type="imfile"
+  File="/var/log/httpd/error_log"
+  Tag="ipa_audit"
+  Severity="info"
+  Facility="local6"
+  readMode="2"
+  reopenOnTruncate="on"
+)
+
+#System Audit
+input(
+  type="imfile"
+  File="/var/log/audit/audit.log"
+  Tag="audit"
+  Severity="info"
+  Facility="local6"
+  readMode="2"
+  reopenOnTruncate="on"
+)
+
+#Forward to Sentinel
+action(
+  type="omfwd"
+  target="192.168.33.49"
+  port="514"
+  protocol="tcp"
+  template="RSYSLOG_SyslogProtocol23Format"
+)
+
+#Forward to Graylog
+action(
+  type="omfwd"
+  target="10.172.249.33"
+  port="1517"
+  protocol="tcp"
+  template="RSYSLOG_SyslogProtocol23Format"
