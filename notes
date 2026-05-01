@@ -1,4 +1,1 @@
-hsuma@plnx-admin:~$ oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep instance | head -1) -- netstat -tnp 2>/dev/null | grep 1517
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master03.calix.local "ss -tnp | grep 1517"
-hsuma@plnx-admin:~$
+ssh -i ~/.ssh/ocp-ai core@ocp-ai-master03.calix.local "nc -zv -w 3 10.172.249.33 1517"
