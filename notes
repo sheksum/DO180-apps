@@ -1,5 +1,3 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep instance | head -1) -- ss -tnp | grep 1517
-executable file `ss` not found in $PATH: No such file or directory
-command terminated with exit code 1
-hsuma@plnx-admin:~$
+oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep instance | head -1) -- netstat -tnp 2>/dev/null | grep 1517
+ssh -i ~/.ssh/ocp-ai core@ocp-ai-master03.calix.local "ss -tnp | grep 1517"
+
