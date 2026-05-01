@@ -1,1 +1,38 @@
-oc patch clusterlogforwarder collector -n openshift-logging --type merge -p '{"spec":{"collector":{"resources":{"limits":{"memory":"4Gi"},"requests":{"memory":"256Mi"}}}}}'
+CPEG-28833
+
+CPEG-28850
+
+
+
+1
+
+
+
+
+
+TASK 13: Logging (future / add-on)
+
+
+
+Key details
+General
+Notes
+Priority
+
+
+
+P4-Low
+Components
+
+
+Engineering Infrastructure
+Fix versions
+
+
+None
+Description
+
+13.1 Deploy logging stack 
+13.2 Configure persistent storage 
+13.3 Define retention policies 
+13.4 Configure log forwarding if needed 
