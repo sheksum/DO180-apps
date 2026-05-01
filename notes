@@ -1,24 +1,7 @@
-Hey team, centralized logging is now set up for the OCP-AI cluster. All platform infrastructure logs from all 5 nodes are being forwarded to Graylog. This covers the control plane (etcd, API server, OVN, ingress, operators) and node system journals.
+Gene's right, RHCOS is still affected. The kernel argument approach is the correct mitigation — it blacklists the vulnerable af_alg AEAD init function at boot so the module never loads.
 
-To view logs, go to Graylog and search for source:ocp-ai* or browse the syslog input on port 1517.
+One thing to change — the Ignition version should be 3.5.0 to match our existing MachineConfigs, not 3.4.0. Using a different version can cause RenderDegraded on the MCP.
 
-Currently this covers infrastructure logs only. If the AI team wants application logs from their workloads forwarded to Graylog as well, let us know and we can enable that. The steps are documented in CPEG-28850.
+Nothing on the cluster uses AF_ALG AEAD sockets so there's no functional impact from disabling it.
 
-
-If the AI team wants application logs forwarded to Graylog, here are the steps:
-
-1. Grant the service account permission to collect application logs:
-
-oc adm policy add-cluster-role-to-user collect-application-logs system:serviceaccount:openshift-logging:cluster-logging
-
-2. Patch the ClusterLogForwarder to add an application pipeline:
-
-oc patch clusterlogforwarder collector -n openshift-logging --type merge -p '{"spec":{"pipelines":[{"name":"infra-to-graylog","inputRefs":["infrastructure"],"outputRefs":["graylog-syslog"]},{"name":"app-to-graylog","inputRefs":["application"],"outputRefs":["graylog-syslog"]}]}}'
-
-3. Wait for collectors to restart and verify all 5 pods are running:
-
-oc get pods -n openshift-logging -o wide | grep collector
-
-4. Verify on Graylog by searching for source:ocp-ai* and filtering for log_type:application.
-
-This will forward all application container logs from pai-dev, pai-test, and pai-prod to the same Graylog endpoint (10.172.249.33:1517).
+This will trigger a rolling reboot across all nodes. I'd recommend we apply it during or right after the Nexus maintenance window on April 11 so we don't take two separate rolling reboots.
