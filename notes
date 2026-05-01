@@ -1,6 +1,7 @@
-oc delete clusterlogforwarder collector -n openshift-logging
-
-cat <<EOF | oc apply -f -
+hsuma@plnx-admin:~$ oc delete clusterlogforwarder collector -n openshift-logging
+clusterlogforwarder.observability.openshift.io "collector" deleted from openshift-logging namespace
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ cat <<EOF | oc apply -f -
 apiVersion: observability.openshift.io/v1
 kind: ClusterLogForwarder
 metadata:
@@ -27,7 +28,13 @@ spec:
     outputRefs:
     - graylog-syslog
 EOF
-
-sleep 20
-oc get pods -n openshift-logging | grep collector
-ssh -i ~/.ssh/ocp-ai core@ocp-ai-master02.calix.local "ss -tnp | grep 1517"
+clusterlogforwarder.observability.openshift.io/collector created
+hsuma@plnx-admin:~$ sleep 20
+hsuma@plnx-admin:~$ oc get pods -n openshift-logging | grep collector
+hsuma@plnx-admin:~$ oc get pods -n openshift-logging
+NAME                                        READY   STATUS    RESTARTS   AGE
+cluster-logging-operator-7f44d478d7-qd7wq   1/1     Running   0          21m
+hsuma@plnx-admin:~$ oc get pods -n openshift-logging
+NAME                                        READY   STATUS    RESTARTS   AGE
+cluster-logging-operator-7f44d478d7-qd7wq   1/1     Running   0          21m
+hsuma@plnx-admin:~$
