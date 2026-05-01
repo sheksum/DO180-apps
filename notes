@@ -1,12 +1,13 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get csv -A | grep logging
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n openshift-logging
-No resources found in openshift-logging namespace.
-hsuma@plnx-admin:~$ oc get pods -A | grep logging
-hsuma@plnx-admin:~$ oc get pods -A | grep log
-openshift-catalogd                                 catalogd-controller-manager-8c955f65-j74lx                        1/1     Running     0               30d
-openshift-operator-lifecycle-manager               catalog-operator-5946cbd977-8xc7f                                 1/1     Running     0               30d
-pai-dev                                            victoria-logs-victoria-logs-single-server-0                       1/1     Running     0               2d8h
-pai-prod                                           victoria-logs-victoria-logs-single-server-0                       1/1     Running     0               2d8h
-hsuma@plnx-admin:~$
+
+Red Hat OpenShift Logging
+cluster-logging.v6.5.0 provided by Red Hat
+
+Create initialization resource
+The Operator has installed successfully. Create the required custom resource to prepare it for use.
+ClusterLogForwarder
+CLF
+ClusterLogForwarder
+
+Required
+
+View installed Operators in Namespace openshift-logging
