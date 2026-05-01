@@ -1,3 +1,19 @@
 kubectl get cm -n kube-system rke2-coredns-rke2-coredns -o yaml | grep -i cidr
 # or
 kubectl cluster-info dump | grep -i "cluster-cidr\|pod-cidr" | head -5
+
+
+ansible hil_cluster -i hil-nodes.ini -b -m shell -a \
+  "sed -i 's/^allowed_hosts=.*/allowed_hosts=127.0.0.1,10.45.10.171,10.45.10.172,10.45.10.173,10.45.10.174,10.42.0.0\/16/' /etc/nagios/nrpe.cfg && systemctl restart nrpe"
+[ala.alhaji.suma@aamhillts01]~%
+[ala.alhaji.suma@aamhillts01]~% kubectl get cm -n kube-system rke2-coredns-rke2-coredns -o yaml | grep -i cidr
+[ala.alhaji.suma@aamhillts01]~%
+[ala.alhaji.suma@aamhillts01]~%
+[ala.alhaji.suma@aamhillts01]~% kubectl cluster-info dump | grep -i "cluster-cidr\|pod-cidr" | head -5
+                            "--cluster-cidr=10.42.0.0/16",
+                            "--cluster-cidr=10.42.0.0/16",
+                            "--cluster-cidr=10.42.0.0/16",
+                            "--cluster-cidr=10.42.0.0/16",
+                            "--cluster-cidr=10.42.0.0/16",
+[ala.alhaji.suma@aamhillts01]~%
+
