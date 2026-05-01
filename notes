@@ -1,196 +1,623 @@
-SKILLS
-Linux | Bash script | Virtualization - VMware, KVM, oVirt | AWS |
-Jenkins | Git | Docker | Artifactory | Production Datacenter Management
-| Load Balancer | Chef | Ansible | Terraform | PKI | TCP/IP Network |
-Infrastructure Services - DNS, DHCP, SMTP, LDAP | Zabbix | MySQL |
-Network Security - firewall, IDS
-EXPERIENCE
-Fortinet Inc., Sunnyvale, CA - Staff DevOps Engineer
-November 2020 - Present
-●
-●
-●
-●
-●
-●
-●
-●
-Manage oVirt VDI environment - upgrade, backup, and maintain.
-Manage VMWare vCenter for the build environment.
-Manage HQ Config Management team applications - Gitlab, jenkins, JFrog
-Artifactory, Nexus repo, Harbor Docker registry.
-Server monitoring - Zabbix, Nagios, FortiSIEM.
-Manage the build environment with Gitlab, Docker and Jenkins.
-Load Balancer - HAProxy, FortiADC, FortiWeb, and FortiPAM.
-Infrastructure automation with Ansible and Terraform.
-Linux support for engineers, QA, and IT.
-SoundHound Inc., Santa Clara, CA — Senior IT Engineer
-June 2016 - April 2020
-●
-●
-●
-●
-●
-●
-●
-●
-●
-●
-●
-Build, patch, and inventory on-prem production Linux servers (CentOS 6 &
-7).
-Upgrade the production API environment from PHP 5 to PHP 7.
-Build, patch, and inventory on-prem dev Linux servers (CentOS 6 & 7).
-Build and manage Dev mysql servers (+ replication).
-Upgrade Exim email server, and then migrate the mailboxes to G Suite.
-Centralize the KVM management using WebVirtMgr.
-Automate product deployment using Jenkins.
-Server monitoring and on-call support with Nagios and PagerDuty.
-Manage 2 colocations and combined 1,500 servers.
-Manage AWS EC2 instances.
-Manage internal infrastructure: DHCP, DNS, etc.
-Fortinet Inc., Sunnyvale, CA — Operations Engineer
-July 2014 - May 2016
-●
-Manage all hypervisors and VMs: KVM, Amazon AWS, Linode, etc.
-●
-●
-●
-●
-●
-●
-●
-Manage all production servers including operations, patches, monitoring,
-backup, and capacity planning.
-Built the QA and testing lab for the Fortinet CDN product (FortiDirector)
-from the ground up.
-Deploy all servers (VMs) in production and QA via Chef.
-Implement/augment the redundancy and load balancing in the production
-applications.
-Roll out most of the applications and patches to the production via Chef.
-Manage 8 (Verizon) colocations around the globe with smarthands.
-Participate in the 24/7 response for the FortiDirector services.
-Audience Inc., Mountain View, CA — DevOps Administrator
-June 2013 - April 2014
-●
-●
-●
-●
-●
-●
-●
-●
-●
-Manage all Linux engineering servers and services in VMware ESX and AWS
-environments.
-Monitor the servers with Nagios and SNMP.
-Centralize the server provisioning with Chef.
-Coordinate with engineers to manage Perforce, Git, and SVN.
-Utilize BASH shell scripts for server management.
-Manage the web servers for http://www.audience.com.
-Integrate Windows accounts into Linux with the Microsoft Server for NIS.
-Manage Sun Grid Engine (SGE).
-Manage Linux server backups with Acronis and VEEAM
-Samsung Research America, Mountain View, CA — Sr. Systems
-Administrator/ Infrastructure Manager
-October 2007 - June 2013
-●
-●
-●
-●
-●
-●
-●
-●
-●
-●
-●
-●
-●
-Manage overall IT infrastructure including servers, virtualization,
-network, IT security, and Linux development environment in the Samsung
-Research America.
-Planned and executed the datacenter/server room build including rack,
-power, cooling, monitoring, and fire suppression in 3 Samsung Research
-America offices.
-Virtualized the Windows infrastructure with VMware ESX and Center.
-Planned and executed network infrastructure build including the wireless
-network in the main and 7 remote offices of Samsung Research America.
-Centralize the authentication and authorization of user accounts in
-Windows, Linux, Mac, and mobile devices.
-Completed AD functional level upgrade from 2003 to 2008 and from 2008 to
-2008 R2.
-Consolidate servers into HP c7000 Blades, VMware ESX and vCenter.
-Deployed NetApp ONTAP filers for ESX’s shared storage for vMotion/HA,
-Exchange DAGs, and Sharepoint storage.
-Designed the development environment in Linux servers for the engineers
-involving centralized user accounts, Clearcase, Perforce, git repository,
-JIRA, Jenkins, wiki, and build tools.
-Planned the architecture, manpower, purchasing, and schedule to upgrade
-Exchange servers from 2003 to 2010, and Sharepoint server farm from 2003
-to 2007.
-Deployed Cisco ASA firewalls in distributed enterprise networks.
-Migrated Cisco ASA firewalls, Websense, and Juniper SSL VPN to Palo Alto
-Networks firewall with Wildfire, and Global Protect.
-Deployed Microsoft PKI certificate architecture, and integrated NPS for
-wireless network authentication in PC and Mac environments.
-●
-●
-Deployed McAfee DLP appliances and integrated them with Nitro SIEM.
-Deployed Cisco ISE for Network Access Control solution for wired and
-wireless networks.
-Corecess Inc., San Jose, CA — Field Application Engineer
-May 2003 - September 2007
-●
-●
-●
-●
-Pre- and post-sales technical support engineer for DSLAMs and FTTH DWDM
-PONs equipment in North America.
-Configure routers and switches for IPTV delivery: VLAN, QoS, multicast
-(PIM, DVMRP, IGMP), DHCP, and DNS.
-Participated in RFQ and RFP for FTTH and IPTV.
-Participated in the multi-vendor FTTH and IPTV solutions for utilities
-and/or hospitality market.
-EDUCATION
-University of California, Davis
-Majored in Biology.
-AWARDS
-Samsung SDSA - Employee of the Year
-December 2010
+[ala.alhaji.suma@aamhillts01]~% cat nrpe-install.yml
+---
+- name: Install and configure NRPE on HIL cluster nodes
+  hosts: hil_cluster
+  become: yes
+  vars:
+   nagios_worker_ips: "127.0.0.1,10.45.10.171,10.45.10.172,10.45.10.173,10.45.10.174"
+  tasks:
+    - name: Install EPEL repository
+      dnf:
+        name: epel-release
+        state: present
+    - name: Install NRPE and Nagios plugins
+      dnf:
+        name:
+         - nrpe
+         - nagios-plugins-ping
+         - nagios-plugins-load
+         - nagios-plugins-disk
+         - nagios-plugins-procs
+         - nagios-plugins-users
+         - nagios-plugins-swap
+         - nagios-plugins-uptime
+         - nagios-plugins-http
+         - nagios-plugins-tcp
+         - nagios-plugins-ssh
+        state: present
+    - name: Configure allowed_hosts in nrpe.cfg
+      lineinfile:
+        path: /etc/nagios/nrpe.cfg
+        regexp: "^allowed_hosts="
+        line: "allowed_hosts={{ nagios_worker_ips }}"
+        backup: yes
+    - name: Open firewall port 5666
+      shell: |
+        firewall-cmd --permanent --add-port=5666/tcp
+        firewall-cmd --reload
+      args:
+        executable: /bin/bash
+    - name: Enable and start NRPE service
+      systemd:
+        name: nrpe
+        enabled: yes
+        state: started
+    - name: Verify NRPE is running
+      systemd:
+        name: nrpe
+      register: nrpe_status
+    - name: Print NRPE status
+      debug:
+        msg: "NRPE on {{ inventory_hostname }} is {{ nrpe_status.status.ActiveState }}"
+[ala.alhaji.suma@aamhillts01]~%
 
 
-=======
+[ala.alhaji.suma@aamhillts01]~% cat hil-nodes.ini
+[controlplane]
+aamhilcp01.ttmtech.local ansible_host=10.45.10.167
+aamhilcp02.ttmtech.local ansible_host=10.45.10.168
+aamhilcp03.ttmtech.local ansible_host=10.45.10.169
+[workers]
+aamhilwk01.ttmtech.local ansible_host=10.45.10.171
+aamhilwk02.ttmtech.local ansible_host=10.45.10.172
+aamhilwk03.ttmtech.local ansible_host=10.45.10.173
+aamhilwk04.ttmtech.local ansible_host=10.45.10.174
+[hil_cluster:children]
+controlplane
+workers
+[ala.alhaji.suma@aamhillts01]~%
 
 
-Job Description
-Key Responsibilities
-Lead the administration and lifecycle management of core infrastructure technologies including virtualization platforms (VMware, KVM), storage
-systems, and cloud environments (GCP, Azure).
-Architect and implement scalable, secure, and resilient infrastructure solutions that support engineering and product development.
-Serve as a subject matter expert in Linux and Windows systems administration, automation, and configuration management.
-Drive incident response and root cause analysis for complex infrastructure issues; lead post-mortem reviews and continuous improvement efforts.
-Develop and maintain infrastructure documentation, including architecture diagrams, SOPs, and knowledge base articles.
-Mentor junior team members and contribute to the development of team standards and best practices.
-Collaborate with internal stakeholders to translate business and technical requirements into actionable infrastructure strategies.
-Evaluate and recommend new technologies, tools, and vendors to enhance infrastructure capabilities.
-Lead vendor performance reviews and participate in strategic planning for infrastructure investments.
-Define and track key performance indicators (KPIs) to measure system health, team productivity, and service quality.
-Participate in capacity planning, budgeting, and roadmap development for infrastructure services.
-Qualifications
-5–8 years of experience in systems administration, infrastructure engineering, or related IT roles.
-Proven experience leading infrastructure projects and cross-functional initiatives.
-Strong communication and interpersonal skills; able to influence and collaborate across teams.
-Demonstrated ability to prioritize and manage multiple initiatives in a dynamic environment.
-Deep understanding of IT service management (ITIL), DevOps practices, and Agile methodologies.
-Bachelor’s degree in Computer Science, Engineering, or related field (or equivalent experience).
-Availability for off-hours support and collaboration with global teams.
-Occasional travel may be required.
-Preferred Skills
-Expertise in virtualization (VMware, KVM, Hyper-V) and containerization (Docker, Kubernetes).
-Strong knowledge of IP networking, VLANs, routing, DNS, and virtual networking.
-Experience with infrastructure automation tools (Ansible, Chef, Puppet, Terraform).
-Familiarity with identity and access management (Active Directory, LDAP).
-Experience with converged/hyperconverged infrastructure and SAN/NAS storage.
-Cybersecurity awareness and experience implementing secure infrastructure practices.
-Additional duties as required.
+[ala.alhaji.suma@aamhillts01]~% ls -ltr
+total 505600
+-rw-r-----. 1 ala.alhaji.suma sentinelone   47048017 Apr  9  2025 SentinelAgent_linux_x86_64_v24_1_2_6.rpm
+-rwxr-x---. 1 ala.alhaji.suma domain users  58597560 Feb 13 06:46 kubectl
+drwxr-x---. 2 ala.alhaji.suma domain users      4096 Mar  1 19:00 rancher-hil-certs
+drwxr-x---. 2 ala.alhaji.suma domain users      4096 Mar  1 19:00 kindo-ai-certs
+-rw-r-----. 1 ala.alhaji.suma domain users      7198 Mar  3 08:25 file
+-rwx------. 1 ala.alhaji.suma domain users 206012416 Mar  5 06:32 cohesity-datamover-7.3.2.tar
+-rwx------. 1 ala.alhaji.suma domain users 206012416 Mar  5 06:34 aamhilcp02
+-rw-r-----. 1 ala.alhaji.suma domain users       206 Mar  6 05:15 inventory
+-rw-r-----. 1 ala.alhaji.suma domain users       383 Mar  6 05:16 update-rhel-os.yml
+-rw-r-----. 1 ala.alhaji.suma domain users       426 Mar 21 14:23 hil-nodes.ini
+-rw-r-----. 1 ala.alhaji.suma domain users      1448 Mar 21 14:37 nrpe-install.yml
+-rwxr-x--x. 1 ala.alhaji.suma domain users     19218 Mar 31 12:36 check_mem.pl
+-rw-r-----. 1 ala.alhaji.suma domain users        27 Apr  8 08:42 file.ini
+[ala.alhaji.suma@aamhillts01]~%
+[ala.alhaji.suma@aamhillts01]~%
+[ala.alhaji.suma@aamhillts01]~% cat hil-nodes.ini
+[controlplane]
+aamhilcp01.ttmtech.local ansible_host=10.45.10.167
+aamhilcp02.ttmtech.local ansible_host=10.45.10.168
+aamhilcp03.ttmtech.local ansible_host=10.45.10.169
+[workers]
+aamhilwk01.ttmtech.local ansible_host=10.45.10.171
+aamhilwk02.ttmtech.local ansible_host=10.45.10.172
+aamhilwk03.ttmtech.local ansible_host=10.45.10.173
+aamhilwk04.ttmtech.local ansible_host=10.45.10.174
+[hil_cluster:children]
+controlplane
+workers
+[ala.alhaji.suma@aamhillts01]~% cat check_mem.pl
+#!/usr/bin/perl -w
+
+# Heavily based on the script from:
+# check_mem.pl Copyright (C) 2000 Dan Larsson <dl@tyfon.net>
+# heavily modified by
+# Justin Ellison <justin@techadvise.com>
+#
+# The MIT License (MIT)
+# Copyright (c) 2011 justin@techadvise.com
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all copies
+# or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+# PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
+# OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+
+# Tell Perl what we need to use
+use strict;
+use Getopt::Std;
+
+#TODO - Convert to Nagios::Plugin
+#TODO - Use an alarm
+
+# Predefined exit codes for Nagios
+use vars qw($opt_c $opt_f $opt_u $opt_a $opt_w $opt_C $opt_v $opt_h %exit_codes);
+%exit_codes   = ('UNKNOWN' , 3,
+                 'OK'      , 0,
+                 'WARNING' , 1,
+                 'CRITICAL', 2,
+                 );
+
+# Get our variables, do our checking:
+init();
+
+# Get the numbers:
+my ($free_memory_kb,$used_memory_kb,$caches_kb,$available_memory_kb,$hugepages_kb) = get_memory_info();
+print "$free_memory_kb Free\n$used_memory_kb Used\n$caches_kb Cache\n" if ($opt_v);
+print "$available_memory_kb Available\n" if ($opt_v and $opt_a);
+print "$hugepages_kb Hugepages\n" if ($opt_v and $opt_h);
+
+if ($opt_C) { #Do we count caches as free?
+    $used_memory_kb -= $caches_kb;
+    $free_memory_kb += $caches_kb;
+}
+
+if ($opt_h) {
+    $used_memory_kb -= $hugepages_kb;
+}
+
+print "$used_memory_kb Used (after Hugepages)\n" if ($opt_v);
+
+# Round to the nearest KB
+$free_memory_kb = sprintf('%.0f',$free_memory_kb);
+$used_memory_kb = sprintf('%.0f',$used_memory_kb);
+$caches_kb = sprintf('%.0f',$caches_kb);
+
+# Tell Nagios what we came up with
+tell_nagios($used_memory_kb,$free_memory_kb,$caches_kb,$available_memory_kb,$hugepages_kb);
+
+
+sub tell_nagios {
+    my ($used,$free,$caches,$available,$hugepages) = @_; # KB
+
+    # Calculate Total Memory
+    my $total = $free + $used;
+    print "$total Total\n" if ($opt_v);
+
+    # Absolute limits in KB
+    my $limit_warn;
+    my $limit_crit;
+
+    # is level absolute
+    my $is_abs_warn;
+    my $is_abs_crit;
+    my $type_check = "percentage";
+
+
+    # WARN
+    ($limit_warn, $is_abs_warn) = parameterize_thresholds($opt_w, "WARNING", $total);
+
+    # CRITICAL
+    ($limit_crit, $is_abs_crit) = parameterize_thresholds($opt_c, "CRITICAL", $total);
+
+    # Check if both levels are absolute or percentage
+    if ($is_abs_crit != $is_abs_warn) {
+        print "WARNING and CRITICAL should be both absolute or percentage";
+        &usage;
+    }
+    elsif ($is_abs_crit){
+        $type_check = "absolute";
+    }
+
+    my $perf_warn;
+    my $perf_crit;
+    if ( $opt_u ) { # used
+        $perf_warn = $limit_warn;
+        $perf_crit = $limit_crit;
+    } else { # free and available
+        $perf_warn = $total - $limit_warn;
+        $perf_crit = $total - $limit_crit;
+    }
+
+    # Check if levels are sane
+    if ($limit_warn <= $limit_crit and ($opt_f or $opt_a)) {
+        my $opt = ($opt_f eq 1 ? "FREE" : "AVAILABLE");
+        print "*** WARNING level must not be less than CRITICAL when checking $opt memory!\n";
+        &usage;
+    }
+    elsif ($limit_warn >= $limit_crit and $opt_u) {
+        print "*** WARNING level must not be greater than CRITICAL when checking USED memory!\n";
+        &usage;
+    }
+
+    my $perfdata = "|TOTAL=${total}KB;;;;";
+    if ( !$opt_a ) {
+      $perfdata .= " USED=${used}KB;${perf_warn};${perf_crit};;";
+    } else {
+      $perfdata .= " USED=${used}KB;;;;";
+    }
+    $perfdata .= " FREE=${free}KB;;;;";
+    $perfdata .= " CACHES=${caches}KB;;;;";
+    $perfdata .= " AVAILABLE=${available}KB;${perf_warn};${perf_crit};;" if ($opt_a);
+    $perfdata .= " HUGEPAGES=${hugepages}KB;;;;" if ($opt_h);
+
+    if ($opt_f) { # free
+      my $percent    = sprintf "%.1f", ($free / $total * 100);
+      if ($free < $limit_crit) {
+          finish("CRITICAL - $percent% ($free kB) free-$type_check!$perfdata",$exit_codes{'CRITICAL'});
+      }
+      elsif ($free < $limit_warn) {
+          finish("WARNING - $percent% ($free kB) free-$type_check!$perfdata",$exit_codes{'WARNING'});
+      }
+      else {
+          finish("OK - $percent% ($free kB) free-$type_check.$perfdata",$exit_codes{'OK'});
+      }
+    }
+    elsif ($opt_a) { # available
+      my $percent    = sprintf "%.1f", ($available / $total * 100);
+      if ($available  <= $limit_crit) {
+          finish("CRITICAL - $percent% ($available kB) available-$type_check!$perfdata",$exit_codes{'CRITICAL'});
+      }
+      elsif ($available  <= $limit_warn) {
+          finish("WARNING - $percent% ($available kB) available-$type_check!$perfdata",$exit_codes{'WARNING'});
+      }
+      else {
+          finish("OK - $percent% ($available kB) available-$type_check.$perfdata",$exit_codes{'OK'});
+      }
+    }
+    elsif ($opt_u) {  # used
+      my $percent    = sprintf "%.1f", ($used / $total * 100);
+      if ($used > $limit_crit) {
+          finish("CRITICAL - $percent% ($used kB) used-$type_check!$perfdata",$exit_codes{'CRITICAL'});
+      }
+      elsif ($used > $limit_warn) {
+          finish("WARNING - $percent% ($used kB) used-$type_check!$perfdata",$exit_codes{'WARNING'});
+      }
+      else {
+          finish("OK - $percent% ($used kB) used-$type_check.$perfdata",$exit_codes{'OK'});
+      }
+    }
+}
+
+# Show usage
+sub usage() {
+  print "\ncheck_mem.pl v1.0 - Nagios Plugin\n\n";
+  print "usage:\n";
+  print " check_mem.pl -<f|u|a> -w <warnlevel> -c <critlevel>\n\n";
+  print "options:\n";
+  print " -a             Check AVAILABLE memory\n";
+  print " -f             Check FREE memory\n";
+  print " -u             Check USED memory\n";
+  print " -C             Count OS caches as FREE memory\n";
+  print " -w PERCENTAGE  Percent free/used/available when to warn\n";
+  print " -w SIZE K/M/G  Absolute size free/used/available when to warn\n";
+  print " -c PERCENTAGE  Percent free/used/available when critical\n";
+  print " -c SIZE K/M/G  Absolute size free/used/available when critical\n";
+  print " -v             Show verbose output\n";
+  print "\nexample:\n";
+  print "check_mem.pl -C -f -w 20 -c .5\n";
+  print "\tReturns 1 (WARNING) if less than 20% free memory.\n";
+  print "\tReturns 2 (CRITICAL) if less than 0.5% free memory.\n";
+  print "\tTakes caches into account.\n";
+  print "check_mem.pl -u -w 80 -c 95\n";
+  print "\tReturns 1 (WARNING) if more than 80% memory in use.\n";
+  print "\tReturns 2 (CRITICAL) if more than 95% memory in use.\n";
+  print "check_mem.pl -C -f -w 2G -c 500M\n";
+  print "\tReturns 1 (WARNING) if less than 2G free memory.\n";
+  print "\tReturns 2 (CRITICAL) if less than 500M free memory.\n";
+  print "\tTakes caches into account.\n";
+  print "\nCopyright (C) 2000 Dan Larsson <dl\@tyfon.net>\n";
+  print "check_mem.pl comes with absolutely NO WARRANTY either implied or explicit\n";
+  print "This program is licensed under the terms of the\n";
+  print "MIT License (check source code for details)\n";
+  exit $exit_codes{'UNKNOWN'};
+}
+
+sub get_memory_info {
+    my $used_memory_kb  = 0;
+    my $free_memory_kb  = 0;
+    my $total_memory_kb = 0;
+    my $caches_kb       = 0;
+    my $hugepages_nr    = 0;
+    my $hugepages_size  = 0;
+    my $hugepages_kb    = 0;
+    my $available_memory_kb = 0;
+
+    my $uname;
+    if ( -e '/usr/bin/uname') {
+        $uname = `/usr/bin/uname -a`;
+    }
+    elsif ( -e '/bin/uname') {
+        $uname = `/bin/uname -a`;
+    }
+    else {
+        die "Unable to find uname in /usr/bin or /bin!\n";
+    }
+    print "uname returns $uname" if ($opt_v);
+    if ( $uname =~ /Linux/ ) {
+        my @meminfo = `/bin/cat /proc/meminfo`;
+        foreach (@meminfo) {
+            chomp;
+            if (/^Mem(Total|Free):\s+(\d+) kB/) {
+                my $counter_name = $1;
+                if ($counter_name eq 'Free') {
+                    $free_memory_kb = $2;
+                }
+                elsif ($counter_name eq 'Total') {
+                    $total_memory_kb = $2;
+                }
+            }
+            elsif (/^(Buffers|Cached|SReclaimable):\s+(\d+) kB/) {
+                $caches_kb += $2;
+            }
+            elsif (/^Shmem:\s+(\d+) kB/) {
+                $caches_kb -= $1;
+            }
+            elsif (/^MemAvailable:\s+(\d+) kB/) {
+                $available_memory_kb = $1;
+            }
+            # These variables will most likely be overwritten once we look into
+            # /sys/kernel/mm/hugepages, unless we are running on linux <2.6.27
+            # and have to rely on them
+            elsif (/^HugePages_Total:\s+(\d+)/) {
+                $hugepages_nr = $1;
+            }
+            elsif (/^Hugepagesize:\s+(\d+) kB/) {
+                $hugepages_size = $1;
+            }
+        }
+        $hugepages_kb = $hugepages_nr * $hugepages_size;
+        $used_memory_kb = $total_memory_kb - $free_memory_kb;
+
+        # Read hugepages info from the newer sysfs interface if available
+        my $hugepages_sysfs_dir = '/sys/kernel/mm/hugepages';
+        if ( -d $hugepages_sysfs_dir ) {
+            # Reset what we read from /proc/meminfo
+            $hugepages_kb = 0;
+            opendir(my $dh, $hugepages_sysfs_dir)
+                || die "Can't open $hugepages_sysfs_dir: $!";
+            while (my $entry = readdir $dh) {
+                if ($entry =~ /^hugepages-(\d+)kB/) {
+                    $hugepages_size = $1;
+                    my $hugepages_nr_file = "$hugepages_sysfs_dir/$entry/nr_hugepages";
+                    open(my $fh, '<', $hugepages_nr_file)
+                        || die "Can't open $hugepages_nr_file for reading: $!";
+                    $hugepages_nr = <$fh>;
+                    close($fh);
+                    $hugepages_kb += $hugepages_nr * $hugepages_size;
+                }
+            }
+            closedir($dh);
+        }
+    }
+    elsif ( $uname =~ /HP-UX/ ) {
+      # HP-UX, thanks to Christoph Fürstaller
+      my @meminfo = `/usr/bin/sudo /usr/local/bin/kmeminfo`;
+      foreach (@meminfo) {
+        chomp;
+        if (/^Physical memory\s\s+=\s+(\d+)\s+(\d+.\d)g/) {
+            $total_memory_kb = ($2 * 1024 * 1024);
+        }
+        elsif (/^Free memory\s\s+=\s+(\d+)\s+(\d+.\d)g/) {
+            $free_memory_kb = ($2 * 1024 * 1024);
+        }
+      }
+     $used_memory_kb = $total_memory_kb - $free_memory_kb;
+    }
+    elsif ( $uname =~ /FreeBSD/ ) {
+      # The FreeBSD case. 2013-03-19 www.claudiokuenzler.com
+      # free mem = Inactive*Page Size + Cache*Page Size + Free*Page Size
+      my $pagesize = `sysctl vm.stats.vm.v_page_size`;
+      $pagesize =~ s/[^0-9]//g;
+      my $mem_inactive = 0;
+      my $mem_cache = 0;
+      my $mem_free = 0;
+      my $mem_total = 0;
+      my $free_memory = 0;
+        my @meminfo = `/sbin/sysctl vm.stats.vm`;
+        foreach (@meminfo) {
+            chomp;
+            if (/^vm.stats.vm.v_inactive_count:\s+(\d+)/) {
+            $mem_inactive = ($1 * $pagesize);
+            }
+            elsif (/^vm.stats.vm.v_cache_count:\s+(\d+)/) {
+            $mem_cache = ($1 * $pagesize);
+            }
+            elsif (/^vm.stats.vm.v_free_count:\s+(\d+)/) {
+            $mem_free = ($1 * $pagesize);
+            }
+            elsif (/^vm.stats.vm.v_page_count:\s+(\d+)/) {
+            $mem_total = ($1 * $pagesize);
+            }
+        }
+        $free_memory = $mem_inactive + $mem_cache + $mem_free;
+        $free_memory_kb = ( $free_memory / 1024);
+        $total_memory_kb = ( $mem_total / 1024);
+        $used_memory_kb = $total_memory_kb - $free_memory_kb;
+        $caches_kb = ($mem_cache / 1024);
+    }
+    elsif ( $uname =~ /joyent/ ) {
+      # The SmartOS case. 2014-01-10 www.claudiokuenzler.com
+      # free mem = pagesfree * pagesize
+      my $pagesize = `pagesize`;
+      my $phys_pages = `kstat -p unix:0:system_pages:pagestotal | awk '{print \$NF}'`;
+      my $free_pages = `kstat -p unix:0:system_pages:pagesfree | awk '{print \$NF}'`;
+      my $arc_size = `kstat -p zfs:0:arcstats:size | awk '{print \$NF}'`;
+      my $arc_size_kb = $arc_size / 1024;
+
+      print "Pagesize is $pagesize" if ($opt_v);
+      print "Total pages is $phys_pages" if ($opt_v);
+      print "Free pages is $free_pages" if ($opt_v);
+      print "Arc size is $arc_size" if ($opt_v);
+
+      $caches_kb += $arc_size_kb;
+
+      $total_memory_kb = $phys_pages * $pagesize / 1024;
+      $free_memory_kb = $free_pages * $pagesize / 1024;
+      $used_memory_kb = $total_memory_kb - $free_memory_kb;
+    }
+    elsif ( $uname =~ /SunOS/ ) {
+        eval "use Sun::Solaris::Kstat";
+        if ($@) { #Kstat not available
+            if ($opt_C) {
+                print "You can't report on Solaris caches without Sun::Solaris::Kstat available!\n";
+                exit $exit_codes{UNKNOWN};
+            }
+            my @vmstat = `/usr/bin/vmstat 1 2`;
+            my $line;
+            foreach (@vmstat) {
+              chomp;
+              $line = $_;
+            }
+            $free_memory_kb = (split(/ /,$line))[5] / 1024;
+            my @prtconf = `/usr/sbin/prtconf`;
+            foreach (@prtconf) {
+                if (/^Memory size: (\d+) Megabytes/) {
+                    $total_memory_kb = $1 * 1024;
+                }
+            }
+            $used_memory_kb = $total_memory_kb - $free_memory_kb;
+
+        }
+        else { # We have kstat
+            my $kstat = Sun::Solaris::Kstat->new();
+            my $phys_pages = ${kstat}->{unix}->{0}->{system_pages}->{physmem};
+            my $free_pages = ${kstat}->{unix}->{0}->{system_pages}->{freemem};
+            # We probably should account for UFS caching here, but it's unclear
+            # to me how to determine UFS's cache size.  There's inode_cache,
+            # and maybe the physmem variable in the system_pages module??
+            # In the real world, it looks to be so small as not to really matter,
+            # so we don't grab it.  If someone can give me code that does this,
+            # I'd be glad to put it in.
+            my $arc_size = (exists ${kstat}->{zfs} && ${kstat}->{zfs}->{0}->{arcstats}->{size}) ?
+                 ${kstat}->{zfs}->{0}->{arcstats}->{size} / 1024
+                 : 0;
+            $caches_kb += $arc_size;
+            my $pagesize = `pagesize`;
+
+            $total_memory_kb = $phys_pages * $pagesize / 1024;
+            $free_memory_kb = $free_pages * $pagesize / 1024;
+            $used_memory_kb = $total_memory_kb - $free_memory_kb;
+        }
+    }
+    elsif ( $uname =~ /Darwin/ ) {
+        $total_memory_kb = (split(/ /,`/usr/sbin/sysctl hw.memsize`))[1]/1024;
+        my $pagesize     = (split(/ /,`/usr/sbin/sysctl hw.pagesize`))[1];
+        $caches_kb       = 0;
+        my @vm_stat = `/usr/bin/vm_stat`;
+        foreach (@vm_stat) {
+            chomp;
+            if (/^(Pages free):\s+(\d+)\.$/) {
+                $free_memory_kb = $2*$pagesize/1024;
+            }
+            # 'caching' concept works different on MACH
+            # this should be a reasonable approximation
+            elsif (/^Pages (inactive|purgeable):\s+(\d+).$/) {
+                $caches_kb += $2*$pagesize/1024;
+            }
+        }
+        $used_memory_kb = $total_memory_kb - $free_memory_kb;
+    }
+    elsif ( $uname =~ /AIX/ ) {
+        my @meminfo = `/usr/bin/vmstat -vh`;
+        foreach (@meminfo) {
+            chomp;
+            if (/^\s*([0-9.]+)\s+(.*)/) {
+                my $counter_name = $2;
+                if ($counter_name eq 'memory pages') {
+                    $total_memory_kb = $1*4;
+                }
+                if ($counter_name eq 'free pages') {
+                    $free_memory_kb = $1*4;
+                }
+                if ($counter_name eq 'file pages') {
+                    $caches_kb = $1*4;
+                }
+                if ($counter_name eq 'Number of 4k page frames loaned') {
+                    $free_memory_kb += $1*4;
+                }
+            }
+        }
+        $used_memory_kb = $total_memory_kb - $free_memory_kb;
+    }
+    else {
+        if ($opt_C) {
+            print "You can't report on $uname caches!\n";
+            exit $exit_codes{UNKNOWN};
+        }
+        my $command_line = `vmstat | tail -1 | awk '{print \$4,\$5}'`;
+        chomp $command_line;
+        my @memlist      = split(/ /, $command_line);
+
+        # Define the calculating scalars
+        $used_memory_kb  = $memlist[0]/1024;
+        $free_memory_kb = $memlist[1]/1024;
+        $total_memory_kb = $used_memory_kb + $free_memory_kb;
+    }
+    return ($free_memory_kb,$used_memory_kb,$caches_kb,$available_memory_kb,$hugepages_kb);
+}
+
+sub parameterize_thresholds{
+  my $limit;
+  my $is_abs = 0;
+  my ($opt, $level, $total) = @_;
+
+  if ($opt =~ /^((\d+)\s*([KMG]))$/) {
+      # SIZE INTEGER K|M|G
+      $is_abs = 1;
+      $limit = $2;
+      $3 eq 'K' ? $limit *= 1 :
+      $3 eq 'M' ? $limit *= 1024 :
+      $3 eq 'G' ? $limit *= 1024 * 1024 : die ;
+      if ($limit > $total) {
+          print "*** $level limit: $limit level is bigger than the total of the system memory: $total";
+          &usage;
+      }
+  }
+  elsif ($opt =~ /^(?=.)(([0-9]*)(\.([0-9]+))?)$/) {
+      # PERCENTAGE (1, 95, 0.5)
+      if ($1 > 100) {
+          print "*** $level percentage > 100%!\n";
+          &usage;
+      }
+      $limit = int(${total} * $1 / 100);
+  }
+  else {
+      print "*** $level value not recognized!\n";
+      &usage;
+  }
+  return ($limit, $is_abs);
+}
+
+sub init {
+    # Get the options
+    if ($#ARGV le 0) {
+      &usage;
+    }
+    else {
+      getopts('c:fuaChvw:');
+    }
+
+    # Shortcircuit the switches
+    if (! defined $opt_w or ! defined $opt_c) {
+      print "*** You must define WARN and CRITICAL levels!\n";
+      &usage;
+    }
+    elsif (!$opt_f and !$opt_u and !$opt_a) {
+      print "*** You must select to monitor USED, FREE or AVAILABLE memory!\n";
+      &usage;
+    }
+    elsif ($opt_f and $opt_u or $opt_f and $opt_a or $opt_u and $opt_a) {
+      print "*** You must select to monitor either USED, FREE or AVAILABLE memory!\n";
+      &usage;
+    }
+    elsif ($opt_w !~ /^((\d+)\s*([KMG])|(?=.)(([0-9]*)(\.([0-9]+))?))$/) {
+      # SIZE INTEGER K|M|G OR PERCENTAGE INTEGER|FLOAT
+      print "*** WARN level must be defined as PERCENTAGE (1 - 99) or SIZE K/M/G!\n";
+      &usage;
+    }
+    elsif ($opt_c !~ /^((\d+)\s*([KMG])|(?=.)(([0-9]*)(\.([0-9]+))?))$/) {
+      # SIZE INTEGER K|M|G OR PERCENTAGE INTEGER|FLOAT
+      print "*** CRITICAL level must be defined as PERCENTAGE (1 - 99) or SIZE K/M/G!\n";
+      &usage;
+    }
+}
+
+sub finish {
+    my ($msg,$state) = @_;
+    print "$msg\n";
+    exit $state;
+}
+
