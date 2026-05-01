@@ -1,14 +1,2 @@
-hsuma@plnx-admin:~$ oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- cat /etc/vector/vector.toml 2>/dev/null | grep -A8 "\[sinks.output_graylog_syslog\]"
-[sinks.output_graylog_syslog]
-type = "socket"
-inputs = ["output_graylog_syslog_parse_encoding"]
-address = "10.172.249.33:1517"
-mode = "tcp"
-keepalive.time_secs = 60
 
-[sinks.output_graylog_syslog.encoding]
-codec = "syslog"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master02.calix.local "ss -tnp | grep 1517"
-hsuma@plnx-admin:~$
+oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- wget -qO- --no-check-certificate https://localhost:24231/metrics 2>/dev/null | grep "vector_component_sent_events_total" | grep graylog
