@@ -1,5 +1,6 @@
-# Check the service account name
-oc get daemonset -n pai-dev -l app=beyla -o yaml | grep serviceAccount
-
-# Or just check all SAs with beyla in the name
-oc get sa -n pai-dev | grep beyla
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get daemonset -n pai-dev -l app=beyla -o yaml | grep serviceAccount
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get sa -n pai-dev | grep beyla
+beyla                                          1         4d12h
+hsuma@plnx-admin:~$
