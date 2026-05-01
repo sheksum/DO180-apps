@@ -1,9 +1,11 @@
 
 oc create serviceaccount cluster-logging -n openshift-logging
 
-oc adm policy add-cluster-role-to-user cluster-role/collect-infrastructure-logs \
+hsuma@plnx-admin:~$ oc adm policy add-cluster-role-to-user cluster-role/collect-infrastructure-logs \
   system:serviceaccount:openshift-logging:cluster-logging
-
+The ClusterRoleBinding "cluster-role/collect-infrastructure-logs" is invalid:
+* metadata.name: Invalid value: "cluster-role/collect-infrastructure-logs": may not contain '/'
+* roleRef.name: Invalid value: "cluster-role/collect-infrastructure-logs": may not contain '/'
 
 cat <<EOF | oc apply -f -
 apiVersion: observability.openshift.io/v1
