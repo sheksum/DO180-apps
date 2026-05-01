@@ -5,7 +5,7 @@ To view logs, go to Graylog and search for source:ocp-ai* or browse the syslog i
 Currently this covers infrastructure logs only. If the AI team wants application logs from their workloads forwarded to Graylog as well, let us know and we can enable that. The steps are documented in CPEG-28850.
 
 
-If the app team wants application logs forwarded to Graylog, here are the steps:
+If the AI team wants application logs forwarded to Graylog, here are the steps:
 
 1. Grant the service account permission to collect application logs:
 
