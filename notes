@@ -1,2 +1,6 @@
-oc annotate clusterlogforwarder collector -n openshift-logging observability.openshift.io/log-level- --overwrite
-oc get subscription -n openshift-logging -o yaml | grep installPlanApproval
+hsuma@plnx-admin:~$ oc annotate clusterlogforwarder collector -n openshift-logging observability.openshift.io/log-level- --overwrite
+clusterlogforwarder.observability.openshift.io/collector annotated
+hsuma@plnx-admin:~$ oc get subscription -n openshift-logging -o yaml | grep installPlanApproval
+    installPlanApproval: Automatic
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
