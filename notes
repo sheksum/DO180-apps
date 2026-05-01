@@ -1,38 +1,19 @@
-CPEG-28833
+Closing Task 13 — Logging.
 
-CPEG-28850
+13.1 Deploy logging stack — Complete. Installed the Red Hat OpenShift Logging Operator (v6.3.0) in the openshift-logging namespace with Manual install plan approval. Vector-based collector deployed as a DaemonSet across all 5 nodes (3 masters + 2 GPU workers). GPU worker collectors required the nvidia.com/gpu toleration and a memory limit increase to 4Gi to avoid OOMKills due to higher log volume on those nodes.
 
+13.2 Configure persistent storage — Not required. The collector runs as a stateless forwarder shipping logs directly to Graylog. No on-cluster log storage is deployed. Vector uses a host-path checkpoint directory at /var/lib/vector/openshift-logging/collector for delivery tracking.
 
+13.3 Define retention policies — Managed on the Graylog side. Retention and rotation policies are configured on the Graylog server (plnx-graylog, 10.172.249.33), not on the cluster.
 
-1
+13.4 Configure log forwarding — Complete. ClusterLogForwarder CR (name: collector) configured to forward infrastructure logs to Graylog at 10.172.249.33:1517 via TCP syslog (RFC5424). Facility set to local6 to match existing Graylog inputs used by other systems like IPA. Logs confirmed flowing via tcpdump on the Graylog server. All infrastructure container logs and node journal logs from all 5 nodes are being forwarded.
 
+Note: Initially installed the 6.5 operator but it had a bug where it injected a TLS config block into the Vector sink even for plain TCP URLs, preventing log delivery. Downgraded to 6.3 which handles tcp:// correctly without TLS injection. Subscription set to Manual approval to prevent auto-upgrades.
 
+Components deployed:
+- Operator: Red Hat OpenShift Logging v6.3.0
+- Collector: Vector (DaemonSet, 5 pods)
+- Service Account: cluster-logging with collect-infrastructure-logs ClusterRole
+- Output: Graylog syslog TCP 10.172.249.33:1517 (RFC5424, facility local6)
 
-
-
-TASK 13: Logging (future / add-on)
-
-
-
-Key details
-General
-Notes
-Priority
-
-
-
-P4-Low
-Components
-
-
-Engineering Infrastructure
-Fix versions
-
-
-None
-Description
-
-13.1 Deploy logging stack 
-13.2 Configure persistent storage 
-13.3 Define retention policies 
-13.4 Configure log forwarding if needed 
+Task closed.
