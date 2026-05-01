@@ -1,0 +1,3 @@
+Hi Jim,
+I’ve put together a full backup strategy and wanted to share the plan for the AI clusters. The same setup is already running on our Hillsborough Kubernetes cluster, and we can leverage that same approach here across both environments. Please review the attached doc when you can and let us know if we should move forward with this.
+Thanks,
