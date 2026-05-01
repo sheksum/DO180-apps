@@ -1,3 +1,38 @@
-oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- cat /etc/vector/vector.toml 2>/dev/null | grep -A5 "\[sinks"
+hsuma@plnx-admin:~$ oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- cat /etc/vector/vector.toml 2>/dev/null | grep -A5 "\[sinks"
+[sinks.output_graylog_syslog]
+type = "socket"
+inputs = ["output_graylog_syslog_parse_encoding"]
+address = "10.172.249.33:1517"
+mode = "tcp"
+keepalive.time_secs = 60
+--
+[sinks.output_graylog_syslog.encoding]
+codec = "syslog"
+except_fields = ["_internal"]
+rfc = "rfc5424"
+facility = "$$._syslog.facility"
+severity = "$$._syslog.severity"
+--
+[sinks.output_graylog_syslog.tls]
+min_tls_version = "VersionTLS12"
+ciphersuites = "TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256,ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-ECDSA-CHACHA20-POLY1305,ECDHE-RSA-CHACHA20-POLY1305,DHE-RSA-AES128-GCM-SHA256,DHE-RSA-AES256-GCM-SHA384"
 
-oc logs -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) --tail=10 | grep -v "fingerprint"
+[transforms.add_nodename_to_metric]
+type = "remap"
+--
+[sinks.prometheus_output]
+type = "prometheus_exporter"
+inputs = ["add_nodename_to_metric"]
+address = "[::]:24231"
+default_namespace = "collector"
+
+[sinks.prometheus_output.tls]
+enabled = true
+key_file = "/etc/collector/metrics/tls.key"
+crt_file = "/etc/collector/metrics/tls.crt"
+min_tls_version = "VersionTLS12"
+ciphersuites = "TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256,ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-ECDSA-CHACHA20-POLY1305,ECDHE-RSA-CHACHA20-POLY1305,DHE-RSA-AES128-GCM-SHA256,DHE-RSA-AES256-GCM-SHA384"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc logs -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) --tail=10 | grep -v "fingerprint"
+hsuma@plnx-admin:~$
