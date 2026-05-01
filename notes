@@ -1,12 +1,3 @@
-[ala.alhaji.suma@aamhillts01]~% kubectl get nodes -A -o wide
-NAME                         STATUS   ROLES                AGE    VERSION          INTERNAL-IP     EXTERNAL-IP   OS-IMAGE                              KERNEL-VERSION                 CONTAINER-RUNTIME
-aamslc4kbc01.ttmtech.local   Ready    control-plane,etcd   105d   v1.34.4+rke2r1   10.200.248.21   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
-aamslc4kbc02.ttmtech.local   Ready    control-plane,etcd   105d   v1.34.4+rke2r1   10.200.248.22   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
-aamslc4kbc03.ttmtech.local   Ready    control-plane,etcd   105d   v1.34.4+rke2r1   10.200.248.23   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
-aamslc4kbg01.ttmtech.local   Ready    <none>               103d   v1.34.4+rke2r1   10.200.248.61   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
-aamslc4kbw01.ttmtech.local   Ready    <none>               105d   v1.34.4+rke2r1   10.200.248.41   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
-aamslc4kbw02.ttmtech.local   Ready    <none>               105d   v1.34.4+rke2r1   10.200.248.42   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
-aamslc4kbw03.ttmtech.local   Ready    <none>               105d   v1.34.4+rke2r1   10.200.248.43   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.30.1.el9_7.x86_64   containerd://2.1.5-k3s1
-aamslc4kbw04.ttmtech.local   Ready    <none>               44d    v1.34.5+rke2r1   10.200.248.44   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.38.1.el9_7.x86_64   containerd://2.1.5-k3s1
-aamslc4kbw05.ttmtech.local   Ready    <none>               44d    v1.34.5+rke2r1   10.200.248.45   <none>        Red Hat Enterprise Linux 9.7 (Plow)   5.14.0-611.38.1.el9_7.x86_64   containerd://2.1.5-k3s1
-[ala.alhaji.suma@aamhillts01]~%
+kubectl get cm -n kube-system rke2-coredns-rke2-coredns -o yaml | grep -i cidr
+# or
+kubectl cluster-info dump | grep -i "cluster-cidr\|pod-cidr" | head -5
