@@ -1,3 +1,14 @@
 clusterlogforwarder.observability.openshift.io/instance created
+hsuma@plnx-admin:~$ oc get pods -n openshift-logging
+NAME                                        READY   STATUS    RESTARTS   AGE
+cluster-logging-operator-7f44d478d7-qd7wq   1/1     Running   0          5m36s
+instance-ckvh9                              1/1     Running   0          51s
+instance-hqkj7                              1/1     Running   0          51s
+instance-jtntv                              1/1     Running   0          51s
 hsuma@plnx-admin:~$
 hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get daemonset -n openshift-logging
+NAME       DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+instance   3         3         3       3            3           kubernetes.io/os=linux   65s
+hsuma@plnx-admin:~$
+
