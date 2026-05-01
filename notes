@@ -1,35 +1,23 @@
-# Delete the current one
-oc delete clusterlogforwarder instance -n openshift-logging
-
-# Create with the correct v6.x structure
-cat <<EOF | oc apply -f -
-apiVersion: observability.openshift.io/v1
-kind: ClusterLogForwarder
-metadata:
-  name: collector
-  namespace: openshift-logging
-spec:
-  managementState: Managed
-  serviceAccount:
-    name: cluster-logging
-  outputs:
-  - name: graylog-syslog
-    type: syslog
-    syslog:
-      rfc: RFC5424
-      severity: informational
-      facility: local6
-      url: tcp://10.172.249.33:1517
-  pipelines:
-  - name: infra-to-graylog
-    inputRefs:
-    - infrastructure
-    outputRefs:
-    - graylog-syslog
-EOF
-
-oc get clusterlogforwarder collector -n openshift-logging -o yaml | grep -A10 "conditions"
-
-oc get pods -n openshift-logging
-
-
+clusterlogforwarder.observability.openshift.io/collector created
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get clusterlogforwarder collector -n openshift-logging -o yaml | grep -A10 "conditions"
+  conditions:
+  - lastTransitionTime: "2026-05-01T18:21:54Z"
+    message: 'permitted to collect log types: [infrastructure]'
+    reason: ClusterRolesExist
+    status: "True"
+    type: observability.openshift.io/Authorized
+  - lastTransitionTime: "2026-05-01T18:21:54Z"
+    message: ""
+    reason: ValidationSuccess
+    status: "True"
+    type: observability.openshift.io/Valid
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n openshift-logging
+NAME                                        READY   STATUS    RESTARTS   AGE
+cluster-logging-operator-7f44d478d7-qd7wq   1/1     Running   0          14m
+collector-2bn4q                             1/1     Running   0          9s
+collector-95zgp                             1/1     Running   0          9s
+collector-gx2pz                             1/1     Running   0          9s
+hsuma@plnx-admin:~$
