@@ -1,21 +1,3 @@
-hsuma@plnx-admin:~$ oc get clusterlogforwarder collector -n openshift-logging -o yaml | grep -A10 "outputConditions"
-  outputConditions:
-  - lastTransitionTime: "2026-05-01T18:52:14Z"
-    message: output "graylog-syslog" is valid
-    reason: ValidationSuccess
-    status: "True"
-    type: observability.openshift.io/ValidOutput-graylog-syslog
-  pipelineConditions:
-  - lastTransitionTime: "2026-05-01T18:52:14Z"
-    message: pipeline "infra-to-graylog" is valid
-    reason: ValidationSuccess
-    status: "True"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get pods -n openshift-logging | grep collector
-collector-cghkg                             1/1     Running   0          13s
-collector-j7bw2                             1/1     Running   0          13s
-collector-lxhl6                             1/1     Running   0          13s
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
+oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- cat /etc/vector/vector.toml 2>/dev/null | grep -A8 "\[sinks.output_graylog_syslog\]"
+
+ssh -i ~/.ssh/ocp-ai core@ocp-ai-master02.calix.local "ss -tnp | grep 1517"
