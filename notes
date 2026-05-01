@@ -1,4 +1,4 @@
 Brian,
-Franklyn’s plan works. Three quick adds: set vm.swappiness=10 so swap is a safety net not primary, use a filesystem label in fstab (not UUID) so cloned templates don’t break, and bake the second disk into the SDAXOS template so new builds ship correct.
+Franklyn’s plan works. Three quick adds: set vm.swappiness=10 so swap is a safety net not primary, regenerate the swap UUID with mkswap on cloned VMs so fstab entries don’t collide, and update the SDAXOS template with the second disk so new VMs deploy with the right swap config from day one.
 Thanks,
 Haj
