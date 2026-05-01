@@ -1,2 +1,8 @@
-oc patch subscription cluster-logging -n openshift-logging --type merge -p '{"spec":{"installPlanApproval":"Manual"}}'
+oc get pods -n openshift-logging -o wide | grep collector
 
+
+oc patch clusterlogforwarder collector -n openshift-logging --type merge -p '{"spec":{"collector":{"tolerations":[{"key":"nvidia.com/gpu","operator":"Equal","value":"true","effect":"NoSchedule"},{"key":"node-role.kubernetes.io/master","operator":"Exists","effect":"NoSchedule"},{"key":"node.kubernetes.io/disk-pressure","operator":"Exists","effect":"NoSchedule"}]}}}'
+
+
+sleep 30
+oc get pods -n openshift-logging -o wide | grep collector
