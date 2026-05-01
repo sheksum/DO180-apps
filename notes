@@ -1,13 +1,35 @@
 
-Red Hat OpenShift Logging
-cluster-logging.v6.5.0 provided by Red Hat
+oc create serviceaccount cluster-logging -n openshift-logging
 
-Create initialization resource
-The Operator has installed successfully. Create the required custom resource to prepare it for use.
-ClusterLogForwarder
-CLF
-ClusterLogForwarder
+oc adm policy add-cluster-role-to-user cluster-role/collect-infrastructure-logs \
+  system:serviceaccount:openshift-logging:cluster-logging
 
-Required
 
-View installed Operators in Namespace openshift-logging
+cat <<EOF | oc apply -f -
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  serviceAccount:
+    name: cluster-logging
+  outputs:
+  - name: graylog-syslog
+    type: syslog
+    syslog:
+      rfc: RFC5424
+      severity: informational
+      facility: local6
+    url: tcp://10.172.249.33:1517
+  pipelines:
+  - name: infra-to-graylog
+    inputRefs:
+    - infrastructure
+    outputRefs:
+    - graylog-syslog
+EOF
+
+
+oc get pods -n openshift-logging
+oc get clusterlogforwarder -n openshift-logging
