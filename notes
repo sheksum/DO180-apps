@@ -1,31 +1,29 @@
-hsuma@plnx-admin:~$ oc get pods -n openshift-logging
-NAME                                        READY   STATUS    RESTARTS   AGE
-cluster-logging-operator-584647b889-pqprf   1/1     Running   0          2m44s
-hsuma@plnx-admin:~$ oc logs cluster-logging-operator-584647b889-pqprf -n openshift-logging
-{"_ts":"2026-05-01T18:45:33.640705425Z","_level":"0","_component":"cluster-logging-operator","_message":"starting up...","go_arch":"amd64","go_os":"linux","go_version":"go1.25.7 (Red Hat 1.25.7-1.el9_7) X:strictfipsruntime","operator_version":"6.3.0"}
-{"_ts":"2026-05-01T18:45:33.649269414Z","_level":"0","_component":"cluster-logging-operator","_message":"migrating resources provided by the manifest"}
-{"_ts":"2026-05-01T18:45:33.651119962Z","_level":"0","_component":"cluster-logging-operator","_message":"Registering Components."}
-{"_ts":"2026-05-01T18:45:33.657961629Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting the Cmd."}
-{"_ts":"2026-05-01T18:45:33.658127455Z","_level":"0","_component":"cluster-logging-operator_controller-runtime_metrics","_message":"Starting metrics server"}
-{"_ts":"2026-05-01T18:45:33.658335454Z","_level":"0","_component":"cluster-logging-operator_controller-runtime_metrics","_message":"Serving metrics server","bindAddress":":8686","secure":false}
-{"_ts":"2026-05-01T18:45:33.658443965Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"logfilemetricexporter","controllerGroup":"logging.openshift.io","controllerKind":"LogFileMetricExporter","source":"kind source: *v1alpha1.LogFileMetricExporter"}
-{"_ts":"2026-05-01T18:45:33.658462133Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"logfilemetricexporter","controllerGroup":"logging.openshift.io","controllerKind":"LogFileMetricExporter","source":"kind source: *v1.DaemonSet"}
-{"_ts":"2026-05-01T18:45:33.658476376Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"logfilemetricexporter","controllerGroup":"logging.openshift.io","controllerKind":"LogFileMetricExporter","source":"kind source: *v1.Service"}
-{"_ts":"2026-05-01T18:45:33.658493838Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"logfilemetricexporter","controllerGroup":"logging.openshift.io","controllerKind":"LogFileMetricExporter","source":"kind source: *v1.ServiceMonitor"}
-{"_ts":"2026-05-01T18:45:33.658504375Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting Controller","controller":"logfilemetricexporter","controllerGroup":"logging.openshift.io","controllerKind":"LogFileMetricExporter"}
-{"_ts":"2026-05-01T18:45:33.658534409Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"logging_dashboard_controller","source":"kind source: *v1.ConfigMap"}
-{"_ts":"2026-05-01T18:45:33.658556061Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"clusterlogforwarder","controllerGroup":"observability.openshift.io","controllerKind":"ClusterLogForwarder","source":"kind source: *v1.ClusterLogForwarder"}
-{"_ts":"2026-05-01T18:45:33.659508142Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"clusterlogforwarder","controllerGroup":"observability.openshift.io","controllerKind":"ClusterLogForwarder","source":"kind source: *v1.ConfigMap"}
-{"_ts":"2026-05-01T18:45:33.659560494Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"clusterlogforwarder","controllerGroup":"observability.openshift.io","controllerKind":"ClusterLogForwarder","source":"kind source: *v1.DaemonSet"}
-{"_ts":"2026-05-01T18:45:33.659579576Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"clusterlogforwarder","controllerGroup":"observability.openshift.io","controllerKind":"ClusterLogForwarder","source":"kind source: *v1.Deployment"}
-{"_ts":"2026-05-01T18:45:33.659595964Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"clusterlogforwarder","controllerGroup":"observability.openshift.io","controllerKind":"ClusterLogForwarder","source":"kind source: *v1.Role"}
-{"_ts":"2026-05-01T18:45:33.659609819Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"clusterlogforwarder","controllerGroup":"observability.openshift.io","controllerKind":"ClusterLogForwarder","source":"kind source: *v1.RoleBinding"}
-{"_ts":"2026-05-01T18:45:33.65858842Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting Controller","controller":"logging_dashboard_controller"}
-{"_ts":"2026-05-01T18:45:33.659762762Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"clusterlogforwarder","controllerGroup":"observability.openshift.io","controllerKind":"ClusterLogForwarder","source":"kind source: *v1.Secret"}
-{"_ts":"2026-05-01T18:45:33.659824451Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"clusterlogforwarder","controllerGroup":"observability.openshift.io","controllerKind":"ClusterLogForwarder","source":"kind source: *v1.Service"}
-{"_ts":"2026-05-01T18:45:33.659869055Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting EventSource","controller":"clusterlogforwarder","controllerGroup":"observability.openshift.io","controllerKind":"ClusterLogForwarder","source":"kind source: *v1.ServiceMonitor"}
-{"_ts":"2026-05-01T18:45:33.660213258Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting Controller","controller":"clusterlogforwarder","controllerGroup":"observability.openshift.io","controllerKind":"ClusterLogForwarder"}
-{"_ts":"2026-05-01T18:45:33.963037914Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting workers","controller":"logging_dashboard_controller","worker count":1}
-{"_ts":"2026-05-01T18:45:33.969353055Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting workers","controller":"logfilemetricexporter","controllerGroup":"logging.openshift.io","controllerKind":"LogFileMetricExporter","worker count":1}
-{"_ts":"2026-05-01T18:45:33.970440986Z","_level":"0","_component":"cluster-logging-operator","_message":"Starting workers","controller":"clusterlogforwarder","controllerGroup":"observability.openshift.io","controllerKind":"ClusterLogForwarder","worker count":1}
-hsuma@plnx-admin:~$
+cat <<EOF | oc apply -f -
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: collector
+  namespace: openshift-logging
+spec:
+  managementState: Managed
+  serviceAccount:
+    name: cluster-logging
+  outputs:
+  - name: graylog-syslog
+    type: syslog
+    syslog:
+      rfc: RFC5424
+      severity: informational
+      facility: local6
+      url: tcp://10.172.249.33:1517
+  pipelines:
+  - name: infra-to-graylog
+    inputRefs:
+    - infrastructure
+    outputRefs:
+    - graylog-syslog
+EOF
+
+oc get clusterlogforwarder collector -n openshift-logging -o yaml | grep -A10 "outputConditions"
+oc get pods -n openshift-logging | grep collector
+
