@@ -1,24 +1,3 @@
-cat <<EOF | oc apply -f -
-apiVersion: observability.openshift.io/v1
-kind: ClusterLogForwarder
-metadata:
-  name: instance
-  namespace: openshift-logging
-spec:
-  serviceAccount:
-    name: cluster-logging
-  outputs:
-  - name: graylog-syslog
-    type: syslog
-    syslog:
-      rfc: RFC5424
-      severity: informational
-      facility: local6
-      url: tcp://10.172.249.33:1517
-  pipelines:
-  - name: infra-to-graylog
-    inputRefs:
-    - infrastructure
-    outputRefs:
-    - graylog-syslog
-EOF
+clusterlogforwarder.observability.openshift.io/instance created
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
