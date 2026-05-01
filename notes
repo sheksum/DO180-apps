@@ -1,1 +1,5 @@
-ssh -i ~/.ssh/ocp-ai core@ocp-ai-master03.calix.local "nc -zv -w 3 10.172.249.33 1517"
+hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master03.calix.local "nc -zv -w 3 10.172.249.33 1517"
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Connected to 10.172.249.33:1517.
+Ncat: 0 bytes sent, 0 bytes received in 0.01 seconds.
+hsuma@plnx-admin:~$
