@@ -1,158 +1,155 @@
-h1. Landscape FQDN Change Runbook: caal.dev → calix.local
 
-*Host:* {{pln-landscape01}}
-*Old FQDN:* {{pln-landscape01.caal.dev}}
-*New FQDN:* {{pln-landscape01.calix.local}}
-*Service impact:* Landscape clients cannot check in or register during the cutover. Schedule a maintenance window.
+# Landscape FQDN Change Runbook: caal.dev → calix.local
+
+**Host:** `pln-landscape01`
+**Old FQDN:** `pln-landscape01.caal.dev`
+**New FQDN:** `pln-landscape01.calix.local`
+**Service impact:** Landscape clients cannot check in or register during the cutover. Schedule a maintenance window.
 
 -----
 
-h2. 0. Pre-flight (do this before the maintenance window)
+## 0. Pre-flight (do this before the maintenance window)
 
-h3. 0.1 DNS
+### 0.1 DNS
 
-Confirm the following records exist in {{calix.local}} and resolve from both the Landscape server and a sample client:
+Confirm the following records exist in `calix.local` and resolve from both the Landscape server and a sample client:
 
-- {{pln-landscape01.calix.local}} A → server IP
-- Reverse PTR for the server IP → {{pln-landscape01.calix.local}}
-- Any vanity alias clients will use (e.g. {{pln-landscape.calix.local}} CNAME → {{pln-landscape01.calix.local}})
+- `pln-landscape01.calix.local` A → server IP
+- Reverse PTR for the server IP → `pln-landscape01.calix.local`
+- Any vanity alias clients will use (e.g. `pln-landscape.calix.local` CNAME → `pln-landscape01.calix.local`)
 
-{code:bash}
+```bash
 dig +short pln-landscape01.calix.local
 dig +short -x <server_ip>
-{code}
+```
 
-h3. 0.2 Inventory of registered clients
+### 0.2 Inventory of registered clients
 
-You’ll need to re-point every registered client after the cutover. From the Landscape UI or DB, export the current client list. Plan how the new {{/etc/landscape/client.conf}} will be pushed (Ansible, Landscape script, manual).
+You’ll need to re-point every registered client after the cutover. From the Landscape UI or DB, export the current client list. Plan how the new `/etc/landscape/client.conf` will be pushed (Ansible, Landscape script, manual).
 
-h3. 0.3 Corporate CA trust
+### 0.3 Corporate CA trust
 
-The new cert will be issued by {{corp_pki.calix.local}}, not the existing self-signed CA. Every client will need the corporate CA chain in its trust store *before* it can talk to the new URL. Confirm {{/etc/ssl/certs/ca-certificates.crt}} (or equivalent) on a sample client already trusts the corporate root, or plan to deploy it.
+The new cert will be issued by `corp_pki.calix.local`, not the existing self-signed CA. Every client will need the corporate CA chain in its trust store **before** it can talk to the new URL. Confirm `/etc/ssl/certs/ca-certificates.crt` (or equivalent) on a sample client already trusts the corporate root, or plan to deploy it.
 
-h3. 0.4 Backups
+### 0.4 Backups
 
-{code:bash}
+```bash
 sudo cp -a /etc/postfix /etc/postfix.bak.$(date +%F)
 sudo cp -a /etc/apache2/sites-available /etc/apache2/sites-available.bak.$(date +%F)
 sudo cp -a /etc/landscape /etc/landscape.bak.$(date +%F)
 sudo cp -a /etc/ssl /etc/ssl.bak.$(date +%F)
 sudo cp /etc/hostname /etc/hostname.bak
 sudo cp /etc/hosts /etc/hosts.bak
-{code}
+```
 
 -----
 
-h2. 1. Hostname
+## 1. Hostname
 
-{code:bash}
+```bash
 sudo hostnamectl set-hostname pln-landscape01.calix.local
-{code}
+```
 
-Update {{/etc/hosts}} so {{hostname -f}} returns the new FQDN. The line that previously referenced the old name must be replaced — typically the {{127.0.1.1}} line on Ubuntu, or the line bound to the server’s real IP:
+Update `/etc/hosts` so `hostname -f` returns the new FQDN. The line that previously referenced the old name must be replaced — typically the `127.0.1.1` line on Ubuntu, or the line bound to the server’s real IP:
 
-{code}
+```
 <server_ip>   pln-landscape01.calix.local pln-landscape01
-{code}
+```
 
 Verify:
 
-{code:bash}
+```bash
 hostname
 hostname -f         # must return pln-landscape01.calix.local
 hostname -d         # must return calix.local
-{code}
+```
 
-{panel:bgColor=#fffae6}
-If {{hostname -f}} returns anything else, *stop and fix /etc/hosts before continuing* — Landscape and Apache both rely on this.
-{panel}
+If `hostname -f` returns anything else, **stop and fix `/etc/hosts` before continuing** — Landscape and Apache both rely on this.
 
 -----
 
-h2. 2. Postfix
+## 2. Postfix
 
-Edit {{/etc/postfix/main.cf}} and update any entries referencing the old FQDN. At minimum, check:
+Edit `/etc/postfix/main.cf` and update any entries referencing the old FQDN. At minimum, check:
 
-- {{myhostname}} → {{pln-landscape01.calix.local}}
-- {{mydomain}} → {{calix.local}}
-- {{myorigin}} (if hardcoded)
-- {{mydestination}} (if it lists FQDNs)
+- `myhostname` → `pln-landscape01.calix.local`
+- `mydomain` → `calix.local`
+- `myorigin` (if hardcoded)
+- `mydestination` (if it lists FQDNs)
 
 Validate and reload:
 
-{code:bash}
+```bash
 sudo postfix check
 sudo systemctl reload postfix
-{code}
+```
 
-{panel:bgColor=#ffebe6}
-*Do not run {{postmap main.cf}}.* {{postmap}} is for indexed lookup tables ({{canonical}}, {{transport}}, {{virtual}}, etc.), not {{main.cf}}. Running it on {{main.cf}} produces a junk {{.db}} file Postfix ignores.
-{panel}
+> **Do not run `postmap main.cf`.** `postmap` is for indexed lookup tables (`canonical`, `transport`, `virtual`, etc.), not `main.cf`. Running it on `main.cf` produces a junk `.db` file Postfix ignores.
 
 Verify:
 
-{code:bash}
+```bash
 postconf myhostname mydomain myorigin
-echo “test” | mail -s “FQDN change test” root
+echo "test" | mail -s "FQDN change test" root
 sudo tail -f /var/log/mail.log
-{code}
+```
 
 -----
 
-h2. 3. Apache vhost
+## 3. Apache vhost
 
-h3. 3.1 Disable old site, rename config
+### 3.1 Disable old site, rename config
 
-{code:bash}
+```bash
 sudo a2dissite pln-landscape01.caal.dev
 cd /etc/apache2/sites-available
 sudo mv pln-landscape01.caal.dev.conf pln-landscape01.calix.local.conf
-{code}
+```
 
-If there’s also an SSL variant (e.g. {{*-ssl.conf}}), rename that too.
+If there’s also an SSL variant (e.g. `*-ssl.conf`), rename that too.
 
-h3. 3.2 Edit the vhost
+### 3.2 Edit the vhost
 
-Open {{/etc/apache2/sites-available/pln-landscape01.calix.local.conf}} and replace *every* occurrence of the old FQDN with the new one. There will be more than just {{ServerName}} — Landscape’s vhost contains {{RewriteRule}} lines that embed the hostname in proxied URLs, e.g.:
+Open `/etc/apache2/sites-available/pln-landscape01.calix.local.conf` and replace **every** occurrence of the old FQDN with the new one. There will be more than just `ServerName` — Landscape’s vhost contains `RewriteRule` lines that embed the hostname in proxied URLs, e.g.:
 
-{code}
+```
 RewriteRule ^/message-system http://localhost:8090/++vh++https:pln-landscape01.calix.local:443/++/ [P,L]
 RewriteRule ^/(.*)           http://localhost:8080/++vh++https:pln-landscape01.calix.local:443/++/$1 [P]
-{code}
+```
 
 Quick check for any stragglers:
 
-{code:bash}
-sudo grep -rn ‘caal.dev|pln-landscape01.caal’ /etc/apache2/
-{code}
+```bash
+sudo grep -rn 'caal\.dev\|pln-landscape01\.caal' /etc/apache2/
+```
 
-In each {{<VirtualHost>}} block, set:
+In each `<VirtualHost>` block, set:
 
-{code}
+```
 ServerName pln-landscape01.calix.local
 ServerAdmin webmaster@calix.local
-{code}
+```
 
 (Set these once per vhost block, not three times.)
 
-h3. 3.3 Enable new site
+### 3.3 Enable new site
 
-{code:bash}
+```bash
 sudo a2ensite pln-landscape01.calix.local
 sudo apache2ctl configtest
-{code}
+```
 
-Do *not* reload Apache yet — wait until the new TLS cert is in place (Section 4), otherwise Apache will fail to start because {{SSLCertificateFile}} points at a path that doesn’t exist or doesn’t match the new ServerName.
+Do **not** reload Apache yet — wait until the new TLS cert is in place (Section 4), otherwise Apache will fail to start because `SSLCertificateFile` points at a path that doesn’t exist or doesn’t match the new ServerName.
 
 -----
 
-h2. 4. TLS certificate
+## 4. TLS certificate
 
-h3. 4.1 CSR config
+### 4.1 CSR config
 
-Create {{landscape_server.conf}}:
+Create `landscape_server.conf`:
 
-{code}
+```
 [ req ]
 default_md         = sha256
 prompt             = no
@@ -174,200 +171,203 @@ subjectAltName = @alt_names
 DNS.1 = pln-landscape01.calix.local
 DNS.2 = pln-landscape01
 DNS.3 = pln-landscape.calix.local        # only if vanity alias is used
-{code}
+```
 
 Notes on what changed from the original:
 
-- {{commonName}} was {{vault.calix.local}} (leftover from a Vault template) — now the actual Landscape FQDN.
-- SAN entries start at {{DNS.1}}, not {{DNS.0}} (OpenSSL convention).
+- `commonName` was `vault.calix.local` (leftover from a Vault template) — now the actual Landscape FQDN.
+- SAN entries start at `DNS.1`, not `DNS.0` (OpenSSL convention).
 - The new FQDN is in SAN — modern clients ignore CN and require SAN match (RFC 6125).
 
-h3. 4.2 Generate CSR and key
+### 4.2 Generate CSR and key
 
-{code:bash}
-openssl req -new -newkey rsa:2048 -nodes   
--keyout landscape_server.key   
--out   landscape_server.csr   
--config landscape_server.conf
+```bash
+openssl req -new -newkey rsa:2048 -nodes \
+  -keyout landscape_server.key \
+  -out   landscape_server.csr \
+  -config landscape_server.conf
 
 openssl req -text -noout -verify -in landscape_server.csr
-{code}
+```
 
-Confirm the output shows the correct CN and *all* SANs.
+Confirm the output shows the correct CN and **all** SANs.
 
-h3. 4.3 Submit and download
+### 4.3 Submit and download
 
-Submit the CSR contents at {{https://corp_pki.calix.local/certsrv/certrqxt.asp}}, request a 2-year cert, download the issued cert as {{.p7b}}.
+Submit the CSR contents at `https://corp_pki.calix.local/certsrv/certrqxt.asp`, request a 2-year cert, download the issued cert as `.p7b`.
 
-Convert the {{.p7b}} (which contains the leaf + intermediates + root concatenated):
+Convert the `.p7b` (which contains the leaf + intermediates + root concatenated):
 
-{code:bash}
+```bash
 openssl pkcs7 -print_certs -in certnew.p7b -out certnew_chain.pem
-{code}
+```
 
-Open {{certnew_chain.pem}} in an editor — you’ll see multiple {{—–BEGIN CERTIFICATE—–}} blocks, each preceded by {{subject=}} and {{issuer=}} lines. Split them:
+Open `certnew_chain.pem` in an editor — you’ll see multiple `-----BEGIN CERTIFICATE-----` blocks, each preceded by `subject=` and `issuer=` lines. Split them:
 
-- The block where {{subject}} = {{pln-landscape01.calix.local}} → save as {{landscape_server.pem}} (leaf cert)
-- The remaining blocks (issuing CA, then root) → save as {{landscape_server_ca.crt}} (chain bundle, leaf-issuer first)
+- The block where `subject` = `pln-landscape01.calix.local` → save as `landscape_server.pem` (leaf cert)
+- The remaining blocks (issuing CA, then root) → save as `landscape_server_ca.crt` (chain bundle, leaf-issuer first)
 
 If you’d rather script the split:
 
-{code:bash}
-
+```bash
 # Quick visual confirmation of the order/contents
+awk '/subject=|issuer=/' certnew_chain.pem
+```
 
-awk ‘/subject=|issuer=/’ certnew_chain.pem
-{code}
+### 4.4 Install
 
-h3. 4.4 Install
-
-{code:bash}
+```bash
 sudo install -o root -g root              -m 0644 landscape_server.pem    /etc/ssl/certs/landscape_server.pem
 sudo install -o root -g root              -m 0644 landscape_server_ca.crt /etc/ssl/certs/landscape_server_ca.crt
 sudo install -o root -g ssl-cert          -m 0640 landscape_server.key    /etc/ssl/private/landscape_server.key
-{code}
+```
 
-(On distros without {{ssl-cert}} group, use {{root:root 0600}} — but then {{www-data}} needs to be able to read the key, which usually means Apache must read it as root before privsep. The {{ssl-cert}} group is the cleaner path on Ubuntu.)
+(On distros without `ssl-cert` group, use `root:root 0600` — but then `www-data` needs to be able to read the key, which usually means Apache must read it as root before privsep. The `ssl-cert` group is the cleaner path on Ubuntu.)
 
-Confirm Apache’s SSL vhost references these exact paths ({{SSLCertificateFile}}, {{SSLCertificateKeyFile}}, {{SSLCertificateChainFile}} or {{SSLCACertificateFile}}).
+Confirm Apache’s SSL vhost references these exact paths (`SSLCertificateFile`, `SSLCertificateKeyFile`, `SSLCertificateChainFile` or `SSLCACertificateFile`).
 
 -----
 
-h2. 5. Landscape service config
+## 5. Landscape service config
 
-This is the step missing from the original runbook. Hostname + Apache vhost is *not* enough.
+This is the step missing from the original runbook. Hostname + Apache vhost is not enough.
 
-Edit {{/etc/landscape/service.conf}} and update any FQDN references. The key one is:
+Edit `/etc/landscape/service.conf` and update any FQDN references. The key one is:
 
-{code}
+```ini
 [global]
 root_url = https://pln-landscape01.calix.local/
-{code}
+```
 
-Also check for {{message_url}} and {{ping_url}} overrides if present (normally derived from {{root_url}} and not set explicitly).
+Also check for `message_url` and `ping_url` overrides if present (normally derived from `root_url` and not set explicitly).
 
 Search for stragglers across the Landscape config dir:
 
-{code:bash}
-sudo grep -rn ‘caal.dev|pln-landscape01.caal’ /etc/landscape/
-{code}
+```bash
+sudo grep -rn 'caal\.dev\|pln-landscape01\.caal' /etc/landscape/
+```
 
 -----
 
-h2. 6. Restart in order
+## 6. Restart in order
 
-{code:bash}
-
+```bash
 # 1. Apache (now that cert is in place)
-
 sudo apache2ctl configtest && sudo systemctl reload apache2
 
 # 2. Landscape services
-
 sudo lsctl restart
 
 # 3. Confirm services are up
-
 sudo lsctl status
 sudo systemctl status apache2 postfix
-{code}
+```
 
 -----
 
-h2. 7. Verification
+## 7. Verification
 
-h3. 7.1 On the server
+### 7.1 On the server
 
-{code:bash}
-
+```bash
 # Cert is being served correctly
-
-echo | openssl s_client -connect pln-landscape01.calix.local:443 -servername pln-landscape01.calix.local 2>/dev/null   
-| openssl x509 -noout -subject -issuer -dates -ext subjectAltName
+echo | openssl s_client -connect pln-landscape01.calix.local:443 -servername pln-landscape01.calix.local 2>/dev/null \
+  | openssl x509 -noout -subject -issuer -dates -ext subjectAltName
 
 # Ping endpoint
-
 curl -fv http://pln-landscape01.calix.local/ping
 
 # Message-system endpoint (expects a 200/405-ish response, not connection refused)
-
 curl -fv -k https://pln-landscape01.calix.local/message-system
 
 # Landscape logs are clean
+sudo tail -n 200 /var/log/landscape/*.log | grep -iE 'error|trace|fail' | head
+```
 
-sudo tail -n 200 /var/log/landscape/*.log | grep -iE ‘error|trace|fail’ | head
-{code}
+### 7.2 On a test client
 
-h3. 7.2 On a test client
+Pick one non-critical Landscape client first. Push the new corporate CA into its trust store if not already present, then re-run `landscape-config` with the new URL:
 
-Pick one non-critical Landscape client first. Push the new corporate CA into its trust store if not already present, then re-run {{landscape-config}} with the new URL:
-
-{code:bash}
-sudo landscape-config   
-–account-name standalone   
-–url      https://pln-landscape01.calix.local/message-system   
-–ping-url http://pln-landscape01.calix.local/ping   
-–computer-title “$(hostname)”
+```bash
+sudo landscape-config \
+  --account-name standalone \
+  --url      https://pln-landscape01.calix.local/message-system \
+  --ping-url http://pln-landscape01.calix.local/ping \
+  --computer-title "$(hostname)"
 
 sudo systemctl restart landscape-client
 sudo tail -f /var/log/landscape/broker.log
-{code}
+```
 
 Confirm the client appears in the Landscape UI and accepts a trivial action (e.g. info refresh) before rolling out to the rest of the fleet.
 
-h3. 7.3 Fleet rollout
+### 7.3 Fleet rollout
 
-Push the updated {{/etc/landscape/client.conf}} (URL + {{ssl_public_key}} if applicable) to remaining clients via your usual config-management path. Don’t do this until the test client in 7.2 is confirmed healthy.
+Push the updated `/etc/landscape/client.conf` (URL + `ssl_public_key` if applicable) to remaining clients via your usual config-management path. Don’t do this until the test client in 7.2 is confirmed healthy.
 
 -----
 
-h2. 8. Rollback plan
+## 8. Rollback plan
 
 If Apache fails to start, clients can’t reach the server, or the cert won’t validate:
 
-{code:bash}
-
+```bash
 # 1. Stop Apache
-
 sudo systemctl stop apache2
 
 # 2. Restore the old vhost
-
 sudo a2dissite pln-landscape01.calix.local
-sudo cp /etc/apache2/sites-available.bak.<DATE>/pln-landscape01.caal.dev.conf   
-/etc/apache2/sites-available/
+sudo cp /etc/apache2/sites-available.bak.<DATE>/pln-landscape01.caal.dev.conf \
+        /etc/apache2/sites-available/
 sudo a2ensite pln-landscape01.caal.dev
 
 # 3. Restore Landscape config
-
 sudo cp /etc/landscape.bak.<DATE>/service.conf /etc/landscape/service.conf
 
 # 4. Restore hostname
-
 sudo hostnamectl set-hostname pln-landscape01.caal.dev
 sudo cp /etc/hosts.bak /etc/hosts
 
 # 5. Restart
-
 sudo systemctl restart apache2
 sudo lsctl restart
-{code}
+```
 
-The old TLS cert and key were not deleted, so the old vhost’s {{SSLCertificateFile}} paths should still be valid. Confirm before declaring rollback successful:
+The old TLS cert and key were not deleted, so the old vhost’s `SSLCertificateFile` paths should still be valid. Confirm before declaring rollback successful:
 
-{code:bash}
-echo | openssl s_client -connect pln-landscape01.caal.dev:443 -servername pln-landscape01.caal.dev 2>/dev/null   
-| openssl x509 -noout -subject -dates
-{code}
+```bash
+echo | openssl s_client -connect pln-landscape01.caal.dev:443 -servername pln-landscape01.caal.dev 2>/dev/null \
+  | openssl x509 -noout -subject -dates
+```
 
 Clients should resume check-ins automatically.
 
 -----
 
-h2. 9. Cleanup (after fleet has migrated)
+## 9. Cleanup (after fleet has migrated)
 
-- Remove the old {{caal.dev}} DNS records.
+- Remove the old `caal.dev` DNS records.
 - Delete the old self-signed CA from clients’ trust stores if no longer needed.
-- Remove old Apache vhost config files and old key/cert files from {{/etc/ssl/}}.
+- Remove old Apache vhost config files and old key/cert files from `/etc/ssl/`.
 - Update any monitoring (Zabbix, etc.) targeting the old FQDN.
 - Update internal docs / wiki / runbook references.
+
+
+Hi Franklyn,
+
+I've reviewed the steps and posted a corrected runbook in the Description field. A few things in the original would have caused the change to fail or leave the service broken:
+
+- `postmap main.cf` is invalid — postmap is for lookup tables, not main.cf. Removed.
+- The second `a2dissite` should be `a2ensite` — as written, the new site is left disabled.
+- CSR commonName was `vault.calix.local` (leftover from a Vault template) — corrected to the Landscape FQDN.
+- SAN list didn't include the actual new FQDN (`pln-landscape01.calix.local`).
+- Apache vhost has rewrite rules that embed the hostname in proxied URLs — `ServerName` alone isn't enough.
+- `/etc/landscape/service.conf` `root_url` needs updating + `lsctl restart`, otherwise Landscape itself still advertises the old FQDN.
+- Client-side migration plan was missing — every registered client needs `/etc/landscape/client.conf` re-pointed and the corp CA trusted.
+- `.p7b → .pem` step needs the leaf and CA chain split into the two destination files.
+- Added DNS pre-flight, `/etc/hosts` update, verification steps, and a rollback plan.
+
+Please review the updated steps in the Description and let me know if you have questions. Happy to walk through any section.
+
+Thanks
+
