@@ -1,37 +1,32 @@
-hsuma@plnx-admin:~$ oc get clusterlogforwarder collector -n openshift-logging -o yaml | grep -A15 "conditions"
-  conditions:
-  - lastTransitionTime: "2026-05-01T18:27:50Z"
-    message: 'permitted to collect log types: [infrastructure]'
-    reason: ClusterRolesExist
-    status: "True"
-    type: observability.openshift.io/Authorized
-  - lastTransitionTime: "2026-05-01T18:27:50Z"
-    message: one or more conditions [inputs, outputs, pipelines, filters] have failed
-      validation
-    reason: ValidationFailure
-    status: "False"
-    type: observability.openshift.io/Valid
-  - lastTransitionTime: "2026-05-01T18:27:50Z"
-    message: collector not ready
-    reason: ValidationFailure
-    status: "False"
-    type: Ready
-  inputConditions:
-  - lastTransitionTime: "2026-05-01T18:29:47Z"
-    message: input "infrastructure" is valid
-    reason: ValidationSuccess
-    status: "True"
-    type: observability.openshift.io/ValidInput-infrastructure
-hsuma@plnx-admin:~$ oc get clusterlogforwarder collector -n openshift-logging -o yaml | grep -A10 "outputConditions"
-  outputConditions:
-  - lastTransitionTime: "2026-05-01T18:27:50Z"
-    message: 'URL scheme not secure: tcp, but output has TLS configuration parameters'
-    reason: ValidationFailure
-    status: "False"
-    type: observability.openshift.io/ValidOutput-graylog-syslog
-  pipelineConditions:
-  - lastTransitionTime: "2026-05-01T18:27:50Z"
-    message: pipeline "infra-to-graylog" is valid
-    reason: ValidationSuccess
-    status: "True"
-hsuma@plnx-admin:~$
+oc delete clusterlogforwarder collector -n openshift-logging
+
+cat <<EOF | oc apply -f -
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: collector
+  namespace: openshift-logging
+spec:
+  managementState: Managed
+  serviceAccount:
+    name: cluster-logging
+  outputs:
+  - name: graylog-syslog
+    type: syslog
+    syslog:
+      rfc: RFC5424
+      severity: informational
+      facility: local6
+      url: tcp://10.172.249.33:1517
+  pipelines:
+  - name: infra-to-graylog
+    inputRefs:
+    - infrastructure
+    outputRefs:
+    - graylog-syslog
+EOF
+
+sleep 20
+oc get clusterlogforwarder collector -n openshift-logging -o yaml | grep -A10 "outputConditions"
+oc get pods -n openshift-logging | grep collector
+
