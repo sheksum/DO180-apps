@@ -27,3 +27,7 @@ spec:
     outputRefs:
     - graylog-syslog
 EOF
+
+sleep 20
+oc get pods -n openshift-logging | grep collector
+ssh -i ~/.ssh/ocp-ai core@ocp-ai-master02.calix.local "ss -tnp | grep 1517"
