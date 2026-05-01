@@ -1,19 +1,5 @@
-ESTAB 0      0      [::ffff:10.172.248.152]:2379  [::ffff:10.172.248.151]:38416
-ESTAB 0      0      [::ffff:10.172.248.152]:2379  [::ffff:10.172.248.150]:52632
-ESTAB 0      0      [::ffff:10.172.248.152]:2379  [::ffff:10.172.248.151]:50838
-ESTAB 0      0                        [::1]:2379                    [::1]:47002
-ESTAB 0      0      [::ffff:10.172.248.152]:2379  [::ffff:10.172.248.151]:39934
-ESTAB 0      0                        [::1]:47070                   [::1]:2379
-ESTAB 0      0      [::ffff:10.172.248.152]:2379  [::ffff:10.172.248.152]:48096
-ESTAB 0      0                        [::1]:45458                   [::1]:2379
-ESTAB 0      0      [::ffff:10.172.248.152]:2379  [::ffff:10.172.248.151]:38370
-ESTAB 0      0      [::ffff:10.172.248.152]:6443    [::ffff:10.130.0.129]:44530
-ESTAB 0      0                        [::1]:2379                    [::1]:56820
-ESTAB 0      0      [::ffff:10.172.248.152]:2379  [::ffff:10.172.248.151]:39832
-ESTAB 0      0                        [::1]:2379                    [::1]:45108
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master03.calix.local "ss -tnp | grep 1517"
-hsuma@plnx-admin:~$
+oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- cat /proc/net/tcp6 | head -20
+
+oc logs -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) --tail=30
+
+oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- cat /etc/vector/vector.toml 2>/dev/null | grep -A10 "syslog\|graylog\|1517"
