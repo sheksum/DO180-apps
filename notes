@@ -1,9 +1,4 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc adm policy add-cluster-role-to-user collect-infrastructure-logs system:serviceaccount:openshift-logging:cluster-logging
-clusterrole.rbac.authorization.k8s.io/collect-infrastructure-logs added: "system:serviceaccount:openshift-logging:cluster-logging"
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ cat <<EOF | oc apply -f -
+cat <<EOF | oc apply -f -
 apiVersion: observability.openshift.io/v1
 kind: ClusterLogForwarder
 metadata:
@@ -19,7 +14,7 @@ spec:
       rfc: RFC5424
       severity: informational
       facility: local6
-    url: tcp://10.172.249.33:1517
+      url: tcp://10.172.249.33:1517
   pipelines:
   - name: infra-to-graylog
     inputRefs:
@@ -27,11 +22,3 @@ spec:
     outputRefs:
     - graylog-syslog
 EOF
-The ClusterLogForwarder "instance" is invalid:
-* spec.outputs[0].syslog.url: Required value
-* <nil>: Invalid value: "null": some validation rules were not checked because the object was invalid; correct the existing errors to complete validation
-hsuma@plnx-admin:~$
-
-
-oc get pods -n openshift-logging
-oc get clusterlogforwarder -n openshift-logging
