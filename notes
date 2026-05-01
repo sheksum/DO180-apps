@@ -1,66 +1,9 @@
-[root@cpeg-ipareplica rsyslog.d]# cat ipa-logs.conf
-------------------------------------------------------------
-#Red HAT IdM (IPA) Unified Log Forwarding Configuration
-------------------------------------------------------------
-module(load="imfile")
-
-#389 Directory Server access
-input(
-  type="imfile"
-  File="/var/log/dirsrv/slapd-*/access"
-  Tag="dirsrv_access"
-  Severity="info"
-  Facility="local6"
-  readMode="2"
-  reopenOnTruncate="on"
-)
-
-#Kerberos KDC
-input(
-  type="imfile"
-  File="/var/log/krb5kdc.log"
-  Tag="krb5kdc"
-  Severity="info"
-  Facility="local6"
-  readMode="2"
-  reopenOnTruncate="on"
-)
-
-#IPA Framework / Command Audit via Apache mod_wsgi
-input(
-  type="imfile"
-  File="/var/log/httpd/error_log"
-  Tag="ipa_audit"
-  Severity="info"
-  Facility="local6"
-  readMode="2"
-  reopenOnTruncate="on"
-)
-
-#System Audit
-input(
-  type="imfile"
-  File="/var/log/audit/audit.log"
-  Tag="audit"
-  Severity="info"
-  Facility="local6"
-  readMode="2"
-  reopenOnTruncate="on"
-)
-
-#Forward to Sentinel
-action(
-  type="omfwd"
-  target="192.168.33.49"
-  port="514"
-  protocol="tcp"
-  template="RSYSLOG_SyslogProtocol23Format"
-)
-
-#Forward to Graylog
-action(
-  type="omfwd"
-  target="10.172.249.33"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get csv -A | grep logging
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc get pods -n openshift-logging
+No resources found in openshift-logging namespace.
+hsuma@plnx-admin:~$  target="10.172.249.33"
   port="1517"
   protocol="tcp"
   template="RSYSLOG_SyslogProtocol23Format"
