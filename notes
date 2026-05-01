@@ -1,2 +1,3 @@
-hsuma@plnx-admin:~$ ssh -i ~/.ssh/ocp-ai core@ocp-ai-master02.calix.local "ss -tnp | grep 1517"
-hsuma@plnx-admin:~$
+oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- cat /etc/vector/vector.toml 2>/dev/null | grep -A5 "\[sinks"
+
+oc logs -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) --tail=10 | grep -v "fingerprint"
