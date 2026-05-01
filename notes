@@ -1,5 +1,125 @@
-oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- cat /proc/net/tcp6 | head -20
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- cat /proc/net/tcp6 | head -20
+  sl  local_address                         remote_address                        st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
+   0: 00000000000000000000000000000000:5EA7 00000000000000000000000000000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 913890270 1 0000000000000000 100 0 0 10 0
+hsuma@plnx-admin:~$ oc logs -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) --tail=30
+2026-05-01T18:22:12.763930Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-frr-k8s_frr-k8s-chkgc_0bfbe13a-e75e-43d4-bc1d-064b0d1e5ff2/cp-reloader/3.log
+2026-05-01T18:22:12.764013Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-frr-k8s_frr-k8s-chkgc_0bfbe13a-e75e-43d4-bc1d-064b0d1e5ff2/frr-metrics/0.log
+2026-05-01T18:22:12.764019Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-frr-k8s_frr-k8s-chkgc_0bfbe13a-e75e-43d4-bc1d-064b0d1e5ff2/frr-metrics/1.log
+2026-05-01T18:22:12.764024Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-frr-k8s_frr-k8s-chkgc_0bfbe13a-e75e-43d4-bc1d-064b0d1e5ff2/frr-metrics/2.log
+2026-05-01T18:22:12.764030Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-frr-k8s_frr-k8s-chkgc_0bfbe13a-e75e-43d4-bc1d-064b0d1e5ff2/frr-metrics/3.log
+2026-05-01T18:22:12.764699Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-kube-controller-manager_kube-controller-manager-guard-ocp-ai-master02.calix.local_65cabf0c-0fb1-4514-9308-e6bd6a2c820e/guard/0.log
+2026-05-01T18:22:12.764730Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-marketplace_redhat-operators-hn952_c59cadd6-ead7-4c2c-bec6-c29fddab5e87/extract-content/0.log
+2026-05-01T18:22:12.764738Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-marketplace_redhat-operators-hn952_c59cadd6-ead7-4c2c-bec6-c29fddab5e87/extract-utilities/0.log
+2026-05-01T18:22:12.764764Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-kube-scheduler_openshift-kube-scheduler-guard-ocp-ai-master02.calix.local_85c9c01a-d0bd-477a-a02d-55463b8aeec2/guard/0.log
+2026-05-01T18:22:12.764871Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcd-ensure-env-vars/0.log
+2026-05-01T18:22:12.764877Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcd-ensure-env-vars/1.log
+2026-05-01T18:22:12.764883Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcd-ensure-env-vars/2.log
+2026-05-01T18:22:12.764889Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcd-ensure-env-vars/3.log
+2026-05-01T18:22:12.764895Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcd-ensure-env-vars/4.log
+2026-05-01T18:22:12.781220Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcd-resources-copy/0.log
+2026-05-01T18:22:12.781232Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcd-resources-copy/1.log
+2026-05-01T18:22:12.781238Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcd-resources-copy/2.log
+2026-05-01T18:22:12.781244Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcd-resources-copy/3.log
+2026-05-01T18:22:12.781250Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcd-resources-copy/4.log
+2026-05-01T18:22:12.781339Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcdctl/0.log
+2026-05-01T18:22:12.781359Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcdctl/1.log
+2026-05-01T18:22:12.781365Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcdctl/2.log
+2026-05-01T18:22:12.781370Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcdctl/3.log
+2026-05-01T18:22:12.781377Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-etcd_etcd-ocp-ai-master02.calix.local_f2bcb0cb47c7505cb1ea1e3cc3dd669e/etcdctl/4.log
+2026-05-01T18:22:12.781463Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-gitops_openshift-gitops-repo-server-74865656f4-2ndck_0871bded-cc93-4550-beb7-c8a6fee0427f/copyutil/0.log
+2026-05-01T18:22:12.781748Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-marketplace_community-operators-mmhz4_3b1e5d18-25d3-4783-8f52-6a5935069984/extract-content/0.log
+2026-05-01T18:22:12.781755Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-marketplace_community-operators-mmhz4_3b1e5d18-25d3-4783-8f52-6a5935069984/extract-utilities/0.log
+2026-05-01T18:22:12.782201Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-dns_node-resolver-lszq4_75ca864e-37ca-4dd8-8cb8-60e03c6c3790/dns-node-resolver/4.log
+2026-05-01T18:22:12.782324Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-ovn-kubernetes_ovnkube-node-gbblz_5d09379c-6f73-4220-83ac-5add0d7be03a/kubecfg-setup/0.log
+2026-05-01T18:22:12.782330Z  WARN vector::internal_events::file::source: Currently ignoring file too small to fingerprint. file=/var/log/pods/openshift-ovn-kubernetes_ovnkube-node-gbblz_5d09379c-6f73-4220-83ac-5add0d7be03a/kubecfg-setup/1.log
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- cat /etc/vector/vector.toml 2>/dev/null | grep -A10 "syslog\|graylog\|1517"
+  	._internal.level, err = to_syslog_level(priority)
+  	if err != null {
+  		log("Unable to determine level from PRIORITY: " + err, level: "error")
+  		log(., level: "error")
+  		._internal.level = "unknown"
+  	} else {
+  		del(._internal.PRIORITY)
+  	}
+  }
+  if exists(._internal.MESSAGE) {._internal.message = del(._internal.MESSAGE)}
+  # systemd’s kernel-specific metadata.
+--
+[transforms.pipeline_infra_to_graylog_viaq_0]
+type = "remap"
+inputs = ["input_infrastructure_container_meta","input_infrastructure_journal_meta"]
+source = '''
+   if exists(._internal.hostname) { .hostname = ._internal.hostname }
+  .log_type = ._internal.log_type
+  .log_source = ._internal.log_source
+  if exists(._internal.openshift) {.openshift = ._internal.openshift}
+  if exists(._internal.dedot_openshift_labels) {.openshift.labels = del(._internal.dedot_openshift_labels) }
+  if .log_source == "container" {
+    if exists(._internal.kubernetes.pod_name) && starts_with(string!(._internal.kubernetes.pod_name), "eventrouter-") {
+--
+  if ._internal.log_source == "syslog" && exists(._internal.structured) {. = merge!(.,._internal.structured) }
+  if ._internal.log_source == "container" && exists(._internal.structured) {.structured = ._internal.structured }
+  .timestamp = ._internal.timestamp
+  ."@timestamp" = ._internal.timestamp
+  if ._internal.log_type != "audit" && exists(._internal.level) {
+    .level = ._internal.level
+  }
+'''
 
-oc logs -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) --tail=30
+[transforms.output_graylog_syslog_parse_encoding]
+type = "remap"
+inputs = ["pipeline_infra_to_graylog_viaq_0"]
+source = '''
+._syslog.msg_id = .log_source
+if .log_type == "infrastructure" && .log_source == "node" {
+._syslog.app_name = to_string!(.systemd.u.SYSLOG_IDENTIFIER || "-")
+._syslog.proc_id = to_string!(.systemd.t.PID || "-")
+}
+if .log_source == "container" {
+._syslog.app_name, err = join([.kubernetes.namespace_name, .kubernetes.pod_name, .kubernetes.container_name], "_")
+if err != null {
+  log("K8s metadata (namespace, pod, or container) missing; syslog.appname set to '-'", level: "error")
+  ._syslog.app_name = "-"
+}
+._syslog.proc_id = to_string!(.kubernetes.pod_id || "-")
+}
+if .log_type == "audit" {
+._syslog.app_name = .log_source
+._syslog.proc_id = to_string!(.auditID || "-")
+}
+._syslog.facility = "local6"
+._syslog.severity = "informational"
+'''
 
-oc exec -n openshift-logging $(oc get pods -n openshift-logging -o name | grep collector | head -1) -- cat /etc/vector/vector.toml 2>/dev/null | grep -A10 "syslog\|graylog\|1517"
+[sinks.output_graylog_syslog]
+type = "socket"
+inputs = ["output_graylog_syslog_parse_encoding"]
+address = "10.172.249.33:1517"
+mode = "tcp"
+keepalive.time_secs = 60
+
+[sinks.output_graylog_syslog.encoding]
+codec = "syslog"
+except_fields = ["_internal"]
+rfc = "rfc5424"
+facility = "$$._syslog.facility"
+severity = "$$._syslog.severity"
+app_name = "$$._syslog.app_name"
+msg_id = "$$._syslog.msg_id"
+proc_id = "$$._syslog.proc_id"
+add_log_source = false
+
+[sinks.output_graylog_syslog.tls]
+min_tls_version = "VersionTLS12"
+ciphersuites = "TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256,ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-ECDSA-CHACHA20-POLY1305,ECDHE-RSA-CHACHA20-POLY1305,DHE-RSA-AES128-GCM-SHA256,DHE-RSA-AES256-GCM-SHA384"
+
+[transforms.add_nodename_to_metric]
+type = "remap"
+inputs = ["internal_metrics"]
+source = '''
+.tags.hostname = get_env_var!("VECTOR_SELF_NODE_NAME")
+'''
+
+hsuma@plnx-admin:~$
