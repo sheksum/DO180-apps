@@ -1,4 +1,66 @@
-Brian,
-Franklyn’s plan works. Three quick adds: set vm.swappiness=10 so swap is a safety net not primary, regenerate the swap UUID with mkswap on cloned VMs so fstab entries don’t collide, and update the SDAXOS template with the second disk so new VMs deploy with the right swap config from day one.
-Thanks,
-Haj
+update Landscape to calix.local dns domain
+
+
+
+Gathering info needed to udpate landscape FQDN and FQDN  DNS update.
+ A)   Change hostname from pln-landscape01.caal.dev to
+pln-landscape01.calix.local hostnamectl set-hostname pln-landscape01.calix.local
+B)  Edit Mail configuration and update all entries with new hostname
+/etc/postfix/main.cf and run below commands.
+sudo postmap main.cf
+sudo systemctl reload postfix
+C)  Web server configuration, disable site on old hostname and enable enable it on new hostname
+Disable site
+
+
+sudo a2dissite pln-landscape01.caal.dev
+ 
+cd /etc/apache2/sites-available
+mv pln-landscape01.caal.dev.conf pln-landscape01.calix.local.conf
+edit /etc/apache2/sites-available/pln-landscape01.calix.local.conf
+   ServerName pln-landscape01.calix.local
+   ServerAdmin webmaster@pln-landscape01.calix.local
+   ServerName pln-landscape01.calix.local
+   ServerAdmin webmaster@pln-landscape01.calix.local
+   ServerName pln-landscape01.calix.local
+   ServerAdmin webmaster@pln-landscape01.calix.local
+  Enable site
+Sudo a2dissite pln-landscape01.calix.local
+Reload new configuration
+Sudo systemctl reload apache2
+D)  Update and install TLS Certificate of the new FQDN
+Setting up  ssl certificate.
+Create .conf file
+vi landscape_server.conf
+[ req ]
+default_md = sha256
+prompt = no
+req_extensions = req_ext
+distinguished_name = req_distinguished_name
+[ req_distinguished_name ]
+commonName = vault.calix.local
+countryName = US
+stateOrProvinceName = California
+localityName = San Jose
+organizationName = Calix
+organizationalUnitName = Engineering Operations
+[ req_ext ]
+subjectAltName = @alt_names
+[ alt_names ]
+DNS.0 = pln-landscape.calix.local
+DNS.1 = pln-landscape
+Run openssl
+openssl req -new -newkey rsa:2048 -nodes -keyout landscape_server.key -out landscape_server.csr -config landscape_server.conf
+Verify csr file
+openssl req -text -noout -verify -in landscape_server.csr
+ 
+Copy output of landscape_server.crs and request 2 years certificate from certificate request center; https://corp_pki.calix.local/certsrv/certrqxt.asp
+Download certificates, convert .p7b to .pem and move to appropriate location.
+Openssl pkcs7 -print_certs -in certnew.p7b -out landscape_server.pem
+/etc/ssl/private/landscape_server.key
+/etc/ssl/certs/landscape_server.pem
+/etc/ssl/certs/landscape_server_ca.crt
+
+
+
+
