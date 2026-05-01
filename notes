@@ -1,4 +1,10 @@
-oc adm policy add-scc-to-user privileged system:serviceaccount:pai-dev:beyla
-oc delete pods -n pai-dev -l app=beyla
-sleep 15
-oc get pods -n pai-dev | grep beyla
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc adm policy add-scc-to-user privileged system:serviceaccount:pai-dev:beyla
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "beyla"
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$ oc delete pods -n pai-dev -l app=beyla
+No resources found
+hsuma@plnx-admin:~$ oc get pods -n pai-dev | grep beyla
+hsuma@plnx-admin:~$
+hsuma@plnx-admin:~$
