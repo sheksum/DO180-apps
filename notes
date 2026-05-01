@@ -1,19 +1,266 @@
-kubectl get cm -n kube-system rke2-coredns-rke2-coredns -o yaml | grep -i cidr
-# or
-kubectl cluster-info dump | grep -i "cluster-cidr\|pod-cidr" | head -5
-
-
-ansible hil_cluster -i hil-nodes.ini -b -m shell -a \
-  "sed -i 's/^allowed_hosts=.*/allowed_hosts=127.0.0.1,10.45.10.171,10.45.10.172,10.45.10.173,10.45.10.174,10.42.0.0\/16/' /etc/nagios/nrpe.cfg && systemctl restart nrpe"
-[ala.alhaji.suma@aamhillts01]~%
-[ala.alhaji.suma@aamhillts01]~% kubectl get cm -n kube-system rke2-coredns-rke2-coredns -o yaml | grep -i cidr
-[ala.alhaji.suma@aamhillts01]~%
-[ala.alhaji.suma@aamhillts01]~%
-[ala.alhaji.suma@aamhillts01]~% kubectl cluster-info dump | grep -i "cluster-cidr\|pod-cidr" | head -5
-                            "--cluster-cidr=10.42.0.0/16",
-                            "--cluster-cidr=10.42.0.0/16",
-                            "--cluster-cidr=10.42.0.0/16",
-                            "--cluster-cidr=10.42.0.0/16",
-                            "--cluster-cidr=10.42.0.0/16",
-[ala.alhaji.suma@aamhillts01]~%
-
+#	Item	Reason	Comments	Dependency	
+kindo-ai k8s Cluster Review					
+1	Design and implement HA/failover architecture for HAProxy.	High Availability / Infra	HAProxy runs as a single Docker container on one RHEL 9.7 VM, fronting the Kubernetes API and ingress. Loss of this VM immediately disrupts kubectl access and all ingress traffic. Recommended approach: active-passive pair on two RHEL VMs with Keepalived (VRRP) managing a floating VIP. Config kept in sync via git/Ansible since HAProxy is stateless for our TCP use case.	"• 1 additional RHEL 9.7 VM, identical spec, on a separate ESXi host
+• 1 VIP in the same subnet as both HAProxy VMs
+• vSwitch/portgroup with Forged Transmits and MAC Address Changes enabled (required for VRRP)
+• DRS anti-affinity rule"	
+2	Design and implement HA/failover architecture for Rancher.	High Availability / Infra	Rancher runs as a single docker run rancher/rancher container — a deployment mode SUSE explicitly does not support for HA (embedded etcd is single-writer). Loss of this VM takes the management plane offline but does not affect running workloads. HA requires migrating off Docker onto a 3-node RKE2 cluster with Rancher installed via Helm. Migration uses the Rancher backup-restore operator to snapshot and restore into the new cluster.	"• 2 additional RHEL 9.7 VMs (3 total): 4 vCPU, 16 GB RAM, 100 GB SSD-backed datastore (etcd needs <10 ms fsync)
+• DRS anti-affinity rule, no storage vMotion of running etcd nodes
+• Reuses HAProxy VIP as front door (no new VIP needed)"	
+3	Design and implement HA/failover architecture for Minio.	High Availability / Infra	MinIO runs as a single Docker container on one RHEL 9.7 VM, serving as the intended backup destination. Loss of the VM takes backups offline but does not affect running workloads. HA requires MinIO Distributed Mode with a minimum of 4 nodes, each with its own local disks — shared storage (NFS, SAN, shared vSAN) is forbidden by MinIO. Existing data migrated to the new cluster via mc mirror (no in-place upgrade path).	"• 3 additional RHEL 9.7 VMs (4 total), identical spec
+• 4 dedicated VMDKs per VM on separate datastores (16 total), identical sizing across all VMs
+• Snapshots disabled on all data disks (corrupts erasure sets)
+• DNS records minio1..4.kbai.ttmtech.com
+• DRS anti-affinity rule
+• Reuses HAProxy VIP on port 9000 (no new VIP needed)"	
+4	Add ingress authentication, enforce HTTPS, and restrict access.	Security	pgweb is reachable at pgweb.kbai.ttmtech.com with no ingress-level authentication configured. The ingress serves plain HTTP on port 80 with no TLS configuration and no redirect to HTTPS. A SQL administration console is therefore exposed to anyone on the network that can resolve the hostname, without either access control or encryption.		
+5	Configure external backup target (Cohesity/MinIO/etc.) and standardize DB backup policy.	Backup / DR	Longhorn is configured for replication but has no external backup target. Replication protects against node failure, but not against data corruption, deletion, or operator error. Zuva's Postgres instance has no backups configured, while Kindo's Postgres in the same cluster demonstrates a working backup model. The capability exists but is not consistently applied. Cohesity is already used to back up the Hillsborough Kubernetes cluster and can be extended to this cluster. Plans to be shared shortly.	"• Cohesity S3 endpoint + access credentials
+• Storage quota allocation on Cohesity for this cluster
+• Firewall rule: cluster egress → Cohesity endpoint"	
+6	Implement baseline/restricted pod security standards.	Security	Pod Security Admission is configured but set to privileged. In practice, this means no meaningful pod-level security enforcement is in place. A large number of workloads are running without restrictions, increasing the blast radius in the event of compromise.		
+7	Configure cert-manager for automated certificate issuance/renewal.	Certificate Management	cert-manager is installed but not configured with any Issuer or ClusterIssuer. Certificate resources exist but are not being processed. TLS is currently handled through a manually distributed DigiCert wildcard certificate deployed across multiple namespaces. This certificate expires August 30, 2026 and must be renewed manually. All ingress depends on one manually managed certificate with no automated renewal path.	"One of the following, depending on chosen issuer:
+• Internal ACME/CA endpoint + trust bundle, OR
+• DNS API credentials for the ttmtech.com zone (for ACME DNS-01 challenge), OR
+• Egress firewall rule to a public ACME endpoint (e.g., Let's Encrypt)
+• If none of the above: continued manual DigiCert wildcard renewal before Aug 30, 2026"	
+8	Move Kafka to persistent volumes with backup strategy.	Data Persistence	Kafka brokers are using ephemeral storage. Replication is configured correctly but does not protect against a cluster-wide restart (planned or otherwise). In that scenario all brokers come back empty, leading to complete loss of topic data, including in-flight pipeline state.		
+9	Move/replicate model weights to persistent shared storage.	Data Protection	Approximately 580 GB of model weights are stored on the GPU node's local disk under a path that suggests Longhorn, but is not managed by it. These files are not replicated and not backed up. Loss of the node would require re-downloading large datasets during an outage.	"• ~1 TB additional storage allocation (VMDK or shared datastore), OR
+• NFS / shared datastore mount accessible to GPU node(s) if Longhorn is not suitable for this size"	Revisit
+10	Add multi-replica deployments and autoscaling policies.	Scalability	Core Kindo services are deployed as single replicas with no autoscaling, despite vendor guidance recommending multi-replica and HPA-based scaling. The same applies to several third-party services that are stateless and designed to scale horizontally. Some Zuva workloads are already multi-replica, highlighting that this is a deployment standardization gap, not a technical limitation.	• Possibly 1–2 additional worker VMs if capacity audit shows insufficient headroom (otherwise none)	
+11	Implement PDBs for critical workloads.	Availability	There are no PodDisruptionBudgets across the cluster. During routine maintenance such as node drains, all replicas of a service can be evicted at once. Even multi-replica workloads are not protected from disruption.		
+12	Review and automate HAProxy configuration sync/update.	Config Management	The HAProxy configuration is out of date. It references workers that do not exist and omits active ones currently handling ingress. As a result, only part of the cluster receives traffic, and the stats page shows persistent backend failures. Cluster changes are not being reflected in the load balancer configuration.		
+13	Standardize versions and complete upgrade cycle.	Platform Stability	Worker nodes are running mixed RKE2 versions, and kernel versions are not consistent. This leaves the cluster in a partially upgraded state.	"• Approved maintenance windows for rolling node reboots
+• Updated RHEL 9.7 VM template with the standardized kernel for future node provisioning"	
+14	Evaluate and implement GitOps tooling (ArgoCD/Flux).	DevOps / Governance	All deployments are performed manually via kubectl or Helm. There is no centralized source of truth, no drift detection, no audit trail, and no automated rollback capability. A GitOps pattern already exists in the Hillsborough cluster and could be extended here.	"• 3 additional RHEL 9.7 VMs for a dedicated ArgoCD RKE2 cluster (combined server-role nodes — full HA with etcd quorum, all schedulable): 8 vCPU, 16 GB RAM, 100 GB SSD-backed OS disk each
+• Second 100 GB SSD-backed VMDK per node, mounted at /var/lib/longhorn (separate disk required by Longhorn; provides ~100 GB usable replicated storage cluster-wide with room to grow)
+• 1 additional RHEL 9.7 VM for a dedicated HAProxy fronting the ArgoCD cluster (or reuse the HA HAProxy pair from item 1 if available)
+• 1 VIP for the ArgoCD cluster ingress (if standing up dedicated HAProxy)
+• DNS record for ArgoCD UI/API (e.g., argocd.kbai.ttmtech.com) pointing at the ingress VIP
+• TLS certificate for the ArgoCD hostname — either a DigiCert wildcard slot, or a cert provider integration (internal ACME/CA endpoint, or DNS API access for ttmtech.com zone) so cert-manager can issue/renew automatically
+• Dedicated non-expiring GitLab PAT (read_repository scope minimum) for ArgoCD to authenticate against the GitLab repos holding cluster manifests
+• DRS anti-affinity rule pinning the 3 RKE2 nodes to separate ESXi hosts"	
+15	Expand namespace-level NetworkPolicies.	Network Security	Only the sandbox namespace enforces NetworkPolicy. All other namespaces operate with default-allow behavior. The sandbox implementation demonstrates a strong model that has not been applied elsewhere.		
+16	Enable External Secrets operator and integrate secret manager.	Secrets Management	Secrets are stored as raw Kubernetes Secrets and injected directly into workloads. An External Secrets pattern exists but is not active. The operator is deployed at zero replicas and not reconciling resources. A centralized secrets management approach is expected for production environments.	"• Secret manager backend provisioned (Vault, CyberArk, etc.) — endpoint URL + auth credentials
+• Firewall rule: cluster egress → secret manager endpoint"	
+					
+Kubernetes Cluster Review: Commercial					
+1	Add ingress authentication and enable HTTPS/TLS	Security	pgweb is reachable at pgweb.kbai.ttm.com with no ingress-level authentication configured and no TLS. Same pattern observed in the Restricted environment. A SQL administration console is reachable on the network without access control or encryption.		
+2	Restrict access and enforce authentication/TLS	Security	The Longhorn management UI is exposed at longhorn.kbai.ttm.com on plain HTTP with no ingress-level authentication. Anyone reaching the URL has full access to volume management, including delete and detach operations. Note: this exposure was previously raised by you (Jim) and closed in the Restricted environment but remains open here.		
+3	Apply wildcard cert or configure TLS for all ingresses	Security	Of fifteen ingresses on the cluster, only three have TLS configuration in their spec (kindo-deps/minio-s3, unleash, unleash-edge). The remaining twelve, including the api, next, ssoready, pgweb, longhorn, nango, and text-embeddings ingresses, serve plain HTTP. The Restricted environment has a DigiCert wildcard certificate deployed across most namespaces; that pattern has not been applied here.	"• DigiCert wildcard cert for *.kbai.ttm.com (separate cert from Restricted environment), OR
+• Cert provider integration (see item 11) so cert-manager can issue/renew automatically"	
+4	Implement restricted/baseline pod security policies	Security / Compliance	Pod Security Admission is configured but set to privileged. Same defanged hardening as the Restricted environment. 64 pods in user namespaces do not enforce non-root execution. ssoready in particular runs all four of its pods as privileged.		
+5	Integrate Cohesity or external backup target	Backup / DR	Longhorn is configured for replication but has no external backup target set. 86 volumes rely solely on three-way replication. Replication protects against node failure but not against data corruption, accidental deletion, or operator error. As with the Restricted environment, Cohesity is the planned backup mechanism for this cluster, and plans to wire that integration in will be shared shortly.	"• Cohesity S3 endpoint + access credentials (separate from Restricted environment due to isolation)
+• Storage quota allocation on Cohesity for the Commercial cluster
+• Firewall rule: Commercial cluster egress → Cohesity endpoint"	
+6	Add multi-replica deployments and HPAs	Scalability	Core Kindo services are deployed as single replicas with no autoscaling, despite Kindo's deployment documentation recommending multi-replica and HPA-based scaling. The same applies to several third-party services (Cerbos, Hatchet, Presidio) that are stateless and designed to scale horizontally.	• Possibly 1–2 additional worker VMs if capacity audit shows insufficient headroom (otherwise none)	
+7	Move to persistent / replicated storage	Data Protection	Approximately 580+ GB of model weights for the four inference workloads (deephat-v2, gemma4, glm-flash, qwen3.5) are stored on the GPU node's local disk under paths that suggest Longhorn but are not managed by it. The files are not replicated and not backed up. Loss of the GPU node would require re-downloading large datasets during an outage.	"• ~1 TB additional storage allocation (VMDK or shared datastore), OR
+• NFS / shared datastore mount accessible to GPU node(s) if Longhorn is not suitable for this size"	
+8	Fix image issue and restore Sentinel replicas	Availability	The redis-sentinel-sentinel StatefulSet has been at 0/3 replicas for 57 days due to ImagePullBackOff. The base Redis StatefulSet is healthy at 3/3, so reads and writes to the current primary continue to work, but Sentinel-driven automatic failover is not functioning. If the Redis primary fails, no automatic election will occur.	TBD	
+9	Investigate failed revisions and restore functionality	Secrets Management	The kindo-secrets Helm release in the kindo-system namespace has been at status failed across multiple revisions. This is a Kindo-managed secrets bootstrap chart and its failure indicates the secrets-management workflow is incomplete. Worth confirming what this chart is intended to do and why it is failing.		
+10	Enable External Secrets operator	Secrets Management	Same pattern as the Restricted environment: ExternalSecret resources may exist but the External Secrets operator is deployed at zero replicas and not reconciling. Secrets across the cluster are stored as raw Kubernetes Secrets and injected directly into workloads. A centralized secrets management approach is expected for production environments	"• Secret manager backend provisioned for Commercial (separate from Restricted due to isolation) — endpoint URL + auth credentials
+• Firewall rule: Commercial cluster egress → secret manager endpoint"	
+11	Configure Issuer / ClusterIssuer for auto-renewal	Certificate Management	cert-manager is installed but not configured with any Issuer or ClusterIssuer. Certificate resources are not being processed. Combined with the TLS gap on most ingresses, the cluster has no automated certificate-handling pipeline today.	"One of the following, depending on chosen issuer:
+• Internal ACME/CA endpoint + trust bundle, OR
+• DNS API credentials for the ttm.com zone (for ACME DNS-01 challenge), OR
+• Egress firewall rule to a public ACME endpoint (e.g., Let's Encrypt)
+• If none of the above: continued manual DigiCert wildcard renewal"	
+12	Evaluate ArgoCD / Flux / Fleet for deployments	DevOps / Governance	All deployments are performed manually via kubectl or Helm. Fleet, Flux, and Argo CD are all absent. The fleet-agent pod present in cattle-fleet-system is the downstream registration agent for Rancher, not a GitOps engine. There is no centralized source of truth, no drift detection, no audit trail, and no automated rollback capability. 	"• 3 additional RHEL 9.7 VMs for a dedicated Commercial ArgoCD RKE2 cluster (combined server-role nodes — full HA with etcd quorum, all schedulable): 8 vCPU, 16 GB RAM, 100 GB SSD-backed OS disk each
+• Second 100 GB SSD-backed VMDK per node, mounted at /var/lib/longhorn (separate disk required by Longhorn; ~100 GB usable replicated storage cluster-wide)
+• 1 additional RHEL 9.7 VM for a dedicated HAProxy fronting the Commercial ArgoCD cluster
+• 1 VIP for the ArgoCD cluster ingress
+• DNS record for ArgoCD UI/API (e.g., argocd.kbai.ttm.com) pointing at the ingress VIP
+• TLS certificate for the ArgoCD hostname (separate from Restricted) — DigiCert wildcard slot, or cert provider integration so cert-manager can issue/renew
+• Dedicated non-expiring GitLab PAT (read_repository scope minimum) for the Commercial ArgoCD (separate token from Restricted ArgoCD due to isolation)
+• DRS anti-affinity rule pinning the 3 RKE2 nodes to separate ESXi hosts
+• Note: must be a dedicated Commercial-side ArgoCD — the Restricted ArgoCD cannot reach this isolated environment"	
+13	Expand sandbox model to all namespaces	Network Security	Only the sandbox namespace enforces meaningful NetworkPolicy. The other 49 namespaces operate with default-allow behavior. The sandbox implementation is well designed (default-deny egress with per-sandbox allow rules) and demonstrates a pattern that could be extended elsewhere.		
+14	Investigate and remediate stuck PV attachments	Storage / Infra	VolumeFailedDelete events on PVs in the default namespace continue to fire periodically, all citing PVs still attached to camslc4kbw03. The same stuck cleanup loop pattern observed in the Restricted environment. Not service-impacting today but accumulating dirty state.	"• VMware-side confirmation that camslc4kbw03 is fully decommissioned
+• Force-detach of stale VMDKs from VMware side once the node is confirmed gone"	
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
