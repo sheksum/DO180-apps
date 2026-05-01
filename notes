@@ -1,13 +1,1 @@
-hsuma@plnx-admin:~$
-hsuma@plnx-admin:~$ oc get daemonset instance -n openshift-logging -o yaml | grep -A5 tolerations
-      tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
-        operator: Exists
-      - effect: NoSchedule
-        key: node.kubernetes.io/disk-pressure
-hsuma@plnx-admin:~$ oc logs -n openshift-logging $(oc get pods -n openshift-logging -l component=collector -o name | head -1) --tail=20
-error: expected 'logs [-f] [-p] (POD | TYPE/NAME) [-c CONTAINER]'.
-POD or TYPE/NAME is a required argument for the logs command
-See 'oc logs -h' for help and examples
-hsuma@plnx-admin:~$
+oc logs -n openshift-logging $(oc get pods -n openshift-logging -o name | grep instance | head -1) --tail=20
