@@ -1,19 +1,32 @@
-Closing Task 13 — Logging.
+Brian Wing  [2:26 PM]
+@gene.siepka I'm not sure what we'll need to address this with Openshift K8S, but need to evaluate https://copy.fail/
+XintCopy Fail — 732 Bytes to RootCVE-2026-31431. 100% Reliable Linux LPE — no race, no per-distro offsets, page-cache write that bypasses on-disk file-integrity tools and crosses containers. Found by Xint Code.https://copy.fail/Gene Siepka  [2:34 PM]
+Openshift nodes are RHCOS, not RHEL Proper, but still affected.   RHCOS is like immutable OS, only changes can be applied via code / reboot..  @haj.suma correct me if I'm wrong.
 
-13.1 Deploy logging stack — Complete. Installed the Red Hat OpenShift Logging Operator (v6.3.0) in the openshift-logging namespace with Manual install plan approval. Vector-based collector deployed as a DaemonSet across all 5 nodes (3 masters + 2 GPU workers). GPU worker collectors required the nvidia.com/gpu toleration and a memory limit increase to 4Gi to avoid OOMKills due to higher log volume on those nodes.
+We'd have to apply this MachineConfig and reboot each node. (courtesy of /r/openshift)
 
-13.2 Configure persistent storage — Not required. The collector runs as a stateless forwarder shipping logs directly to Graylog. No on-cluster log storage is deployed. Vector uses a host-path checkpoint directory at /var/lib/vector/openshift-logging/collector for delivery tracking.
-
-13.3 Define retention policies — Managed on the Graylog side. Retention and rotation policies are configured on the Graylog server (plnx-graylog, 10.172.249.33), not on the cluster.
-
-13.4 Configure log forwarding — Complete. ClusterLogForwarder CR (name: collector) configured to forward infrastructure logs to Graylog at 10.172.249.33:1517 via TCP syslog (RFC5424). Facility set to local6 to match existing Graylog inputs used by other systems like IPA. Logs confirmed flowing via tcpdump on the Graylog server. All infrastructure container logs and node journal logs from all 5 nodes are being forwarded.
-
-Note: Initially installed the 6.5 operator but it had a bug where it injected a TLS config block into the Vector sink even for plain TCP URLs, preventing log delivery. Downgraded to 6.3 which handles tcp:// correctly without TLS injection. Subscription set to Manual approval to prevent auto-upgrades.
-
-Components deployed:
-- Operator: Red Hat OpenShift Logging v6.3.0
-- Collector: Vector (DaemonSet, 5 pods)
-- Service Account: cluster-logging with collect-infrastructure-logs ClusterRole
-- Output: Graylog syslog TCP 10.172.249.33:1517 (RFC5424, facility local6)
-
-Task closed.
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 99-mitigate-cve-2026-31431-master
+  labels:
+    machineconfiguration.openshift.io/role: master
+spec:
+  config:
+    ignition:
+      version: 3.4.0
+  kernelArguments:
+    - initcall_blacklist=algif_aead_init
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 99-mitigate-cve-2026-31431-worker
+  labels:
+    machineconfiguration.openshift.io/role: worker
+spec:
+  config:
+    ignition:
+      version: 3.4.0
+  kernelArguments:
+    - initcall_blacklist=algif_aead_init
