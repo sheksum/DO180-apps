@@ -1,7 +1,24 @@
-Gene's right, RHCOS is still affected. The kernel argument approach is the correct mitigation — it blacklists the vulnerable af_alg AEAD init function at boot so the module never loads.
+Need Beyla to be installed as daemonset with privileged access
 
-One thing to change — the Ignition version should be 3.5.0 to match our existing MachineConfigs, not 3.4.0. Using a different version can cause RenderDegraded on the MCP.
 
-Nothing on the cluster uses AF_ALG AEAD sockets so there's no functional impact from disabling it.
 
-This will trigger a rolling reboot across all nodes. I'd recommend we apply it during or right after the Nexus maintenance window on April 11 so we don't take two separate rolling reboots.
+
+
+
+
+
+
+ATHIRA JAYACHANDRAN
+raised this request
+via
+Portal
+
+Hide details
+View request in portal
+Resources Needed
+
+
+Others
+Description
+
+Error creating: pods "beyla-" is forbidden: unable to validate against any security context constraint: [provider "anyuid": Forbidden: not usable by user or serviceaccount, provider restricted-v2: .spec.securityContext.hostNetwork: Invalid value: true: Host network is not allowed to be used, provider restricted-v2: .spec.securityContext.hostPID: Invalid value: true: Host PID is not allowed to be used, spec.volumes[1]: Invalid value: "hostPath": hostPath volumes are not allowed to be used, provider restricted-v2: .containers[0].privileged: Invalid value: true: Privileged containers are not allowed, provider restricted-v2: .containers[0].hostNetwork: Invalid value: true: Host network is not allowed to be used, provider restricted-v2: .containers[0].containers[0].hostPort: Invalid value: 9090: Host ports are not allowed to be used, provider restricted-v2: .containers[0].hostPID: Invalid value: true: Host PID is not allowed to be used, provider "restricted-v3": Forbidden: not usable by user or serviceaccount, provider "restricted": Forbidden: not usable by user or serviceaccount, provider "nested-container": Forbidden: not usable by user or serviceaccount, provider "nonroot-v2": Forbidden: not usable by user or serviceaccount, provider "nonroot": Forbidden: not usable by user or serviceaccount, provider "hostmount-anyuid": Forbidden: not usable by user or serviceaccount, provider "trident-controller": Forbidden: not usable by user or serviceaccount, provider "hostmount-anyuid-v2": Forbidden: not usable by user or serviceaccount, provider "machine-api-termination-handler": Forbidden: not usable by user or serviceaccount, provider "hostnetwork-v2": Forbidden: not usable by user or serviceaccount, provider "hostnetwork": Forbidden: not usable by user or serviceaccount, provider "hostaccess": Forbidden: not usable by user or serviceaccount, provider "nfd-worker": Forbidden: not usable by user or serviceaccount, provider "nfd-topology-updater": Forbidden: not usable by user or serviceaccount, provider "insights-runtime-extractor-scc": Forbidden: not usable by user or serviceaccount, provider "nvidia-driver": Forbidden: not usable by user or serviceaccount, provider "nvidia-gpu-feature-discovery": Forbidden: not usable by user or serviceaccount, provider "nvidia-mig-manager": Forbidden: not usable by user or serviceaccount, provider "nvidia-node-status-exporter": Forbidden: not usable by user or serviceaccount, provider "nvidia-operator-validator": Forbidden: not usable by user or serviceaccount, provider "trident-node-linux": Forbidden: not usable by user or serviceaccount, provider "nvidia-dcgm-exporter": Forbidden: not usable by user or serviceaccount, provider "node-exporter": Forbidden: not usable by user or serviceaccount, provider "nvidia-dcgm": Forbidden: not usable by user or serviceaccount, provider "privileged": Forbidden: not usable by user or serviceaccount]
